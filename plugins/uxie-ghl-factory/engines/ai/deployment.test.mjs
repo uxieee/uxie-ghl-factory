@@ -115,3 +115,14 @@ test('verify: the target must equal the intent', () => {
   const v = verifyDeployment(t, after, intent(), 'w1');
   assert.equal(v.verified, false); assert.deepEqual(v.mismatches, ['includeTags']);
 });
+
+test('measured 2026-09-29: a POST that drops an EMPTY list (excludeTags: [] stored absent) still verifies, and a later update does not call it changed', async () => {
+  const drop = (t) => t.map((x) => { if (!x.id.startsWith('new')) return x; const { excludeTags, ...rest } = x; return excludeTags?.length ? x : rest; });
+  const gw = fakeGw({ tamper: drop });
+  const i = compileDeploymentIntent({ agentId: 'ME', channel: 'Email', enabled: false, includeTags: ['probe'] });
+  const r = await executeDeployment({ gw, locationId: 'L', intent: i, confirm: true });
+  assert.equal('excludeTags' in gw.table().find((x) => x.id === 'new1'), false);
+  assert.equal(r.ok, true); assert.deepEqual(r.verification.mismatches, []); assert.deepEqual(r.verification.row.excludeTags, []);
+  const u2 = planDeployment(gw.table(), compileDeploymentIntent({ agentId: 'ME', channel: 'Email', enabled: false, includeTags: ['probe'], includeTagsOperator: 'OR' }), { locationId: 'L' });
+  assert.deepEqual(u2.changed, ['includeTagsOperator']);
+});

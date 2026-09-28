@@ -21,6 +21,10 @@ export const FORCED_ALL = new Set(['Email', 'WebChat']);
 const OPERATORS = ['AND', 'OR'];
 // The keys the editor sends on save (the full row); POST adds the identity keys.
 export const ROW_KEYS = ['enabled', 'allIdentifiers', 'specificIdentifiers', 'includeTags', 'includeTagsOperator', 'excludeTags', 'excludeTagsOperator'];
+// 🔴 Measured 2026-09-29: a POST with an EMPTY list stores the row WITHOUT that key (excludeTags: [] came back absent),
+// while a PATCH with [] stores []. So an absent list means []: every comparison reads the lists through this.
+const LIST_KEYS = new Set(['specificIdentifiers', 'includeTags', 'excludeTags']);
+const val = (r, k) => (r?.[k] === undefined && LIST_KEYS.has(k) ? [] : r?.[k] ?? null);
 
 class DeployError extends Error { constructor(message) { super(message); this.code = 'VALIDATION_FAILED'; } }
 const strings = (v, name) => {
@@ -85,12 +89,12 @@ export function planDeployment(rows, intent, { locationId }) {
     return { action: 'create', method: 'POST', path: DEPLOY_PATH, body: { locationId, ...intent.identity, ...intent.row }, collisions, othersCount: rows.length };
   }
   const cur = mine[0];
-  const changed = ROW_KEYS.filter((k) => JSON.stringify(cur[k] ?? null) !== JSON.stringify(intent.row[k]));
+  const changed = ROW_KEYS.filter((k) => JSON.stringify(val(cur, k)) !== JSON.stringify(intent.row[k]));
   if (!changed.length) return { action: 'noop', rowId: cur.id, collisions, othersCount: rows.length - 1 };
   return { action: 'update', method: 'PATCH', path: `${DEPLOY_PATH}/${encodeURIComponent(cur.id)}`, rowId: cur.id, body: { ...intent.row }, changed, before: pick(cur), collisions, othersCount: rows.length - 1 };
 }
 
-const pick = (r) => Object.fromEntries(ROW_KEYS.map((k) => [k, r[k]]));
+const pick = (r) => Object.fromEntries(ROW_KEYS.map((k) => [k, val(r, k)]));
 const canon = (v) => (Array.isArray(v) ? v.map(canon) : v && typeof v === 'object'
   ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v);
 const same = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
@@ -99,7 +103,7 @@ const same = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
 export function verifyDeployment(beforeRows, afterRows, intent, targetId) {
   const target = targetId ? afterRows.find((r) => r.id === targetId) : afterRows.filter((r) => sameTarget(r, intent.identity));
   const row = Array.isArray(target) ? (target.length === 1 ? target[0] : null) : target;
-  const mismatches = row ? ROW_KEYS.filter((k) => JSON.stringify(row[k] ?? null) !== JSON.stringify(intent.row[k])) : ['row not found after the write'];
+  const mismatches = row ? ROW_KEYS.filter((k) => JSON.stringify(val(row, k)) !== JSON.stringify(intent.row[k])) : ['row not found after the write'];
   const byId = new Map(afterRows.map((r) => [r.id, r]));
   const others = beforeRows.filter((r) => r.id !== row?.id);
   const changedOthers = others.filter((r) => !byId.has(r.id) || !same(r, byId.get(r.id))).map((r) => r.id);
