@@ -15,7 +15,7 @@ import { numberFormatterFieldTypes, isZeroSkip } from './lints/formatter-skips.m
 import { enforceRequiredFields, INNER_ATTRIBUTE_TYPE } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
 import { enforceTemplates } from './enforce.mjs';
-import { checkStepRefs } from './graph-refs.mjs';
+import { checkStepRefs, resolveAuthoredStepRefs } from './graph-refs.mjs';
 import { applyUiDefaults } from './ui-defaults.mjs';
 import { checkIfElseVocab } from './ifelse-vocab.mjs';
 import { checkMergeTags } from './merge-tags.mjs';
@@ -2670,6 +2670,8 @@ export function compile(ir, ctx) {
         + `Remove them, target a contact workflow instead, or pass skipObjectRules: true.`);
     for (const tb of []) void tb;
   }
+  // Authored ref names in wait jump/reply fields → the minted step ids (graph-refs.mjs).
+  resolveAuthoredStepRefs(templates, refMap);
   enforceTemplates(templates, ctx?.catalog, ctx);
   // Same chokepoint, third class: every intra-workflow step reference must resolve. The goto
   // emit above already throws with the authored ref name; this sweep catches every OTHER path
