@@ -36,6 +36,9 @@ detail page shows Activity and a **Memory** tab marked "SOON".
 | `PUT` | `/agent-studio/super-agent/agents/:id` | Update — **whole-object replace** |
 | `GET` | `/agent-studio/super-agent/agents/:id?locationId=` | Fetch one |
 | `GET` | `/agent-studio/super-agent/agents/:id/activity?locationId=` | Trigger/chat run log |
+| `POST` | `/agent-studio/super-agent/agents/:id/publish` | `{locationId}` → `status: "published"`; arms the triggers, mints a `triggerId` on each (proven live) |
+| `POST` | `/agent-studio/super-agent/agents/:id/unpublish` | `{locationId}` → back to `draft`, `hasPublishedVersion: false`; triggers stop (proven live) |
+| `POST` | `/agent-studio/super-agent/agents/:id/test` | test panel on a PUBLISHED agent: `{message, locationId, sessionId?}` → SSE `reasoning_delta` / `text_delta` / `completed {finalText, sessionId}`; uses one of 30 test runs a month (proven live) |
 | `POST` | `/agent-studio/agents/anton/session` | builder-chat session — note `anton` is the **flow** builder's runtime; the Managed-Agent editor fires this on open (a write-on-open) and only reads history from it |
 | `POST` | `/agent-studio/super-agent/agents` | the product's own Save: `{locationId, agencyId, builderSessionId, config, folderId?}` (*bundle*; not yet used by this plugin) |
 | `DELETE` | `/agent-studio/super-agent/agents/:id?locationId=` | Delete → `{success:true}` |
