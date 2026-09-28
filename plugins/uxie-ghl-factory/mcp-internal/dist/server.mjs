@@ -176,7 +176,7 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-25",
+      generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
       count: 1178,
       endpoints: [
@@ -172701,7 +172701,7 @@ function normalizeMode(mode) {
   return typeof mode === "string" && MODE_ALIASES.has(mode) ? MODE_ALIASES.get(mode) : mode;
 }
 var BOT_TYPES = ["PROMPT_BASED_BOT", "FLOW_BUILDER_BOT", "FORM_BASED_BOT"];
-var CHANNELS = ["SMS", "IG", "FB", "WebChat", "Live_Chat", "WhatsApp"];
+var CHANNELS = ["SMS", "IG", "FB", "WebChat", "Live_Chat", "WhatsApp", "TIKTOK", "Email", "GMB"];
 function assertNonEmptyString(v, field) {
   if (typeof v !== "string" || v.length === 0) throw new IRError2("SCHEMA", `${field} must be a non-empty string`);
 }
@@ -172716,11 +172716,40 @@ function checkTones(tones) {
 function checkSummary(summary) {
   if (summary === void 0) return;
   if (!summary || typeof summary !== "object" || Array.isArray(summary)) throw new IRError2("SCHEMA", "summary must be an object");
+  if (summary.minimumMessages !== void 0 && (!Number.isInteger(summary.minimumMessages) || summary.minimumMessages < 3 || summary.minimumMessages > 100)) {
+    throw new IRError2("SCHEMA", `summary.minimumMessages must be an integer from 3 to 100 (server-enforced), got ${JSON.stringify(summary.minimumMessages)}`);
+  }
   if (summary.workflowIds !== void 0 && !Array.isArray(summary.workflowIds)) {
     throw new IRError2("SCHEMA", "summary.workflowIds must be an array \u2014 NOTE: the picker offers PUBLISHED workflows only, and the index lags a publish by about a minute");
   }
   if (summary.customFieldId !== void 0 && typeof summary.customFieldId !== "string") {
     throw new IRError2("SCHEMA", "summary.customFieldId must be a string (a contact custom-field id)");
+  }
+}
+var RESPONSE_LENGTHS = ["concise", "balanced", "detailed"];
+function checkResponseStyle(ir) {
+  if (ir.responseLength !== void 0 && !RESPONSE_LENGTHS.includes(ir.responseLength)) {
+    throw new IRError2("SCHEMA", `responseLength must be one of ${RESPONSE_LENGTHS.join(", ")}, got ${JSON.stringify(ir.responseLength)}`);
+  }
+  if (ir.aiResponseLengthEnabled !== void 0 && typeof ir.aiResponseLengthEnabled !== "boolean") {
+    throw new IRError2("SCHEMA", "aiResponseLengthEnabled must be a boolean");
+  }
+}
+function checkLlm(llm) {
+  if (llm === void 0) return;
+  if (!llm || typeof llm !== "object" || Array.isArray(llm)) throw new IRError2("SCHEMA", "llm must be an object {primary, secondary}");
+  for (const k of Object.keys(llm)) {
+    if (k !== "primary" && k !== "secondary") throw new IRError2("SCHEMA", `llm.${k} is not a field; llm takes primary and secondary`);
+    if (typeof llm[k] !== "string" || !llm[k]) throw new IRError2("SCHEMA", `llm.${k} must be a non-empty model id string`);
+  }
+  if (llm.primary && llm.primary === llm.secondary) {
+    throw new IRError2("SCHEMA", "llm.primary and llm.secondary cannot be the same model (server-enforced)");
+  }
+}
+function checkBusinessName(name) {
+  if (name === void 0) return;
+  if (typeof name !== "string" || !name.trim()) {
+    throw new IRError2("SCHEMA", 'businessName must be a non-empty string: GHL answers 200 to "" and keeps the old name, so it cannot be cleared over this rail');
   }
 }
 function checkMode(mode) {
@@ -172787,6 +172816,9 @@ function parseConvaiIR(ir) {
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkBotType(ir.botType);
   checkFlowFields(ir);
+  checkResponseStyle(ir);
+  checkLlm(ir.llm);
+  checkBusinessName(ir.businessName);
   return { ...ir, mode: normalizeMode(ir.mode) };
 }
 function parseConvaiPartialIR(ir) {
@@ -172802,6 +172834,9 @@ function parseConvaiPartialIR(ir) {
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkBotType(ir.botType);
   checkFlowFields(ir);
+  checkResponseStyle(ir);
+  checkLlm(ir.llm);
+  checkBusinessName(ir.businessName);
   return ir.mode !== void 0 ? { ...ir, mode: normalizeMode(ir.mode) } : { ...ir };
 }
 
@@ -172827,10 +172862,11 @@ function defaultSummary() {
 function buildCreateBody(ir, { locationId }) {
   const wait = ir.wait ?? {};
   const sleep = ir.sleep ?? {};
+  const style = responseStyleFields(ir);
   return {
     locationId,
     employeeName: ir.name,
-    businessName: "",
+    businessName: ir.businessName ?? "",
     mode: ir.mode,
     channels: ir.channels,
     isPrimary: false,
@@ -172853,7 +172889,7 @@ function buildCreateBody(ir, { locationId }) {
     botType: ir.botType ?? "PROMPT_BASED_BOT",
     knowledgeBaseIds: ir.knowledgeBaseIds ?? [],
     knowledgeBaseTriggers: [],
-    summary: { ...defaultSummary(), ...ir.summary ?? {} },
+    summary: mergeSummary(defaultSummary(), ir.summary),
     respondToImages: ir.respondToImages ?? false,
     respondToAudio: ir.respondToAudio ?? false,
     // Flow-Based Builder linkage. A FLOW_BUILDER_BOT's logic lives in a workflow whose
@@ -172863,9 +172899,34 @@ function buildCreateBody(ir, { locationId }) {
     // here too lets a caller create an already-linked agent when the workflow id is known.
     objectiveBuilderWorkflowId: ir.objectiveBuilderWorkflowId ?? "",
     isObjectiveBuilderEnabled: ir.isObjectiveBuilderEnabled ?? false,
-    aiResponseLengthEnabled: false,
-    responseLength: "balanced"
+    aiResponseLengthEnabled: style.aiResponseLengthEnabled ?? false,
+    responseLength: style.responseLength ?? "balanced",
+    // Only when authored: applyBotTypeCleanup drops an empty llm, and the server picks its default.
+    ...ir.llm ? { llm: { ...ir.llm } } : {}
   };
+}
+function responseStyleFields(ir) {
+  const out = {};
+  if (ir.responseLength !== void 0) out.responseLength = ir.responseLength;
+  if (ir.aiResponseLengthEnabled !== void 0) out.aiResponseLengthEnabled = ir.aiResponseLengthEnabled;
+  else if (ir.responseLength !== void 0) out.aiResponseLengthEnabled = true;
+  return out;
+}
+function mergeSummary(base, patch) {
+  if (patch === void 0) return base;
+  const b = base && typeof base === "object" && !Array.isArray(base) ? base : {};
+  const merged = { ...b, ...patch };
+  if (patch.emailNotifications !== void 0) {
+    merged.emailNotifications = { ...b.emailNotifications ?? {}, ...patch.emailNotifications };
+  }
+  if (patch.inactivity !== void 0) merged.inactivity = { ...b.inactivity ?? {}, ...patch.inactivity };
+  if (merged.enabled === true && !(Array.isArray(merged.workflowIds) && merged.workflowIds.length > 0)) {
+    throw new IRError2(
+      "SCHEMA",
+      "an enabled summary needs summary.workflowIds with at least one PUBLISHED workflow id (a UUID): the server refuses the enable without one. The picker offers published workflows only."
+    );
+  }
+  return merged;
 }
 var HANDOVER_TYPES = ["contactRequest", "lackOfInformation", "failedToResolveIssue", "custom"];
 var HUMAN_HANDOVER_DETAIL_DEFAULTS = {
@@ -172960,7 +173021,14 @@ var STOP_BOT_DETAIL_DEFAULTS = {
   tags: ["stop bot"]
 };
 function buildStopBotDetails(details) {
-  return { ...STOP_BOT_DETAIL_DEFAULTS, ...details };
+  const merged = { ...STOP_BOT_DETAIL_DEFAULTS, ...details };
+  if (!Array.isArray(merged.stopBotExamples) || merged.stopBotExamples.length < 2) {
+    throw new IRError2(
+      "SCHEMA",
+      `stopBot action.details.stopBotExamples needs at least 2 examples (server-enforced), got: ${JSON.stringify(merged.stopBotExamples)}`
+    );
+  }
+  return merged;
 }
 var TRANSFER_BOT_DETAIL_DEFAULTS = {
   transferBotExamples: [],
@@ -173092,7 +173160,11 @@ var UPDATE_FIELD_MAP = {
   respondToAudio: "respondToAudio",
   botType: "botType",
   isObjectiveBuilderEnabled: "isObjectiveBuilderEnabled",
-  objectiveBuilderWorkflowId: "objectiveBuilderWorkflowId"
+  objectiveBuilderWorkflowId: "objectiveBuilderWorkflowId",
+  businessName: "businessName",
+  llm: "llm",
+  responseLength: "responseLength",
+  aiResponseLengthEnabled: "aiResponseLengthEnabled"
 };
 var FLOW_ONLY_KEYS = ["cancelEnabled", "rescheduleEnabled", "tones"];
 var NON_FORM_KEYS = ["skipIfAlreadyFilled", "botInitialMessage", "steps", "notificationSettings", "brandId"];
@@ -173158,6 +173230,14 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
       body[wireKey] = norm3[irKey];
       setKeys.add(wireKey);
     }
+  }
+  if (norm3.summary !== void 0) {
+    const stored = current.summary && typeof current.summary === "object" && Object.keys(current.summary).length ? current.summary : defaultSummary();
+    body.summary = mergeSummary(stored, norm3.summary);
+  }
+  for (const [k, v] of Object.entries(responseStyleFields(norm3))) {
+    body[k] = v;
+    setKeys.add(k);
   }
   if (norm3.name !== void 0) {
     body.employeeName = norm3.name;
@@ -173881,6 +173961,11 @@ function extractAgentId(kind, response) {
   return null;
 }
 var actionId = (body) => responseId(body);
+var serverMessage = (json2) => {
+  const m = json2?.message ?? json2?.error ?? null;
+  if (Array.isArray(m)) return m.join("; ");
+  return typeof m === "string" ? m : json2 ? JSON.stringify(json2).slice(0, 1e3) : null;
+};
 var threadAgentId = (descriptor2, agentId) => {
   const body = { ...descriptor2?.body ?? {} };
   if ("employeeId" in body) body.employeeId = agentId;
@@ -173969,7 +174054,7 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   } catch (error51) {
     return failure(error51?.code ?? "AGENT_CREATE_FAILED", "create", report);
   }
-  if (!created.ok) return failure(`HTTP_${created.status}`, "create", report, { createStatus: created.status });
+  if (!created.ok) return failure(`HTTP_${created.status}`, "create", report, { createStatus: created.status, serverMessage: serverMessage(created.json) });
   report.agentId = extractAgentId(kind, created);
   if (!report.agentId) {
     const extra = kind === "studio" ? { events: (created.events ?? []).map((event) => ({ event: event?.event ?? null, id: responseId(event?.data) })) } : {};
@@ -173988,19 +174073,35 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
       return failure(observed.code, "follow_up", report, { failedFollowUp: observed });
     }
   }
+  const refused = [];
   for (let index = 0; index < (plan.actions ?? []).length; index++) {
     const action = threadAgentId(plan.actions[index], report.agentId);
+    const label2 = { index, type: action.body?.type ?? null, name: action.body?.name ?? null };
     try {
       const result = await gw.call(action.method, action.path, action.body, { base: AI_BASE2 });
-      const observed = { index, path: action.path, status: result.status, id: actionId(result.json) };
+      const observed = { ...label2, path: action.path, status: result.status, id: actionId(result.json) };
+      if (!result.ok) observed.serverMessage = serverMessage(result.json);
       report.actions.push(observed);
-      if (!result.ok) return failure(`HTTP_${result.status}`, "action", report, { failedAction: observed });
+      if (!result.ok) {
+        refused.push(observed);
+        continue;
+      }
       if (observed.id) report.actionIds.push(observed.id);
     } catch (error51) {
-      const observed = { index, path: action.path, status: null, id: null, code: error51?.code ?? "ACTION_FAILED" };
+      const observed = { ...label2, path: action.path, status: null, id: null, code: error51?.code ?? "ACTION_FAILED" };
       report.actions.push(observed);
-      return failure(observed.code, "action", report, { failedAction: observed });
+      refused.push(observed);
     }
+  }
+  if (refused.length) {
+    return failure("AGENT_PARTIAL_BUILD", "action", report, {
+      partialBuild: {
+        agentId: report.agentId,
+        attached: report.actions.filter((a) => a.id && !refused.includes(a)).map(({ index, type, name, id }) => ({ index, type, name, id })),
+        refused,
+        summary: `agent ${report.agentId} EXISTS with ${report.actionIds.length} of ${(plan.actions ?? []).length} actions; ` + refused.map((r) => `action ${r.index} (${r.type} "${r.name}") refused: ${r.serverMessage ?? r.code ?? `HTTP ${r.status}`}`).join("; ")
+      }
+    });
   }
   let reread;
   try {
@@ -174051,7 +174152,7 @@ async function executeAgentUpdate({ plan, gw } = {}) {
       code: "AGENT_UPDATE_FAILED",
       phase: "update",
       status: put?.status ?? null,
-      detail: JSON.stringify(put?.json ?? "").slice(0, 300)
+      detail: serverMessage(put?.json) ?? `HTTP ${put?.status ?? "?"}`
     };
   }
   const reread = await gw.call("GET", update.path);
@@ -175703,10 +175804,19 @@ var TOOLS2 = [
       ), { preview });
       const report = await executeAgentPlan({ plan, gw: deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state }) });
       const data2 = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
+      if (report.partialBuild) {
+        data2.partialBuild = report.partialBuild;
+        return withFailureData(fail(
+          report.code,
+          `PARTIAL BUILD: ${report.partialBuild.summary}.`,
+          "The agent is live without the refused actions. Fix each refused action from its serverMessage and attach it to this agentId with the action endpoints; do not re-run the create, which would make a second agent."
+        ), data2);
+      }
+      if (report.serverMessage) data2.serverMessage = report.serverMessage;
       return report.ok ? ok(data2) : withFailureData(fail(
         report.code,
-        "Conversation AI creation did not complete and verify.",
-        "Inspect data.created and data.verification before retrying; remove any unintended canary agent manually."
+        `Conversation AI creation did not complete and verify${report.serverMessage ? `: ${report.serverMessage}` : ""}.`,
+        report.agentId ? `Agent ${report.agentId} exists; inspect data.verification before retrying, and do not re-run the create.` : "No agent was created; fix the spec from the message and retry."
       ), data2);
     }, args)
   },
