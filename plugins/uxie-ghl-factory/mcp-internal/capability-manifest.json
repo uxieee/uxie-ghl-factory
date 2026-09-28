@@ -1815,6 +1815,31 @@
     "path": "/snapshots-appengine/v2/snapshots/{snapshotId}/refresh"
   },
   {
+    "tool": "edit_pipeline",
+    "method": "GET",
+    "path": "/opportunities/pipelines"
+  },
+  {
+    "tool": "edit_pipeline",
+    "method": "POST",
+    "path": "/opportunities/search"
+  },
+  {
+    "tool": "edit_pipeline",
+    "method": "PUT",
+    "path": "/opportunities/{opportunityId}"
+  },
+  {
+    "tool": "edit_pipeline",
+    "method": "GET",
+    "path": "/opportunities/{opportunityId}"
+  },
+  {
+    "tool": "edit_pipeline",
+    "method": "PUT",
+    "path": "/opportunities/pipelines/{pipelineId}"
+  },
+  {
     "tool": "create_smart_list",
     "method": "POST",
     "path": "/contacts/smartlist/"

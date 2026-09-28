@@ -14699,6 +14699,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           coveredBy: [
             "build_workflow",
+            "edit_pipeline",
             "edit_workflow",
             "list_account_entities"
           ],
@@ -14746,6 +14747,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           coveredBy: [
             "build_workflow",
+            "edit_pipeline",
             "edit_workflow",
             "list_account_entities"
           ],
@@ -14788,7 +14790,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "Replaces a pipeline's name, flags and its WHOLE stages array.",
           note: "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_pipeline"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -49113,7 +49117,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_pipeline"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -49149,7 +49155,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_pipeline"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -49592,6 +49600,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ],
           coveredBy: [
             "build_workflow",
+            "edit_pipeline",
             "edit_workflow",
             "list_account_entities"
           ],
@@ -49705,7 +49714,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "Replaces a pipeline's name, flags and its WHOLE stages array.",
           note: "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_pipeline"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -49966,7 +49977,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_pipeline"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -59779,6 +59792,37 @@ var init_define_TOOL_CATALOG = __esm({
         ],
         rows: [
           "snapshot-contents-read"
+        ]
+      },
+      edit_pipeline: {
+        description: "Edit a pipeline and its stages safely \u2014 proof: live-runtime (2026-09-28); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-28)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "pipelines-opportunities--opportunities-pipelines",
+          "pipelines-opportunities--opportunities-search",
+          "pipelines-opportunities--opportunities-put",
+          "pipelines-opportunities--opportunities-get",
+          "pipelines-opportunities--opportunities-pipelines-put-put"
+        ],
+        proofFloorRows: [
+          "pipelines-opportunities--opportunities-pipelines",
+          "pipelines-opportunities--opportunities-search",
+          "pipelines-opportunities--opportunities-put",
+          "pipelines-opportunities--opportunities-get",
+          "pipelines-opportunities--opportunities-pipelines-put-put"
+        ],
+        riskRows: [
+          "pipelines-opportunities--opportunities-pipelines-put-put",
+          "pipelines-opportunities--opportunities-put"
+        ],
+        rows: [
+          "pipelines-opportunities--opportunities-pipelines",
+          "pipelines-opportunities--opportunities-search",
+          "pipelines-opportunities--opportunities-put",
+          "pipelines-opportunities--opportunities-get",
+          "pipelines-opportunities--opportunities-pipelines-put-put"
         ]
       }
     };
@@ -92853,6 +92897,17 @@ var RULES = [
     refuses: (wire) => !(isPlainObject3(wire) && Object.hasOwn(wire, "permission")),
     message: "PUT \u2026/permission/{workflowId} with no `permission` key answers 200 with an empty body and changes NOTHING \u2014 the 200 carries no information.",
     hint: "Pass body {permission:<number>}: 50 agency admin, 180 agency user, 280 account admin, 380 all, 404 none. Read the workflow row back to verify."
+  },
+  {
+    // Measured 2026-09-25 on the sandbox: `{}` answered 200, minted a new lexorank `position` and
+    // bumped dateUpdated. The board's drag always sends an integer targetPosition, so a body
+    // without one has no legitimate version.
+    rule: "pipeline-position-needs-target",
+    method: "PATCH",
+    path: /^\/opportunities\/pipelines\/[^/]+\/position$/,
+    refuses: (wire) => !(isPlainObject3(wire) && Number.isInteger(wire.targetPosition)),
+    message: "PATCH /opportunities/pipelines/{pipelineId}/position with no integer `targetPosition` is accepted (200) and MOVES the pipeline: an empty body minted a new board position. The endpoint validates nothing.",
+    hint: "Send the board's reorder body {prevPipelineId, nextPipelineId, initialPosition, targetPosition}; positions are 1-based. Read the pipeline list back to verify the order."
   }
 ];
 function refuseRawRequest({ method, path, body }) {
@@ -170522,6 +170577,149 @@ function buildColumns(keys) {
   return keys.map((k, i) => ({ key: k, value: k, order: i }));
 }
 
+// core/pipelines.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var COLOR_RENDER_MODES = ["none", "dot", "bg-tint"];
+var TOP_LEVEL = ["name", "showInFunnel", "showInPieChart", "useOpportunityProbability", "colorRenderMode"];
+var STAGE_PROPS = ["name", "stageWinProbability", "color", "showInFunnel", "showInPieChart"];
+var HEX = /^#[0-9A-Fa-f]{6}$/;
+var trimName = (s) => typeof s === "string" ? s.trim() : s;
+function planPipelineEdit(row, edit = {}) {
+  const errors = [];
+  const current = Array.isArray(row?.stages) ? row.stages : [];
+  const byId = new Map(current.map((s) => [s.id, s]));
+  const update = edit.updateStages ?? [];
+  const add = edit.addStages ?? [];
+  const remove = edit.removeStages ?? [];
+  for (const u of update) if (!byId.has(u?.id)) errors.push(`updateStages: no stage ${u?.id} on this pipeline`);
+  for (const r of remove) if (!byId.has(r?.id)) errors.push(`removeStages: no stage ${r?.id} on this pipeline`);
+  const removeIds = new Set(remove.map((r) => r?.id));
+  for (const u of update) if (removeIds.has(u?.id)) errors.push(`stage ${u.id} is both updated and removed`);
+  const dupe = (list) => list.map((x) => x?.id).filter((id, i, a) => a.indexOf(id) !== i);
+  for (const id of /* @__PURE__ */ new Set([...dupe(update), ...dupe(remove)])) errors.push(`stage ${id} appears more than once in one list`);
+  const kept = current.filter((s) => !removeIds.has(s.id));
+  const keptIds = new Set(kept.map((s) => s.id));
+  for (const r of remove) {
+    if (r?.moveCardsTo !== void 0 && !keptIds.has(r.moveCardsTo)) {
+      errors.push(`removeStages ${r.id}: moveCardsTo must be an existing stage that is kept (got ${r.moveCardsTo})`);
+    }
+  }
+  const updates = new Map(update.map((u) => [u.id, u]));
+  let final = kept.map((s) => {
+    const u = updates.get(s.id) ?? {};
+    const out = { ...s };
+    for (const k of STAGE_PROPS) if (u[k] !== void 0) out[k] = k === "name" ? trimName(u[k]) : u[k];
+    return out;
+  });
+  if (edit.stageOrder !== void 0) {
+    const order = edit.stageOrder;
+    const same = Array.isArray(order) && order.length === final.length && new Set(order).size === order.length && order.every((id) => keptIds.has(id));
+    if (!same) errors.push("stageOrder must list every KEPT existing stage id exactly once (new stages are placed with afterStageId)");
+    else final = order.map((id) => final.find((s) => s.id === id));
+  }
+  for (const a of add) {
+    const stage = {
+      name: trimName(a?.name),
+      stageWinProbability: a?.stageWinProbability,
+      showInFunnel: a?.showInFunnel ?? true,
+      showInPieChart: a?.showInPieChart ?? false
+    };
+    if (a?.color !== void 0) stage.color = a.color;
+    if (a?.afterStageId === void 0) {
+      final.push(stage);
+      continue;
+    }
+    const at = final.findIndex((s) => s.id === a.afterStageId);
+    if (at < 0) {
+      errors.push(`addStages "${stage.name}": afterStageId ${a.afterStageId} is not a kept stage`);
+      continue;
+    }
+    final.splice(at + 1, 0, stage);
+  }
+  if (!final.length) errors.push("a pipeline must keep at least one stage");
+  const seen = /* @__PURE__ */ new Map();
+  for (const s of final) {
+    if (typeof s.name !== "string" || s.name.length < 1 || s.name.length > 255) errors.push(`stage name must be 1\u2013255 characters (got ${JSON.stringify(s.name)})`);
+    const key = String(s.name).toLowerCase();
+    if (seen.has(key)) errors.push(`two stages would be named "${s.name}" (names are unique, case-insensitively)`);
+    seen.set(key, true);
+    const p2 = s.stageWinProbability;
+    if (typeof p2 !== "number" || !Number.isFinite(p2) || p2 < 0 || p2 > 100) {
+      errors.push(`stage "${s.name}" needs stageWinProbability 0\u2013100 \u2014 GHL rewrites EVERY stage's probability to an even ramp when one is missing`);
+    }
+    if (s.color !== void 0 && !HEX.test(String(s.color))) errors.push(`stage "${s.name}": color must be #RRGGBB (got ${s.color})`);
+  }
+  const top = {};
+  for (const k of TOP_LEVEL) if (row?.[k] !== void 0) top[k] = row[k];
+  for (const k of TOP_LEVEL) if (edit[k] !== void 0) top[k] = k === "name" ? trimName(edit[k]) : edit[k];
+  if (typeof top.name !== "string" || !top.name || top.name.length > 255) errors.push("pipeline name must be 1\u2013255 characters");
+  if (top.colorRenderMode !== void 0 && !COLOR_RENDER_MODES.includes(top.colorRenderMode)) {
+    errors.push(`colorRenderMode must be one of ${COLOR_RENDER_MODES.join(", ")}`);
+  }
+  if (errors.length) return { errors };
+  const stages = final.map((s, position) => {
+    const out = {
+      name: s.name,
+      position,
+      showInFunnel: s.showInFunnel ?? true,
+      showInPieChart: s.showInPieChart ?? false,
+      stageWinProbability: s.stageWinProbability
+    };
+    if (s.id) out.id = s.id;
+    if (s.color !== void 0) out.color = s.color;
+    return out;
+  });
+  const body = { ...top, stages };
+  return {
+    body,
+    final: stages,
+    removed: remove.map((r) => ({ id: r.id, name: byId.get(r.id)?.name, moveCardsTo: r.moveCardsTo })),
+    diff: diffPipeline(row, body)
+  };
+}
+function diffPipeline(row, body) {
+  const top = [];
+  for (const k of TOP_LEVEL) if (body[k] !== void 0 && body[k] !== row?.[k]) top.push({ field: k, before: row?.[k] ?? null, after: body[k] });
+  const before = new Map((row?.stages ?? []).map((s, i) => [s.id, { ...s, index: i }]));
+  const after = new Set(body.stages.filter((s) => s.id).map((s) => s.id));
+  const changed = [], added = [];
+  body.stages.forEach((s, index) => {
+    if (!s.id) {
+      added.push({ name: s.name, position: index, stageWinProbability: s.stageWinProbability });
+      return;
+    }
+    const b = before.get(s.id);
+    const fields = STAGE_PROPS.filter((k) => s[k] !== void 0 && s[k] !== b[k]).map((k) => ({ field: k, before: b[k] ?? null, after: s[k] }));
+    if (b.index !== index) fields.push({ field: "order", before: b.index, after: index });
+    if (fields.length) changed.push({ id: s.id, name: s.name, fields });
+  });
+  const removed = [...before.values()].filter((s) => !after.has(s.id)).map((s) => ({ id: s.id, name: s.name }));
+  return { pipeline: top, stagesChanged: changed, stagesAdded: added, stagesRemoved: removed };
+}
+function verifyPipeline(body, row) {
+  const bad = [];
+  if (!row) return ["the pipeline is missing from the list after the write"];
+  for (const k of TOP_LEVEL) if (body[k] !== void 0 && row[k] !== body[k]) bad.push(`${k}: sent ${JSON.stringify(body[k])}, read back ${JSON.stringify(row[k])}`);
+  const got = row.stages ?? [];
+  if (got.length !== body.stages.length) bad.push(`stage count: sent ${body.stages.length}, read back ${got.length}`);
+  const sorted = [...got].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+  body.stages.forEach((s, i) => {
+    const r = s.id ? got.find((g) => g.id === s.id) : sorted[i];
+    if (!r) {
+      bad.push(`stage "${s.name}" (${s.id ?? "new"}) is missing after the write`);
+      return;
+    }
+    for (const k of STAGE_PROPS) if (s[k] !== void 0 && r[k] !== s[k]) bad.push(`stage "${s.name}" ${k}: sent ${JSON.stringify(s[k])}, read back ${JSON.stringify(r[k])}`);
+    if (s.id && sorted.indexOf(r) !== i) bad.push(`stage "${s.name}" is at index ${sorted.indexOf(r)}, sent at ${i}`);
+  });
+  return bad;
+}
+
 // core/snapshots.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -182846,6 +183044,170 @@ var TOOLS2 = [
         resentCategories: Object.keys(args.selectedAssets),
         note: "Dehydration is asynchronous. The snapshot will read `processing` for a while; verify its contents once it settles rather than assuming."
       });
+    }, args)
+  },
+  // PIPELINE EDIT (coordinator decision P1, 2026-09-25). PUT /opportunities/pipelines/{id} is a FULL
+  // REPLACE of stages: an omitted stage is deleted and its cards drop silently into the first stage,
+  // and one stage without stageWinProbability rewrites every probability to an even ramp. This tool
+  // reads the row, merges the edit, refuses both traps, moves the cards of a removed stage FIRST (the
+  // app does the same with a bulk job), writes, and reads the pipeline back. Planning is pure, in
+  // pipelines.mjs.
+  {
+    name: "edit_pipeline",
+    description: `${describe3("edit_pipeline", "Edit a pipeline and its stages safely \u2014 risk: write")}. Rename a pipeline, set its colour mode or probability switch, and add, rename, reorder, recolour, re-weight or remove stages. It reads the pipeline, merges your change onto the whole row and sends the full body, because the stages array REPLACES: a stage left out is deleted and its cards silently land in the first stage. Removing a stage that holds cards is refused unless you name moveCardsTo; the cards are then moved there first, one by one (each move fires opportunity stage-change workflow triggers), and the stage is removed only once none are left. Every stage must end with a stageWinProbability, since one missing value makes GHL rewrite them all. expectedName must match the pipeline's current name. Previews by default; confirm:true writes, then reads the pipeline back and fails on any difference. Does not create or delete pipelines, change sharing permissions, or edit opportunities (except the moves above). Read pipelines with list_account_entities.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      pipelineId: external_exports.string(),
+      expectedName: external_exports.string(),
+      name: external_exports.string().optional(),
+      colorRenderMode: external_exports.enum(COLOR_RENDER_MODES).optional(),
+      useOpportunityProbability: external_exports.boolean().optional(),
+      showInFunnel: external_exports.boolean().optional(),
+      showInPieChart: external_exports.boolean().optional(),
+      updateStages: external_exports.array(external_exports.object({
+        id: external_exports.string(),
+        name: external_exports.string().optional(),
+        stageWinProbability: external_exports.number().optional(),
+        color: external_exports.string().optional(),
+        showInFunnel: external_exports.boolean().optional(),
+        showInPieChart: external_exports.boolean().optional()
+      })).optional(),
+      addStages: external_exports.array(external_exports.object({
+        name: external_exports.string(),
+        stageWinProbability: external_exports.number(),
+        color: external_exports.string().optional(),
+        showInFunnel: external_exports.boolean().optional(),
+        showInPieChart: external_exports.boolean().optional(),
+        afterStageId: external_exports.string().optional()
+      })).optional(),
+      removeStages: external_exports.array(external_exports.object({ id: external_exports.string(), moveCardsTo: external_exports.string().optional() })).optional(),
+      stageOrder: external_exports.array(external_exports.string()).optional(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/opportunities/pipelines" },
+      { method: "POST", path: "/opportunities/search" },
+      { method: "PUT", path: "/opportunities/{opportunityId}" },
+      { method: "GET", path: "/opportunities/{opportunityId}" },
+      { method: "PUT", path: "/opportunities/pipelines/{pipelineId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const loc = args.locationId;
+      const readRow = async () => {
+        const r = await gw.call("GET", `/opportunities/pipelines?${new URLSearchParams({ locationId: loc })}`);
+        if (!r.ok) return { failure: fromHttp(r.status, r.json) };
+        return { row: (r.json?.pipelines ?? []).find((p2) => p2.id === args.pipelineId) ?? null };
+      };
+      const first = await readRow();
+      if (first.failure) return first.failure;
+      const row = first.row;
+      if (!row) return fail(CODES.VALIDATION_FAILED, `no pipeline ${args.pipelineId} in this location`, "Check the id with list_account_entities. Nothing was written.");
+      if (String(row.name).trim() !== String(args.expectedName).trim()) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `target check failed: pipeline ${args.pipelineId} is named "${row.name}", not "${args.expectedName}"`,
+          "Re-read the pipeline and pass its current name as expectedName. Nothing was written."
+        );
+      }
+      const plan = planPipelineEdit(row, args);
+      if (plan.errors) return withFailureData(fail(CODES.VALIDATION_FAILED, plan.errors.join("; "), "Fix the edit. Nothing was written."), { errors: plan.errors });
+      const search = (filters, limit = 100, page = 1) => gw.call("POST", "/opportunities/search", { locationId: loc, limit, page, filters });
+      const pipeFilter = { field: "pipeline_id", operator: "eq", value: [args.pipelineId] };
+      const stageFilter = (id) => ({ field: "pipeline_stage_id", operator: "eq", value: [id] });
+      const counts = {};
+      for (const r of plan.removed) {
+        const res = await search([pipeFilter, stageFilter(r.id)], 1);
+        if (!res.ok) return fromHttp(res.status, res.json);
+        counts[r.id] = res.json?.total ?? (res.json?.opportunities ?? []).length;
+      }
+      const stageName = (id) => row.stages.find((s) => s.id === id)?.name;
+      const affected = plan.removed.map((r) => ({ ...r, cards: counts[r.id], moveCardsToName: r.moveCardsTo ? stageName(r.moveCardsTo) : void 0 }));
+      const unhandled = affected.filter((a) => a.cards > 0 && !a.moveCardsTo);
+      if (unhandled.length) {
+        return withFailureData(fail(
+          CODES.VALIDATION_FAILED,
+          `removing ${unhandled.map((a) => `"${a.name}" (${a.cards} card${a.cards === 1 ? "" : "s"})`).join(", ")} would drop those cards silently into the first stage`,
+          "Pass removeStages[].moveCardsTo with the stage they should go to. Nothing was written."
+        ), { affected });
+      }
+      const MAX_MOVES = 100;
+      const toMove = affected.reduce((n, a) => n + (a.moveCardsTo ? a.cards : 0), 0);
+      if (toMove > MAX_MOVES) {
+        return withFailureData(fail(
+          CODES.VALIDATION_FAILED,
+          `${toMove} cards would have to move; this tool moves at most ${MAX_MOVES}`,
+          "Move them first with the board's bulk edit (Stage), then remove the empty stage here. Nothing was written."
+        ), { affected });
+      }
+      const preview = {
+        pipeline: { id: row.id, name: row.name },
+        changes: plan.diff,
+        cardsToMove: affected.filter((a) => a.cards > 0),
+        stagesAfter: plan.body.stages.map((s) => ({ id: s.id ?? "(new)", name: s.name, stageWinProbability: s.stageWinProbability }))
+      };
+      if (args.confirm !== true) {
+        return withFailureData(fail(
+          CODES.CONFIRM_REQUIRED,
+          "Pipeline edit preview is ready; nothing was written.",
+          "Review data.preview (changes, cards that will move), then repeat with confirm:true."
+        ), { preview });
+      }
+      const moved = [];
+      for (const a of affected) {
+        if (!a.moveCardsTo || !a.cards) continue;
+        const res = await search([pipeFilter, stageFilter(a.id)], MAX_MOVES);
+        if (!res.ok) return fromHttp(res.status, res.json);
+        for (const card of res.json?.opportunities ?? []) {
+          const put = await gw.call("PUT", `/opportunities/${encodeURIComponent(card.id)}`, { pipelineId: args.pipelineId, pipelineStageId: a.moveCardsTo });
+          const back = put.ok ? await gw.call("GET", `/opportunities/${encodeURIComponent(card.id)}?${new URLSearchParams({ locationId: loc })}`) : null;
+          const stage = back?.ok ? back.json?.opportunity?.pipelineStageId ?? null : null;
+          moved.push({ id: card.id, name: card.name, from: a.name, to: a.moveCardsToName, httpStatus: put.status, movedTo: stage, ok: stage === a.moveCardsTo });
+        }
+      }
+      const moveFailed = moved.filter((m) => !m.ok);
+      if (moveFailed.length) {
+        return withFailureData(fail(
+          CODES.VERIFY_FAILED,
+          `${moveFailed.length} card move(s) did not read back in the target stage; the pipeline was NOT changed`,
+          "Inspect data.moved. The cards that did move stay moved."
+        ), { moved });
+      }
+      for (const a of affected) {
+        let left = null;
+        for (let i = 0; i < 8; i++) {
+          const res = await search([pipeFilter, stageFilter(a.id)], 1);
+          left = res.ok ? res.json?.total ?? 0 : null;
+          if (left === 0) break;
+          await new Promise((r) => setTimeout(r, 1500));
+        }
+        if (left !== 0) {
+          return withFailureData(fail(
+            CODES.VERIFY_FAILED,
+            `stage "${a.name}" still shows ${left ?? "an unknown number of"} card(s); the pipeline was NOT changed`,
+            "A card may have arrived after the count. Re-run the edit to move it."
+          ), { moved });
+        }
+      }
+      const write = await gw.call("PUT", `/opportunities/pipelines/${encodeURIComponent(args.pipelineId)}?${new URLSearchParams({ locationId: loc })}`, plan.body);
+      if (!write.ok) return withFailureData(fromHttp(write.status, write.json), { moved });
+      const after = await readRow();
+      if (after.failure) return after.failure;
+      const mismatches = verifyPipeline(plan.body, after.row);
+      const result = {
+        pipeline: { id: args.pipelineId, name: after.row?.name },
+        changes: plan.diff,
+        moved,
+        stages: (after.row?.stages ?? []).map((s) => ({ id: s.id, name: s.name, position: s.position, stageWinProbability: s.stageWinProbability }))
+      };
+      if (mismatches.length) {
+        return withFailureData(fail(
+          CODES.VERIFY_FAILED,
+          `the pipeline read back differently: ${mismatches.join("; ")}`,
+          "The write was sent; inspect data.stages for what GHL stored."
+        ), result);
+      }
+      return ok(result);
     }, args)
   },
   {

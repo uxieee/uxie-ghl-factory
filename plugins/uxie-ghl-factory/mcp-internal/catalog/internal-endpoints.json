@@ -14522,6 +14522,7 @@
       ],
       "coveredBy": [
         "build_workflow",
+        "edit_pipeline",
         "edit_workflow",
         "list_account_entities"
       ],
@@ -14569,6 +14570,7 @@
       ],
       "coveredBy": [
         "build_workflow",
+        "edit_pipeline",
         "edit_workflow",
         "list_account_entities"
       ],
@@ -14611,7 +14613,9 @@
       "summary": "Replaces a pipeline's name, flags and its WHOLE stages array.",
       "note": "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_pipeline"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -48924,7 +48928,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_pipeline"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -48960,7 +48966,9 @@
       "rail": "ai",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_pipeline"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -49403,6 +49411,7 @@
       ],
       "coveredBy": [
         "build_workflow",
+        "edit_pipeline",
         "edit_workflow",
         "list_account_entities"
       ],
@@ -49516,7 +49525,9 @@
       "summary": "Replaces a pipeline's name, flags and its WHOLE stages array.",
       "note": "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_pipeline"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -49777,7 +49788,9 @@
       "rail": "ai",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_pipeline"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
