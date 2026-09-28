@@ -241,11 +241,21 @@ function buildWorkflowTriggerParams(p) {
   return { ...p };
 }
 
-// SMS ("Send SMS"): messageBody is the capture's one required-fields-list entry beyond
-// name (top-level, already validated).
+// SMS ("Send SMS"): the builder (voiceAiApp 707) saves exactly {triggerPrompt, triggerMessage,
+// triggerMessageType, messageBody}. Measured 2026-09-28: {triggerPrompt, messageBody} alone answers 422
+// "Invalid actionParameters for the given actionType"; the builder's four-key body answers 201.
+// triggerMessageType is static_text (say triggerMessage verbatim) or prompt (the builder's default for a new
+// action is static_text).
+const TRIGGER_MESSAGE_TYPES = ['static_text', 'prompt'];
 function buildSmsParams(p) {
+  assertRequiredParam(p.triggerPrompt, 'triggerPrompt', 'SMS');
+  assertRequiredParam(p.triggerMessage, 'triggerMessage', 'SMS');
   assertRequiredParam(p.messageBody, 'messageBody', 'SMS');
-  return { ...p };
+  const triggerMessageType = p.triggerMessageType ?? 'static_text';
+  if (!TRIGGER_MESSAGE_TYPES.includes(triggerMessageType)) {
+    throw new IRError('SCHEMA', `SMS action.actionParameters.triggerMessageType must be one of ${TRIGGER_MESSAGE_TYPES.join(', ')}, got: ${JSON.stringify(triggerMessageType)}`);
+  }
+  return { ...p, triggerMessageType };
 }
 
 // DATA_EXTRACTION ("Update contact field"): contactFieldId/contactFieldKey identify the

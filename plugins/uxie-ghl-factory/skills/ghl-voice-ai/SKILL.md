@@ -54,7 +54,8 @@ What clobbers live values is the create compiler (`compileVoiceAiUpdate`), which
 own default. It is right for a new agent and wrong for an existing one.
 
 **1b. A 400 can still have written.** Some refusals come from the voice provider after GHL has stored the value:
-`llmModel: "bogus-llm"` and `beginMessageDelayMs: 11000` answered 400 in the provider's words, and GHL kept the value.
+`llmModel: "bogus-llm"`, `beginMessageDelayMs: 11000` and `backchannelFrequency: 1.5` answered 400 in the provider's
+words, and GHL kept the value.
 `update_voiceai_agent` detects that (`PROVIDER_REFUSED_BUT_STORED`) and writes the previous values back. On a raw
 call, re-read after every 400.
 

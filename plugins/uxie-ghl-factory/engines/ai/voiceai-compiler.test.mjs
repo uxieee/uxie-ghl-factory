@@ -128,6 +128,24 @@ test('compileVoiceAiAction: SMS matches voiceai-actions-all.json shape', () => {
   assert.deepEqual(body.actionParameters, action.actionParameters);
 });
 
+test('compileVoiceAiAction: SMS — the two-key body GHL refuses (422, 2026-09-28) is refused before sending', () => {
+  for (const missing of ['triggerPrompt', 'triggerMessage', 'messageBody']) {
+    const actionParameters = { triggerPrompt: 'p', triggerMessage: 'm', messageBody: 'b' };
+    delete actionParameters[missing];
+    assert.throws(() => compileVoiceAiAction({ actionType: 'SMS', name: 'Send SMS', actionParameters }, { locationId: LOCATION_ID }),
+      (e) => e instanceof IRError && e.code === 'SCHEMA' && e.message.includes(missing));
+  }
+});
+
+test('compileVoiceAiAction: SMS defaults triggerMessageType to static_text and refuses other values', () => {
+  const { body } = compileVoiceAiAction({ actionType: 'SMS', name: 'Send SMS', actionParameters: { triggerPrompt: 'p', triggerMessage: 'm', messageBody: 'b' } }, { locationId: LOCATION_ID });
+  assert.deepEqual(body.actionParameters, { triggerPrompt: 'p', triggerMessage: 'm', messageBody: 'b', triggerMessageType: 'static_text' });
+  const prompt = compileVoiceAiAction({ actionType: 'SMS', name: 'Send SMS', actionParameters: { triggerPrompt: 'p', triggerMessage: 'm', messageBody: 'b', triggerMessageType: 'prompt' } }, { locationId: LOCATION_ID });
+  assert.equal(prompt.body.actionParameters.triggerMessageType, 'prompt');
+  assert.throws(() => compileVoiceAiAction({ actionType: 'SMS', name: 'Send SMS', actionParameters: { triggerPrompt: 'p', triggerMessage: 'm', messageBody: 'b', triggerMessageType: 'text' } }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
 test('compileVoiceAiAction: SMS rejects missing messageBody', () => {
   assert.throws(
     () => compileVoiceAiAction({ actionType: 'SMS', name: 'Send SMS', actionParameters: {} }, { locationId: LOCATION_ID }),
