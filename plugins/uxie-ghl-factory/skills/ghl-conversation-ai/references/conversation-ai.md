@@ -12,12 +12,11 @@
 > `services.leadconnectorhq.com/ai-employees/*` surface the builder UI actually uses — the
 > public `conversation-ai-v3` API is a separate, thinner façade the UI doesn't call.
 
-**Status: LIVE-CREATE-PROVEN.** Create → read → delete, plus the `humanHandOver` action, have
-all been round-tripped against a real account and verified. The other 6 action types
-(`appointmentBooking`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`,
-`advancedFollowup`) are verified against their captures (see the Actions section below) but
-not yet individually live-fired. This is the most mature of the three AI products in this
-skill.
+**Status: LIVE-PROVEN.** Create → read → update → delete of the agent, and create → update → delete of six action
+types (`humanHandOver`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`, `advancedFollowup`), were
+executed on a test account on 2026-09-26 and read back on separate requests. `appointmentBooking` is verified against
+captures only. What a *trial* chat fires is narrower than what the actions store: see "Test chat" below. This is the
+most mature of the three AI products in this skill.
 
 ## What Conversation AI is
 
@@ -43,6 +42,19 @@ into three parts, not a tool-calling system prompt.
 | Deployment routing rows (one per channel) | `GET` | `/agent-deployment/routing-config/configs?locationId=…&agentId=…` |
 | Update a routing row (the PATCH merges: send only the keys you change) | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
 | Live-chat widget picker (`offset`+`limit` required) | `GET` | `/chat-widget/list?locationId=…&chatType=liveChat&offset=0&limit=20` |
+| Update / delete an action | `PUT` · `DELETE` | `/ai-employees/actions/:actionId` (DELETE body `{employeeId}`) |
+| Follow-up schedule for the Auto Followup actions | `PATCH` | `/ai-employees/actions/followup/settings` |
+| Duplicate an agent (no body) | `PUT` | `/ai-employees/employees/duplicate/:agentId` |
+| Folders: list · create · rename · delete | `GET` · `POST` · `PATCH` · `DELETE` | `/ai-employees/employees/folders` (`/:folderId?locationId=` for rename and delete) |
+| Move agents into a folder | `POST` | `/ai-employees/employees/move-to-folder` |
+| Dashboard metrics (a read with a body; answers 201) | `POST` | `/ai-employees/employees/:locationId/fetch-dashboard-data` |
+| Conversation table under the dashboard | `GET` | `/ai-employees/employees/:locationId/conversation-logs` |
+| Test chat (billed per message) | `POST` | `/ai-employees/interactions/trial` |
+| Prompt templates | `GET` | `/conversations-ai/prompt/templates?locationId=…&intentType=…` |
+| Primary agent (location-wide) | `GET` | `/ai-employees/employees/primary/:locationId` |
+
+The rows added under the widget picker were each executed on a test account (2026-09-26) except the conversation
+table, which was seen rendering in the UI (2026-09-28). No typed tool covers them: use `raw_request` with `host:"ai"`.
 
 Auth: Bearer **plus** `token-id` — the dual-credential AI rail (`raw_request` with `host:"ai"`
 attaches both). See the parent SKILL.md's Execute section for the capture procedure pointer.
@@ -53,8 +65,9 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
 - `mode` — `off` | `suggestive` | `auto-pilot`. The write takes only the hyphenated `auto-pilot`: `autoPilot` answers
   422 "mode must be one of the following values: off, suggestive, auto-pilot" (measured 2026-09-11). The tools accept
   `autoPilot` from a caller and send `auto-pilot`. `off` disables the bot, `suggestive` drafts
-  replies for a human to approve (not offered for flow bots), `auto-pilot` sends unattended (capped by
-  `autoPilotMaxMessages`, 1–100, default 75).
+  replies for a human to approve, `auto-pilot` sends unattended (capped by `autoPilotMaxMessages`, 1–100, default
+  75, 100 for a flow bot). The flow-bot editor offers only Off and Auto Pilot, but the server stores `suggestive` on
+  a flow bot too, so do not rely on the server to refuse it.
 - `channels[]` — the server's enum (its own 422, 2026-09-26): `GMB`, `IG`, `FB`, `SMS`, `WebChat`, `WhatsApp`,
   `Live_Chat`, `Email`, `TIKTOK`. The editor offers eight (`GMB` is accepted but hidden); `WebChat` is the editor's
   "Chat widget". The create default is `SMS, IG, FB, WebChat, Live_Chat, WhatsApp`. Both tools accept all nine. Non-empty required unless the location has `conversationsAI.channelManagement` on, in which
@@ -63,6 +76,15 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
 - `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT` | `FORM_BASED_BOT`** (three, per the bundle's own enum; `convai-ir.mjs` `BOT_TYPES`). The prompt bot is the
   three-part-prompt agent above; the flow bot's logic is a **workflow** (see "Flow-Based
   Builder" below). Both are buildable via the engine (`convai-ir.mjs` `BOT_TYPES`).
+  - **The editor's Create Agent offers only Prompt Based and Flow Based** (2026-09-28). A **form bot**
+    ("Guided Form Setup") is API-only for new agents. It needs a `brandId` (a brand-voice record,
+    `POST /brand-boards/voices/`; the server says "Brand ID is required for Form Based Bot"), refuses `goal`,
+    `personality` and `instructions`, and gets instructions written by the server. Its editor collects Name,
+    Email, Phone, Street Address and City plus custom questions, with "Skip if Already Filled".
+  - **Prompt templates** are chosen when the agent is created, not in the builder: Prompt Based → General Q&A ·
+    Appointment booking · Marketplace Templates · Start from Scratch. The templates behind the first two come from
+    `GET /conversations-ai/prompt/templates`, whose `intentType` must be `generalSupport`, `appointmentFlow` or
+    `appointmentBooking` (its 422 names them).
   - **Choosing between them is a real trade-off** (flow-bot half live-measured 2026-08-31; the
     prompt-bot comparison is inferred from operator observation on other accounts, not measured
     side-by-side): a
@@ -87,9 +109,13 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
 - Sleep (bot pauses itself under conditions): `sleepEnabled`, `sleepOnManualMessage`,
   `sleepOnWorkflowMessage`, `sleepTime`, `sleepTimeUnit` (default: disabled, 2 hours).
 - `knowledgeBaseIds[]` — KBs the bot can draw on.
-- `knowledgeBaseTriggers[]` — conditional KB routing: `{id: "kbt_<epoch>_<rand>", mode: "custom",
-  knowledgeBaseIds[], triggerCondition, priority}`. This routing concept is internal-only — the
-  public KB API manages KB *content*, not this trigger logic.
+- `knowledgeBaseTriggers[]` — conditional KB routing: `{id: "kbt_<epoch>_<rand>", mode: "custom" | "all",
+  knowledgeBaseIds[], triggerCondition, priority}`. The editor labels the text **"Instructions (Optional)"**: with
+  none, the agent decides by itself when to use the KB (`mode: "all"`, at most one such trigger, ≤ 7 KBs); with
+  text, `mode: "custom"` (≤ 5 KBs). The editor caps the text at 1000 characters but the server stored 1001. The
+  **server** caps the list at 4 triggers ("knowledgeBaseTriggers.4.priority must not be greater than 4"). Older
+  notes calling the text required, 10–500 characters, were wrong. This routing is internal-only — the public KB API
+  manages KB *content*, not this trigger logic.
 - `summary{}` — conversation-summary settings (inactivity threshold, minimum messages before
   summarizing, notification routing). The PUT validates every inner field, so the summary is always sent WHOLE:
   `update_convai_agent` lays your keys over the stored summary. Server rules (2026-09-26): `minimumMessages` 3–100;
@@ -97,6 +123,14 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   **`summary.workflowIds[]`**, which make the generated summary workflow-obtainable — see
   "[Conversation summary is workflow-obtainable](#conversation-summary-is-workflow-obtainable-summary)"
   below.
+- `emailSettings{senderDetails{fromName, fromEmail, ccEnabled, bccEnabled, ccRecipients[], bccRecipients[]},
+  replyBehavior{greetingPersonalization, waitTimeType, customWaitTime, customWaitTimeUnit}, emailFormat, signature,
+  templateId}` — the editor's three-step wizard (Configure email · Choose format · Final review). A PUT replaces the
+  whole object. `greetingPersonalization` is a greeting **string** (the editor's default is `Hi {{contact.first_name}}`).
+  The server validates types only: `emailFormat: "design_editor"` is stored, but so is a made-up format, and a
+  361-minute custom wait (the editor allows 1–360). The design editor is selectable, so the old line "Conversation
+  AI cannot send rich HTML email" no longer holds; whether a design-editor email is **delivered** is unproven. An
+  agent with no email configured reads `emailSettings: {}`, and echoing that back 422s, so drop it before a PUT.
 - `llm{primary, secondary}` — model selection. The server's enum is GHL's current model roster (15 GPT ids on
   2026-09-26; `GET /ai-employees/employees/models?locationId=` serves it) and its 422 lists the valid ids. Primary and
   secondary cannot be the same model (server-enforced). Settable on create and update.
@@ -181,6 +215,11 @@ previously mute widget ~38 s later. Corpus:
 | Update a row | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
 | Widget picker | `GET` | `/chat-widget/list?locationId=…&chatType=liveChat&offset=0&limit=20` |
 
+**Where a user sees it.** With `conversationsAI.channelManagement` ON, the agent builder shows a **Deploy** tab
+listing SMS · WhatsApp · Instagram · Facebook · TikTok · Live chat · Chat widget · Email, each with Configure, plus
+"Add channels from marketplace" (rendered 2026-09-28). The tag filters below are not editable in that builder (its
+bundle has no `includeTags`): set them through the row PATCH.
+
 The two routing calls are AI-rail (`raw_request`, `host:"ai"`); `/chat-widget/list` answers
 identically on backend and services. No typed tool covers them, so any "is this agent actually
 live?" audit must read the rows directly.
@@ -246,11 +285,15 @@ during capture, all baked into `convai-compiler.mjs`'s `HUMAN_HANDOVER_DETAIL_DE
   `contactRequest | lackOfInformation | failedToResolveIssue | custom`; the compiler defaults
   it to `custom` and validates the enum.
 - `triggerCondition` has no sane default (it's the bot's own decision text for when to hand
-  off) — the compiler requires it as a string 10-500 chars and throws `IRError` otherwise.
+  off) — the compiler requires it as a string 10-500 chars (the editor's range) and throws `IRError` otherwise.
+- A bot holds at most **6** handover scenarios: the three built-ins (`contactRequest`, `lackOfInformation`,
+  `failedToResolveIssue`) plus custom ones. Other keys: `assignToUserId`, `skipAssignToUser` (default true),
+  `createTask` (default true), final message 10–200 characters, default tag `human handover`.
 
-**All 6 remaining action types are now ALSO verified**, per
+**The other action types** were first verified against
 `research/ai-agents-internal/captures/convai-actions-all.json` (POST `/ai-employees/actions`
-against a real test agent, 2026-07-11). `convai-compiler.mjs`'s `buildActionDetails`
+against a real test agent, 2026-07-11); all but `appointmentBooking` were then created, updated and deleted live
+on 2026-09-26. `convai-compiler.mjs`'s `buildActionDetails`
 dispatches on `action.type` and, for each of these, validates the required field(s) and
 merges the caller's `details` over the capture's literal defaults:
 - **`appointmentBooking`** — required: `details.calendarId`. Advanced-options toggles
@@ -265,18 +308,32 @@ merges the caller's `details` over the capture's literal defaults:
   See `ghl-pipeline-specialist/references/reference-pipelines.md` §"Adjacent surface:
   `class_booking` calendars" before building one.
 - **`triggerWorkflow`** — required: `details.workflowIds` (non-empty array),
-  `details.triggerCondition`. No optional fields observed.
-- **`updateContactField`** ("Contact Info" in the UI) — required: `details.contactFieldId`,
-  `details.description`. `contactUpdateExamples` defaults to `[]`.
+  `details.triggerCondition`. At most **5** per bot. The editor offers published workflows only; the server
+  stored a draft workflow's id.
+- **`updateContactField`** ("Contact Info" in the UI; older pages called it `dataExtraction`, which is not a type) —
+  required: `details.contactFieldId` (a real field id: standard fields have ids too, and a key such as
+  `contact.company_name` 422s), `details.description` (10–500). It **updates empty fields only**. At most **20** per
+  bot, one per field. `contactUpdateExamples` items must be `{id, text, type: "add" | "update" | "delete"}` (plain
+  strings and a `name` key are refused), and the editor wants at least 2.
 - **`stopBot`** — required: `name` only (top-level). Ships with a pre-built "Goodbye
   Detection" scenario; the defaults reproduce its literal captured values
-  (`stopBotDetectionType: 'Goodbye'`, `sleepTime: 24`, `tags: ['stop bot']`, ...).
-- **`transferBot`** — required: `name` (top-level) + `details.transferToBot` (the target
-  bot's employeeId — not asterisk-marked in the UI, but the field that makes the action
-  functional). Ships pre-built as "Default Transfer Bot" targeting the location's primary
-  bot.
-- **`advancedFollowup`** ("Auto Followup" in the UI) — required: `name` only (top-level).
-  Ships with a pre-built "Contact Stopped Replying" scenario (one `followupSequence` step).
+  (`stopBotDetectionType: 'Goodbye'`, `sleepTime: 24`, `tags: ['stop bot']`, ...). Custom scenarios are
+  `stopBotDetectionType: 'Custom'`, at most 5 per bot. The server wants at least 2 examples and a final message of
+  3–150 characters (the editor asks 10–150; the 10–200 range belongs to Human Handover).
+- **`transferBot`** — required: `name` (top-level), `details.transferToBot` (the target
+  bot's employeeId) and **`details.transferBotType`** `Default` | `Custom` (the server 422s without it). At most
+  **4** per bot. A "Default Transfer Bot" ("If bot doesn't know the answer") is always present. The editor warns
+  that the target must be active on the same channel; "non-primary bots only" applies only while
+  `conversationsAI.channelManagement` is OFF.
+- **`advancedFollowup`** ("Auto Followup" in the UI) — required: `name` only (top-level). Three fixed scenarios:
+  `contactStoppedReplying` (default 15 min), `contactIsBusy` (2 h) and `contactRequested`. Each is a
+  `followupSequence` of at most **5** steps `{id (a number — the server 422s without it), followupTime,
+  followupTimeUnit, aiEnabledMessage, customMessage, triggerWorkflow, workflowId}`; step delays are minutes 2–60,
+  hours 1–24 or days 1–180 (editor ranges). The schedule is a separate write:
+  `PATCH /ai-employees/actions/followup/settings {actionIds, employeeId, locationId, followupSettings}` with
+  `followUpHours`, `workingHours[{dayOfTheWeek 1–7, intervals[]}]` (default Mon–Fri 08:00–17:00), `timezoneToUse`
+  `contact` | `business` and `dynamicChannelSwitching`. The server does not validate `timezoneToUse`: a made-up
+  value was stored.
 
 `VERIFIED_ACTION_TYPES` in `convai-ir.mjs` now lists all 7. Any `type` outside this list (no
 capture exists for it) still passes through as accepted-but-unverified — treat any result
@@ -309,14 +366,50 @@ GET /ai-employees/actions/search?employeeId={agentId}      employeeId ONLY
 - ⚠️ **The agent PUT cannot change actions.** `PUT` on the agent with `actions: []`, `null`, `""` or a full record
   all return accepted and leave the array untouched (measured). Actions have their **own** update and delete:
   the UI's action modals call `PUT /ai-employees/actions/{actionId}` `{employeeId, locationId, type, name, details}`
-  and `DELETE /ai-employees/actions/{actionId}` with body `{employeeId}` (2026-09-25 bundle; not yet executed, and
-  no tool here calls them yet). An earlier version of this note said actions were add-only — that was the agent
-  PUT's behaviour, not the platform's.
+  and `DELETE /ai-employees/actions/{actionId}` with body `{employeeId}`. Both were executed live on 2026-09-26: the
+  PUT updates the record in place, and the DELETE removes the record **and** its pointer on the agent. No typed tool
+  calls them; use `raw_request` with `host:"ai"`. An earlier version of this note said actions were add-only — that
+  was the agent PUT's behaviour, not the platform's.
 - The editor's **API Call** action is not one of these records: it is an Actions-Platform skill (keyed by
   `skillId`, must pass a test run before the UI saves it). This engine does not author it.
 - A pointer whose configuration is missing is reported (R-45, live A/B on one account) to stop the
   agent generating anything, silently. The engine never writes a bare pointer — it POSTs the action
   as its own resource and threads the server id back — so if you see one, it was hand-assembled.
+
+## Around the agent: list, folders, duplicate, dashboard, test chat
+
+All executed on a test account on 2026-09-26 and read back, unless a line says otherwise.
+
+- **List.** `GET /ai-employees/employees/search?locationId=&limit=` → `{employees, totalCount, count}`. `limit` must
+  be ≥ 10, and `skip` / `page` are refused (422). The list rows carry `goal` but **not** `personality` or
+  `instructions`, and `channels` as `[{name, isPrimary}]`; the single-agent GET returns plain strings. Read the
+  single agent before any update.
+- **Folders.** Create `{locationId, name, employeeIds?}` → `{id, name, employeeCount, previewEmployeeNames}`; list →
+  `{folders, totalCount, count, nextStartAfter}`; move `{locationId, employeeIds, folderId}` →
+  `{movedCount, unchangedCount}`; rename takes `{name}` only (a `locationId` in the body 422s); delete →
+  `{unfiledCount}` and the agents stay, unfiled. The name is ≤ 40 characters (server). The agent record has no
+  `folderId`, so folder membership is readable only from the folder list.
+- **Duplicate.** `PUT /ai-employees/employees/duplicate/{id}` with no body returns the copy, named
+  `Copy - <name>`. It copies the prompt, timing, sleep, channels, model and business name, and **drops the response
+  style** (`aiResponseLengthEnabled` false, no `responseLength`). Re-apply the style after a duplicate.
+- **Dashboard.** `POST /ai-employees/employees/{locationId}/fetch-dashboard-data {from, to, channel, metrics[],
+  presetPeriod, employeeIds[]}` answers **201** and changes nothing. The server's `metrics` enum has 13 values:
+  `totalUniqueContacts, totalMessages, totalAppointmentLinkSharedActions, totalAppointmentsBookedActions,
+  totalWorkflowsTriggeredActions, totalContactInfoUpdatedActions, totalStopBotTriggeredActions,
+  totalAppointmentCancelActions, totalAppointmentRescheduledActions, totalTransferBotActions,
+  totalHumanHandoverTriggeredActions, totalSkillExecutions, totalApiCallActions`. `totalActionsTriggered` is refused:
+  the page computes it and "Time Saved" itself. The editor limits the range to 6 months; the server answered a
+  21-month range. The page's cards are location-wide, not per agent.
+- **Test chat.** `POST /ai-employees/interactions/trial {messageList[{body, direction:"inbound"}], employeeId,
+  knowledgeBaseIds}` → 201 `{suggestions[], actionData?, aiResponseTime, id}`. It works on a bot whose mode is off,
+  and it is **billed** (about US$0.02 a message). It reports `actionData` only for **Stop Bot**; phrases that should
+  trigger Human Handover, Trigger a Workflow or Contact Info produced no action in the trial. So a trial proves
+  the prompt and the knowledge base, not those three actions. The flow-bot editor also warns that its trial "is
+  currently experiencing some issues".
+- **Primary agent.** `GET /ai-employees/employees/primary/{locationId}` answers `200 {success:false, message:"No
+  primary employee found"}` when there is none, which is not an error. Setting a primary is location-wide. With
+  `conversationsAI.channelManagement` ON, the editor hides "Set as Primary" and saves drop `isPrimary`, because the
+  deployment rows decide who answers.
 
 ## Knowledge base (rich-text, feeds this + Voice AI + Agent Studio)
 
