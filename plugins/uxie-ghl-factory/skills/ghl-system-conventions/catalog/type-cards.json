@@ -8348,7 +8348,7 @@
    "family": "triggers",
    "title": "dnd_contact",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Fires when a contact's DND state changes on a given channel.",
    "meta": {
     "Trigger value": "`dnd_contact`",
@@ -8383,7 +8383,7 @@
     }
    ],
    "validator": "`contactDndValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.dnd_direction`, `contact.tags`, `contact.dnd`, `contact.dnd_channel`, `contact.assignedTo`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/contact-validators.ts:60-66; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Filter rows: `contact.dnd_direction` (inbound/outbound), `contact.dnd` (state), `contact.tags` (Tag). `contactDndValidator` runs only the checks listed under `## Validator`.",
+   "notes": "- 🔴 **A DND set by a workflow's DND step does NOT fire this trigger** `[proven-live 2026-09-28]`: a published workflow with this trigger (`contact.dnd == true`) evaluated six DND changes made by `dnd_contact` steps — outbound enable/disable all, enable/disable specific channels, inbound enable/disable — and refused every one with `failedReason: \"DND trigger is not valid for this change\"`, including the enable-all that set `dnd: true` (`sniffs/workflows-wave1-2026-09-25/live-3E-dnd-trigger17-check.json`, `live-3E-dnd.json`). An opt-out rail that expects this trigger to run after a workflow switches DND on never runs.\n- Filter rows: `contact.dnd_direction` (inbound/outbound), `contact.dnd` (state), `contact.tags` (Tag). `contactDndValidator` runs only the checks listed under `## Validator`.",
    "hasCanonicalExample": false
   },
   {
@@ -8391,7 +8391,7 @@
    "family": "steps",
    "title": "dnd_contact",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Toggle the contact's \"Do Not Disturb\" flag globally, per-channel, or per-direction.",
    "meta": {
     "Section": "`contact` (per `sniffs/bundle/registry-parsed.json::entries[11]`)",
@@ -8432,7 +8432,7 @@
     }
    ],
    "validator": "`contactDNDValidator` (per `sniffs/bundle/validators.json`):\n\n- `attributes.dnd_contact` must be set, else `dnd_type_required` warning.\n- If `dnd_contact === \"enable_specific\"` or `\"disable_specific\"`, `specific_channels.length > 0` else `at_least_one_channel_required` warning.\n\nPer `validators-summary.json`: 2 fields referenced; result level `warning`.",
-   "notes": "- `dnd_direction` is in the TS interface as required, but the corpus example doesn't include it and the validator doesn't enforce it. The builder fills a missing `dnd_direction` with `'outbound'` when the drawer opens `[source-derived 2026-09-26 — components/actions/crm/SetContactDND.vue:97-99]`; what the runtime does with a stored step that lacks the key is not established.\n- Changing `dnd_direction` in the drawer always clears `dnd_contact`; switching to `inbound` also empties `specific_channels` `[source-derived 2026-09-26 — models/actions/ContactDND.ts:97-106]`.\n- The `enable` / `disable` literals toggle DND across all channels; `enable_specific` / `disable_specific` limit to channels in `specific_channels`.\n- `specific_channels` values are case-sensitive and mixed-case: `Call`, `SMS`, `Email`, `WhatsApp`, `FB`, `GMB` (enum `IDNDMessageTypes`) `[source-derived 2026-09-26 — models/actions/ContactDND.ts:13-20]`.",
+   "notes": "- **All six drawer modes, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3E-dnd.json`: outbound `enable` set `dnd: true` and every channel (`Call`, `SMS`, `Email`, `WhatsApp`, `FB`, `GMB`) to `status: \"active\"`; `disable` set `dnd: false` and every channel `inactive`. `enable_specific` with `specific_channels: [\"SMS\",\"Email\"]` touched ONLY those two (`dnd` stayed unset); `disable_specific [\"SMS\"]` cleared SMS and left Email active. Inbound (`dnd_direction: \"inbound\"`, which offers only enable/disable-all) wrote `inboundDndSettings.all` and left `dnd` / `dndSettings` untouched. Each channel row records `message: \"Updated from workflow_<workflowId>\"`.\n- 🔴 **DND set by this step does NOT fire a `dnd_contact` trigger** `[proven-live 2026-09-28]` (`live-3E-dnd-trigger17-check.json`): a published workflow whose trigger is DND (`contact.dnd == true`) evaluated all six changes and refused each with `failedReason: \"DND trigger is not valid for this change\"` — including the outbound enable-all that set `dnd: true`. Do not chain an opt-out workflow off a workflow-set DND.\n- `dnd_direction` is in the TS interface as required, but the corpus example doesn't include it and the validator doesn't enforce it. The builder fills a missing `dnd_direction` with `'outbound'` when the drawer opens `[source-derived 2026-09-26 — components/actions/crm/SetContactDND.vue:97-99]`; what the runtime does with a stored step that lacks the key is not established.\n- Changing `dnd_direction` in the drawer always clears `dnd_contact`; switching to `inbound` also empties `specific_channels` `[source-derived 2026-09-26 — models/actions/ContactDND.ts:97-106]`.\n- The `enable` / `disable` literals toggle DND across all channels; `enable_specific` / `disable_specific` limit to channels in `specific_channels`.\n- `specific_channels` values are case-sensitive and mixed-case: `Call`, `SMS`, `Email`, `WhatsApp`, `FB`, `GMB` (enum `IDNDMessageTypes`) `[source-derived 2026-09-26 — models/actions/ContactDND.ts:13-20]`.",
    "hasCanonicalExample": true
   },
   {

@@ -176617,6 +176617,8 @@ var NESTED_WHOLE = [
   "endCallConfig",
   "userFirstFallback"
 ];
+var READ_ONLY_INNER = { aiDisclaimerConfiguration: ["isGreetingMessageDynamic"] };
+var writable = (key, v) => isObj(v) && READ_ONLY_INNER[key] ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v;
 var WRITABLE = /* @__PURE__ */ new Set([
   "advancedSettingsEnabled",
   "agentName",
@@ -176728,8 +176730,12 @@ function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}
   for (const [k, v] of Object.entries(spec)) {
     if (NESTED_WHOLE.includes(k)) {
       if (!isObj(v)) throw new IRError2("SCHEMA", `${k} must be an object (it is sent whole, merged over the stored one)`);
+      const refused = Object.keys(v).filter((x) => READ_ONLY_INNER[k]?.includes(x));
+      if (refused.length) {
+        throw new IRError2("SPEC_KEY_UNAPPLIED", `${k}.${refused.join(", ")} is read-only: the agent read carries it but the write refuses it (422 "should not exist"). Drop it from the spec. Nothing was sent.`);
+      }
       const stored = readFlat(current, k);
-      body2[k] = { ...isObj(stored) ? stored : {}, ...v };
+      body2[k] = writable(k, { ...isObj(stored) ? stored : {}, ...v });
     } else {
       body2[k] = v;
     }
@@ -176746,7 +176752,7 @@ function readSet(record2, key) {
     const prompts = [...new Set(kbActions(record2).map((a) => a.actionParameters?.triggerPrompt))];
     return prompts.length === 1 ? prompts[0] : prompts;
   }
-  return readFlat(record2, key);
+  return writable(key, readFlat(record2, key));
 }
 var IGNORE = /* @__PURE__ */ new Set(["updatedAt", "traceId", "__v"]);
 function fields(record2) {
@@ -176775,7 +176781,7 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
     const message = serverMessage2(put?.json) ?? `HTTP ${put?.status ?? "?"}`;
     if (!stored.length) return { ok: false, code: "AGENT_UPDATE_FAILED", status: put?.status ?? null, detail: message, written: [] };
     const undo = { locationId: plan.body.locationId };
-    for (const k of stored) undo[k] = readFlat(before, k);
+    for (const k of stored) undo[k] = writable(k, readFlat(before, k));
     const u = await gw.call("PUT", plan.path, undo);
     const again = await read();
     const diverged = stored.filter((k) => !same(readFlat(again, k), readFlat(before, k)));
