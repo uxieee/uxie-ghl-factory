@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.4.2] — 2026-09-28
+
+**Workflow steps that work in GHL are no longer refused or falsely warned about: Edit Conversation and AI Generate
+Image. Plus Voice AI docs on what the current builder offers. Each fix was executed live on the test account.**
+
+Workflows:
+- **Edit Conversation:** its declared `archive` option was refused at build and at publish. The gate checked it
+  against a dead native card instead of the live asset. Its read/unread values now compile to the booleans GHL's
+  validator requires; an omitted `read` used to compile to a refused `"true"`.
+- **AI Generate Image:** `{{workflow_ai_generate_image.N.image_url}}` (and `image_file.path` / `image_file.name`) no
+  longer warn that they "render literally", and dynamic reference images no longer warn that they "move nothing".
+  Both work at run time. A reference to a missing producer step still warns.
+
+AI agents (Voice AI) docs:
+- What the current builder offers and no longer writes: WhatsApp is only a hosted custom action; basic data
+  collection is gone; Edit with AI and the prompt evaluator are legacy-only; agent templates are marketplace apps,
+  whose install is an OAuth grant on the location, so they are pointed to rather than authored.
+- Voice chat widgets: the create and connect bodies, and what connecting writes on both records.
+
+Catalogue: +7 documented routes; one host corrected (ai-supervisor registration is on services, not backend).
+
 ## [1.4.1] — 2026-09-28
 
 **Correction: `build_funnel_page` `seo` now writes through GHL's REST route. 1.3.0 said no such route existed; that
