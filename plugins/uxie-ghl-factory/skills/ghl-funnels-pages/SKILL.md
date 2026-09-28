@@ -293,6 +293,8 @@ Load only what the job needs.
 | the builder shows my change and the public URL does not | the publish-freeze rule above; read `publishState` |
 | set up an A/B test | `websites.md` — it works, and it needs **six** things |
 | websites, global sections, blogs, stores | [`references/websites.md`](references/websites.md) |
+| every `build_funnel_page` key, op, animation, popup and font rule | [`references/build-funnel-page.md`](references/build-funnel-page.md) |
+| every `edit_funnel` op with its arguments and traps | [`references/edit-funnel.md`](references/edit-funnel.md) |
 | I need to know which READ verifies a WRITE | [`references/verify-reads.md`](references/verify-reads.md) |
 
 ## Never report a page as shipped off a `201`
