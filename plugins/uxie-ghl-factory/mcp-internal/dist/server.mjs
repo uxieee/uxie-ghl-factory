@@ -176668,6 +176668,13 @@ function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}
     }
   }
   const body2 = { locationId: locationId ?? current.locationId };
+  if ("knowledgeBasePrompt" in spec && !("knowledgeBaseIds" in spec)) {
+    const ids = Array.isArray(current.knowledgeBaseIds) ? current.knowledgeBaseIds : [];
+    if (!ids.length) {
+      throw new IRError2("SCHEMA", "knowledgeBasePrompt needs a knowledge base on the agent: none is attached, and the prompt lives on the knowledge-base action the attach creates. Send knowledgeBaseIds with it. Nothing was sent.");
+    }
+    body2.knowledgeBaseIds = ids;
+  }
   const expected = {};
   for (const [k, v] of Object.entries(spec)) {
     if (NESTED_WHOLE.includes(k)) {
@@ -176682,6 +176689,15 @@ function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}
   return { method: "PUT", path: `/voice-ai/agents/${agentId}`, body: body2, expected, setKeys: Object.keys(spec) };
 }
 var same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+var KB_KEYS = ["knowledgeBaseIds", "knowledgeBasePrompt"];
+var kbActions = (record2) => (record2?.actions ?? []).filter((a) => a?.actionType === "KNOWLEDGE_BASE");
+function readSet(record2, key) {
+  if (key === "knowledgeBasePrompt") {
+    const prompts = [...new Set(kbActions(record2).map((a) => a.actionParameters?.triggerPrompt))];
+    return prompts.length === 1 ? prompts[0] : prompts;
+  }
+  return readFlat(record2, key);
+}
 var IGNORE = /* @__PURE__ */ new Set(["updatedAt", "traceId", "__v"]);
 function fields(record2) {
   const out = {};
@@ -176712,26 +176728,52 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
     for (const k of stored) undo[k] = readFlat(before, k);
     const u = await gw.call("PUT", plan.path, undo);
     const again = await read();
-    const restored = stored.every((k) => same(readFlat(again, k), readFlat(before, k)));
+    const diverged = stored.filter((k) => !same(readFlat(again, k), readFlat(before, k)));
+    const restored = diverged.length === 0 && Boolean(u?.ok);
+    const values = Object.fromEntries(stored.map((k) => [k, {
+      sent: plan.body[k],
+      storedAfterRefusal: readFlat(after, k),
+      restoredTo: readFlat(before, k),
+      readsNow: again ? readFlat(again, k) : void 0
+    }]));
+    if (!restored) {
+      return {
+        ok: false,
+        code: "PROVIDER_REFUSED_RESTORE_FAILED",
+        status: put?.status ?? null,
+        detail: message,
+        written: stored,
+        restored: false,
+        values,
+        diverged,
+        warning: `\u{1F534} The refusal stored [${stored.join(", ")}] and writing the previous values back did NOT verify for [${diverged.join(", ") || stored.join(", ")}]. The GHL record and the voice provider now DISAGREE on those fields \u2014 re-read the agent and write a valid value for each.`
+      };
+    }
     return {
       ok: false,
       code: "PROVIDER_REFUSED_BUT_STORED",
       status: put?.status ?? null,
       detail: message,
       written: stored,
-      restored: restored && Boolean(u?.ok),
-      warning: `The refusal came back AFTER GHL stored [${stored.join(", ")}] \u2014 the GHL record and the voice provider disagreed. ` + (restored ? "The previous values were written back and read back." : "Writing the previous values back did NOT verify \u2014 re-read the agent and fix it.")
+      restored: true,
+      values,
+      warning: `The refusal came back AFTER GHL stored [${stored.join(", ")}] \u2014 the GHL record and the voice provider disagreed. The previous values were written back and read back (data.values shows sent / stored / restored / now).`
     };
   }
   const confirmed = [];
   const mismatches = [];
-  for (const k of plan.setKeys) (same(readFlat(after, k), plan.expected[k]) ? confirmed : mismatches).push(k);
+  for (const k of plan.setKeys) (same(readSet(after, k), plan.expected[k]) ? confirmed : mismatches).push(k);
   const setNames = new Set(plan.setKeys.flatMap(readNames));
   const b = fields(before);
   const a = fields(after);
   const changed = [];
+  const kbChange = plan.setKeys.some((k) => KB_KEYS.includes(k));
+  const nonKb = (list) => JSON.stringify((list ?? []).filter((x) => x?.actionType !== "KNOWLEDGE_BASE"));
+  const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
   for (const k of /* @__PURE__ */ new Set([...Object.keys(b), ...Object.keys(a)])) {
     if (setNames.has(k)) continue;
+    if (kbChange && k === "actions" && nonKb(b[k]) === nonKb(a[k])) continue;
+    if (kbChange && k === "actionIds" && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
     if (same(b[k], a[k])) continue;
     if (b[k] === void 0 && isObj(a[k]) && !Object.keys(a[k]).length) continue;
     changed.push({ key: k, before: b[k], after: a[k] });
@@ -178526,13 +178568,14 @@ var TOOLS2 = [
         preview,
         verification: report.verification,
         collateral: report.collateral,
-        ...report.written ? { written: report.written, restored: report.restored } : {},
+        ...report.written ? { written: report.written, restored: report.restored, values: report.values } : {},
+        ...report.diverged ? { diverged: report.diverged } : {},
         ...report.warning ? { warning: report.warning } : {}
       };
       return report.ok ? ok(data2) : withFailureData(fail(
         report.code ?? CODES.ENGINE_ABORT,
         report.detail ?? "The Voice AI update did not verify.",
-        report.code === "PROVIDER_REFUSED_BUT_STORED" ? "Read data.warning; fix the value from the provider message and retry." : "Inspect data.verification and data.collateral; the record is live, so re-read before retrying."
+        report.code === "PROVIDER_REFUSED_RESTORE_FAILED" ? "URGENT: data.diverged lists fields where GHL and the voice provider now disagree. Re-read the agent and write a valid value for each." : report.code === "PROVIDER_REFUSED_BUT_STORED" ? "Read data.warning and data.values; fix the value from the provider message and retry." : "Inspect data.verification and data.collateral; the record is live, so re-read before retrying."
       ), data2);
     }, args)
   },

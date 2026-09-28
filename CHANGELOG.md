@@ -25,7 +25,9 @@ New tools:
   pipeline, stage and owner NAMES beside GHL's ids.
 - **`update_voiceai_agent`** — change a Voice AI agent's prompt, voice, model and call settings. GHL merges partial
   updates. When the voice provider refuses a value GHL has already stored, the tool writes the previous values back
-  and reports both (`PROVIDER_REFUSED_BUT_STORED`).
+  and reports each value sent, stored and restored (`PROVIDER_REFUSED_BUT_STORED`); a write-back that does not verify
+  is its own loud error naming the fields that now disagree (`PROVIDER_REFUSED_RESTORE_FAILED`). Attaching a knowledge
+  base is modelled as the action GHL mints for it, so its prompt is verified where GHL stores it.
 - **`get_funnel`** — one funnel's summary, public paths, settings, versions, security headers, events and cookie
   consent.
 - **`edit_funnel`** — funnel settings, create / clone / move / reorder / delete steps, publish and unpublish a page
