@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1297,
+      count: 1300,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -641,7 +641,42 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:112"
+            "ai-agents/10-anatomy/flow-agent-shape.md:132"
+          ]
+        },
+        {
+          id: "ai-agents--agent-execution-actions-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agent-execution/actions/{actionId}",
+          path: "/agent-execution/actions/{actionId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "actionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:135"
           ]
         },
         {
@@ -7199,7 +7234,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/20-api/public-renderer-and-submit.md:16",
             "forms/20-api/public-renderer-and-submit.md:35",
             "forms/20-api/public-renderer-and-submit.md:51",
-            "forms/20-api/public-renderer-and-submit.md:74"
+            "forms/20-api/public-renderer-and-submit.md:74",
+            "funnels/40-rules/silent-failures.md:1326"
           ]
         },
         {
@@ -11274,7 +11310,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:444"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:452"
           ]
         },
         {
@@ -13556,7 +13592,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:436"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:444"
           ]
         },
         {
@@ -13587,7 +13623,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:448"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:456"
           ]
         },
         {
@@ -15797,7 +15833,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:449",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:457",
             "workflows/70-research/ENDPOINTS.md:243"
           ]
         },
@@ -29211,7 +29247,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/email.md:158",
+            "workflows/30-types/steps/email.md:159",
             "workflows/30-types/steps/if_else.md:31",
             "workflows/40-rules/server-side-validation.md:246"
           ]
@@ -37252,8 +37288,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:42",
-            "ai-agents/10-anatomy/flow-agent-shape.md:44"
+            "ai-agents/10-anatomy/flow-agent-shape.md:51",
+            "ai-agents/10-anatomy/flow-agent-shape.md:60"
           ]
         },
         {
@@ -37744,6 +37780,69 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:249"
+          ]
+        },
+        {
+          id: "ai-agents--vera-chat",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/vera/chat",
+          path: "/agent-studio/vera/chat",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:42",
+            "ai-agents/10-anatomy/flow-agent-shape.md:44"
+          ]
+        },
+        {
+          id: "ai-agents--vera-review",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/vera/review",
+          path: "/agent-studio/vera/review",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:47"
           ]
         },
         {
@@ -40798,7 +40897,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:457"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:465"
           ]
         },
         {
@@ -40859,7 +40958,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:459",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:467",
             "ai-agents/20-api/agent-deployment-routing.md:173",
             "ai-agents/20-api/agent-deployment-routing.md:389"
           ]
@@ -44263,7 +44362,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:103",
+            "ai-agents/10-anatomy/flow-agent-shape.md:126",
             "ai-agents/20-api/12-ai-agents-api.md:314",
             "ai-agents/20-api/knowledge-base.md:55",
             "ai-agents/20-api/knowledge-base.md:102",
@@ -56984,14 +57083,15 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
-            "ai-agents/10-anatomy/flow-agent-shape.md:45",
+            "ai-agents/10-anatomy/flow-agent-shape.md:61",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:257"
           ]
         },
         {
           id: "ai-agents--voice-ai-agents-put",
           aka: [
-            "/voice-ai/agents/{id}"
+            "/voice-ai/agents/{id}",
+            "/voice-ai/agents/{voiceAiAgentId}"
           ],
           method: "PUT",
           url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
@@ -57043,7 +57143,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:226",
             "ai-agents/20-api/12-ai-agents-api.md:160",
             "ai-agents/20-api/12-ai-agents-api.md:170",
-            "ai-agents/20-api/12-ai-agents-api.md:373"
+            "ai-agents/20-api/12-ai-agents-api.md:373",
+            "ai-agents/10-anatomy/flow-agent-shape.md:57"
           ]
         },
         {
@@ -57240,7 +57341,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:461",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:469",
             "ai-agents/20-api/logs-deployment-email.md:113"
           ]
         },
@@ -57286,7 +57387,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:460"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:468"
           ]
         },
         {
@@ -57762,7 +57863,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:391",
-            "ai-agents/10-anatomy/flow-agent-shape.md:47"
+            "ai-agents/10-anatomy/flow-agent-shape.md:63"
           ]
         },
         {
@@ -58693,7 +58794,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:467"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:475"
           ]
         },
         {
@@ -183500,6 +183601,11 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
   const kbChange = plan.setKeys.some((k) => KB_KEYS.includes(k));
   const nonKb = (list) => JSON.stringify((list ?? []).filter((x) => x?.actionType !== "KNOWLEDGE_BASE"));
   const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
+  const retemplated = [];
+  const oldName = readFlat(before, "agentName");
+  const newName = plan.body.agentName;
+  const renameOnly = plan.setKeys.includes("agentName") && !plan.setKeys.includes("agentPrompt") && typeof oldName === "string" && oldName.length > 0 && typeof newName === "string" && oldName !== newName;
+  const isRetemplate = (x, y) => renameOnly && typeof x === "string" && typeof y === "string" && x.includes(oldName) && x.split(oldName).join(newName) === y;
   for (const k of /* @__PURE__ */ new Set([...Object.keys(b), ...Object.keys(a)])) {
     if (setNames.has(k)) continue;
     if (k === "agentSettings.s2sBehaviour" && plan.setKeys.includes("voiceId")) {
@@ -183509,6 +183615,10 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
     if (kbChange && k === "actions" && nonKb(b[k]) === nonKb(a[k])) continue;
     if (kbChange && k === "actionIds" && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
     if (same(b[k], a[k])) continue;
+    if (k === "agentPrompt" && isRetemplate(b[k], a[k])) {
+      retemplated.push({ key: k, from: oldName, to: newName });
+      continue;
+    }
     if (b[k] === void 0 && isObj(a[k]) && !Object.keys(a[k]).length) continue;
     if (modelChange && MODEL_CASCADE.has(k)) {
       cascade.push({ key: k, before: b[k], after: a[k] });
@@ -183534,7 +183644,12 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
     }
   }
   const verification = { verified: mismatches.length === 0 && confirmed.length > 0, confirmed, mismatches };
-  const collateral = { unchanged: changed.length === 0, changed, ...cascade.length ? { cascade } : {} };
+  const collateral = {
+    unchanged: changed.length === 0,
+    changed,
+    ...cascade.length ? { cascade } : {},
+    ...retemplated.length ? { retemplated, note: `GHL re-templated the agent name inside agentPrompt ("${oldName}" \u2192 "${newName}" at every occurrence); nothing else in the prompt moved` } : {}
+  };
   if (changed.length) {
     return {
       ok: false,
@@ -185571,7 +185686,7 @@ var TOOLS2 = [
     name: "update_voiceai_agent",
     description: describe3(
       "update_voiceai_agent",
-      "Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, re-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL saves), it writes the previous values back and says so. sessionVariables are MERGED by name into the stored list ({name, remove:true} removes one; nothing else is dropped). s2sBehaviour {responseDepth, vadEagerness, languages} only on a speech-to-speech agent (stored provider lc): it MERGES, languages REPLACE the list as base codes (en-US \u2192 en); GHL stores any string for the two enums, so refusing values outside the builder's lists is this tool's rule. prompts {section: text|null} MERGES by section (null resets it to Default); GHL stores only personality, appointmentBooking, dateAndTimeAwareness, numericAndEmailHandling, emailConfirmationProcess (the hangup/spam prompts are endCallConfig). disabledPrompts replaces the list; an empty list is refused (clearing is unmeasured). Refuses action arrays, numbers and unknown keys. \u{1F534} A Test Audio call binds to the SIGNED-IN USER's own contact: on an agent that updates contact fields, saves summary notes or runs post-call workflows, a test call writes to that real contact. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes."
+      "Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, re-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL saves), it writes the previous values back and says so. sessionVariables are MERGED by name into the stored list ({name, remove:true} removes one; nothing else is dropped). s2sBehaviour {responseDepth, vadEagerness, languages} only on a speech-to-speech agent (stored provider lc): it MERGES, languages REPLACE the list as base codes (en-US \u2192 en); GHL stores any string for the two enums, so refusing values outside the builder's lists is this tool's rule. prompts {section: text|null} MERGES by section (null resets it to Default); GHL stores only personality, appointmentBooking, dateAndTimeAwareness, numericAndEmailHandling, emailConfirmationProcess (the hangup/spam prompts are endCallConfig). disabledPrompts replaces the list; an empty list is refused (clearing is unmeasured). Refuses action arrays, numbers and unknown keys. A rename makes GHL rewrite the old name inside agentPrompt: reported as collateral.retemplated, not a failure. \u{1F534} A Test Audio call binds to the SIGNED-IN USER's own contact: on an agent that updates contact fields, saves summary notes or runs post-call workflows, a test call writes to that real contact. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes."
     ),
     inputSchema: schema({ locationId: external_exports.string(), agentId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
