@@ -1847,10 +1847,15 @@ async function editPage(args, deps, composeSection) {
   const pageData = { ...edited, sections: edited.sections.map((sec, i) => (report.some((r) => r.op === 'append-section' && r.sectionId === sec.id)
     ? buildPageData({ pageId: args.pageId, stepId: args.stepId, funnelId: args.funnelId, locationId: args.locationId, sections: [sec] }).sections[0]
     : sec)).map((sec, i) => ({ ...sec, sequence: i })) };
+  // EVERY autosave carries the page's meta, as the builder's always does: a version minted without one
+  // has no `meta`, and publishing it strips the page's <title> and description (rule 31 — measured again
+  // 2026-09-28 when an edit + publish:true without `seo` emptied a live title). So the record's current
+  // meta is read on every edit, and `seo` only overrides the keys it names.
+  const rec = await gw.call('GET', `/funnels/page/${encodeURIComponent(args.pageId)}`);
+  if (!rec.ok) return fromHttp(rec.status, rec.json);
+  const keepMeta = seoMeta(rec.json?.meta ?? {}, {});
   let seo = null;
   if (args.seo) {
-    const rec = await gw.call('GET', `/funnels/page/${encodeURIComponent(args.pageId)}`);
-    if (!rec.ok) return fromHttp(rec.status, rec.json);
     // The SEO write is Firestore-direct and NOT scoped by the backend, so the page RECORD must resolve
     // to this location and funnel before anything is written (the step/page check above is not enough).
     const recCheck = checkRecord(rec.json, { pageId: args.pageId, locationId: args.locationId, funnelId: args.funnelId });
@@ -1883,7 +1888,7 @@ async function editPage(args, deps, composeSection) {
     }
   }
   const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
-    { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), ...(seo ? { meta: seo.write } : {}) });
+    { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), meta: seo ? seo.write : keepMeta });
   if (!saved.ok) return fromHttp(saved.status, saved.json);
   if (seo) {
     const seoRead = await reread(
@@ -10529,6 +10534,7 @@ export const TOOLS = [
     capabilities: [
       { method: 'POST', path: '/funnels/builder/autosave/{pageId}' },
       { method: 'GET', path: '/funnels/builder/page/data' },
+      { method: 'GET', path: '/funnels/page/{pageId}' },
       { method: 'GET', path: '/funnels/builder/get-versions' },
       { method: 'POST', path: '/funnels/builder/publish-version' },
     ],
@@ -10612,8 +10618,17 @@ export const TOOLS = [
       }
 
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      // Carry the page's current meta into the version this autosave mints — a meta-less version strips
+      // the page's <title>/description the moment it is published (rule 31). A page with no record yet
+      // (read fails) is written without it, as before.
+      let recMeta = null;
+      try { recMeta = await gw.call('GET', `/funnels/page/${encodeURIComponent(args.pageId)}`); } catch { recMeta = null; }
+      if (!recMeta?.ok && args.publish === true) {
+        return fail(CODES.ENGINE_ABORT, 'the page record (its SEO meta) could not be read, so nothing was written: publishing a version without meta strips the page\'s <title> and description',
+          'Retry; or write without publish:true and publish from the builder, which sends its own meta.');
+      }
       const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
-        autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }));
+        { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), ...(recMeta?.ok ? { meta: seoMeta(recMeta.json?.meta ?? {}, {}) } : {}) });
       if (!saved.ok) return fromHttp(saved.status, saved.json);
 
       // Read back on a SEPARATE request. A 201 from autosave proves the request parsed, nothing more.
