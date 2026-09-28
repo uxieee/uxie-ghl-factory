@@ -56,7 +56,9 @@ Step 2 is still a recipe; the rest have typed tools. 🔴 A store from `create_f
 
 **`get_funnel`** (read-only) — one flat `view`: `summary` (steps, pages, split state), `lookups` (the
 routing rows: a step with no row 404s; `publishStatus` null = never touched = live), `settings`,
-`versions` (one page, sorted by timestamp), `security`, `events`, `cookie-consent`.
+`versions` (one page, sorted by timestamp), `security`, `events`, `cookie-consent`, `share` (the funnel's
+share link if one exists — `shareWith`, the import URL), `archived-pages` (pages a page "delete" or a split
+winner archived; restorable).
 
 **`edit_funnel`** — one `op` per call, preview first, `confirm:true` writes and reads back:
 `settings` · `create-step` · `update-step` (rename / move path) · `reorder-steps` · `clone-step` ·
@@ -66,6 +68,21 @@ routing rows: a step with no row 404s; `publishStatus` null = never touched = li
 `delete-funnel` (target check: id **and** `expectName`; refused while any page still serves in public —
 unpublish first; the edge keeps serving a deleted page ~70 s). `update-step` also renames the step's
 page record, as the UI does, so the builder's page title never drifts from the step.
+
+Whole-object ops on the same tool (bodies captured from the UI, each proven live):
+`clone-funnel` `{name}` — a copy in THIS location. The route returns no id, so the name must be unused
+and the copy is found by it. 🔴 The copy has NO domain and NO public paths and keeps the source's step
+urls; attaching the source's domain (`settings {domainId, funnelPath}`) silently renames every colliding
+path with a numeric suffix (`/x` → `/x-5424`) — read `view lookups` after and move them with `update-step`.
+`archive-page` `{pageId, expectName}` — what GHL's modal calls "permanently deleted" is an ARCHIVE; refused
+on the only page of a step and on a running split. `restore-page` `{pageId}` — back on its step, on a NEW
+path minted from the page name (the old path stays 404). `import-page` `{stepId, sourceFunnelId,
+sourceStepId, sourcePageIndex}` — a copy of another step's page as the target's second page; products are
+NOT imported. `add-store` — the 5 store steps on fixed domain-level paths (pre-checked; refused if any is
+held); GHL creates the pages EMPTY (a blank 200 in public), so the op fills each with its store element.
+🔴 Saving a checkout with the billing address on IN THE BUILDER creates a "Billing Info" contact-field
+folder + 7 billing fields location-wide (a repeat added no duplicate fields; they are not removed with the store); `build_funnel_page` previews
+say so when a page has such a checkout.
 
 **`find_ghl_site`** `list:true` — every funnel, website, store, webinar and blog on the location, walked
 to the list's `count` (the list honours `limit` exactly, so a single page silently drops the rest),
@@ -127,6 +144,8 @@ target. Read them with **`find_ghl_site`** `includeRedirects:true` (domains, eve
 | brand-board palette colours (`var(--red)`) | page builder colour picker → Brand / Global colours | an API-composed page has no builder `:root` palette, so a palette var resolves to nothing there; the tool writes literal colours |
 | column layout knobs (content direction, spacing, alignment, "same layout on mobile") | page builder → column → General | the builder writes them per column; widths are set with `widthPct` |
 | saved assets: section / element templates, universal sections and elements, global sections | page builder → Save Section / Save Element; Quick Add → Saved Assets | builder-owned synced assets; inserting one is a drag in the builder |
+| share a funnel (a link anyone can import) | Sites → Funnels → row ⋮ → Share | 🔴 merely OPENING the Share modal creates a link shared with ALL; narrowing it to the agency or removing it needs the $497 plan. Read one with `get_funnel view share` |
+| clone a funnel into ANOTHER sub-account | Sites → Funnels → row ⋮ → Clone → pick locations | the same route as `clone-funnel`; cross-location delivery is not proven, so the tool clones into this location only |
 | visitor geo-location | nothing to set | a runtime lookup (`GET /funnels/funnel/geo-location/` → the visitor's country) the builder uses to format prices |
 
 What the builder does that a 2xx will not tell you (all measured live):
