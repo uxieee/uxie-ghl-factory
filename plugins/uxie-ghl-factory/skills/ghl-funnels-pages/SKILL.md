@@ -108,6 +108,20 @@ class knobs AND the builder's compiled rules, byte-equal to what the builder sav
 background, columns}]` (edit mode: `append-popup`) and a button's `openPopup: "<popup name>"` open one.
 An empty popup is refused — GHL never renders it — and so is an openPopup naming a popup the page lacks.
 
+**Buttons that sell** (`extra` on a `button`, both modes; every shape is what the builder UI saves, proven by
+reading it back and clicking it in public). `action` `add-to-cart` / `buy-now` take `storeProductId` (the product)
+and `storeProductPriceId` (the PRICE). Add to cart shows a toast and keeps the cart in the browser; Buy now opens
+`/store-checkout?buyNowProductId=<price id>`. `go-to-product-collection` takes `storeCollectionId` plus
+`storeProductPriceId: "all"` and opens `/store-product-list/collections/<slug>`. `sell-product` (one-click
+up/down-sell) takes `productId: {value: {id: <STEP product id>}}` — an object, and a step product, not a
+catalogue id. Its sale needs a card already on file from an earlier purchase in the funnel.
+After a sale, a `sell-product` button or an order form (`one-step-order`, `two-setp-order`) goes where
+`saleAction` says: `go-to-next-funnel-step` (default), `url` + `visitWebsite`, or `step-path` + `stepPath: <step id>`.
+**Step products** — what an order form lists and a sell button sells — are the step's Products tab:
+`POST /funnels/order-form/products` `{locationId, funnel, step, name, displayText, product, price, bumpProduct,
+quantity: {max, allowMultiple}, authorizeAmount}` (read back with `GET /funnels/order-form/products/?locationId&funnel&step`),
+through `raw_request` today.
+
 **Fonts** — page typography `{headlineFont, contentFont}` (compose: top-level `typography`; edit: op `page`
 `typography`) writes the builder's setting, loads the faces and declares `--headlinefont` / `--contentfont`;
 an element with `font: 'headline'|'content'` uses them (refused when the page has none set). A slot can
@@ -161,6 +175,15 @@ What the builder does that a 2xx will not tell you (all measured live):
   subscribe form, category navigation, the store kinds) and never writes a font prop as a list; proven by composing
   all 54 non-step-typed kinds and all five store pages and saving each in the builder. After a hand-made edit, open
   the page in the builder and save once: if it refuses, a node is malformed.
+
+- 🔴 **An order form that renders is not an order form that submits.** Which inputs show comes from
+  `extra.step1.value`; the public validator demands a phone unless `showPhone` is `false`, so an order form with
+  an empty `step1` renders without a phone field and no buyer can ever complete it (`build_funnel_page` writes the
+  builder's `step1` defaults). The validator also refuses a phone libphonenumber calls impossible, a one-word
+  full name, an empty mandatory company name and, with shipping on, an empty address field (a US address needs a
+  state). The submission carries a Cloudflare Turnstile token: from an automated browser the order `POST`
+  answered `429` and a "Verify you are human" box appeared. Nothing was created. A test order needs a person in
+  a real browser.
 
 - 🔴 **The builder's first save of an API-composed page adds an EMPTY popup**, and merely opening the
   General tab of a button whose action is empty rewrites it to `openPopup` pointing at that popup — a
