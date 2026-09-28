@@ -37,6 +37,9 @@ Tell the user GHL does these, and where. Do not say they are impossible.
 | Saved views (smart lists) and smart tags on the board | Opportunities › "+ List"; Pipelines › Edit › Smart tags | rare configuration; raw calls with the catalogue's trap notes |
 | Sharing & permissions per pipeline, Duplicate, Copy to sub-accounts | Pipelines › row ⋮ | rare; copy writes into other accounts |
 | Opportunity settings: owner decoupling and follower sync; allow duplicates | Settings › Opportunities & Pipelines (follower sync is greyed out until decoupling is on); Settings › Objects › Opportunities (allow duplicates) | account-wide switches that change how every owner assignment behaves; change them in the UI |
+| Board layout: board/list toggle, card fields and layout, drag a card to change status, the "All pipelines" list, remembered filters | Opportunities screen (Manage fields, Customize card, the status bar that appears while dragging) | display preferences with no agent task |
+| Full-page opportunity Record View | behind a lab flag (`opportunities.decoupling`); off on most accounts | UI container over the same record |
+| Nothing to author: the opportunity `sync` call (no screen uses it, no observable effect) and `filterType:"smartlist"` smart-filters (inert; saved views are `/lists/dynamic`) | — | no task needs them |
 | Notes, tasks, appointments, invoices on a card | the card's edit form tabs | contact-level records; see the traps page before scripting them |
 
 ## Scope

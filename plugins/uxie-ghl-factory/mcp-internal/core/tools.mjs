@@ -9598,7 +9598,9 @@ export const TOOLS = [
       + 'missing value makes GHL rewrite them all. expectedName must match the pipeline\'s current name. Previews by '
       + 'default; confirm:true writes, then reads the pipeline back and fails on any difference. Does not create or '
       + 'delete pipelines, change sharing permissions, or edit opportunities (except the moves above). '
-      + 'Read pipelines with list_account_entities.',
+      + 'Read pipelines with list_account_entities. No tool changes the account-wide opportunity settings (owner '
+      + 'decoupling, follower sync, allowing two cards per contact): GHL does them in Settings > Opportunities & Pipelines '
+      + 'and Settings > Objects > Opportunities.',
     inputSchema: schema({
       locationId: z.string(),
       pipelineId: z.string(),
@@ -9740,7 +9742,9 @@ export const TOOLS = [
       + 'useOpportunityProbability switch. Slippage bands: the server default is "1+ times AND 7+ days" for medium, '
       + 'the app sends OR; read the returned rule strings. raw:true adds the service\'s untouched answer. No public '
       + 'API equivalent. Stores nothing. Not for editing: edit_pipeline changes pipelines and stages; the public '
-      + 'opportunities tools (ghl MCP) read and change individual opportunities; list_account_entities lists pipelines.',
+      + 'opportunities tools (ghl MCP) read and change individual opportunities; list_account_entities lists pipelines. '
+      + 'Board-only features have no tool: the board/list layout, card fields, drag-to-change-status, the All pipelines '
+      + 'list, remembered filters, the full-page Record View, and CSV Export/Import. GHL does them on the Opportunities screen.',
     inputSchema: schema({
       locationId: z.string(),
       view: z.enum(FORECAST_VIEWS),
