@@ -425,25 +425,12 @@ doc as usable. `compileRichTextDelete(id)` handles cleanup (`DELETE
 `POST /knowledge-base/default` is idempotent — call it to get-or-create the account's default
 KB before attaching content, rather than assuming one exists.
 
-**Tables (CSV-only) and Files (PDF/DOC/DOCX/MD)** are the other two captured KB content-source
-types, per `captures/knowledge-base-tables-files.json`. `kb-compiler.mjs`'s
-`compileKbTableUpload` and `compileKbFileUpload` produce their request descriptors (method,
-path, and the known non-binary form/JSON fields) — but since both are multipart uploads of
-real file bytes, this compiler describes the request shape rather than building the binary
-body itself:
-- **Tables** is a 3-step async pipeline: upload (multipart) → schema auto-detect (GET) →
-  select-columns (POST, which actually finalizes the schema and queues Parquet conversion) →
-  poll parquet-status → summary → delete. `fileId` is server-assigned on the upload response,
-  so steps after upload use a `:fileId` path placeholder for the caller to fill in.
-- **Files** is a single multipart POST that both uploads AND registers the KB record (no
-  separate finalize step), then an async CONVERSION → EXTRACTION → CHUNKING → EMBEDDING
-  pipeline polled via the status endpoint. The capture's network inspector could not render
-  the multipart body as text, so the exact form-field names for `locationId` /
-  `knowledgeBaseId` / the file itself are unverified — `compileKbFileUpload`'s
-  `bodyFieldsBestEffort` marks this explicitly as a best-effort guess, not a proven contract.
-
-Both are verified-against-capture (endpoint/method/flow accurate) but not yet live-fired —
-same epistemic stance as the Conversation AI / Voice AI action types above.
+**Tables (CSV) and Files (PDF/DOC/DOCX/MD)** were uploaded from the editor, trained, read back, retrieved and
+deleted live on 2026-09-28. Both are **multipart** uploads, and a table is a multi-step pipeline (upload →
+select-columns → status → data), not one form. So `kb-compiler.mjs`'s `compileKbTableUpload` /
+`compileKbFileUpload` descriptors, built from a 2026-07 capture with best-effort form fields, are not a proven
+contract, and `raw_request` (JSON only) cannot send either upload. The live routes, every other source and the
+record's own lifecycle are in `ghl-knowledge-base/SKILL.md`.
 
 ## Flow-Based Builder (`FLOW_BUILDER_BOT`)
 

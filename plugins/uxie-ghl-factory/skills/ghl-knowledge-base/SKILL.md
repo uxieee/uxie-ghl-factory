@@ -42,8 +42,18 @@ There is **no generic "attach a source" call**: the POST to a bare KB id and its
 notes listed are the translation client's calls, not the KB's. Creation is **asynchronous** — poll each source's
 status. 15 knowledge bases per sub-account.
 
-**KB-create schema** (captured 2026-08-28, the designated test sub-account): `POST
-/knowledge-base/` body `{locationId, name}` → 201 `{success, data: {id, name, nameLowerCase, …}}`.
+### The record (all live-proven 2026-09-26 on a test sub-account, each read back on a separate request)
+
+| Operation | Call | Notes |
+|---|---|---|
+| Create | `POST /knowledge-base/` `{locationId, name, description?}` | **keep the trailing slash**. → 201 `{data:{id, name, nameLowerCase, kbMetadata{faqs, urls, richText, webSearches, files, tables, firstQueryAt, lastQueryAt, lastSourceAddedAt}}}`. The editor caps the name at 50 characters and the description at 175; the server stored a 56-character name, so the name cap is client-only |
+| Read | `GET /knowledge-base/{id}?locationId=` | carries `description` and the `kbMetadata` source counts |
+| List | `GET /knowledge-base/all?locationId=` | → `{data:{knowledgeBases[{id, name, createdAt, updatedAt}], activeCount}}`. `activeCount` is what the editor's "Knowledge base quota n / 15" reads; the 15 is editor-side (not pushed past on the test account) |
+| Rename / describe | `PUT /knowledge-base/{id}` `{locationId, knowledgeBaseId, name, description}` | → 200; the editor's header pencil opens "Edit knowledge base" |
+| Who uses it | `GET /knowledge-base/associated-entities?locationId=&knowledgeBaseId=` | → `{entities, blockingEntities, advisoryEntities, unverifiedSources, partial}`; an unused KB reads all empty with `partial:false` |
+| Delete | `DELETE /knowledge-base/{id}?locationId=` | → `{success}`; afterwards `GET` answers **400 "Knowledge base not found"**. The editor refuses while agents use it: "This knowledge base cannot be deleted … Agents using this knowledge base" lists each agent (Conversation AI / Voice AI) with Open and a **Re-check** button. Read `associated-entities` yourself before deleting through the API, which does not stop you |
+| Default KB | `POST /knowledge-base/default` `{locationId, migrateDocs:true}` | → 201 `{data:{id}}`, the same id every time: the location's default KB. The list page fires it on every load |
+
 Read-back list of a KB's rich-text docs: `GET /knowledge-base/rich-text/knowledge-base/{kbId}` →
 `{data: [{id, title, content, contentMarkdown, status, …}]}`.
 
@@ -67,9 +77,12 @@ AI:
 ]
 ```
 
-`mode: custom` **requires** `triggerCondition`, 10–500 characters. The editor labels it
-*"When to use this knowledge base"* and enforces it. A KB attached with no trigger condition
-and `mode: custom` is a KB the agent will not reach for.
+The editor labels the text **"Instructions (Optional)"**, and it is optional: with no text the agent decides by
+itself when to use the KB (`mode: "all"`, one such trigger, ≤ 7 KBs); with text the trigger is `mode: "custom"`
+(≤ 5 KBs). The editor caps the text at 1000 characters, but the server stored 1001. The **server** allows at most 4
+triggers (`"knowledgeBaseTriggers.4.priority must not be greater than 4"`). A trial chat on a bot with a KB answered
+from that KB (live-proven 2026-09-26). An older version of this skill said the text was required, 10–500
+characters, labelled "When to use this knowledge base": that was wrong.
 
 **4. Gaps are a dated log of misses, not an inventory of what is missing now.**
 🔴 A row stays `open` after the answering content is added — proven by differential (documents
@@ -103,19 +116,74 @@ unchanged-content-plus-contentMarkdown body. `kb-compiler.mjs`'s `compileRichTex
 caller's IR carries a `contentMarkdown` key — a caller supplying that key believes something
 false about this API.
 
+**6. The retrieval test needs the editor's body.** `POST /knowledge-base/chunks` `{query, knowledgeBaseIds,
+locationId, rerankChunks: true, threshold: 0, topK: 5, subCaller}` returns up to 5 chunks with `score` and
+`category` (`bulk` = crawled page, `finetuned` = FAQ, `rich_text`, `files`, `table`). Without those parameters it
+returned one chunk, which looks like "the KB only knows one thing". The editor's ⌘K "Test retrieval" drawer keeps
+a history: `POST /knowledge-base/retrieval-test/conversations/entries` `{locationId, knowledgeBaseId, query,
+agentLayer, chunks, totalChunks, latencyMs, idempotencyKey}` → `{conversationId, entryId, isNew, isDuplicate}`;
+`GET …/retrieval-test/conversations?locationId=&knowledgeBaseId=` lists them, `GET …/conversations/{id}?locationId=`
+reads one, `DELETE` the same removes it (then 404 "Conversation not found").
+
+**7. The crawler judges what the CDN serves, and refuses thin pages.** Status `Restricted` with `error:
+"Insufficient content (174 chars)"`. A page you just edited can be judged on its stale cached copy.
+
+## Sources — what ran live (2026-09-26 / 28)
+
+Each was built in an own test KB, read back on separate requests, retrieved through `/chunks`, and deleted by exact
+id. Full shapes: corpus `ai-agents/20-api/knowledge-base.md` → "Sources executed live".
+
+| Source | Create | Read | Remove | Traps |
+|---|---|---|---|---|
+| FAQ | `POST /knowledge-base/faqs` `{locationId, knowledgeBaseId, question, answer, metadata?}` → `{faq{…, id}}` | `GET /knowledge-base/faqs?locationId=&knowledgeBaseIds=&limit=&offset=` → `{faqs, count, hasMore}` | — | a duplicate question → **409** "A FAQ with this question already exists in this knowledge base"; the 1000-character answer cap is client-only (1001 stored) |
+| Rich text | `POST /knowledge-base/rich-text/` `{locationId, knowledgeBaseId, title, content (HTML)}` → `status:"training"` | `GET /knowledge-base/rich-text/{id}/status?locationId=` → `{sourceType, status, stages[CHUNKING, EMBEDDING]{state, durationMs}}` | `DELETE /knowledge-base/rich-text/{id}` | trained in ~3 s; the server adds generated questions to the chunk; edit with PUT (Trap 5) |
+| Web crawler | `POST /knowledge-base/crawler` `{locationId, url, option: "Exact" \| "Path" \| "Domain", knowledgeBaseId}` → `{operationId, status:"Processing"}` | `GET /knowledge-base/crawler?locationId=&knowledgeBaseId=` → `{count, urls[]}`; `GET …/crawler/status` = the **latest** operation only; `GET …/crawler/pages/content?locationId=&urlId=&knowledgeBaseId=` → the scraped text | `DELETE /knowledge-base/crawler` `{locationId, urlIds, deleteAll:false, knowledgeBaseId}` → `{deletedCount}` | Exact mode **trains with no separate train call**; `sitemap-preview` refuses Exact (400); the URL refresh `PUT /knowledge-base/crawler?locationId=&knowledgeBaseId=` `{urlIds, refreshAll, urlIdsToSkip}` answered 200 and changed nothing within 8 s, so its effect is unproven; Path / Domain, cancel and retry are unexercised |
+| URL auto-refresh | `POST /knowledge-base/crawler/automation` `{knowledgeBaseId, refreshFrequency: DAILY \| WEEKLY \| MONTHLY}` → an ACTIVE `WEBSITE_RETRAIN` task, first run a week out for WEEKLY | `GET …/crawler/automation/latest?knowledgeBaseId=` | `DELETE …/crawler/automation/{id}` (then `latest` → `data:null`) | the update `PUT …/automation/{id}` needs `taskId` = the automation's own id (422 "taskId must be a string" without it) |
+| File | **multipart** `POST /knowledge-base/files` | `GET /knowledge-base/files/{id}`; `…/{id}/status` stages CONVERSION → EXTRACTION → CHUNKING → EMBEDDING | `DELETE /knowledge-base/files/{id}` (then 400 "Invalid file ID") | ≤ 10 MB, `.pdf .doc .docx .md`; trained in ~3 s |
+| Table (CSV) | **multipart** `POST /knowledge-base/table/location/{loc}/kb/{kb}/upload`, then `POST …/{fileId}/select-columns` `{selectedColumns[{name, originalType, selectedType, isSelected, sampleValue, displayName, searchable, required}]}` | `GET …/{fileId}`, `…/status` (ANALYZING → PROCESSING → INDEXING), `…/data?page=&limit=` | `DELETE …/{fileId}` (then 404) | ≤ 50 MB; trained in ~48 s |
+
+🔴 **Files and tables are multipart uploads.** `raw_request` sends JSON only, so neither can be created through
+this plugin today: point the user to the editor's Files / Tables tab.
+
+The scraped text of a crawled page is edited in the editor through `PUT /knowledge-base/crawler/pages/content`
+`{content, userId}` (source-derived, not executed). The `/conversations-ai/train/chunk/content` route older notes
+gave is not called by the Knowledge Base app.
+
+**Gaps**: `GET /knowledge-base/gaps/counts?locationId=` → `{data[{knowledgeBaseId, gapCount}]}` for the whole
+location; `GET /knowledge-base/gaps?locationId=&knowledgeBaseId=&status=open&page=&perPage=` →
+`{gaps[], stats{openGaps, queriesAffected, resolvedThisMonth, archivedGaps}, total}`. The editor's tabs are Needs
+answers · Answered · Archived. `POST /knowledge-base/gaps/{gapId}/fill {title, answer, locationId}` writes into the
+KB itself and has not been executed.
+
+## What GHL can do that this plugin cannot reach on the test account
+
+If the user wants one of these, **GHL can do it** — say so and point to the screen.
+
+| Capability | Where in GHL | Why not here |
+|---|---|---|
+| Import files from Google Drive, daily Drive sync | KB → Files → "Import from Google Drive" (flag `knowledgeBase.googleSheets`) | needs a connected Google account (`GET /knowledge-base/oauth?locationId=&type=google`); the only one on the test account is a person's own, so it was not used |
+| Google Sheet as a table, auto / scheduled sync | KB → Tables → "Import from Google Sheets" | same |
+| Internal Data (sync the sub-account's Products) | KB source behind flag `knowledgeBase.internalData` | `GET /knowledge-base/internal-data/sources` answered 403 "Forbidden resource" on the test account |
+| Web search as a source | no screen: the editor hard-codes it off | the client ships the module, but `GET /knowledge-base/web-search/kb/{id}` answered 404 "Cannot GET" |
+| Create with AI (Beta) | KB list → "Create with AI" | it opens the Ask AI copilot ("Create a knowledge base from brand voice") and makes no KB call of its own |
+| Open the KB screen at all | AI Agents → Knowledge Base | the page sits behind the `conversation_AI` billing opt-in (`config.optIn`), not `enabled` |
+
 ## Limits
 
 Files ≤ 10 MB (`.pdf .doc .docx .md`) · table CSV ≤ 50 MB · rich text ≤ 25,000 characters and 512 KiB of HTML
-(`richTextBlockedByLimit` fires on the character cap, not on a document count) · FAQ answer ≤ 1000 · ≤ 7,000
-crawled pages per KB · 15 KBs per sub-account · at least one KB must be selected where a bot requires one.
+(`richTextBlockedByLimit` fires on the character cap, not on a document count) · FAQ answer ≤ 1000 (client-only) ·
+KB name ≤ 50 (client-only) and description ≤ 175 · ≤ 7,000 crawled pages per KB · 15 KBs per sub-account · ≤ 4
+knowledge-base triggers per bot (server) · at least one KB must be selected where a bot requires one.
 
 ## Proof status — read before trusting a write
 
-Per `ai-agents/20-api/12-ai-agents-api.md`: **rich-text create AND update are live-proven**
-(round-tripped, including the status poll, the full-replace PUT, and delete — see Trap 5).
-**Every other source kind is source-derived only** (2026-09-25 bundle, build 683) — tables are a pipeline, not a
-form, so any "best-effort form fields" descriptor from the 2026-08 capture is the wrong shape. No live proof yet. Treat a first write of an unproven type as a
-throwaway validation run on a test sub-account.
+**Live-proven** (executed on a test sub-account and read back on a separate request): the KB record's create, read,
+list, rename, delete and associated-entities read; FAQ, rich text (create, full-replace PUT, delete), web crawler
+(Exact mode, delete, auto-refresh create/update/delete), file and table sources (uploaded from the editor, then
+read and deleted through the API); retrieval and its history; the gap list and the gap archive/restore write.
+**Not proven:** the crawl refresh's effect, Path / Domain crawls, crawl cancel / retry, the scraped-text edit, gap
+fill, and everything in the table above. Treat a first write of an unproven operation as a throwaway validation run
+on a test sub-account.
 
 ## Scope
 
