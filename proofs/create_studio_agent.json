@@ -32,6 +32,15 @@
         "row:ai-studio-agent-build"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:3870008e"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -50,11 +59,11 @@
       "voiceAiApp": 707
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_agent": "1004d94fc4f664dd514806cb615fd9ca221429ff9fd6f9650449894d4bf295ef",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_agent": "06d20ed147f77f627aba808dbb68b32869e3442ae25a576f5364c1dea73ea851",
       "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "b854d5a6185129df8a6db29c7cea33b30194f23d9784fb5145d3a0a6c3fe64f2",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "227bfcdb562d64ca5f6a7b2400981bcab314579af1367c5d46e95e3b2ddc9a15",
       "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "46178cf34108dd1b532f459b358361f51396376930509e296f60e869ce5542e7",
-      "plugins/uxie-ghl-factory/engines/ai/studio-compiler.mjs": "262677cb7e1990550ccac766ff1b8c81d53a8b8e31582dad0b3100d3495a414f",
+      "plugins/uxie-ghl-factory/engines/ai/studio-compiler.mjs": "00b99fb51c137020aa2ba8952fb6845106a9252c3502ff33c0c3ec74c60037e8",
       "plugins/uxie-ghl-factory/engines/ai/studio-ir.mjs": "7a74bdf4c6617e71b10b00a2f7a4ea74c5634a1df754e45e5bce04bc63895dc2",
       "plugins/uxie-ghl-factory/engines/ai/voiceai-compiler.mjs": "da262f1c471a5c719e3798c4e969697246229e80cebddbae8bb1010829837738",
       "plugins/uxie-ghl-factory/engines/ai/voiceai-ir.mjs": "2b287dd0c9122b2d1667de311cb8c0ca144f4045d24024388ecd54cdb914caa1",

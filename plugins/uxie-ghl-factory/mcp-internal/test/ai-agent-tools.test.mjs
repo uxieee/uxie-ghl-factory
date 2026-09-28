@@ -117,3 +117,13 @@ test('create_voiceai_agent preview names the post-call defaults, and an explicit
   const off = await tool('create_voiceai_agent').handler({ locationId: 'L', spec: { ...voiceai, postCall: { saveCallSummaryAsNote: false } } }, deps);
   assert.equal(off.data.preview.defaults.saveCallSummaryAsNote, 'false');
 });
+
+test('create_studio_agent does not verify a triggerMessage it did not write, and the preview names the default (control: a written one is verified)', async () => {
+  const none = compileAiAgentPlan('studio', { locationId: 'L', companyId: 'A', spec: { name: 'S', systemPrompt: 'p', plugins: [], triggers: [{ type: 'chat' }] } });
+  assert.equal('triggerMessage' in none.verifyExpected.config.triggers[0], false);
+  const given = compileAiAgentPlan('studio', { locationId: 'L', companyId: 'A', spec: { name: 'S', systemPrompt: 'p', plugins: [], triggers: [{ type: 'chat', triggerMessage: 'Hi.' }] } });
+  assert.equal(given.verifyExpected.config.triggers[0].triggerMessage, 'Hi.');
+  const deps = { state: {}, makeGw: () => { throw new Error('preview must not create gateway'); } };
+  const p = await tool('create_studio_agent').handler({ locationId: 'L', companyId: 'A', spec: { name: 'S', systemPrompt: 'p', plugins: [], triggers: [{ type: 'chat' }] } }, deps);
+  assert.match(p.data.preview.defaults.triggerMessage, /per-type default/);
+});

@@ -611,7 +611,10 @@ function studioDefaultsNote(spec = {}) {
     ? 'NOT SET — GHL default applies: the Default plugin with ALL built-in CRM skills (can send SMS/email and write contacts and opportunities). Pass plugins:[] for no apps.'
     : (spec.plugins.length ? `as given: ${spec.plugins.map((p) => p.slug).join(', ')}` : 'none (plugins: [])');
   const list = spec.trigger ? [spec.trigger] : (spec.triggers ?? []);
-  return { plugins, triggers: list.length ? list.map((t) => t.type).join(', ') : 'none given (the AI build may add a chat trigger)', publish: 'never — the agent stays a draft' };
+  const defaulted = list.filter((t) => t.triggerMessage === undefined).map((t) => t.type);
+  return { plugins, triggers: list.length ? list.map((t) => t.type).join(', ') : 'none given (the AI build may add a chat trigger)',
+    ...(defaulted.length ? { triggerMessage: `not given for ${defaulted.join(', ')} — GHL fills a per-type default message` } : {}),
+    publish: 'never — the agent stays a draft' };
 }
 
 // Post-call behaviour a Voice AI create applies unless the spec says otherwise (live 2026-09-28: a new

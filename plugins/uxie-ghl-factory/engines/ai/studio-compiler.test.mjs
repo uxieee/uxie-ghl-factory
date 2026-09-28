@@ -191,3 +191,12 @@ test('compileSuperAgentCreate: rejects empty-string name when present', () => {
   assert.throws(() => compileSuperAgentCreate({ buildPrompt: 'X', name: '' }, { locationId: LOCATION_ID }),
     (e) => e instanceof IRError && e.code === 'SCHEMA');
 });
+
+// GHL replaces a missing or empty triggerMessage with a per-type default (live 2026-09-28), so the compiler omits it
+// unless the caller wrote one — an emitted '' could never verify.
+test('a trigger with no triggerMessage is sent WITHOUT one; a given triggerMessage is sent as written (control)', () => {
+  const none = compileSuperAgentUpdate({ name: 'S', systemPrompt: 'p', triggers: [{ type: 'chat' }] }, { agentId: 'A', locationId: 'L' });
+  assert.equal('triggerMessage' in none.body.config.triggers[0], false);
+  const given = compileSuperAgentUpdate({ name: 'S', systemPrompt: 'p', triggers: [{ type: 'chat', triggerMessage: 'Hello.' }] }, { agentId: 'A', locationId: 'L' });
+  assert.equal(given.body.config.triggers[0].triggerMessage, 'Hello.');
+});
