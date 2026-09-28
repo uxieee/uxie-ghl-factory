@@ -153,18 +153,28 @@ export function mergeSessionVariables(stored, entries) {
   return out;
 }
 
-// System-prompt sections (measured 2026-09-28): `prompts` holds only the overridden sections; a PUT MERGES by section and
-// `{section: null}` REMOVES the override (the section returns to Default). Valid sections are the keys GHL serves at
-// GET /voice-ai/agents/{id}/prompts/defaults — the caller passes them in, read live in the same call.
-export function compilePrompts(v, promptSections) {
-  if (!Array.isArray(promptSections) || !promptSections.length) {
-    throw new IRError('SCHEMA', 'prompts needs the live section list from /prompts/defaults; it was not read, so nothing was sent.');
-  }
+// System-prompt sections (measured 2026-09-28 on a test agent, each read back): `prompts` holds only the overridden
+// sections; a PUT MERGES by section and `{section: null}` REMOVES the override (the section returns to Default).
+// GHL STORES exactly these five — the builder's System Prompts sections. /prompts/defaults is NOT the list: it serves
+// endCall / endCallSts / endCallSpamDetection / greetingRule, which a prompts write answers 200 and silently DROPS, and
+// it does not serve personality / appointmentBooking, which are stored.
+export const PROMPT_SECTIONS = ['personality', 'appointmentBooking', 'dateAndTimeAwareness', 'numericAndEmailHandling', 'emailConfirmationProcess'];
+const PROMPT_ELSEWHERE = {
+  endCall: 'the hangup prompt is endCallConfig.instruction (send endCallConfig)',
+  endCallSts: 'the speech-to-speech hangup prompt is endCallConfig.instruction (send endCallConfig)',
+  endCallSpamDetection: 'the spam rule is endCallConfig.spamDetectionInstruction (send endCallConfig)',
+  greetingRule: 'GHL does not store it: a prompts write answered 200 and dropped it',
+};
+export function compilePrompts(v) {
   if (!isObj(v) || !Object.keys(v).length) throw new IRError('SCHEMA', 'prompts must be an object of { section: text | null }');
-  const unknown = Object.keys(v).filter((k) => !promptSections.includes(k));
+  const elsewhere = Object.keys(v).filter((k) => k in PROMPT_ELSEWHERE);
+  if (elsewhere.length) {
+    throw new IRError('SPEC_KEY_UNAPPLIED', elsewhere.map((k) => `prompts.${k}: ${PROMPT_ELSEWHERE[k]}`).join('; ') + '. Nothing was sent.');
+  }
+  const unknown = Object.keys(v).filter((k) => !PROMPT_SECTIONS.includes(k));
   if (unknown.length) {
-    throw new IRError('SPEC_KEY_UNAPPLIED', `unknown system-prompt section(s) [${unknown.join(', ')}]. Valid sections (GHL's live defaults): `
-      + `${promptSections.join(', ')}. Nothing was sent.`);
+    throw new IRError('SPEC_KEY_UNAPPLIED', `unknown system-prompt section(s) [${unknown.join(', ')}]. Sections GHL stores: `
+      + `${PROMPT_SECTIONS.join(', ')}. Nothing was sent.`);
   }
   for (const [k, text] of Object.entries(v)) {
     if (text !== null && (typeof text !== 'string' || !text.trim())) {
@@ -174,7 +184,7 @@ export function compilePrompts(v, promptSections) {
   return { ...v };
 }
 
-export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId, promptSections } = {}) {
+export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError('MISSING_FIELD', 'update_voiceai_agent requires agentId');
   if (!isObj(current)) throw new IRError('SCHEMA', 'the CURRENT agent record is required — read it first');
   if (!isObj(spec) || !Object.keys(spec).length) throw new IRError('SCHEMA', 'spec must name at least one field to change');
@@ -216,7 +226,7 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
       const stored = readFlat(current, k);
       body[k] = writable(k, { ...(isObj(stored) ? stored : {}), ...v });
     } else if (k === 'prompts') {
-      body[k] = compilePrompts(v, promptSections);
+      body[k] = compilePrompts(v);
     } else if (k === 'disabledPrompts') {
       // whole-array replace, as the builder sends it; clearing ([]) is not measured (the builder never sends an empty list)
       if (!Array.isArray(v) || !v.length || v.some((x) => typeof x !== 'string' || !x.trim())) {

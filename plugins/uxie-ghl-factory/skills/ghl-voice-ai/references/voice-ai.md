@@ -397,7 +397,7 @@ other unlisted `actionType`.
 | Edit with AI | `POST /voice-ai/ai-generation/prompt-suggestion/stream {agentId, improvementPrompt, selectedText, fullPrompt}` | returns only the rewritten selection; saves nothing |
 | s2s prompt check | `POST /voice-ai/agents/{id}/s2s/prompt-validate {locationId}` → `{mode, fem, bem, prompt, changes[], warnings[], confidence}` | saves nothing |
 | Performance summary email | `GET/PUT/DELETE /voice-ai/performance-report/settings/{agentId}`, `GET …/preview?frequency=`, `POST …/dispatch {force: true}` (test send) | the stored timezone is the agent's, whatever is sent; the test send emails the recipients |
-| System-prompt sections | `GET /voice-ai/agents/{id}/prompts/defaults` | `update_voiceai_agent` writes `prompts` (merge; null resets) |
+| System-prompt sections | `GET /voice-ai/agents/{id}/prompts/defaults` (the default texts) | `prompts` stores only `personality, appointmentBooking, dateAndTimeAwareness, numericAndEmailHandling, emailConfirmationProcess`; `endCall*` / `greetingRule` answer 200 and are **dropped** (the hangup and spam prompts are `endCallConfig`). `update_voiceai_agent` writes `prompts` (merge; null resets) |
 
 ## Driving `voiceai-compiler.mjs`
 
