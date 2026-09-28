@@ -22,27 +22,37 @@
         "row:ai-agents--agent-logs-logs"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:32dfd667",
+        "row:ai-agents--agent-logs-logs"
+      ],
+      "location": "…Zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-25",
+    "hashedAt": "2026-09-28",
     "endpoints": {
       "POST https://services.leadconnectorhq.com /agent-logs/logs": "ec4b0123a011bc821c6588e4a89141ef9446762e5b8e6f3a7dca06f69ef0cbc8"
     },
     "builds": {
       "agentLogsApp": 693,
-      "agentStudioApp": 701,
-      "aiEmployeesApp": 2603,
-      "aiGrowthApp": 697,
+      "agentStudioApp": 710,
+      "aiEmployeesApp": 2631,
+      "aiGrowthApp": 708,
       "superagentsApp": 703,
-      "voiceAiApp": 701
+      "voiceAiApp": 707
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_agent_sessions": "13bf7f5d59c75f0430be39542f20b728bcb25abfe4e1177b3b3e0c4431441fae",
-      "plugins/uxie-ghl-factory/mcp-internal/core/agent-logs.mjs": "66be641f68392b70517d7ad6c3065ec3f4907bd66b19633242b3fa1ddb2af606",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_agent_sessions": "7c080c40271abf44bd4675b82760fce5a39af60623d2a8df1c07e0246600cd15",
+      "plugins/uxie-ghl-factory/mcp-internal/core/agent-logs.mjs": "3f22e5d77efafad4d07c7df63f8489c652868f327dc416b7ccd267879614524c",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a979be67ccb31b7cff865f678e7261b5e1638965085b4a963ddf08e9e472af01"
     }
   }
 }

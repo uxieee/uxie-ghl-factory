@@ -94,6 +94,7 @@ import {
   sessionBody as agentLogSessionBody,
   sessionRow as agentLogSessionRow,
   walkSessions as walkAgentSessions,
+  sortNote as agentLogSortNote,
 } from './agent-logs.mjs';
 import { runLints } from '../../skills/create-ghl-workflow/engine/lints/runner.mjs';
 import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/doctrine.mjs';
@@ -3942,7 +3943,7 @@ export const TOOLS = [
     name: 'list_agent_sessions',
     description: describe(
       'list_agent_sessions',
-      'The AI Agents → Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, tokens, latency and duration. Read-only despite being a POST — this endpoint reads, so it does not take the raw-write confirmation gate.',
+      'The AI Agents → Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, tokens, latency and duration. Read-only despite being a POST — this endpoint reads, so it does not take the raw-write confirmation gate. Traps (live 2026-09-28): sortBy:"durationMs" is NOT a true sort on GHL\'s side (the result carries a note; re-sort yourself); agentName is a substring match; Conversation AI Test-panel chats are never logged (a trial chat has no session row), while a Voice AI Test Audio web call is.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -4023,6 +4024,8 @@ export const TOOLS = [
       const meta = r.json?.meta ?? {};
       const rows = recordsFrom(r.json, 'data').map(agentLogSessionRow);
       if (r.json?.tokenDataVisible === false) notes.push('tokenDataVisible:false — this account hides token counts.');
+      const sortWarn = agentLogSortNote(sortBy);
+      if (sortWarn) notes.push(sortWarn);
       const total = Number(meta.totalRecords ?? rows.length);
       if (total > AGENT_LOG_MAX_OFFSET + limit) notes.push(`${total} rows match; paging stops at offset ${AGENT_LOG_MAX_OFFSET}. Use all:true or a larger limit.`);
       return ok({

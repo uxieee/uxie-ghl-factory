@@ -93,3 +93,10 @@ test('includeAgentTrace is a DECLARED argument — a real MCP caller can switch 
   assert.equal(bad.ok, false);
   assert.equal(bad.code, 'VALIDATION_FAILED');
 });
+
+test('sortBy durationMs carries the measured "not a true sort" warning; the correctly sorted keys carry none (control)', async () => {
+  const { sortNote, SORT_FIELDS } = await import('../core/agent-logs.mjs');
+  assert.match(sortNote('durationMs'), /does not really sort by durationMs/);
+  for (const k of ['timestamp', 'totalTokens']) assert.equal(sortNote(k), null, `${k} is sorted correctly by GHL`);
+  assert.ok(SORT_FIELDS.includes('durationMs'), 'the field stays selectable — the rows are real, only the order is not');
+});
