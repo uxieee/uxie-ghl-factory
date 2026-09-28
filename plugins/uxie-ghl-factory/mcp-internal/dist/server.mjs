@@ -72103,10 +72103,10 @@ var require_formats = __commonJS({
         return -1;
       return 0;
     }
-    var TIME = /^(\d\d):(\d\d):(\d\d(?:\.\d+)?)(z|([+-])(\d\d)(?::?(\d\d))?)?$/i;
+    var TIME2 = /^(\d\d):(\d\d):(\d\d(?:\.\d+)?)(z|([+-])(\d\d)(?::?(\d\d))?)?$/i;
     function getTime(strictTimeZone) {
       return function time3(str) {
-        const matches = TIME.exec(str);
+        const matches = TIME2.exec(str);
         if (!matches)
           return false;
         const hr = +matches[1];
@@ -72137,8 +72137,8 @@ var require_formats = __commonJS({
     function compareIsoTime(t1, t2) {
       if (!(t1 && t2))
         return void 0;
-      const a1 = TIME.exec(t1);
-      const a2 = TIME.exec(t2);
+      const a1 = TIME2.exec(t1);
+      const a2 = TIME2.exec(t2);
       if (!(a1 && a2))
         return void 0;
       t1 = a1[1] + a1[2] + a1[3];
@@ -106394,6 +106394,7 @@ var SCOPE_OWNERS = {
 };
 var KIND_BY_TYPE = { if_else: "if_else", workflow_split: "split", ai_decision: "ai_decision", workflow_ai_decision_maker: "ai_decision", goto: "goto" };
 var NODE_KINDS = /* @__PURE__ */ new Set(["action", "wait", "if_else", "split", "ai_decision", "goto", "raw"]);
+var IF_ELSE_BRANCH_KEYS = /* @__PURE__ */ new Set(["ref", "name", "conditions", "then", "else", "op", "assocGuaranteed"]);
 var REQUIRES_STEP_INDEX = /* @__PURE__ */ new Set([
   "google_sheets",
   "datetime_formatter",
@@ -106617,6 +106618,9 @@ function parseIR(ir, { externalRefs } = {}) {
       const elses = n.branches.filter((b) => b.else === true);
       if (elses.length > 1) throw new IRError("IFELSE_ELSE", `if_else '${n.ref}' has >1 else branch`);
       for (const b of n.branches) {
+        const badKeys = Object.keys(b ?? {}).filter((k) => !IF_ELSE_BRANCH_KEYS.has(k));
+        if (badKeys.length) throw new IRError("BRANCH_KEY", `branch '${b.ref ?? b.name ?? "?"}' has unknown key(s) [${badKeys.join(", ")}] \u2014 known: ${[...IF_ELSE_BRANCH_KEYS].join(", ")} (the AND/OR operator is \`op\`)`);
+        if (b.op !== void 0 && b.op !== "and" && b.op !== "or") throw new IRError("BRANCH_OP", `branch '${b.ref ?? b.name ?? "?"}' op must be 'and' or 'or', got ${JSON.stringify(b.op)}`);
         const hasCond = Array.isArray(b.conditions) && b.conditions.length > 0;
         if (b.else === true && hasCond) throw new IRError("BRANCH_SHAPE", `branch '${b.ref}' has both else and conditions`);
         if (b.else !== true && !hasCond) throw new IRError("BRANCH_SHAPE", `branch '${b.ref}' has neither else nor conditions`);
@@ -107478,6 +107482,31 @@ function lintSmsTemplateBody(templates) {
     stepId: t.id,
     msg: `${t.type} '${t.name ?? t.id}' has template_id '${t.attributes.template_id}' AND a body. GHL sends the TEMPLATE's text; this step's body is ignored at runtime. To send the body, clear template_id (or set it to "none"); to send the template, make the body match it so the step reads truthfully.`
   }));
+}
+
+// ../skills/create-ghl-workflow/engine/lints/event-start-recurring.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var TIME = /^([01]\d|2[0-3]):(00|15|30|45)$/;
+function lintEventStartRecurring(templates) {
+  const out = [];
+  for (const t of Array.isArray(templates) ? templates.filter(Boolean) : []) {
+    const a = t.attributes ?? {};
+    if (t.type !== "event_start_date" || a.event_start_type !== "recurring") continue;
+    const where = `event_start_date '${t.name ?? t.id}'`;
+    const push = (m) => out.push({ code: "EVENT_START_RECURRING_SHAPE", severity: "warning", stepId: t.id, msg: `${where}: ${m}` });
+    const [lo, hi] = a.recurring_type === "day_month" ? [1, 31] : [0, 6];
+    if (a.recurring_type !== "day_week" && a.recurring_type !== "day_month") push(`recurring_type must be "day_week" or "day_month", got ${JSON.stringify(a.recurring_type)}`);
+    else if (!Number.isInteger(a.value) || a.value < lo || a.value > hi)
+      push(`value must be a number ${lo}-${hi} for ${a.recurring_type}${a.recurring_type === "day_week" ? " (0 = Sunday)" : ""}, got ${JSON.stringify(a.value)} \u2014 the builder never writes another shape`);
+    if (typeof a.recurring_time !== "string" || !TIME.test(a.recurring_time))
+      push(`recurring_time must be "HH:mm" (24-hour, 15-minute steps), got ${JSON.stringify(a.recurring_time)}`);
+  }
+  return out;
 }
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
@@ -172234,7 +172263,12 @@ function emailAttributes(node, ctx) {
     templateCreationMode: a.templateCreationMode ?? "existing",
     syncEnabled: a.syncEnabled ?? false,
     attachments: a.attachments ?? [],
-    fieldDefaults: a.fieldDefaults ?? { subject: {} }
+    fieldDefaults: a.fieldDefaults ?? { subject: {} },
+    // Real builder keys the ATTR_KEY guard already accepts. This base is a fixed list, so a key left
+    // out of it was dropped silently: cc/bcc went out empty (live 2026-09-28, live-3AV).
+    ...a.cc != null ? { cc: a.cc } : {},
+    ...a.bcc != null ? { bcc: a.bcc } : {},
+    ...a.customSubtypeId != null ? { customSubtypeId: a.customSubtypeId } : {}
   };
   const authoredTemplate = a.template_id === "none" ? "" : a.template_id;
   if (authoredTemplate) {
@@ -172444,7 +172478,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           branches: conditioned.map((b, bi) => ({
             id: conditionedIds[bi],
             name: b.name,
-            segments: b.conditions && b.conditions.length ? [{ __segmentId: ctx.idGen(), operator: "and", conditions: b.conditions.map((c) => expandCondition(c, ctx)) }] : [],
+            segments: b.conditions && b.conditions.length ? [{ __segmentId: ctx.idGen(), operator: b.op ?? "and", conditions: b.conditions.map((c) => expandCondition(c, ctx)) }] : [],
             operator: "and",
             showErrors: false,
             branchNameError: "Branch name cannot be empty!"
@@ -173530,6 +173564,7 @@ function compile(ir, ctx) {
   }
   for (const f of lintContactLessSteps(templates, norm3.triggers)) ctx?.warn?.(`${f.code}: ${f.msg}`);
   for (const f of lintSmsTemplateBody(templates)) ctx?.warn?.(`${f.code}: ${f.msg}`);
+  for (const f of lintEventStartRecurring(templates)) ctx?.warn?.(`${f.code}: ${f.msg}`);
   resolveAuthoredStepRefs(templates, refMap);
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError, [...ctx.externalRefs?.ids ?? []]);
@@ -180482,6 +180517,7 @@ function runLints(doc, {
       for (const f of lintFormatterSkips(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintContactLessSteps(T, triggers)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintSmsTemplateBody(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
+      for (const f of lintEventStartRecurring(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F("platform", f.code, f.severity, f.msg, { triggerId: f.triggerId });
       for (const f of lintNameLength(T, triggers))
         F("platform", f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : { triggerId: f.triggerId });
