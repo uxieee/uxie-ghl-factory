@@ -174,7 +174,7 @@ export function compilePrompts(v) {
   const unknown = Object.keys(v).filter((k) => !PROMPT_SECTIONS.includes(k));
   if (unknown.length) {
     throw new IRError('SPEC_KEY_UNAPPLIED', `unknown system-prompt section(s) [${unknown.join(', ')}]. Sections GHL stores: `
-      + `${PROMPT_SECTIONS.join(', ')}. Nothing was sent.`);
+      + `${PROMPT_SECTIONS.join(', ')}. Nothing was sent. If GHL has added a section, write it with raw_request (PUT /voice-ai/agents/{id} {prompts}) and read the agent back: a section it does not store answers 200 and is dropped.`);
   }
   for (const [k, text] of Object.entries(v)) {
     if (text !== null && (typeof text !== 'string' || !text.trim())) {

@@ -316,7 +316,7 @@ test('prompts: only the five sections GHL stores; the dropped ones are refused w
   const opts = { agentId: 'A', locationId: 'L' };
   assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { prompts: { endCall: 'x' } }, opts), (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /endCallConfig.instruction/.test(e.message));
   assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { prompts: { greetingRule: 'x' } }, opts), /does not store it/);
-  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { prompts: { bogus: 'x' } }, opts), (e) => /dateAndTimeAwareness/.test(e.message));
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { prompts: { bogus: 'x' } }, opts), (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /dateAndTimeAwareness/.test(e.message) && /raw_request/.test(e.message) && /read the agent back/.test(e.message));
   assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { prompts: { personality: '' } }, opts), /text, or null/);
   const plan = compileVoiceAiPartialUpdate(RECORD(), { prompts: { personality: 'Warm.', emailConfirmationProcess: null } }, opts);
   assert.deepEqual(plan.body.prompts, { personality: 'Warm.', emailConfirmationProcess: null });
