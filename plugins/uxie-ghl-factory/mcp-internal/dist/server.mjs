@@ -60750,9 +60750,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_workflow: {
-        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-09-28); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -95145,6 +95145,7 @@ var SECRET_KEYS = /* @__PURE__ */ new Set([
   "sessioncredentials"
 ]);
 var isSecretKey = (key) => SECRET_KEYS.has(String(key).replace(/[-_\s]/g, "").toLowerCase());
+var isNoAuthObject = (key, value) => String(key).toLowerCase() === "authorization" && value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).every((k) => k === "type" || k === "data") && value.type === "NONE" && (value.data === null || value.data === void 0);
 var SIGNED_STORAGE_URL = /https:\/\/(?:firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/[^\s"'<>\\,;)]+/g;
 var partitionStorageUrls = (text, outside, inUrl) => {
   let out = "";
@@ -95188,6 +95189,7 @@ var scrub = (s) => {
 };
 function containsSecrets(value, key = "", depth = 0) {
   if (value === REDACTED) return false;
+  if (isNoAuthObject(key, value)) return false;
   if (isSecretKey(key)) return true;
   if (value == null) return false;
   if (typeof value === "string") return hasSecretText(value);
@@ -102209,6 +102211,31 @@ function lintFormatterSkips(templates) {
     }
   }
   return out;
+}
+
+// ../skills/create-ghl-workflow/engine/lints/contact-less-steps.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var CONTACT_LESS_TRIGGERS = /* @__PURE__ */ new Set(["inbound_webhook"]);
+var STEPS = /* @__PURE__ */ new Set(["find_contact", "create_update_contact"]);
+function lintContactLessSteps(templates, triggers) {
+  const T = Array.isArray(templates) ? templates.filter(Boolean) : [];
+  const G = Array.isArray(triggers) ? triggers.filter(Boolean) : [];
+  const steps = T.filter((t) => STEPS.has(t.type));
+  if (!steps.length) return [];
+  const carrying = G.filter((g) => !CONTACT_LESS_TRIGGERS.has(g.type)).map((g) => g.type);
+  if (G.length && !carrying.length) return [];
+  const why = G.length ? `runs from its ${[...new Set(carrying)].join(", ")} trigger(s) already hold a contact` : "it has no trigger, so every run comes from enrolling a contact";
+  return steps.map((t) => ({
+    code: "CONTACT_STEP_IN_CONTACT_RUN",
+    severity: "warning",
+    stepId: t.id,
+    msg: `${t.type} '${t.name ?? t.id}': ${why}. GHL skips this step in any run that holds a contact` + (t.type === "find_contact" ? ' and the run continues down FOUND \u2014 the find always "finds".' : " \u2014 nothing is created or updated.") + " It works on runs started by an inbound_webhook trigger."
+  }));
 }
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
@@ -165970,7 +165997,8 @@ function attributesFor(node, ctx) {
     if (!matches(node)) continue;
     return enforceRequiredFields({ ...node, type: typeFor(node) }, build(node, ctx), ctx);
   }
-  const out = normalizeAttrs(node, node.attributes ?? {}, ctx);
+  const attrsIn = node.type === "create_update_contact" ? withContactRowTitles(node.attributes ?? {}) : node.attributes ?? {};
+  const out = normalizeAttrs(node, attrsIn, ctx);
   if (node.type === "update_contact_field")
     checkContactFieldShape(out, { ref: node.ref ?? node.name ?? "?", warn: ctx?.warn });
   if (node.type === "workflow_goal") return withGoalConditionIds(out, ctx);
@@ -165997,6 +166025,30 @@ function withoutZeroTrimSkip(attrs, node, ctx) {
   const { skip, ...extras } = attrs.extras;
   ctx?.warn?.(`FORMATTER_SKIP_ZERO: text_formatter '${node.ref ?? node.name}' trim skip ${JSON.stringify(skip)} removed \u2014 GHL skips the step at run time when skip is 0; without it the trim starts at the first character.`);
   return { ...attrs, extras };
+}
+var CONTACT_ROW_TITLES = {
+  email: "Email",
+  phone: "Phone",
+  firstName: "First Name",
+  lastName: "Last Name",
+  name: "Full Name",
+  companyName: "Company Name",
+  address1: "Street Address",
+  city: "City",
+  state: "State",
+  postalCode: "Postal Code",
+  country: "Country",
+  website: "Website",
+  source: "Source",
+  dateOfBirth: "Date Of Birth",
+  timezone: "Timezone"
+};
+function withContactRowTitles(attrs) {
+  let fields2 = attrs?.fields;
+  if (fields2 && !Array.isArray(fields2) && typeof fields2 === "object")
+    fields2 = Object.entries(fields2).map(([field, value]) => ({ field, title: "", type: "string", date: "", value }));
+  if (!Array.isArray(fields2)) return attrs;
+  return { ...attrs, fields: fields2.map((f) => f && typeof f === "object" && !f.title && CONTACT_ROW_TITLES[f.field] ? { ...f, title: CONTACT_ROW_TITLES[f.field] } : f) };
 }
 function withGoalConditionIds(attrs, ctx) {
   if (!Array.isArray(attrs?.segments)) return attrs;
@@ -166423,7 +166475,13 @@ function internalNotificationAttributes(a, ctx) {
   if (dropped.length) {
     ctx?.warn?.(`NOTIFICATION_KEY_DROPPED: internal_notification (${channel}) \u2014 authored key(s) [${dropped.join(", ")}] are not emitted by this channel's shape and were discarded. Accepted author keys: ${NOTIFICATION_EMITTED_KEYS[channel].join(", ")}. If one of these IS real, harvest a live example and extend the handler rather than assuming it shipped.`);
   }
-  const userType = b.userType ?? (b.selectedUser != null && b.selectedUser !== "" ? "user" : "all");
+  const impliedCustom = b.to != null && b.to !== "" ? channel === "sms" ? "custom_sms" : channel === "email" ? "custom_email" : null : null;
+  if (b.userType == null && impliedCustom == null && (b.selectedUser == null || b.selectedUser === ""))
+    throw new IRError(
+      "MISSING_FIELD",
+      `internal_notification (${channel}) names no recipient \u2014 set userType ('user' + selectedUser, 'assign', 'custom_email'/'custom_sms' + to, or 'all' explicitly). The old default was 'all', which notifies every user on the account.`
+    );
+  const userType = b.userType ?? impliedCustom ?? "user";
   const wantsUsers = userType === "user";
   if (channel === "email") {
     const wantsTo = userType === "custom_email" || b.to != null;
@@ -167914,6 +167972,7 @@ function compile(ir, ctx) {
       );
     for (const tb of []) void tb;
   }
+  for (const f of lintContactLessSteps(templates, norm3.triggers)) ctx?.warn?.(`${f.code}: ${f.msg}`);
   resolveAuthoredStepRefs(templates, refMap);
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError, [...ctx.externalRefs?.ids ?? []]);
@@ -174854,6 +174913,7 @@ function runLints(doc, {
       for (const f of lintPublishRules(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintOpportunityWrites(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintFormatterSkips(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
+      for (const f of lintContactLessSteps(T, triggers)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F("platform", f.code, f.severity, f.msg, { triggerId: f.triggerId });
       for (const f of lintNameLength(T, triggers))
         F("platform", f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : { triggerId: f.triggerId });
@@ -182252,7 +182312,10 @@ var TOOLS2 = [
       skipCustomCodeTest: external_exports.boolean().default(false),
       // With spec.sampleWebhookPayload: POST the sample to each inbound_webhook trigger's receiving
       // URL and pin it as the reference so {{inboundWebhookRequest.*}} tags are real.
-      pinWebhookSample: external_exports.boolean().default(false),
+      // optional, NOT default(false): a default made this always false, so orchestrate's
+      // `opts.pinWebhookSample ?? ir.pinWebhookSample` never read the documented IR-level flag
+      // (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3J-webhook-chain-run1-pin-ignored.json).
+      pinWebhookSample: external_exports.boolean().optional(),
       allowValidationFailure: external_exports.boolean().optional().describe("Write even though the validation gate refused. The gate runs every layer over the document: GHL's own WorkflowValidator rules (including the publish-only ones when this write publishes), the advanced canvas's stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL's live validator. Findings are still reported in full.")
     }),
     capabilities: [
@@ -182304,7 +182367,7 @@ var TOOLS2 = [
         skipWorkflowRules: args.skipWorkflowRules,
         strictCustomCode: args.strictCustomCode === true,
         skipCustomCodeTest: args.skipCustomCodeTest === true,
-        pinWebhookSample: args.pinWebhookSample === true,
+        pinWebhookSample: typeof args.pinWebhookSample === "boolean" ? args.pinWebhookSample : void 0,
         allowValidationFailure: args.allowValidationFailure === true
       });
       const data2 = buildWorkflowData(report, args.locationId);
