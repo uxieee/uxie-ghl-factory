@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1203,
+      count: 1219,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -7121,6 +7121,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/40-rules/silent-failures.md:569",
             "funnels/20-api/funnels-api.md:194",
+            "funnels/20-api/publish-routing-and-site-settings.md:43",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
             "funnels/40-rules/silent-failures.md:1061",
@@ -7170,7 +7171,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "proven",
           coveredBy: [
             "audit_site",
-            "build_funnel_page"
+            "build_funnel_page",
+            "get_funnel"
           ],
           rawCallable: true,
           transport: "json",
@@ -7729,7 +7731,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:251"
+            "funnels/20-api/funnels-api.md:251",
+            "funnels/20-api/publish-routing-and-site-settings.md:56"
           ]
         },
         {
@@ -7745,7 +7748,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "agency-admin-bearer"
           ],
           coveredBy: [
-            "audit_site"
+            "audit_site",
+            "edit_funnel"
           ],
           rawCallable: true,
           transport: "json",
@@ -7774,6 +7778,137 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:21",
             "funnels/20-api/funnels-api.md:171"
+          ]
+        },
+        {
+          id: "funnels--funnels-domain-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/funnels/domain/{domainId}",
+          path: "/funnels/domain/{domainId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "domainId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:142"
+          ]
+        },
+        {
+          id: "funnels--domain-invalidate-cache",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/domain/invalidate-cache",
+          path: "/funnels/domain/invalidate-cache",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:99",
+            "funnels/20-api/publish-routing-and-site-settings.md:107"
+          ]
+        },
+        {
+          id: "funnels--funnels-event",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/event",
+          path: "/funnels/event",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:97"
+          ]
+        },
+        {
+          id: "funnels--funnels-event-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/event",
+          path: "/funnels/event",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:98"
           ]
         },
         {
@@ -7812,6 +7947,38 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--cache-clear",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/cache/clear",
+          path: "/funnels/funnel/cache/clear",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:143",
+            "funnels/20-api/publish-routing-and-site-settings.md:152"
+          ]
+        },
+        {
           id: "funnels--funnel-clone-control-page",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/clone-control-page/",
@@ -7843,6 +8010,103 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/20-api/funnels-api.md:114",
             "funnels/40-rules/silent-failures.md:120",
             "funnels/40-rules/silent-failures.md:237"
+          ]
+        },
+        {
+          id: "funnels--funnel-clone-funnel-step",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/clone-funnel-step/",
+          path: "/funnels/funnel/clone-funnel-step/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:71"
+          ]
+        },
+        {
+          id: "funnels--funnel-cookie-consent",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/cookie-consent",
+          path: "/funnels/funnel/cookie-consent",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:114"
+          ]
+        },
+        {
+          id: "funnels--funnel-cookie-consent-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/cookie-consent",
+          path: "/funnels/funnel/cookie-consent",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:115"
           ]
         },
         {
@@ -7888,7 +8152,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -7948,6 +8214,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--funnel-delete-step",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/delete-step",
+          path: "/funnels/funnel/delete-step",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:72"
+          ]
+        },
+        {
           id: "funnels-service--get-funnel-by-id",
           aka: [
             "/funnels/funnel/fetch/{id}"
@@ -7960,7 +8259,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "proven",
           coveredBy: [
-            "audit_site"
+            "audit_site",
+            "edit_funnel",
+            "get_funnel"
           ],
           rawCallable: true,
           transport: "json",
@@ -8082,6 +8383,103 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--funnel-geo-location",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/geo-location/",
+          path: "/funnels/funnel/geo-location/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:132"
+          ]
+        },
+        {
+          id: "funnels--funnel-headers",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/headers",
+          path: "/funnels/funnel/headers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:85"
+          ]
+        },
+        {
+          id: "funnels--funnel-headers-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/headers",
+          path: "/funnels/funnel/headers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:86"
+          ]
+        },
+        {
           id: "funnels-service--get-funnels",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/list",
@@ -8174,7 +8572,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8214,7 +8614,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8239,6 +8641,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:489",
             "funnels/20-api/funnels-api.md:277",
             "funnels/40-rules/silent-failures.md:977"
+          ]
+        },
+        {
+          id: "funnels--funnel-update",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/update/{funnelId}",
+          path: "/funnels/funnel/update/{funnelId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "funnelId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:70"
           ]
         },
         {
@@ -8417,7 +8856,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "proven",
           coveredBy: [
-            "audit_site"
+            "audit_site",
+            "edit_funnel",
+            "get_funnel"
           ],
           rawCallable: true,
           transport: "json",
@@ -8454,6 +8895,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/40-rules/silent-failures.md:609",
             "funnels/40-rules/silent-failures.md:641",
             "funnels/40-rules/silent-failures.md:929"
+          ]
+        },
+        {
+          id: "funnels--lookup-multiple",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/multiple",
+          path: "/funnels/lookup/multiple",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:27"
           ]
         },
         {
@@ -18692,6 +19166,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, set_workflow_error_alerts, get_pipeline_forecast)"
+          ]
+        },
+        {
+          id: "typed--edit_funnel--users",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/users/{userId}",
+          path: "/users/{userId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "edit_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "edit_funnel",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "userId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (edit_funnel)"
           ]
         },
         {
@@ -50512,6 +51023,48 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--opportunities-lost-reason-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/opportunities/lost-reason/{lostReasonId}",
+          path: "/opportunities/lost-reason/{lostReasonId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "lostReasonId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:145"
+          ]
+        },
+        {
           id: "pipelines-opportunities--opportunities-lost-reason-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/opportunities/lost-reason/{lostReasonId}",
@@ -54252,11 +54805,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           returns: null,
           confidence: {
             path: "documented",
-            query: "documented",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
             "ai-agents/20-api/12-ai-agents-api.md:160",
             "ai-agents/20-api/12-ai-agents-api.md:170",
             "ai-agents/20-api/12-ai-agents-api.md:373"
@@ -59095,9 +59649,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_funnel_page: {
-        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: live-runtime (2026-09-23); risk: write",
+        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: live-runtime (2026-09-28); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-23)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "funnels--builder-autosave",
@@ -61087,6 +61641,62 @@ var init_define_TOOL_CATALOG = __esm({
           "ai-agents--voice-ai-agents-get",
           "ai-agents--voice-ai-agents-put"
         ]
+      },
+      get_funnel: {
+        description: "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) \u2014 proof: live-runtime (2026-09-28); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-28)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "funnels-service--get-funnel-by-id",
+          "funnels--lookup-list",
+          "funnels--builder-get-versions"
+        ],
+        proofFloorRows: [
+          "funnels-service--get-funnel-by-id",
+          "funnels--lookup-list",
+          "funnels--builder-get-versions"
+        ],
+        riskRows: [
+          "funnels-service--get-funnel-by-id",
+          "funnels--lookup-list",
+          "funnels--builder-get-versions"
+        ],
+        rows: [
+          "funnels-service--get-funnel-by-id",
+          "funnels--lookup-list",
+          "funnels--builder-get-versions"
+        ]
+      },
+      edit_funnel: {
+        description: "Edit a GHL funnel/website: settings, steps, publish state, headers \u2014 preview, confirm, read back \u2014 proof: live-runtime (2026-09-28); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-28)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "funnels--funnel-update-settings",
+          "funnels--funnel-create-step",
+          "funnels--funnel-step",
+          "funnels--lookup-list"
+        ],
+        proofFloorRows: [
+          "funnels--funnel-update-settings",
+          "funnels--funnel-create-step",
+          "funnels--funnel-step",
+          "funnels--lookup-list"
+        ],
+        riskRows: [
+          "funnels--funnel-update-settings",
+          "funnels--funnel-create-step",
+          "funnels--funnel-step",
+          "funnels--lookup-list"
+        ],
+        rows: [
+          "funnels--funnel-update-settings",
+          "funnels--funnel-create-step",
+          "funnels--funnel-step",
+          "funnels--lookup-list"
+        ]
       }
     };
   }
@@ -61997,10 +62607,10 @@ var require_codegen = __commonJS({
         return this._leafNode(new Throw(error51));
       }
       // start self-balancing block
-      block(body, nodeCount) {
+      block(body2, nodeCount) {
         this._blockStarts.push(this._nodes.length);
-        if (body)
-          this.code(body).endBlock(nodeCount);
+        if (body2)
+          this.code(body2).endBlock(nodeCount);
         return this;
       }
       // end the current self-balancing block
@@ -63515,15 +64125,15 @@ var require_validate = __commonJS({
       validateFunction(it, () => (0, boolSchema_1.topBoolOrEmptySchema)(it));
     }
     exports.validateFunctionCode = validateFunctionCode;
-    function validateFunction({ gen, validateName, schema: schema2, schemaEnv, opts }, body) {
+    function validateFunction({ gen, validateName, schema: schema2, schemaEnv, opts }, body2) {
       if (opts.code.es5) {
         gen.func(validateName, (0, codegen_1._)`${names_1.default.data}, ${names_1.default.valCxt}`, schemaEnv.$async, () => {
           gen.code((0, codegen_1._)`"use strict"; ${funcSourceUrl(schema2, opts)}`);
           destructureValCxtES5(gen, opts);
-          gen.code(body);
+          gen.code(body2);
         });
       } else {
-        gen.func(validateName, (0, codegen_1._)`${names_1.default.data}, ${destructureValCxt(opts)}`, schemaEnv.$async, () => gen.code(funcSourceUrl(schema2, opts)).code(body));
+        gen.func(validateName, (0, codegen_1._)`${names_1.default.data}, ${destructureValCxt(opts)}`, schemaEnv.$async, () => gen.code(funcSourceUrl(schema2, opts)).code(body2));
       }
     }
     function destructureValCxt(opts) {
@@ -86139,8 +86749,8 @@ function hex2(_params) {
   return _stringFormat(ZodCustomStringFormat, "hex", regexes_exports.hex, _params);
 }
 function hash(alg, params) {
-  const enc = params?.enc ?? "hex";
-  const format = `${alg}_${enc}`;
+  const enc2 = params?.enc ?? "hex";
+  const format = `${alg}_${enc2}`;
   const regex = regexes_exports[format];
   if (!regex)
     throw new Error(`Unrecognized hash format: ${format}`);
@@ -93639,24 +94249,24 @@ var fail = (code, detail, remediation) => ({
   detail: scrub(detail),
   remediation: scrub(remediation)
 });
-function isValidationBody(body) {
-  if (!body || typeof body === "string") return false;
-  const code = String(body.code ?? "");
+function isValidationBody(body2) {
+  if (!body2 || typeof body2 === "string") return false;
+  const code = String(body2.code ?? "");
   if (/^COMMON_[A-Z0-9_]+_UNDEFINED$/.test(code)) return true;
-  const msg = body.message;
+  const msg = body2.message;
   const one = (m) => typeof m === "string" && /^[A-Za-z][\w.]* can'?t be undefined$/.test(m.trim());
   return Array.isArray(msg) ? msg.some(one) : one(msg);
 }
-function fromHttp(status, body) {
-  const detail = typeof body === "string" ? body : JSON.stringify(scrubSecrets(body ?? {}));
-  if (status === 401 && isValidationBody(body)) {
+function fromHttp(status, body2) {
+  const detail = typeof body2 === "string" ? body2 : JSON.stringify(scrubSecrets(body2 ?? {}));
+  if (status === 401 && isValidationBody(body2)) {
     return fail(
       CODES.VALIDATION_FAILED,
       detail,
       "Upstream answered 401, but its body is a validation error naming a missing request field, not an auth failure. The credential is fine \u2014 do NOT re-capture. Fix the request body and retry. (GHL returns 401 for some missing-field cases and 422 for others; read the body, not the status.)"
     );
   }
-  if (status === 401 && body && typeof body === "object" && body._credentialAlive === true) {
+  if (status === 401 && body2 && typeof body2 === "object" && body2._credentialAlive === true) {
     return fail(
       CODES.ACCESS_DENIED,
       detail,
@@ -94067,16 +94677,16 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
         );
       }
     }
-    let body = args?.body;
-    if (typeof body === "string") {
+    let body2 = args?.body;
+    if (typeof body2 === "string") {
       try {
-        body = JSON.parse(body);
+        body2 = JSON.parse(body2);
       } catch {
-        body = void 0;
+        body2 = void 0;
       }
     }
-    if (body !== void 0) {
-      const { withinCaps, bad, tripped } = scanBodyLocations(body, allowed);
+    if (body2 !== void 0) {
+      const { withinCaps, bad, tripped } = scanBodyLocations(body2, allowed);
       if (!withinCaps) {
         const limit = tripped === "depth" ? `nesting deeper than ${MAX_DEPTH} levels` : `more than ${MAX_NODES.toLocaleString("en-US")} nodes`;
         return fail(
@@ -94111,12 +94721,12 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var isPlainObject3 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 var pathOnly = (path) => String(path).split("?")[0].replace(/\/+$/, "");
-var onWire = (body) => {
-  if (body === void 0) return void 0;
+var onWire = (body2) => {
+  if (body2 === void 0) return void 0;
   try {
-    return JSON.parse(JSON.stringify(body));
+    return JSON.parse(JSON.stringify(body2));
   } catch {
-    return body;
+    return body2;
   }
 };
 var isEmptyOnWire = (wire) => wire !== null && typeof wire === "object" && Object.keys(wire).length === 0;
@@ -94173,9 +94783,9 @@ var RULES = [
     hint: "Send the board's reorder body {prevPipelineId, nextPipelineId, initialPosition, targetPosition}; positions are 1-based. Read the pipeline list back to verify the order."
   }
 ];
-function refuseRawRequest({ method, path, body }) {
+function refuseRawRequest({ method, path, body: body2 }) {
   const p2 = pathOnly(path);
-  const wire = onWire(body);
+  const wire = onWire(body2);
   for (const r of RULES) {
     if (r.method === method && r.path.test(p2) && r.refuses(wire)) return { rule: r.rule, message: r.message, hint: r.hint };
   }
@@ -95975,13 +96585,13 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     }
     return h;
   };
-  const request = async (method, path, body, baseOrOptions) => {
+  const request = async (method, path, body2, baseOrOptions) => {
     const options = typeof baseOrOptions === "string" ? { base: baseOrOptions } : baseOrOptions ?? {};
     const base = options.base ?? (rail === "ai" ? AI_HOST : rail === "firebase" ? FIRESTORE_HOST : BASE);
     const signedUpload = options.signedUpload === true;
     let signedTarget = null;
     if (signedUpload) {
-      let ok2 = method === "PUT" && (Buffer.isBuffer(body) || ArrayBuffer.isView(body));
+      let ok2 = method === "PUT" && (Buffer.isBuffer(body2) || ArrayBuffer.isView(body2));
       try {
         const resolved = new URL(path, base);
         ok2 = ok2 && resolved.protocol === "https:" && GCS_HOST_RE.test(resolved.hostname);
@@ -96003,15 +96613,15 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     const res = await fetchImpl(signedTarget ?? base + path, {
       method,
       headers: requestHeaders,
-      body: body === void 0 ? void 0 : signedUpload ? body : JSON.stringify(body)
+      body: body2 === void 0 ? void 0 : signedUpload ? body2 : JSON.stringify(body2)
     });
     return res;
   };
   const RETRYABLE_ON_401 = /* @__PURE__ */ new Set(["GET", "HEAD"]);
-  const call = async (method, path, body, baseOrOptions) => {
-    let res = await request(method, path, body, baseOrOptions);
+  const call = async (method, path, body2, baseOrOptions) => {
+    let res = await request(method, path, body2, baseOrOptions);
     if (res.status === 401 && RETRYABLE_ON_401.has(String(method).toUpperCase())) {
-      res = await request(method, path, body, baseOrOptions);
+      res = await request(method, path, body2, baseOrOptions);
     }
     const text = await res.text();
     let json2;
@@ -96053,8 +96663,8 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     if (Number.isNaN(at)) return null;
     return Math.min(Math.max(0, at - capturedAt), MAX_RETRY_AFTER_MS);
   };
-  const callWithMeta = async (method, path, body, baseOrOptions) => {
-    const res = await request(method, path, body, baseOrOptions);
+  const callWithMeta = async (method, path, body2, baseOrOptions) => {
+    const res = await request(method, path, body2, baseOrOptions);
     const capturedAt = nowImpl();
     const text = await res.text();
     let json2;
@@ -96088,7 +96698,7 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     }
     return { event, data: payload };
   };
-  const stream = async (method, path, body, baseOrOptions) => {
+  const stream = async (method, path, body2, baseOrOptions) => {
     const diagnose = process.env.GHL_SSE_DIAGNOSTICS === "1";
     const startedAt = Date.now();
     let bytesReceived = 0;
@@ -96110,7 +96720,7 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     const terminalEvents = new Set(supplied.terminalEvents ?? ["done", "agent_saved"]);
     let res;
     try {
-      res = await request(method, path, body, {
+      res = await request(method, path, body2, {
         ...supplied,
         headers: { accept: "text/event-stream", ...supplied.headers ?? {} }
       });
@@ -96868,6 +97478,199 @@ var auditPageData = (pageData) => {
   if (!Array.isArray(g.colors)) problems.push("general.general.colors is required (may be empty) \u2014 absent, the public render 500s");
   return problems;
 };
+
+// core/funnel-ops.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+import { randomUUID } from "node:crypto";
+var SETTINGS_KEYS = Object.freeze({
+  // update-settings key : where the value lives on GET /funnels/funnel/fetch
+  funnelName: "name",
+  funnelPath: "url",
+  domainId: "domainId",
+  faviconUrl: "faviconUrl",
+  headTrackingCode: "trackingCodeHead",
+  bodyTrackingCode: "trackingCodeBody",
+  paymentMode: "isLivePaymentMode",
+  chatWidgetId: "chatWidgetId",
+  imageOptimization: "imageOptimization",
+  isGdprCompliant: "isGdprCompliant",
+  isOptimisePageLoad: "isOptimisePageLoad",
+  requireCreditCard: "requireCreditCard",
+  storeCurrencyFormatting: "storeCurrencyFormatting",
+  autoGenerateSchema: "autoGenerateSchema"
+});
+var CACHE_NOTE = "The public domain is behind Cloudflare (cache-control max-age 60 + stale-while-revalidate 30): the exact path can keep serving the previous state for a few minutes (measured 90 s to ~3 min after a path move or unpublish). Do not retry the write; re-read after that window. A case-varied URL skips the cache but ALSO skips split-test routing and custom security headers, so it is not the same request.";
+var EXACT_CASE_NOTE = "Custom security headers and split-test routing apply to the EXACT-CASE path only: a case-varied URL (e.g. /My-Page for /my-page) serves the same page WITHOUT the headers and without the split. A CSP or X-Frame-Options set here can be bypassed by changing the URL case.";
+var body = (r) => r?.json?.data ?? r?.json ?? null;
+var enc = encodeURIComponent;
+async function readFunnel(gw, locationId, funnelId) {
+  const r = await gw.call("GET", `/funnels/funnel/fetch/${enc(funnelId)}?locationId=${enc(locationId)}`);
+  return { res: r, funnel: r.ok ? body(r) : null };
+}
+async function readLookups(gw, locationId, funnelId) {
+  const r = await gw.call("GET", `/funnels/lookup/list?locationId=${enc(locationId)}&funnelId=${enc(funnelId)}`);
+  const rows = Array.isArray(r.json?.data) ? r.json.data : Array.isArray(r.json) ? r.json : [];
+  return { res: r, rows };
+}
+var stepView = (s, i) => ({
+  id: s.id,
+  name: s.name,
+  url: s.url,
+  type: s.type,
+  pages: s.pages ?? [],
+  sequence: s.sequence ?? i,
+  split: s.split === true,
+  controlTraffic: s.control_traffic ?? s.controlTraffic ?? null
+});
+var lookupView = (r) => ({
+  id: r._id,
+  type: r.type,
+  typeId: r.typeId,
+  path: r.path,
+  domain: r.domain,
+  publishStatus: r.publishStatus ?? null,
+  action: r.action ?? null,
+  target: r.target ?? null
+});
+function settingsFrom(funnel) {
+  const out = {};
+  for (const [key, src] of Object.entries(SETTINGS_KEYS)) out[key] = funnel?.[src] ?? null;
+  return out;
+}
+function settingsBody(locationId, funnel, overrides = {}) {
+  return {
+    locationId,
+    funnelId: funnel._id ?? funnel.id,
+    funnelPath: funnel.url,
+    funnelName: funnel.name,
+    domainId: funnel.domainId ?? "",
+    faviconUrl: funnel.faviconUrl ?? "",
+    headTrackingCode: funnel.trackingCodeHead ?? "",
+    bodyTrackingCode: funnel.trackingCodeBody ?? "",
+    allowPaymentModeOption: true,
+    paymentMode: funnel.isLivePaymentMode ?? true,
+    chatWidgetId: funnel.chatWidgetId ?? "",
+    imageOptimization: funnel.imageOptimization ?? true,
+    isGdprCompliant: funnel.isGdprCompliant ?? false,
+    isOptimisePageLoad: funnel.isOptimisePageLoad ?? true,
+    stopAllSplitTestsAndReset: null,
+    requireCreditCard: funnel.requireCreditCard ?? true,
+    storeCurrencyFormatting: funnel.storeCurrencyFormatting ?? false,
+    autoGenerateSchema: funnel.autoGenerateSchema ?? true,
+    ...overrides
+  };
+}
+function settingsDiff(requested, after) {
+  const got = settingsFrom(after);
+  return Object.entries(requested).map(([k, want]) => {
+    const have = got[k];
+    const same2 = k === "funnelPath" ? normPath(have) === normPath(want) : JSON.stringify(have ?? "") === JSON.stringify(want ?? "");
+    return { key: k, requested: want, readBack: have, applied: same2 };
+  });
+}
+var normPath = (p2) => p2 == null ? p2 : `/${String(p2).replace(/^\/+/, "")}`;
+function planCreateStep({ funnel, step }) {
+  if (!funnel.domainId) {
+    return { refuse: "this funnel has no domain attached. A step created without a domainId gets NO lookup row and 404s in public (measured). Attach a domain first (settings op with domainId), then create the step." };
+  }
+  const id = step.id ?? randomUUID();
+  return {
+    method: "POST",
+    path: "/funnels/funnel/create-step",
+    body: {
+      step: { id, name: step.name, url: String(step.url).replace(/^\/+/, ""), pages: [], type: step.type ?? "optin_funnel_page", split: false, control_traffic: 100 },
+      funnelId: funnel._id ?? funnel.id,
+      domainId: funnel.domainId
+    },
+    stepId: id
+  };
+}
+function planUpdateStep({ funnel, stepId, name, url: url2, domainName }) {
+  const s = (funnel.steps ?? []).find((x) => x.id === stepId);
+  if (!s) return { refuse: `step ${stepId} is not on this funnel` };
+  const b = { stepId, name: name ?? s.name };
+  if (url2 !== void 0) {
+    if (!domainName) return { refuse: "moving a step path needs the funnel's domain name, and it could not be resolved from the domain list" };
+    Object.assign(b, { url: normPath(url2), domainName });
+  }
+  return { method: "PUT", path: `/funnels/funnel/step/${enc(funnel._id ?? funnel.id)}`, body: b };
+}
+function planReorder({ funnel, order }) {
+  const steps = funnel.steps ?? [];
+  const ids = steps.map((s) => s.id);
+  const same2 = order.length === ids.length && new Set(order).size === order.length && order.every((id) => ids.includes(id));
+  if (!same2) {
+    return { refuse: `order must name EVERY step exactly once (${ids.length} on this funnel). The route replaces the whole steps array; a subset would drop steps.` };
+  }
+  const byId = Object.fromEntries(steps.map((s) => [s.id, s]));
+  return {
+    method: "PATCH",
+    path: `/funnels/funnel/update/${enc(funnel._id ?? funnel.id)}`,
+    body: { steps: order.map((id, i) => {
+      const s = byId[id];
+      return { controlTraffic: s.control_traffic ?? s.controlTraffic ?? 100, id: s.id, name: s.name, pages: s.pages ?? [], sequence: i + 1, split: s.split === true, type: s.type, url: s.url };
+    }) }
+  };
+}
+function planCloneStep({ funnel, stepId, locationId, userId }) {
+  if (!(funnel.steps ?? []).some((s) => s.id === stepId)) return { refuse: `step ${stepId} is not on this funnel` };
+  if (!userId) return { refuse: "this credential carries no user id, and clone-funnel-step requires one" };
+  const fid = funnel._id ?? funnel.id;
+  return { method: "POST", path: "/funnels/funnel/clone-funnel-step/", body: { stepId, funnelId: fid, funnels: [fid], locationId, userId } };
+}
+function planDeleteStep({ funnel, stepId, expectName }) {
+  const hits = (funnel.steps ?? []).filter((s) => s.id === stepId);
+  if (hits.length !== 1) return { refuse: `step ${stepId} is not on this funnel (found ${hits.length})` };
+  if (typeof expectName !== "string" || hits[0].name !== expectName) {
+    return { refuse: `target check failed: step ${stepId} is named ${JSON.stringify(hits[0].name)}, not ${JSON.stringify(expectName)}. Nothing was deleted.` };
+  }
+  return { method: "POST", path: "/funnels/funnel/delete-step", body: { funnelId: funnel._id ?? funnel.id, stepId }, target: stepView(hits[0], 0) };
+}
+function planPublishState({ funnel, lookups, pageId, publish, redirect, user }) {
+  const step = (funnel.steps ?? []).find((s) => (s.pages ?? []).includes(pageId));
+  if (!step) return { refuse: `page ${pageId} is not on any step of this funnel` };
+  const rows = lookups.filter((r) => (r.type === "page" || r.type === "step" || r.type === "redirect" || r.type === "not_found_page") && (r.typeId === pageId || r.typeId === step.id));
+  if (!rows.length) return { refuse: "this page has no lookup rows (no public path), so there is nothing to publish or unpublish. Attach a domain / move the step path first." };
+  if (!publish && step.split === true) {
+    return { refuse: "this step is running a split test. The UI stops the split when the page is unpublished; that path is not proven here, so it is refused. End the split first." };
+  }
+  const who = { publishStatusUpdatedBy: user?.id, ...user?.name ? { publishStatusUpdatedByName: user.name } : {} };
+  let fields2;
+  if (publish) fields2 = (r) => ({ target: "", action: null, publishStatus: "live", type: r.typeId === pageId ? "page" : "step" });
+  else if (!redirect || redirect.type === "404") fields2 = () => ({ target: "", action: null, publishStatus: "unpublished", type: "not_found_page" });
+  else if (redirect.type === "url") {
+    const u = String(redirect.url ?? "");
+    if (!/^https?:\/\//i.test(u)) return { refuse: "redirect.url must be an absolute http(s) URL" };
+    fields2 = () => ({ target: u, action: "url", publishStatus: "unpublished", type: "redirect" });
+  } else return { refuse: `redirect.type ${JSON.stringify(redirect.type)} is not supported (404 | url). Redirect-to-step is not proven.` };
+  return {
+    method: "PUT",
+    path: "/funnels/lookup/multiple",
+    body: { lookups: rows.map((r) => ({ lookupId: r._id, ...fields2(r), ...who })) },
+    rows: rows.map(lookupView),
+    step: stepView(step, 0)
+  };
+}
+function planAddHeader({ funnel, locationId, key, value }) {
+  if (!/^[A-Za-z0-9-]+$/.test(String(key ?? ""))) return { refuse: "header name must be a token (letters, digits, dashes)" };
+  const existing = (funnel.securityHeaders ?? []).find((h) => String(h.key).toLowerCase() === String(key).toLowerCase());
+  if (existing) return { refuse: `header ${existing.key} already exists on this funnel; editing/removing is not proven here` };
+  return { method: "POST", path: "/funnels/funnel/headers", body: { locationId, funnelId: funnel._id ?? funnel.id, key, value: String(value ?? "") } };
+}
+async function reread(readFn, okFn, { tries = 5, delays = [0, 500, 1e3, 2e3, 3e3], sleep = (ms) => new Promise((r) => setTimeout(r, ms)) } = {}) {
+  let last;
+  for (let i = 0; i < tries; i++) {
+    if (delays[i]) await sleep(delays[i]);
+    last = await readFn();
+    if (okFn(last)) return { value: last, attempts: i + 1, settled: true };
+  }
+  return { value: last, attempts: tries, settled: false };
+}
 
 // core/workflow-runtime-window.mjs
 init_define_BUILDER_VALIDATORS();
@@ -100075,7 +100878,7 @@ function normalizeSettings(settings, ctx = {}) {
     refuse("SETTINGS_VALUE", `settings.scheduledPauseDates must be an array`);
     scheduledPauseDates = [];
   } else if (scheduledPauseDates.length) warn(`settings.scheduledPauseDates is a DERIVED read-only view (live-proven 2026-08-22): the server computes it from the location's pause configs when the GET carries ?includeScheduledPauseInfo=true, and ignores it on writes. To actually pause, POST /workflow/{loc}/scheduled-pause/config {pauseStartTime, pauseEndTime (epoch ms, window \u2265 24h), isAnnual, workflowIds:[\u2026]} \u2014 these ${scheduledPauseDates.length} entr${scheduledPauseDates.length === 1 ? "y" : "ies"} will not create a pause`);
-  const body = {
+  const body2 = {
     allowMultiple: bool("allowMultiple"),
     allowMultipleOpportunity: bool("allowMultipleOpportunity"),
     stopOnResponse: bool("stopOnResponse"),
@@ -100089,7 +100892,7 @@ function normalizeSettings(settings, ctx = {}) {
     workflowNote,
     statsView: bool("statsView")
   };
-  return { body, warnings };
+  return { body: body2, warnings };
 }
 
 // ../skills/create-ghl-workflow/engine/terminals.mjs
@@ -100300,10 +101103,10 @@ function hasNestedBracketsInExpressions(str) {
   }
   return false;
 }
-function illegalSmsWords(body, vocab) {
+function illegalSmsWords(body2, vocab) {
   const list = vocab ?? [];
-  if (!body || !list.length) return [];
-  const found = String(body).toLowerCase().match(/\b(\w+)\b/g) ?? [];
+  if (!body2 || !list.length) return [];
+  const found = String(body2).toLowerCase().match(/\b(\w+)\b/g) ?? [];
   const banned = new Set(list.map((w) => String(w).toLowerCase()));
   return [...new Set(found.filter((w) => banned.has(w)))];
 }
@@ -165872,10 +166675,10 @@ function compile(ir, ctx) {
     ...stepIndexCounter.size > 0 || S.statsView ? { meta: { ...stepIndexCounter.size > 0 ? { stepIndexCounter: Object.fromEntries(stepIndexCounter) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
   };
   const triggerBodies = norm3.triggers.map((t, i) => {
-    const body = buildTrigger(t, ctx, wid, refMap);
+    const body2 = buildTrigger(t, ctx, wid, refMap);
     const placeholder = triggerRefs.get(t.ref ?? `__trigger_${i}`);
     return {
-      ...body,
+      ...body2,
       // `_placeholderId` is ENGINE-ONLY (stripped before the wire by orchestrate) — it is how the
       // POST result is matched back to the id the document already points at.
       _placeholderId: placeholder,
@@ -166019,9 +166822,9 @@ async function runReadinessChecks(plan, { call, loc }) {
       return { json: null, status: null };
     }
   };
-  const post = async (p2, body) => {
+  const post = async (p2, body2) => {
     try {
-      const r = await call("POST", p2, body);
+      const r = await call("POST", p2, body2);
       return r?.ok ? r.json : null;
     } catch {
       return null;
@@ -166198,20 +167001,20 @@ function planStickyNotes(notes, { loc, wid, skipStickyCheck } = {}) {
   if (notes === void 0 || notes === null) return [];
   if (!Array.isArray(notes)) throw new IRError("STICKY_NOTE", `stickyNotes must be an array of {content, color?, x?, y?, width?, height?}`);
   return notes.map((n, i) => {
-    const body = normalizeStickyNote({ ...n, x: n?.x ?? n?.positionX ?? STICKY_DEFAULTS.x + i * 40, y: n?.y ?? n?.positionY ?? STICKY_DEFAULTS.y + i * 40 }, { skipStickyCheck });
-    return { method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body, workflowId: wid, locationId: loc }, ref: n?.ref ?? null };
+    const body2 = normalizeStickyNote({ ...n, x: n?.x ?? n?.positionX ?? STICKY_DEFAULTS.x + i * 40, y: n?.y ?? n?.positionY ?? STICKY_DEFAULTS.y + i * 40 }, { skipStickyCheck });
+    return { method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body2, workflowId: wid, locationId: loc }, ref: n?.ref ?? null };
   });
 }
 function planStickyNoteOp(op, { loc, wid, skipStickyCheck } = {}) {
   if (op.op === "addStickyNote") {
-    const body = normalizeStickyNote(op.note, { skipStickyCheck });
-    return { op: op.op, method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body, workflowId: wid, locationId: loc } };
+    const body2 = normalizeStickyNote(op.note, { skipStickyCheck });
+    return { op: op.op, method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body2, workflowId: wid, locationId: loc } };
   }
   if (op.op === "updateStickyNote") {
     if (!op.noteId || typeof op.noteId !== "string") throw new IRError("STICKY_NOTE", `updateStickyNote needs 'noteId' (the note's _id from export_workflow / sticky-notes-all)`);
-    const body = normalizeStickyNote(op.note ?? {}, { partial: true, skipStickyCheck });
-    if (!Object.keys(body).length) throw new IRError("STICKY_NOTE", `updateStickyNote: 'note' carries nothing to change (content, color, x, y, width, height)`);
-    return { op: op.op, method: "PATCH", path: `/workflows/sticky-note?${new URLSearchParams({ _id: op.noteId, locationId: loc })}`, body };
+    const body2 = normalizeStickyNote(op.note ?? {}, { partial: true, skipStickyCheck });
+    if (!Object.keys(body2).length) throw new IRError("STICKY_NOTE", `updateStickyNote: 'note' carries nothing to change (content, color, x, y, width, height)`);
+    return { op: op.op, method: "PATCH", path: `/workflows/sticky-note?${new URLSearchParams({ _id: op.noteId, locationId: loc })}`, body: body2 };
   }
   throw new IRError("STICKY_NOTE", `unknown sticky-note op ${JSON.stringify(op.op)}`);
 }
@@ -166224,9 +167027,9 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash3, randomUUID } from "node:crypto";
+import { createHash as createHash3, randomUUID as randomUUID2 } from "node:crypto";
 function makeUuidV4() {
-  return randomUUID();
+  return randomUUID2();
 }
 function makeDeterministicIdGen(seed) {
   let n = 0;
@@ -167801,7 +168604,7 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   const counter2 = marketplaceStepIndexCounter(newTemplates);
   const touched = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
   const editTouchedMarketplace = newTemplates.some((t) => t.isMarketplaceAction === true && touched.has(t.id));
-  const settingsBody = opts.settingsPatch ? settingsCommitFields(fresh, opts.settingsPatch, uid, opts) : {};
+  const settingsBody2 = opts.settingsPatch ? settingsCommitFields(fresh, opts.settingsPatch, uid, opts) : {};
   return {
     ...fresh,
     updatedBy: uid,
@@ -167818,7 +168621,7 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
       ...fresh.meta ?? {},
       stepIndexCounter: { ...fresh.meta?.stepIndexCounter ?? {}, ...Object.fromEntries(counter2) }
     } } : {},
-    ...settingsBody,
+    ...settingsBody2,
     createdSteps: diff.createdSteps,
     modifiedSteps: diff.modifiedSteps,
     deletedSteps: diff.deletedSteps
@@ -167854,14 +168657,14 @@ function settingsCommitFields(fresh, rawPatch, uid, opts = {}) {
   const merged = { ...settingsFromDoc(fresh), ...patch };
   if (typeof patch.workflowNote === "string" && fresh.workflowNote?.content !== void 0 && patch.workflowNote !== fresh.workflowNote.content)
     merged.workflowNote = { ...fresh.workflowNote, content: patch.workflowNote, updatedBy: uid, updatedAt: (opts.now ? new Date(opts.now) : /* @__PURE__ */ new Date()).toISOString() };
-  const { body } = normalizeSettings(merged, {
+  const { body: body2 } = normalizeSettings(merged, {
     uid,
     now: opts.now,
     warn: opts.warn,
     skipSettingsCheck: opts.skipSettingsCheck,
     senderRuleAdvisory: !("senderAddress" in patch)
   });
-  const { statsView, ...top } = body;
+  const { statsView, ...top } = body2;
   Object.assign(out, top);
   if ("statsView" in patch || fresh.meta?.statsView !== void 0) out.meta = { ...fresh.meta ?? {}, statsView };
   return out;
@@ -168235,14 +169038,14 @@ async function validateAssets(call, loc, { templates, triggers, companyId } = {}
   if (!res || res.ok !== true) {
     return { checked: false, skipped: `endpoint returned ${res?.status ?? "no response"}`, errors: EMPTY, warnings: EMPTY };
   }
-  const body = res.json;
-  if (!body || typeof body !== "object" || !Array.isArray(body.errors) && !Array.isArray(body.warnings)) {
+  const body2 = res.json;
+  if (!body2 || typeof body2 !== "object" || !Array.isArray(body2.errors) && !Array.isArray(body2.warnings)) {
     return { checked: false, skipped: "unrecognised response shape", errors: EMPTY, warnings: EMPTY };
   }
   return {
     checked: true,
-    errors: (body.errors ?? []).map(normalizeFinding),
-    warnings: (body.warnings ?? []).map(normalizeFinding)
+    errors: (body2.errors ?? []).map(normalizeFinding),
+    warnings: (body2.warnings ?? []).map(normalizeFinding)
   };
 }
 
@@ -169720,11 +170523,11 @@ init_define_TOOL_CATALOG();
 var livePath = (loc, wid) => `/workflow/${encodeURIComponent(loc)}/${encodeURIComponent(wid)}/validate-workflows`;
 async function liveValidate(call, loc, wid, { document, templates, triggers } = {}) {
   if (!loc || !wid || !document) return { ran: false, why: "no location, workflow id or document to validate" };
-  const body = { ...document, newTriggers: Array.isArray(triggers) ? triggers : [] };
-  if (templates) body.workflowData = { ...document.workflowData ?? {}, templates };
+  const body2 = { ...document, newTriggers: Array.isArray(triggers) ? triggers : [] };
+  if (templates) body2.workflowData = { ...document.workflowData ?? {}, templates };
   let r;
   try {
-    r = await call("POST", livePath(loc, wid), body);
+    r = await call("POST", livePath(loc, wid), body2);
   } catch (e) {
     return { ran: false, why: `the validator could not be reached: ${e?.message ?? e}` };
   }
@@ -170031,17 +170834,17 @@ async function orchestrate(ir, gw, opts = {}) {
     failurePhase: null,
     failureHttp: null
   };
-  const callAt = async (failurePhase, method, path, body) => {
+  const callAt = async (failurePhase, method, path, body2) => {
     try {
-      return await call(method, path, body);
+      return await call(method, path, body2);
     } catch (error51) {
       report.failurePhase = failurePhase;
       report.aborted = `Gateway transport failed during ${failurePhase}: ${error51?.message ?? String(error51)}`;
       return null;
     }
   };
-  const dependencyCallAt = async (failurePhase, method, path, body) => {
-    const response = await callAt(failurePhase, method, path, body);
+  const dependencyCallAt = async (failurePhase, method, path, body2) => {
+    const response = await callAt(failurePhase, method, path, body2);
     if (!response) return null;
     if (!response.ok) {
       report.failurePhase = failurePhase;
@@ -170369,14 +171172,14 @@ ${offline.summary}`;
     } else if (fresh.json == null) {
       report.warnings.push("\u{1F534} TRIGGER REFS UNREPAIRED: the workflow re-read answered 200 with an empty body, so placeholder trigger ids could not be repaired; those branches can never match. Re-run the build.");
     } else {
-      let body = JSON.stringify(fresh.json);
+      let body2 = JSON.stringify(fresh.json);
       for (const { placeholderId, id } of triggerRefRepair.mismatches) {
-        if (id == null || !body.includes(placeholderId)) continue;
-        body = body.split(placeholderId).join(id);
+        if (id == null || !body2.includes(placeholderId)) continue;
+        body2 = body2.split(placeholderId).join(id);
         triggerRefRepair.rewritten++;
       }
       if (triggerRefRepair.rewritten) {
-        const rePut = await callAt("workflow_put_trigger_refs", "PUT", `/workflow/${loc}/${WID}`, JSON.parse(body));
+        const rePut = await callAt("workflow_put_trigger_refs", "PUT", `/workflow/${loc}/${WID}`, JSON.parse(body2));
         if (!rePut) return report;
         triggerRefRepair.rePut = rePut.ok === true;
         if (!rePut.ok) {
@@ -170549,7 +171352,7 @@ ${offline.summary}`;
     if (!triggerResponse) return report;
     const tr = triggerResponse.json;
     const triggers = Array.isArray(tr) ? tr : tr?.triggers || tr?.data || [];
-    const body = {
+    const body2 = {
       ...fresh,
       status: "published",
       version: fresh.version,
@@ -170561,7 +171364,7 @@ ${offline.summary}`;
       createdSteps: [],
       ...Array.isArray(fresh?.workflowData?.templates) ? { workflowData: { ...fresh.workflowData, templates: fillInputTriggerParams(stripNullNext(fresh.workflowData.templates)) } } : {}
     };
-    const pub = await callAt("publish_put", "PUT", `/workflow/${loc}/${WID}`, body);
+    const pub = await callAt("publish_put", "PUT", `/workflow/${loc}/${WID}`, body2);
     if (!pub) return report;
     const checkResponse = await callAt("publish_verify_get", "GET", `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
     if (!checkResponse) return report;
@@ -170795,10 +171598,10 @@ function compileValidators(source) {
   const IDENT = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
   for (const n of names) {
     if (!IDENT.test(n)) return { error: `validator key ${JSON.stringify(n).slice(0, 40)} is not a bare identifier` };
-    const body = source[n];
-    if (typeof body !== "string") return { error: `validator ${n} is not a string` };
+    const body2 = source[n];
+    if (typeof body2 !== "string") return { error: `validator ${n} is not a string` };
     const binds = new RegExp(`^(?:${n}\\s*=|function\\s+${n}\\s*\\()`);
-    if (!binds.test(body.trim())) {
+    if (!binds.test(body2.trim())) {
       return { error: `validator ${n} does not bind the identifier it is filed under (expected "${n}=" or "function ${n}(")` };
     }
   }
@@ -171039,12 +171842,12 @@ function translateActiveToStatus(requestedActive, storedActive) {
   if (requestedActive === void 0 || requestedActive === storedActive) return void 0;
   return requestedActive ? "published" : "draft";
 }
-function requestedTriggerFields(patch = {}, body = {}) {
+function requestedTriggerFields(patch = {}, body2 = {}) {
   const out = {};
-  for (const k of ["type", "name", "masterType", "targetActionId"]) if (patch[k] !== void 0) out[k] = body[k];
-  if (patch.target !== void 0) out.targetActionId = body.targetActionId;
+  for (const k of ["type", "name", "masterType", "targetActionId"]) if (patch[k] !== void 0) out[k] = body2[k];
+  if (patch.target !== void 0) out.targetActionId = body2.targetActionId;
   if (patch.conditions !== void 0) out.conditions = patch.conditions;
-  else if (patch.filters !== void 0) out.conditions = body.conditions;
+  else if (patch.filters !== void 0) out.conditions = body2.conditions;
   return out;
 }
 function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStatus } = {}) {
@@ -171057,8 +171860,8 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
       case "addTrigger": {
         const { conditions: verbatim, ...authored } = op.trigger;
         const built = buildTrigger(authored, ctx, wid, refMapFrom(ctx?.externalRefs));
-        const body = { ...built, ...verbatim !== void 0 ? { conditions: verbatim } : {}, status: targetStatus };
-        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body, requested: requestedTriggerFields(op.trigger, body) };
+        const body2 = { ...built, ...verbatim !== void 0 ? { conditions: verbatim } : {}, status: targetStatus };
+        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: body2, requested: requestedTriggerFields(op.trigger, body2) };
       }
       case "deleteTrigger": {
         const t = resolveTrigger(op, existing);
@@ -171077,10 +171880,10 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
       case "duplicateTrigger": {
         const t = resolveTrigger(op, existing);
         const { id: _i, _id: _ii, date_added: _da, date_updated: _du, deleted: _d, ...rest } = t;
-        const body = { ...JSON.parse(JSON.stringify(rest)), name: op.newName ?? `${t.name ?? t.type} (Copy)`, active: false, status: targetStatus, workflow_id: wid };
-        if (body.predeterminedId && ctx.idGen) body.predeterminedId = ctx.idGen();
-        for (const c of body.conditions ?? []) if (c && typeof c === "object" && c.field === "predeterminedId" && ctx.idGen) c.value = body.predeterminedId ?? ctx.idGen();
-        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body, sourceTriggerId: t.id ?? t._id };
+        const body2 = { ...JSON.parse(JSON.stringify(rest)), name: op.newName ?? `${t.name ?? t.type} (Copy)`, active: false, status: targetStatus, workflow_id: wid };
+        if (body2.predeterminedId && ctx.idGen) body2.predeterminedId = ctx.idGen();
+        for (const c of body2.conditions ?? []) if (c && typeof c === "object" && c.field === "predeterminedId" && ctx.idGen) c.value = body2.predeterminedId ?? ctx.idGen();
+        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: body2, sourceTriggerId: t.id ?? t._id };
       }
       // derived from a `replaceTag` op: one full-object PUT per trigger whose conditions carry the tag
       case "replaceTagInTriggers": {
@@ -171153,7 +171956,7 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
           refMapFrom(ctx?.externalRefs)
         );
         delete merged.status;
-        const body = {
+        const body2 = {
           ...t,
           ...merged,
           ...verbatimConditions !== void 0 ? { conditions: verbatimConditions } : {},
@@ -171161,7 +171964,7 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
           _id: t._id ?? tid,
           ...status !== void 0 ? { status } : {}
         };
-        const requested = requestedTriggerFields(op.trigger, body, t);
+        const requested = requestedTriggerFields(op.trigger, body2, t);
         const unchanged = Object.entries(requested).every(([k, v]) => JSON.stringify(v) === JSON.stringify(t[k])) && status === void 0;
         if (unchanged) {
           return {
@@ -171177,7 +171980,7 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
           method: "PUT",
           path: `/workflow/${loc}/trigger/${tid}`,
           triggerId: tid,
-          body,
+          body: body2,
           requested,
           // The pre-write row, so a round trip can assert the server's own date_updated MOVED.
           before: { date_updated: t.date_updated ?? null, updatedAt: t.updatedAt ?? null }
@@ -171937,21 +172740,21 @@ function planPipelineEdit(row, edit = {}) {
     if (s.color !== void 0) out.color = s.color;
     return out;
   });
-  const body = { ...top, stages };
+  const body2 = { ...top, stages };
   return {
-    body,
+    body: body2,
     final: stages,
     removed: remove.map((r) => ({ id: r.id, name: byId.get(r.id)?.name, moveCardsTo: r.moveCardsTo })),
-    diff: diffPipeline(row, body)
+    diff: diffPipeline(row, body2)
   };
 }
-function diffPipeline(row, body) {
+function diffPipeline(row, body2) {
   const top = [];
-  for (const k of TOP_LEVEL) if (body[k] !== void 0 && body[k] !== row?.[k]) top.push({ field: k, before: row?.[k] ?? null, after: body[k] });
+  for (const k of TOP_LEVEL) if (body2[k] !== void 0 && body2[k] !== row?.[k]) top.push({ field: k, before: row?.[k] ?? null, after: body2[k] });
   const before = new Map((row?.stages ?? []).map((s, i) => [s.id, { ...s, index: i }]));
-  const after = new Set(body.stages.filter((s) => s.id).map((s) => s.id));
+  const after = new Set(body2.stages.filter((s) => s.id).map((s) => s.id));
   const changed = [], added = [];
-  body.stages.forEach((s, index) => {
+  body2.stages.forEach((s, index) => {
     if (!s.id) {
       added.push({ name: s.name, position: index, stageWinProbability: s.stageWinProbability });
       return;
@@ -171964,14 +172767,14 @@ function diffPipeline(row, body) {
   const removed = [...before.values()].filter((s) => !after.has(s.id)).map((s) => ({ id: s.id, name: s.name }));
   return { pipeline: top, stagesChanged: changed, stagesAdded: added, stagesRemoved: removed };
 }
-function verifyPipeline(body, row) {
+function verifyPipeline(body2, row) {
   const bad = [];
   if (!row) return ["the pipeline is missing from the list after the write"];
-  for (const k of TOP_LEVEL) if (body[k] !== void 0 && row[k] !== body[k]) bad.push(`${k}: sent ${JSON.stringify(body[k])}, read back ${JSON.stringify(row[k])}`);
+  for (const k of TOP_LEVEL) if (body2[k] !== void 0 && row[k] !== body2[k]) bad.push(`${k}: sent ${JSON.stringify(body2[k])}, read back ${JSON.stringify(row[k])}`);
   const got = row.stages ?? [];
-  if (got.length !== body.stages.length) bad.push(`stage count: sent ${body.stages.length}, read back ${got.length}`);
+  if (got.length !== body2.stages.length) bad.push(`stage count: sent ${body2.stages.length}, read back ${got.length}`);
   const sorted = [...got].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-  body.stages.forEach((s, i) => {
+  body2.stages.forEach((s, i) => {
     const r = s.id ? got.find((g) => g.id === s.id) : sorted[i];
     if (!r) {
       bad.push(`stage "${s.name}" (${s.id ?? "new"}) is missing after the write`);
@@ -172384,19 +173187,19 @@ var sessionRow = (r) => ({
   timestamp: r.timestamp ?? null
 });
 var sessionBody = (args) => {
-  const body = {
+  const body2 = {
     locationId: args.locationId,
     limit: args.limit ?? 50,
     sortBy: args.sortBy ?? "timestamp",
     sortOrder: args.sortOrder ?? "desc"
   };
-  for (const k of SESSION_FILTER_KEYS) if (args[k] !== void 0 && args[k] !== "") body[k] = args[k];
+  for (const k of SESSION_FILTER_KEYS) if (args[k] !== void 0 && args[k] !== "") body2[k] = args[k];
   if (args.metadataFilters?.length) {
-    body.metadataFilters = args.metadataFilters.map((f) => f.op === "exists" ? { key: f.key, op: "exists" } : { key: f.key, value: f.value ?? "", op: "equals" });
+    body2.metadataFilters = args.metadataFilters.map((f) => f.op === "exists" ? { key: f.key, op: "exists" } : { key: f.key, value: f.value ?? "", op: "equals" });
   }
-  return body;
+  return body2;
 };
-var walkSessions = async (gw, body, { maxRows = 1e3, maxHops = 200 } = {}) => {
+var walkSessions = async (gw, body2, { maxRows = 1e3, maxHops = 200 } = {}) => {
   const rows = [];
   const seen = /* @__PURE__ */ new Set();
   let token = null;
@@ -172405,7 +173208,7 @@ var walkSessions = async (gw, body, { maxRows = 1e3, maxHops = 200 } = {}) => {
   let dupes = 0;
   let error51 = null;
   while (rows.length < maxRows && hops < maxHops) {
-    const r = await gw.call("POST", "/agent-logs/logs", { ...body, ...token ? { pageToken: token } : {} });
+    const r = await gw.call("POST", "/agent-logs/logs", { ...body2, ...token ? { pageToken: token } : {} });
     if (!r.ok) {
       error51 = r;
       break;
@@ -172912,8 +173715,8 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function makeFF({ gw }) {
   const { call, loc, uid } = gw;
-  const callJson = async (method, path, body) => {
-    const result = await call(method, path, body);
+  const callJson = async (method, path, body2) => {
+    const result = await call(method, path, body2);
     if (!result.ok) {
       const detail = typeof result.json === "string" ? result.json : JSON.stringify(result.json);
       const error51 = new Error(`${method} ${path} \u2192 ${result.status} ${detail.slice(0, 200)}`);
@@ -172972,7 +173775,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { readFile } from "node:fs/promises";
-import { randomUUID as randomUUID2 } from "node:crypto";
+import { randomUUID as randomUUID3 } from "node:crypto";
 import { basename } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -172990,9 +173793,9 @@ var GhlMembershipsApi = class {
     this.C = `${BACKEND}/courses/locations/${this.loc}`;
     this.D = `${BACKEND}/assets-drm`;
   }
-  async req(method, url2, body, { raw = false } = {}) {
+  async req(method, url2, body2, { raw = false } = {}) {
     const { base, path } = splitEndpoint(url2);
-    const response = await this.gw.call(method, path, body, {
+    const response = await this.gw.call(method, path, body2, {
       base,
       headers: { sourceid: this.loc }
       // required — omitted in the day-1 capture doc
@@ -173078,7 +173881,7 @@ ${detail.slice(0, 400)}`);
     certificateTemplateId = null,
     embed = null
   }) {
-    const body = {
+    const body2 = {
       title,
       description,
       categoryId,
@@ -173094,9 +173897,9 @@ ${detail.slice(0, 400)}`);
       metaData: { embedMediaId: null },
       contentId: null
     };
-    if (contentType !== void 0 && contentType !== null) body.contentType = contentType;
-    if (embed) body.contentType = "video";
-    return this.req("POST", `${this.M}/posts`, body);
+    if (contentType !== void 0 && contentType !== null) body2.contentType = contentType;
+    if (embed) body2.contentType = "video";
+    return this.req("POST", `${this.M}/posts`, body2);
   }
   /**
    * Attach an embed to an existing post.
@@ -173110,20 +173913,20 @@ ${detail.slice(0, 400)}`);
    */
   async setEmbed(postId, embed) {
     const current = await this.getPost(postId);
-    const body = { ...current };
-    delete body.video;
-    delete body.post_materials;
-    delete body.asset_urls;
-    delete body.category;
-    delete body.product;
-    body.contentType = "video";
-    body.embedJson = {
+    const body2 = { ...current };
+    delete body2.video;
+    delete body2.post_materials;
+    delete body2.asset_urls;
+    delete body2.category;
+    delete body2.product;
+    body2.contentType = "video";
+    body2.embedJson = {
       src: embed.src,
       width: String(embed.width ?? 640),
       height: String(embed.height ?? 360),
       allowFullScreen: embed.allowFullScreen !== false
     };
-    await this.req("PUT", `${this.M}/posts/${postId}`, body);
+    await this.req("PUT", `${this.M}/posts/${postId}`, body2);
     return this.getPost(postId);
   }
   /** Parse a pasted <iframe …> into the embedJson shape the API wants. */
@@ -173153,7 +173956,7 @@ ${detail.slice(0, 400)}`);
       { source: "courses", entityId: this.loc, type: "videos", mimeType: "video/mp4" }
     );
     await this.putBytes(signed.signedUrl, bytes, "video/mp4");
-    const sourceEntityId = randomUUID2();
+    const sourceEntityId = randomUUID3();
     const path = signed.path.startsWith("/") ? signed.path : `/${signed.path}`;
     const { licenseId } = await this.req("POST", `${this.D}/assets`, {
       asset: { sourceEntityId, sourceEntityType: "videos", entityId: this.loc, entityType: "Location" },
@@ -173217,15 +174020,15 @@ ${detail.slice(0, 400)}`);
     trialDays,
     numberOfPayments
   }) {
-    const body = { title, type, locationId: this.loc, productIds, amount, currency };
-    if (interval) body.interval = interval;
-    if (intervalCount) body.intervalCount = String(intervalCount);
-    if (paymentProvider) body.paymentProvider = paymentProvider;
-    if (isLivePaymentMode !== void 0) body.isLivePaymentMode = isLivePaymentMode;
-    if (setupFee !== void 0) body.setupFee = setupFee;
-    if (trialDays !== void 0) body.trialDays = trialDays;
-    if (numberOfPayments !== void 0) body.numberOfPayments = numberOfPayments;
-    return this.req("POST", `${this.M}/offers`, body);
+    const body2 = { title, type, locationId: this.loc, productIds, amount, currency };
+    if (interval) body2.interval = interval;
+    if (intervalCount) body2.intervalCount = String(intervalCount);
+    if (paymentProvider) body2.paymentProvider = paymentProvider;
+    if (isLivePaymentMode !== void 0) body2.isLivePaymentMode = isLivePaymentMode;
+    if (setupFee !== void 0) body2.setupFee = setupFee;
+    if (trialDays !== void 0) body2.trialDays = trialDays;
+    if (numberOfPayments !== void 0) body2.numberOfPayments = numberOfPayments;
+    return this.req("POST", `${this.M}/offers`, body2);
   }
   // ---------- assessments ----------
   async createQuiz({ title, productId, categoryId, sequenceNo = 0 }) {
@@ -173367,8 +174170,8 @@ var Assessments = class {
     return this.req("POST", `${this.M}/assessments/quiz/questions`, { questions: payload });
   }
   /** Quiz settings (name, passing grade, messages) save separately from questions. */
-  updateQuiz(quizId, body) {
-    return this.req("PUT", `${this.M}/assessments/quiz/${quizId}`, body);
+  updateQuiz(quizId, body2) {
+    return this.req("PUT", `${this.M}/assessments/quiz/${quizId}`, body2);
   }
   // ---------- assignment ----------
   getAssignmentByPost(postId) {
@@ -173670,9 +174473,9 @@ var Members = class {
   /** An offer must be published before it can be meaningfully granted. */
   async publishOffer(offerId) {
     const current = await this.req("GET", `${this.M}/offers/${offerId}`);
-    const body = { ...current, visibility: "published" };
-    delete body.products;
-    return this.req("PUT", `${this.M}/offers/${offerId}`, body);
+    const body2 = { ...current, visibility: "published" };
+    delete body2.products;
+    return this.req("PUT", `${this.M}/offers/${offerId}`, body2);
   }
   deleteOffer(offerId) {
     return this.req("DELETE", `${this.M}/offers/${offerId}`);
@@ -174644,31 +175447,31 @@ function compileConvaiAction(action, { agentId = null, locationId } = {}) {
   if (typeof action.name !== "string" || !action.name) throw new IRError2("SCHEMA", "action.name is required");
   if (action.details !== void 0 && (typeof action.details !== "object" || action.details === null))
     throw new IRError2("SCHEMA", "action.details must be an object when present");
-  const body = {
+  const body2 = {
     employeeId: agentId,
     locationId,
     type: action.type,
     name: action.name,
     details: buildActionDetails(action)
   };
-  return { method: "POST", path: "/ai-employees/actions", body };
+  return { method: "POST", path: "/ai-employees/actions", body: body2 };
 }
 var WAIT_BOUNDS = { seconds: [1, 21600], minutes: [1, 360], hours: [1, 6] };
-function uiSaveViolations(body, botType) {
+function uiSaveViolations(body2, botType) {
   const v = [];
   const push = (field, rule, msg) => v.push({ field, rule, msg });
-  if (!Array.isArray(body.channels) || !body.channels.length) push("channels", "selectChannel", "Please select at least one channel");
+  if (!Array.isArray(body2.channels) || !body2.channels.length) push("channels", "selectChannel", "Please select at least one channel");
   for (const f of ["personality", "goal", "instructions"]) {
-    if (typeof body[f] !== "string" || !body[f].trim()) {
+    if (typeof body2[f] !== "string" || !body2[f].trim()) {
       push(f, "notEmpty", "Personality, Instructions, and Goal should not be empty.");
     }
   }
-  if (!Array.isArray(body.tones) || !body.tones.length) {
+  if (!Array.isArray(body2.tones) || !body2.tones.length) {
     push("tones", "toneEmpty", "Personality, Instructions, Goal, and Tone should not be empty.");
   }
-  if (Array.isArray(body.tones) && body.tones.length > 3) push("tones", "errorMaxTones", "You can select maximum of 3 tones.");
-  const unit = body.waitTime?.unit ?? body.wait?.unit;
-  const value = body.waitTime?.value ?? body.wait?.value;
+  if (Array.isArray(body2.tones) && body2.tones.length > 3) push("tones", "errorMaxTones", "You can select maximum of 3 tones.");
+  const unit = body2.waitTime?.unit ?? body2.wait?.unit;
+  const value = body2.waitTime?.value ?? body2.wait?.value;
   const bounds = WAIT_BOUNDS[unit];
   if (bounds && typeof value === "number" && (value < bounds[0] || value > bounds[1])) {
     push("waitTime", `${unit}Error`, `Wait time must be between ${bounds[0]} and ${bounds[1]} ${unit}`);
@@ -174679,19 +175482,19 @@ var FATAL_FOR_FLOW_BOT = /* @__PURE__ */ new Set(["toneEmpty", "errorMaxTones", 
 function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
   const norm3 = parseConvaiIR(ir);
   const rawBody = buildCreateBody(norm3, { locationId });
-  const body = applyBotTypeCleanup(rawBody);
+  const body2 = applyBotTypeCleanup(rawBody);
   for (const k of Object.keys(rawBody)) {
-    if (k in body || norm3[k] === void 0) continue;
-    warn?.(`BOT_TYPE_KEY: '${k}' is not accepted for botType '${body.botType}' and was dropped \u2014 the server refuses the whole create otherwise ("${k} is only allowed when bot type is FLOW_BUILDER_BOT").`);
+    if (k in body2 || norm3[k] === void 0) continue;
+    warn?.(`BOT_TYPE_KEY: '${k}' is not accepted for botType '${body2.botType}' and was dropped \u2014 the server refuses the whole create otherwise ("${k} is only allowed when bot type is FLOW_BUILDER_BOT").`);
   }
-  if (body.botType !== "FLOW_BUILDER_BOT" && !PROMPT_KEYS.some((k) => nonEmpty(body[k]))) {
+  if (body2.botType !== "FLOW_BUILDER_BOT" && !PROMPT_KEYS.some((k) => nonEmpty(body2[k]))) {
     throw new IRError2(
       "MISSING_FIELD",
       "a prompt-based agent needs at least one of goal, personality or instructions. Created without all three, GHL answers 500 to every later update of the agent, and some of that update still lands."
     );
   }
-  const violations = uiSaveViolations(body, body.botType);
-  const fatal = body.botType === "FLOW_BUILDER_BOT" ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
+  const violations = uiSaveViolations(body2, body2.botType);
+  const fatal = body2.botType === "FLOW_BUILDER_BOT" ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
   if (fatal.length && allowUiUnsaveable !== true) {
     throw new IRError2(
       "UI_SAVE_BLOCKED",
@@ -174702,7 +175505,7 @@ function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
     if (fatal.includes(x)) continue;
     warn?.(`UI_SAVE: ${x.field} \u2014 ${x.msg} (the API accepts this body; the UI will refuse to save the agent)`);
   }
-  const create = { method: "POST", path: "/ai-employees/employees", body };
+  const create = { method: "POST", path: "/ai-employees/employees", body: body2 };
   const actions = (norm3.actions ?? []).map((a) => compileConvaiAction(a, { agentId: null, locationId }));
   return { create, actions, authHeader: AUTH_HEADER };
 }
@@ -174747,8 +175550,8 @@ var SERVER_KEYS = /* @__PURE__ */ new Set([
   "steps"
 ]);
 var EMPTY_OBJECT_REFUSED_KEYS = ["summary", "emailSettings"];
-function applyBotTypeCleanup(body) {
-  const b = { ...body };
+function applyBotTypeCleanup(body2) {
+  const b = { ...body2 };
   if (b.botType !== "FLOW_BUILDER_BOT") for (const k of FLOW_ONLY_KEYS) delete b[k];
   if (b.botType === "FORM_BASED_BOT") {
     delete b.personality;
@@ -174780,61 +175583,61 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
       "this agent has no goal, personality or instructions, and GHL answers 500 to every update of such an agent (live 2026-09-25), even one that adds them, while still applying part of the change. Nothing was sent. Give it a prompt in the Conversation AI builder, or create a new agent with at least one of goal, personality or instructions."
     );
   }
-  const body = {};
-  for (const [k, v] of Object.entries(current)) if (!SERVER_KEYS.has(k) && k !== "name") body[k] = v;
+  const body2 = {};
+  for (const [k, v] of Object.entries(current)) if (!SERVER_KEYS.has(k) && k !== "name") body2[k] = v;
   const isEmptyObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0;
-  for (const k of EMPTY_OBJECT_REFUSED_KEYS) if (body[k] === null || isEmptyObject(body[k])) delete body[k];
-  body.locationId = locationId ?? current.locationId;
-  body.employeeName = current.employeeName ?? current.name;
+  for (const k of EMPTY_OBJECT_REFUSED_KEYS) if (body2[k] === null || isEmptyObject(body2[k])) delete body2[k];
+  body2.locationId = locationId ?? current.locationId;
+  body2.employeeName = current.employeeName ?? current.name;
   const setKeys = /* @__PURE__ */ new Set(["locationId"]);
   for (const [irKey, wireKey] of Object.entries(UPDATE_FIELD_MAP)) {
     if (norm3[irKey] !== void 0) {
-      body[wireKey] = norm3[irKey];
+      body2[wireKey] = norm3[irKey];
       setKeys.add(wireKey);
     }
   }
   if (norm3.summary !== void 0) {
     const stored = current.summary && typeof current.summary === "object" && Object.keys(current.summary).length ? current.summary : defaultSummary();
-    body.summary = mergeSummary(stored, norm3.summary);
+    body2.summary = mergeSummary(stored, norm3.summary);
   }
   for (const [k, v] of Object.entries(responseStyleFields(norm3))) {
-    body[k] = v;
+    body2[k] = v;
     setKeys.add(k);
   }
   if (norm3.name !== void 0) {
-    body.employeeName = norm3.name;
+    body2.employeeName = norm3.name;
     setKeys.add("employeeName");
   }
   if (norm3.wait !== void 0) {
     if (norm3.wait.value !== void 0) {
-      body.waitTime = norm3.wait.value;
+      body2.waitTime = norm3.wait.value;
       setKeys.add("waitTime");
     }
     if (norm3.wait.unit !== void 0) {
-      body.waitTimeUnit = norm3.wait.unit;
+      body2.waitTimeUnit = norm3.wait.unit;
       setKeys.add("waitTimeUnit");
     }
   }
   if (norm3.sleep !== void 0) {
     const sl = norm3.sleep;
     if (sl.enabled !== void 0) {
-      body.sleepEnabled = sl.enabled;
+      body2.sleepEnabled = sl.enabled;
       setKeys.add("sleepEnabled");
     }
     if (sl.onManualMessage !== void 0) {
-      body.sleepOnManualMessage = sl.onManualMessage;
+      body2.sleepOnManualMessage = sl.onManualMessage;
       setKeys.add("sleepOnManualMessage");
     }
     if (sl.onWorkflowMessage !== void 0) {
-      body.sleepOnWorkflowMessage = sl.onWorkflowMessage;
+      body2.sleepOnWorkflowMessage = sl.onWorkflowMessage;
       setKeys.add("sleepOnWorkflowMessage");
     }
     if (sl.time !== void 0) {
-      body.sleepTime = sl.time;
+      body2.sleepTime = sl.time;
       setKeys.add("sleepTime");
     }
     if (sl.timeUnit !== void 0) {
-      body.sleepTimeUnit = sl.timeUnit;
+      body2.sleepTimeUnit = sl.timeUnit;
       setKeys.add("sleepTimeUnit");
     }
   }
@@ -174848,10 +175651,10 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
       `update_convai_agent cannot apply spec key(s) [${unapplied.join(", ")}], and refuses rather than writing a PUT that silently changes nothing. ` + (actionsAsked ? "Actions are a SEPARATE resource on this rail: the agent PUT always sends actions:null, the way the UI does, so an action list here would never have landed. Use the action endpoints. " : "") + (bookingSwitches.length ? `On a prompt-based bot [${bookingSwitches.join(", ")}] live on the appointmentBooking ACTION, not the agent: set details.rescheduleEnabled / details.cancelEnabled on that action (create_convai_agent actions[], or the action endpoints). A bot with the agent-level flag false and the action flag true reschedules. ` : "") + `Applicable keys: ${[...applicable].sort().join(", ")}.`
     );
   }
-  body.actions = null;
+  body2.actions = null;
   setKeys.add("actions");
   const writeOnlyKeys = ["actions"];
-  const cleaned = applyBotTypeCleanup(body);
+  const cleaned = applyBotTypeCleanup(body2);
   const collateralKeys = Object.keys(cleaned).filter((k) => !setKeys.has(k));
   return {
     method: "PUT",
@@ -175303,14 +176106,14 @@ function compileVoiceAiAction(action, { agentId = null, locationId } = {}) {
   if (typeof action.name !== "string" || !action.name) throw new IRError2("SCHEMA", "action.name is required");
   if (action.actionParameters !== void 0 && (typeof action.actionParameters !== "object" || action.actionParameters === null))
     throw new IRError2("SCHEMA", "action.actionParameters must be an object when present");
-  const body = {
+  const body2 = {
     agentId,
     actionType: action.actionType,
     locationId,
     name: action.name,
     actionParameters: buildActionParameters(action)
   };
-  return { method: "POST", path: "/voice-ai/actions", body };
+  return { method: "POST", path: "/voice-ai/actions", body: body2 };
 }
 function compileVoiceAiAgent(ir, { locationId } = {}) {
   const norm3 = parseVoiceAiIR(ir);
@@ -175322,14 +176125,14 @@ var OMIT_WHEN_EMPTY = ["businessName", "welcomeMessage", "timezone"];
 function compileVoiceAiUpdate(fullIr, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError2("MISSING_FIELD", "compileVoiceAiUpdate requires agentId");
   const norm3 = parseVoiceAiIR(fullIr);
-  const body = buildUpdateBody(norm3, { locationId });
+  const body2 = buildUpdateBody(norm3, { locationId });
   for (const key of OMIT_WHEN_EMPTY) {
-    if (body[key] === "" || body[key] == null) delete body[key];
+    if (body2[key] === "" || body2[key] == null) delete body2[key];
   }
   return {
     method: "PUT",
     path: `/voice-ai/agents/${agentId}?publishAgent=true&mode=update`,
-    body,
+    body: body2,
     authHeader: AUTH_HEADER2
   };
 }
@@ -175474,13 +176277,13 @@ function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, compa
   if (name !== void 0 && (typeof name !== "string" || name.length === 0))
     throw new IRError2("SCHEMA", "name must be a non-empty string when present");
   const message = name ? `${name}: ${buildPrompt}` : buildPrompt;
-  const body = {
+  const body2 = {
     message,
     locationId,
     context: { companyId: companyId ?? null },
     mode
   };
-  return { method: "POST", path: "/agent-studio/super-agents/build", body, authHeader: AUTH_HEADER3 };
+  return { method: "POST", path: "/agent-studio/super-agents/build", body: body2, authHeader: AUTH_HEADER3 };
 }
 
 // ../engines/ai/driver.mjs
@@ -175505,7 +176308,7 @@ var readPathFor = (kind, agentId, locationId) => {
     studio: `/agent-studio/super-agent/agents/${agentId}?locationId=${loc}`
   }[kind];
 };
-var responseId = (body) => body?.id ?? body?._id ?? body?.agentId ?? body?.data?.id ?? body?.data?._id ?? body?.data?.agentId ?? null;
+var responseId = (body2) => body2?.id ?? body2?._id ?? body2?.agentId ?? body2?.data?.id ?? body2?.data?._id ?? body2?.data?.agentId ?? null;
 function extractAgentId(kind, response) {
   if (kind === "studio") {
     const fromTerminal = responseId(response?.terminal?.data);
@@ -175522,17 +176325,17 @@ function extractAgentId(kind, response) {
   if (kind === "voiceai") return response?.json?._id ?? response?.json?.id ?? response?.json?.data?._id ?? response?.json?.data?.id ?? null;
   return null;
 }
-var actionId = (body) => responseId(body);
+var actionId = (body2) => responseId(body2);
 var serverMessage = (json2) => {
   const m = json2?.message ?? json2?.error ?? null;
   if (Array.isArray(m)) return m.join("; ");
   return typeof m === "string" ? m : json2 ? JSON.stringify(json2).slice(0, 1e3) : null;
 };
 var threadAgentId = (descriptor2, agentId) => {
-  const body = { ...descriptor2?.body ?? {} };
-  if ("employeeId" in body) body.employeeId = agentId;
-  if ("agentId" in body) body.agentId = agentId;
-  return { ...descriptor2, path: descriptor2.path.replaceAll("{agentId}", agentId), body };
+  const body2 = { ...descriptor2?.body ?? {} };
+  if ("employeeId" in body2) body2.employeeId = agentId;
+  if ("agentId" in body2) body2.agentId = agentId;
+  return { ...descriptor2, path: descriptor2.path.replaceAll("{agentId}", agentId), body: body2 };
 };
 var emptyClass = () => ({ mismatches: [], unverified: [], confirmed: [] });
 var mergeClass = (parts) => parts.reduce((acc, part) => {
@@ -175665,15 +176468,15 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
       }
     });
   }
-  let reread;
+  let reread2;
   try {
-    reread = await gw.call("GET", readPathFor(kind, report.agentId, gw.loc), void 0, { base: AI_BASE2 });
+    reread2 = await gw.call("GET", readPathFor(kind, report.agentId, gw.loc), void 0, { base: AI_BASE2 });
   } catch (error51) {
     return failure(error51?.code ?? "AGENT_VERIFY_FAILED", "verify", report);
   }
-  if (!reread.ok) return failure(`HTTP_${reread.status}`, "verify", report, { verifyStatus: reread.status });
+  if (!reread2.ok) return failure(`HTTP_${reread2.status}`, "verify", report, { verifyStatus: reread2.status });
   const baseExpected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
-  const actual = normalizeRead(kind, reread.json);
+  const actual = normalizeRead(kind, reread2.json);
   const attachedActions = Array.isArray(baseExpected?.actions) && (plan.actions ?? []).length > 0;
   const expected = attachedActions ? { ...baseExpected } : baseExpected;
   if (attachedActions) delete expected.actions;
@@ -175717,8 +176520,8 @@ async function executeAgentUpdate({ plan, gw } = {}) {
       detail: serverMessage(put?.json) ?? `HTTP ${put?.status ?? "?"}`
     };
   }
-  const reread = await gw.call("GET", update.path);
-  if (!reread?.ok) {
+  const reread2 = await gw.call("GET", update.path);
+  if (!reread2?.ok) {
     return {
       ok: false,
       code: "AGENT_VERIFY_UNREACHABLE",
@@ -175727,7 +176530,7 @@ async function executeAgentUpdate({ plan, gw } = {}) {
     };
   }
   const readShape = (o) => o && typeof o === "object" && !("employeeName" in o) && "name" in o ? { ...o, employeeName: o.name } : o ?? {};
-  const after = readShape(reread.json?.employee ?? reread.json);
+  const after = readShape(reread2.json?.employee ?? reread2.json);
   const { mismatches, unverified, confirmed } = partitionVerification(after, expected);
   const changed = [];
   const beforeRead = readShape(before);
@@ -175864,19 +176667,19 @@ function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}
       throw new IRError2("SCHEMA", `${k} must be ${lo}\u2013${hi} (${msg}). The provider enforces this AFTER GHL stores the value, so an out-of-range write leaves the agent diverged; it is refused here. Nothing was sent.`);
     }
   }
-  const body = { locationId: locationId ?? current.locationId };
+  const body2 = { locationId: locationId ?? current.locationId };
   const expected = {};
   for (const [k, v] of Object.entries(spec)) {
     if (NESTED_WHOLE.includes(k)) {
       if (!isObj(v)) throw new IRError2("SCHEMA", `${k} must be an object (it is sent whole, merged over the stored one)`);
       const stored = readFlat(current, k);
-      body[k] = { ...isObj(stored) ? stored : {}, ...v };
+      body2[k] = { ...isObj(stored) ? stored : {}, ...v };
     } else {
-      body[k] = v;
+      body2[k] = v;
     }
-    expected[k] = body[k];
+    expected[k] = body2[k];
   }
-  return { method: "PUT", path: `/voice-ai/agents/${agentId}`, body, expected, setKeys: Object.keys(spec) };
+  return { method: "PUT", path: `/voice-ai/agents/${agentId}`, body: body2, expected, setKeys: Object.keys(spec) };
 }
 var same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 var IGNORE = /* @__PURE__ */ new Set(["updatedAt", "traceId", "__v"]);
@@ -176010,15 +176813,15 @@ async function getIdToken({ gwJwt, locationId, cache, fetchImpl = fetch, nowMs =
       body: JSON.stringify({ token: custom2, returnSecureToken: true })
     }
   );
-  const body = await res.json();
-  if (!res.ok || !body?.idToken) {
-    const e = new Error(`Firebase token exchange failed: ${body?.error?.message ?? res.status}`);
+  const body2 = await res.json();
+  if (!res.ok || !body2?.idToken) {
+    const e = new Error(`Firebase token exchange failed: ${body2?.error?.message ?? res.status}`);
     e.code = "FIREBASE_SIGNIN_FAILED";
     throw e;
   }
-  const ttlMs = (Number(body.expiresIn) || 3600) * 1e3;
-  cache.set(locationId, { idToken: body.idToken, expiresAt: nowMs() + ttlMs });
-  return body.idToken;
+  const ttlMs = (Number(body2.expiresIn) || 3600) * 1e3;
+  cache.set(locationId, { idToken: body2.idToken, expiresAt: nowMs() + ttlMs });
+  return body2.idToken;
 }
 async function runQuery({ gwFirebase, idToken, collection, projectId, orderBy = null, limit = 300 }) {
   const structuredQuery = {
@@ -176077,8 +176880,8 @@ async function queryProjectHistory({
 }
 var filterRoutes = (rows) => (rows ?? []).filter((r) => r?.deleted !== true);
 var nameWarning = (requested, stored) => requested === stored ? null : `GHL rewrote the project name on create: you sent ${JSON.stringify(requested)}, it stored ${JSON.stringify(stored)}, and the slug derives from the STORED name. To get an exact name, follow this create with a rename (which stores the literal but does not update the slug).`;
-function studioError(status, body) {
-  const msg = String(body?.error ?? body?.message ?? "");
+function studioError(status, body2) {
+  const msg = String(body2?.error ?? body2?.message ?? "");
   if (status === 401 && /authorization token required/i.test(msg)) {
     return "/vibe-ai is Bearer-only \u2014 a token-id alone is refused. This is a rail mistake, not an expired credential.";
   }
@@ -176157,13 +176960,13 @@ function answerBodyFor({ question, answer, sessionId, questionMessageId, loc }) 
     alt_type: "location"
   };
   if (question?.kind === "integration_input") {
-    const body = {
+    const body2 = {
       ...base,
       answer_type: "integration_input",
       integration_action: answer === "dismiss" ? "dismiss" : "connect"
     };
-    if (body.integration_action === "connect") body.integration_item_id = answer;
-    return body;
+    if (body2.integration_action === "connect") body2.integration_item_id = answer;
+    return body2;
   }
   if (question?.kind === "secret_input") {
     return { ...base, answer_type: "secret_input" };
@@ -176176,8 +176979,8 @@ var StudioApi = class {
     this.gw = gw;
     this.loc = loc;
   }
-  async #vibe(method, path, body) {
-    const res = await this.gw.call(method, `/vibe-ai${path}`, body);
+  async #vibe(method, path, body2) {
+    const res = await this.gw.call(method, `/vibe-ai${path}`, body2);
     if (!res.ok) {
       const hint = studioError(res.status, res.json);
       if (hint) {
@@ -176233,8 +177036,8 @@ var StudioApi = class {
   putSecrets(id, secrets) {
     return this.#vibe("PUT", `/projects/${id}/secrets`, { secrets, alt_id: this.loc, alt_type: "location" });
   }
-  chat(id, body) {
-    return this.#vibe("POST", `/projects/${id}/chat`, body);
+  chat(id, body2) {
+    return this.#vibe("POST", `/projects/${id}/chat`, body2);
   }
   cancelChat(id, messageId) {
     return this.#vibe("POST", `/projects/${id}/chat/cancel`, { message_id: messageId, alt_id: this.loc, alt_type: "location" });
@@ -176553,11 +177356,11 @@ function validateRegisteredArgs(tool, args) {
   }
   return null;
 }
-var payloadSummary = (body) => {
-  if (body === void 0) return { kind: "none" };
-  if (Array.isArray(body)) return { kind: "array", items: body.length };
-  if (body && typeof body === "object") return { kind: "object", fields: Object.keys(body).sort() };
-  return { kind: typeof body };
+var payloadSummary = (body2) => {
+  if (body2 === void 0) return { kind: "none" };
+  if (Array.isArray(body2)) return { kind: "array", items: body2.length };
+  if (body2 && typeof body2 === "object") return { kind: "object", fields: Object.keys(body2).sort() };
+  return { kind: typeof body2 };
 };
 var descriptorPreview = (descriptor2) => ({
   method: descriptor2.method,
@@ -176927,7 +177730,7 @@ async function workflowValidationGate({
   } catch {
     marketplaceTypes = null;
   }
-  const call = (method, path, body) => gw.call(method, path, body);
+  const call = (method, path, body2) => gw.call(method, path, body2);
   const baseline = fresh ? await liveValidate(call, loc, wid, { document: fresh, triggers }) : null;
   const baselineDocument = fresh ? {
     templates: fresh.workflowData?.templates ?? [],
@@ -177070,7 +177873,7 @@ function returnedResourceId(response) {
   const id = response?.json?.id ?? response?.json?._id ?? response?.json?.data?.id ?? response?.json?.data?._id ?? null;
   return typeof id === "string" && id.trim().length > 0 ? id.trim() : null;
 }
-function triggerSemanticExpectation(body = {}, { verifyActive = false } = {}) {
+function triggerSemanticExpectation(body2 = {}, { verifyActive = false } = {}) {
   const keys = [
     "type",
     "masterType",
@@ -177080,8 +177883,8 @@ function triggerSemanticExpectation(body = {}, { verifyActive = false } = {}) {
     "schedule_config",
     "convTriggerBotId"
   ];
-  const expected = Object.fromEntries(keys.filter((key) => Object.hasOwn(body, key)).map((key) => [key, body[key]]));
-  if (verifyActive) expected.active = body.status === "published";
+  const expected = Object.fromEntries(keys.filter((key) => Object.hasOwn(body2, key)).map((key) => [key, body2[key]]));
+  if (verifyActive) expected.active = body2.status === "published";
   return expected;
 }
 function verifyTriggerRoundTrip(expectations, actualTriggers, beforeTriggers = []) {
@@ -178098,16 +178901,16 @@ var TOOLS2 = [
       const loc = encodeURIComponent(args.locationId);
       const wid = encodeURIComponent(args.workflowId);
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const body = await gw.call("GET", `/workflow/${loc}/${wid}?includeScheduledPauseInfo=true`);
-      if (!body.ok) return fromHttp(body.status, body.json);
-      const templates = body.json?.workflowData?.templates ?? [];
+      const body2 = await gw.call("GET", `/workflow/${loc}/${wid}?includeScheduledPauseInfo=true`);
+      if (!body2.ok) return fromHttp(body2.status, body2.json);
+      const templates = body2.json?.workflowData?.templates ?? [];
       const trg = await gw.call("GET", `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
       const triggerList = Array.isArray(trg?.json) ? trg.json : trg?.json?.triggers ?? trg?.json?.data ?? [];
       const triggerTypes = triggerList.map((t) => t?.type).filter(Boolean);
       let actionSchema = null;
       let triggerSchema = null;
       try {
-        const assetsResp = await gw.call("GET", assetsPath(loc, body.json));
+        const assetsResp = await gw.call("GET", assetsPath(loc, body2.json));
         if (assetsResp?.ok && assetsResp.json) {
           actionSchema = parseActionSchema(assetsResp.json);
           triggerSchema = parseTriggerSchema(assetsResp.json);
@@ -178141,7 +178944,7 @@ var TOOLS2 = [
       const doctrineInput = args.lintPack ?? readProjectLintPack(deps.state, args.locationId);
       const doctrine = doctrineInput ? loadDoctrinePack(doctrineInput) : { rules: null, errors: [] };
       const lints = runLints(
-        { templates, triggers: triggerList, settings: { window: body.json?.window }, status: body.json?.status },
+        { templates, triggers: triggerList, settings: { window: body2.json?.window }, status: body2.json?.status },
         {
           catalog: loadCatalog(),
           customFields,
@@ -178174,8 +178977,8 @@ var TOOLS2 = [
       if (!actionSchema || !actionSchema.size) {
         return ok({
           workflowId: args.workflowId,
-          name: body.json?.name,
-          status: body.json?.status,
+          name: body2.json?.name,
+          status: body2.json?.status,
           steps: templates.length,
           errorCount: null,
           errors: [],
@@ -178258,8 +179061,8 @@ var TOOLS2 = [
         assetReferences: assetRefs,
         ...vocabRefs ? { vocabularyReferences: vocabRefs } : {},
         workflowId: args.workflowId,
-        name: body.json?.name,
-        status: body.json?.status,
+        name: body2.json?.name,
+        status: body2.json?.status,
         steps: templates.length,
         errorCount: errors.length,
         errors,
@@ -178353,10 +179156,10 @@ var TOOLS2 = [
       const trg = await gw.call("GET", `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
       if (!trg.ok) return fromHttp(trg.status, trg.json);
       const triggers = Array.isArray(trg.json) ? trg.json : trg.json?.triggers ?? trg.json?.data ?? [];
-      const body = { ...doc.json, newTriggers: triggers };
+      const body2 = { ...doc.json, newTriggers: triggers };
       const restoredInputs = args.templates ? restoreRedactedForValidation(args.templates, doc.json?.workflowData?.templates) : null;
-      if (args.templates) body.workflowData = { ...doc.json?.workflowData ?? {}, templates: restoredInputs.templates };
-      const r = await gw.call("POST", `/workflow/${loc}/${wid}/validate-workflows`, body);
+      if (args.templates) body2.workflowData = { ...doc.json?.workflowData ?? {}, templates: restoredInputs.templates };
+      const r = await gw.call("POST", `/workflow/${loc}/${wid}/validate-workflows`, body2);
       const verdict = readServerValidation(r.json);
       if (!verdict) return fromHttp(r.status, r.json);
       const placeholders = restoredInputs && (restoredInputs.restored.length || restoredInputs.unresolved.length) ? { redactedPlaceholders: {
@@ -178391,11 +179194,11 @@ var TOOLS2 = [
       const locationId = encodeURIComponent(args.locationId);
       const workflowId = encodeURIComponent(args.workflowId);
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const body = await gw.call(
+      const body2 = await gw.call(
         "GET",
         `/workflow/${locationId}/${workflowId}?includeScheduledPauseInfo=true`
       );
-      if (!body.ok) return fromHttp(body.status, body.json);
+      if (!body2.ok) return fromHttp(body2.status, body2.json);
       const query = new URLSearchParams({ workflowId: args.workflowId });
       const notesQuery = new URLSearchParams({
         workflowId: args.workflowId,
@@ -178412,7 +179215,7 @@ var TOOLS2 = [
         for (const key of keys) if (Array.isArray(payload?.[key])) return payload[key];
         return [];
       };
-      let workflow = body.json;
+      let workflow = body2.json;
       const allTemplates = Array.isArray(workflow?.workflowData?.templates) ? workflow.workflowData.templates : null;
       if (allTemplates) {
         const readTriggers = asArray(triggers.json, "triggers", "data");
@@ -179283,14 +180086,14 @@ var TOOLS2 = [
       if (args.dateFrom && /^\d+$/.test(args.dateFrom)) {
         return fail(CODES.VALIDATION_FAILED, "dateFrom/dateTo must be calendar dates (YYYY-MM-DD). Epoch milliseconds are accepted by the server and silently match zero rows.");
       }
-      const body = sessionBody(args);
+      const body2 = sessionBody(args);
       const notes = [];
       if (args.all) {
         if (sortBy !== "timestamp") {
           return fail(CODES.VALIDATION_FAILED, `all:true walks the pageToken cursor, which is keyed on timestamp \u2014 under sortBy:"${sortBy}" it never advances and would loop on the same rows. Use sortBy:"timestamp" with all:true, or drop all:true and page (offset is capped at ${MAX_OFFSET}).`);
         }
         const maxRows = args.maxRows ?? 1e3;
-        const w = await walkSessions(gw, body, { maxRows });
+        const w = await walkSessions(gw, body2, { maxRows });
         if (w.error) return fromHttp(w.error.status, w.error.json);
         if (w.dupes) notes.push(`sortOrder:"asc" uses an inclusive cursor; ${w.dupes} repeated row(s) were de-duplicated by agentSessionId.`);
         const total2 = Number(w.meta?.totalRecords ?? w.rows.length);
@@ -179310,7 +180113,7 @@ var TOOLS2 = [
       if (offset > MAX_OFFSET) {
         return fail(CODES.VALIDATION_FAILED, `page ${page} at limit ${limit} means offset ${offset}, and the server refuses any offset above ${MAX_OFFSET} ("Page too deep"). Raise limit (it is uncapped) or pass all:true to walk the cursor.`);
       }
-      const r = await gw.call("POST", "/agent-logs/logs", { ...body, page });
+      const r = await gw.call("POST", "/agent-logs/logs", { ...body2, page });
       if (!r.ok) return fromHttp(r.status, r.json);
       const meta3 = r.json?.meta ?? {};
       const rows = recordsFrom2(r.json, "data").map(sessionRow);
@@ -179589,11 +180392,11 @@ var TOOLS2 = [
       if ((page - 1) * limit > MAX_OFFSET) {
         return fail(CODES.VALIDATION_FAILED, `page ${page} at limit ${limit} exceeds the server's offset cap of ${MAX_OFFSET}. Unlike the sessions table this endpoint returns no pageToken, so a larger limit is the only way deeper.`);
       }
-      const body = { locationId: args.locationId, page, limit, sortBy: args.sortBy ?? "lastActive", sortOrder: args.sortOrder ?? "desc" };
+      const body2 = { locationId: args.locationId, page, limit, sortBy: args.sortBy ?? "lastActive", sortOrder: args.sortOrder ?? "desc" };
       for (const k of ["products", "contactName", "channel", "conversationId", "search", "timeRange", "dateFrom", "dateTo"]) {
-        if (args[k] !== void 0 && args[k] !== "") body[k] = args[k];
+        if (args[k] !== void 0 && args[k] !== "") body2[k] = args[k];
       }
-      const r = await gw.call("POST", "/agent-logs/contacts", body);
+      const r = await gw.call("POST", "/agent-logs/contacts", body2);
       if (!r.ok) return fromHttp(r.status, r.json);
       const meta3 = r.json?.meta ?? {};
       return ok({
@@ -179640,11 +180443,11 @@ var TOOLS2 = [
     readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
-      const body = { locationId: args.locationId, widgetIds: [] };
+      const body2 = { locationId: args.locationId, widgetIds: [] };
       for (const k of ["products", "channel", "agentName", "contactName", "timeRange", "dateFrom", "dateTo"]) {
-        if (args[k] !== void 0 && args[k] !== "") body[k] = args[k];
+        if (args[k] !== void 0 && args[k] !== "") body2[k] = args[k];
       }
-      const r = await gw.call("POST", "/agent-logs/metrics", body);
+      const r = await gw.call("POST", "/agent-logs/metrics", body2);
       if (!r.ok) return fromHttp(r.status, r.json);
       const { status: _s, traceId: _t, tokenDataVisible, ...rest } = r.json ?? {};
       const isEmpty2 = (v) => v == null || Array.isArray(v) && v.length === 0;
@@ -180332,7 +181135,7 @@ var TOOLS2 = [
           args.ops,
           beforeTemplates.map((step) => step.id)
         );
-        const marketplaceRaw = opsUseMarketplace(args.ops) ? await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId, fresh) : { assets: null, modules: { actions: [], triggers: [] } };
+        const marketplaceRaw = opsUseMarketplace(args.ops) ? await fetchMarketplace((m, path, body2) => gw.call(m, path, body2), args.locationId, fresh) : { assets: null, modules: { actions: [], triggers: [] } };
         const marketplace = buildMarketplaceIndex(marketplaceRaw);
         const ctx = {
           loc: args.locationId,
@@ -180348,7 +181151,7 @@ var TOOLS2 = [
         };
         let editOps = args.ops;
         if (opsNeedResolution(editOps)) {
-          const entities = await fetchEntities({ call: (m, path, body) => gw.call(m, path, body), loc: args.locationId });
+          const entities = await fetchEntities({ call: (m, path, body2) => gw.call(m, path, body2), loc: args.locationId });
           const resolved = resolveOps(editOps, buildResolvers(entities), beforeTemplates);
           editOps = resolved.ops;
           if (resolved.unresolved.length && args.ignoreUnresolved !== true) {
@@ -180553,7 +181356,7 @@ var TOOLS2 = [
         if (settingsPatch) {
           preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));
         }
-        if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
+        if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body: body2 }) => ({ op, method, path, color: body2.color, chars: body2.content?.length }));
         if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
         if (assetPreflight) preview.assetPreflight = assetPreflight;
         preview.validation = validation.report;
@@ -181360,7 +182163,7 @@ var TOOLS2 = [
         };
       }
       const triggerRosterEcho = latestTriggers.triggers;
-      const body = {
+      const body2 = {
         ...publishable,
         status: "published",
         version: freshResponse.json.version,
@@ -181371,12 +182174,12 @@ var TOOLS2 = [
         modifiedSteps: [],
         deletedSteps: []
       };
-      publishedWithVersion = body.version;
+      publishedWithVersion = body2.version;
       const publishedCall = await attemptPublishWrite(
         () => gw.call(
           "PUT",
           workflowPath(args.locationId, args.workflowId),
-          body
+          body2
         )
       );
       if (publishedCall.threw || !publishedCall.value.ok) {
@@ -181460,7 +182263,7 @@ var TOOLS2 = [
       const data2 = {
         workflowId: args.workflowId,
         previous: preview.current,
-        publishedWithVersion: body.version,
+        publishedWithVersion: body2.version,
         verify,
         // Carried onto the RESULT, not only the preview: someone who publishes with
         // allowValidationFailure skipped the preview, and the one place they will read is this.
@@ -183115,10 +183918,10 @@ var TOOLS2 = [
           "Pass one HTTP method token without whitespace or header/path content."
         );
       }
-      let body = args.body;
-      if (typeof body === "string") {
+      let body2 = args.body;
+      if (typeof body2 === "string") {
         try {
-          body = JSON.parse(body);
+          body2 = JSON.parse(body2);
         } catch {
           return fail(
             CODES.VALIDATION_FAILED,
@@ -183127,17 +183930,17 @@ var TOOLS2 = [
           );
         }
       }
-      if (method === "POST" && /^\/workflow\/[^/?]+\/trigger\/?(?:\?|$)/.test(args.path) && body && typeof body === "object" && !Array.isArray(body) && Object.hasOwn(body, "workflow_id") && !Object.hasOwn(body, "workflowId")) {
+      if (method === "POST" && /^\/workflow\/[^/?]+\/trigger\/?(?:\?|$)/.test(args.path) && body2 && typeof body2 === "object" && !Array.isArray(body2) && Object.hasOwn(body2, "workflow_id") && !Object.hasOwn(body2, "workflowId")) {
         return fail(
           CODES.VALIDATION_FAILED,
           "trigger POST carries a root `workflow_id` and no `workflowId` \u2014 the create route binds from camelCase `workflowId` only, so this would return 200 with an id and mint an ORPHAN trigger attached to no workflow (R-95).",
           'Send the WRITE shape: root `workflowId` (camelCase) plus `actions:[{workflow_id, type:"add_to_workflow"}]`, `location_id`, `company_age`, `status` matching the workflow \u2014 or use edit_workflow addTrigger, which builds that envelope. To edit an EXISTING trigger use PUT /workflow/{loc}/trigger/{id}, which does take the stored shape.'
         );
       }
-      const refusal = refuseRawRequest({ method, path: args.path, body });
+      const refusal = refuseRawRequest({ method, path: args.path, body: body2 });
       if (refusal) return fail(CODES.VALIDATION_FAILED, refusal.message, refusal.hint);
       if (method !== "GET") {
-        const redactedRefusal = refuseRedactedWrite(body);
+        const redactedRefusal = refuseRedactedWrite(body2);
         if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
       }
       if (method !== "GET" && args.confirm !== true) {
@@ -183150,7 +183953,7 @@ var TOOLS2 = [
             "Raw write preview is ready; no gateway call was sent.",
             trap ? "READ data.preview.trap FIRST \u2014 it is what was measured about this route. Then repeat the same request with confirm:true to send it." : "Review data.preview, then repeat the same request with confirm:true to send it."
           ),
-          { preview: { method, path: args.path, ...body === void 0 ? {} : { body }, ...trap ? { trap } : {} } }
+          { preview: { method, path: args.path, ...body2 === void 0 ? {} : { body: body2 }, ...trap ? { trap } : {} } }
         );
       }
       const onAi = host === "ai";
@@ -183172,7 +183975,7 @@ var TOOLS2 = [
         }
       };
       const writeCall = await safeGatewayCall(
-        () => gw.call(method, args.path, body, callOpts)
+        () => gw.call(method, args.path, body2, callOpts)
       );
       if (writeCall.threw) {
         partialProgress.write.ambiguous = true;
@@ -183742,18 +184545,18 @@ var TOOLS2 = [
           "Read get_studio_site_history and answer a message whose hasQuestion is true."
         );
       }
-      const body = answerBodyFor({
+      const body2 = answerBodyFor({
         question: asked.question,
         answer: args.answer,
         sessionId: sessionFor(deps.state, args.projectId),
         questionMessageId: args.questionMessageId,
         loc: args.locationId
       });
-      const res = await api.chat(args.projectId, body);
+      const res = await api.chat(args.projectId, body2);
       return ok({
         status: res.status,
         messageId: res.json?.message_id ?? null,
-        answerType: body.answer_type ?? "plain",
+        answerType: body2.answer_type ?? "plain",
         note: "A plain answer resumes on the SAME message id. A 409 means this question was already answered."
       });
     }, args)
@@ -184375,16 +185178,16 @@ var TOOLS2 = [
           'Read what the snapshot actually carries with get_snapshot_contents (snapshotId), and pass ids from it, e.g. {"workflow": ["<id>"]}. Not get_snapshot_manifest: that lists what the source ACCOUNT could snapshot, a superset.'
         );
       }
-      const body = {
+      const body2 = {
         [CONFLICT_KEYS.locations]: args.targetLocationIds,
         [CONFLICT_KEYS.assets]: args.assets
       };
-      const r = await gw.call("POST", `/snapshots/${encodeURIComponent(args.snapshotId)}/conflicts?companyId=${encodeURIComponent(companyId)}`, body);
+      const r = await gw.call("POST", `/snapshots/${encodeURIComponent(args.snapshotId)}/conflicts?companyId=${encodeURIComponent(companyId)}`, body2);
       if (!r.ok) return fromHttp(r.status, r.json);
       return ok({
         companyId,
         snapshotId: args.snapshotId,
-        sentKeys: Object.keys(body),
+        sentKeys: Object.keys(body2),
         conflicts: r.json?.conflicts ?? r.json?.data ?? r.json ?? null,
         note: "This call changes nothing. It is the only way to see what a load would overwrite before running one."
       });
@@ -184476,7 +185279,7 @@ var TOOLS2 = [
           { publishedOnSource: published, targets: args.targetLocationIds, standDown }
         );
       }
-      const body = buildPushBody(args.targetLocationIds, args.assets, { overwriteConflicts: args.overwriteConflicts });
+      const body2 = buildPushBody(args.targetLocationIds, args.assets, { overwriteConflicts: args.overwriteConflicts });
       if (args.confirm !== true) {
         return withFailureData(
           fail(
@@ -184505,7 +185308,7 @@ var TOOLS2 = [
           }
         );
       }
-      const r = await gw.call("POST", `/snapshots/snapshot-push/v2/${encodeURIComponent(args.snapshotId)}/set_assets_to_locations?companyId=${encodeURIComponent(companyId)}`, body);
+      const r = await gw.call("POST", `/snapshots/snapshot-push/v2/${encodeURIComponent(args.snapshotId)}/set_assets_to_locations?companyId=${encodeURIComponent(companyId)}`, body2);
       if (!r.ok) return fromHttp(r.status, r.json);
       return ok({
         companyId,
@@ -184565,7 +185368,7 @@ var TOOLS2 = [
           { unknownIds: check2.unknownIds, unknownCategories: check2.unknownCategories, knownCategories: [...known] }
         );
       }
-      const body = {
+      const body2 = {
         name: args.name,
         location_id: args.locationId,
         company_id: companyId,
@@ -184574,7 +185377,7 @@ var TOOLS2 = [
       };
       const preview = {
         endpoint: "POST /snapshots-appengine/v2/snapshots (NOT /snapshots/create)",
-        creates: body,
+        creates: body2,
         requestedAssets: check2.requested,
         manifestChecked: pre.ok,
         ...pre.ok ? {} : { manifestNote: `the account manifest could not be read (${pre.status}), so the ids were NOT validated \u2014 a bad one would produce an empty snapshot silently` },
@@ -184586,7 +185389,7 @@ var TOOLS2 = [
           { preview }
         );
       }
-      const created = await gw.call("POST", `/snapshots-appengine/v2/snapshots?companyId=${encodeURIComponent(companyId)}`, body);
+      const created = await gw.call("POST", `/snapshots-appengine/v2/snapshots?companyId=${encodeURIComponent(companyId)}`, body2);
       if (!created.ok) return fromHttp(created.status, created.json);
       const snapshotId = created.json?.snapshot?.id ?? created.json?.id ?? created.json?._id ?? null;
       if (!snapshotId) {
@@ -184643,9 +185446,9 @@ var TOOLS2 = [
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const companyId = await resolveCompanyId(gw, args.locationId);
       if (!companyId) return fail(CODES.VALIDATION_FAILED, "could not resolve the agency id for this sub-account", "See list_snapshots.");
-      const body = { extras: { selectedAssets: args.selectedAssets, exemptClone: args.exemptClone ?? [] } };
+      const body2 = { extras: { selectedAssets: args.selectedAssets, exemptClone: args.exemptClone ?? [] } };
       const preview = {
-        resends: body,
+        resends: body2,
         categories: Object.keys(args.selectedAssets),
         warning: "A refresh REPLACES the snapshot's contents. Anything not in the selection above will not be in it afterwards.",
         scope: "AGENCY-LEVEL."
@@ -184656,7 +185459,7 @@ var TOOLS2 = [
           { preview }
         );
       }
-      const r = await gw.call("POST", `/snapshots-appengine/v2/snapshots/${encodeURIComponent(args.snapshotId)}/refresh?companyId=${encodeURIComponent(companyId)}`, body);
+      const r = await gw.call("POST", `/snapshots-appengine/v2/snapshots/${encodeURIComponent(args.snapshotId)}/refresh?companyId=${encodeURIComponent(companyId)}`, body2);
       if (!r.ok) return fromHttp(r.status, r.json);
       return ok({
         snapshotId: args.snapshotId,
@@ -184990,8 +185793,8 @@ var TOOLS2 = [
           { filterSpecs, selfCheck }
         );
       }
-      const countMatching = async (body2) => {
-        const r = await gw.call("POST", "/contacts/search/2", body2);
+      const countMatching = async (body3) => {
+        const r = await gw.call("POST", "/contacts/search/2", body3);
         return r.ok ? r.json?.total ?? r.json?.count ?? null : null;
       };
       const searchFilters = groups.map((g) => ({ group: (g.match ?? "AND").toUpperCase(), filters: g.conditions }));
@@ -185018,9 +185821,9 @@ var TOOLS2 = [
         ...matched === 0 ? { note: "the filter matches nothing right now. That may be correct for a list meant to fill up later." } : {},
         ...matched == null ? { note: "the search preflight did not answer, so the match count is unknown. The create is unaffected." } : {}
       };
-      const body = { locationId: args.locationId, listName: args.listName, filterSpecs, columns };
+      const body2 = { locationId: args.locationId, listName: args.listName, filterSpecs, columns };
       const preview = {
-        creates: body,
+        creates: body2,
         nesting: "TWO levels \u2014 outer group whose children are groups. This is the whole point of the tool.",
         fieldStatus: graded,
         differential,
@@ -185038,7 +185841,7 @@ var TOOLS2 = [
           { preview }
         );
       }
-      const created = await gw.call("POST", "/contacts/smartlist/", body);
+      const created = await gw.call("POST", "/contacts/smartlist/", body2);
       if (!created.ok) return fromHttp(created.status, created.json);
       const listId = created.json?.smartList?.id ?? created.json?.smartList?._id ?? created.json?.id ?? null;
       if (!listId) {
@@ -185312,10 +186115,16 @@ var TOOLS2 = [
         autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion })
       );
       if (!saved.ok) return fromHttp(saved.status, saved.json);
-      const readBack = await gw.call("GET", `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`);
-      const got = readBack.json?.sections ?? [];
       const wantIds = pageData.sections.map((s) => s.id);
-      const storedIds = got.map((s) => s.id);
+      const settledRead = await reread(
+        async () => {
+          const r = await gw.call("GET", `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`);
+          return (r.json?.sections ?? []).map((s) => s.id);
+        },
+        (ids) => wantIds.every((id) => ids.includes(id)),
+        deps.rereadOptions ?? {}
+      );
+      const storedIds = settledRead.value ?? [];
       const missing = wantIds.filter((id) => !storedIds.includes(id));
       let versions = [];
       const vres = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
@@ -185422,7 +186231,7 @@ var TOOLS2 = [
         pageId: args.pageId,
         autosave: saved.status,
         ...preview,
-        readBack: { sections: storedIds.length, missingSections: missing },
+        readBack: { sections: storedIds.length, missingSections: missing, attempts: settledRead.attempts },
         stored: missing.length === 0,
         publishState,
         ...published ? { published } : {},
@@ -185431,6 +186240,275 @@ var TOOLS2 = [
         ...publishState.pinned && args.publish !== true ? { warning: `This page is pinned to a published version with ${publishState.draftsSincePublish} draft(s) stacked behind it. This write is NOT visible at the public URL until the page is published again.` } : {}
       });
     }, args)
+  },
+  {
+    name: "get_funnel",
+    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config). Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole site for dangling references and publish drift \u2014 this tool does not repeat that audit. Read-only.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      funnelId: external_exports.string(),
+      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent"]).default("summary"),
+      pageId: external_exports.string().optional()
+    }),
+    capabilities: [
+      { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
+      { method: "GET", path: "/funnels/lookup/list" },
+      { method: "GET", path: "/funnels/builder/get-versions" },
+      { method: "GET", path: "/funnels/funnel/headers" },
+      { method: "GET", path: "/funnels/event" },
+      { method: "GET", path: "/funnels/funnel/cookie-consent" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const L = encodeURIComponent(args.locationId), F = encodeURIComponent(args.funnelId);
+      const view = args.view ?? "summary";
+      if (view === "versions") {
+        if (!args.pageId) return fail(CODES.VALIDATION_FAILED, 'view "versions" needs pageId', `Pass the pageId (view "summary" lists each step's pages).`);
+        const r = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const rows = (Array.isArray(r.json) ? r.json : []).map((v) => ({ versionId: v.version_id, pageType: v.pageType, updatedAt: v.updated_at?._seconds ?? null, updatedBy: v.updated_by ?? null })).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+        return ok({
+          pageId: args.pageId,
+          versions: rows,
+          live: rows.find((v) => v.pageType === "live")?.versionId ?? null,
+          note: "The public URL serves the LIVE version; /preview/{pageId} serves the newest draft and /preview/{pageId}?version={versionId} pins one version. Restoring a version (builder) creates a NEW draft; the builder's Publish then mints a new live version and demotes the old one to draft."
+        });
+      }
+      if (view === "security" || view === "events" || view === "cookie-consent") {
+        const path = view === "security" ? `/funnels/funnel/headers?locationId=${L}&funnelId=${F}` : view === "events" ? `/funnels/event?funnelId=${F}&locationId=${L}&page=1&limit=20` : `/funnels/funnel/cookie-consent?locationId=${L}&funnelId=${F}`;
+        const r = await gw.call("GET", path);
+        if (view === "cookie-consent" && r.status === 404 && /data url not found/i.test(JSON.stringify(r.json ?? ""))) {
+          return ok({ funnelId: args.funnelId, cookieConsent: null, configured: false });
+        }
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const b = r.json ?? {};
+        if (view === "security") return ok({ funnelId: args.funnelId, headers: b.securityHeaders ?? [], note: EXACT_CASE_NOTE });
+        if (view === "events") return ok({ funnelId: args.funnelId, events: (b.events ?? []).map((e) => ({ id: e._id, provider: e.provider, level: e.level, pixelId: e.pixelId, events: e.events, conversionEnabled: e.conversionEnabled, pageIds: e.pageIds })), totalCount: b.totalCount ?? null, ...b.totalCount > 20 ? { note: "Only the first 20 are listed (the route caps limit at 20)." } : {} });
+        const { traceId, signature, ...consent } = b;
+        return ok({ funnelId: args.funnelId, cookieConsent: consent, configured: true, note: "Cookie consent is FUNNEL-level (every page of the funnel), saved by the builder through POST /funnels/funnel/cookie-consent." });
+      }
+      const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
+      if (!res.ok) return fromHttp(res.status, res.json);
+      if (view === "settings") return ok({ funnelId: args.funnelId, settings: settingsFrom(funnel), securityHeaders: funnel.securityHeaders ?? [], cookieConsentUrl: funnel.cookieConsent ?? null });
+      if (view === "lookups") {
+        const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);
+        if (!lr.ok) return fromHttp(lr.status, lr.json);
+        return ok({
+          funnelId: args.funnelId,
+          lookups: rows.map(lookupView),
+          note: `A step or page with no row has no public URL. publishStatus null = never touched by publish/unpublish (serves live). publishStatus "unpublished" rows answer 404 (type not_found_page) or 301 (type redirect, action url). ${EXACT_CASE_NOTE}`
+        });
+      }
+      return ok({
+        funnelId: args.funnelId,
+        name: funnel.name,
+        type: funnel.type,
+        url: funnel.url,
+        domainId: funnel.domainId ?? null,
+        steps: (funnel.steps ?? []).map(stepView)
+      });
+    }, args)
+  },
+  {
+    name: "edit_funnel",
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (always sends the UI's FULL update-settings body from a fresh read, so only the fields you name change; diffs the read-back), create-step (refused when the funnel has no domain \u2014 such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation only \u2014 the route replaces the steps array), clone-step, delete-step (target check: stepId AND its current name), publish-page / unpublish-page (the builder's own route: PUT /funnels/lookup/multiple on the step+page rows; unpublish answers 404 or 301 to a URL; no version is created \u2014 to publish CONTENT use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE path only). Siblings: get_funnel reads, build_funnel_page writes page content, audit_site audits.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      funnelId: external_exports.string(),
+      op: external_exports.enum(["settings", "create-step", "update-step", "reorder-steps", "clone-step", "delete-step", "publish-page", "unpublish-page", "add-header"]),
+      settings: external_exports.record(external_exports.any()).optional(),
+      step: external_exports.object({ id: external_exports.string().optional(), name: external_exports.string(), url: external_exports.string(), type: external_exports.string().optional() }).optional(),
+      stepId: external_exports.string().optional(),
+      name: external_exports.string().optional(),
+      url: external_exports.string().optional(),
+      expectName: external_exports.string().optional(),
+      order: external_exports.array(external_exports.string()).optional(),
+      pageId: external_exports.string().optional(),
+      redirect: external_exports.object({ type: external_exports.enum(["404", "url"]), url: external_exports.string().optional() }).optional(),
+      header: external_exports.object({ key: external_exports.string(), value: external_exports.string() }).optional(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
+      { method: "GET", path: "/funnels/lookup/list" },
+      { method: "GET", path: "/funnels/domain/" },
+      { method: "GET", path: "/users/{userId}" },
+      { method: "POST", path: "/funnels/funnel/update-settings" },
+      { method: "POST", path: "/funnels/funnel/create-step" },
+      { method: "PUT", path: "/funnels/funnel/step/{funnelId}" },
+      { method: "PATCH", path: "/funnels/funnel/update/{funnelId}" },
+      { method: "POST", path: "/funnels/funnel/clone-funnel-step/" },
+      { method: "POST", path: "/funnels/funnel/delete-step" },
+      { method: "PUT", path: "/funnels/lookup/multiple" },
+      { method: "POST", path: "/funnels/funnel/headers" }
+    ],
+    handler: async (args, deps) => {
+      let tracked = null;
+      return guard(async () => {
+        tracked = trackWrites(deps.makeGw({ loc: args.locationId, state: deps.state }));
+        const gw = tracked.gw;
+        const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
+        if (!res.ok) return fromHttp(res.status, res.json);
+        const need = (k) => args[k] === void 0 ? `op ${args.op} needs ${k}` : null;
+        let plan, requested = null;
+        switch (args.op) {
+          case "settings": {
+            const s = args.settings ?? {};
+            const unknown2 = Object.keys(s).filter((k) => !(k in SETTINGS_KEYS));
+            if (!Object.keys(s).length || unknown2.length) {
+              return fail(
+                CODES.VALIDATION_FAILED,
+                unknown2.length ? `unknown settings key(s): ${unknown2.join(", ")}` : "op settings needs a non-empty settings object",
+                `Settable keys: ${Object.keys(SETTINGS_KEYS).join(", ")}.`
+              );
+            }
+            requested = s;
+            plan = { method: "POST", path: "/funnels/funnel/update-settings", body: settingsBody(args.locationId, funnel, s) };
+            break;
+          }
+          case "create-step":
+            plan = need("step") ? { refuse: need("step") } : planCreateStep({ funnel, step: args.step });
+            break;
+          case "update-step": {
+            if (need("stepId")) {
+              plan = { refuse: need("stepId") };
+              break;
+            }
+            let domainName;
+            if (args.url !== void 0 && funnel.domainId) {
+              const d = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              const list = d.json?.domains ?? d.json?.data ?? [];
+              domainName = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === funnel.domainId)?.url;
+            }
+            plan = planUpdateStep({ funnel, stepId: args.stepId, name: args.name, url: args.url, domainName });
+            break;
+          }
+          case "reorder-steps":
+            plan = need("order") ? { refuse: need("order") } : planReorder({ funnel, order: args.order });
+            break;
+          case "clone-step":
+            plan = need("stepId") ? { refuse: need("stepId") } : planCloneStep({ funnel, stepId: args.stepId, locationId: args.locationId, userId: gw.uid });
+            break;
+          case "delete-step":
+            plan = need("stepId") ? { refuse: need("stepId") } : planDeleteStep({ funnel, stepId: args.stepId, expectName: args.expectName });
+            break;
+          case "publish-page":
+          case "unpublish-page": {
+            if (need("pageId")) {
+              plan = { refuse: need("pageId") };
+              break;
+            }
+            const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);
+            if (!lr.ok) return fromHttp(lr.status, lr.json);
+            let user = gw.uid ? { id: gw.uid } : null;
+            if (gw.uid) {
+              const u = await gw.call("GET", `/users/${encodeURIComponent(gw.uid)}`);
+              const n = [u.json?.firstName ?? u.json?.first_name, u.json?.lastName ?? u.json?.last_name].filter(Boolean).join(" ").trim();
+              if (n) user.name = n;
+            }
+            plan = planPublishState({ funnel, lookups: rows, pageId: args.pageId, publish: args.op === "publish-page", redirect: args.redirect, user });
+            break;
+          }
+          case "add-header":
+            plan = need("header") ? { refuse: need("header") } : planAddHeader({ funnel, locationId: args.locationId, key: args.header.key, value: args.header.value });
+            break;
+          default:
+            plan = { refuse: `unknown op ${args.op}` };
+        }
+        if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, "Nothing was sent. Read the funnel with get_funnel and adjust the arguments.");
+        const preview = {
+          op: args.op,
+          request: { method: plan.method, path: plan.path, body: plan.body },
+          ...plan.target ? { target: plan.target } : {},
+          ...plan.rows ? { lookupRows: plan.rows } : {}
+        };
+        if (args.confirm !== true) {
+          return withFailureData(fail(CODES.CONFIRM_REQUIRED, `edit_funnel ${args.op} preview is ready; no write was sent.`, args.op === "create-step" && !args.step?.id ? "Repeat with confirm:true (pass step.id from this preview to send the identical id)." : "Repeat with confirm:true to send exactly this request."), { preview });
+        }
+        const w = await gw.call(plan.method, plan.path, plan.body);
+        if (!w.ok) return fromHttp(w.status, w.json);
+        const fresh = async () => (await readFunnel(gw, args.locationId, args.funnelId)).funnel;
+        const fid = args.funnelId;
+        switch (args.op) {
+          case "settings": {
+            const after = await fresh();
+            const diff = settingsDiff(requested, after);
+            const notApplied = diff.filter((d) => !d.applied);
+            const notes = [];
+            if ("funnelPath" in requested) notes.push(`funnelPath is the funnel ROOT lookup row: it moved in place and the old path now 404s. ${CACHE_NOTE}`);
+            if ("headTrackingCode" in requested || "bodyTrackingCode" in requested) notes.push("Tracking code renders on every page of the funnel: head code in <head>, body code at the end of <body>.");
+            const out = { op: "settings", status: w.status, readBack: diff, ...notes.length ? { notes } : {} };
+            if (notApplied.length) return withFailureData(fail(CODES.VERIFY_FAILED, `update-settings answered ${w.status} but ${notApplied.length} field(s) did not read back as requested`, "Compare data.readBack; the server may normalise a value."), out);
+            return ok(out);
+          }
+          case "create-step": {
+            const got = await reread(
+              async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }),
+              (x) => (x.f?.steps ?? []).some((s2) => s2.id === plan.stepId),
+              deps.rereadOptions ?? {}
+            );
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === plan.stepId);
+            const rows = got.value.l.filter((r) => r.typeId === plan.stepId || (s?.pages ?? []).includes(r.typeId)).map(lookupView);
+            const out = { op: "create-step", stepId: plan.stepId, step: s ? stepView(s, 0) : null, lookups: rows };
+            if (!s) return withFailureData(fail(CODES.VERIFY_FAILED, "create-step answered 2xx but the step did not read back", "Re-read with get_funnel before retrying; do not create twice."), out);
+            if (!rows.length) return withFailureData(fail(CODES.VERIFY_FAILED, "the step exists but has NO lookup row, so it has no public URL", "Move its path with update-step (url) to mint the row."), out);
+            return ok(out);
+          }
+          case "update-step": {
+            const after = await fresh();
+            const s = (after?.steps ?? []).find((x) => x.id === args.stepId);
+            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => r.typeId === args.stepId).map(lookupView);
+            const nameOk = args.name === void 0 || s?.name === args.name;
+            const urlOk = args.url === void 0 || normPath(s?.url) === normPath(args.url) && rows.some((r) => r.path === normPath(args.url));
+            const out = { op: "update-step", step: s ? stepView(s, 0) : null, lookups: rows, ...args.url !== void 0 ? { note: CACHE_NOTE } : {} };
+            if (!nameOk || !urlOk) return withFailureData(fail(CODES.VERIFY_FAILED, "the step did not read back as requested", "Compare data.step / data.lookups. Do not retry blindly: the path move may be cached, not failed."), out);
+            return ok(out);
+          }
+          case "reorder-steps": {
+            const after = await fresh();
+            const order = [...after?.steps ?? []].sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0)).map((s) => s.id);
+            const out = { op: "reorder-steps", order };
+            if (JSON.stringify(order) !== JSON.stringify(args.order)) return withFailureData(fail(CODES.VERIFY_FAILED, "the step order did not read back as requested", "Compare data.order."), out);
+            return ok(out);
+          }
+          case "clone-step": {
+            const after = await fresh();
+            const before = new Set((funnel.steps ?? []).map((s) => s.id));
+            const added = (after?.steps ?? []).filter((s) => !before.has(s.id)).map(stepView);
+            const out = { op: "clone-step", newSteps: added, note: "The clone gets a new page and a SUFFIXED path (e.g. /path-468236); rename/move it with update-step." };
+            if (added.length !== 1) return withFailureData(fail(CODES.VERIFY_FAILED, `expected exactly one new step, read back ${added.length}`, "Re-read with get_funnel before retrying."), out);
+            return ok(out);
+          }
+          case "delete-step": {
+            const after = await fresh();
+            const still = (after?.steps ?? []).some((s) => s.id === args.stepId);
+            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => r.typeId === args.stepId);
+            const out = { op: "delete-step", deleted: plan.target, stepStillPresent: still, lookupRowsLeft: rows.length };
+            if (still || rows.length) return withFailureData(fail(CODES.VERIFY_FAILED, "delete-step answered 2xx but the step or its lookup rows remain", "Re-read with get_funnel."), out);
+            return ok(out);
+          }
+          case "publish-page":
+          case "unpublish-page": {
+            const ids = new Set(plan.body.lookups.map((l) => l.lookupId));
+            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => ids.has(r._id));
+            const want = new Map(plan.body.lookups.map((l) => [l.lookupId, l]));
+            const bad = rows.filter((r) => r.publishStatus !== want.get(r._id).publishStatus || r.type !== want.get(r._id).type);
+            const out = { op: args.op, lookups: rows.map(lookupView), note: CACHE_NOTE };
+            if (bad.length || rows.length !== ids.size) return withFailureData(fail(CODES.VERIFY_FAILED, "the lookup rows did not read back in the requested publish state", "Compare data.lookups."), out);
+            return ok(out);
+          }
+          case "add-header": {
+            const r = await gw.call("GET", `/funnels/funnel/headers?locationId=${encodeURIComponent(args.locationId)}&funnelId=${encodeURIComponent(fid)}`);
+            const headers = r.json?.securityHeaders ?? [];
+            const out = { op: "add-header", headers, note: `${EXACT_CASE_NOTE} The builder does not invalidate the cache on this save; the header can take minutes to appear on the exact path.` };
+            if (!headers.some((h) => h.key === args.header.key && h.value === args.header.value)) return withFailureData(fail(CODES.VERIFY_FAILED, "the header did not read back", "Re-read with get_funnel view security."), out);
+            return ok(out);
+          }
+          default:
+            return ok({ op: args.op, status: w.status });
+        }
+      }, args, { sentWrite: () => tracked?.sent() ?? false });
+    }
   },
   {
     name: "audit_site",
@@ -185457,7 +186535,7 @@ var TOOLS2 = [
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const body = (r) => r.json?.data ?? r.json ?? {};
+      const body2 = (r) => r.json?.data ?? r.json ?? {};
       const pick2 = (b, ...keys) => {
         for (const k of keys) if (Array.isArray(b?.[k])) return b[k];
         return Array.isArray(b) ? b : [];
@@ -185470,7 +186548,7 @@ var TOOLS2 = [
           coverage.push({ check: `dangling-references:${name}`, ran: false, why: `the ${name} list answered ${r.status}` });
           return;
         }
-        known[name] = new Set(pick2(body(r), ...keys).map((x) => x.id ?? x._id).filter(Boolean));
+        known[name] = new Set(pick2(body2(r), ...keys).map((x) => x.id ?? x._id).filter(Boolean));
         coverage.push({ check: `dangling-references:${name}`, ran: true, knownIds: known[name].size });
       };
       await loadList("forms", `/forms/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, "forms");
@@ -185478,7 +186556,7 @@ var TOOLS2 = [
       await loadList("surveys", `/surveys/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, "surveys");
       const cv = await gw.call("GET", `/locations/${encodeURIComponent(args.locationId)}/customValues`);
       if (cv.status === 200) {
-        known.customValues = new Set(pick2(body(cv), "customValues").map((c) => normaliseTag(c.fieldKey ?? "")).filter(Boolean));
+        known.customValues = new Set(pick2(body2(cv), "customValues").map((c) => normaliseTag(c.fieldKey ?? "")).filter(Boolean));
         coverage.push({ check: "merge-tags", ran: true, knownIds: known.customValues.size });
       } else {
         coverage.push({ check: "merge-tags", ran: false, why: `customValues answered ${cv.status}` });
@@ -185487,11 +186565,11 @@ var TOOLS2 = [
       if (args.funnelId) {
         const one = await gw.call("GET", `/funnels/funnel/fetch/${encodeURIComponent(args.funnelId)}?locationId=${encodeURIComponent(args.locationId)}`);
         if (one.status !== 200) return fromHttp(one.status, one.json);
-        docs = [body(one)];
+        docs = [body2(one)];
       } else {
         const all = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
         if (all.status !== 200) return fromHttp(all.status, all.json);
-        docs = pick2(body(all), "funnels", "data");
+        docs = pick2(body2(all), "funnels", "data");
       }
       const scans = [];
       const findings = [];
@@ -185551,7 +186629,7 @@ var TOOLS2 = [
       let sweepDocs = docs;
       if (args.funnelId) {
         const all = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
-        if (all.status === 200) sweepDocs = pick2(body(all), "funnels", "data");
+        if (all.status === 200) sweepDocs = pick2(body2(all), "funnels", "data");
       }
       const anyDomain = sweepDocs.some((d) => d.domainId);
       const rowsByFunnel = /* @__PURE__ */ new Map();
@@ -185567,7 +186645,7 @@ var TOOLS2 = [
             sweepFailed++;
             continue;
           }
-          rowsByFunnel.set(d._id, pick2(body(r), "lookups", "data").filter((x) => !x.deleted));
+          rowsByFunnel.set(d._id, pick2(body2(r), "lookups", "data").filter((x) => !x.deleted));
           swept++;
         }
       }
@@ -185607,7 +186685,7 @@ var TOOLS2 = [
       let rendered = 0;
       if (args.includeRender) {
         const dres = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
-        const domains = new Map(pick2(body(dres), "domains").map((d) => [d.id ?? d._id, d.url]));
+        const domains = new Map(pick2(body2(dres), "domains").map((d) => [d.id ?? d._id, d.url]));
         const pageOwner = /* @__PURE__ */ new Map();
         for (const d of docs) for (const st of d.steps ?? []) for (const pid of st.pages ?? []) pageOwner.set(pid, { doc: d, step: st });
         let noDomain = 0, noRoute = 0, cacheHits = 0;
@@ -185618,9 +186696,9 @@ var TOOLS2 = [
             noDomain++;
             continue;
           }
-          let path = body(await gw.call("GET", `/funnels/lookup/type/${encodeURIComponent(sc.pageId)}`))?.path;
+          let path = body2(await gw.call("GET", `/funnels/lookup/type/${encodeURIComponent(sc.pageId)}`))?.path;
           if (!path && owner?.step?.id) {
-            path = body(await gw.call("GET", `/funnels/lookup/type/${encodeURIComponent(owner.step.id)}`))?.path;
+            path = body2(await gw.call("GET", `/funnels/lookup/type/${encodeURIComponent(owner.step.id)}`))?.path;
           }
           if (!path) {
             noRoute++;
@@ -185825,15 +186903,15 @@ function formatTokenFile({ bearer, tokenId, firebaseKey, refreshToken }) {
 async function fetchLoginCurrent({ jwt: jwt2, fetchImpl = fetch, base = BACKEND5 }) {
   const res = await fetchImpl(`${base}${REFRESH_PATH}`, { method: "GET", headers: { ...STD_HEADERS, authorization: `Bearer ${jwt2}` } });
   if (res.status !== 200) throw fail2(`refresh endpoint returned ${res.status}`);
-  const body = await res.json().catch(() => null);
-  if (!looksJwt(body?.authToken)) throw fail2("refresh response carried no usable authToken");
-  return body;
+  const body2 = await res.json().catch(() => null);
+  if (!looksJwt(body2?.authToken)) throw fail2("refresh response carried no usable authToken");
+  return body2;
 }
 async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = null, base = BACKEND5 }) {
-  const body = await fetchLoginCurrent({ jwt: jwt2, fetchImpl, base });
+  const body2 = await fetchLoginCurrent({ jwt: jwt2, fetchImpl, base });
   const warnings = [];
   let tokenId = null;
-  if (!looksJwt(body.token)) {
+  if (!looksJwt(body2.token)) {
     warnings.push("refresh response carried no firebase custom token; token-id not renewed");
   } else if (!firebaseKey) {
     warnings.push(`no firebase web key on record (re-run the capture to record one, or set ${FIREBASE_KEY_ENV}); token-id not renewed`);
@@ -185842,7 +186920,7 @@ async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = nu
       const fb = await fetchImpl(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseKey}`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token: body.token, returnSecureToken: true })
+        body: JSON.stringify({ token: body2.token, returnSecureToken: true })
       });
       if (fb.status !== 200) {
         warnings.push(`firebase exchange returned ${fb.status}; token-id not renewed`);
@@ -185856,10 +186934,10 @@ async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = nu
     }
   }
   return {
-    jwt: body.authToken,
+    jwt: body2.authToken,
     tokenId,
-    companyId: typeof body.companyId === "string" ? body.companyId : null,
-    refreshToken: looksJwt(body.refreshToken) ? body.refreshToken : null,
+    companyId: typeof body2.companyId === "string" ? body2.companyId : null,
+    refreshToken: looksJwt(body2.refreshToken) ? body2.refreshToken : null,
     warnings
   };
 }
@@ -185870,9 +186948,9 @@ async function exchangeRefreshToken({ refreshToken, fetchImpl = fetch, base = BA
     body: JSON.stringify({ refreshTokenV2: refreshToken })
   });
   if (res.status < 200 || res.status >= 300) throw fail2(`refresh-token exchange returned ${res.status}`);
-  const body = await res.json().catch(() => null);
-  if (!looksJwt(body?.authToken)) throw fail2("refresh-token exchange carried no usable authToken");
-  return { jwt: body.authToken, refreshToken: looksJwt(body.refreshToken) ? body.refreshToken : refreshToken };
+  const body2 = await res.json().catch(() => null);
+  if (!looksJwt(body2?.authToken)) throw fail2("refresh-token exchange carried no usable authToken");
+  return { jwt: body2.authToken, refreshToken: looksJwt(body2.refreshToken) ? body2.refreshToken : refreshToken };
 }
 function writeTokenFile({ tokenFile, bearer, tokenId, firebaseKey, refreshToken }) {
   let keepTid = tokenId;

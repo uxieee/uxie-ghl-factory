@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1203,
+  "count": 1219,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -6944,6 +6944,7 @@
       "sources": [
         "funnels/40-rules/silent-failures.md:569",
         "funnels/20-api/funnels-api.md:194",
+        "funnels/20-api/publish-routing-and-site-settings.md:43",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
         "funnels/40-rules/silent-failures.md:1061",
@@ -6993,7 +6994,8 @@
       "reach": "proven",
       "coveredBy": [
         "audit_site",
-        "build_funnel_page"
+        "build_funnel_page",
+        "get_funnel"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -7552,7 +7554,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:251"
+        "funnels/20-api/funnels-api.md:251",
+        "funnels/20-api/publish-routing-and-site-settings.md:56"
       ]
     },
     {
@@ -7568,7 +7571,8 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
-        "audit_site"
+        "audit_site",
+        "edit_funnel"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -7597,6 +7601,137 @@
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:21",
         "funnels/20-api/funnels-api.md:171"
+      ]
+    },
+    {
+      "id": "funnels--funnels-domain-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/funnels/domain/{domainId}",
+      "path": "/funnels/domain/{domainId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "domainId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:142"
+      ]
+    },
+    {
+      "id": "funnels--domain-invalidate-cache",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/domain/invalidate-cache",
+      "path": "/funnels/domain/invalidate-cache",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:99",
+        "funnels/20-api/publish-routing-and-site-settings.md:107"
+      ]
+    },
+    {
+      "id": "funnels--funnels-event",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/event",
+      "path": "/funnels/event",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [
+        "get_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:97"
+      ]
+    },
+    {
+      "id": "funnels--funnels-event-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/event",
+      "path": "/funnels/event",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:98"
       ]
     },
     {
@@ -7635,6 +7770,38 @@
       ]
     },
     {
+      "id": "funnels--cache-clear",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/cache/clear",
+      "path": "/funnels/funnel/cache/clear",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:143",
+        "funnels/20-api/publish-routing-and-site-settings.md:152"
+      ]
+    },
+    {
       "id": "funnels--funnel-clone-control-page",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/funnels/funnel/clone-control-page/",
@@ -7666,6 +7833,103 @@
         "funnels/20-api/funnels-api.md:114",
         "funnels/40-rules/silent-failures.md:120",
         "funnels/40-rules/silent-failures.md:237"
+      ]
+    },
+    {
+      "id": "funnels--funnel-clone-funnel-step",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/clone-funnel-step/",
+      "path": "/funnels/funnel/clone-funnel-step/",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:71"
+      ]
+    },
+    {
+      "id": "funnels--funnel-cookie-consent",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/cookie-consent",
+      "path": "/funnels/funnel/cookie-consent",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [
+        "get_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:114"
+      ]
+    },
+    {
+      "id": "funnels--funnel-cookie-consent-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/cookie-consent",
+      "path": "/funnels/funnel/cookie-consent",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:115"
       ]
     },
     {
@@ -7711,7 +7975,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -7771,6 +8037,39 @@
       ]
     },
     {
+      "id": "funnels--funnel-delete-step",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/delete-step",
+      "path": "/funnels/funnel/delete-step",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:72"
+      ]
+    },
+    {
       "id": "funnels-service--get-funnel-by-id",
       "aka": [
         "/funnels/funnel/fetch/{id}"
@@ -7783,7 +8082,9 @@
       "kind": "read",
       "reach": "proven",
       "coveredBy": [
-        "audit_site"
+        "audit_site",
+        "edit_funnel",
+        "get_funnel"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -7905,6 +8206,103 @@
       ]
     },
     {
+      "id": "funnels--funnel-geo-location",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/geo-location/",
+      "path": "/funnels/funnel/geo-location/",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:132"
+      ]
+    },
+    {
+      "id": "funnels--funnel-headers",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/headers",
+      "path": "/funnels/funnel/headers",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [
+        "get_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:85"
+      ]
+    },
+    {
+      "id": "funnels--funnel-headers-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/headers",
+      "path": "/funnels/funnel/headers",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:86"
+      ]
+    },
+    {
       "id": "funnels-service--get-funnels",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/funnels/funnel/list",
@@ -7997,7 +8395,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -8037,7 +8437,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -8062,6 +8464,43 @@
         "funnels/10-anatomy/websites-and-global-sections.md:489",
         "funnels/20-api/funnels-api.md:277",
         "funnels/40-rules/silent-failures.md:977"
+      ]
+    },
+    {
+      "id": "funnels--funnel-update",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/update/{funnelId}",
+      "path": "/funnels/funnel/update/{funnelId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "funnelId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:70"
       ]
     },
     {
@@ -8240,7 +8679,9 @@
       "kind": "read",
       "reach": "proven",
       "coveredBy": [
-        "audit_site"
+        "audit_site",
+        "edit_funnel",
+        "get_funnel"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -8277,6 +8718,39 @@
         "funnels/40-rules/silent-failures.md:609",
         "funnels/40-rules/silent-failures.md:641",
         "funnels/40-rules/silent-failures.md:929"
+      ]
+    },
+    {
+      "id": "funnels--lookup-multiple",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/multiple",
+      "path": "/funnels/lookup/multiple",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:27"
       ]
     },
     {
@@ -18515,6 +18989,43 @@
       },
       "sources": [
         "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, set_workflow_error_alerts, get_pipeline_forecast)"
+      ]
+    },
+    {
+      "id": "typed--edit_funnel--users",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/users/{userId}",
+      "path": "/users/{userId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "proven",
+      "coveredBy": [
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "edit_funnel",
+      "tree": "typed-tool",
+      "pathParams": [
+        {
+          "name": "userId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "proven",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "capability-manifest.json (edit_funnel)"
       ]
     },
     {
@@ -50323,6 +50834,48 @@
       ]
     },
     {
+      "id": "pipelines-opportunities--opportunities-lost-reason-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/opportunities/lost-reason/{lostReasonId}",
+      "path": "/opportunities/lost-reason/{lostReasonId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "lostReasonId"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:145"
+      ]
+    },
+    {
       "id": "pipelines-opportunities--opportunities-lost-reason-get",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/opportunities/lost-reason/{lostReasonId}",
@@ -54063,11 +54616,12 @@
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "documented",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
         "ai-agents/20-api/12-ai-agents-api.md:160",
         "ai-agents/20-api/12-ai-agents-api.md:170",
         "ai-agents/20-api/12-ai-agents-api.md:373"

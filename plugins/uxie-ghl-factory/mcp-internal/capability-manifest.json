@@ -1935,6 +1935,96 @@
     "path": "/funnels/builder/publish-version"
   },
   {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/funnel/fetch/{funnelId}"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/lookup/list"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/builder/get-versions"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/funnel/headers"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/event"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/funnel/cookie-consent"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/funnel/fetch/{funnelId}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/lookup/list"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/domain/"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/users/{userId}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/update-settings"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/create-step"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "PUT",
+    "path": "/funnels/funnel/step/{funnelId}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "PATCH",
+    "path": "/funnels/funnel/update/{funnelId}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/clone-funnel-step/"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/delete-step"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "PUT",
+    "path": "/funnels/lookup/multiple"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/headers"
+  },
+  {
     "tool": "audit_site",
     "method": "GET",
     "path": "/funnels/funnel/list"
