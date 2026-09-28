@@ -11,6 +11,41 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.5.0] — 2026-09-28
+
+**Funnel page structure, motion and popups through `build_funnel_page`; an SMS-template lint; the manual SMS/call
+steps' real fields; Agent Logs sort trap. Each change was executed live on the test account.**
+
+Funnels & websites (`build_funnel_page`, compose and edit):
+- **Sections:** sticky (top/bottom), width (full / wide / mid-wide / small) and full-width rows. `set` on a section id
+  changes them in place.
+- **Animations:** entrance animations on any element (21 animate.css effects, with duration, delay, scale and easing)
+  and hover animations on buttons. The CSS is compiled byte-for-byte as the builder compiles it. Proven by the builder
+  re-opening and re-saving a tool-built page to an identical stylesheet.
+- **Popups:** `popups` (compose) and `append-popup` (edit), with a button's `openPopup: "<popup name>"`. The tool writes
+  the popup's page-level box CSS; without it a popup renders at content width. It refuses an empty popup (GHL never
+  shows one) and an `openPopup` naming a popup the page lacks.
+- Traps now in the skill: the builder's first save on an API-built page adds an empty popup and recompiles the
+  stylesheet; opening an empty button's settings silently rewires it to open a popup; a themed button's radius is
+  overridden by its compiled rule.
+- Pointed to rather than authored: element themes, brand-palette colours, column layout knobs, saved section/element
+  templates and global sections.
+
+Workflows:
+- **New lint `SMS_TEMPLATE_OVERRIDES_BODY`:** when an SMS or manual-SMS step has a snippet template, GHL sends the
+  template's text and ignores the body. Proven live.
+- **Manual SMS / manual call:** their real drawer fields (template, URL attachments, custom assignee) are accepted; they
+  were refused as unknown keys.
+- The step catalogue is fully regenerated. New: GHL's newer default AI-agent model, time-only if/else operators, two
+  trigger filter checks and two new merge tags.
+
+AI agents:
+- **`list_agent_sessions`:** sorting by `durationMs` returns a note, because GHL's order for that key is not a true sort.
+  The description gains two more traps: `agentName` is a substring match, and Conversation AI Test-panel chats are
+  never logged.
+
+Catalogue: +6 documented routes.
+
 ## [1.4.2] — 2026-09-28
 
 **Workflow steps that work in GHL are no longer refused or falsely warned about: Edit Conversation and AI Generate
