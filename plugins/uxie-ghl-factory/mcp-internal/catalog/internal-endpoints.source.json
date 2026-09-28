@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T13:35:34.586Z",
+      "capturedAt": "2026-09-28T13:39:56.781Z",
       "hash": "corpus",
       "fileCount": 960,
       "endpoints": 960
@@ -6649,11 +6649,11 @@
       },
       "sources": [
         "funnels/00-overview/index.md:29",
+        "funnels/00-overview/index.md:66",
         "funnels/10-anatomy/websites-and-global-sections.md:300",
         "funnels/20-api/funnels-api.md:308",
         "funnels/20-api/funnels-api.md:375",
-        "funnels/40-rules/autosave-writes-only-the-data-file.md:58",
-        "funnels/40-rules/autosave-writes-only-the-data-file.md:63"
+        "funnels/40-rules/autosave-writes-only-the-data-file.md:58"
       ],
       "serviceBasis": "declared"
     },
@@ -6920,7 +6920,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/00-overview/index.md:71",
+        "funnels/00-overview/index.md:72",
         "funnels/10-anatomy/domains-and-public-urls.md:33",
         "funnels/10-anatomy/websites-and-global-sections.md:264",
         "funnels/10-anatomy/websites-and-global-sections.md:490",

@@ -8638,11 +8638,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/00-overview/index.md:29",
+            "funnels/00-overview/index.md:66",
             "funnels/10-anatomy/websites-and-global-sections.md:300",
             "funnels/20-api/funnels-api.md:308",
             "funnels/20-api/funnels-api.md:375",
-            "funnels/40-rules/autosave-writes-only-the-data-file.md:58",
-            "funnels/40-rules/autosave-writes-only-the-data-file.md:63"
+            "funnels/40-rules/autosave-writes-only-the-data-file.md:58"
           ]
         },
         {
@@ -8970,7 +8970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/00-overview/index.md:71",
+            "funnels/00-overview/index.md:72",
             "funnels/10-anatomy/domains-and-public-urls.md:33",
             "funnels/10-anatomy/websites-and-global-sections.md:264",
             "funnels/10-anatomy/websites-and-global-sections.md:490",
@@ -99664,319 +99664,11 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-
-// core/ai-studio.mjs
-init_define_BUILDER_VALIDATORS();
-init_define_CONTACT_FILTER_FIELDS();
-init_define_ENDPOINT_CATALOG();
-init_define_ENDPOINT_OVERLAY();
-init_define_FUNNEL_ELEMENTS();
-init_define_TOOL_CATALOG();
-var FIRESTORE_PROJECT = "highlevel-backend";
-var FIRESTORE_DB = "vibe-platform";
-var MESSAGES = "vibe-messages";
-var DIFFS = "vibe-message-diffs";
-var FIREBASE_KEY = "AIzaSyB_w3vXmsI7WeQtrIOkjR6xTRVN5uOieiE";
-function plain(v) {
-  if (v === null || v === void 0) return v;
-  const k = Object.keys(v)[0];
-  switch (k) {
-    case "stringValue":
-    case "booleanValue":
-    case "timestampValue":
-      return v[k];
-    case "integerValue":
-    case "doubleValue":
-      return Number(v[k]);
-    case "nullValue":
-      return null;
-    case "arrayValue":
-      return (v.arrayValue.values ?? []).map(plain);
-    case "mapValue":
-      return Object.fromEntries(
-        Object.entries(v.mapValue.fields ?? {}).map(([a, b]) => [a, plain(b)])
-      );
-    default:
-      return v;
-  }
-}
-async function getIdToken({ gwJwt, locationId, cache, fetchImpl = fetch, nowMs = Date.now }) {
-  const hit = cache.get(locationId);
-  if (hit && hit.expiresAt > nowMs() + 6e4) return hit.idToken;
-  const r = await gwJwt.call("POST", `/oauth/2/login/signin/refresh?version=2&location_id=${locationId}`, {});
-  const custom2 = r?.json?.token;
-  if (!custom2) {
-    const e = new Error(`could not mint a Firebase custom token for this location (status ${r?.status})`);
-    e.code = "FIREBASE_SIGNIN_FAILED";
-    e.remediation = "Check the Bearer credential reaches this location; /vibe-ai is Bearer-only.";
-    throw e;
-  }
-  const res = await fetchImpl(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${FIREBASE_KEY}`,
-    {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ token: custom2, returnSecureToken: true })
-    }
-  );
-  const body2 = await res.json();
-  if (!res.ok || !body2?.idToken) {
-    const e = new Error(`Firebase token exchange failed: ${body2?.error?.message ?? res.status}`);
-    e.code = "FIREBASE_SIGNIN_FAILED";
-    throw e;
-  }
-  const ttlMs = (Number(body2.expiresIn) || 3600) * 1e3;
-  cache.set(locationId, { idToken: body2.idToken, expiresAt: nowMs() + ttlMs });
-  return body2.idToken;
-}
-async function runQuery({ gwFirebase, idToken, collection, projectId, orderBy = null, limit = 300 }) {
-  const structuredQuery = {
-    from: [{ collectionId: collection }],
-    where: { fieldFilter: { field: { fieldPath: "projectId" }, op: "EQUAL", value: { stringValue: projectId } } },
-    limit
-  };
-  if (orderBy) structuredQuery.orderBy = [{ field: { fieldPath: orderBy }, direction: "ASCENDING" }];
-  const path = `/v1/projects/${FIRESTORE_PROJECT}/databases/${FIRESTORE_DB}/documents:runQuery`;
-  const res = await gwFirebase.call(
-    "POST",
-    path,
-    { structuredQuery },
-    { headers: { authorization: `Bearer ${idToken}` } }
-  );
-  if (!res.ok) {
-    const authRejected = res.status === 401 || res.status === 403;
-    const e = new Error(`Firestore runQuery failed (status ${res.status})`);
-    e.code = authRejected ? "FIRESTORE_AUTH_REJECTED" : "FIRESTORE_QUERY_FAILED";
-    e.status = res.status;
-    e.remediation = authRejected ? "The Firestore idToken was rejected. Mint a fresh one and retry." : "Firestore returned a non-ok status. Do not treat this as an empty collection \u2014 inspect it.";
-    throw e;
-  }
-  const rows = Array.isArray(res.json) ? res.json : [];
-  return rows.filter((x) => x.document).map((x) => Object.fromEntries(Object.entries(x.document.fields ?? {}).map(([k, v]) => [k, plain(v)])));
-}
-async function queryProjectHistory({
-  gwJwt,
-  gwFirebase,
-  locationId,
-  cache,
-  collection,
-  projectId,
-  orderBy = null,
-  limit = 300,
-  fetchImpl = fetch,
-  nowMs = Date.now
-}) {
-  const idToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
-  try {
-    return await runQuery({ gwFirebase, idToken, collection, projectId, orderBy, limit });
-  } catch (e) {
-    if (e?.code !== "FIRESTORE_AUTH_REJECTED") throw e;
-    cache.delete(locationId);
-    const freshToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
-    try {
-      return await runQuery({ gwFirebase, idToken: freshToken, collection, projectId, orderBy, limit });
-    } catch (e2) {
-      if (e2?.code !== "FIRESTORE_AUTH_REJECTED") throw e2;
-      const dead = new Error("Firestore rejected a freshly-minted idToken \u2014 the credential itself is dead, not just cached.");
-      dead.code = CODES.AUTH_REJECTED;
-      dead.remediation = "Re-capture the credential: invoke the uxie-ghl-factory:internal-connect skill, then retry.";
-      throw dead;
-    }
-  }
-}
-var filterRoutes = (rows) => (rows ?? []).filter((r) => r?.deleted !== true);
-var nameWarning = (requested, stored) => requested === stored ? null : `GHL rewrote the project name on create: you sent ${JSON.stringify(requested)}, it stored ${JSON.stringify(stored)}, and the slug derives from the STORED name. To get an exact name, follow this create with a rename (which stores the literal but does not update the slug).`;
-function studioError(status, body2) {
-  const msg = String(body2?.error ?? body2?.message ?? "");
-  if (status === 401 && /authorization token required/i.test(msg)) {
-    return "/vibe-ai is Bearer-only \u2014 a token-id alone is refused. This is a rail mistake, not an expired credential.";
-  }
-  if (status === 403 && /unsupported alt_type/i.test(msg)) {
-    return 'alt_type accepts only "location". AI Studio has no agency-level scope.';
-  }
-  if (status === 403 && /No Location Found/i.test(msg)) {
-    return "This alt_id is not a location this token can reach \u2014 check the registration binding (GHL_INTERNAL_LOCATIONS).";
-  }
-  if (status === 409) {
-    return "This question was already answered, or the answer conflicts with the stored one. Re-read the question block before retrying.";
-  }
-  if (status === 410) {
-    return "The continuation expired. Start a new turn rather than answering this one.";
-  }
-  return null;
-}
-var q = (loc) => `alt_id=${encodeURIComponent(loc)}&alt_type=location`;
-function sessionFor(state2, projectId) {
-  state2.studioSessions ??= /* @__PURE__ */ new Map();
-  if (!state2.studioSessions.has(projectId)) state2.studioSessions.set(projectId, crypto.randomUUID());
-  return state2.studioSessions.get(projectId);
-}
-var TERMINAL_BUILD = /* @__PURE__ */ new Set(["ready", "failed"]);
-var isTerminal2 = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.buildStatus)));
-var awaitingAnswer = (row) => Boolean(row?.question) && row.question.status !== "answered" && !TERMINAL_BUILD.has(String(row.buildStatus));
-async function awaitTurn({
-  firestore,
-  projectId,
-  messageId,
-  waitMs = 12e4,
-  pollMs = 6e3,
-  nowMs = Date.now,
-  sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-}) {
-  const deadline = nowMs() + waitMs;
-  let lastRow = null;
-  while (nowMs() < deadline) {
-    const rows = await firestore.messages(projectId);
-    const row = rows.find((r) => r.role === "assistant" && r.id === messageId) ?? null;
-    if (row) lastRow = row;
-    if (isTerminal2(row) || awaitingAnswer(row)) return { pending: false, assistant: row };
-    await sleep(pollMs);
-  }
+function metaPost(pageId, record2, meta3) {
   return {
-    pending: true,
-    messageId: messageId ?? null,
-    buildStatus: lastRow?.buildStatus ?? null,
-    resumeWith: "get_studio_generation_status",
-    note: "The build is still running. Resume with the message id; nothing was lost."
-  };
-}
-var bare = (h) => String(h ?? "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
-function classifySite(needle, studioProjects = [], funnels = []) {
-  const n = bare(needle);
-  for (const p2 of studioProjects) {
-    const domains = [].concat(p2.custom_domains ?? [], p2.primary_custom_domain ?? []).filter(Boolean).map(bare);
-    if (domains.includes(n)) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "custom_domain" };
-  }
-  for (const p2 of studioProjects) {
-    if (bare(p2.slug) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "slug" };
-    if (bare(p2.name) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "name" };
-  }
-  for (const f of funnels) {
-    if (bare(f.name) === n || bare(f.url) === n) return { surface: "funnel", id: f._id ?? f.id, name: f.name, matchedOn: "name" };
-  }
-  return { surface: "not-found", id: null, name: null, matchedOn: null };
-}
-function answerBodyFor({ question, answer, sessionId, questionMessageId, loc }) {
-  const base = {
-    session_id: sessionId,
-    thread_id: "main",
-    is_answer: true,
-    question_message_id: questionMessageId,
-    alt_id: loc,
-    alt_type: "location"
-  };
-  if (question?.kind === "integration_input") {
-    const body2 = {
-      ...base,
-      answer_type: "integration_input",
-      integration_action: answer === "dismiss" ? "dismiss" : "connect"
-    };
-    if (body2.integration_action === "connect") body2.integration_item_id = answer;
-    return body2;
-  }
-  if (question?.kind === "secret_input") {
-    return { ...base, answer_type: "secret_input" };
-  }
-  return { ...base, message: answer };
-}
-var StudioApi = class {
-  // `gw` is a jwt-rail gateway already bound to one location. `loc` is that location.
-  constructor({ gw, loc }) {
-    this.gw = gw;
-    this.loc = loc;
-  }
-  async #vibe(method, path, body2) {
-    const res = await this.gw.call(method, `/vibe-ai${path}`, body2);
-    if (!res.ok) {
-      const hint = studioError(res.status, res.json);
-      if (hint) {
-        const e = new Error(hint);
-        e.code = "STUDIO_REQUEST_FAILED";
-        e.remediation = hint;
-        throw e;
-      }
-    }
-    return res;
-  }
-  listProjects() {
-    return this.#vibe("GET", `/projects?${q(this.loc)}`);
-  }
-  getProject(id) {
-    return this.#vibe("GET", `/projects/${id}?${q(this.loc)}`);
-  }
-  getFiles(id) {
-    return this.#vibe("GET", `/projects/${id}/files?${q(this.loc)}`);
-  }
-  getRoutes(id) {
-    return this.#vibe("GET", `/projects/${id}/routes?${q(this.loc)}`);
-  }
-  getSettings(id) {
-    return this.#vibe("GET", `/projects/${id}/settings?${q(this.loc)}`);
-  }
-  getSecrets(id) {
-    return this.#vibe("GET", `/projects/${id}/secrets?${q(this.loc)}`);
-  }
-  getSandbox(id) {
-    return this.#vibe("GET", `/projects/${id}/sandbox?${q(this.loc)}`);
-  }
-  getFolders() {
-    return this.#vibe("GET", `/folders?${q(this.loc)}`);
-  }
-  usagePolicy(id) {
-    return this.#vibe("GET", `/projects/${id}/usage/policy?${q(this.loc)}`);
-  }
-  ensureSandbox(id) {
-    return this.#vibe("POST", `/projects/${id}/sandbox`, { alt_id: this.loc, alt_type: "location" });
-  }
-  createProject(b) {
-    return this.#vibe("POST", "/projects", { ...b, alt_id: this.loc, alt_type: "location" });
-  }
-  renameProject(id, name) {
-    return this.#vibe("PATCH", `/projects/${id}/name`, { name, alt_id: this.loc, alt_type: "location" });
-  }
-  setSlug(id, slug) {
-    return this.#vibe("PATCH", `/projects/${id}/slug`, { slug });
-  }
-  // PUT MERGES despite the verb; an unmentioned key survives. Values are write-only — the GET
-  // returns an array of {name, created_at, updated_at} with no value.
-  putSecrets(id, secrets) {
-    return this.#vibe("PUT", `/projects/${id}/secrets`, { secrets, alt_id: this.loc, alt_type: "location" });
-  }
-  chat(id, body2) {
-    return this.#vibe("POST", `/projects/${id}/chat`, body2);
-  }
-  cancelChat(id, messageId) {
-    return this.#vibe("POST", `/projects/${id}/chat/cancel`, { message_id: messageId, alt_id: this.loc, alt_type: "location" });
-  }
-  // publish/unpublish take NO alt_id/alt_type. unpublish takes no body at all.
-  publish(id, versionId) {
-    return this.#vibe("POST", `/projects/${id}/publish`, { version_id: versionId });
-  }
-  unpublish(id) {
-    return this.#vibe("POST", `/projects/${id}/unpublish`, void 0);
-  }
-  // /ai-wrapper takes locationId (camelCase), NOT alt_id/alt_type, and lives on a different base.
-  async usageSnapshotUsd() {
-    const r = await this.gw.call("GET", `/ai-wrapper/usage/v2/snapshots?locationId=${encodeURIComponent(this.loc)}`);
-    const snap = (r?.json?.snapshots ?? []).find((s) => s.product === "AI_STUDIO");
-    return typeof snap?.used === "number" ? snap.used : null;
-  }
-};
-
-// core/page-seo.mjs
-var DOC = (pageId) => `/v1/projects/highlevel-backend/databases/(default)/documents/funnel_pages/${encodeURIComponent(pageId)}`;
-var toValue = (v) => {
-  if (Array.isArray(v)) return { arrayValue: { values: v.map(toValue) } };
-  if (v && typeof v === "object") return { mapValue: { fields: Object.fromEntries(Object.entries(v).map(([k, x]) => [k, toValue(x)])) } };
-  if (typeof v === "boolean") return { booleanValue: v };
-  if (typeof v === "number") return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
-  return { stringValue: v == null ? "" : String(v) };
-};
-function metaPatch(pageId, meta3) {
-  const fields2 = Object.fromEntries(SEO_KEYS.map((k) => [k, toValue(meta3[k])]));
-  return {
-    path: `${DOC(pageId)}?updateMask.fieldPaths=meta&currentDocument.exists=true`,
-    body: { fields: { meta: { mapValue: { fields: fields2 } } } }
+    method: "POST",
+    path: `/funnels/funnel/funnel-page/${encodeURIComponent(pageId)}`,
+    body: { name: record2.name, url: record2.url, meta: Object.fromEntries(SEO_KEYS.map((k) => [k, meta3[k]])) }
   };
 }
 function checkRecord(record2, { pageId, locationId, funnelId }) {
@@ -99984,25 +99676,14 @@ function checkRecord(record2, { pageId, locationId, funnelId }) {
   if (record2.locationId !== locationId) return { ok: false, reason: `page ${pageId} belongs to another location` };
   if (record2.funnelId !== funnelId) return { ok: false, reason: `page ${pageId} belongs to funnel ${record2.funnelId}, not ${funnelId}` };
   if (record2.deleted === true) return { ok: false, reason: `page ${pageId} is deleted` };
+  if (typeof record2.name !== "string" || typeof record2.url !== "string") return { ok: false, reason: `page ${pageId}'s record has no name/url to write back` };
   return { ok: true };
 }
-async function writeMeta({ gwJwt, gwFirebase, locationId, cache, pageId, meta: meta3 }) {
-  const { path, body: body2 } = metaPatch(pageId, meta3);
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    const idToken = await getIdToken({ gwJwt, locationId, cache });
-    const res = await gwFirebase.call("PATCH", path, body2, { headers: { authorization: `Bearer ${idToken}` } });
-    if (res.ok) return { status: res.status, attempts: attempt };
-    if ((res.status === 401 || res.status === 403) && attempt === 1) {
-      cache.delete(locationId);
-      continue;
-    }
-    const e = new Error(`Firestore page-meta write failed (status ${res.status}${res.json?.error?.status ? `, ${res.json.error.status}` : ""})`);
-    e.code = res.status === 401 || res.status === 403 ? "FIRESTORE_AUTH_REJECTED" : res.status === 404 || res.json?.error?.status === "NOT_FOUND" || res.json?.error?.status === "FAILED_PRECONDITION" ? "FIRESTORE_DOC_MISSING" : "FIRESTORE_WRITE_FAILED";
-    e.status = res.status;
-    e.remediation = e.code === "FIRESTORE_AUTH_REJECTED" ? "Firestore rejected the location idToken twice. Re-capture the credential; the SEO was NOT written." : e.code === "FIRESTORE_DOC_MISSING" ? "No funnel_pages document for this pageId (the write never creates one). Check the pageId; the SEO was NOT written." : "The SEO was NOT written. Inspect the status before retrying.";
-    throw e;
-  }
-  return null;
+function recordDrift(sent, after) {
+  const drift = [];
+  if (after?.name !== sent.name) drift.push({ key: "name", sent: sent.name, readBack: after?.name ?? null });
+  if (after?.url !== sent.url) drift.push({ key: "url", sent: sent.url, readBack: after?.url ?? null });
+  return drift;
 }
 
 // core/redirects.mjs
@@ -169623,31 +169304,31 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var arrayFrom = (...values) => values.find(Array.isArray) ?? [];
 var recordsFrom = (...values) => arrayFrom(...values).filter((v) => v && typeof v === "object" && !Array.isArray(v));
-var q2 = (loc, extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
+var q = (loc, extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
 var p = (loc) => encodeURIComponent(String(loc));
 var norm = (s) => String(s ?? "").trim().toLowerCase();
 var ENTITY_REGISTRY = [
   {
     key: "pipelines",
-    path: (loc) => `/opportunities/pipelines?${q2(loc)}`,
+    path: (loc) => `/opportunities/pipelines?${q(loc)}`,
     pick: (j) => recordsFrom(j?.pipelines, j),
     project: (x) => ({ id: x.id || x._id, name: x.name, stages: recordsFrom(x.stages).map((s) => ({ id: s.id, name: s.name })) })
   },
   {
     key: "calendars",
-    path: (loc) => `/calendars/?${q2(loc)}`,
+    path: (loc) => `/calendars/?${q(loc)}`,
     pick: (j) => recordsFrom(j?.calendars, j),
     project: (x) => ({ id: x.id || x._id, name: x.name })
   },
   {
     key: "users",
-    path: (loc) => `/users/?${q2(loc)}`,
+    path: (loc) => `/users/?${q(loc)}`,
     pick: (j) => recordsFrom(j?.users, j),
     project: (x) => ({ id: x.id || x._id, firstName: x.firstName, lastName: x.lastName, email: x.email, name: x.name })
   },
   {
     key: "forms",
-    path: (loc) => `/forms/?${q2(loc, { limit: "100" })}`,
+    path: (loc) => `/forms/?${q(loc, { limit: "100" })}`,
     pick: (j) => recordsFrom(j?.forms, j),
     project: (x) => ({ id: x.id || x._id, name: x.name })
   },
@@ -169694,7 +169375,7 @@ var ENTITY_REGISTRY = [
   },
   {
     key: "triggerLinks",
-    path: (loc) => `/links/?${q2(loc)}`,
+    path: (loc) => `/links/?${q(loc)}`,
     pick: (j) => recordsFrom(j?.links, j),
     project: (x) => ({ id: x.id || x._id, name: x.name, redirectTo: x.redirectTo })
   },
@@ -169718,13 +169399,13 @@ var ENTITY_REGISTRY = [
   },
   {
     key: "emailTemplates",
-    path: (loc) => `/emails/builder?${q2(loc, { limit: "100", offset: "0" })}`,
+    path: (loc) => `/emails/builder?${q(loc, { limit: "100", offset: "0" })}`,
     pick: (j) => recordsFrom(j?.builders, j),
     project: (x) => ({ id: x.id || x._id, name: x.name })
   },
   {
     key: "products",
-    path: (loc) => `/products/?${q2(loc, { limit: "100" })}`,
+    path: (loc) => `/products/?${q(loc, { limit: "100" })}`,
     pick: (j) => recordsFrom(j?.products, j),
     project: (x) => ({ id: x._id || x.id, name: x.name })
   },
@@ -169736,13 +169417,13 @@ var ENTITY_REGISTRY = [
   },
   {
     key: "phoneNumbers",
-    path: (loc) => `/phone-system/numbers?${q2(loc)}`,
+    path: (loc) => `/phone-system/numbers?${q(loc)}`,
     pick: (j) => recordsFrom(j?.phoneNumbers, j),
     project: (x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })
   },
   {
     key: "funnels",
-    path: (loc) => `/funnels/funnel/list?${q2(loc, { type: "funnel", offset: "0", limit: "200" })}`,
+    path: (loc) => `/funnels/funnel/list?${q(loc, { type: "funnel", offset: "0", limit: "200" })}`,
     pick: (j) => recordsFrom(j?.funnels, j),
     project: (x) => ({ id: x._id || x.id, name: x.name })
   },
@@ -169759,14 +169440,14 @@ var ENTITY_REGISTRY = [
   // that adds no new id, so an ignored `skip` returns the first page once, never a loop.
   {
     key: "documentTemplates",
-    path: (loc, { offset = 0, limit = 21 } = {}) => `/proposals/templates?${q2(loc, { limit: String(limit), skip: String(offset) })}`,
+    path: (loc, { offset = 0, limit = 21 } = {}) => `/proposals/templates?${q(loc, { limit: String(limit), skip: String(offset) })}`,
     page: { limit: 21, total: (j) => j?.total },
     pick: (j) => recordsFrom(j?.data, j),
     project: (x) => ({ id: x._id || x.id, name: x.name })
   },
   {
     key: "objects",
-    path: (loc) => `/objects/?${q2(loc)}`,
+    path: (loc) => `/objects/?${q(loc)}`,
     pick: (j) => recordsFrom(j?.objects, j),
     project: (x) => ({
       key: x.key,
@@ -169784,13 +169465,13 @@ var ENTITY_REGISTRY = [
   // not be verified, and a projection nobody has seen run is a guess with a schema.
   {
     key: "events",
-    path: (loc) => `/events-management/events/options?${q2(loc)}`,
+    path: (loc) => `/events-management/events/options?${q(loc)}`,
     pick: (j) => recordsFrom(j?.events),
     project: (x) => ({ id: x.value, name: x.label })
   },
   {
     key: "eventTickets",
-    path: (loc) => `/events-management/events/options?${q2(loc)}`,
+    path: (loc) => `/events-management/events/options?${q(loc)}`,
     pick: (j) => recordsFrom(j?.eventTickets),
     project: (x) => ({ id: x.value, name: x.label })
   },
@@ -169802,7 +169483,7 @@ var ENTITY_REGISTRY = [
   // that saves and records no reason.
   {
     key: "lostReasons",
-    path: (loc) => `/opportunities/lost-reason?${q2(loc)}`,
+    path: (loc) => `/opportunities/lost-reason?${q(loc)}`,
     pick: (j) => recordsFrom(j?.data, j?.lostReasons, j),
     project: (x) => ({ id: x.id || x._id, name: x.name ?? x.reason }),
     resolver: { name: "lostReasonId", match: (r) => [r.name], value: (r) => r.id }
@@ -169811,7 +169492,7 @@ var ENTITY_REGISTRY = [
   // Settings means the trigger can never fire — the resolver returns the canonical NAME, not an id.
   {
     key: "callDispositions",
-    path: (loc) => `/phone-system/call-dispositions?${q2(loc)}`,
+    path: (loc) => `/phone-system/call-dispositions?${q(loc)}`,
     pick: (j) => recordsFrom(j?.data, j?.dispositions, j),
     project: (x) => ({ id: x.id || x._id, name: x.name ?? x.title }),
     resolver: { name: "callDisposition", match: (r) => [r.name], value: (r) => r.name }
@@ -179449,6 +179130,304 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
   return { ok: true, verification, collateral };
 }
 
+// core/ai-studio.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var FIRESTORE_PROJECT = "highlevel-backend";
+var FIRESTORE_DB = "vibe-platform";
+var MESSAGES = "vibe-messages";
+var DIFFS = "vibe-message-diffs";
+var FIREBASE_KEY = "AIzaSyB_w3vXmsI7WeQtrIOkjR6xTRVN5uOieiE";
+function plain(v) {
+  if (v === null || v === void 0) return v;
+  const k = Object.keys(v)[0];
+  switch (k) {
+    case "stringValue":
+    case "booleanValue":
+    case "timestampValue":
+      return v[k];
+    case "integerValue":
+    case "doubleValue":
+      return Number(v[k]);
+    case "nullValue":
+      return null;
+    case "arrayValue":
+      return (v.arrayValue.values ?? []).map(plain);
+    case "mapValue":
+      return Object.fromEntries(
+        Object.entries(v.mapValue.fields ?? {}).map(([a, b]) => [a, plain(b)])
+      );
+    default:
+      return v;
+  }
+}
+async function getIdToken({ gwJwt, locationId, cache, fetchImpl = fetch, nowMs = Date.now }) {
+  const hit = cache.get(locationId);
+  if (hit && hit.expiresAt > nowMs() + 6e4) return hit.idToken;
+  const r = await gwJwt.call("POST", `/oauth/2/login/signin/refresh?version=2&location_id=${locationId}`, {});
+  const custom2 = r?.json?.token;
+  if (!custom2) {
+    const e = new Error(`could not mint a Firebase custom token for this location (status ${r?.status})`);
+    e.code = "FIREBASE_SIGNIN_FAILED";
+    e.remediation = "Check the Bearer credential reaches this location; /vibe-ai is Bearer-only.";
+    throw e;
+  }
+  const res = await fetchImpl(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${FIREBASE_KEY}`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token: custom2, returnSecureToken: true })
+    }
+  );
+  const body2 = await res.json();
+  if (!res.ok || !body2?.idToken) {
+    const e = new Error(`Firebase token exchange failed: ${body2?.error?.message ?? res.status}`);
+    e.code = "FIREBASE_SIGNIN_FAILED";
+    throw e;
+  }
+  const ttlMs = (Number(body2.expiresIn) || 3600) * 1e3;
+  cache.set(locationId, { idToken: body2.idToken, expiresAt: nowMs() + ttlMs });
+  return body2.idToken;
+}
+async function runQuery({ gwFirebase, idToken, collection, projectId, orderBy = null, limit = 300 }) {
+  const structuredQuery = {
+    from: [{ collectionId: collection }],
+    where: { fieldFilter: { field: { fieldPath: "projectId" }, op: "EQUAL", value: { stringValue: projectId } } },
+    limit
+  };
+  if (orderBy) structuredQuery.orderBy = [{ field: { fieldPath: orderBy }, direction: "ASCENDING" }];
+  const path = `/v1/projects/${FIRESTORE_PROJECT}/databases/${FIRESTORE_DB}/documents:runQuery`;
+  const res = await gwFirebase.call(
+    "POST",
+    path,
+    { structuredQuery },
+    { headers: { authorization: `Bearer ${idToken}` } }
+  );
+  if (!res.ok) {
+    const authRejected = res.status === 401 || res.status === 403;
+    const e = new Error(`Firestore runQuery failed (status ${res.status})`);
+    e.code = authRejected ? "FIRESTORE_AUTH_REJECTED" : "FIRESTORE_QUERY_FAILED";
+    e.status = res.status;
+    e.remediation = authRejected ? "The Firestore idToken was rejected. Mint a fresh one and retry." : "Firestore returned a non-ok status. Do not treat this as an empty collection \u2014 inspect it.";
+    throw e;
+  }
+  const rows = Array.isArray(res.json) ? res.json : [];
+  return rows.filter((x) => x.document).map((x) => Object.fromEntries(Object.entries(x.document.fields ?? {}).map(([k, v]) => [k, plain(v)])));
+}
+async function queryProjectHistory({
+  gwJwt,
+  gwFirebase,
+  locationId,
+  cache,
+  collection,
+  projectId,
+  orderBy = null,
+  limit = 300,
+  fetchImpl = fetch,
+  nowMs = Date.now
+}) {
+  const idToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
+  try {
+    return await runQuery({ gwFirebase, idToken, collection, projectId, orderBy, limit });
+  } catch (e) {
+    if (e?.code !== "FIRESTORE_AUTH_REJECTED") throw e;
+    cache.delete(locationId);
+    const freshToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
+    try {
+      return await runQuery({ gwFirebase, idToken: freshToken, collection, projectId, orderBy, limit });
+    } catch (e2) {
+      if (e2?.code !== "FIRESTORE_AUTH_REJECTED") throw e2;
+      const dead = new Error("Firestore rejected a freshly-minted idToken \u2014 the credential itself is dead, not just cached.");
+      dead.code = CODES.AUTH_REJECTED;
+      dead.remediation = "Re-capture the credential: invoke the uxie-ghl-factory:internal-connect skill, then retry.";
+      throw dead;
+    }
+  }
+}
+var filterRoutes = (rows) => (rows ?? []).filter((r) => r?.deleted !== true);
+var nameWarning = (requested, stored) => requested === stored ? null : `GHL rewrote the project name on create: you sent ${JSON.stringify(requested)}, it stored ${JSON.stringify(stored)}, and the slug derives from the STORED name. To get an exact name, follow this create with a rename (which stores the literal but does not update the slug).`;
+function studioError(status, body2) {
+  const msg = String(body2?.error ?? body2?.message ?? "");
+  if (status === 401 && /authorization token required/i.test(msg)) {
+    return "/vibe-ai is Bearer-only \u2014 a token-id alone is refused. This is a rail mistake, not an expired credential.";
+  }
+  if (status === 403 && /unsupported alt_type/i.test(msg)) {
+    return 'alt_type accepts only "location". AI Studio has no agency-level scope.';
+  }
+  if (status === 403 && /No Location Found/i.test(msg)) {
+    return "This alt_id is not a location this token can reach \u2014 check the registration binding (GHL_INTERNAL_LOCATIONS).";
+  }
+  if (status === 409) {
+    return "This question was already answered, or the answer conflicts with the stored one. Re-read the question block before retrying.";
+  }
+  if (status === 410) {
+    return "The continuation expired. Start a new turn rather than answering this one.";
+  }
+  return null;
+}
+var q2 = (loc) => `alt_id=${encodeURIComponent(loc)}&alt_type=location`;
+function sessionFor(state2, projectId) {
+  state2.studioSessions ??= /* @__PURE__ */ new Map();
+  if (!state2.studioSessions.has(projectId)) state2.studioSessions.set(projectId, crypto.randomUUID());
+  return state2.studioSessions.get(projectId);
+}
+var TERMINAL_BUILD = /* @__PURE__ */ new Set(["ready", "failed"]);
+var isTerminal2 = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.buildStatus)));
+var awaitingAnswer = (row) => Boolean(row?.question) && row.question.status !== "answered" && !TERMINAL_BUILD.has(String(row.buildStatus));
+async function awaitTurn({
+  firestore,
+  projectId,
+  messageId,
+  waitMs = 12e4,
+  pollMs = 6e3,
+  nowMs = Date.now,
+  sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+}) {
+  const deadline = nowMs() + waitMs;
+  let lastRow = null;
+  while (nowMs() < deadline) {
+    const rows = await firestore.messages(projectId);
+    const row = rows.find((r) => r.role === "assistant" && r.id === messageId) ?? null;
+    if (row) lastRow = row;
+    if (isTerminal2(row) || awaitingAnswer(row)) return { pending: false, assistant: row };
+    await sleep(pollMs);
+  }
+  return {
+    pending: true,
+    messageId: messageId ?? null,
+    buildStatus: lastRow?.buildStatus ?? null,
+    resumeWith: "get_studio_generation_status",
+    note: "The build is still running. Resume with the message id; nothing was lost."
+  };
+}
+var bare = (h) => String(h ?? "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+function classifySite(needle, studioProjects = [], funnels = []) {
+  const n = bare(needle);
+  for (const p2 of studioProjects) {
+    const domains = [].concat(p2.custom_domains ?? [], p2.primary_custom_domain ?? []).filter(Boolean).map(bare);
+    if (domains.includes(n)) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "custom_domain" };
+  }
+  for (const p2 of studioProjects) {
+    if (bare(p2.slug) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "slug" };
+    if (bare(p2.name) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "name" };
+  }
+  for (const f of funnels) {
+    if (bare(f.name) === n || bare(f.url) === n) return { surface: "funnel", id: f._id ?? f.id, name: f.name, matchedOn: "name" };
+  }
+  return { surface: "not-found", id: null, name: null, matchedOn: null };
+}
+function answerBodyFor({ question, answer, sessionId, questionMessageId, loc }) {
+  const base = {
+    session_id: sessionId,
+    thread_id: "main",
+    is_answer: true,
+    question_message_id: questionMessageId,
+    alt_id: loc,
+    alt_type: "location"
+  };
+  if (question?.kind === "integration_input") {
+    const body2 = {
+      ...base,
+      answer_type: "integration_input",
+      integration_action: answer === "dismiss" ? "dismiss" : "connect"
+    };
+    if (body2.integration_action === "connect") body2.integration_item_id = answer;
+    return body2;
+  }
+  if (question?.kind === "secret_input") {
+    return { ...base, answer_type: "secret_input" };
+  }
+  return { ...base, message: answer };
+}
+var StudioApi = class {
+  // `gw` is a jwt-rail gateway already bound to one location. `loc` is that location.
+  constructor({ gw, loc }) {
+    this.gw = gw;
+    this.loc = loc;
+  }
+  async #vibe(method, path, body2) {
+    const res = await this.gw.call(method, `/vibe-ai${path}`, body2);
+    if (!res.ok) {
+      const hint = studioError(res.status, res.json);
+      if (hint) {
+        const e = new Error(hint);
+        e.code = "STUDIO_REQUEST_FAILED";
+        e.remediation = hint;
+        throw e;
+      }
+    }
+    return res;
+  }
+  listProjects() {
+    return this.#vibe("GET", `/projects?${q2(this.loc)}`);
+  }
+  getProject(id) {
+    return this.#vibe("GET", `/projects/${id}?${q2(this.loc)}`);
+  }
+  getFiles(id) {
+    return this.#vibe("GET", `/projects/${id}/files?${q2(this.loc)}`);
+  }
+  getRoutes(id) {
+    return this.#vibe("GET", `/projects/${id}/routes?${q2(this.loc)}`);
+  }
+  getSettings(id) {
+    return this.#vibe("GET", `/projects/${id}/settings?${q2(this.loc)}`);
+  }
+  getSecrets(id) {
+    return this.#vibe("GET", `/projects/${id}/secrets?${q2(this.loc)}`);
+  }
+  getSandbox(id) {
+    return this.#vibe("GET", `/projects/${id}/sandbox?${q2(this.loc)}`);
+  }
+  getFolders() {
+    return this.#vibe("GET", `/folders?${q2(this.loc)}`);
+  }
+  usagePolicy(id) {
+    return this.#vibe("GET", `/projects/${id}/usage/policy?${q2(this.loc)}`);
+  }
+  ensureSandbox(id) {
+    return this.#vibe("POST", `/projects/${id}/sandbox`, { alt_id: this.loc, alt_type: "location" });
+  }
+  createProject(b) {
+    return this.#vibe("POST", "/projects", { ...b, alt_id: this.loc, alt_type: "location" });
+  }
+  renameProject(id, name) {
+    return this.#vibe("PATCH", `/projects/${id}/name`, { name, alt_id: this.loc, alt_type: "location" });
+  }
+  setSlug(id, slug) {
+    return this.#vibe("PATCH", `/projects/${id}/slug`, { slug });
+  }
+  // PUT MERGES despite the verb; an unmentioned key survives. Values are write-only — the GET
+  // returns an array of {name, created_at, updated_at} with no value.
+  putSecrets(id, secrets) {
+    return this.#vibe("PUT", `/projects/${id}/secrets`, { secrets, alt_id: this.loc, alt_type: "location" });
+  }
+  chat(id, body2) {
+    return this.#vibe("POST", `/projects/${id}/chat`, body2);
+  }
+  cancelChat(id, messageId) {
+    return this.#vibe("POST", `/projects/${id}/chat/cancel`, { message_id: messageId, alt_id: this.loc, alt_type: "location" });
+  }
+  // publish/unpublish take NO alt_id/alt_type. unpublish takes no body at all.
+  publish(id, versionId) {
+    return this.#vibe("POST", `/projects/${id}/publish`, { version_id: versionId });
+  }
+  unpublish(id) {
+    return this.#vibe("POST", `/projects/${id}/unpublish`, void 0);
+  }
+  // /ai-wrapper takes locationId (camelCase), NOT alt_id/alt_type, and lives on a different base.
+  async usageSnapshotUsd() {
+    const r = await this.gw.call("GET", `/ai-wrapper/usage/v2/snapshots?locationId=${encodeURIComponent(this.loc)}`);
+    const snap = (r?.json?.snapshots ?? []).find((s) => s.product === "AI_STUDIO");
+    return typeof snap?.used === "number" ? snap.used : null;
+  }
+};
+
 // core/tools.mjs
 var HERE2 = dirname3(fileURLToPath2(import.meta.url));
 var CATALOG2 = true ? define_TOOL_CATALOG_default : (() => {
@@ -180670,7 +180649,6 @@ function trackWrites(gw) {
   return { gw: wrapped, sent: () => state2.sent };
 }
 var STUDIO_IDTOKENS = /* @__PURE__ */ new Map();
-var PAGE_SEO_IDTOKENS = /* @__PURE__ */ new Map();
 var studioDeps = (args, deps) => {
   const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
   const api = new StudioApi({ gw, loc: args.locationId });
@@ -180778,23 +180756,11 @@ async function editPage(args, deps, composeSection) {
     return withFailureData(fail(CODES.CONFIRM_REQUIRED, "Funnel page edit preview is ready; no write was sent.", "Repeat with confirm:true to autosave the edited draft."), { preview });
   }
   let seoCheck = null;
-  let fsWrite = null;
+  let recordWrite = null;
   if (seo) {
-    try {
-      fsWrite = await writeMeta({
-        gwJwt: gw,
-        gwFirebase: deps.makeGw({ loc: args.locationId, state: deps.state, rail: "firebase" }),
-        locationId: args.locationId,
-        cache: PAGE_SEO_IDTOKENS,
-        pageId: args.pageId,
-        meta: seo.write
-      });
-    } catch (e) {
-      return withFailureData(
-        fail(CODES.ENGINE_ABORT, `nothing was written: the SEO write failed (${e.message})`, e.remediation ?? "Retry the seo write."),
-        { firestoreError: e.code ?? null, status: e.status ?? null }
-      );
-    }
+    recordWrite = metaPost(args.pageId, rec.json, seo.write);
+    const w = await gw.call(recordWrite.method, recordWrite.path, recordWrite.body);
+    if (!w.ok) return withFailureData(fromHttp(w.status, w.json), { note: "nothing was written: the page-record SEO write was refused, so the autosave was not sent" });
   }
   const saved = await gw.call(
     "POST",
@@ -180804,15 +180770,29 @@ async function editPage(args, deps, composeSection) {
   if (!saved.ok) return fromHttp(saved.status, saved.json);
   if (seo) {
     const seoRead = await reread(
-      async () => {
-        const r = await gw.call("GET", `/funnels/page/${encodeURIComponent(args.pageId)}`);
-        return r.json?.meta ?? r.json?.data?.meta ?? {};
-      },
-      (m) => seoDiff(m, args.seo).length === 0,
+      async () => (await gw.call("GET", `/funnels/page/${encodeURIComponent(args.pageId)}`)).json ?? {},
+      (r) => seoDiff(r.meta ?? {}, args.seo).length === 0,
       deps.rereadOptions ?? {}
     );
-    const wrong = seoDiff(seoRead.value ?? {}, args.seo);
-    seoCheck = { applied: wrong.length === 0, ...wrong.length ? { notApplied: wrong } : {}, attempts: seoRead.attempts, firestore: fsWrite };
+    const wrong = seoDiff(seoRead.value?.meta ?? {}, args.seo);
+    const drift = recordDrift(recordWrite.body, seoRead.value);
+    seoCheck = {
+      applied: wrong.length === 0,
+      ...wrong.length ? { notApplied: wrong } : {},
+      attempts: seoRead.attempts,
+      recordRoute: recordWrite.path,
+      ...drift.length ? { recordDrift: drift } : {}
+    };
+    if (drift.length) {
+      return withFailureData(
+        fail(
+          CODES.VERIFY_FAILED,
+          `the SEO was written but the page record's ${drift.map((d) => d.key).join(" and ")} did not read back as sent`,
+          "The page was probably renamed or moved between this call's read and its write (the SEO route writes name and url too). Re-read the page record and the step; restore the name/url if ours overwrote a concurrent change."
+        ),
+        { ...preview, autosave: saved.status, readBack: { seo: seoCheck } }
+      );
+    }
   }
   const settled = await reread(
     async () => {
@@ -188643,7 +188623,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile. EDIT MODE (pass \`edits\` + \`stepName\` instead of \`sections\`): changes an EXISTING page in place \u2014 ops set (merge extra/styles into one node by id; styles are compiled into the public stylesheet too), append-section (a section spec in the same shape as \`sections[i]\`), remove-node (a node and its descendants, or a whole section), page (trackingCode {headerCode, footerCode}; customCss \u2014 kept in general.general.pageStyles AND appended to the compiled pageStyles the public page serves; background {imageUrl, color}); and \`seo\` {title, description, keywords, author, imageUrl, language, customMeta, canonicalMeta} \u2014 only the keys you pass change. SEO is written twice, as the builder does: to the page RECORD (GET /funnels/page/{pageId}) Firestore-direct \u2014 the builder's path; no REST route exists \u2014 and as \`meta\` on the autosave's version. The public page renders the SERVED VERSION's meta, so pass publish:true (or publish from the builder) for any edit \u2014 content or SEO \u2014 to reach visitors. The target is checked first (pageId must be a page of stepId, and stepName must match that step exactly; refused otherwise), everything the ops do not name is written back as read, and each op is verified by VALUE on a separate read. Get node ids from the page data (GET /funnels/builder/page/data?pageId=). Not here, done in the builder: schema markup (SEO panel \u2192 Schema markup; its own object), the autosave on/off switch (browser-local; every write here is one autosave). Visitor geo-location is a runtime lookup with nothing to set.`,
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile. EDIT MODE (pass \`edits\` + \`stepName\` instead of \`sections\`): changes an EXISTING page in place \u2014 ops set (merge extra/styles into one node by id; styles are compiled into the public stylesheet too), append-section (a section spec in the same shape as \`sections[i]\`), remove-node (a node and its descendants, or a whole section), page (trackingCode {headerCode, footerCode}; customCss \u2014 kept in general.general.pageStyles AND appended to the compiled pageStyles the public page serves; background {imageUrl, color}); and \`seo\` {title, description, keywords, author, imageUrl, language, customMeta, canonicalMeta} \u2014 only the keys you pass change. SEO is written twice, as the builder does: to the page RECORD (GET /funnels/page/{pageId}) through POST /funnels/funnel/funnel-page/{pageId} \u2014 which also writes the record's name and url, so the ones just read are sent and verified unchanged \u2014 and as \`meta\` on the autosave's version. The public page renders the SERVED VERSION's meta, so pass publish:true (or publish from the builder) for any edit \u2014 content or SEO \u2014 to reach visitors. The target is checked first (pageId must be a page of stepId, and stepName must match that step exactly; refused otherwise), everything the ops do not name is written back as read, and each op is verified by VALUE on a separate read. Get node ids from the page data (GET /funnels/builder/page/data?pageId=). Not here, done in the builder: schema markup (SEO panel \u2192 Schema markup; its own object), the autosave on/off switch (browser-local; every write here is one autosave). Visitor geo-location is a runtime lookup with nothing to set.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
