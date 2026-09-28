@@ -1,0 +1,45 @@
+# `edit_funnel` — every op, with its arguments and traps
+
+The tool description names the ops. This page holds the detail. Claude Code cuts every tool description at
+2,048 characters.
+
+One op per call. Preview by default; `confirm: true` writes and reads back on a separate request.
+
+## Ops
+
+| op | arguments | what to know |
+|---|---|---|
+| `settings` | `settings {…}` — only the fields to change | always sends the UI's FULL `update-settings` body built from a fresh read, so only the fields you name change. The read-back is diffed |
+| `create-step` | `step {name, url}` | refused when the funnel has no domain: such a step gets no lookup row and 404s |
+| `update-step` | `stepId`, `name?`, `url?` | one PUT moves the live route, and renames the step's page record as the UI does. Cloudflare may serve the old path for minutes, so it never retries |
+| `reorder-steps` | `order` — every step id, in the new order | the route replaces the steps array, so a partial list is refused |
+| `clone-step` | `stepId` | |
+| `delete-step` | `stepId` + `expectName` (its current name) | target check |
+| `publish-page` / `unpublish-page` | `pageId`; unpublish takes `redirect? {type: "404" \| "url", url?}` | the builder's own route, `PUT /funnels/lookup/multiple`, on the step and page rows. Unpublish answers 404, or 301 to a URL. No version is created: to publish CONTENT, use `build_funnel_page publish:true` |
+| `add-header` | `header` — a custom response header | applies to the EXACT-CASE path only |
+| `split-test` | `action` + its argument | `add-variation {variationPath}`: a draft copy of the control on its own path, pre-checked. `start {controlTraffic}`: changes live traffic. `declare-winner {winnerPageId}`: the other page is archived and the split ends. EXACT-CASE path only |
+| `delete-funnel` | `funnelId` + `expectName` | refused while any page still serves, so unpublish first. The edge can serve the deleted page for ~70 s |
+| `clone-funnel` | `{name}` | a copy in THIS location. The route returns no id, so the name must be unused and the copy is found by it. The copy has NO domain and NO public paths, and keeps the source's step urls. Attaching the source's domain renames each colliding path with a numeric suffix |
+| `archive-page` | `{pageId, expectName}` | what the UI calls "delete — permanently": the page is ARCHIVED and can be restored. Refused on the only page of a step and on a running split |
+| `restore-page` | `{pageId}` | puts an archived page back on its step. It gets a NEW public path minted from the page name; the old path stays 404 |
+| `import-page` | `{stepId, sourceFunnelId, sourceStepId, sourcePageIndex}` | a copy of another step's page, as the target step's second page. Products are NOT imported |
+| `add-store` | — | 5 store steps on fixed domain-level paths, pre-checked. GHL creates the pages EMPTY, so each is then filled with its store element. 🔴 LOCATION-WIDE side effect: saving the checkout in the builder creates a "Billing Info" contact-field folder and 7 billing fields |
+| `add-step-product` | `{stepId, expectName, productId, priceId, displayText?, quantity? {max, allowMultiple}, bump?}` | the step's Products tab: what its order form lists and what a one-click up/down-sell button sells. Target check on the step id AND name. The price must be one of that product's prices. An identical product+price already on the step is refused. Returns `stepProductId`, the id a sell-product button stores as `productId {id}`. Remove and update are not offered |
+
+## Not offered — and where it is done
+
+- **Sharing a funnel.** Opening the Share modal creates a link anyone can import, and below the $497 plan it
+  cannot be narrowed or removed. Read a share with `get_funnel` view `share`. Create one in Sites → ⋮ → Share,
+  and only on purpose.
+- **Page-level settings.** Page SEO, tracking code, custom CSS and background are PAGE writes: use
+  `build_funnel_page` edit mode (`seo`, op `page`).
+- **A bare extra page** (`create-page`). It makes an ORPHAN page on no step. `create-step` makes a step with its
+  page, and `split-test add-variation` adds a second page.
+- **Funnel FOLDERS** (create, rename, move). They are organisational only, and are left to the Sites screen.
+
+## Siblings
+
+- `create_funnel` makes the document.
+- `get_funnel` reads it.
+- `build_funnel_page` writes page content.
+- `audit_site` audits.
