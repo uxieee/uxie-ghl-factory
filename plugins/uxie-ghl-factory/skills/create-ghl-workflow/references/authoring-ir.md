@@ -213,11 +213,12 @@ settings:
 - `window.days` are weekday numbers, 0 = Sunday … 6 = Saturday; times are 24h `HH:mm`. The UI's
   defaults when the toggle is switched on are exactly `08:00`–`17:00`, Mon–Fri; the stored object
   also carries `condition: "when"` (the engine adds it).
-- 🔴 What the window holds: sends, not every step. GHL files it under the communication settings
-  ("Allows messages to be sent…"). Measured 2026-09-28: an `add_contact_tag` step enrolled outside
-  the window ran at once, the same as a workflow with no window. Do not use the window to delay
-  internal actions; use a wait step. Whether a send outside the window is held has not been
-  measured yet.
+- 🔴 What the window holds: SEND steps, not every step. GHL files it under the communication settings
+  ("Allows messages to be sent…"). Measured 2026-09-28:
+  - An `add_contact_tag` step enrolled outside the window ran at once.
+  - An email step outside the window logged `wait_window_time` and went out when the window opened.
+    Everything after it then ran straight away.
+  Do not use the window to delay internal actions; use a wait step.
 - 🔴 `allowMultiple` governs re-entry after the contact has LEFT. A second enrolment while the
   contact is still in the workflow is skipped (`active-already`) with either value, and it is not
   queued. Measured 2026-09-28: with `false`, a re-enrolment after finishing was skipped too; with

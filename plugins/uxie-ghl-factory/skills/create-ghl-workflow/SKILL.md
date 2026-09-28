@@ -84,7 +84,9 @@ them to where it lives in the UI. Never report it as impossible, and never build
 | **MCP server connections** for an AI Agent step | The AI Agent step → **MCP servers** panel | They store credentials for an external server. `get_ai_agent_options` lists the connections that exist. |
 | **GHL's own AI workflow builder** (the in-builder AI assistant) | The builder's AI assistant | This plugin is the builder, and GHL's AI spends AI credit. |
 | **Emailing execution logs as a CSV** | The workflow's execution **History** page → **Export** | `get_workflow_logs` reads the same logs directly. |
-| **Restoring deleted workflows** | GHL's own restore flow for deleted workflows, in the UI (its exact screen is not pinned down here) | The plugin never deletes. |
+| **Deleting workflows** (one, or a bulk selection) | Workflows list → row menu, or select rows → bulk **Delete**. They move to the **Deleted** tab and are kept 30 days | Deletion is reserved for a human by standing rule. The routes are fenced in the catalogue. |
+| **Restoring deleted workflows** | Workflows list → **Deleted** tab → **Restore**. Admins only. The UI offers it 30 minutes after the delete, and the workflow comes back as a **draft** | The plugin never deletes. The 30-minute wait is a UI rule only: the server restored at once (live 2026-09-28). |
+| **Publishing from the workflow list** (single or bulk) | Workflows list → select rows → **Publish** | That path skips GHL's publish gate: none of the builder's checks run. Publish through `publish_workflow`, which runs the gates. Drafting from the list is safe, and `unpublish_workflows` does the same thing. |
 
 ## Before any write
 
