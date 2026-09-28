@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T19:46:08.357Z",
+      "capturedAt": "2026-09-28T19:58:07.088Z",
       "hash": "corpus",
-      "fileCount": 1074,
-      "endpoints": 1074
+      "fileCount": 1075,
+      "endpoints": 1075
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1549,
+  "discoveredCallSites": 1550,
   "skippedCallSites": 654,
-  "count": 1345,
+  "count": 1346,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -36661,10 +36661,10 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:132",
-        "ai-agents/20-api/knowledge-base.md:141",
-        "ai-agents/20-api/knowledge-base.md:142",
-        "ai-agents/20-api/knowledge-base.md:284"
+        "ai-agents/20-api/knowledge-base.md:136",
+        "ai-agents/20-api/knowledge-base.md:145",
+        "ai-agents/20-api/knowledge-base.md:146",
+        "ai-agents/20-api/knowledge-base.md:288"
       ],
       "serviceBasis": "declared"
     },
@@ -36690,7 +36690,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:58"
+        "ai-agents/20-api/knowledge-base.md:62"
       ],
       "serviceBasis": "declared"
     },
@@ -36716,7 +36716,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:54"
+        "ai-agents/20-api/knowledge-base.md:58"
       ],
       "serviceBasis": "declared"
     },
@@ -36742,7 +36742,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:57"
+        "ai-agents/20-api/knowledge-base.md:61"
       ],
       "serviceBasis": "declared"
     },
@@ -36777,10 +36777,10 @@
       "sources": [
         "ai-agents/10-anatomy/flow-agent-shape.md:133",
         "ai-agents/20-api/12-ai-agents-api.md:314",
-        "ai-agents/20-api/knowledge-base.md:55",
-        "ai-agents/20-api/knowledge-base.md:102",
-        "ai-agents/20-api/knowledge-base.md:116",
-        "ai-agents/20-api/knowledge-base.md:117"
+        "ai-agents/20-api/knowledge-base.md:59",
+        "ai-agents/20-api/knowledge-base.md:106",
+        "ai-agents/20-api/knowledge-base.md:120",
+        "ai-agents/20-api/knowledge-base.md:121"
       ],
       "serviceBasis": "declared"
     },
@@ -36819,8 +36819,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:60",
-        "ai-agents/20-api/knowledge-base.md:157"
+        "ai-agents/20-api/knowledge-base.md:64",
+        "ai-agents/20-api/knowledge-base.md:161"
       ],
       "serviceBasis": "declared"
     },
@@ -36846,8 +36846,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:313",
-        "ai-agents/20-api/knowledge-base.md:330"
+        "ai-agents/20-api/knowledge-base.md:319",
+        "ai-agents/20-api/knowledge-base.md:344"
       ],
       "serviceBasis": "declared"
     },
@@ -36873,7 +36873,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:318"
+        "ai-agents/20-api/knowledge-base.md:324"
       ],
       "serviceBasis": "declared"
     },
@@ -36912,7 +36912,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:318"
+        "ai-agents/20-api/knowledge-base.md:324"
       ],
       "serviceBasis": "declared"
     },
@@ -36938,7 +36938,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:318"
+        "ai-agents/20-api/knowledge-base.md:324"
       ],
       "serviceBasis": "declared"
     },
@@ -36977,7 +36977,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:325"
+        "ai-agents/20-api/knowledge-base.md:339"
       ],
       "serviceBasis": "declared"
     },
@@ -37003,7 +37003,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:327"
+        "ai-agents/20-api/knowledge-base.md:341"
       ],
       "serviceBasis": "declared"
     },
@@ -37068,7 +37068,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:74"
+        "ai-agents/20-api/knowledge-base.md:78"
       ],
       "serviceBasis": "declared"
     },
@@ -37113,7 +37113,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:318"
+        "ai-agents/20-api/knowledge-base.md:324"
       ],
       "serviceBasis": "declared"
     },
@@ -37158,7 +37158,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:341"
+        "ai-agents/20-api/knowledge-base.md:355"
       ],
       "serviceBasis": "declared"
     },
@@ -37197,7 +37197,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:318"
+        "ai-agents/20-api/knowledge-base.md:324",
+        "ai-agents/20-api/knowledge-base.md:334"
       ],
       "serviceBasis": "declared"
     },
@@ -37225,9 +37226,9 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:313",
         "ai-agents/20-api/conversation-ai-boundary.md:79",
-        "ai-agents/20-api/knowledge-base.md:59",
-        "ai-agents/20-api/knowledge-base.md:77",
-        "ai-agents/20-api/knowledge-base.md:355"
+        "ai-agents/20-api/knowledge-base.md:63",
+        "ai-agents/20-api/knowledge-base.md:81",
+        "ai-agents/20-api/knowledge-base.md:369"
       ],
       "serviceBasis": "declared"
     },
@@ -37266,8 +37267,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:63",
-        "ai-agents/20-api/knowledge-base.md:317"
+        "ai-agents/20-api/knowledge-base.md:67",
+        "ai-agents/20-api/knowledge-base.md:323"
       ],
       "serviceBasis": "declared"
     },
@@ -37293,8 +37294,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:64",
-        "ai-agents/20-api/knowledge-base.md:317"
+        "ai-agents/20-api/knowledge-base.md:68",
+        "ai-agents/20-api/knowledge-base.md:323"
       ],
       "serviceBasis": "declared"
     },
@@ -37320,7 +37321,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:66"
+        "ai-agents/20-api/knowledge-base.md:70"
       ],
       "serviceBasis": "declared"
     },
@@ -37346,7 +37347,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:65"
+        "ai-agents/20-api/knowledge-base.md:69"
       ],
       "serviceBasis": "declared"
     },
@@ -37372,7 +37373,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:67"
+        "ai-agents/20-api/knowledge-base.md:71"
       ],
       "serviceBasis": "declared"
     },
@@ -37398,7 +37399,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:319"
+        "ai-agents/20-api/knowledge-base.md:325"
       ],
       "serviceBasis": "declared"
     },
@@ -37424,7 +37425,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:319"
+        "ai-agents/20-api/knowledge-base.md:325"
       ],
       "serviceBasis": "declared"
     },
@@ -37450,7 +37451,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:319"
+        "ai-agents/20-api/knowledge-base.md:325"
       ],
       "serviceBasis": "declared"
     },
@@ -37476,7 +37477,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:319"
+        "ai-agents/20-api/knowledge-base.md:325"
       ],
       "serviceBasis": "declared"
     },
@@ -37534,7 +37535,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:380",
-        "ai-agents/20-api/knowledge-base.md:197",
+        "ai-agents/20-api/knowledge-base.md:201",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
       ],
@@ -37563,8 +37564,8 @@
       },
       "sources": [
         "ai-agents/00-overview/index.md:89",
-        "ai-agents/20-api/knowledge-base.md:199",
-        "ai-agents/20-api/knowledge-base.md:254"
+        "ai-agents/20-api/knowledge-base.md:203",
+        "ai-agents/20-api/knowledge-base.md:258"
       ],
       "serviceBasis": "declared"
     },
@@ -37590,8 +37591,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:200",
-        "ai-agents/20-api/knowledge-base.md:232"
+        "ai-agents/20-api/knowledge-base.md:204",
+        "ai-agents/20-api/knowledge-base.md:236"
       ],
       "serviceBasis": "declared"
     },
@@ -37630,9 +37631,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:61",
-        "ai-agents/20-api/knowledge-base.md:156",
-        "ai-agents/20-api/knowledge-base.md:198",
+        "ai-agents/20-api/knowledge-base.md:65",
+        "ai-agents/20-api/knowledge-base.md:160",
+        "ai-agents/20-api/knowledge-base.md:202",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:49"
       ],
       "serviceBasis": "declared"
@@ -37659,7 +37660,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:345"
+        "ai-agents/20-api/knowledge-base.md:359"
       ],
       "serviceBasis": "declared"
     },
@@ -37698,7 +37699,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:340"
+        "ai-agents/20-api/knowledge-base.md:354"
       ],
       "serviceBasis": "declared"
     },
@@ -37731,7 +37732,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:335"
+        "ai-agents/20-api/knowledge-base.md:349"
       ],
       "serviceBasis": "declared"
     },
@@ -37757,7 +37758,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:333"
+        "ai-agents/20-api/knowledge-base.md:347"
       ],
       "serviceBasis": "declared"
     },
@@ -37785,7 +37786,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:310",
         "ai-agents/20-api/12-ai-agents-api.md:379",
-        "ai-agents/20-api/knowledge-base.md:285"
+        "ai-agents/20-api/knowledge-base.md:289"
       ],
       "serviceBasis": "declared"
     },
@@ -37812,7 +37813,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:312",
-        "ai-agents/20-api/knowledge-base.md:289"
+        "ai-agents/20-api/knowledge-base.md:293"
       ],
       "serviceBasis": "declared"
     },
@@ -37838,7 +37839,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:286"
+        "ai-agents/20-api/knowledge-base.md:290"
       ],
       "serviceBasis": "declared"
     },
@@ -37865,7 +37866,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:311",
-        "ai-agents/20-api/knowledge-base.md:287"
+        "ai-agents/20-api/knowledge-base.md:291"
       ],
       "serviceBasis": "declared"
     },
@@ -37891,7 +37892,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:288"
+        "ai-agents/20-api/knowledge-base.md:292"
       ],
       "serviceBasis": "declared"
     },
@@ -37917,7 +37918,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:320"
+        "ai-agents/20-api/knowledge-base.md:326"
       ],
       "serviceBasis": "declared"
     },
@@ -37943,7 +37944,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:62"
+        "ai-agents/20-api/knowledge-base.md:66"
       ],
       "serviceBasis": "declared"
     },
@@ -37969,7 +37970,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:70"
+        "ai-agents/20-api/knowledge-base.md:74"
       ],
       "serviceBasis": "declared"
     },
@@ -37995,7 +37996,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:73"
+        "ai-agents/20-api/knowledge-base.md:77"
       ],
       "serviceBasis": "declared"
     },
@@ -38021,7 +38022,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:68"
+        "ai-agents/20-api/knowledge-base.md:72"
       ],
       "serviceBasis": "declared"
     },
@@ -38047,7 +38048,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:72"
+        "ai-agents/20-api/knowledge-base.md:76"
       ],
       "serviceBasis": "declared"
     },
@@ -38073,7 +38074,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:71"
+        "ai-agents/20-api/knowledge-base.md:75"
       ],
       "serviceBasis": "declared"
     },
@@ -38099,7 +38100,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:69"
+        "ai-agents/20-api/knowledge-base.md:73"
       ],
       "serviceBasis": "declared"
     },
@@ -44733,6 +44734,45 @@
       "sources": [
         "funnels/20-api/template-library.md:98",
         "funnels/20-api/template-library.md:100"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--location-conversation-ai",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "optIn",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:20"
       ],
       "serviceBasis": "declared"
     },
