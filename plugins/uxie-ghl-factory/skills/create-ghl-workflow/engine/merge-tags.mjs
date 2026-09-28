@@ -1,6 +1,7 @@
-// MERGE-TAG check. A {{tag}} GHL cannot resolve renders as LITERAL TEXT and nothing in GHL
-// catches it — {{appointment.date}}/{{appointment.time}} reached real customers for three
-// weeks (F5-27). Policy is derived from the renderer's SOURCE (recovered-source/src/utils/
+// MERGE-TAG check. A {{tag}} GHL cannot resolve fails SILENTLY and nothing in GHL catches it —
+// {{appointment.date}}/{{appointment.time}} reached real customers for three weeks (F5-27). Measured
+// 2026-09-28: in a contact-field value such a tag renders EMPTY (live-3AG-opp-task-mergetags.json);
+// how a message body renders it is not measured. Policy is derived from the renderer's SOURCE (recovered-source/src/utils/
 // merge_tags.ts), never from corpus counts: a replay once flipped `appointment` to "open" on a
 // single published typo, and the engine restated that artefact as fact. The catalog still ships
 // that verdict as mergeTags.closedNamespaces (6 namespaces, appointment listed OPEN) — do not
@@ -46,6 +47,14 @@ export const NAMESPACE_POLICY = Object.freeze({
 // outright), so the staleness test named this list and it is gone.
 
 const TOKEN = /\{\{\s*([A-Za-z_][\w-]*)((?:\.[^{}]*)?)\s*\}\}/g;
+// What an unresolvable tag does, as MEASURED: in a contact-field value a made-up namespace and a context tag outside its trigger
+// rendered EMPTY, with no error (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3AG-opp-task-mergetags.json).
+// Email/SMS bodies are not measured. The old wording (a literal render) was never measured, and the measurement contradicts it.
+const UNRESOLVED = 'GHL cannot resolve it — in a contact-field value it renders EMPTY with no error (measured 2026-09-28); other steps unmeasured';
+// Invoice tags that render the literal word "undefined" when the business/customer has no such data (live 2026-09-28,
+// knowledge sniffs/workflows-wave1-2026-09-25/live-3AH-invoice-payment-mergetags.json). Every other unset tag measured renders empty.
+export const INVOICE_UNDEFINED_TAGS = new Set(['company.address', 'company.city', 'company.state', 'company.website', 'company.logo',
+  'customer.company', 'customer.address', 'customer.city', 'customer.state', 'customer.postal_code'].map((k) => `{{invoice.${k}}}`));
 const compact = (s) => String(s ?? '').replace(/\s+/g, '');
 const split = (full) => { const m = /^\{\{([^.}]+)\.?(.*)\}\}$/.exec(full); return m ? { ns: m[1], key: m[2] } : null; };
 
@@ -170,20 +179,25 @@ export function evaluateMergeTags(templates, mergeTags, opts = {}) {
             msg: `${full} renders EMPTY: custom_code outputs are read through .output. — use ${full.replace(/^\{\{custom_code\.(\d+)\./, '{{custom_code.$1.output.')}` });
           continue;
         }
+        if (INVOICE_UNDEFINED_TAGS.has(full)) {
+          out.push({ where, kind: 'renders-undefined', severity: 'warning', ns, tag: full, suggestions: [],
+            msg: `${full} renders the literal word "undefined" when the invoice's business/customer has no such data (measured 2026-09-28). Wrap it: {{default ${full.slice(2, -2)} ""}}` });
+          continue;
+        }
         if (P.ignore.has(ns) || P.ownedElsewhere.has(ns) || opts?.assetOutputs?.has?.(ns) || staticTags.has(full)) continue;
         const candidates = [...staticTags];
         const push = (severity, kind, msg) => out.push({ where, kind, severity, ns, tag: full, suggestions: suggestTags(full, candidates), msg });
         if (P.perLocation[ns]) {
           const vocab = perLocationVocabulary(ns, opts);
-          if (vocab === null) { push('warning', 'unknown', `${full} is not a picker tag and this location's ${P.perLocation[ns]} were not fetched — unverifiable; it renders literally if the field does not exist`); continue; }
+          if (vocab === null) { push('warning', 'unknown', `${full} is not a picker tag and this location's ${P.perLocation[ns]} were not fetched — unverifiable; if the field does not exist, ${UNRESOLVED}`); continue; }
           if (vocab.has(full)) continue;
           candidates.push(...vocab);
-          push('error', 'unknown', `${full} is not a picker tag and not one of this location's ${vocab.size} ${P.perLocation[ns]} — it will render literally`);
+          push('error', 'unknown', `${full} is not a picker tag and not one of this location's ${vocab.size} ${P.perLocation[ns]} — ${UNRESOLVED}`);
           continue;
         }
-        if (P.closed.has(ns)) { push('error', 'unknown', `${full} is not a picker variable in the closed namespace '${ns}' — it will render literally at runtime`); continue; }
-        if (P.gated.has(ns)) { push('warning', 'unknown', `${full} is not a picker variable in '${ns}' (a trigger/action-gated menu) — it will render literally unless a matching trigger/action provides it`); continue; }
-        push('warning', 'unknown-namespace', `${full} uses a namespace the picker does not list ('${ns}') — it will render literally`);
+        if (P.closed.has(ns)) { push('error', 'unknown', `${full} is not a picker variable in the closed namespace '${ns}' — ${UNRESOLVED}`); continue; }
+        if (P.gated.has(ns)) { push('warning', 'unknown', `${full} is not a picker variable in '${ns}' (a trigger/action-gated menu) — unless a matching trigger/action provides it, ${UNRESOLVED}`); continue; }
+        push('warning', 'unknown-namespace', `${full} uses a namespace the picker does not list ('${ns}') — ${UNRESOLVED}`);
       }
     });
   }
@@ -217,8 +231,8 @@ export function checkMergeTags(templates, catalog, ctx) {
   if (errors.length && ctx?.strictMergeTags === false) { for (const f of errors) ctx?.warn?.(`MERGE_TAG: ${f.where}: ${f.msg}`); return F; }
   if (errors.length)
     throw new IRError('MERGE_TAG_UNKNOWN',
-      `MERGE_TAG_UNKNOWN: ${errors.length} merge tag(s) GHL cannot resolve — each would render literally, render empty, or stop its step (the reason is on each line):\n`
+      `MERGE_TAG_UNKNOWN: ${errors.length} merge tag(s) GHL cannot resolve — each fails silently (renders empty in a contact-field value, measured) or stops its step (the reason is on each line):\n`
       + errors.map((f) => `  ${f.where}: ${f.msg}`).join('\n')
-      + `\nAuthor tags from the picker inventory (search_merge_tags / catalog mergeTags), or pass strictMergeTags:false to demote to warnings.`);
+      + `\nAuthor tags from the picker inventory (search_merge_tags / catalog mergeTags), or pass strictMergeTags:false (build_workflow / edit_workflow) to demote to warnings.`);
   return F;
 }
