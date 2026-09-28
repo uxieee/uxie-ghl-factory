@@ -25167,6 +25167,7 @@
       "sources": [
         "services/WorkflowService.ts:550",
         "workflows/20-api/version-history.md:18",
+        "workflows/20-api/version-history.md:104",
         "workflows/50-runtime/11-runtime-logs.md:218"
       ]
     },
@@ -25528,6 +25529,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:464",
+        "workflows/20-api/test-run.md:17",
         "workflows/50-runtime/scheduled-pause.md:124"
       ]
     },
@@ -26306,7 +26308,7 @@
         "services/WorkflowService.ts:623",
         "platform/20-api/snapshots-authoring.md:278",
         "platform/40-rules/snapshot-carry-matrix.md:108",
-        "workflows/40-rules/publish-gate.md:39"
+        "workflows/40-rules/publish-gate.md:48"
       ]
     },
     {
@@ -26353,7 +26355,7 @@
       "sources": [
         "services/WorkflowService.ts:616",
         "platform/20-api/snapshots-authoring.md:277",
-        "workflows/40-rules/publish-gate.md:38"
+        "workflows/40-rules/publish-gate.md:47"
       ]
     },
     {
@@ -27512,7 +27514,7 @@
       "sources": [
         "services/ErrorNotificationService.ts:72",
         "workflows/20-api/error-notification-settings.md:18",
-        "workflows/40-rules/settings-semantics.md:109",
+        "workflows/40-rules/settings-semantics.md:119",
         "workflows/50-runtime/error-notifications.md:39",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
       ]
@@ -45633,7 +45635,7 @@
       },
       "sources": [
         "services/marketplaceServices/InboundWebhookRequestService.ts:20",
-        "workflows/40-rules/publish-gate.md:119",
+        "workflows/40-rules/publish-gate.md:128",
         "workflows/40-rules/validation-gate.md:97",
         "workflows/70-research/INBOUND-WEBHOOK.md:34",
         "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"

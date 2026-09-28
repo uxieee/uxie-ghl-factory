@@ -25349,6 +25349,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/WorkflowService.ts:550",
             "workflows/20-api/version-history.md:18",
+            "workflows/20-api/version-history.md:104",
             "workflows/50-runtime/11-runtime-logs.md:218"
           ]
         },
@@ -25710,6 +25711,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/WorkflowService.ts:464",
+            "workflows/20-api/test-run.md:17",
             "workflows/50-runtime/scheduled-pause.md:124"
           ]
         },
@@ -26488,7 +26490,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/WorkflowService.ts:623",
             "platform/20-api/snapshots-authoring.md:278",
             "platform/40-rules/snapshot-carry-matrix.md:108",
-            "workflows/40-rules/publish-gate.md:39"
+            "workflows/40-rules/publish-gate.md:48"
           ]
         },
         {
@@ -26535,7 +26537,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/WorkflowService.ts:616",
             "platform/20-api/snapshots-authoring.md:277",
-            "workflows/40-rules/publish-gate.md:38"
+            "workflows/40-rules/publish-gate.md:47"
           ]
         },
         {
@@ -27695,7 +27697,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/ErrorNotificationService.ts:72",
             "workflows/20-api/error-notification-settings.md:18",
-            "workflows/40-rules/settings-semantics.md:109",
+            "workflows/40-rules/settings-semantics.md:119",
             "workflows/50-runtime/error-notifications.md:39",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
           ]
@@ -45822,7 +45824,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/InboundWebhookRequestService.ts:20",
-            "workflows/40-rules/publish-gate.md:119",
+            "workflows/40-rules/publish-gate.md:128",
             "workflows/40-rules/validation-gate.md:97",
             "workflows/70-research/INBOUND-WEBHOOK.md:34",
             "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"
@@ -188490,7 +188492,7 @@ var TOOLS2 = [
     name: "get_workflow_logs",
     description: describe3(
       "get_workflow_logs",
-      `Read executions, enrollment and per-step contact counts; executionId returns one run's full step trace. \u{1F534} AN EMPTY LOG IS AMBIGUOUS: [] means the same thing for "the trigger never matched" and for "enrolled, not yet fired". Confirm from an independent source (the contact's own tags or fields) before concluding a workflow is broken \u2014 or that it is fine. An ai_agent step's rows are listed in agentThreads with their threadId; includeAgentTrace:true (only with executionId) also fetches each thread's full agent trace \u2014 model input and output, WHICH INCLUDES CONTACT DATA \u2014 so it is never fetched by default.`
+      `Read executions, enrollment and per-step contact counts; executionId returns one run's full step trace (the id is a log row's workflowStatusId; rows carry meta.version, the version that run started on). \u{1F534} AN EMPTY LOG IS AMBIGUOUS: [] means the same thing for "the trigger never matched" and for "enrolled, not yet fired". Confirm from an independent source (the contact's own tags or fields) before concluding a workflow is broken \u2014 or that it is fine. An ai_agent step's rows are listed in agentThreads with their threadId; includeAgentTrace:true (only with executionId) also fetches each thread's full agent trace \u2014 model input and output, WHICH INCLUDES CONTACT DATA \u2014 so it is never fetched by default.`
     ),
     inputSchema: schema({
       locationId: external_exports.string(),

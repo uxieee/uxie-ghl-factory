@@ -20,14 +20,14 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T19:17:16.893Z",
+      "capturedAt": "2026-09-28T19:22:20.323Z",
       "hash": "corpus",
-      "fileCount": 1066,
-      "endpoints": 1066
+      "fileCount": 1067,
+      "endpoints": 1067
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1541,
+  "discoveredCallSites": 1542,
   "skippedCallSites": 654,
   "count": 1340,
   "endpoints": [
@@ -19638,6 +19638,7 @@
       "sources": [
         "services/WorkflowService.ts:550",
         "workflows/20-api/version-history.md:18",
+        "workflows/20-api/version-history.md:104",
         "workflows/50-runtime/11-runtime-logs.md:218"
       ],
       "serviceClass": "WorkflowService",
@@ -19822,6 +19823,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:464",
+        "workflows/20-api/test-run.md:17",
         "workflows/50-runtime/scheduled-pause.md:124"
       ],
       "serviceClass": "WorkflowService",
@@ -20626,7 +20628,7 @@
         "services/WorkflowService.ts:623",
         "platform/20-api/snapshots-authoring.md:278",
         "platform/40-rules/snapshot-carry-matrix.md:108",
-        "workflows/40-rules/publish-gate.md:39"
+        "workflows/40-rules/publish-gate.md:48"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -20655,7 +20657,7 @@
       "sources": [
         "services/WorkflowService.ts:616",
         "platform/20-api/snapshots-authoring.md:277",
-        "workflows/40-rules/publish-gate.md:38"
+        "workflows/40-rules/publish-gate.md:47"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path",
@@ -21595,7 +21597,7 @@
       "sources": [
         "services/ErrorNotificationService.ts:72",
         "workflows/20-api/error-notification-settings.md:18",
-        "workflows/40-rules/settings-semantics.md:109",
+        "workflows/40-rules/settings-semantics.md:119",
         "workflows/50-runtime/error-notifications.md:39",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
       ],
@@ -36216,7 +36218,7 @@
       },
       "sources": [
         "services/marketplaceServices/InboundWebhookRequestService.ts:20",
-        "workflows/40-rules/publish-gate.md:119",
+        "workflows/40-rules/publish-gate.md:128",
         "workflows/40-rules/validation-gate.md:97",
         "workflows/70-research/INBOUND-WEBHOOK.md:34",
         "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"
