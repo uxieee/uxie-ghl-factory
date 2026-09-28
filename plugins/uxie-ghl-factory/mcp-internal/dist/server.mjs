@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1359,
+      count: 1377,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2474,6 +2474,346 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--chat-widget",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/chat-widget/{locationId}/{widgetId}",
+          path: "/chat-widget/{locationId}/{widgetId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "widgetId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/chat-widget.md:33"
+          ]
+        },
+        {
+          id: "ai-agents--chat-widget-clone",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/chat-widget/clone",
+          path: "/chat-widget/clone",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/chat-widget.md:32"
+          ]
+        },
+        {
+          id: "ai-agents--chat-widget-code",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/chat-widget/code/{locationId}",
+          path: "/chat-widget/code/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "isGTM",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "widgetId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/chat-widget.md:34"
+          ]
+        },
+        {
+          id: "ai-agents--chat-widget-data",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/chat-widget/data/{locationId}/{widgetId}",
+          path: "/chat-widget/data/{locationId}/{widgetId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "widgetId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/chat-widget.md:29"
+          ]
+        },
+        {
+          id: "ai-agents--chat-widget-data-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/chat-widget/data/{locationId}/{widgetId}",
+          path: "/chat-widget/data/{locationId}/{widgetId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "widgetId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/chat-widget.md:31"
+          ]
+        },
+        {
+          id: "ai-agents--feedback-analytics",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/chat-widget/feedback/analytics/{locationId}",
+          path: "/chat-widget/feedback/analytics/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "startDate",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "endDate",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "widgetId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/chat-widget.md:36"
+          ]
+        },
+        {
+          id: "ai-agents--feedback-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/chat-widget/feedback/list/{locationId}",
+          path: "/chat-widget/feedback/list/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "widgetId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "feedback",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/chat-widget.md:38"
+          ]
+        },
+        {
+          id: "ai-agents--widget-events",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/chat-widget/feedback/widget/{locationId}/{widgetId}/events",
+          path: "/chat-widget/feedback/widget/{locationId}/{widgetId}/events",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "widgetId"
+            }
+          ],
+          query: [
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/chat-widget.md:37"
+          ]
+        },
+        {
           id: "ai-agents--chat-widget-forms",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/chat-widget/forms",
@@ -2529,12 +2869,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           pathParams: [],
           query: [
             {
-              name: "chatType",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
               name: "locationId",
               type: "string",
               required: false,
@@ -2548,6 +2882,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             },
             {
               name: "offset",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "chatType",
               type: "string",
               required: false,
               source: "documented"
@@ -2567,10 +2907,46 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/chat-widget-service.ts:35",
+            "ai-agents/20-api/chat-widget.md:28",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "funnels/10-anatomy/websites-and-global-sections.md:278",
             "funnels/20-api/funnels-api.md:356",
             "workflows/70-research/ENDPOINTS.md:137"
+          ]
+        },
+        {
+          id: "ai-agents--location-settings",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/chat-widget/location/{locationId}/settings",
+          path: "/chat-widget/location/{locationId}/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/chat-widget.md:35"
           ]
         },
         {
@@ -7512,6 +7888,297 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--funnel-ai-v2-copilot-messages",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot-messages",
+          path: "/funnel-ai-v2/copilot-messages",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:31"
+          ]
+        },
+        {
+          id: "funnels--copilot-messages-status",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot-messages/{messageId}/status",
+          path: "/funnel-ai-v2/copilot-messages/{messageId}/status",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "messageId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:40"
+          ]
+        },
+        {
+          id: "funnels--assist-mode-prompt",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/assist-mode/prompt",
+          path: "/funnel-ai-v2/copilot/assist-mode/prompt",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:37"
+          ]
+        },
+        {
+          id: "funnels--assist-mode-summary",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/assist-mode/summary",
+          path: "/funnel-ai-v2/copilot/assist-mode/summary",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:37"
+          ]
+        },
+        {
+          id: "funnels--copilot-assist-preference",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/assist-preference/{pageId}",
+          path: "/funnel-ai-v2/copilot/assist-preference/{pageId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pageId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:30"
+          ]
+        },
+        {
+          id: "funnels--copilot-assist-preference-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/assist-preference/{pageId}",
+          path: "/funnel-ai-v2/copilot/assist-preference/{pageId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pageId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:61"
+          ]
+        },
+        {
+          id: "funnels--build-mode-tags",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/build-mode/tags",
+          path: "/funnel-ai-v2/copilot/build-mode/tags",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:38"
+          ]
+        },
+        {
+          id: "funnels--copilot-chat",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/chat",
+          path: "/funnel-ai-v2/copilot/chat",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:38"
+          ]
+        },
+        {
+          id: "funnels--copilot-create-page",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/create-page",
+          path: "/funnel-ai-v2/copilot/create-page",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:37"
+          ]
+        },
+        {
           id: "funnels--page-generate",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnel-ai/page/generate",
@@ -7539,11 +8206,15 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnel-ai.md:22"
+            "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:11",
+            "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:26"
           ]
         },
         {
           id: "funnels--funnel-ai-tracker",
+          aka: [
+            "/funnel-ai/tracker/{id}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnel-ai/tracker/{trackerId}",
           path: "/funnel-ai/tracker/{trackerId}",
@@ -7576,12 +8247,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "documented",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnel-ai.md:46"
+            "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:11",
+            "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:50"
           ]
         },
         {
@@ -7653,12 +8325,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/40-rules/silent-failures.md:578",
+            "funnels/20-api/funnel-ai.md:58",
             "funnels/20-api/funnels-api.md:245",
             "funnels/20-api/publish-routing-and-site-settings.md:43",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
-            "funnels/40-rules/silent-failures.md:1072",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:33"
+            "funnels/40-rules/silent-failures.md:1072"
           ]
         },
         {
@@ -7877,7 +8549,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/styling-and-saved-assets.md:112",
-            "funnels/10-anatomy/websites-and-global-sections.md:96"
+            "funnels/10-anatomy/websites-and-global-sections.md:96",
+            "funnels/20-api/funnel-ai.md:59"
           ]
         },
         {
@@ -9395,9 +10068,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/00-overview/index.md:29",
             "funnels/00-overview/index.md:66",
             "funnels/10-anatomy/websites-and-global-sections.md:300",
+            "funnels/20-api/funnel-ai.md:60",
             "funnels/20-api/funnels-api.md:310",
-            "funnels/20-api/funnels-api.md:377",
-            "funnels/40-rules/autosave-writes-only-the-data-file.md:58"
+            "funnels/20-api/funnels-api.md:377"
           ]
         },
         {
@@ -10823,9 +11496,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/00-overview/index.md:31",
             "funnels/10-anatomy/websites-and-global-sections.md:306",
             "funnels/10-anatomy/websites-and-global-sections.md:540",
-            "funnels/20-api/funnel-ai.md:75",
             "funnels/20-api/funnel-object-operations.md:84",
-            "funnels/20-api/funnels-api.md:232"
+            "funnels/20-api/funnels-api.md:232",
+            "funnels/20-api/funnels-api.md:375"
           ]
         },
         {
@@ -40813,7 +41486,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:87"
+            "ai-agents/00-overview/index.md:88"
           ]
         },
         {
@@ -40848,7 +41521,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:86"
+            "ai-agents/00-overview/index.md:87"
           ]
         },
         {
@@ -41283,7 +41956,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/10-anatomy/managed-agent-shape.md:131",
             "ai-agents/20-api/conversation-ai-boundary.md:82",
-            "ai-studio/60-recipes/run-one-generation.md:26"
+            "ai-studio/60-recipes/run-one-generation.md:26",
+            "funnels/20-api/funnel-ai.md:73"
           ]
         },
         {
@@ -43054,7 +43728,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "ai-agents--chat-widget",
+          id: "ai-agents--chat-widget-post",
           method: "POST",
           url: "https://services.leadconnectorhq.com/chat-widget/",
           path: "/chat-widget/",
@@ -47482,7 +48156,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:89",
+            "ai-agents/00-overview/index.md:90",
             "ai-agents/20-api/knowledge-base.md:203",
             "ai-agents/20-api/knowledge-base.md:265"
           ]
