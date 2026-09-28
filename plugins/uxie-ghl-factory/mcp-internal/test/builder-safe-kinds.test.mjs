@@ -48,3 +48,11 @@ test('config extras take the real shape; content props are never copied from a t
   // no url survives from a template
   assert.ok(!/https?:\/\//.test(JSON.stringify(KIND_CONFIG_EXTRA)), 'a template url leaked into the defaults');
 });
+
+test('one-step-order carries the builder\'s step1 field config: a phone field is rendered when the validator demands one', () => {
+  const s1 = makeLeaf({ meta: 'one-step-order', salt: 'p' }).extra.step1.value;
+  // the public validator requires a phone unless showPhone is false; an empty step1 rendered no phone field → unsubmittable
+  assert.equal(s1.showPhone, true);
+  assert.equal(typeof s1.btnText, 'string');
+  assert.ok(s1.phone && s1.email && s1.fullName, 'field labels present');
+});

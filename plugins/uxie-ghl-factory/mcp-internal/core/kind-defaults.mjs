@@ -11,6 +11,86 @@
 // below are reproduced from the page-builder bundle's own defaults table, GHL's `"sqaure"` typo
 // included, because that is what the renderer matches on.
 export const KIND_DEFAULT_EXTRA = Object.freeze({
+  // 🔴 one-step-order with an empty step1 renders ONLY name + email, yet the public validator still demands a phone
+  // (showPhone ?? true) — so no order could ever be submitted ("Make sure that you filled all the details!", nothing sent;
+  // knowledge sniffs/funnels-wave15-actions-2026-09-29). The builder's own ONE_STEP_ORDER defaults, verbatim from its
+  // element registry (page builder index.e1b163ff.js).
+  "one-step-order": {
+    "step1": {
+      "value": {
+        "shippingHeadline": "Shipping",
+        "paymentHeadline": "Payment",
+        "headline": "Shipping & Your Info",
+        "subHeadline": "Upgrade Your Order & Save!",
+        "fullName": "Full Name...",
+        "companyName": "Company Name..",
+        "email": "Email Address...",
+        "phone": "Phone Number...",
+        "searchAddress": "Search",
+        "address": "Street Address...",
+        "city": "City Name...",
+        "state": "State / Province...",
+        "zipCode": "Zip Code...",
+        "showPhone": true,
+        "fullNameValidation": true,
+        "showShipping": true,
+        "showCompanyName": "mandatory",
+        "itemText": "Item",
+        "priceText": "Price",
+        "summaryItemText": "Item",
+        "summaryPriceText": "amount",
+        "btnText": "Complete Order",
+        "btnSubText": "",
+        "footerText": "* 100% Secure & Safe Payments *",
+        "linkText": "Edit Shipping Details",
+        "enableMultiProductSelect": true,
+        "enableMainProductDescription": false,
+        "enableProductDescription": true,
+        "showOrderBump": true,
+        "enableCouponCodes": true,
+        "btnIcon": "fas fa-shopping-cart",
+        "stripeLayout": "classic",
+        "enablePostalCode": false,
+        "enableCountryPicker": false,
+        "enableAutoCompleteAddress": true
+      }
+    },
+    "enableMultiProductSelect": {
+      "value": true
+    },
+    "enableMainProductDescription": {
+      "value": false
+    },
+    "enableProductDescription": {
+      "value": true
+    },
+    "showOrderBump": {
+      "value": false
+    },
+    "enableCouponCodes": {
+      "value": true
+    },
+    "termsAndConditions": {
+      "value": {
+        "isEnabledForStep1": false,
+        "isEnabledForStep2": false,
+        "step1": "I agree to the <a href=\"https://www.example.com\" target=\"_blank\"> terms and conditions</a>",
+        "step2": "I agree to the <a href=\"https://www.example.com\" target=\"_blank\"> terms and conditions</a>"
+      }
+    },
+    "bumpProduct": {
+      "value": []
+    },
+    "stickyContact": {
+      "value": false
+    },
+    "forceContactCreate": {
+      "value": false
+    },
+    "validateEmail": {
+      "value": false
+    }
+  },
   // bl-245 (2026-09-26): blog needs the NEW `blogAuthor` array and a RAW (unwrapped) `blogFilter`;
   // photo-video-gallery reads its layout/heading/info/settings/watermark objects unguarded. Values are
   // the builder's own defaults, proven to render on a sandbox page
