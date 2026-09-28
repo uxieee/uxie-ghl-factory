@@ -119,6 +119,7 @@ import { executeAgentPlan, executeAgentUpdate, serverMessage } from '../../engin
 import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from '../../engines/ai/voiceai-update.mjs';
 import { compileDeploymentIntent, executeDeployment, DEPLOY_PATH, CHANNELS } from '../../engines/ai/deployment.mjs';
 import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
+import { renderableFields, blankSubmitWarning } from './form-fields.mjs';
 import { StudioApi, queryProjectHistory, filterRoutes, classifySite, nameWarning,
          sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor } from './ai-studio.mjs';
 
@@ -9613,7 +9614,12 @@ export const TOOLS = [
       + 'replica (a save sent immediately answers 404 "Form does not exist or is deleted", seven times '
       + 'out of seven), save the document, then poll a read-back until the tags you sent come back. '
       + 'A form is LIVE at its public widget URL the moment it exists — there is no draft state — and '
-      + 'everything in formData is world-readable, so never put anything private in it.',
+      + 'everything in formData is world-readable, so never put anything private in it. '
+      + 'GHL stores fields verbatim and the widget renders each by its `type`: one without a type is saved '
+      + 'but never shown. A built-in tag (first_name, email, phone, button, …) sent without type gets the '
+      + 'builder\'s shape (type, standard, hiddenFieldQueryKey, required default), listed under `completed`; any '
+      + 'other field without a renderer type is refused by name. A form with no required input takes a blank '
+      + 'submit and creates an empty contact — `blankSubmit` warns.',
     inputSchema: schema({
       locationId: z.string(),
       name: z.string(),
@@ -9633,13 +9639,19 @@ export const TOOLS = [
       if (typeof args.name !== 'string' || args.name.trim() === '') {
         return fail(CODES.VALIDATION_FAILED, 'name must be a non-empty string', 'Pass the form name.');
       }
-      const fields = args.fields ?? [];
-      const untagged = fields.map((f, i) => (f && typeof f.tag === 'string' && f.tag ? null : i)).filter((i) => i !== null);
+      const untagged = (args.fields ?? []).map((f, i) => (f && typeof f.tag === 'string' && f.tag ? null : i)).filter((i) => i !== null);
       if (untagged.length) {
         return fail(CODES.VALIDATION_FAILED, `fields[${untagged.join(', ')}] have no 'tag'`,
           'Every element needs a tag: it is the field key the widget renders and the read-back compares on. '
           + 'Standard fields use their name (first_name, email, phone); a custom-field question uses the custom field id.');
       }
+      // Stored verbatim and rendered by `type`: an element without one is saved, read back, and never shown.
+      const { fields, filled, problems } = renderableFields(args.fields);
+      if (problems.length) {
+        return fail(CODES.VALIDATION_FAILED, `${problems.length} field(s) would not render: ${problems.join(' ')}`,
+          'Give each element a renderer `type`. Built-in tags (first_name, email, phone, button, …) get the builder\'s shape when type is left out.');
+      }
+      const blank = blankSubmitWarning(fields);
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const document = {
         form: {
@@ -9652,7 +9664,9 @@ export const TOOLS = [
         creates: { name: args.name, productType: 'form', source: args.source ?? 'landing_page', parentId: args.parentId ?? null },
         document,
         fieldTags: fields.map((f) => f.tag),
+        ...(filled.length ? { completed: filled } : {}),
         warning: 'The form is PUBLIC the moment it is created — there is no draft state, and formData is readable with no credentials.',
+        ...(blank ? { blankSubmit: blank } : {}),
       };
       if (args.confirm !== true) {
         return withFailureData(
@@ -9706,6 +9720,8 @@ export const TOOLS = [
         readBackAttempts: back.attempts,
         fieldTags: back.hit ?? want,
         widgetUrl: `https://api.leadconnectorhq.com/widget/form/${formId}`,
+        ...(filled.length ? { completed: filled } : {}),
+        ...(blank ? { blankSubmit: blank } : {}),
         ...(back.hit ? {} : { note: `Saved, but the document had not appeared after ${back.attempts} read-backs. Reads lag writes by seconds — read it again with get_form before assuming it is wrong.` }),
       });
     }, args),
@@ -9718,7 +9734,8 @@ export const TOOLS = [
       + 'into it and writes the whole thing back. The preview shows exactly which top-level keys of '
       + '`formData.form` would change. Two keys are renamed by the server on write '
       + '(formAction.redirect_url → redirectUrl, style.ac_branding → acBranding), so the read-back '
-      + 'compares on the names GHL stores, not the ones you sent.',
+      + 'compares on the names GHL stores, not the ones you sent. `fields` get the same renderer check as '
+      + 'create_form: a built-in tag without `type` is completed the builder\'s way, any other is refused.',
     inputSchema: schema({
       locationId: z.string(),
       formId: z.string(),
@@ -9738,6 +9755,13 @@ export const TOOLS = [
         return fail(CODES.VALIDATION_FAILED, 'nothing to change',
           'Pass at least one of fields, formAction, style or name.');
       }
+      const shaped = args.fields !== undefined ? renderableFields(args.fields) : null;
+      if (shaped?.problems.length) {
+        return fail(CODES.VALIDATION_FAILED, `${shaped.problems.length} field(s) would not render: ${shaped.problems.join(' ')}`,
+          'Give each element a renderer `type`. Built-in tags (first_name, email, phone, button, …) get the builder\'s shape when type is left out.');
+      }
+      if (shaped) args = { ...args, fields: shaped.fields };
+      const blank = shaped ? blankSubmitWarning(shaped.fields) : null;
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const id = encodeURIComponent(args.formId);
       const current = await gw.call('GET', `/forms/${id}`);
@@ -9763,6 +9787,8 @@ export const TOOLS = [
         })),
         ...(args.name !== undefined && args.name !== form.name ? { rename: { from: form.name, to: args.name } } : {}),
         preservedKeys: Object.keys(before).filter((k) => !patch.includes(k)),
+        ...(shaped?.filled.length ? { completed: shaped.filled } : {}),
+        ...(blank ? { blankSubmit: blank } : {}),
         note: 'Keys under preservedKeys are re-sent verbatim. Without that they would be DELETED — the save replaces the document.',
       };
       if (args.confirm !== true) {
@@ -9810,6 +9836,8 @@ export const TOOLS = [
         readBackAttempts: back.attempts,
         fieldTags: back.hit?.tags ?? wantTags,
         preservedKeys: preview.preservedKeys,
+        ...(preview.completed ? { completed: preview.completed } : {}),
+        ...(blank ? { blankSubmit: blank } : {}),
         ...(back.hit ? {} : { note: `Saved, but the change had not appeared after ${back.attempts} read-backs. Reads lag writes by seconds — read it again with get_form before re-sending.` }),
       });
     }, args),
