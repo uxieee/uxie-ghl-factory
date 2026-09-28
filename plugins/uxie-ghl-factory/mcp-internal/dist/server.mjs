@@ -16708,37 +16708,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "ai-agents--ai-supervisor-agents",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/performance-ai/ai-supervisor/agents",
-          path: "/performance-ai/ai-supervisor/agents",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
-          ]
-        },
-        {
           id: "platform--phone-system-call-dispositions",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/phone-system/call-dispositions",
@@ -52878,6 +52847,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "forms/20-api/neighbour-services.md:34"
+          ]
+        },
+        {
+          id: "ai-agents--ai-supervisor-agents",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/performance-ai/ai-supervisor/agents",
+          path: "/performance-ai/ai-supervisor/agents",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
           ]
         },
         {

@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T14:17:42.444Z",
+      "capturedAt": "2026-09-28T14:19:45.470Z",
       "hash": "corpus",
       "fileCount": 967,
       "endpoints": 967
@@ -12994,32 +12994,6 @@
       "sources": [
         "platform/20-api/payment-links.md:126",
         "platform/70-research/2026-09-02-payment-links-capture.md:46"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "ai-agents--ai-supervisor-agents",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/performance-ai/ai-supervisor/agents",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "ai-agents",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
       ],
       "serviceBasis": "declared"
     },
@@ -41609,6 +41583,32 @@
       },
       "sources": [
         "forms/20-api/neighbour-services.md:34"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--ai-supervisor-agents",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/performance-ai/ai-supervisor/agents",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
       ],
       "serviceBasis": "declared"
     },
