@@ -40701,7 +40701,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:149",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:150",
             "ai-agents/20-api/12-ai-agents-api.md:101",
             "ai-agents/20-api/12-ai-agents-api.md:105",
             "ai-agents/20-api/12-ai-agents-api.md:132",
@@ -40849,7 +40849,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:102",
-            "ai-agents/30-types/conversation-ai-actions.md:45"
+            "ai-agents/30-types/conversation-ai-actions.md:45",
+            "ai-agents/30-types/conversation-ai-actions.md:90"
           ]
         },
         {
@@ -40926,8 +40927,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:77",
-            "ai-agents/30-types/conversation-ai-actions.md:117",
+            "ai-agents/20-api/conversation-ai-boundary.md:80",
+            "ai-agents/30-types/conversation-ai-actions.md:120",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
             "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
@@ -41025,7 +41026,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:148",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:149",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:95",
             "ai-agents/20-api/12-ai-agents-api.md:105",
@@ -41036,11 +41037,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         {
           id: "ai-agents--ai-employees-employees-delete",
           aka: [
+            "/ai-employees/employees/{agentId}",
             "/ai-employees/employees/{id}"
           ],
           method: "DELETE",
-          url: "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}",
-          path: "/ai-employees/employees/{agentId}",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/{employeeId}",
+          path: "/ai-employees/employees/{employeeId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "destructive",
@@ -41055,7 +41057,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           tree: "documented",
           pathParams: [
             {
-              name: "agentId"
+              name: "employeeId"
             }
           ],
           query: [
@@ -41076,21 +41078,22 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:100",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:154"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:155"
           ]
         },
         {
           id: "ai-agents--ai-employees-employees-get",
           aka: [
+            "/ai-employees/employees/{agentId}",
             "/ai-employees/employees/{id}"
           ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}",
-          path: "/ai-employees/employees/{agentId}",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/{employeeId}",
+          path: "/ai-employees/employees/{employeeId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "create_convai_agent",
             "get_ai_configuration_bundle",
@@ -41105,7 +41108,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           tree: "documented",
           pathParams: [
             {
-              name: "agentId"
+              name: "employeeId"
             }
           ],
           query: [],
@@ -41121,17 +41124,20 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:97",
             "ai-agents/20-api/12-ai-agents-api.md:105",
             "ai-agents/20-api/12-ai-agents-api.md:368",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21"
+            "ai-agents/20-api/conversation-ai-boundary.md:31",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
+            "ai-agents/40-rules/builder-vs-server.md:33"
           ]
         },
         {
           id: "ai-agents--ai-employees-employees-put",
           aka: [
+            "/ai-employees/employees/{agentId}",
             "/ai-employees/employees/{id}"
           ],
           method: "PUT",
-          url: "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}",
-          path: "/ai-employees/employees/{agentId}",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/{employeeId}",
+          path: "/ai-employees/employees/{employeeId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -41148,7 +41154,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           tree: "documented",
           pathParams: [
             {
-              name: "agentId"
+              name: "employeeId"
             }
           ],
           query: [],
@@ -41163,8 +41169,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:96",
             "ai-agents/20-api/12-ai-agents-api.md:128",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:152",
-            "ai-agents/20-api/12-ai-agents-api.md:370"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:153",
+            "ai-agents/20-api/12-ai-agents-api.md:370",
+            "ai-agents/40-rules/builder-vs-server.md:24"
           ]
         },
         {
@@ -41199,7 +41206,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:78",
+            "ai-agents/20-api/conversation-ai-boundary.md:81",
             "ai-agents/20-api/logs-deployment-email.md:42"
           ]
         },
@@ -41301,7 +41308,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:66"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:67"
           ]
         },
         {
@@ -41339,7 +41346,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:103"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:104"
           ]
         },
         {
@@ -41370,7 +41377,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:102"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:103"
           ]
         },
         {
@@ -41412,7 +41419,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:106"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:107"
           ]
         },
         {
@@ -41454,7 +41461,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:104"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:105"
           ]
         },
         {
@@ -41565,9 +41572,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:41",
-            "ai-agents/20-api/conversation-ai-boundary.md:76",
-            "ai-agents/30-types/conversation-ai-actions.md:129"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:42",
+            "ai-agents/20-api/conversation-ai-boundary.md:79",
+            "ai-agents/30-types/conversation-ai-actions.md:132"
           ]
         },
         {
@@ -41598,7 +41605,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:105"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:106"
           ]
         },
         {
@@ -41835,7 +41842,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:81"
+            "ai-agents/20-api/conversation-ai-boundary.md:84"
           ]
         },
         {
@@ -41877,7 +41884,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:80"
+            "ai-agents/20-api/conversation-ai-boundary.md:83"
           ]
         },
         {
@@ -41958,7 +41965,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/managed-agent-shape.md:131",
-            "ai-agents/20-api/conversation-ai-boundary.md:82",
+            "ai-agents/20-api/conversation-ai-boundary.md:85",
             "ai-studio/60-recipes/run-one-generation.md:26",
             "funnels/20-api/funnel-ai.md:73"
           ]
@@ -44175,7 +44182,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:58",
+            "ai-agents/20-api/conversation-ai-boundary.md:61",
             "ai-agents/20-api/conversation-ai-per-contact-toggle.md:50",
             "ai-agents/20-api/conversation-ai-per-contact-toggle.md:127"
           ]
@@ -44248,7 +44255,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:58",
+            "ai-agents/20-api/conversation-ai-boundary.md:61",
             "ai-agents/20-api/conversation-ai-per-contact-toggle.md:82",
             "ai-agents/20-api/conversation-ai-per-contact-toggle.md:128",
             "ai-agents/20-api/conversation-ai-per-contact-toggle.md:130"
@@ -44333,7 +44340,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:91"
+            "ai-agents/20-api/conversation-ai-boundary.md:94"
           ]
         },
         {
@@ -44364,7 +44371,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:94"
+            "ai-agents/20-api/conversation-ai-boundary.md:97"
           ]
         },
         {
@@ -44399,7 +44406,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:95"
+            "ai-agents/20-api/conversation-ai-boundary.md:98"
           ]
         },
         {
@@ -44444,7 +44451,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:103",
-            "ai-agents/20-api/conversation-ai-boundary.md:92"
+            "ai-agents/20-api/conversation-ai-boundary.md:95"
           ]
         },
         {
@@ -44488,8 +44495,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:122",
-            "ai-agents/20-api/conversation-ai-boundary.md:93"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:123",
+            "ai-agents/20-api/conversation-ai-boundary.md:96"
           ]
         },
         {
@@ -47531,7 +47538,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:99"
+            "ai-agents/20-api/conversation-ai-boundary.md:102"
           ]
         },
         {
@@ -47740,7 +47747,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:313",
-            "ai-agents/20-api/conversation-ai-boundary.md:79",
+            "ai-agents/20-api/conversation-ai-boundary.md:82",
             "ai-agents/20-api/knowledge-base.md:63",
             "ai-agents/20-api/knowledge-base.md:81",
             "ai-agents/20-api/knowledge-base.md:390"
@@ -67484,9 +67491,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_convai_agent: {
-        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-28); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "unrecorded",
         proofRows: [
           "aiemployee-service--get-employee-by-id",
@@ -185559,7 +185566,21 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
     );
   }
   const norm3 = parseConvaiPartialIR(partialIr);
-  if (current.botType !== "FLOW_BUILDER_BOT" && !PROMPT_KEYS.some((k) => nonEmpty(current[k]))) {
+  const storedFullPrompt = nonEmpty(current.fullPrompt) ? current.fullPrompt : null;
+  const fieldsAsked = PROMPT_KEYS.filter((k) => partialIr?.[k] !== void 0);
+  const fullPromptOwns = (message) => Object.assign(new IRError2("FULLPROMPT_OWNS_PROMPT", message), { currentFullPrompt: storedFullPrompt });
+  if (norm3.fullPrompt !== void 0) {
+    if (!nonEmpty(norm3.fullPrompt)) throw new IRError2("SCHEMA", "fullPrompt must be a non-empty string: the whole prompt, as the builder stores it. An empty one is not written (its effect is unmeasured).");
+    if (fieldsAsked.length) {
+      throw fullPromptOwns(`the spec sets fullPrompt AND [${fieldsAsked.join(", ")}], which is ambiguous: the bot answers from fullPrompt once it is stored, and the three fields are then frozen. Nothing was sent. Pass the whole prompt as fullPrompt alone.`);
+    }
+    if ((current.botType ?? "PROMPT_BASED_BOT") !== "PROMPT_BASED_BOT") {
+      throw new IRError2("SPEC_KEY_UNAPPLIED", `fullPrompt is the prompt bot's builder field; this agent is ${current.botType}. Nothing was sent.`);
+    }
+  } else if (storedFullPrompt && fieldsAsked.length) {
+    throw fullPromptOwns(`this agent's prompt lives in fullPrompt (the current builder saved it), so the bot answers from fullPrompt and [${fieldsAsked.join(", ")}] are frozen: GHL ignores a write to them (live 2026-09-29). Nothing was sent. Pass the whole new prompt as spec.fullPrompt; the stored one is returned as currentFullPrompt.`);
+  }
+  if (current.botType !== "FLOW_BUILDER_BOT" && !storedFullPrompt && !PROMPT_KEYS.some((k) => nonEmpty(current[k]))) {
     throw new IRError2(
       "AGENT_UNUPDATABLE",
       "this agent has no goal, personality or instructions, and GHL answers 500 to every update of such an agent (live 2026-09-25), even one that adds them, while still applying part of the change. Nothing was sent. Give it a prompt in the Conversation AI builder, or create a new agent with at least one of goal, personality or instructions."
@@ -185589,6 +185610,10 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
   if (norm3.name !== void 0) {
     body2.employeeName = norm3.name;
     setKeys.add("employeeName");
+  }
+  if (norm3.fullPrompt !== void 0) {
+    body2.fullPrompt = norm3.fullPrompt;
+    setKeys.add("fullPrompt");
   }
   if (norm3.wait !== void 0) {
     if (norm3.wait.value !== void 0) {
@@ -185623,7 +185648,7 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
       setKeys.add("sleepTimeUnit");
     }
   }
-  const applicable = /* @__PURE__ */ new Set([...Object.keys(UPDATE_FIELD_MAP), "wait", "sleep"]);
+  const applicable = /* @__PURE__ */ new Set([...Object.keys(UPDATE_FIELD_MAP), "wait", "sleep", "fullPrompt"]);
   const unapplied = Object.keys(partialIr ?? {}).filter((k) => !applicable.has(k));
   if (unapplied.length) {
     const actionsAsked = unapplied.includes("actions");
@@ -185644,7 +185669,9 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
     body: cleaned,
     authHeader: AUTH_HEADER,
     collateralKeys,
-    writeOnlyKeys
+    writeOnlyKeys,
+    // Which field the bot answers from after this write: fullPrompt once one is stored, else the three fields.
+    promptOwner: nonEmpty(cleaned.fullPrompt) ? "fullPrompt" : "fields"
   };
 }
 
@@ -189141,7 +189168,7 @@ var TOOLS2 = [
     name: "update_convai_agent",
     description: describe3(
       "update_convai_agent",
-      "Update a Conversation AI agent by READ-MERGE-WRITE GETs the current record, overlays your spec, applies the builder's own bot-type cleanup, PUTs the WHOLE record, re-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any collateral change fails with AGENT_COLLATERAL_CHANGED. Previews by default; confirm:true writes."
+      "Update a Conversation AI agent by READ-MERGE-WRITE GETs the current record, overlays your spec, applies the builder's own bot-type cleanup, PUTs the WHOLE record, re-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any collateral change fails with AGENT_COLLATERAL_CHANGED. PROMPT: an agent saved in the current builder stores its prompt as one fullPrompt document; the bot then answers from it and GHL ignores writes to personality/goal/instructions (live 2026-09-29). Pass spec.fullPrompt (the whole text; it switches the agent to fullPrompt for good). The three fields on such an agent, or with fullPrompt, refuse with FULLPROMPT_OWNS_PROMPT before any write, returning currentFullPrompt. The result names promptOwner. Previews by default; confirm:true writes."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -189170,6 +189197,16 @@ var TOOLS2 = [
       try {
         plan = compileConvaiUpdateFromRecord(record2, args.spec, { agentId: args.agentId, locationId: args.locationId });
       } catch (error51) {
+        if (error51.code === "FULLPROMPT_OWNS_PROMPT") {
+          return withFailureData(
+            fail(
+              "FULLPROMPT_OWNS_PROMPT",
+              error51.message,
+              "Nothing was sent. Resend with the whole new prompt as spec.fullPrompt and without personality, goal or instructions."
+            ),
+            { currentFullPrompt: error51.currentFullPrompt ?? null }
+          );
+        }
         return fail(
           CODES.ENGINE_ABORT,
           `update rejected (${error51.code ?? "ENGINE_ABORT"}): ${error51.message}`,
@@ -189192,7 +189229,7 @@ var TOOLS2 = [
         plan: { update: { method: "PUT", path, body: plan.body }, collateralKeys: plan.collateralKeys, before: record2, expected },
         gw
       });
-      const data2 = { preview, verification: report.verification, collateral: report.collateral };
+      const data2 = { preview, verification: report.verification, collateral: report.collateral, promptOwner: plan.promptOwner };
       return report.ok ? ok(data2) : withFailureData(fail(
         report.code ?? CODES.ENGINE_ABORT,
         report.detail ?? "The agent update did not verify.",

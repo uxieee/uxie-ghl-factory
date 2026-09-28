@@ -40512,7 +40512,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:149",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:150",
         "ai-agents/20-api/12-ai-agents-api.md:101",
         "ai-agents/20-api/12-ai-agents-api.md:105",
         "ai-agents/20-api/12-ai-agents-api.md:132",
@@ -40660,7 +40660,8 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:102",
-        "ai-agents/30-types/conversation-ai-actions.md:45"
+        "ai-agents/30-types/conversation-ai-actions.md:45",
+        "ai-agents/30-types/conversation-ai-actions.md:90"
       ]
     },
     {
@@ -40737,8 +40738,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:77",
-        "ai-agents/30-types/conversation-ai-actions.md:117",
+        "ai-agents/20-api/conversation-ai-boundary.md:80",
+        "ai-agents/30-types/conversation-ai-actions.md:120",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
         "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
@@ -40836,7 +40837,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:148",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:149",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:95",
         "ai-agents/20-api/12-ai-agents-api.md:105",
@@ -40847,11 +40848,12 @@
     {
       "id": "ai-agents--ai-employees-employees-delete",
       "aka": [
+        "/ai-employees/employees/{agentId}",
         "/ai-employees/employees/{id}"
       ],
       "method": "DELETE",
-      "url": "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}",
-      "path": "/ai-employees/employees/{agentId}",
+      "url": "https://services.leadconnectorhq.com/ai-employees/employees/{employeeId}",
+      "path": "/ai-employees/employees/{employeeId}",
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "destructive",
@@ -40866,7 +40868,7 @@
       "tree": "documented",
       "pathParams": [
         {
-          "name": "agentId"
+          "name": "employeeId"
         }
       ],
       "query": [
@@ -40887,21 +40889,22 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:100",
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:154"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:155"
       ]
     },
     {
       "id": "ai-agents--ai-employees-employees-get",
       "aka": [
+        "/ai-employees/employees/{agentId}",
         "/ai-employees/employees/{id}"
       ],
       "method": "GET",
-      "url": "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}",
-      "path": "/ai-employees/employees/{agentId}",
+      "url": "https://services.leadconnectorhq.com/ai-employees/employees/{employeeId}",
+      "path": "/ai-employees/employees/{employeeId}",
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "proven",
+      "reach": "source-only",
       "coveredBy": [
         "create_convai_agent",
         "get_ai_configuration_bundle",
@@ -40916,7 +40919,7 @@
       "tree": "documented",
       "pathParams": [
         {
-          "name": "agentId"
+          "name": "employeeId"
         }
       ],
       "query": [],
@@ -40932,17 +40935,20 @@
         "ai-agents/20-api/12-ai-agents-api.md:97",
         "ai-agents/20-api/12-ai-agents-api.md:105",
         "ai-agents/20-api/12-ai-agents-api.md:368",
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21"
+        "ai-agents/20-api/conversation-ai-boundary.md:31",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
+        "ai-agents/40-rules/builder-vs-server.md:33"
       ]
     },
     {
       "id": "ai-agents--ai-employees-employees-put",
       "aka": [
+        "/ai-employees/employees/{agentId}",
         "/ai-employees/employees/{id}"
       ],
       "method": "PUT",
-      "url": "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}",
-      "path": "/ai-employees/employees/{agentId}",
+      "url": "https://services.leadconnectorhq.com/ai-employees/employees/{employeeId}",
+      "path": "/ai-employees/employees/{employeeId}",
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
@@ -40959,7 +40965,7 @@
       "tree": "documented",
       "pathParams": [
         {
-          "name": "agentId"
+          "name": "employeeId"
         }
       ],
       "query": [],
@@ -40974,8 +40980,9 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:96",
         "ai-agents/20-api/12-ai-agents-api.md:128",
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:152",
-        "ai-agents/20-api/12-ai-agents-api.md:370"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:153",
+        "ai-agents/20-api/12-ai-agents-api.md:370",
+        "ai-agents/40-rules/builder-vs-server.md:24"
       ]
     },
     {
@@ -41010,7 +41017,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:78",
+        "ai-agents/20-api/conversation-ai-boundary.md:81",
         "ai-agents/20-api/logs-deployment-email.md:42"
       ]
     },
@@ -41112,7 +41119,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:66"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:67"
       ]
     },
     {
@@ -41150,7 +41157,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:103"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:104"
       ]
     },
     {
@@ -41181,7 +41188,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:102"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:103"
       ]
     },
     {
@@ -41223,7 +41230,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:106"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:107"
       ]
     },
     {
@@ -41265,7 +41272,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:104"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:105"
       ]
     },
     {
@@ -41376,9 +41383,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:41",
-        "ai-agents/20-api/conversation-ai-boundary.md:76",
-        "ai-agents/30-types/conversation-ai-actions.md:129"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:42",
+        "ai-agents/20-api/conversation-ai-boundary.md:79",
+        "ai-agents/30-types/conversation-ai-actions.md:132"
       ]
     },
     {
@@ -41409,7 +41416,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:105"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:106"
       ]
     },
     {
@@ -41646,7 +41653,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:81"
+        "ai-agents/20-api/conversation-ai-boundary.md:84"
       ]
     },
     {
@@ -41688,7 +41695,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:80"
+        "ai-agents/20-api/conversation-ai-boundary.md:83"
       ]
     },
     {
@@ -41769,7 +41776,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/managed-agent-shape.md:131",
-        "ai-agents/20-api/conversation-ai-boundary.md:82",
+        "ai-agents/20-api/conversation-ai-boundary.md:85",
         "ai-studio/60-recipes/run-one-generation.md:26",
         "funnels/20-api/funnel-ai.md:73"
       ]
@@ -43986,7 +43993,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:58",
+        "ai-agents/20-api/conversation-ai-boundary.md:61",
         "ai-agents/20-api/conversation-ai-per-contact-toggle.md:50",
         "ai-agents/20-api/conversation-ai-per-contact-toggle.md:127"
       ]
@@ -44059,7 +44066,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:58",
+        "ai-agents/20-api/conversation-ai-boundary.md:61",
         "ai-agents/20-api/conversation-ai-per-contact-toggle.md:82",
         "ai-agents/20-api/conversation-ai-per-contact-toggle.md:128",
         "ai-agents/20-api/conversation-ai-per-contact-toggle.md:130"
@@ -44144,7 +44151,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:91"
+        "ai-agents/20-api/conversation-ai-boundary.md:94"
       ]
     },
     {
@@ -44175,7 +44182,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:94"
+        "ai-agents/20-api/conversation-ai-boundary.md:97"
       ]
     },
     {
@@ -44210,7 +44217,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:95"
+        "ai-agents/20-api/conversation-ai-boundary.md:98"
       ]
     },
     {
@@ -44255,7 +44262,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:103",
-        "ai-agents/20-api/conversation-ai-boundary.md:92"
+        "ai-agents/20-api/conversation-ai-boundary.md:95"
       ]
     },
     {
@@ -44299,8 +44306,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:122",
-        "ai-agents/20-api/conversation-ai-boundary.md:93"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:123",
+        "ai-agents/20-api/conversation-ai-boundary.md:96"
       ]
     },
     {
@@ -47342,7 +47349,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:99"
+        "ai-agents/20-api/conversation-ai-boundary.md:102"
       ]
     },
     {
@@ -47551,7 +47558,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:313",
-        "ai-agents/20-api/conversation-ai-boundary.md:79",
+        "ai-agents/20-api/conversation-ai-boundary.md:82",
         "ai-agents/20-api/knowledge-base.md:63",
         "ai-agents/20-api/knowledge-base.md:81",
         "ai-agents/20-api/knowledge-base.md:390"
