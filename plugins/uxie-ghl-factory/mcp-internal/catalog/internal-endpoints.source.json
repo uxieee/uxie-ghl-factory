@@ -20,14 +20,14 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T22:08:13.440Z",
+      "capturedAt": "2026-09-28T23:17:58.989Z",
       "hash": "corpus",
-      "fileCount": 1109,
-      "endpoints": 1109
+      "fileCount": 1111,
+      "endpoints": 1111
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1584,
+  "discoveredCallSites": 1586,
   "skippedCallSites": 655,
   "count": 1377,
   "endpoints": [
@@ -20836,7 +20836,7 @@
       "sources": [
         "services/WorkflowService.ts:151",
         "workflows/20-api/03-endpoints.md:388",
-        "workflows/20-api/03-endpoints.md:389"
+        "workflows/20-api/03-endpoints.md:390"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -21781,7 +21781,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/20-api/03-endpoints.md:389"
+        "workflows/20-api/03-endpoints.md:390"
       ],
       "serviceBasis": "declared"
     },
@@ -22553,7 +22553,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/WorkflowService.ts:213"
+        "services/WorkflowService.ts:213",
+        "workflows/20-api/03-endpoints.md:389"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -22580,7 +22581,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/WorkflowService.ts:688"
+        "services/WorkflowService.ts:688",
+        "workflows/20-api/03-endpoints.md:389"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"

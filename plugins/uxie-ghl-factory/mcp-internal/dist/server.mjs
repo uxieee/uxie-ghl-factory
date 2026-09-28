@@ -26809,7 +26809,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/WorkflowService.ts:151",
             "workflows/20-api/03-endpoints.md:388",
-            "workflows/20-api/03-endpoints.md:389"
+            "workflows/20-api/03-endpoints.md:390"
           ]
         },
         {
@@ -27993,7 +27993,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/03-endpoints.md:389"
+            "workflows/20-api/03-endpoints.md:390"
           ]
         },
         {
@@ -28945,7 +28945,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:213"
+            "services/WorkflowService.ts:213",
+            "workflows/20-api/03-endpoints.md:389"
           ]
         },
         {
@@ -28984,7 +28985,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:688"
+            "services/WorkflowService.ts:688",
+            "workflows/20-api/03-endpoints.md:389"
           ]
         },
         {
@@ -67578,9 +67580,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       publish_workflow: {
-        description: "Publish workflow \u2014 proof: live-runtime (2026-09-25), floor: documented; risk: destructive",
+        description: "Publish workflow \u2014 proof: live-runtime (2026-09-28), floor: documented; risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "documented",
         proofRows: [
           "workflow-publish"
@@ -100617,6 +100619,10 @@ var CODES = Object.freeze({
   // re-authentication cycle on something re-authenticating cannot fix.
   ACCESS_DENIED: "ACCESS_DENIED",
   VALIDATION_FAILED: "VALIDATION_FAILED",
+  // raw_request POST/PUT/PATCH with nothing to send ({}, [], or no body). Refused before the confirm
+  // gate: an empty start-workflow body enrolled a phantom (measured), and an empty write elicits
+  // nothing safe. allowEmptyBody:true is the way through for a route that really takes no body.
+  EMPTY_WRITE_BODY: "EMPTY_WRITE_BODY",
   // The registration declares no permitted locations, and this call would write. Reads are
   // unaffected: refusing everything would break every registration on upgrade, and refusing
   // nothing would ship the guard to nobody.
@@ -101439,6 +101445,17 @@ function refuseRawRequest({ method, path, body: body2 }) {
     if (r.method === method && r.path.test(p2) && r.refuses(wire)) return { rule: r.rule, message: r.message, hint: r.hint };
   }
   return null;
+}
+var WRITE_METHODS = /* @__PURE__ */ new Set(["POST", "PUT", "PATCH"]);
+function refuseEmptyWriteBody({ method, body: body2, allowEmptyBody = false }) {
+  if (!WRITE_METHODS.has(method) || allowEmptyBody === true) return null;
+  const wire = onWire(body2);
+  if (!(wire === void 0 || wire === null || isEmptyOnWire(wire))) return null;
+  return {
+    rule: "empty-write-body",
+    message: `raw_request ${method} with an EMPTY body (${wire === void 0 ? "no body" : JSON.stringify(wire)}) is refused before sending: an empty start-workflow body enrolled a phantom contact-less execution, and an empty write elicits nothing safe.`,
+    hint: "Send the route's real body \u2014 describe_endpoint carries the measured shape, and a builder capture or the source is the other place to take it from. If the route genuinely takes NO body (a bodiless enrol or publish), repeat the call with allowEmptyBody:true."
+  };
 }
 function matchCatalogRow(pool, method, path) {
   const want = String(method).toUpperCase();
@@ -193612,12 +193629,21 @@ var TOOLS2 = [
           body2
         )
       );
+      let transportError = null;
       if (publishedCall.threw || !publishedCall.value.ok) {
-        return publishPartialFailure(
-          publishedCall.threw ? publishedCall.failure : fromHttp(publishedCall.value.status, publishedCall.value.json),
-          "publish_put",
-          "The publish PUT was attempted but not acknowledged; its outcome may be ambiguous."
-        );
+        const failure2 = publishedCall.threw ? publishedCall.failure : fromHttp(publishedCall.value.status, publishedCall.value.json);
+        const reread2 = await safeGatewayCall(() => getWorkflow(gw, args.locationId, args.workflowId));
+        const statusAfter = !reread2.threw && reread2.value?.ok ? reread2.value.json?.status ?? null : null;
+        partialProgress.putOutcome.statusAfterFailure = statusAfter;
+        if (statusAfter !== "published") {
+          return publishPartialFailure(
+            failure2,
+            "publish_put",
+            statusAfter ? `The publish PUT was not acknowledged, and a fresh read shows the workflow ${statusAfter} \u2014 it was not published.` : "The publish PUT was attempted but not acknowledged, and a fresh read failed too; its outcome is ambiguous."
+          );
+        }
+        partialProgress.putOutcome.recoveredByReadBack = true;
+        transportError = { code: failure2.code, detail: failure2.detail ?? null };
       }
       partialProgress.putApplied = true;
       partialProgress.verification.attempted = true;
@@ -193701,7 +193727,11 @@ var TOOLS2 = [
         validation: validation.report,
         partialProgress,
         builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
-        runtimeProofNote: "active: true and a clean round trip are not proof that a trigger fires; only added_to_workflow in runtime logs proves firing."
+        runtimeProofNote: "active: true and a clean round trip are not proof that a trigger fires; only added_to_workflow in runtime logs proves firing.",
+        ...transportError ? {
+          publishedDespiteTransportError: transportError,
+          transportNote: "The publish PUT answered with an error, but the workflow read back published: it IS live. A publish error never means unpublished \u2014 the read decides."
+        } : {}
       };
       if (!verify.roundTrip) {
         partialProgress.failurePhase = "publish_verify_state";
@@ -195314,7 +195344,7 @@ var TOOLS2 = [
   },
   {
     name: "raw_request",
-    description: 'Escape hatch for internal endpoints the typed tools do not cover. GET remains read-only; non-GET requests require confirm:true and report ambiguous transport outcomes. host:"ai" targets services.leadconnectorhq.com on the dual-credential AI rail (Bearer + token-id); default "workflow" hits backend.leadconnectorhq.com on the Bearer rail.',
+    description: 'Escape hatch for internal endpoints the typed tools do not cover. GET remains read-only; non-GET requests require confirm:true and report ambiguous transport outcomes. A POST/PUT/PATCH with an EMPTY body ({}, [] or none) is refused before sending (EMPTY_WRITE_BODY): an empty start-workflow body enrolled a phantom execution, and an empty write elicits nothing safe \u2014 never probe a write route for its schema. Take the body from describe_endpoint, a builder capture or the source. Pass allowEmptyBody:true only for a route that really takes no body (a bodiless enrol or publish). DELETE is not affected. host:"ai" targets services.leadconnectorhq.com on the dual-credential AI rail (Bearer + token-id); default "workflow" hits backend.leadconnectorhq.com on the Bearer rail.',
     inputSchema: schema({
       locationId: external_exports.string(),
       method: external_exports.string().trim().regex(HTTP_METHOD_TOKEN).transform((method) => method.toUpperCase()),
@@ -195328,7 +195358,10 @@ var TOOLS2 = [
       // received value before our scrubber runs, so a credential passed here would leak. We
       // validate the allowed set inside the handler, downstream of the secret scrub (SC2).
       host: external_exports.string().default("workflow"),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      // POST/PUT/PATCH with {} / [] / no body is refused (EMPTY_WRITE_BODY) unless this is true —
+      // for a route that really takes no body. core/raw-request-guards.mjs refuseEmptyWriteBody.
+      allowEmptyBody: external_exports.boolean().default(false)
     }),
     capabilities: [],
     handler: async (args, deps) => guard(async () => {
@@ -195373,6 +195406,8 @@ var TOOLS2 = [
         const redactedRefusal = refuseRedactedWrite(body2);
         if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
       }
+      const emptyRefusal = refuseEmptyWriteBody({ method, body: body2, allowEmptyBody: args.allowEmptyBody === true });
+      if (emptyRefusal) return fail(CODES.EMPTY_WRITE_BODY, emptyRefusal.message, emptyRefusal.hint);
       if (method !== "GET" && args.confirm !== true) {
         const row = matchCatalogRow(endpoints(), method, args.path);
         const words = row ? endpointWords(row) : null;

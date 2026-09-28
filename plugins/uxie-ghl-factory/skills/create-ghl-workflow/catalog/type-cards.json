@@ -29260,6 +29260,8 @@
     }
    ],
    "proven": [
+    "- **The four template cards write exact rows** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CE-extract-presets-builder.json, builder drawer captured under a write guard]`. Picking a card sets `templates` and `__template_applied__` to its key, and writes these `__customInputFields__` rows (the builder's own descriptions travel with them):",
+    "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CE-extract-presets.json]` All four presets ran on one contact with those exact attributes, one paragraph as `sourceData`. **Every one of the 15 fields came back right**, in `{{workflow_ai_extract_data.N.<fieldName>}}` with N = the step's order (1–4). A `number` row renders without its trailing zeros (\"2450\" from \"2450.00\"). US$0.01 per step.",
     "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CA-r6-ai-actions.json]` Rows `full_name` (text) and `email` (email), with `sourceData: \"{{contact.testconfwf_text}}\"` and no template. Each contact's own person was extracted (\"Sarah Johnson\" / \"Tom Baker\" and their emails). 🔴 **The output tag is `{{workflow_ai_extract_data.1.<fieldName>}}`.** `{{workflow_ai_extract_data.1.output.<fieldName>}}` renders EMPTY, and so do the unused forms. The log message carries the JSON: `WorkflowAI response: {\"full_name\": …, \"email\": …}`."
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/ai-actions.md"
@@ -29404,7 +29406,7 @@
    ],
    "proven": [
     "- **The builder stores it ONLY as a three-way container** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CB-intent-builder-specimen.json, captured from the builder's own document under a write guard]`: `cat: \"multi-path\"`, `convertToMultipath: true`, and three `conditionType: \"pre-defined\"` transitions **Positive / Negative / None**, with `fields.branchKey` POSITIVE / NEGATIVE / NONE and `meta.__branchKey__` `\"predefined_<Name>\"`. The container's `next` is the three transition ids. Every transition has `order: 1`, and a lane with no steps has no `next`. When the step is ins",
-    "- `build_workflow` authors it as `kind: \"ai_intent\"` with `inputText` and `branches: [{name: \"positive\"|\"negative\"|\"none\", then}]`. The names are fixed, an omitted one becomes an empty lane, and the wire type `workflow_ai_intent_detection` infers the kind. `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CD-ai-intent.json]` The compiled container read back structurally equal to the builder's, ids aside. It passed the engine gate and GHL's validate (\"valid\"), and it renders its three lanes in the builder (`sniffs/workflows-wave1-2026-09-25/ui/3CD-INTENT-RENDER.md`). Runtime: `"
+    "- `build_workflow` authors it as `kind: \"ai_intent\"` with `inputText` and `branches: [{name: \"positive\"|\"negative\"|\"none\", then}]`. The names are fixed, an omitted one becomes an empty lane, and the wire type `workflow_ai_intent_detection` infers the kind. `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CD-ai-intent.json]` The compiled container read back structurally equal to the builder's, ids aside. It passed the engine gate and GHL's validate (\"valid\"), and it renders its three lanes in the builder (`sniffs/workflows-wave1-2026-09-25/ui/INTENT-RENDER-3CD.md`). Runtime: `"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/ai-actions.md"
   },
