@@ -11,6 +11,29 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.8.0] — 2026-09-29
+
+**Uploaded custom fonts on funnel pages; the merge-tag strictness switches the error message promised now exist; a warning
+for invoice merge tags that print "undefined". Each change was executed live on the test account.**
+
+Funnels & websites:
+- **`build_funnel_page` typography `{customFontId}`:** use a font already uploaded to the location (Typography → Upload
+  Fonts) for the heading or body. An unknown id is refused before anything is written. The font is written exactly as the
+  builder writes it, and the public page loads it. Uploading stays in the UI.
+- **Fixed — the serving note for a NEW page was wrong.** Measured: on a new step's page the second autosave can turn the
+  first version live, and the public page then keeps serving that version through later saves. The note now says so.
+
+Workflows:
+- **Fixed — `strictMergeTags` / `skipMergeTagCheck` did not exist.** The MERGE_TAG_UNKNOWN error told authors to pass
+  `strictMergeTags: false`, but `build_workflow` / `edit_workflow` had no such argument. Both switches are now arguments,
+  passed through to the compiler.
+- **Merge-tag lint wording states what was measured:** a tag GHL cannot resolve renders EMPTY with no error in a
+  contact-field value (other steps unmeasured). It used to say "will render literally".
+- **New warning `renders-undefined`:** 10 invoice address merge tags print the literal word "undefined" when the field is
+  unset, which a customer sees. Wrap them in `{{default …}}`.
+
+Catalogue: +5 documented routes.
+
 ## [1.7.1] — 2026-09-29
 
 **Fix: merge-tag fallbacks in an email BODY did nothing. They are now written as the builder writes them, and a send
