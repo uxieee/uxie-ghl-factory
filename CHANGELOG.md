@@ -11,6 +11,32 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.13.0] — 2026-09-29
+
+**Tool descriptions fit what a client shows (three had grown past 2048 characters, one to 5095); build_funnel_page
+refuses unknown element keys; marketplace trigger filters and custom date reminders can be authored. Each change was
+executed live on the test account.**
+
+All tools:
+- 🔴 **Tool descriptions are now all ≤ 2048 characters**, which is what Claude Code shows a model. `build_funnel_page`
+  (5095), `edit_funnel` (3772) and `edit_workflow` (2142) had grown past it, so their tails were invisible to the model,
+  and the tails held traps and pointers. The detail now lives in the skill references (`references/build-funnel-page.md`
+  and `references/edit-funnel.md`, new). A test fails any description over the limit.
+
+Funnels & websites:
+- **Fixed — an unknown element key was silently dropped.** For example, `text:` instead of `html:` saved an empty button,
+  and every write answered 201. `build_funnel_page` now refuses unknown keys by name, with "did you mean" and the
+  kind's allowed keys. The allow-list comes from the same registry the tool builds nodes from.
+- Pointed to rather than authored: installing a Template Library template (create a blank document with create_funnel)
+  and agency template upload (it publishes agency-wide, to client sub-accounts too).
+
+Workflows:
+- **Fixed — marketplace trigger filters refused the drawer's own default operator** on every multiselect and numerical
+  filter. Operators now follow the drawer (an asset's custom operators, is-any-of / contains-any, numerical ==), and a
+  legacy index-of-true is migrated as the drawer migrates it.
+- **Fixed — custom date reminder triggers could not be authored** (their `config` key was refused).
+- **Fixed — `ignoreAssetErrors` did not exist**, though a refusal told authors to pass it.
+
 ## [1.12.1] — 2026-09-29
 
 **Fix: a webinar created by `create_funnel` could start at the wrong time. Executed live on the test account.**
