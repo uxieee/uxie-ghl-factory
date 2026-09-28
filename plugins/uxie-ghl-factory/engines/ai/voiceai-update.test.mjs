@@ -286,3 +286,14 @@ test('s2sBehaviour: a merged write verifies the sent keys and the others are unt
   assert.equal(r.ok, true, JSON.stringify(r));
   assert.deepEqual(r.verification.confirmed, ['s2sBehaviour']);
 });
+
+test('an s2s agent: a prompt change that makes GHL recount s2sBehaviour.totalTokens is not collateral; a real s2s key moving still is', async () => {
+  const before = S2S();
+  const gw = fakeGw({ record: before, collateral: (n) => { n.agentSettings.s2sBehaviour = { ...n.agentSettings.s2sBehaviour, totalTokens: 1180 }; } });
+  const plan = compileVoiceAiPartialUpdate(before, { agentPrompt: 'shorter prompt' }, { agentId: 'A', locationId: 'L' });
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  const gw2 = fakeGw({ record: S2S(), collateral: (n) => { n.agentSettings.s2sBehaviour = { ...n.agentSettings.s2sBehaviour, vadEagerness: 'high' }; } });
+  const r2 = await executeVoiceAiUpdate({ plan: compileVoiceAiPartialUpdate(S2S(), { agentPrompt: 'x' }, { agentId: 'A', locationId: 'L' }), before: S2S(), gw: gw2, serverMessage });
+  assert.equal(r2.code, 'AGENT_COLLATERAL_CHANGED');
+});
