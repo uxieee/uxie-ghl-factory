@@ -11,6 +11,39 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.3.0] — 2026-09-28
+
+**Fix: publishing a funnel page through `build_funnel_page` no longer strips its SEO title and description. New:
+`edit_redirects`, plus page-level SEO, tracking code, CSS and background. Five workflow-engine fixes. Each change was
+executed live on the test account.**
+
+Funnels & websites:
+- 🔴 **Fixed — SEO stripped on publish.** Pages published with `build_funnel_page` `publish:true` (v0.70.0–v1.2.0)
+  went live without SEO meta, so they show no `<title>` or description. Every save the tool sends now carries the
+  page's current SEO, and a compose publish refuses when that SEO can't be read. **Re-save SEO on pages you published
+  through the tool:** `build_funnel_page` `seo` + `publish:true`, or the builder's SEO panel, then Publish.
+- **New `edit_redirects`:** create, retarget or delete a domain URL redirect (a 301). It refuses GHL's reserved paths
+  and paths a funnel step already holds. Update and delete target exactly one redirect whose id AND path match. It
+  previews by default and reads back after writing. Redirects forward the query string to the target.
+- **`build_funnel_page` `page` op:** tracking code (head and footer), custom CSS and page background. **`seo`**: title,
+  description, keywords, author, image, custom and canonical meta, and language. SEO is written where the builder
+  writes it: to the page record directly, and onto the published version. Edit mode's `publish:true` publishes the
+  version the edit created and verifies it live.
+- **`find_ghl_site` `includeRedirects`:** domains, redirects and 30-day redirect clicks.
+
+Workflows:
+- **Internal notification with no recipient is now refused.** It used to default to every user on the account.
+  Name the recipient; 'all' still works when written out.
+- **Create/update contact:** rows carry the titles GHL's Email/Phone rule reads. The object-map `fields` form in the
+  authoring docs compiles instead of crashing.
+- **Webhook "no auth"** (`authorization: {type:'NONE', data:null}`) can be authored. Any other authorization value is
+  still refused as a credential.
+- **`pinWebhookSample`** set in the IR is honoured.
+- **New lint (build warning + `check_workflow`):** find-contact / create-update-contact steps where runs already carry
+  a contact. GHL skips them there, and a skipped find takes the FOUND branch.
+
+Catalogue: +1 documented route (Voice AI prompt suggestion).
+
 ## [1.2.0] — 2026-09-28
 
 **Funnel pages can be edited in place, and speech-to-speech Voice AI agents can be tuned — plus three false failures in
