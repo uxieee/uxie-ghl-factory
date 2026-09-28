@@ -32,9 +32,13 @@ test('an unknown meta is refused at build time — autosave would accept it', ()
 test('completeExtra supplies EVERY declared prop, including those with no default', () => {
   // `form` declares five and none has a default. Supplying only defaulted props applied zero and
   // 500'd the page; all five present, even empty, renders.
-  const extra = completeExtra('form');
+  // Checked on the BUILT node: visibility/customClass come from the envelope, not completeExtra (bl-245).
+  resetIds();
+  const { extra } = makeLeaf({ meta: 'form' });
   for (const p of ELEMENTS.form.extraProps) assert.ok(p in extra, `${p} must be present`);
   assert.equal(extra.formId.value, '');
+  assert.deepEqual(extra.visibility, val({ hideDesktop: false, hideMobile: false }));
+  assert.deepEqual(extra.customClass, val([]));
 });
 
 test('caller values win over the shaped empties', () => {
@@ -344,4 +348,29 @@ test('bl-120: a css block also yields the node styles it implies, so the builder
     { color: { value: '#222' }, fontFamily: { value: 'Georgia' }, fontWeight: { value: 600 }, textAlign: { value: 'left' } });
   assert.deepEqual(nodeStylesFromCss('button', { background: '#0a0', color: '#fff' }),
     { backgroundColor: { value: '#0a0' }, color: { value: '#fff' }, secondaryColor: { value: '#fff' } });
+});
+
+// bl-245 (2026-09-28): a shaped empty `{value:""}` for visibility/customClass was spread over the
+// envelope's real shapes and 500'd four kinds on the public page while autosave answered 201.
+test('completeExtra leaves visibility and customClass to the envelope unless given', () => {
+  for (const meta of ['image-feature', 'blog', 'upsell', 'photo-video-gallery']) {
+    const declared = ELEMENTS[meta].extraProps;
+    const extra = completeExtra(meta);
+    for (const prop of ['visibility', 'customClass']) {
+      if (declared.includes(prop)) assert.ok(!(prop in extra), `${meta}.${prop} must not be filled with a shaped empty`);
+    }
+  }
+  const given = { visibility: { hideDesktop: true, hideMobile: false } };
+  assert.deepEqual(completeExtra('image-feature', given).visibility, given.visibility);
+});
+
+test('completeExtra gives blog, photo-video-gallery and upsell the defaults their renderers read', () => {
+  const blog = completeExtra('blog');
+  assert.deepEqual(blog.blogAuthor, { value: [] });
+  assert.deepEqual(blog.blogFilter, { filter: 'by-category' }, 'blogFilter is RAW, not {value}');
+  const gallery = completeExtra('photo-video-gallery');
+  for (const k of ['sliderList', 'galleryHeading', 'galleryInfo', 'galleryLayout', 'gallerySettings', 'galleryWatermark']) assert.ok(gallery[k]?.value !== undefined, k);
+  const upsell = completeExtra('upsell');
+  assert.deepEqual(upsell.productDetails, {}, 'no account product is baked into the default');
+  assert.equal(upsell.saleAction.value, GO_TO_NEXT_STEP);
 });

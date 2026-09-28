@@ -11,6 +11,40 @@
 // below are reproduced from the page-builder bundle's own defaults table, GHL's `"sqaure"` typo
 // included, because that is what the renderer matches on.
 export const KIND_DEFAULT_EXTRA = Object.freeze({
+  // bl-245 (2026-09-26): blog needs the NEW `blogAuthor` array and a RAW (unwrapped) `blogFilter`;
+  // photo-video-gallery reads its layout/heading/info/settings/watermark objects unguarded. Values are
+  // the builder's own defaults, proven to render on a sandbox page
+  // (knowledge sniffs/funnels-wave3-elements-2026-09-26/fix2.json).
+  "blog": {
+    "blogAuthor": { "value": [] },
+    "blogFilter": { "filter": "by-category" }
+  },
+  "photo-video-gallery": {
+    "sliderList": { "value": [] },
+    "galleryHeading": { "value": { "headingText": "", "activeColor": "#000", "fontSize": 40 } },
+    "galleryInfo": { "value": { "overlayColor": "#ffffff00", "textColor": "#000000", "toggleTitle": true, "toggleDescription": true, "titleFontsize": 20, "descriptionFontsize": 14 } },
+    "galleryLayout": { "value": { "layout": "grid", "columns": 3, "spacing": 8 } },
+    "gallerySettings": { "value": { "clickAction": "openImageInPopup", "showTitle": true, "showDescription": true } },
+    "galleryWatermark": { "value": { "type": "logo", "text": "", "position": "Top Left", "fontSize": 10 } }
+  },
+  // upsell: the renderer reads every one of these; productDetails is left EMPTY (bind a real product
+  // with extra.productDetails / the funnel step's products) — no account's product is baked in here.
+  "upsell": {
+    "manageProducts": { "value": "" },
+    "typography": { "value": "var(--contentfont)" },
+    "featureHeadlineDesktopFontSize": { "value": 16, "unit": "px" },
+    "featureHeadlineMobileFontSize": { "value": 14, "unit": "px" },
+    "desktopFontSize": { "value": 18, "unit": "px" },
+    "mobileFontSize": { "value": 16, "unit": "px" },
+    "priceDiscountDesktopFontSize": { "value": 16, "unit": "px" },
+    "priceDiscountMobileFontSize": { "value": 14, "unit": "px" },
+    "enableShipping": { "value": true },
+    "productDetails": {},
+    "saleAction": { "value": "go-to-next-funnel-step" },
+    "customText": { "value": { "priceColumnHeading": "Price", "quantityColumnHeading": "Quantity", "shippingHeading": "Shipping", "totalColumnHeading": "Total", "subtotalColumnHeading": "Subtotal", "buyNowButtonText": "Buy Now" } },
+    "stepPath": { "value": "" },
+    "visitWebsite": { "value": { "url": "", "newTab": false } }
+  },
   "store-cart": {
     "typography": {
       "value": "var(--contentfont)"

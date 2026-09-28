@@ -144,6 +144,12 @@ export const completeExtra = (meta, given = {}) => {
   const known = KIND_DEFAULT_EXTRA[meta] ?? {};
   const out = {};
   for (const prop of declared) {
+    // 🔴 `visibility` and `customClass` are declared on most kinds, and the envelope already gives
+    // them their real shapes ({hideDesktop,hideMobile} and []). A shaped empty here is `{value:""}`,
+    // which is spread OVER the envelope and 500s image-feature, blog, upsell and photo-video-gallery
+    // on the public page while autosave answers 201 (console bl-245, proven by differential in
+    // knowledge sniffs/funnels-wave3-elements-2026-09-26/fix-diff.json). Leave them to the envelope.
+    if ((prop === 'visibility' || prop === 'customClass') && !Object.prototype.hasOwnProperty.call(given, prop)) continue;
     out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop]
       : Object.prototype.hasOwnProperty.call(known, prop) ? known[prop]
         : emptyFor(prop, meta);
