@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T20:15:26.460Z",
+      "capturedAt": "2026-09-28T20:21:18.669Z",
       "hash": "corpus",
       "fileCount": 1079,
       "endpoints": 1079
@@ -8210,7 +8210,7 @@
       },
       "sources": [
         "funnels/20-api/step-products-and-orders.md:24",
-        "funnels/30-types/button.md:68"
+        "funnels/30-types/button.md:79"
       ],
       "serviceBasis": "declared"
     },

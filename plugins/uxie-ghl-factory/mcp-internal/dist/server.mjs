@@ -10582,7 +10582,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/step-products-and-orders.md:24",
-            "funnels/30-types/button.md:68"
+            "funnels/30-types/button.md:79"
           ]
         },
         {
