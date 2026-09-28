@@ -53942,7 +53942,8 @@
       "reach": "refused",
       "coveredBy": [
         "create_voiceai_agent",
-        "get_ai_configuration_bundle"
+        "get_ai_configuration_bundle",
+        "update_voiceai_agent"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -54029,7 +54030,8 @@
       "kind": "write",
       "reach": "source-only",
       "coveredBy": [
-        "create_voiceai_agent"
+        "create_voiceai_agent",
+        "update_voiceai_agent"
       ],
       "rawCallable": true,
       "transport": "json",

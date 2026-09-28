@@ -54131,7 +54131,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "refused",
           coveredBy: [
             "create_voiceai_agent",
-            "get_ai_configuration_bundle"
+            "get_ai_configuration_bundle",
+            "update_voiceai_agent"
           ],
           rawCallable: true,
           transport: "json",
@@ -54218,7 +54219,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "write",
           reach: "source-only",
           coveredBy: [
-            "create_voiceai_agent"
+            "create_voiceai_agent",
+            "update_voiceai_agent"
           ],
           rawCallable: true,
           transport: "json",
@@ -61062,6 +61064,28 @@ var init_define_TOOL_CATALOG = __esm({
           "pipelines-opportunities--forecast-slippage",
           "pipelines-opportunities--opportunities-pipelines",
           "typed--list_account_entities--users"
+        ]
+      },
+      update_voiceai_agent: {
+        description: "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) \u2014 proof: live-runtime (2026-09-28); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-28)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "ai-agents--voice-ai-agents-get",
+          "ai-agents--voice-ai-agents-put"
+        ],
+        proofFloorRows: [
+          "ai-agents--voice-ai-agents-get",
+          "ai-agents--voice-ai-agents-put"
+        ],
+        riskRows: [
+          "ai-agents--voice-ai-agents-get",
+          "ai-agents--voice-ai-agents-put"
+        ],
+        rows: [
+          "ai-agents--voice-ai-agents-get",
+          "ai-agents--voice-ai-agents-put"
         ]
       }
     };
@@ -95347,9 +95371,9 @@ var checkableFieldsFor = (capability) => {
     ...Object.values(capability.queryBindings)
   ]);
   if (capability.locationBinding) targets.add("locationId");
-  const fields = Object.freeze(Object.entries(IDENTITY_FIELDS).filter(([, target]) => targets.has(target)).map(([field, target]) => [field, target]));
-  checkableFieldsCache.set(capability, fields);
-  return fields;
+  const fields2 = Object.freeze(Object.entries(IDENTITY_FIELDS).filter(([, target]) => targets.has(target)).map(([field, target]) => [field, target]));
+  checkableFieldsCache.set(capability, fields2);
+  return fields2;
 };
 var MAX_IDENTITY_DEPTH = 32;
 var MAX_IDENTITY_RECORDS = 500;
@@ -95367,7 +95391,7 @@ var readIdentityValue = (raw) => {
   }
   return WRAPPED;
 };
-var inspectIdentity = (json2, expected, fields) => {
+var inspectIdentity = (json2, expected, fields2) => {
   const checked = /* @__PURE__ */ new Set();
   const conflicts = [];
   const unreadable = [];
@@ -95376,11 +95400,11 @@ var inspectIdentity = (json2, expected, fields) => {
   let inspected = 0;
   let inspectionCapped = false;
   let depthCapped = false;
-  const carriesIdentity = (record2) => fields.some(([field]) => Object.hasOwn(record2, field));
+  const carriesIdentity = (record2) => fields2.some(([field]) => Object.hasOwn(record2, field));
   const scan = (record2, insideRecord = false) => {
     let sawIdentity = false;
     let consumed = null;
-    for (const [field, target] of fields) {
+    for (const [field, target] of fields2) {
       if (!Object.hasOwn(record2, field)) continue;
       if (insideRecord && target !== "locationId") continue;
       const raw = record2[field];
@@ -96049,10 +96073,10 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     return error51;
   };
   const parseEvent = (frame) => {
-    const fields = frame.replace(/\r/g, "").split("\n");
+    const fields2 = frame.replace(/\r/g, "").split("\n");
     let event = "message";
     const data2 = [];
-    for (const line of fields) {
+    for (const line of fields2) {
       if (line.startsWith("event:")) event = line.slice(6).trim();
       if (line.startsWith("data:")) data2.push(line.slice(5).trimStart());
     }
@@ -100160,8 +100184,8 @@ var label = (field, index) => {
 };
 function checkContactFieldShape(attrs, { ref = "?", warn } = {}) {
   if (!warn) return;
-  const fields = Array.isArray(attrs?.fields) ? attrs.fields : [];
-  if (!fields.length) return;
+  const fields2 = Array.isArray(attrs?.fields) ? attrs.fields : [];
+  if (!fields2.length) return;
   const declared = attrs?.actionType;
   const actionType = declared ?? DEFAULT_CONTACT_FIELD_ACTION_TYPE;
   const where = `update_contact_field '${ref}'`;
@@ -100169,21 +100193,21 @@ function checkContactFieldShape(attrs, { ref = "?", warn } = {}) {
     warn(`CONTACT_FIELD_ACTION_TYPE_UNKNOWN: ${where} declares actionType '${declared}', which is neither of the two the builder offers (${CONTACT_FIELD_ACTION_TYPES.join(", ")}). GHL stores an unrecognised discriminator as authored and the step saves clean, so a typo here is silent. ` + CLEAR_HINT);
     return;
   }
-  const blank = fields.filter(fieldSuppliesNoValue);
+  const blank = fields2.filter(fieldSuppliesNoValue);
   if (actionType === "update_field_data") {
     if (!blank.length) return;
-    const named = blank.map((f) => label(f, fields.indexOf(f))).join(", ");
+    const named = blank.map((f) => label(f, fields2.indexOf(f))).join(", ");
     const viaDefault = declared == null ? ` (actionType is absent, which GHL defaults to '${DEFAULT_CONTACT_FIELD_ACTION_TYPE}')` : "";
-    if (blank.length === fields.length) {
+    if (blank.length === fields2.length) {
       warn(`CONTACT_FIELD_CLEAR_MISMATCH: ${where} is '${actionType}'${viaDefault} but EVERY field it writes carries an empty value with no 'currentDate' \u2014 [${named}]. That is almost certainly meant to be a clear: an empty '${DEFAULT_CONTACT_FIELD_ACTION_TYPE}' write appears to be a no-op, so the stale value survives and nothing raises an error. ${CLEAR_HINT} If the empty write is intentional, this warning is advisory only \u2014 nothing was blocked.`);
     } else {
-      warn(`CONTACT_FIELD_EMPTY_VALUE: ${where} is '${actionType}' and ${blank.length} of ${fields.length} field(s) carry an empty value with no 'currentDate' \u2014 [${named}]. GHL's own updateContactFieldValidator flags each of these 'value_required'; they will not be cleared, they will simply not be written. ${CLEAR_HINT}`);
+      warn(`CONTACT_FIELD_EMPTY_VALUE: ${where} is '${actionType}' and ${blank.length} of ${fields2.length} field(s) carry an empty value with no 'currentDate' \u2014 [${named}]. GHL's own updateContactFieldValidator flags each of these 'value_required'; they will not be cleared, they will simply not be written. ${CLEAR_HINT}`);
     }
     return;
   }
-  const populated = fields.filter((f) => !isEmptyFieldValue(f?.value));
+  const populated = fields2.filter((f) => !isEmptyFieldValue(f?.value));
   if (!populated.length) return;
-  warn(`CONTACT_FIELD_CLEAR_HAS_VALUE: ${where} is 'clear_field_data' but ${populated.length} of ${fields.length} field(s) carry a non-empty value \u2014 [${populated.map((f) => `${label(f, fields.indexOf(f))}=${JSON.stringify(f.value)}`).join(", ")}]. A clear BLANKS the field and ignores the value, so anything authored here is discarded silently. ` + CLEAR_HINT);
+  warn(`CONTACT_FIELD_CLEAR_HAS_VALUE: ${where} is 'clear_field_data' but ${populated.length} of ${fields2.length} field(s) carry a non-empty value \u2014 [${populated.map((f) => `${label(f, fields2.indexOf(f))}=${JSON.stringify(f.value)}`).join(", ")}]. A clear BLANKS the field and ignores the value, so anything authored here is discarded silently. ` + CLEAR_HINT);
 }
 function lintContactFieldTemplates(templates, stepIds, warn) {
   if (!warn) return;
@@ -162421,10 +162445,10 @@ var HANDLEBAR_FIELDS = {
   event_start_date: ["value"],
   add_appointment_booking_ai_bot: ["first_message", "success_message"]
 };
-var handlebarRules = (fields) => [{
-  when: (a) => fields.some((f) => hasNestedBracketsInExpressions(a[f])),
+var handlebarRules = (fields2) => [{
+  when: (a) => fields2.some((f) => hasNestedBracketsInExpressions(a[f])),
   check: (a) => {
-    const bad = fields.filter((f) => hasNestedBracketsInExpressions(a[f]));
+    const bad = fields2.filter((f) => hasNestedBracketsInExpressions(a[f]));
     return `has a nested bracket inside a handlebar expression in [${bad.join(", ")}]`;
   },
   why: "A bracket segment containing [ or ] parses fine and then resolves to the WRONG value at runtime \u2014 ] closes the segment early and [ desynchronises the backend's path splitting. Use {{prefix.[key with spaces].id}}, never a bracket inside a bracket."
@@ -162815,7 +162839,7 @@ function parseActionSchema(assets) {
   for (const app of assets?.actions ?? []) {
     for (const action of app?.actions ?? []) {
       if (!action?.key || !Array.isArray(action.inputs)) continue;
-      const fields = action.inputs.filter((f) => f?.field && !PSEUDO_FIELDS.has(f.field)).map((f) => ({
+      const fields2 = action.inputs.filter((f) => f?.field && !PSEUDO_FIELDS.has(f.field)).map((f) => ({
         field: f.field,
         title: f.title ?? f.field,
         required: f.required === true,
@@ -162834,8 +162858,8 @@ function parseActionSchema(assets) {
         // marketplaceDrift below) — a stored marketplace ACTION step records no version to
         // compare against in the first place, so retaining these on the action entry would
         // be dead data implying a comparison this schema never performs.
-        fields,
-        requiredFields: fields.filter((f) => f.required).map((f) => f.field),
+        fields: fields2,
+        requiredFields: fields2.filter((f) => f.required).map((f) => f.field),
         requiredTriggers: action.requiredTriggers ?? [],
         isPremium: action.additionalConfig?.isPremium === true,
         isMultipath: action.branchesConfig != null
@@ -165040,7 +165064,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           `find_opportunity '${n.ref ?? n.name}' authors attributes.__customInputFields__, which this step IGNORES \u2014 that is the emitted shape, not the author shape. Move it to the node-level find.filters: [{ field: 'pipeline_id', operator: 'eq', value: '<pipelineId>' }]. Left as authored, the finder compiles with NO filters and matches an arbitrary opportunity.`
         );
       const t1 = ctx.idGen(), t2 = ctx.idGen();
-      const fields = (n.find?.filters ?? []).map((f) => ({ __customInputs__: {}, filterField: f.field, value: f.operator ?? "eq", secondValue: f.value }));
+      const fields2 = (n.find?.filters ?? []).map((f) => ({ __customInputs__: {}, filterField: f.field, value: f.operator ?? "eq", secondValue: f.value }));
       const container = {
         id,
         type: "find_opportunity",
@@ -165053,7 +165077,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         attributes: {
           sorting: n.find?.sorting ?? "latest",
           type: "find_opportunity",
-          __customInputFields__: fields,
+          __customInputFields__: fields2,
           __customInputs__: {},
           cat: "multi-path",
           convertToMultipath: true,
@@ -165363,14 +165387,14 @@ function defaultOp(type) {
 }
 function instantiateRowTemplate(f, key, extra) {
   const templates = extra?.meta?.filterRowTemplates;
-  const fields = extra?.ctx?.customFields;
-  if (!Array.isArray(templates) || !templates.length || !Array.isArray(fields) || !fields.length) return null;
+  const fields2 = extra?.ctx?.customFields;
+  if (!Array.isArray(templates) || !templates.length || !Array.isArray(fields2) || !fields2.length) return null;
   if (key == null || key === "") return null;
   const wanted = String(key).replace(/^(?:contact|opportunity)\./, "");
   const norm3 = (x) => String(x ?? "").toLowerCase().replace(/[\s_-]+/g, "");
   for (const tpl of templates) {
     const model = tpl.source === "opportunityCustomFields" ? "opportunity" : "contact";
-    const field = fields.find((c) => {
+    const field = fields2.find((c) => {
       if ((c.model ?? "contact") !== model) return false;
       const keySuffix = String(c.fieldKey ?? "").split(".").pop();
       return c.id === wanted || norm3(c.name) === norm3(wanted) || c.fieldKey === key || norm3(keySuffix) === norm3(wanted);
@@ -165501,12 +165525,12 @@ function customDateReminderParts(t, ctx) {
     );
   }
   const norm3 = (x) => String(x ?? "").trim().toLowerCase().replace(/[\s_-]+/g, "");
-  const fields = Array.isArray(ctx?.customFields) ? ctx.customFields : [];
-  const hit = fields.find((f) => (f.model ?? "contact") === "contact" && (f.id === wanted || f.fieldKey === wanted || norm3(f.name) === norm3(wanted) || norm3(String(f.fieldKey ?? "").split(".").pop()) === norm3(wanted)));
+  const fields2 = Array.isArray(ctx?.customFields) ? ctx.customFields : [];
+  const hit = fields2.find((f) => (f.model ?? "contact") === "contact" && (f.id === wanted || f.fieldKey === wanted || norm3(f.name) === norm3(wanted) || norm3(String(f.fieldKey ?? "").split(".").pop()) === norm3(wanted)));
   if (!hit && !/^[A-Za-z0-9_-]{16,}$/.test(String(wanted))) {
     throw new IRError(
       "UNRESOLVED_NAME",
-      `custom_date_reminder '${t.name ?? t.ref}' names date field '${wanted}', which is not one of this account's ${fields.length} custom fields. A name written to the wire watches nothing.`
+      `custom_date_reminder '${t.name ?? t.ref}' names date field '${wanted}', which is not one of this account's ${fields2.length} custom fields. A name written to the wire watches nothing.`
     );
   }
   const fieldId = hit?.id ?? wanted;
@@ -168268,8 +168292,8 @@ function checkCustomObjectSteps(templates = [], schemas = /* @__PURE__ */ new Ma
     }
     const byId = new Map((schema2.fields ?? []).map((f) => [f.id, f]));
     const byKey = new Map((schema2.fields ?? []).map((f) => [f.fieldKey, f]));
-    const fields = Array.isArray(a.fields) ? a.fields : [];
-    for (const f of fields) {
+    const fields2 = Array.isArray(a.fields) ? a.fields : [];
+    for (const f of fields2) {
       const def = byId.get(f?.fieldKey);
       if (!def) {
         const asKey = byKey.get(f?.fieldKey);
@@ -168289,11 +168313,11 @@ function checkCustomObjectSteps(templates = [], schemas = /* @__PURE__ */ new Ma
     if (t.type === "create_custom_object") {
       const mandatory = (schema2.fields ?? []).filter((f) => f.fieldKey === schema2.object?.primaryDisplayProperty || (schema2.object?.requiredProperties ?? []).includes(f.fieldKey));
       for (const m of mandatory) {
-        const given = fields.find((f) => f?.fieldKey === m.id);
+        const given = fields2.find((f) => f?.fieldKey === m.id);
         if (!given || isEmpty(given.value)) err(t, "CUSTOM_OBJECT_REQUIRED", `creating a '${key}' record needs '${m.name ?? m.fieldKey}' (the object's ${m.fieldKey === schema2.object?.primaryDisplayProperty ? "primary display property" : "required property"}), and the step does not set it`);
       }
     }
-    if (!fields.length && !(a.followers ?? []).length && !a.owner && !a.clearOwner && !a.clearFollowers)
+    if (!fields2.length && !(a.followers ?? []).length && !a.owner && !a.clearOwner && !a.clearFollowers)
       err(t, "CUSTOM_OBJECT_EMPTY", `'${t.name ?? t.id}' sets no field, owner or follower \u2014 the builder refuses it ("please select at least one field")`);
   }
   return { errors, notChecked };
@@ -168744,8 +168768,8 @@ function routingConditionFields(c) {
   return { conditionType, conditionSubType, conditionOperator, conditionValue, conditionValueOperator, conditionValueUnit };
 }
 function canonicalCondition(c) {
-  const fields = routingConditionFields(c);
-  return JSON.stringify(ROUTING_CONDITION_FIELDS.map((field) => canonicalFieldValue(fields[field])));
+  const fields2 = routingConditionFields(c);
+  return JSON.stringify(ROUTING_CONDITION_FIELDS.map((field) => canonicalFieldValue(fields2[field])));
 }
 function groupNode(operator, children) {
   const flattened = children.flatMap((child) => child.kind === "group" && child.operator === operator ? child.children : [child]);
@@ -171857,8 +171881,8 @@ function planPipelineEdit(row, edit = {}) {
   });
   if (edit.stageOrder !== void 0) {
     const order = edit.stageOrder;
-    const same = Array.isArray(order) && order.length === final.length && new Set(order).size === order.length && order.every((id) => keptIds.has(id));
-    if (!same) errors.push("stageOrder must list every KEPT existing stage id exactly once (new stages are placed with afterStageId)");
+    const same2 = Array.isArray(order) && order.length === final.length && new Set(order).size === order.length && order.every((id) => keptIds.has(id));
+    if (!same2) errors.push("stageOrder must list every KEPT existing stage id exactly once (new stages are placed with afterStageId)");
     else final = order.map((id) => final.find((s) => s.id === id));
   }
   for (const a of add) {
@@ -171933,9 +171957,9 @@ function diffPipeline(row, body) {
       return;
     }
     const b = before.get(s.id);
-    const fields = STAGE_PROPS.filter((k) => s[k] !== void 0 && s[k] !== b[k]).map((k) => ({ field: k, before: b[k] ?? null, after: s[k] }));
-    if (b.index !== index) fields.push({ field: "order", before: b.index, after: index });
-    if (fields.length) changed.push({ id: s.id, name: s.name, fields });
+    const fields2 = STAGE_PROPS.filter((k) => s[k] !== void 0 && s[k] !== b[k]).map((k) => ({ field: k, before: b[k] ?? null, after: s[k] }));
+    if (b.index !== index) fields2.push({ field: "order", before: b.index, after: index });
+    if (fields2.length) changed.push({ id: s.id, name: s.name, fields: fields2 });
   });
   const removed = [...before.values()].filter((s) => !after.has(s.id)).map((s) => ({ id: s.id, name: s.name }));
   return { pipeline: top, stagesChanged: changed, stagesAdded: added, stagesRemoved: removed };
@@ -175730,6 +175754,208 @@ async function executeAgentUpdate({ plan, gw } = {}) {
   return { ok: true, ...report };
 }
 
+// ../engines/ai/voiceai-update.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var NESTED_WHOLE = [
+  "aiDisclaimerConfiguration",
+  "sendPostCallNotificationTo",
+  "translation",
+  "noResponseConfig",
+  "endCallConfig",
+  "userFirstFallback"
+];
+var WRITABLE = /* @__PURE__ */ new Set([
+  "advancedSettingsEnabled",
+  "agentName",
+  "agentPrompt",
+  "agentWorkingHours",
+  "ambientSoundVolume",
+  "backchannelFrequency",
+  "backchannelWords",
+  "backgroundSound",
+  "beginMessageDelayMs",
+  "boostedKeywords",
+  "businessName",
+  "callEndWorkflowIds",
+  "customSttConfig",
+  "denoisingMode",
+  "enableBackchannel",
+  "enableDynamicResponsiveness",
+  "enableDynamicVoiceSpeed",
+  "endCallAfterSilenceMs",
+  "interruptionSensitivity",
+  "isAgentAsBackupDisabled",
+  "ivrOption",
+  "knowledgeBaseIds",
+  "knowledgeBasePrompt",
+  "language",
+  "llmModel",
+  "maxCallDuration",
+  "modelTemperature",
+  "normalizeForSpeech",
+  "pronunciationDictionary",
+  "reminderAfterIdleTimeSeconds",
+  "reminderFrequency",
+  "responsiveness",
+  "ringDurationSeconds",
+  "saveCallSummaryAsNote",
+  "sendUserIdleReminders",
+  "sttMode",
+  "timezone",
+  "vocabSpecialization",
+  "voiceId",
+  "voiceModel",
+  "voiceSpeed",
+  "voiceTemperature",
+  "voiceVolume",
+  "voicemailOption",
+  "welcomeMessage",
+  "welcomeMessageMode",
+  ...NESTED_WHOLE
+]);
+var ELSEWHERE = {
+  actions: "actions are their own resource (POST/PUT/DELETE /voice-ai/actions)",
+  callTransferActions: "actions are their own resource",
+  contactFieldActions: "actions are their own resource",
+  workflowActions: "actions are their own resource",
+  smsActions: "actions are their own resource",
+  customActions: "actions are their own resource",
+  agentTransferActions: "actions are their own resource",
+  capActions: "actions are their own resource",
+  appointmentBookingAction: "actions are their own resource",
+  mcpServers: "MCP servers are their own resource (/voice-ai/mcp/*)",
+  sessionVariables: "session variables are written by PATCH /voice-ai/agents/{id} (the builder's own path), not this PUT",
+  inboundNumber: "numbers are assigned on the deploy screen (location-wide)",
+  inboundNumbers: "numbers are assigned on the deploy screen (location-wide)",
+  inboundPhoneNumber: "numbers are assigned on the deploy screen (location-wide)",
+  numberPoolId: "numbers are assigned on the deploy screen (location-wide)",
+  provider: "the provider changes only through the upgrade (switch-provider) path"
+};
+var PROVIDER_BOUNDS = { beginMessageDelayMs: [0, 5e3, "Begin message delay ms must be between 0 and 5 seconds"] };
+var isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+function readFlat(record2, key) {
+  const s = record2?.agentSettings ?? {};
+  if (key === "voiceId") return s.voice?.voiceId ?? record2?.voiceId;
+  if (key === "language") return isObj(s.language) ? s.language.code : s.language ?? record2?.language;
+  if (key === "ringDurationSeconds") return typeof s.ringDurationMs === "number" ? s.ringDurationMs / 1e3 : record2?.ringDurationSeconds;
+  if (key === "welcomeMessage") return record2?.welcomeMessage ?? record2?.agentWelcomeMessage;
+  if (key in (record2 ?? {})) return record2[key];
+  return s[key];
+}
+function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}) {
+  if (!agentId) throw new IRError2("MISSING_FIELD", "update_voiceai_agent requires agentId");
+  if (!isObj(current)) throw new IRError2("SCHEMA", "the CURRENT agent record is required \u2014 read it first");
+  if (!isObj(spec) || !Object.keys(spec).length) throw new IRError2("SCHEMA", "spec must name at least one field to change");
+  const elsewhere = Object.keys(spec).filter((k) => k in ELSEWHERE);
+  if (elsewhere.length) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `update_voiceai_agent does not write [${elsewhere.join(", ")}]: ` + elsewhere.map((k) => `${k} \u2014 ${ELSEWHERE[k]}`).join("; ") + ". Nothing was sent.");
+  }
+  const unknown2 = Object.keys(spec).filter((k) => !WRITABLE.has(k));
+  if (unknown2.length) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `unknown or read-only key(s) [${unknown2.join(", ")}] \u2014 refused rather than sent. Writable keys: ${[...WRITABLE].sort().join(", ")}.`);
+  }
+  for (const [k, [lo, hi, msg]] of Object.entries(PROVIDER_BOUNDS)) {
+    if (k in spec && (typeof spec[k] !== "number" || spec[k] < lo || spec[k] > hi)) {
+      throw new IRError2("SCHEMA", `${k} must be ${lo}\u2013${hi} (${msg}). The provider enforces this AFTER GHL stores the value, so an out-of-range write leaves the agent diverged; it is refused here. Nothing was sent.`);
+    }
+  }
+  const body = { locationId: locationId ?? current.locationId };
+  const expected = {};
+  for (const [k, v] of Object.entries(spec)) {
+    if (NESTED_WHOLE.includes(k)) {
+      if (!isObj(v)) throw new IRError2("SCHEMA", `${k} must be an object (it is sent whole, merged over the stored one)`);
+      const stored = readFlat(current, k);
+      body[k] = { ...isObj(stored) ? stored : {}, ...v };
+    } else {
+      body[k] = v;
+    }
+    expected[k] = body[k];
+  }
+  return { method: "PUT", path: `/voice-ai/agents/${agentId}`, body, expected, setKeys: Object.keys(spec) };
+}
+var same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+var IGNORE = /* @__PURE__ */ new Set(["updatedAt", "traceId", "__v"]);
+function fields(record2) {
+  const out = {};
+  for (const [k, v] of Object.entries(record2 ?? {})) if (!IGNORE.has(k) && k !== "agentSettings") out[k] = v;
+  for (const [k, v] of Object.entries(record2?.agentSettings ?? {})) out[`agentSettings.${k}`] = v;
+  return out;
+}
+function readNames(key) {
+  if (key === "voiceId") return ["agentSettings.voice", "voiceId"];
+  if (key === "language") return ["agentSettings.language", "language"];
+  if (key === "ringDurationSeconds") return ["agentSettings.ringDurationMs"];
+  if (key === "welcomeMessage") return ["welcomeMessage", "agentWelcomeMessage"];
+  return [key, `agentSettings.${key}`];
+}
+async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMessage2 }) {
+  const read = async () => {
+    const r = await gw.call("GET", `${plan.path}?locationId=${encodeURIComponent(plan.body.locationId)}`);
+    return r?.ok ? r.json?.agent ?? r.json : null;
+  };
+  const put = await gw.call("PUT", plan.path, plan.body);
+  const after = await read();
+  if (!after) return { ok: false, code: "AGENT_VERIFY_UNREACHABLE", detail: "the write answered but the agent could not be re-read; nothing is proven" };
+  if (!put?.ok) {
+    const stored = plan.setKeys.filter((k) => !same(readFlat(after, k), readFlat(before, k)));
+    const message = serverMessage2(put?.json) ?? `HTTP ${put?.status ?? "?"}`;
+    if (!stored.length) return { ok: false, code: "AGENT_UPDATE_FAILED", status: put?.status ?? null, detail: message, written: [] };
+    const undo = { locationId: plan.body.locationId };
+    for (const k of stored) undo[k] = readFlat(before, k);
+    const u = await gw.call("PUT", plan.path, undo);
+    const again = await read();
+    const restored = stored.every((k) => same(readFlat(again, k), readFlat(before, k)));
+    return {
+      ok: false,
+      code: "PROVIDER_REFUSED_BUT_STORED",
+      status: put?.status ?? null,
+      detail: message,
+      written: stored,
+      restored: restored && Boolean(u?.ok),
+      warning: `The refusal came back AFTER GHL stored [${stored.join(", ")}] \u2014 the GHL record and the voice provider disagreed. ` + (restored ? "The previous values were written back and read back." : "Writing the previous values back did NOT verify \u2014 re-read the agent and fix it.")
+    };
+  }
+  const confirmed = [];
+  const mismatches = [];
+  for (const k of plan.setKeys) (same(readFlat(after, k), plan.expected[k]) ? confirmed : mismatches).push(k);
+  const setNames = new Set(plan.setKeys.flatMap(readNames));
+  const b = fields(before);
+  const a = fields(after);
+  const changed = [];
+  for (const k of /* @__PURE__ */ new Set([...Object.keys(b), ...Object.keys(a)])) {
+    if (setNames.has(k)) continue;
+    if (same(b[k], a[k])) continue;
+    if (b[k] === void 0 && isObj(a[k]) && !Object.keys(a[k]).length) continue;
+    changed.push({ key: k, before: b[k], after: a[k] });
+  }
+  const verification = { verified: mismatches.length === 0 && confirmed.length > 0, confirmed, mismatches };
+  const collateral = { unchanged: changed.length === 0, changed };
+  if (changed.length) {
+    return {
+      ok: false,
+      code: "AGENT_COLLATERAL_CHANGED",
+      verification,
+      collateral,
+      detail: `the update moved ${changed.length} field(s) it was not asked to touch: ${changed.map((c) => c.key).join(", ")}`
+    };
+  }
+  if (mismatches.length) {
+    return {
+      ok: false,
+      code: "AGENT_VERIFY_MISMATCH",
+      verification,
+      collateral,
+      detail: `accepted but not stored as sent: [${mismatches.join(", ")}] \u2014 e.g. backchannelWords reads back [] while enableBackchannel is off`
+    };
+  }
+  return { ok: true, verification, collateral };
+}
+
 // core/ai-studio.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -177450,6 +177676,60 @@ var TOOLS2 = [
         report.code,
         "Voice AI creation did not complete and verify.",
         "This unproven path may have partially created a canary. Inspect data.created and clean it up before retrying."
+      ), data2);
+    }, args)
+  },
+  {
+    // T1 (2026-09-28). Voice AI's PUT merges a partial body at the top level and validates nested objects whole, and
+    // some refusals come from the voice provider AFTER GHL stored the value — see engines/ai/voiceai-update.mjs.
+    name: "update_voiceai_agent",
+    description: describe3(
+      "update_voiceai_agent",
+      "Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, re-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL saves), it writes the previous values back and says so. Refuses action arrays, numbers, session variables and unknown keys. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes."
+    ),
+    inputSchema: schema({ locationId: external_exports.string(), agentId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
+    capabilities: [
+      { method: "GET", path: "/voice-ai/agents/{agentId}" },
+      { method: "PUT", path: "/voice-ai/agents/{agentId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const cur = await gw.call("GET", `/voice-ai/agents/${args.agentId}?locationId=${encodeURIComponent(args.locationId)}`);
+      if (!cur?.ok) return fromHttp(cur?.status ?? 502, cur?.json);
+      const before = cur.json?.agent ?? cur.json;
+      if (!before || typeof before !== "object") {
+        return fail(CODES.ENGINE_ABORT, "the agent GET returned no record.", "Confirm the agentId; nothing was written.");
+      }
+      let plan;
+      try {
+        plan = compileVoiceAiPartialUpdate(before, args.spec, { agentId: args.agentId, locationId: args.locationId });
+      } catch (error51) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          `update rejected (${error51.code ?? "ENGINE_ABORT"}): ${error51.message}`,
+          "The spec was rejected before any request was sent \u2014 nothing was written."
+        );
+      }
+      const preview = { agent: { id: args.agentId, name: before.agentName }, body: plan.body };
+      if (args.confirm !== true) {
+        return withFailureData(fail(
+          CODES.CONFIRM_REQUIRED,
+          "Voice AI update preview is ready; no write was made.",
+          "Review data.preview.body, then repeat with confirm:true."
+        ), { preview });
+      }
+      const report = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+      const data2 = {
+        preview,
+        verification: report.verification,
+        collateral: report.collateral,
+        ...report.written ? { written: report.written, restored: report.restored } : {},
+        ...report.warning ? { warning: report.warning } : {}
+      };
+      return report.ok ? ok(data2) : withFailureData(fail(
+        report.code ?? CODES.ENGINE_ABORT,
+        report.detail ?? "The Voice AI update did not verify.",
+        report.code === "PROVIDER_REFUSED_BUT_STORED" ? "Read data.warning; fix the value from the provider message and retry." : "Inspect data.verification and data.collateral; the record is live, so re-read before retrying."
       ), data2);
     }, args)
   },
@@ -183698,7 +183978,7 @@ var TOOLS2 = [
           note: "This is the widget's own read \u2014 it answers with NO credentials, so anything here is public."
         });
       }
-      const fields = form.formData?.form?.fields ?? [];
+      const fields2 = form.formData?.form?.fields ?? [];
       return ok({
         formId: form._id ?? args.formId,
         name: form.name,
@@ -183706,7 +183986,7 @@ var TOOLS2 = [
         parentId: form.parentId ?? null,
         version: form.version ?? null,
         versionHistory: Array.isArray(form.versionHistory) ? form.versionHistory.length : null,
-        fieldTags: fields.map((f) => f.tag).filter(Boolean),
+        fieldTags: fields2.map((f) => f.tag).filter(Boolean),
         formData: form.formData ?? {}
       });
     }, args)
@@ -183733,8 +184013,8 @@ var TOOLS2 = [
       if (typeof args.name !== "string" || args.name.trim() === "") {
         return fail(CODES.VALIDATION_FAILED, "name must be a non-empty string", "Pass the form name.");
       }
-      const fields = args.fields ?? [];
-      const untagged = fields.map((f, i) => f && typeof f.tag === "string" && f.tag ? null : i).filter((i) => i !== null);
+      const fields2 = args.fields ?? [];
+      const untagged = fields2.map((f, i) => f && typeof f.tag === "string" && f.tag ? null : i).filter((i) => i !== null);
       if (untagged.length) {
         return fail(
           CODES.VALIDATION_FAILED,
@@ -183745,7 +184025,7 @@ var TOOLS2 = [
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const document = {
         form: {
-          fields,
+          fields: fields2,
           ...args.formAction ? { formAction: args.formAction } : {},
           ...args.style ? { style: args.style } : {}
         }
@@ -183753,7 +184033,7 @@ var TOOLS2 = [
       const preview = {
         creates: { name: args.name, productType: "form", source: args.source ?? "landing_page", parentId: args.parentId ?? null },
         document,
-        fieldTags: fields.map((f) => f.tag),
+        fieldTags: fields2.map((f) => f.tag),
         warning: "The form is PUBLIC the moment it is created \u2014 there is no draft state, and formData is readable with no credentials."
       };
       if (args.confirm !== true) {
@@ -183799,7 +184079,7 @@ var TOOLS2 = [
           { formId, preview, attempts: saved.attempts }
         );
       }
-      const want = fields.map((f) => f.tag).filter(Boolean);
+      const want = fields2.map((f) => f.tag).filter(Boolean);
       const back = await gw.readBackUntil(async () => {
         const g = await gw.call("GET", `/forms/${encodeURIComponent(formId)}`);
         const got = (g.json?.form?.formData?.form?.fields ?? []).map((f) => f.tag).filter(Boolean);
@@ -184845,8 +185125,8 @@ var TOOLS2 = [
         const list = r.json?.smartList ?? r.json ?? {};
         const spec = list.filterSpecs ?? {};
         let { verdict, reason, cause } = classifyFilterSpec(spec);
-        const fields = [...new Set(leaves2({ filters: spec.filters ?? [] }).map((l) => l.field ?? l.uiMeta?.fieldAlias).filter(Boolean))];
-        const graded = fields.map((f) => ({ field: f, status: judgeField(f) }));
+        const fields2 = [...new Set(leaves2({ filters: spec.filters ?? [] }).map((l) => l.field ?? l.uiMeta?.fieldAlias).filter(Boolean))];
+        const graded = fields2.map((f) => ({ field: f, status: judgeField(f) }));
         const unknown2 = graded.filter((g) => g.status === "unknown").map((g) => g.field);
         if (unknown2.length && verdict === "renders-everything") {
           reason += ` ALSO: ${unknown2.length === 1 ? "this field is" : "these fields are"} not in the account's filter-field catalogue (${unknown2.join(", ")}), which breaks the list on its own. Correcting the nesting alone will NOT fix it.`;
@@ -184863,7 +185143,7 @@ var TOOLS2 = [
           verdict,
           ...cause ? { cause } : {},
           ...reason ? { reason } : {},
-          filterFields: fields,
+          filterFields: fields2,
           ...graded.some((g) => g.status !== "known") ? { fieldStatus: graded } : {},
           conditions: leaves2({ filters: spec.filters ?? [] }).length,
           sharedWith: list.sharedWith ?? null
