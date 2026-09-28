@@ -150,9 +150,9 @@
     ]
   },
   "build_funnel_page": {
-    "description": "Compose, validate and write a funnel page from native elements; optionally publish it — proof: live-runtime (2026-09-23); risk: write",
+    "description": "Compose, validate and write a funnel page from native elements; optionally publish it — proof: live-runtime (2026-09-28); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-23)",
+    "proof": "live-runtime (2026-09-28)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "funnels--builder-autosave",
@@ -2141,6 +2141,62 @@
     "rows": [
       "ai-agents--voice-ai-agents-get",
       "ai-agents--voice-ai-agents-put"
+    ]
+  },
+  "get_funnel": {
+    "description": "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) — proof: live-runtime (2026-09-28); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-09-28)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "funnels-service--get-funnel-by-id",
+      "funnels--lookup-list",
+      "funnels--builder-get-versions"
+    ],
+    "proofFloorRows": [
+      "funnels-service--get-funnel-by-id",
+      "funnels--lookup-list",
+      "funnels--builder-get-versions"
+    ],
+    "riskRows": [
+      "funnels-service--get-funnel-by-id",
+      "funnels--lookup-list",
+      "funnels--builder-get-versions"
+    ],
+    "rows": [
+      "funnels-service--get-funnel-by-id",
+      "funnels--lookup-list",
+      "funnels--builder-get-versions"
+    ]
+  },
+  "edit_funnel": {
+    "description": "Edit a GHL funnel/website: settings, steps, publish state, headers — preview, confirm, read back — proof: live-runtime (2026-09-28); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-09-28)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "funnels--funnel-update-settings",
+      "funnels--funnel-create-step",
+      "funnels--funnel-step",
+      "funnels--lookup-list"
+    ],
+    "proofFloorRows": [
+      "funnels--funnel-update-settings",
+      "funnels--funnel-create-step",
+      "funnels--funnel-step",
+      "funnels--lookup-list"
+    ],
+    "riskRows": [
+      "funnels--funnel-update-settings",
+      "funnels--funnel-create-step",
+      "funnels--funnel-step",
+      "funnels--lookup-list"
+    ],
+    "rows": [
+      "funnels--funnel-update-settings",
+      "funnels--funnel-create-step",
+      "funnels--funnel-step",
+      "funnels--lookup-list"
     ]
   }
 }

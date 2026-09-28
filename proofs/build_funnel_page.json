@@ -35,10 +35,28 @@
         "receipt:2026-09-23-1138"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:806527b2"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:1c37b2d7"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-23",
+    "hashedAt": "2026-09-28",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /funnels/builder/get-versions": "32754c990877d14c51c299475ab6da2d3cd5cad0760a62c446bd090f473891b6",
       "GET https://backend.leadconnectorhq.com /funnels/builder/page/data": "5c9b751a79f30627fd0583d560a11f6ec65207c2a23f45a0bd190cb38b69d484",
@@ -46,16 +64,17 @@
       "POST https://backend.leadconnectorhq.com /funnels/builder/publish-version": "a2d219d9fe999422fe67496c27a78c256e447f2814656df633c595d724730f97"
     },
     "builds": {
-      "domainConnectApp": 228,
-      "funnelWebsiteApp": 227,
-      "funnelWebsiteDomainApp": 222,
-      "redirectApp": 222
+      "domainConnectApp": 218,
+      "funnelWebsiteApp": 219,
+      "funnelWebsiteDomainApp": 201,
+      "redirectApp": 203
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_funnel_page": "1ea489199450a941eb9c57ed43df352d08b02cd82d84efcbcb84d2051c32e3c3",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_funnel_page": "d66407aef337d58523739f297cfba31094f97fc60102535e051686c310f5626f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "7f70a973f3b3b9f8ebaeb69a98a5e5495cd8fd7004ea425b55bbe3ba98ba5f5e",
       "plugins/uxie-ghl-factory/mcp-internal/core/funnel-pages.mjs": "eef2aae85f7623e9253977dd17cb3812bbaeba1661275013da4d6e99cc20ed80",
       "plugins/uxie-ghl-factory/mcp-internal/core/kind-defaults.mjs": "37129df88241ff6cb78638d2ad136d440f36f814cc62e1df3297206435d02102"
     }
