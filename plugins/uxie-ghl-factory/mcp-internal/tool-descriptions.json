@@ -630,9 +630,9 @@
     ]
   },
   "find_ghl_site": {
-    "description": "Find ghl site — proof: live-runtime (2026-09-25); risk: read",
+    "description": "Find ghl site — proof: live-runtime (2026-09-28); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-28)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects",
@@ -2197,6 +2197,28 @@
       "funnels--funnel-create-step",
       "funnels--funnel-step",
       "funnels--lookup-list"
+    ]
+  },
+  "edit_redirects": {
+    "description": "Create, retarget or delete a URL redirect (Settings → Domains & URL Redirects) — proof: live-runtime (2026-09-28); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-09-28)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "funnels--redirect-list",
+      "funnels--lookup-exists"
+    ],
+    "proofFloorRows": [
+      "funnels--redirect-list",
+      "funnels--lookup-exists"
+    ],
+    "riskRows": [
+      "funnels--redirect-list",
+      "funnels--lookup-exists"
+    ],
+    "rows": [
+      "funnels--redirect-list",
+      "funnels--lookup-exists"
     ]
   }
 }
