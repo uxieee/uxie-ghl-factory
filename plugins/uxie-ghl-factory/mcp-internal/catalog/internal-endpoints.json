@@ -37234,7 +37234,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:92"
+        "ai-agents/10-anatomy/managed-agent-shape.md:96"
       ]
     },
     {
@@ -38517,7 +38517,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:107"
+        "ai-agents/10-anatomy/managed-agent-shape.md:111"
       ]
     },
     {
@@ -38558,7 +38558,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:104",
+        "ai-agents/10-anatomy/managed-agent-shape.md:108",
         "ai-agents/20-api/conversation-ai-boundary.md:82",
         "ai-studio/60-recipes/run-one-generation.md:26"
       ]

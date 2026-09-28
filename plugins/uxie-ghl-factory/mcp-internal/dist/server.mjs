@@ -37423,7 +37423,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:92"
+            "ai-agents/10-anatomy/managed-agent-shape.md:96"
           ]
         },
         {
@@ -38706,7 +38706,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:107"
+            "ai-agents/10-anatomy/managed-agent-shape.md:111"
           ]
         },
         {
@@ -38747,7 +38747,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:104",
+            "ai-agents/10-anatomy/managed-agent-shape.md:108",
             "ai-agents/20-api/conversation-ai-boundary.md:82",
             "ai-studio/60-recipes/run-one-generation.md:26"
           ]
@@ -62688,9 +62688,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_convai_agent: {
-        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-09-28); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-convai-agent-create"
