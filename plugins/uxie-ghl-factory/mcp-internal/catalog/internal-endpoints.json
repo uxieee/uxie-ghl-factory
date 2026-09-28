@@ -9828,7 +9828,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "objectKey=opportunity lists the board's saved views. objectKey is NOT validated: a nonsense key answers the same empty 200, so an empty list is not evidence. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -9900,7 +9904,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType}; pipelineIds scopes where it shows. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -9935,7 +9943,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "destructive",
-      "reach": "source-only",
+      "note": "Final: the view reads 404 'Smartlist does not exist' afterwards; there is no restore. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -9979,7 +9991,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "One saved view by id; 404 'Smartlist does not exist' after a delete. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -10022,8 +10038,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool.",
-      "reach": "source-only",
+      "note": "Same body WITHOUT objectKey (422 'property objectKey should not exist'). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -14484,8 +14503,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}.",
+      "note": "Creates a lost reason (the edit form's 'Type to create'); the public API has only the list. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -14613,8 +14635,11 @@
       "rail": "workflow",
       "kind": "write",
       "summary": "Replaces a pipeline's name, flags and its WHOLE stages array.",
-      "note": "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
-      "reach": "source-only",
+      "note": "USE edit_pipeline, not this row. stages[] is a FULL REPLACE: a stage left out is DELETED and its cards drop silently into the first stage (no audit row); one stage without stageWinProbability makes GHL rewrite every probability to an even ramp. The body is the GET row minus id, position, dateAdded, dateUpdated, locationId at the top level. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_pipeline"
       ],
@@ -36398,7 +36423,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "For OPPORTUNITIES_CONTACTS_ASSOCIATION this answers EMPTY from the opportunity side even when the card has contacts; read from the contact side, or use the search row's relations[] (includeTopRelations:true). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -41065,7 +41094,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "The invoice editor's SAVE, drafts included: it did not send (read back status draft, sentAt null). It needs the contact's email and an E.164 phone in contactDetails (422 otherwise, which the UI swallows). opportunityDetails.opportunityId links the card. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48863,7 +48896,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Takes source and lostReasonId. A second card for the same contact in the same pipeline is refused 400 OPPORTUNITY_NO_DUPLICATE (meta.existingId) unless the location allows duplicates. The public create is the everyday route. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48894,7 +48931,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "destructive",
-      "reach": "source-only",
+      "note": "Writes a DELETED audit row and can be undone with PUT /opportunities/{id}/restore {forceRestore:false}. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48968,7 +49009,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "A partial (diff) update. lost is accepted without a reason; lostReasonId survives a move to won; a backward stage move is allowed. The public update stores the same keys (source and forecast fields included, though its spec omits them). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_pipeline"
       ],
@@ -49076,7 +49121,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Body {forceRestore:false}: brings a deleted card back in its stage and status. Cards deleted by a pipeline delete cannot be restored. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49111,7 +49160,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "{locationId} -> 201 {success:true}; nothing observable changed on read-back and no screen calls it. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49341,8 +49394,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}.",
+      "note": "Creates a lost reason (the edit form's 'Type to create'); the public API has only the list. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49374,7 +49430,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "One {_id, name, locationId, deleted, createdAt, updatedAt} record. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49465,8 +49525,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name.",
+      "note": "Needs locationId, name and stages[{name, position}] (position 0-based). Every stage needs stageWinProbability or all are rewritten to an even ramp. The public opportunities-v3 create-pipeline is the ToS-clean alternative. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49498,7 +49561,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "destructive",
-      "reach": "source-only",
+      "note": "Deletes the pipeline AND every opportunity in it; those deletions write no DELETED audit row, so they cannot be restored from Settings > Audit logs. Prove the target (id + name + card count) first. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49535,8 +49602,11 @@
       "rail": "ai",
       "kind": "write",
       "summary": "Replaces a pipeline's name, flags and its WHOLE stages array.",
-      "note": "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
-      "reach": "source-only",
+      "note": "USE edit_pipeline, not this row. stages[] is a FULL REPLACE: a stage left out is DELETED and its cards drop silently into the first stage (no audit row); one stage without stageWinProbability makes GHL rewrite every probability to an even ramp. The body is the GET row minus id, position, dateAdded, dateUpdated, locationId at the top level. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_pipeline"
       ],
@@ -49580,7 +49650,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Builds a pipeline from the request BODY (the app's Duplicate); copies the source's smart tags and permission record server-side; the new pipeline has no position key until one PATCH …/position. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49615,7 +49689,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "COPIES INTO OTHER SUB-ACCOUNTS (body {locationIds:[...]}); its own location is refused 400. Cross-account path not exercised: it writes a second account. IF THE USER WANTS IT: GHL can do it from Pipelines > row menu > Copy to sub-accounts. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49650,7 +49728,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Body {prevPipelineId, nextPipelineId, initialPosition, targetPosition}, 1-based. An EMPTY body is accepted (200) and MOVES the pipeline; raw_request refuses a body without an integer targetPosition. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49721,7 +49803,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Needs locationId in the body and REFUSES pipelineId (the reverse of the pipeline update). An update without overrides clears existing overrides. defaultAccess all|some|all_except|none. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49798,8 +49884,12 @@
       "path": "/opportunities/search",
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
-      "kind": "write",
-      "reach": "source-only",
+      "kind": "read",
+      "note": "Answers 201 for a read. A wrong value shape can answer 201 with ZERO rows: name contains needs a scalar; source matches only the exact full value; numbers need operator:'range' {gt|gte|lt|lte} (operator 'gt' is 422). page with searchAfter is 400. The index lags a write ~2 s: read back through GET /opportunities/{id}. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_pipeline"
       ],
@@ -49883,7 +49973,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49915,7 +50009,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "destructive",
-      "reach": "source-only",
+      "note": "Soft delete: 404 by id afterwards; POST …/restore brings it back. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49998,7 +50096,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "{name, description, color, filters, position} read back verbatim. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -50033,7 +50135,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "The app sends {} and it works on a deleted tag; controls answer NOT_DELETED / NOT_FOUND. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
