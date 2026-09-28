@@ -14,5 +14,9 @@ test('no template, the "none" sentinel, an empty body, or another type stay quie
   assert.deepEqual(lintSmsTemplateBody([sms({ body: 'x' })]), []);
   assert.deepEqual(lintSmsTemplateBody([sms({ body: 'x', template_id: 'none' })]), []);
   assert.deepEqual(lintSmsTemplateBody([sms({ body: '', template_id: 'tpl1' })]), []);
-  assert.deepEqual(lintSmsTemplateBody([{ id: 'm', type: 'manual-sms', attributes: { body: 'x', template_id: 'tpl1' } }]), []);
+  assert.deepEqual(lintSmsTemplateBody([{ id: 'e', type: 'email', attributes: { body: 'x', template_id: 'tpl1' } }]), []);
+});
+
+test('manual-sms warns too (its queued task carried the template text)', () => {
+  assert.equal(lintSmsTemplateBody([{ id: 'm', type: 'manual-sms', name: 'M', attributes: { body: 'x', template_id: 'tpl1' } }]).length, 1);
 });
