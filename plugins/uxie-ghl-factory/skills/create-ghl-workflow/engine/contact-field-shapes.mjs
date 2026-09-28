@@ -2,10 +2,11 @@
 //
 // THE DEFECT THIS EXISTS FOR
 // --------------------------
-// `update_contact_field` carries TWO action types, confirmed in the builder's own dropdown
-// (live, 2026-08-03):
+// `update_contact_field` carries THREE action types (models/actions/ContactField.ts:8, 09-25 bundle),
+// each executed live 2026-09-28 (knowledge sniffs/workflows-wave1-2026-09-25/live-3B-fields-math.json):
 //
-//     actionType: "update_field_data"   write a value into the field
+//     actionType: "update_field_data"   write a value into the field (replaces)
+//     actionType: "add_field_data"      append to a MULTIPLE_OPTIONS / CHECKBOX field ([a] → [a,b])
 //     actionType: "clear_field_data"    blank the field
 //
 // Picking the wrong one fails SILENTLY. `update_field_data` with `value: ""` is not a clear
@@ -46,9 +47,9 @@
 // is not one of them. checkWorkflow() can never see this step, which is why the check lives
 // here, on the compile path, rather than being derived from GHL's schema at runtime.
 
-// The two values the builder's dropdown offers. Closed on purpose: a third value is either
-// a typo or a GHL change, and both are worth surfacing.
-export const CONTACT_FIELD_ACTION_TYPES = ['update_field_data', 'clear_field_data'];
+// The three values the builder offers. Closed on purpose: a fourth value is either a typo or a
+// GHL change, and both are worth surfacing.
+export const CONTACT_FIELD_ACTION_TYPES = ['update_field_data', 'add_field_data', 'clear_field_data'];
 
 // The documented default when `actionType` is absent (reference/steps/og/update_contact_field.md
 // — "Default: update_field_data"). An author who omits it while meaning to CLEAR lands in the
@@ -94,13 +95,23 @@ export function checkContactFieldShape(attrs, { ref = '?', warn } = {}) {
 
   if (declared != null && !CONTACT_FIELD_ACTION_TYPES.includes(declared)) {
     warn(`CONTACT_FIELD_ACTION_TYPE_UNKNOWN: ${where} declares actionType '${declared}', which is `
-      + `neither of the two the builder offers (${CONTACT_FIELD_ACTION_TYPES.join(', ')}). GHL stores `
+      + `not one of the three the builder offers (${CONTACT_FIELD_ACTION_TYPES.join(', ')}). GHL stores `
       + `an unrecognised discriminator as authored and the step saves clean, so a typo here is silent. `
       + CLEAR_HINT);
     return;   // every check below is defined relative to a known actionType
   }
 
   const blank = fields.filter(fieldSuppliesNoValue);
+
+  // add_field_data appends, so an empty value appends nothing — GHL's validator flags it
+  // value_required exactly as for update (builder-validators.mjs requiresFieldValue).
+  if (actionType === 'add_field_data') {
+    if (!blank.length) return;
+    warn(`CONTACT_FIELD_EMPTY_VALUE: ${where} is 'add_field_data' and ${blank.length} of ${fields.length} `
+      + `field(s) carry an empty value — [${blank.map((f) => label(f, fields.indexOf(f))).join(', ')}]. `
+      + `Nothing is appended for them. ${CLEAR_HINT}`);
+    return;
+  }
 
   if (actionType === 'update_field_data') {
     if (!blank.length) return;
