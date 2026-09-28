@@ -11,6 +11,22 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.9.1] — 2026-09-29
+
+**Fix: pages composed by `build_funnel_page`, including `add-store`'s store pages, could not be saved in GHL's page
+builder. Executed live on the test account.**
+
+- **`build_funnel_page`:** on every save the page builder recomputes each element's styles and fonts, and reads many values
+  without a guard. A tool-composed element missing one made the builder fail with "Error while creating page!" (nothing
+  sent). The page could then never be saved in the builder, though the public page kept rendering. 15 element kinds did
+  this: nav menus, image feature, FAQ, blog, category navigation, store product list, upsell, collection list, featured
+  products, blog subscribe form, the order forms, and the store list/cart/checkout/thank-you pages `add-store` builds.
+  The tool now writes the builder's own style and config defaults for exactly those kinds (config values only, never
+  content or URLs). Font properties are never written as lists. Proven by differential: all 54 page element kinds and
+  all 5 store pages composed on one page save in the builder on the first try.
+- If you composed such a page with an earlier version and the builder refuses to save it, re-compose it with this
+  version.
+
 ## [1.9.0] — 2026-09-29
 
 **Managed Agents authored to proven truth: every trigger and tool, least-privilege plugins, and location-time schedules
