@@ -111,3 +111,64 @@ test('a field the update did not touch moving is reported as collateral', async 
   assert.equal(r.code, 'AGENT_COLLATERAL_CHANGED');
   assert.deepEqual(r.collateral.changed.map((c) => c.key), ['timezone']);
 });
+
+// T1b (2026-09-28): the knowledge-base action and the restore report.
+function kbGw(before) {
+  let rec = structuredClone(before); const calls = [];
+  return { calls, call: async (method, path, body) => {
+    calls.push({ method, path, body });
+    if (method === 'GET') return { ok: true, status: 200, json: structuredClone(rec) };
+    const next = structuredClone(rec);
+    if ('knowledgeBaseIds' in body) {
+      next.knowledgeBaseIds = body.knowledgeBaseIds;
+      const others = (next.actions ?? []).filter((a) => a.actionType !== 'KNOWLEDGE_BASE');
+      const kb = (rec.actions ?? []).find((a) => a.actionType === 'KNOWLEDGE_BASE') ?? { _id: 'kbact', actionType: 'KNOWLEDGE_BASE', actionParameters: {} };
+      if (body.knowledgeBaseIds.length) {
+        const params = { ...kb.actionParameters, knowledgeBaseId: body.knowledgeBaseIds[0], ...('knowledgeBasePrompt' in body ? { triggerPrompt: body.knowledgeBasePrompt } : {}) };
+        next.actions = [...others, { ...kb, actionParameters: params }]; next.actionIds = [...others.map((a) => a._id), kb._id];
+      } else { next.actions = others; next.actionIds = others.map((a) => a._id); }
+    } // a lone knowledgeBasePrompt is ignored, as measured
+    rec = next; return { ok: true, status: 200, json: structuredClone(rec) };
+  } };
+}
+
+test('T1b: attaching a KB with a prompt verifies the prompt on the minted KNOWLEDGE_BASE action, and the action is not collateral', async () => {
+  const before = { ...RECORD(), knowledgeBaseIds: [], actions: [{ _id: 'x1', actionType: 'SMS' }], actionIds: ['x1'] };
+  const gw = kbGw(before);
+  const plan = compileVoiceAiPartialUpdate(before, { knowledgeBaseIds: ['KB1'], knowledgeBasePrompt: 'use it' }, { agentId: 'A', locationId: 'L' });
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.verification.confirmed.sort(), ['knowledgeBaseIds', 'knowledgeBasePrompt']);
+});
+
+test('T1b: a lone knowledgeBasePrompt travels with the stored KB ids (alone it is ignored by the server)', async () => {
+  const before = { ...RECORD(), knowledgeBaseIds: ['KB1'], actions: [{ _id: 'kbact', actionType: 'KNOWLEDGE_BASE', actionParameters: { knowledgeBaseId: 'KB1', triggerPrompt: 'old' } }], actionIds: ['kbact'] };
+  const plan = compileVoiceAiPartialUpdate(before, { knowledgeBasePrompt: 'new' }, { agentId: 'A', locationId: 'L' });
+  assert.deepEqual(plan.body.knowledgeBaseIds, ['KB1']);
+  const r = await executeVoiceAiUpdate({ plan, before, gw: kbGw(before), serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.throws(() => compileVoiceAiPartialUpdate({ ...before, knowledgeBaseIds: [] }, { knowledgeBasePrompt: 'x' }, { agentId: 'A', locationId: 'L' }), /needs a knowledge base/);
+});
+
+test('T1b: control — a real non-KB action appearing during a KB change is still collateral', async () => {
+  const before = { ...RECORD(), knowledgeBaseIds: [], actions: [], actionIds: [] };
+  const base = kbGw(before);
+  const gw = { calls: base.calls, call: async (m, p, b) => { const r = await base.call(m, p, b); if (m === 'GET' && base.calls.length > 1) { r.json.actions = [...(r.json.actions ?? []), { _id: 'rogue', actionType: 'SMS' }]; r.json.actionIds = [...(r.json.actionIds ?? []), 'rogue']; } return r; } };
+  const plan = compileVoiceAiPartialUpdate(before, { knowledgeBaseIds: ['KB1'] }, { agentId: 'A', locationId: 'L' });
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.code, 'AGENT_COLLATERAL_CHANGED');
+});
+
+test('T1b: the restore report carries the values, and a restore that does not verify is its own loud code', async () => {
+  const before = RECORD();
+  const ok = fakeGw({ record: before, refuse: (b) => b.llmModel === 'bogus-llm', storeOnRefuse: true });
+  const r1 = await executeVoiceAiUpdate({ plan: compileVoiceAiPartialUpdate(before, { llmModel: 'bogus-llm' }, { agentId: 'A', locationId: 'L' }), before, gw: ok, serverMessage });
+  assert.deepEqual(r1.values.llmModel, { sent: 'bogus-llm', storedAfterRefusal: 'bogus-llm', restoredTo: 'gpt-4.1', readsNow: 'gpt-4.1' });
+  // every PUT is refused and stored, so the write-back is refused too — and here it does not land
+  const stuck = fakeGw({ record: before, refuse: () => true, storeOnRefuse: true });
+  const origCall = stuck.call; let puts = 0;
+  stuck.call = async (m, p, b) => { if (m === 'PUT' && ++puts > 1) return { ok: false, status: 400, json: { message: 'no' } }; return origCall(m, p, b); };
+  const r2 = await executeVoiceAiUpdate({ plan: compileVoiceAiPartialUpdate(before, { llmModel: 'bogus-llm' }, { agentId: 'A', locationId: 'L' }), before, gw: stuck, serverMessage });
+  assert.equal(r2.code, 'PROVIDER_REFUSED_RESTORE_FAILED');
+  assert.deepEqual(r2.diverged, ['llmModel']);
+});

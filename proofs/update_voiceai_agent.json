@@ -1,7 +1,7 @@
 {
   "tool": "update_voiceai_agent",
   "surfaces": [
-    "unassigned"
+    "ai-agents"
   ],
   "runs": [
     {
@@ -14,17 +14,38 @@
         "row:ai-agents--voice-ai-agents-put"
       ],
       "location": "…Zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a75692b0",
+        "row:ai-agents--voice-ai-agents-get",
+        "row:ai-agents--voice-ai-agents-put"
+      ],
+      "location": "…Zn6B"
     }
   ],
   "depends": {
     "hashedAt": "2026-09-28",
-    "endpoints": {},
-    "builds": {},
+    "endpoints": {
+      "GET https://services.leadconnectorhq.com /voice-ai/agents/{}": "75a291768c0ef9dddcfe0b4dffe5ac360a505c99c00f46f349d840090e06f3c9",
+      "PUT https://services.leadconnectorhq.com /voice-ai/agents/{}": "06303979903fadd5374666df6cd3016af27d37e6a3327fcf2ae10056db142c1e"
+    },
+    "builds": {
+      "agentLogsApp": 693,
+      "agentStudioApp": 701,
+      "aiEmployeesApp": 2631,
+      "aiGrowthApp": 708,
+      "superagentsApp": 703,
+      "voiceAiApp": 707
+    },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_voiceai_agent": "98c7cb418bed4ca682883dc14eea9dc3426567ac278a99aada76d7ae15ee2558",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_voiceai_agent": "b6e298cc9736ab0825f6a81f64ca84a4ad969c54f624c9d4b489e9395b8c9970",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "227bfcdb562d64ca5f6a7b2400981bcab314579af1367c5d46e95e3b2ddc9a15",
       "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "63e7bb2d435c7c1e86ccaf629d10c289314bccb5de9917f48c2b0a1c5212927b",
-      "plugins/uxie-ghl-factory/engines/ai/voiceai-update.mjs": "4746286d3d6a92a5dca2c8e0a99c34644c05f79d0419dde4c5dffad14eeb1f10",
+      "plugins/uxie-ghl-factory/engines/ai/voiceai-update.mjs": "cbb6042eb588890df33f86f7ab1c21f2d31391ce6da4e6b249ba8a9418296530",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
