@@ -262,6 +262,36 @@ field(s) and merges the caller's `actionParameters` over any capture-grounded de
   `destinationAgentMongoId`, `triggerPrompt`. `speakDuringExecution` / `triggerWorkflowsPostCall`
   default to the capture's observed values (`false` / `true`). Max 3 connected agents per UI.
 
+### What the current builder offers, and what it no longer writes (live-proven 2026-09-28)
+
+- **New Action** lists: Call transfer · Trigger a workflow · Send SMS · Update contact field · Appointment Booking ·
+  Send WhatsApp message · Custom Action 2.0 · Agent Transfer · Add MCP. **Send WhatsApp message is a Custom Action
+  2.0 (`CAP`, `capActionName: "sendWhatsAppMessage"`)** and needs a connected WhatsApp number. Custom Action 2.0
+  opens an in-page builder: Connect to API (Import cURL, endpoint + method, headers, query params, raw JSON body,
+  data collection as Form or AI JSON Schema) → Authentication → General → Test & deploy.
+- **Legacy `CUSTOM_ACTION` (webhook)** is no longer offered, but the route still stores it:
+  `POST /voice-ai/actions {agentId, actionType: "CUSTOM_ACTION", locationId, name, actionParameters: {triggerPrompt,
+  triggerMessage, triggerMessageType, apiDetails: {url, method, headers[], parameters[{name, description, type,
+  example}], authenticationRequired, authenticationValue}, selectedPaths[]}}` → 201. It lands in `customActions[]`,
+  with **no** "Test Webhook" initialisation (that is a legacy-editor rule), and nothing calls the URL on save.
+- **Delete one action:** `DELETE /voice-ai/actions/{actionId}/agent/{agentId}` with body `{locationId}` → 200
+  `{actionId, agentId}`. The agent's other actions are untouched.
+- `DATA_INJECTION` is an enum value only. No form and no parameter shape exist; do not write one.
+- **Basic-mode "details to collect" is gone.** `PUT {extractDataFields: [...]}` → **422 "property
+  extractDataFields should not exist"**. `advancedSettingsEnabled: false` is stored, but the builder's "Show
+  advanced settings" switch is view state and offers no checkboxes. Collect data with an Update contact field action.
+- **MCP servers:** `GET /voice-ai/mcp/servers?locationId=&agentId=` → `{servers[]}` (read, live). Adding one makes
+  GHL fetch the tool list from the URL server-side. That was **not** exercised here (no approved endpoint), so the
+  add body and the editor limits (name ≤64, timeout 1000–60000 ms) are bundle-derived. Pointing it at
+  `services.leadconnectorhq.com/mcp` hands GHL a credential to the sub-account.
+- **Templates are marketplace apps.** `GET /marketplace/apps/templates/ai/search?type=voice` (backend host, pages with
+  `&skip=`) lists apps, not agents, and Install is `POST /oauth/authorize`, an app grant on the location. This plugin
+  does not install them; the user installs one in the UI (Create Agent → Browse Marketplace) and the tools edit the
+  agent afterwards.
+- **Edit with AI** and the **Prompt Evaluator** are not in the current builder. Its prompt editors are mounted with
+  `enable-ai-edit: false`, and #prompt-evaluate exists only in the legacy stepper editor. The routes still answer:
+  `POST /voice-ai/ai-generation/prompt-suggestion/stream` (live) and `POST /voice-ai/prompt/evaluate` (bundle-derived).
+
 ### ⚠️ `actionParameters` MUST be an OBJECT, never a JSON string
 
 > Live-verified 2026-07-17 (a client account). Applies to **both** `voice-ai-v3__create-action` and
@@ -378,13 +408,26 @@ other unlisted `actionType`.
     `action_executed`). Free seconds come from `GET /voice-ai/call/trial-usage` (1200 a day; `payPerUse` is what bills).
   - 🔴 The call binds to the **signed-in user's own contact** (see SKILL.md trap 7).
 
+## Voice chat widgets (live-proven 2026-09-28)
+
+- Create one the way the Deploy tab does: `POST /chat-widget/` (`host: "ai"`) `{locationId, name, chatType: "voiceAiChat",
+  version: 2, default: false, deleted: false, creationSource: "voice-ai", settings: {chatType: "voiceAiChat",
+  advanceSettings: {aTwoPCompliance: {enableA2PCompliance: false}}}}` → 201. List them with `GET /chat-widget/list?locationId=&offset=&limit=`.
+- Connect: `POST /voice-ai/agents/{agentId}/widgets/{widgetId}?locationId=` with body `{}` → 204. Disconnect: `DELETE`
+  on the same path. The claim is written on **both** records: the widget's `settings.advanceSettings.voiceAiAgent
+  {agentId, agentName, description}` and the agent's `connectedWidgetIds[]`. The Deploy tab renders the connection.
+  Call and agent transfers do not apply to a widget, and the builder says so.
+- A widget already claimed by another agent is not offered, and connecting it is refused (409 "claimConflict", from the
+  bundle). 🔴 Other widgets on the location are not touched by a connect; check that before and after on a shared account.
+
 ## The builder's Save (live-proven 2026-09-28)
 
 - Save is one `PUT /voice-ai/agents/{id}?publishAgent=true&mode=update` with a flat body of about 61 keys. Pending
   action writes go first. Every key the user did not change is kept, including the actions.
 - 🔴 A Save also writes two defaults that `create_voiceai_agent` never stores: `agentSettings.languages: ["en-US"]`
   and `spamConfig.postCallAnalysis {enabled: false, blockThreshold: 5, notifyMode: "admin", …}`. After a user's first
-  save in the UI, an engine-built agent shows those two keys; they are not drift.
+  save in the UI, an engine-built agent shows those two keys; they are not drift. The `languages` default is the Save
+  mapping itself (`languages.length ? languages : [language]`).
 
 ## Raw routes and their traps (no typed tool — use `raw_request`, `host: "ai"`; live-proven 2026-09-28)
 

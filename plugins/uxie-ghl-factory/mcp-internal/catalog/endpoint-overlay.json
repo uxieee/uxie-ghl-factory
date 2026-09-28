@@ -2179,6 +2179,13 @@
       "credentialClass": "agency-admin-bearer",
       "kind": "write",
       "note": "The invoice editor's SAVE, drafts included: it did not send (read back status draft, sentAt null). It needs the contact's email and an E.164 phone in contactDetails (422 otherwise, which the UI swallows). opportunityDetails.opportunityId links the card. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "GET /marketplace/apps/templates/ai/search": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read",
+      "summary": "The Voice/Conversation AI template grid (Create Agent → Browse Marketplace): marketplace apps with their bots.",
+      "note": "NO TASK NEEDS THIS — coordinator decision 2026-09-28: the plugin does not install agent templates. Every row is a MARKETPLACE APP (appId, isPaidApp, companyName, installs); installing one is Install → \"Install confirmation\" → Allow & install = POST /oauth/authorize, an OAuth grant of the app to the location (even LeadConnector apps with allowedScopes []). Pages with &skip= (page=/offset= ignored); query= filters. IF THE USER WANTS IT: GHL can do it. Tell them to install it in the UI: AI Agents → Voice AI → Create Agent → Browse Marketplace → the template → Install. Then build or edit the agent with create_voiceai_agent / update_voiceai_agent."
     }
   }
 }
