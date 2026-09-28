@@ -213,6 +213,20 @@ settings:
 - `window.days` are weekday numbers, 0 = Sunday … 6 = Saturday; times are 24h `HH:mm`. The UI's
   defaults when the toggle is switched on are exactly `08:00`–`17:00`, Mon–Fri; the stored object
   also carries `condition: "when"` (the engine adds it).
+- 🔴 What the window holds: sends, not every step. GHL files it under the communication settings
+  ("Allows messages to be sent…"). Measured 2026-09-28: an `add_contact_tag` step enrolled outside
+  the window ran at once, the same as a workflow with no window. Do not use the window to delay
+  internal actions; use a wait step. Whether a send outside the window is held has not been
+  measured yet.
+- 🔴 `allowMultiple` governs re-entry after the contact has LEFT. A second enrolment while the
+  contact is still in the workflow is skipped (`active-already`) with either value, and it is not
+  queued. Measured 2026-09-28: with `false`, a re-enrolment after finishing was skipped too; with
+  `true`, it ran a second time. Appointment/invoice triggers and multiple opportunities bypass
+  `false` (GHL's copy).
+- `timezone` decides the zone that wait steps and the window read. Measured 2026-09-28: a
+  specific-date wait at 19:45 with `account` held until 19:45 in the account's zone. With `contact`
+  (a contact 8 h ahead), it resolved to 19:45 in the contact's zone, found it already past, and
+  moved on at once.
 - `senderAddress`: From name **requires** From email (GHL's `checkSenderAddress`); merge tags are
   allowed in both. Empty strings are dropped, as the UI does.
 - Live-proven 2026-08-22 (GROM AU): the Settings tab's Save is the no-suffix `PUT /workflow/{loc}/{wid}`
