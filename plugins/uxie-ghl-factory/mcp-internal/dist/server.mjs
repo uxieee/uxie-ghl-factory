@@ -38026,7 +38026,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "agency-admin-bearer"
           ],
           coveredBy: [
-            "get_ai_configuration_bundle"
+            "get_ai_configuration_bundle",
+            "set_agent_deployment"
           ],
           rawCallable: true,
           transport: "json",
@@ -38075,7 +38076,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "set_agent_deployment"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -38152,7 +38155,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "write",
           summary: "Update one channel's routing row. Proven 2026-08-31 by a live reply after switching Live chat to All widgets.",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "set_agent_deployment"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -67040,6 +67045,36 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-marketplace-service--get-contact-count-per-step",
           "workflow-service--find-by-id"
         ]
+      },
+      set_agent_deployment: {
+        description: "Put one agent on one channel in the Agent Deployment routing table (only its row; whole table proven unchanged otherwise) \u2014 proof: live-runtime (2026-09-28); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-28)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "ai-agents--routing-config-configs",
+          "ai-agents--routing-config-configs-post",
+          "ai-agents--routing-config-configs-patch",
+          "ai-agents--routing-config-configs-get"
+        ],
+        proofFloorRows: [
+          "ai-agents--routing-config-configs",
+          "ai-agents--routing-config-configs-post",
+          "ai-agents--routing-config-configs-patch",
+          "ai-agents--routing-config-configs-get"
+        ],
+        riskRows: [
+          "ai-agents--routing-config-configs",
+          "ai-agents--routing-config-configs-post",
+          "ai-agents--routing-config-configs-patch",
+          "ai-agents--routing-config-configs-get"
+        ],
+        rows: [
+          "ai-agents--routing-config-configs",
+          "ai-agents--routing-config-configs-post",
+          "ai-agents--routing-config-configs-patch",
+          "ai-agents--routing-config-configs-get"
+        ]
       }
     };
   }
@@ -74439,9 +74474,9 @@ var util;
     }
     return void 0;
   };
-  util2.isInteger = typeof Number.isInteger === "function" ? (val2) => Number.isInteger(val2) : (val2) => typeof val2 === "number" && Number.isFinite(val2) && Math.floor(val2) === val2;
+  util2.isInteger = typeof Number.isInteger === "function" ? (val3) => Number.isInteger(val3) : (val3) => typeof val3 === "number" && Number.isFinite(val3) && Math.floor(val3) === val3;
   function joinValues2(array2, separator = " | ") {
-    return array2.map((val2) => typeof val2 === "string" ? `'${val2}'` : val2).join(separator);
+    return array2.map((val3) => typeof val3 === "string" ? `'${val3}'` : val3).join(separator);
   }
   util2.joinValues = joinValues2;
   util2.jsonStringifyReplacer = (_, value) => {
@@ -75069,20 +75104,20 @@ var ZodType = class {
     return handleResult(ctx, result);
   }
   refine(check2, message) {
-    const getIssueProperties = (val2) => {
+    const getIssueProperties = (val3) => {
       if (typeof message === "string" || typeof message === "undefined") {
         return { message };
       } else if (typeof message === "function") {
-        return message(val2);
+        return message(val3);
       } else {
         return message;
       }
     };
-    return this._refinement((val2, ctx) => {
-      const result = check2(val2);
+    return this._refinement((val3, ctx) => {
+      const result = check2(val3);
       const setError = () => ctx.addIssue({
         code: ZodIssueCode.custom,
-        ...getIssueProperties(val2)
+        ...getIssueProperties(val3)
       });
       if (typeof Promise !== "undefined" && result instanceof Promise) {
         return result.then((data2) => {
@@ -75103,9 +75138,9 @@ var ZodType = class {
     });
   }
   refinement(check2, refinementData) {
-    return this._refinement((val2, ctx) => {
-      if (!check2(val2)) {
-        ctx.addIssue(typeof refinementData === "function" ? refinementData(val2, ctx) : refinementData);
+    return this._refinement((val3, ctx) => {
+      if (!check2(val3)) {
+        ctx.addIssue(typeof refinementData === "function" ? refinementData(val3, ctx) : refinementData);
         return false;
       } else {
         return true;
@@ -75855,11 +75890,11 @@ ZodString.create = (params) => {
     ...processCreateParams(params)
   });
 };
-function floatSafeRemainder(val2, step) {
-  const valDecCount = (val2.toString().split(".")[1] || "").length;
+function floatSafeRemainder(val3, step) {
+  const valDecCount = (val3.toString().split(".")[1] || "").length;
   const stepDecCount = (step.toString().split(".")[1] || "").length;
   const decCount = valDecCount > stepDecCount ? valDecCount : stepDecCount;
-  const valInt = Number.parseInt(val2.toFixed(decCount).replace(".", ""));
+  const valInt = Number.parseInt(val3.toFixed(decCount).replace(".", ""));
   const stepInt = Number.parseInt(step.toFixed(decCount).replace(".", ""));
   return valInt % stepInt / 10 ** decCount;
 }
@@ -77742,22 +77777,22 @@ var ZodEnum = class _ZodEnum extends ZodType {
   }
   get enum() {
     const enumValues = {};
-    for (const val2 of this._def.values) {
-      enumValues[val2] = val2;
+    for (const val3 of this._def.values) {
+      enumValues[val3] = val3;
     }
     return enumValues;
   }
   get Values() {
     const enumValues = {};
-    for (const val2 of this._def.values) {
-      enumValues[val2] = val2;
+    for (const val3 of this._def.values) {
+      enumValues[val3] = val3;
     }
     return enumValues;
   }
   get Enum() {
     const enumValues = {};
-    for (const val2 of this._def.values) {
-      enumValues[val2] = val2;
+    for (const val3 of this._def.values) {
+      enumValues[val3] = val3;
     }
     return enumValues;
   }
@@ -78752,11 +78787,11 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-function assertEqual(val2) {
-  return val2;
+function assertEqual(val3) {
+  return val3;
 }
-function assertNotEqual(val2) {
-  return val2;
+function assertNotEqual(val3) {
+  return val3;
 }
 function assertIs(_arg) {
 }
@@ -78771,7 +78806,7 @@ function getEnumValues(entries) {
   return values;
 }
 function joinValues(array2, separator = "|") {
-  return array2.map((val2) => stringifyPrimitive(val2)).join(separator);
+  return array2.map((val3) => stringifyPrimitive(val3)).join(separator);
 }
 function jsonStringifyReplacer(_, value) {
   if (typeof value === "bigint")
@@ -78799,8 +78834,8 @@ function cleanRegex(source) {
   const end = source.endsWith("$") ? source.length - 1 : source.length;
   return source.slice(start, end);
 }
-function floatSafeRemainder2(val2, step) {
-  const ratio = val2 / step;
+function floatSafeRemainder2(val3, step) {
+  const ratio = val3 / step;
   const roundedRatio = Math.round(ratio);
   const tolerance = Number.EPSILON * Math.max(Math.abs(ratio), 1);
   if (Math.abs(ratio - roundedRatio) < tolerance)
@@ -79997,8 +80032,8 @@ var $ZodCheckMaxSize = /* @__PURE__ */ $constructor("$ZodCheckMaxSize", (inst, d
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val2 = payload.value;
-    return !nullish(val2) && val2.size !== void 0;
+    const val3 = payload.value;
+    return !nullish(val3) && val3.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
@@ -80025,8 +80060,8 @@ var $ZodCheckMinSize = /* @__PURE__ */ $constructor("$ZodCheckMinSize", (inst, d
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val2 = payload.value;
-    return !nullish(val2) && val2.size !== void 0;
+    const val3 = payload.value;
+    return !nullish(val3) && val3.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
@@ -80053,8 +80088,8 @@ var $ZodCheckSizeEquals = /* @__PURE__ */ $constructor("$ZodCheckSizeEquals", (i
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val2 = payload.value;
-    return !nullish(val2) && val2.size !== void 0;
+    const val3 = payload.value;
+    return !nullish(val3) && val3.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
@@ -80083,8 +80118,8 @@ var $ZodCheckMaxLength = /* @__PURE__ */ $constructor("$ZodCheckMaxLength", (ins
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val2 = payload.value;
-    return !nullish(val2) && val2.length !== void 0;
+    const val3 = payload.value;
+    return !nullish(val3) && val3.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
@@ -80112,8 +80147,8 @@ var $ZodCheckMinLength = /* @__PURE__ */ $constructor("$ZodCheckMinLength", (ins
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val2 = payload.value;
-    return !nullish(val2) && val2.length !== void 0;
+    const val3 = payload.value;
+    return !nullish(val3) && val3.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
@@ -80141,8 +80176,8 @@ var $ZodCheckLengthEquals = /* @__PURE__ */ $constructor("$ZodCheckLengthEquals"
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val2 = payload.value;
-    return !nullish(val2) && val2.length !== void 0;
+    const val3 = payload.value;
+    return !nullish(val3) && val3.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
@@ -81451,8 +81486,8 @@ var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnio
       for (const [k, v] of Object.entries(pv)) {
         if (!propValues[k])
           propValues[k] = /* @__PURE__ */ new Set();
-        for (const val2 of v) {
-          propValues[k].add(val2);
+        for (const val3 of v) {
+          propValues[k].add(val3);
         }
       }
     }
@@ -89853,7 +89888,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
     check: "string_format",
     type: "string",
     format,
-    fn: typeof fnOrRegex === "function" ? fnOrRegex : (val2) => fnOrRegex.test(val2),
+    fn: typeof fnOrRegex === "function" ? fnOrRegex : (val3) => fnOrRegex.test(val3),
     ...params
   };
   if (fnOrRegex instanceof RegExp) {
@@ -90364,30 +90399,30 @@ var enumProcessor = (schema2, _ctx, json2, _params) => {
 var literalProcessor = (schema2, ctx, json2, _params) => {
   const def = schema2._zod.def;
   const vals = [];
-  for (const val2 of def.values) {
-    if (val2 === void 0) {
+  for (const val3 of def.values) {
+    if (val3 === void 0) {
       if (ctx.unrepresentable === "throw") {
         throw new Error("Literal `undefined` cannot be represented in JSON Schema");
       } else {
       }
-    } else if (typeof val2 === "bigint") {
+    } else if (typeof val3 === "bigint") {
       if (ctx.unrepresentable === "throw") {
         throw new Error("BigInt literals cannot be represented in JSON Schema");
       } else {
-        vals.push(Number(val2));
+        vals.push(Number(val3));
       }
     } else {
-      vals.push(val2);
+      vals.push(val3);
     }
   }
   if (vals.length === 0) {
   } else if (vals.length === 1) {
-    const val2 = vals[0];
-    json2.type = val2 === null ? "null" : typeof val2;
+    const val3 = vals[0];
+    json2.type = val3 === null ? "null" : typeof val3;
     if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
-      json2.enum = [val2];
+      json2.enum = [val3];
     } else {
-      json2.const = val2;
+      json2.const = val3;
     }
   } else {
     if (vals.every((v) => typeof v === "number"))
@@ -90539,7 +90574,7 @@ var intersectionProcessor = (schema2, ctx, json2, params) => {
     ...params,
     path: [...params.path, "allOf", 1]
   });
-  const isSimpleIntersection = (val2) => "allOf" in val2 && Object.keys(val2).length === 1;
+  const isSimpleIntersection = (val3) => "allOf" in val3 && Object.keys(val3).length === 1;
   const allOf = [
     ...isSimpleIntersection(a) ? a.allOf : [a],
     ...isSimpleIntersection(b) ? b.allOf : [b]
@@ -94030,9 +94065,9 @@ var TextResourceContentsSchema = ResourceContentsSchema.extend({
    */
   text: string2()
 });
-var Base64Schema = string2().refine((val2) => {
+var Base64Schema = string2().refine((val3) => {
   try {
-    atob(val2);
+    atob(val3);
     return true;
   } catch {
     return false;
@@ -94835,7 +94870,7 @@ var ElicitResultSchema = ResultSchema.extend({
    * Per MCP spec, content is "typically omitted" for decline/cancel actions.
    * We normalize null to undefined for leniency while maintaining type compatibility.
    */
-  content: preprocess((val2) => val2 === null ? void 0 : val2, record(string2(), union([string2(), number2(), boolean2(), array(string2())])).optional())
+  content: preprocess((val3) => val3 === null ? void 0 : val3, record(string2(), union([string2(), number2(), boolean2(), array(string2())])).optional())
 });
 var ResourceTemplateReferenceSchema = object2({
   type: literal("ref/resource"),
@@ -104602,9 +104637,9 @@ var builderSettings = (pageBackground = "var(--white)") => ({
   ]
 });
 var withElement = (n) => {
-  const pick2 = (keys) => Object.fromEntries(keys.filter((k) => n[k] !== void 0).map((k) => [k, n[k]]));
+  const pick3 = (keys) => Object.fromEntries(keys.filter((k) => n[k] !== void 0).map((k) => [k, n[k]]));
   const base = ["id", "type", "meta", "tagName", "title", "child", "class", "styles", "wrapper", "extra", "mobileStyles", "mobileWrapper", "updated"];
-  const element = n.type === "section" ? { ...pick2([...base, "_id"]), _id: n._id ?? n.id } : n.type === "col" ? { ...pick2(base), noOfColumns: n.noOfColumns ?? 1 } : n.type === "row" ? pick2(base) : pick2([...base, "customCss", "tag"]);
+  const element = n.type === "section" ? { ...pick3([...base, "_id"]), _id: n._id ?? n.id } : n.type === "col" ? { ...pick3(base), noOfColumns: n.noOfColumns ?? 1 } : n.type === "row" ? pick3(base) : pick3([...base, "customCss", "tag"]);
   return { ...n, ...n.type === "col" ? { noOfColumns: n.noOfColumns ?? 1 } : {}, element };
 };
 var buildPageData = ({ pageId, stepId, funnelId, locationId, sections, pageStyles = "", fonts = ["Arial", "Georgia", "Roboto"], colors = [], pageBackground = "var(--white)" }) => ({
@@ -104824,8 +104859,8 @@ function settingsDiff(requested, after) {
   const got = settingsFrom(after);
   return Object.entries(requested).map(([k, want]) => {
     const have = got[k];
-    const same2 = k === "funnelPath" ? normPath(have) === normPath(want) : JSON.stringify(have ?? "") === JSON.stringify(want ?? "");
-    return { key: k, requested: want, readBack: have, applied: same2 };
+    const same3 = k === "funnelPath" ? normPath(have) === normPath(want) : JSON.stringify(have ?? "") === JSON.stringify(want ?? "");
+    return { key: k, requested: want, readBack: have, applied: same3 };
   });
 }
 var normPath = (p2) => p2 == null ? p2 : `/${String(p2).replace(/^\/+/, "")}`;
@@ -104858,8 +104893,8 @@ function planUpdateStep({ funnel, stepId, name, url: url2, domainName }) {
 function planReorder({ funnel, order }) {
   const steps = funnel.steps ?? [];
   const ids = steps.map((s) => s.id);
-  const same2 = order.length === ids.length && new Set(order).size === order.length && order.every((id) => ids.includes(id));
-  if (!same2) {
+  const same3 = order.length === ids.length && new Set(order).size === order.length && order.every((id) => ids.includes(id));
+  if (!same3) {
     return { refuse: `order must name EVERY step exactly once (${ids.length} on this funnel). The route replaces the whole steps array; a subset would drop steps.` };
   }
   const byId = Object.fromEntries(steps.map((s) => [s.id, s]));
@@ -108906,11 +108941,11 @@ function checkOppFieldShape(field, { ref, warn } = {}) {
   for (const key of ["valueFieldType", "dataType"]) {
     const rule = spec[key];
     if (!rule) continue;
-    const val2 = field[key];
-    if (val2 === void 0) continue;
-    if (rule.allowed.includes(val2)) continue;
+    const val3 = field[key];
+    if (val3 === void 0) continue;
+    if (rule.allowed.includes(val3)) continue;
     const support = `set: [${rule.allowed.join(", ")}], n=${rule.n}, ${rule.accounts} accounts`;
-    const msg = `OPP_SHAPE: ${field.filterField} ${key} '${val2}' not attested (${support})${ref ? ` on '${ref}'` : ""} \u2014 verify against a live step`;
+    const msg = `OPP_SHAPE: ${field.filterField} ${key} '${val3}' not attested (${support})${ref ? ` on '${ref}'` : ""} \u2014 verify against a live step`;
     if (rule.accounts >= throwAt) throw new IRError("OPP_SHAPE", msg);
     if (rule.accounts >= warnAt) warn?.(msg);
   }
@@ -108919,12 +108954,12 @@ function checkAgainstRulebook(field, ref) {
   const rule = opp_field_rulebook_default.fields[field.filterField];
   if (!rule) return;
   for (const key of ["valueFieldType", "dataType"]) {
-    const val2 = field[key];
-    if (val2 === void 0) continue;
-    if (val2 === rule[key]) continue;
+    const val3 = field[key];
+    if (val3 === void 0) continue;
+    if (val3 === rule[key]) continue;
     throw new IRError(
       "OPP_SHAPE",
-      `OPP_SHAPE: ${field.filterField} ${key} '${val2}' contradicts the builder's own field picker, which defines this field as ${key} '${rule[key]}' (source: ${opp_field_rulebook_default._source.split(" \u2014 ")[0]}, ${opp_field_rulebook_default._captured})${ref ? ` on '${ref}'` : ""}.`
+      `OPP_SHAPE: ${field.filterField} ${key} '${val3}' contradicts the builder's own field picker, which defines this field as ${key} '${rule[key]}' (source: ${opp_field_rulebook_default._source.split(" \u2014 ")[0]}, ${opp_field_rulebook_default._captured})${ref ? ` on '${ref}'` : ""}.`
     );
   }
 }
@@ -109078,10 +109113,10 @@ init_define_TOOL_CATALOG();
 var PREFIX3 = "inboundWebhookRequest";
 function webhookMergeTags(payload, { prefix = PREFIX3, includeHeaders = false } = {}) {
   const out = {};
-  const walk3 = (val2, path) => {
-    if (val2 !== null && typeof val2 === "object") {
-      if (Array.isArray(val2)) val2.forEach((v, i) => walk3(v, path ? `${path}.${i}` : String(i)));
-      else for (const [k, v] of Object.entries(val2)) walk3(v, path ? `${path}.${k}` : k);
+  const walk3 = (val3, path) => {
+    if (val3 !== null && typeof val3 === "object") {
+      if (Array.isArray(val3)) val3.forEach((v, i) => walk3(v, path ? `${path}.${i}` : String(i)));
+      else for (const [k, v] of Object.entries(val3)) walk3(v, path ? `${path}.${k}` : k);
     } else {
       out[path] = `{{${prefix}.${path}}}`;
     }
@@ -174534,9 +174569,9 @@ function normalizeCondition(rawC, ctx) {
     return { ...extras, conditionType: type, conditionSubType: type, conditionOperator: c.conditionOperator ?? "==", conditionValue: c.conditionValue };
   if (type === "contact_detail") {
     const op = c.conditionOperator ?? "contain";
-    let val2 = c.conditionValue;
-    if (op === "contain" && typeof val2 === "string") val2 = val2.toLowerCase();
-    return { ...extras, conditionType: "contact_detail", conditionSubType: c.conditionSubType, conditionOperator: op, conditionValue: val2 };
+    let val3 = c.conditionValue;
+    if (op === "contain" && typeof val3 === "string") val3 = val3.toLowerCase();
+    return { ...extras, conditionType: "contact_detail", conditionSubType: c.conditionSubType, conditionOperator: op, conditionValue: val3 };
   }
   return {
     ...extras,
@@ -180195,8 +180230,8 @@ ${offline.summary}`;
     if (wantPin === true && sample && typeof sample === "object" && report.webhookUrls.length) {
       const sleep = opts.sleep ?? ((ms) => new Promise((res) => setTimeout(res, ms)));
       const pollMs = opts.pinPollMs ?? 1500, maxPolls = opts.pinMaxPolls ?? 8;
-      const canon = (o) => JSON.stringify(sortKeysDeep(o));
-      const sig = canon(sample);
+      const canon2 = (o) => JSON.stringify(sortKeysDeep(o));
+      const sig = canon2(sample);
       for (const w of report.webhookUrls) {
         const pin = { triggerId: w.triggerId, url: w.url, posted: null, requestId: null, referenceId: null, tagCount: null, mergeTags: null, error: null };
         const p2 = await callAt("webhook_pin_post", "POST", `/hooks/${loc}/webhook-trigger/${w.triggerId}`, sample);
@@ -180216,7 +180251,7 @@ ${offline.summary}`;
           const rows = Array.isArray(l.json) ? l.json : [];
           req = rows.find((row) => {
             const { headers: _h, ...rest } = row?.payload ?? {};
-            return canon(rest) === sig;
+            return canon2(rest) === sig;
           }) ?? null;
         }
         if (!req) {
@@ -181366,8 +181401,8 @@ function mergeTagsOf(attrs) {
 }
 function textOf(t) {
   const a = t?.attributes ?? {};
-  const pick2 = a.body ?? a.subject ?? a.message ?? a.html ?? null;
-  if (typeof pick2 === "string" && pick2.trim()) return pick2.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+  const pick3 = a.body ?? a.subject ?? a.message ?? a.html ?? null;
+  if (typeof pick3 === "string" && pick3.trim()) return pick3.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
   if (Array.isArray(a.tags) && a.tags.length) return `tags: ${a.tags.slice(0, 6).join(", ")}`;
   return void 0;
 }
@@ -181659,8 +181694,8 @@ function planPipelineEdit(row, edit = {}) {
   });
   if (edit.stageOrder !== void 0) {
     const order = edit.stageOrder;
-    const same2 = Array.isArray(order) && order.length === final.length && new Set(order).size === order.length && order.every((id) => keptIds.has(id));
-    if (!same2) errors.push("stageOrder must list every KEPT existing stage id exactly once (new stages are placed with afterStageId)");
+    const same3 = Array.isArray(order) && order.length === final.length && new Set(order).size === order.length && order.every((id) => keptIds.has(id));
+    if (!same3) errors.push("stageOrder must list every KEPT existing stage id exactly once (new stages are placed with afterStageId)");
     else final = order.map((id) => final.find((s) => s.id === id));
   }
   for (const a of add) {
@@ -185892,9 +185927,9 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
   }
   const confirmed = [];
   const mismatches = [];
-  const pick2 = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
+  const pick3 = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
   const got = (k) => {
-    if (k === "s2sBehaviour") return pick2(readFlat(after, k), Object.keys(plan.expected[k]));
+    if (k === "s2sBehaviour") return pick3(readFlat(after, k), Object.keys(plan.expected[k]));
     if (k === "prompts") return Object.fromEntries(Object.keys(plan.expected.prompts).map((s) => [s, after?.prompts?.[s] ?? null]));
     return readSet(after, k);
   };
@@ -185976,6 +186011,132 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
     };
   }
   return { ok: true, verification, collateral };
+}
+
+// ../engines/ai/deployment.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var DEPLOY_PATH = "/agent-deployment/routing-config/configs";
+var CHANNELS2 = ["SMS", "Email", "WhatsApp", "IG", "FB", "WebChat", "Live_Chat", "TIKTOK"];
+var FORCED_ALL = /* @__PURE__ */ new Set(["Email", "WebChat"]);
+var OPERATORS = ["AND", "OR"];
+var ROW_KEYS = ["enabled", "allIdentifiers", "specificIdentifiers", "includeTags", "includeTagsOperator", "excludeTags", "excludeTagsOperator"];
+var LIST_KEYS = /* @__PURE__ */ new Set(["specificIdentifiers", "includeTags", "excludeTags"]);
+var val2 = (r, k) => r?.[k] === void 0 && LIST_KEYS.has(k) ? [] : r?.[k] ?? null;
+var DeployError = class extends Error {
+  constructor(message) {
+    super(message);
+    this.code = "VALIDATION_FAILED";
+  }
+};
+var strings = (v, name) => {
+  if (v === void 0) return [];
+  if (!Array.isArray(v) || v.some((x) => typeof x !== "string" || !x.trim())) throw new DeployError(`${name} must be a list of non-empty strings`);
+  return [...new Set(v)];
+};
+function compileDeploymentIntent(args) {
+  const { agentId, channel } = args;
+  if (typeof agentId !== "string" || !agentId) throw new DeployError("agentId is required");
+  if (!CHANNELS2.includes(channel)) throw new DeployError(`channel must be one of ${CHANNELS2.join(", ")}`);
+  if (typeof args.enabled !== "boolean") throw new DeployError("enabled must be true or false \u2014 the whole intent is always sent");
+  const providerId = args.providerId ?? channel;
+  if (typeof providerId !== "string" || !providerId) throw new DeployError("providerId must be a non-empty string (omit it for a native channel)");
+  if (providerId !== channel && !["SMS", "Email"].includes(channel)) throw new DeployError("a marketplace providerId is only offered for SMS or Email");
+  const agentProductType = args.agentProductType ?? "conversation_ai";
+  const specificIdentifiers = strings(args.specificIdentifiers, "specificIdentifiers");
+  const forced = FORCED_ALL.has(channel) || providerId !== channel;
+  if (forced && specificIdentifiers.length) throw new DeployError(`${providerId !== channel ? "a marketplace provider row" : channel} is always "all" \u2014 specificIdentifiers are not offered`);
+  const allIdentifiers = forced ? true : args.allIdentifiers ?? specificIdentifiers.length === 0;
+  if (typeof allIdentifiers !== "boolean") throw new DeployError("allIdentifiers must be true or false");
+  if (allIdentifiers && specificIdentifiers.length) throw new DeployError("allIdentifiers:true and specificIdentifiers together \u2014 pick one");
+  if (!allIdentifiers && !specificIdentifiers.length) throw new DeployError("allIdentifiers:false needs at least one specificIdentifier (the editor requires one)");
+  const includeTags = strings(args.includeTags, "includeTags");
+  const excludeTags = strings(args.excludeTags, "excludeTags");
+  const both = includeTags.filter((t) => excludeTags.includes(t));
+  if (both.length) throw new DeployError(`a tag may not be in both lists (${both.join(", ")}) \u2014 the editor refuses it`);
+  const includeTagsOperator = args.includeTagsOperator ?? "AND";
+  const excludeTagsOperator = args.excludeTagsOperator ?? "AND";
+  for (const [k, v] of [["includeTagsOperator", includeTagsOperator], ["excludeTagsOperator", excludeTagsOperator]]) {
+    if (!OPERATORS.includes(v)) throw new DeployError(`${k} must be AND or OR`);
+  }
+  return {
+    identity: { agentId, channel, providerId, agentProductType },
+    row: { enabled: args.enabled, allIdentifiers, specificIdentifiers, includeTags, includeTagsOperator, excludeTags, excludeTagsOperator }
+  };
+}
+var sameTarget = (r, id) => r.agentId === id.agentId && r.channel === id.channel && r.providerId === id.providerId && (r.agentProductType ?? "conversation_ai") === id.agentProductType;
+var overlaps = (a, b) => {
+  const ai = a.includeTags ?? [], bi = b.includeTags ?? [], ae = a.excludeTags ?? [], be = b.excludeTags ?? [];
+  if (ai.some((t) => be.includes(t)) || bi.some((t) => ae.includes(t))) return false;
+  if (ai.length && bi.length && !ai.some((t) => bi.includes(t))) return false;
+  return true;
+};
+function planDeployment(rows, intent, { locationId }) {
+  if (!Array.isArray(rows)) throw new DeployError("the routing table read did not return a list");
+  const mine = rows.filter((r) => sameTarget(r, intent.identity));
+  if (mine.length > 1) {
+    return { refuse: `the agent has ${mine.length} rows for ${intent.identity.channel} / ${intent.identity.providerId} \u2014 ambiguous, nothing written`, rows: mine.map((r) => r.id) };
+  }
+  const rivals = rows.filter((r) => r.agentId !== intent.identity.agentId && r.enabled && r.channel === intent.identity.channel && r.providerId === intent.identity.providerId && (r.agentProductType ?? "conversation_ai") === intent.identity.agentProductType);
+  const collisions = intent.row.enabled ? rivals.filter((r) => overlaps(r, intent.row)).map((r) => ({ rowId: r.id, agentId: r.agentId, includeTags: r.includeTags, excludeTags: r.excludeTags })) : [];
+  if (!mine.length) {
+    return { action: "create", method: "POST", path: DEPLOY_PATH, body: { locationId, ...intent.identity, ...intent.row }, collisions, othersCount: rows.length };
+  }
+  const cur = mine[0];
+  const changed = ROW_KEYS.filter((k) => JSON.stringify(val2(cur, k)) !== JSON.stringify(intent.row[k]));
+  if (!changed.length) return { action: "noop", rowId: cur.id, collisions, othersCount: rows.length - 1 };
+  return { action: "update", method: "PATCH", path: `${DEPLOY_PATH}/${encodeURIComponent(cur.id)}`, rowId: cur.id, body: { ...intent.row }, changed, before: pick2(cur), collisions, othersCount: rows.length - 1 };
+}
+var pick2 = (r) => Object.fromEntries(ROW_KEYS.map((k) => [k, val2(r, k)]));
+var canon = (v) => Array.isArray(v) ? v.map(canon) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v;
+var same2 = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
+function verifyDeployment(beforeRows, afterRows, intent, targetId) {
+  const target = targetId ? afterRows.find((r) => r.id === targetId) : afterRows.filter((r) => sameTarget(r, intent.identity));
+  const row = Array.isArray(target) ? target.length === 1 ? target[0] : null : target;
+  const mismatches = row ? ROW_KEYS.filter((k) => JSON.stringify(val2(row, k)) !== JSON.stringify(intent.row[k])) : ["row not found after the write"];
+  const byId = new Map(afterRows.map((r) => [r.id, r]));
+  const others = beforeRows.filter((r) => r.id !== row?.id);
+  const changedOthers = others.filter((r) => !byId.has(r.id) || !same2(r, byId.get(r.id))).map((r) => r.id);
+  const appeared = afterRows.filter((r) => r.id !== row?.id && !beforeRows.some((b) => b.id === r.id)).map((r) => r.id);
+  return {
+    verified: !!row && !mismatches.length && !changedOthers.length && !appeared.length,
+    rowId: row?.id ?? null,
+    row: row ? pick2(row) : null,
+    mismatches,
+    othersUnchanged: others.length - changedOthers.length,
+    changedOthers,
+    appeared
+  };
+}
+async function executeDeployment({ gw, locationId, intent, confirm }) {
+  const list = `${DEPLOY_PATH}?locationId=${encodeURIComponent(locationId)}`;
+  const r0 = await gw.call("GET", list);
+  if (!r0?.ok) return { ok: false, http: r0 };
+  const before = r0.json;
+  let plan;
+  try {
+    plan = planDeployment(before, intent, { locationId });
+  } catch (e) {
+    return { ok: false, code: "ENGINE_ABORT", detail: e.message };
+  }
+  const preview = plan;
+  if (plan.refuse) return { ok: false, code: "VALIDATION_FAILED", detail: plan.refuse, preview };
+  if (!confirm || plan.action === "noop") return { ok: true, preview, confirmed: false };
+  const w = await gw.call(plan.method, plan.path, plan.body);
+  if (!w?.ok) {
+    const r12 = await gw.call("GET", list);
+    const verification2 = r12?.ok ? verifyDeployment(before, r12.json, intent, plan.rowId) : null;
+    return { ok: false, http: w, preview, verification: verification2 };
+  }
+  const createdId2 = plan.action === "create" ? w.json?.id ?? w.json?._id ?? w.json?.data?.id : plan.rowId;
+  const r1 = await gw.call("GET", list);
+  if (!r1?.ok) return { ok: false, code: "VERIFY_FAILED", detail: "the write was acknowledged but the table could not be re-read", preview, written: plan.action };
+  const verification = verifyDeployment(before, r1.json, intent, createdId2);
+  return { ok: verification.verified, code: verification.verified ? void 0 : "VERIFY_FAILED", preview, written: plan.action, verification };
 }
 
 // core/ai-studio.mjs
@@ -188048,6 +188209,62 @@ var TOOLS2 = [
         report.detail ?? "The Voice AI update did not verify.",
         report.code === "PROVIDER_REFUSED_RESTORE_FAILED" ? "URGENT: data.diverged lists fields where GHL and the voice provider now disagree. Re-read the agent and write a valid value for each." : report.code === "PROVIDER_REFUSED_BUT_STORED" ? "Read data.warning and data.values; fix the value from the provider message and retry." : "Inspect data.verification and data.collateral; the record is live, so re-read before retrying."
       ), data2);
+    }, args)
+  },
+  {
+    name: "set_agent_deployment",
+    description: describe3(
+      "set_agent_deployment",
+      "Put ONE agent on ONE channel in the Agent Deployment routing table (the Deploy page's channel rows), or change that row. Writes only the named agent's row: creates it when the agent has none on that channel + provider, otherwise PATCHes the full row. Reads the WHOLE table before and after and fails unless every other row is byte-identical and the target row equals what you asked. The routing table is account-wide: a row decides which bot answers a channel's conversations, so check data.preview.collisions (enabled rows of other agents on the same channel whose tag audience overlaps; GHL answers 409 naming the row) before confirming. Two bots share a channel only with disjoint tag scopes: one includes a tag, the other includes a different tag or EXCLUDES it (use OR for several excludes). channel: " + CHANNELS2.join(" | ") + ` (WebChat = the Chat widget card). Email and WebChat, and any marketplace providerId (SMS or Email providers only), are always "all" identifiers. The whole intent is sent every time: enabled is required; omitted tag lists mean none. Refuses an ambiguous target (two rows for the agent), a tag in both lists, and identifiers a channel cannot hold. There is no delete: a row is turned off with enabled:false. Does not create the channel's connection (numbers, pages, widgets) and does not prove a bot answers. Previews by default (one read, no write); confirm:true writes.`
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      agentId: external_exports.string(),
+      channel: external_exports.string().describe(CHANNELS2.join(" | ")),
+      enabled: external_exports.boolean(),
+      providerId: external_exports.string().optional().describe("an installed marketplace provider _id (SMS / Email only); omit for the native channel"),
+      agentProductType: external_exports.string().optional().describe("default conversation_ai"),
+      allIdentifiers: external_exports.boolean().optional(),
+      specificIdentifiers: external_exports.array(external_exports.string()).optional().describe("phone numbers (SMS, WhatsApp) or page / account / widget ids"),
+      includeTags: external_exports.array(external_exports.string()).optional(),
+      includeTagsOperator: external_exports.string().optional().describe("AND | OR (default AND)"),
+      excludeTags: external_exports.array(external_exports.string()).optional(),
+      excludeTagsOperator: external_exports.string().optional().describe("AND | OR (default AND)"),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: DEPLOY_PATH },
+      { method: "POST", path: DEPLOY_PATH },
+      { method: "PATCH", path: `${DEPLOY_PATH}/{rowId}` }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      let intent;
+      try {
+        intent = compileDeploymentIntent(args);
+      } catch (error51) {
+        return fail(CODES.VALIDATION_FAILED, error51.message, "Fix the arguments; nothing was sent.");
+      }
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const report = await executeDeployment({ gw, locationId: args.locationId, intent, confirm: args.confirm === true });
+      if (report.http) {
+        return withFailureData(fromHttp(report.http.status ?? 502, report.http.json), { preview: report.preview, verification: report.verification });
+      }
+      if (!report.ok) {
+        return withFailureData(fail(
+          CODES[report.code] ?? CODES.ENGINE_ABORT,
+          report.detail ?? "The routing row did not verify.",
+          report.code === "VERIFY_FAILED" ? "URGENT: read data.verification \u2014 changedOthers lists rows that moved, mismatches the target keys that differ. Re-read the table before anything else." : "Nothing was written."
+        ), { preview: report.preview, verification: report.verification });
+      }
+      if (!report.written) {
+        if (report.preview.action === "noop") return ok({ preview: report.preview, note: "The row already matches; nothing was written." });
+        return withFailureData(fail(
+          CODES.CONFIRM_REQUIRED,
+          "Deployment preview is ready; one read, no write.",
+          "Review data.preview (action, body, collisions), then repeat with confirm:true."
+        ), { preview: report.preview });
+      }
+      return ok({ written: report.written, verification: report.verification, preview: report.preview });
     }, args)
   },
   {
@@ -192383,8 +192600,8 @@ var TOOLS2 = [
         const r = await gw.call("GET", `/workflow/${loc}/error-notification/settings`);
         if (!r.ok) return { failure: fromHttp(r.status, r.json) };
         const raw = Array.isArray(r.json?.users) ? r.json.users : [];
-        const strings = raw.filter((u) => typeof u === "string");
-        if (strings.length !== raw.length) {
+        const strings2 = raw.filter((u) => typeof u === "string");
+        if (strings2.length !== raw.length) {
           return {
             failure: fail(
               CODES.VALIDATION_FAILED,
@@ -192393,7 +192610,7 @@ var TOOLS2 = [
             )
           };
         }
-        return { isActive: r.json?.isActive === true, users: strings };
+        return { isActive: r.json?.isActive === true, users: strings2 };
       };
       const before = await read();
       if (before.failure) return before.failure;
@@ -193344,8 +193561,8 @@ var TOOLS2 = [
         if (!p2.ok) return fromHttp(p2.status, p2.json);
       }
       const sortKeysDeep2 = (o) => Array.isArray(o) ? o.map(sortKeysDeep2) : o && typeof o === "object" ? Object.fromEntries(Object.keys(o).sort().map((k) => [k, sortKeysDeep2(o[k])])) : o;
-      const canon = (o) => JSON.stringify(sortKeysDeep2(o));
-      const sig = canon(args.samplePayload);
+      const canon2 = (o) => JSON.stringify(sortKeysDeep2(o));
+      const sig = canon2(args.samplePayload);
       const sleep = deps.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
       let request = null;
       for (let i = 0; i < (args.maxPolls ?? 8); i++) {
@@ -193355,7 +193572,7 @@ var TOOLS2 = [
         const rows = Array.isArray(l.json) ? l.json : [];
         request = args.pinLatestExisting === true ? rows[0] ?? null : rows.find((r) => {
           const { headers: _h, ...rest } = r?.payload ?? {};
-          return canon(rest) === sig;
+          return canon2(rest) === sig;
         }) ?? null;
         if (request) break;
       }
@@ -196888,8 +197105,8 @@ var TOOLS2 = [
               note: STEP_PRODUCT_NOTE
             };
             if (!id) return withFailureData(fail(CODES.VERIFY_FAILED, `the write answered ${w.status} without a step-product id`, "Read the step with get_funnel view step-products before adding again."), out);
-            const same2 = row && String(row.product?._id ?? row.product) === plan.body.product && String(row.price?._id ?? row.price) === plan.body.price;
-            if (!same2) return withFailureData(fail(CODES.VERIFY_FAILED, "the step product did not read back on the step with the requested product and price", "Compare data.stepProducts; do not add again blindly."), out);
+            const same3 = row && String(row.product?._id ?? row.product) === plan.body.product && String(row.price?._id ?? row.price) === plan.body.price;
+            if (!same3) return withFailureData(fail(CODES.VERIFY_FAILED, "the step product did not read back on the step with the requested product and price", "Compare data.stepProducts; do not add again blindly."), out);
             return ok(out);
           }
           default:
@@ -196924,7 +197141,7 @@ var TOOLS2 = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const body2 = (r) => r.json?.data ?? r.json ?? {};
-      const pick2 = (b, ...keys) => {
+      const pick3 = (b, ...keys) => {
         for (const k of keys) if (Array.isArray(b?.[k])) return b[k];
         return Array.isArray(b) ? b : [];
       };
@@ -196936,7 +197153,7 @@ var TOOLS2 = [
           coverage.push({ check: `dangling-references:${name}`, ran: false, why: `the ${name} list answered ${r.status}` });
           return;
         }
-        known[name] = new Set(pick2(body2(r), ...keys).map((x) => x.id ?? x._id).filter(Boolean));
+        known[name] = new Set(pick3(body2(r), ...keys).map((x) => x.id ?? x._id).filter(Boolean));
         coverage.push({ check: `dangling-references:${name}`, ran: true, knownIds: known[name].size });
       };
       await loadList("forms", `/forms/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, "forms");
@@ -196944,7 +197161,7 @@ var TOOLS2 = [
       await loadList("surveys", `/surveys/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, "surveys");
       const cv = await gw.call("GET", `/locations/${encodeURIComponent(args.locationId)}/customValues`);
       if (cv.status === 200) {
-        known.customValues = new Set(pick2(body2(cv), "customValues").map((c) => normaliseTag(c.fieldKey ?? "")).filter(Boolean));
+        known.customValues = new Set(pick3(body2(cv), "customValues").map((c) => normaliseTag(c.fieldKey ?? "")).filter(Boolean));
         coverage.push({ check: "merge-tags", ran: true, knownIds: known.customValues.size });
       } else {
         coverage.push({ check: "merge-tags", ran: false, why: `customValues answered ${cv.status}` });
@@ -196957,7 +197174,7 @@ var TOOLS2 = [
       } else {
         const all = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
         if (all.status !== 200) return fromHttp(all.status, all.json);
-        docs = pick2(body2(all), "funnels", "data");
+        docs = pick3(body2(all), "funnels", "data");
       }
       const scans = [];
       const findings = [];
@@ -197017,7 +197234,7 @@ var TOOLS2 = [
       let sweepDocs = docs;
       if (args.funnelId) {
         const all = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
-        if (all.status === 200) sweepDocs = pick2(body2(all), "funnels", "data");
+        if (all.status === 200) sweepDocs = pick3(body2(all), "funnels", "data");
       }
       const anyDomain = sweepDocs.some((d) => d.domainId);
       const rowsByFunnel = /* @__PURE__ */ new Map();
@@ -197033,7 +197250,7 @@ var TOOLS2 = [
             sweepFailed++;
             continue;
           }
-          rowsByFunnel.set(d._id, pick2(body2(r), "lookups", "data").filter((x) => !x.deleted));
+          rowsByFunnel.set(d._id, pick3(body2(r), "lookups", "data").filter((x) => !x.deleted));
           swept++;
         }
       }
@@ -197073,7 +197290,7 @@ var TOOLS2 = [
       let rendered = 0;
       if (args.includeRender) {
         const dres = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
-        const domains = new Map(pick2(body2(dres), "domains").map((d) => [d.id ?? d._id, d.url]));
+        const domains = new Map(pick3(body2(dres), "domains").map((d) => [d.id ?? d._id, d.url]));
         const pageOwner = /* @__PURE__ */ new Map();
         for (const d of docs) for (const st of d.steps ?? []) for (const pid of st.pages ?? []) pageOwner.set(pid, { doc: d, step: st });
         let noDomain = 0, noRoute = 0, cacheHits = 0;

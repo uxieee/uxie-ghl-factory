@@ -37837,7 +37837,8 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
-        "get_ai_configuration_bundle"
+        "get_ai_configuration_bundle",
+        "set_agent_deployment"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -37886,7 +37887,9 @@
       "rail": "ai",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "set_agent_deployment"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -37963,7 +37966,9 @@
       "kind": "write",
       "summary": "Update one channel's routing row. Proven 2026-08-31 by a live reply after switching Live chat to All widgets.",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "set_agent_deployment"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
