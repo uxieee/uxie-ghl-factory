@@ -143,7 +143,7 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 | API Call action (custom HTTP call during the chat) | Conversation AI agent → Build → Actions → API Call | an Actions-Platform skill with a mandatory test run; not yet engine-authored |
 | Active Hours (per-bot working hours, off-hours reply) | Agent → Deploy → Working Hours (needs Labs "Working Hours for Conversation AI") | Labs-gated per location |
 | Prompt Optimizer (simulated test chats, auto-optimise) | Agent editor → Prompt Optimizer (Labs) | billed per run, Labs-gated |
-| Legacy flow agents (node-graph Agent Studio) | AI Agents → Agent Studio (flow agents) | legacy; creation limited to five agencies |
+| Flow agents (the node-graph canvas) | Voice AI → Create Agent → **Flow Builder** (any location with the flag); AI Agents → Agent Studio (flow agents, create limited to five agencies) | tool/action nodes and deploy unproven; corpus `ai-agents/10-anatomy/flow-agent-shape.md` |
 | Chat widgets (create / style / install) | Sites → Chat Widget | raw request only, no typed tool |
 | AI Suite billing, usage limits, rebilling | Agency → AI Suite | agency billing, account-wide |
 

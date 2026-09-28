@@ -2,16 +2,19 @@
 
 > **Naming.** The GHL UI calls these **Managed Agents** — the "Agent Studio" tab's page title. What this plugin's
 > tools and older docs call "Agent Studio / Super Agents" is this product. The UI's other **Agent Studio** is the
-> legacy node-graph **flow builder** (`/agent-studio/agents*`), whose new agents only five hard-coded agencies can
-> create; this plugin does not author it (see the corpus `ai-agents/00-overview`). Ground truth: the corpus pages
+> node-graph **flow builder** (`/agent-studio/agents*`): its Agent Studio entry is limited to five hard-coded
+> agencies, but the same canvas opens for everyone from **Voice AI → Flow Builder** (a `voice_flow_builder` agent,
+> proven live 2026-09-28). This plugin does not author it (corpus `ai-agents/10-anatomy/flow-agent-shape.md`;
+> `flow-builder-nodes.md` is the unrelated Conversation AI flow bot). Ground truth: the corpus pages
 > `ai-agents/20-api/12-ai-agents-api.md` §5 and `ai-agents/20-api/managed-agent-workflow-invocation.md`, and this
 > plugin's `engines/ai/studio-ir.mjs` / `engines/ai/studio-compiler.mjs`. Underlying model:
 > `anthropic/claude-sonnet-4-6`. Not the public `agent-studio` API category (that one is the flow agents).
 
 **Status.** `create_studio_agent` (NL build → full-config PUT → read-back) was re-proven live on the designated test
-sub-account on 2026-09-25 (proof record `proofs/create_studio_agent.json`). Publishing, the `workflows` trigger and
-workflow invocation were proven on 2026-09-19. Everything this page marks *bundle* is from the 2026-09-25
-`superagentsApp` build 703 and not yet executed.
+sub-account on 2026-09-25 (proof record `proofs/create_studio_agent.json`). On 2026-09-28 every capability id, all
+13 trigger types, several triggers on one agent, `plugins: []`, publish/unpublish, a tag-trigger run, a schedule run
+and the test panel were executed live and read back (corpus `ai-agents/10-anatomy/managed-agent-shape.md`). Rows
+marked *bundle* are from the `superagentsApp` build and not executed.
 
 ## What Managed Agents are
 
@@ -69,24 +72,33 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
 - `model` — fixed to `anthropic/claude-sonnet-4-6` in every capture; not proven to be the only
   accepted value, but the only one this engine vouches for (`DEFAULT_MODEL` in
   `studio-ir.mjs`).
-- `tools[]` maps to the UI "Capabilities" toggles. The bundle knows `web_search`, `web_fetch`, `kb_search`,
-  `image_generation`, `tts_generation` (audio), `video_generation` and `mcp`; **this engine only emits** `web_search`,
-  `image_generation`, `kb_search` (`TOOLS` in `studio-ir.mjs`).
-  Attaching a knowledge base **auto-adds `kb_search`** — the compiler replicates this (you
-  don't need to list `kb_search` explicitly just because you set `knowledgeBaseIds`).
-- `triggers[]` — **several triggers can be active.** The bundle registers 13 supported slugs: `chat`, `form`,
-  `tag`, `schedule`, `appointment_booked`, `appointment_status`, `contact_created`, `opportunity_created`,
-  `opportunity_status_changed`, `survey_submission`, `facebook_lead_gen`, `facebook_comment`, `workflows` (+22
-  shown "Coming soon"). The server's own rule: chat alone, OR a combination of non-chat triggers — and `workflows`
-  combines with either. Each auto-fills a templated `triggerMessage`. **This engine only emits** `chat` and
-  `contact_created` (`VERIFIED_TRIGGER_TYPES` in `studio-ir.mjs`); `workflows` was proven live on 2026-09-19.
-- `contextManagement`, `plugins`, `reasoning.effort` — stable literal defaults across the 2026-07 captures, no
-  IR-level knob. The 2026-09-25 UI sends none of `contextManagement` / `starterPrompts` (0 hits in the bundle);
-  whether the server still stores them is unproven. The bundle's config also carries `actions[]` (Actions-Platform
-  instances `{actionName, actionId, triggerCondition, basePrompt}`), `imageGeneration.quality`,
-  `mediaSettings.{tts,video}`, `customApiEnabled`, `customApiCalls`. Per-skill scoping within the Default plugin (unchecking a
-  built-in tool category) never persisted a PUT in the captured beta UI session — treat that
-  as an unresolved gap, not something this compiler can drive.
+- `tools[]` maps to the UI "Capabilities" toggles: `web_search`, `kb_search`, `web_fetch`, `image_generation`,
+  `tts_generation` (audio), `video_generation`, `mcp` — all seven stored and read back live (`TOOLS` in
+  `studio-ir.mjs`). 🔴 **The server does not validate this list** (a made-up id was stored), so the engine refuses
+  anything else. Attaching a knowledge base **auto-adds `kb_search`** — the compiler replicates this.
+- `triggers[]` — **several triggers can be active** (stored and read back live). All 13 types the editor offers are
+  accepted: `chat`, `form`, `tag`, `schedule`, `appointment_booked`, `appointment_status`, `contact_created`,
+  `opportunity_created`, `opportunity_status_changed`, `survey_submission`, `facebook_lead_gen`, `facebook_comment`,
+  `workflows` (`VERIFIED_TRIGGER_TYPES`). **The one rule the server enforces**: chat alone, OR a combination of
+  non-chat triggers — and `workflows` combines with either; the engine refuses a mix with `TRIGGER_MIX` before any
+  write. Everything else the editor requires (a form picked, a calendar, a page) is client-only: the server stores a
+  `form` trigger with no forms. Per-type `config` shapes are in the corpus page above.
+- 🔴 **A `schedule` runs in the LOCATION's timezone; the trigger's `timezone` field is ignored** (proven live
+  2026-09-28: a once-schedule labelled 17:30 "UTC" fired at 17:30 Europe/London). `create_studio_agent` reads the
+  location's timezone on `confirm` and refuses a schedule labelled with any other zone
+  (`SCHEDULE_TIMEZONE_MISMATCH`). Write the start time in the location's own zone. The editor wants runs ≥ 5 min
+  apart and a future `once` time (*bundle*).
+- 🔴 **`plugins` (apps) — a new agent gets the Default plugin with ALL 540 built-in CRM skills** (it can message
+  contacts and write CRM records). Omitting `plugins` keeps that default (`DEFAULT_PLUGINS` in
+  `studio-compiler.mjs`); `plugins: []` removes every app (proven live). Every preview names which one you get.
+  Set it to what the agent needs before publishing anything whose triggers fire on real events.
+- `imageGeneration: {quality: low|medium|high}` and `mediaSettings: {tts: {voice, instructions}, video:
+  {durationSeconds}}` pass through when given.
+- `contextManagement`, `reasoning.effort` — server defaults `{strategy:"summarize", keepRecentTurns:10,
+  compactionThreshold:0.9}` and `{effort:"medium"}`. The config also carries `actions[]` (Actions-Platform
+  instances `{actionName, actionId, triggerCondition, basePrompt}`, *bundle*), `customApiEnabled`,
+  `customApiCalls`. Per-skill scoping within the Default plugin (unchecking a built-in tool category) never
+  persisted a PUT in the captured beta UI session — an unresolved gap, not something this compiler drives.
 - `knowledgeBaseIds` — capture shows `null` when unset (never an empty array); the compiler
   preserves that null-vs-array distinction rather than defaulting to `[]`.
 
@@ -134,7 +146,8 @@ const upd = compileSuperAgentUpdate({
   name: 'Support Agent',
   systemPrompt: '...',
   tools: ['web_search'],
-  trigger: { type: 'contact_created' },
+  plugins: [],                                   // no apps; omit for the Default plugin (all CRM skills)
+  triggers: [{ type: 'tag', config: { tagIds: ['vip'], tagNames: ['vip'], tagAction: 'added' } }],
   knowledgeBaseIds: [kbId], // auto-adds kb_search
 }, { agentId, locationId });
 ```

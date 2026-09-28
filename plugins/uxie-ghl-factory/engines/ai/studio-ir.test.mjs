@@ -54,8 +54,15 @@ test('empty-string systemPrompt rejected', () => {
 
 // --- tools[] enum -----------------------------------------------------------------
 
-test('TOOLS enum matches captured values', () => {
-  assert.deepEqual(TOOLS, ['web_search', 'image_generation', 'kb_search']);
+test('TOOLS enum is the 7 capability ids stored and read back live (2026-09-28)', () => {
+  assert.deepEqual(TOOLS, ['web_search', 'kb_search', 'web_fetch', 'image_generation', 'tts_generation', 'video_generation', 'mcp']);
+});
+
+test('the three newer capability ids pass; a made-up one is still refused (control)', () => {
+  const ir = validIR(); ir.tools = ['web_fetch', 'tts_generation', 'video_generation', 'mcp'];
+  assert.deepEqual(parseSuperAgentIR(ir).tools, ['web_fetch', 'tts_generation', 'video_generation', 'mcp']);
+  const bad = validIR(); bad.tools = ['bogus_tool_x'];
+  assert.throws(() => parseSuperAgentIR(bad), (e) => e instanceof IRError && e.code === 'BAD_TOOL');
 });
 
 test('valid tools[] passes', () => {
@@ -77,10 +84,11 @@ test('non-array tools rejected', () => {
   assert.throws(() => parseSuperAgentIR(ir), (e) => e instanceof IRError && e.code === 'SCHEMA');
 });
 
-// --- single-trigger constraint ------------------------------------------------------
+// --- triggers ---------------------------------------------------------------------
 
-test('VERIFIED_TRIGGER_TYPES matches the two live-captured trigger types', () => {
-  assert.deepEqual(VERIFIED_TRIGGER_TYPES, ['chat', 'contact_created']);
+test('VERIFIED_TRIGGER_TYPES is the 13 types the picker offers, each read back live', () => {
+  assert.equal(VERIFIED_TRIGGER_TYPES.length, 13);
+  for (const t of ['chat', 'form', 'tag', 'schedule', 'appointment_booked', 'appointment_status', 'contact_created', 'opportunity_created', 'opportunity_status_changed', 'survey_submission', 'facebook_lead_gen', 'facebook_comment', 'workflows']) assert.ok(VERIFIED_TRIGGER_TYPES.includes(t), t);
 });
 
 test('single trigger object passes (chat, matching studio-create.json default)', () => {
@@ -110,16 +118,44 @@ test('trigger missing type rejected', () => {
   assert.throws(() => parseSuperAgentIR(ir), (e) => e instanceof IRError && e.code === 'SCHEMA');
 });
 
-test('trigger as an array (instead of a single object) rejected', () => {
+test('trigger as an array (instead of a single object) rejected — use `triggers`', () => {
   const ir = validIR();
-  ir.trigger = [{ type: 'chat' }];
-  assert.throws(() => parseSuperAgentIR(ir), (e) => e instanceof IRError && e.code === 'TOO_MANY_TRIGGERS');
+  ir.trigger = [{ type: 'tag' }];
+  assert.throws(() => parseSuperAgentIR(ir), (e) => e instanceof IRError && e.code === 'SCHEMA');
 });
 
-test('2+ triggers via the `triggers` array rejected', () => {
+test('several non-chat triggers pass (live: tag + schedule stored and fired)', () => {
   const ir = validIR();
-  ir.triggers = [{ type: 'chat', name: 'Chat Started' }, { type: 'contact_created', name: 'Contact created' }];
-  assert.throws(() => parseSuperAgentIR(ir), (e) => e instanceof IRError && e.code === 'TOO_MANY_TRIGGERS');
+  ir.triggers = [{ type: 'tag', config: { tagIds: ['x'], tagNames: ['x'], tagAction: 'added' } }, { type: 'schedule', config: { schedule: { mode: 'once', startDate: '2026-12-31', startTime: '10:00', timezone: 'Europe/London' } } }, { type: 'workflows' }];
+  assert.equal(parseSuperAgentIR(ir).triggers.length, 3);
+});
+
+test('chat mixed with a non-chat trigger is refused (the server 400s it); chat + workflows passes (control)', () => {
+  const bad = validIR(); bad.triggers = [{ type: 'chat' }, { type: 'contact_created' }];
+  assert.throws(() => parseSuperAgentIR(bad), (e) => e instanceof IRError && e.code === 'TRIGGER_MIX');
+  const ok = validIR(); ok.triggers = [{ type: 'chat' }, { type: 'workflows' }];
+  assert.equal(parseSuperAgentIR(ok).triggers.length, 2);
+});
+
+test('a schedule trigger needs config.schedule with a known mode', () => {
+  const ir = validIR(); ir.triggers = [{ type: 'schedule', config: {} }];
+  assert.throws(() => parseSuperAgentIR(ir), (e) => e instanceof IRError && e.code === 'SCHEMA');
+  const ir2 = validIR(); ir2.triggers = [{ type: 'schedule', config: { schedule: { mode: 'weekly' } } }];
+  assert.throws(() => parseSuperAgentIR(ir2), (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('plugins: [] passes, a plugin without slug is refused', () => {
+  const ir = validIR(); ir.plugins = [];
+  assert.deepEqual(parseSuperAgentIR(ir).plugins, []);
+  const bad = validIR(); bad.plugins = [{ name: 'x' }];
+  assert.throws(() => parseSuperAgentIR(bad), (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('imageGeneration.quality must be low|medium|high', () => {
+  const ir = validIR(); ir.imageGeneration = { quality: 'low' };
+  assert.equal(parseSuperAgentIR(ir).imageGeneration.quality, 'low');
+  const bad = validIR(); bad.imageGeneration = { quality: 'ultra' };
+  assert.throws(() => parseSuperAgentIR(bad), (e) => e instanceof IRError && e.code === 'SCHEMA');
 });
 
 test('single-element `triggers` array passes (alternate input shape)', () => {

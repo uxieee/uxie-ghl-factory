@@ -596,8 +596,37 @@ export function compileAiAgentPlan(kind, args) {
   // store an `actions` key at all (expected []). Those fields are AI/server-owned,
   // not ours to assert. The follow-up PUT still sends the full config; we just don't
   // pretend to verify what we did not author.
-  const { name, systemPrompt } = update.body.config ?? {};
-  return { create, actions: [], followUps: [update], verifyExpected: { config: { name, systemPrompt } } };
+  // When the caller DID author plugins or triggers, those are ours to verify too — a least-privilege
+  // plugins:[] that did not land would leave the agent with every CRM skill.
+  const { name, systemPrompt, plugins, triggers } = update.body.config ?? {};
+  const verified = { name, systemPrompt };
+  if (args.spec?.plugins !== undefined) verified.plugins = plugins;
+  if (args.spec?.trigger !== undefined || args.spec?.triggers !== undefined) verified.triggers = triggers;
+  return { create, actions: [], followUps: [update], verifyExpected: { config: verified } };
+}
+
+// What a Managed Agent create applies that the caller did not write, stated in every preview.
+function studioDefaultsNote(spec = {}) {
+  const plugins = spec.plugins === undefined
+    ? 'NOT SET — GHL default applies: the Default plugin with ALL built-in CRM skills (can send SMS/email and write contacts and opportunities). Pass plugins:[] for no apps.'
+    : (spec.plugins.length ? `as given: ${spec.plugins.map((p) => p.slug).join(', ')}` : 'none (plugins: [])');
+  const list = spec.trigger ? [spec.trigger] : (spec.triggers ?? []);
+  return { plugins, triggers: list.length ? list.map((t) => t.type).join(', ') : 'none given (the AI build may add a chat trigger)', publish: 'never — the agent stays a draft' };
+}
+
+// Post-call behaviour a Voice AI create applies unless the spec says otherwise (live 2026-09-28: a new
+// agent writes each call's summary as a NOTE on the caller's contact and emails every admin after each call).
+function voiceDefaultsNote(spec = {}) {
+  const pc = spec.postCall ?? {};
+  const note = pc.saveCallSummaryAsNote === undefined ? 'NOT SET — GHL default ON: every call summary is saved as a note on the caller\'s contact. Set postCall.saveCallSummaryAsNote:false to stop it.' : String(pc.saveCallSummaryAsNote);
+  const mail = pc.sendPostCallNotificationTo === undefined ? 'NOT SET — default ON for all admins: an email after every call. Set postCall.sendPostCallNotificationTo to change it.' : JSON.stringify(pc.sendPostCallNotificationTo);
+  return { saveCallSummaryAsNote: note, sendPostCallNotificationTo: mail };
+}
+
+// Timezones a spec writes on its schedule triggers (GHL ignores them: a schedule runs in location time).
+function scheduleTimezones(spec = {}) {
+  const list = spec.trigger ? [spec.trigger] : (spec.triggers ?? []);
+  return list.filter((t) => t?.type === 'schedule').map((t) => t.config?.schedule?.timezone).filter((z) => typeof z === 'string' && z.length);
 }
 
 const aiPlanPreview = (plan) => ({
@@ -2205,7 +2234,7 @@ export const TOOLS = [
   },
   {
     name: 'create_voiceai_agent',
-    description: `${describe('create_voiceai_agent', 'Create Voice AI agent')}. Live-proven end-to-end on GROM AU 2026-07-21 (create → full-replace update → verified). Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_voiceai_agent', 'Create Voice AI agent')}. Live-proven end-to-end (create → full-replace update → verified). 🔴 Post-call defaults: unless spec.postCall says otherwise, every call summary is saved as a NOTE on the caller's contact (GHL default) and ALL admins get an email after every call — set postCall.saveCallSummaryAsNote:false and postCall.sendPostCallNotificationTo to change them; the preview names what applies. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'POST', path: '/voice-ai/agents' },
@@ -2215,7 +2244,7 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       const plan = compileAiAgentPlan('voiceai', args);
-      const preview = aiPlanPreview(plan);
+      const preview = { ...aiPlanPreview(plan), defaults: voiceDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
         'Voice AI agent preview is ready; no gateway call or write was made.',
@@ -2287,7 +2316,7 @@ export const TOOLS = [
   },
   {
     name: 'create_studio_agent',
-    description: `${describe('create_studio_agent', 'Create Agent Studio agent')}. Live-proven end-to-end on GROM AU 2026-07-21 (SSE build → follow-up PUT → verified). Provide buildPrompt (the AI build instruction) and/or systemPrompt (the exact runtime prompt) — either alone works; both keeps their distinct roles. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_studio_agent', 'Create Agent Studio agent')}. Creates a Managed Agent (the UI's AI Agents → Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt — either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). 🔴 Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none — the preview names what applies. 🔴 A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. The agent is created as a draft (never published). Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), companyId: z.string().optional(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'SSE', path: '/agent-studio/super-agents/build' },
@@ -2296,13 +2325,26 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       const plan = compileAiAgentPlan('studio', args);
-      const preview = aiPlanPreview(plan);
+      const preview = { ...aiPlanPreview(plan), defaults: studioDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
         'Agent Studio preview is ready; no gateway call or write was made.',
-        'Review data.preview, then repeat the same locationId, companyId, and spec with confirm:true for a throwaway validation run.',
+        'Review data.preview (and data.preview.defaults), then repeat the same locationId, companyId, and spec with confirm:true for a throwaway validation run.',
       ), { preview });
-      const report = await executeAgentPlan({ plan, gw: deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state }) });
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const labelled = scheduleTimezones(args.spec);
+      if (labelled.length) {
+        const loc = await gw.call('GET', `/locations/${encodeURIComponent(args.locationId)}`, undefined, { base: AI_BASE });
+        const zone = loc.ok ? (loc.json?.location?.timezone ?? loc.json?.timezone ?? null) : null;
+        if (!zone) return withFailureData(fail('SCHEDULE_TIMEZONE_UNKNOWN',
+          'This spec has a schedule trigger, and the location timezone could not be read — nothing was created.',
+          'GHL runs a schedule in the location\'s own timezone. Read the location, then retry.'), { preview });
+        const bad = [...new Set(labelled.filter((z) => z !== zone))];
+        if (bad.length) return withFailureData(fail('SCHEDULE_TIMEZONE_MISMATCH',
+          `GHL runs a Managed Agent schedule in the LOCATION's timezone (${zone}) and ignores the trigger's timezone field (live 2026-09-28: a once-schedule labelled 17:30 "UTC" fired at 17:30 ${zone}). This spec labels a schedule ${bad.join(', ')} — nothing was created.`,
+          `Write startDate/startTime as ${zone} wall-clock time and set timezone to "${zone}".`), { preview, locationTimezone: zone });
+      }
+      const report = await executeAgentPlan({ plan, gw });
       const data = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
       return report.ok ? ok(data) : withFailureData(fail(report.code, 'Agent Studio creation did not complete and verify.',
         'This unproven SSE path may have partially created a canary. Inspect data.created and clean it up before retrying.'), data);

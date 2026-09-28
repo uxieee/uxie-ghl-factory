@@ -151,7 +151,11 @@ compiler's.
   `reminderAfterIdleTimeSeconds`, `reminderFrequency`, `endCallAfterSilenceMs`,
   `ringDurationSeconds` (stored; builder 707 shows no control for it), `language`.
 - **Post-call:** `sendPostCallNotificationTo{admins, allUsers, contactAssignedUser,
-  specificUsers[], customEmails[]}`, `callEndWorkflowIds[]`.
+  specificUsers[], customEmails[]}`, `callEndWorkflowIds[]`, `saveCallSummaryAsNote`.
+  🔴 **A new agent saves every call summary as a note on the caller's contact and emails all admins after every
+  call** (both read back on a fresh agent, 2026-09-28). The compiler writes `admins: true` when you give no
+  `sendPostCallNotificationTo`, and leaves GHL's `saveCallSummaryAsNote: true` unless you set
+  `postCall.saveCallSummaryAsNote: false`; the `create_voiceai_agent` preview names both under `defaults`.
 - **Outbound / consent:** `aiDisclaimerConfiguration{disclaimerEnabled, outboundDisclaimerType
   (concise | standard | conversational | custom), outboundDisclaimerMessage, outboundIntentMessage (the Welcome Message's
   Outbound tab), playDisclaimerOnEveryCall}` — the read also carries `isGreetingMessageDynamic: null`, which the write
