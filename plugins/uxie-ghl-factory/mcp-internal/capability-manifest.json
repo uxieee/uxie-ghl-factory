@@ -45,6 +45,16 @@
     "path": "/voice-ai/agents/{agentId}"
   },
   {
+    "tool": "update_voiceai_agent",
+    "method": "GET",
+    "path": "/voice-ai/agents/{agentId}"
+  },
+  {
+    "tool": "update_voiceai_agent",
+    "method": "PUT",
+    "path": "/voice-ai/agents/{agentId}"
+  },
+  {
     "tool": "create_studio_agent",
     "method": "SSE",
     "path": "/agent-studio/super-agents/build"

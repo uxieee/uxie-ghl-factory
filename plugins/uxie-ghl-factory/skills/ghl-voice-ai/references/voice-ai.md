@@ -77,12 +77,28 @@ workflow-builder's `Authorization: Bearer`. See the parent SKILL.md's Execute se
 
 ## ⚠️ Full-replace update (differs from Conversation AI)
 
-Every save in the Voice AI builder issues the **same PUT**
-`/voice-ai/agents/:id?publishAgent=true&mode=update` with the **complete agent object** —
-untouched fields are re-sent unchanged. The builder's main save is this full replace. A partial path does exist —
-`PATCH /voice-ai/agents/{agentId}` (the client's `patchAgent`), and flow-builder screens send partial PUTs
-without `mode` — but whether a PUT without `mode` merges is unproven; this engine uses only the full replace.
-This is the opposite of Conversation AI's merge-PUT.
+The builder's main save sends `/voice-ai/agents/:id?publishAgent=true&mode=update` with the **complete agent
+object**. The flow builder sends partial PUTs without `mode` (`{locationId, agentName}`, `{locationId, llmModel}`,
+`{locationId, voiceId}`), and `PATCH /voice-ai/agents/{agentId}?locationId=` carries `sessionVariables`.
+
+**Measured 2026-09-28** (every field diffed before and after, on a test agent):
+- A partial PUT **merges at the top level** on both rails: only the keys sent change.
+- A **nested object** (`sendPostCallNotificationTo`, `translation`, `endCallConfig`, `noResponseConfig`,
+  `aiDisclaimerConfiguration`) is validated whole: a partial one answers 422 naming every missing inner field and
+  writes nothing. Send the whole object.
+- Writes are flat and reads nest under `agentSettings` (`voiceId` → `agentSettings.voice.voiceId`,
+  `language` → `agentSettings.language.code`, `ringDurationSeconds` → `agentSettings.ringDurationMs`).
+- Server bounds (refused, nothing written): `maxCallDuration` ≤ 7200 s; `responsiveness`, `interruptionSensitivity`,
+  `modelTemperature`, `voiceTemperature`, `voiceSpeed` and `voiceVolume` ≤ 1; `ambientSoundVolume` ≤ 2. Server enums:
+  `sttMode`, `denoisingMode`, `vocabSpecialization`, `welcomeMessageMode` (`ai_custom | user_first`), `timezone`,
+  `voiceModel` (`auto, eleven_v3, eleven_multilingual_v2, eleven_flash_v2_5, eleven_turbo_v2_5, eleven_flash_v2,
+  eleven_turbo_v2, sonic-3, sonic-3-latest, tts-1, gpt-4o-mini-tts`).
+- Client-only (stored past the editor's limit): `endCallAfterSilenceMs`, `translation.language`.
+- 🔴 **Provider-side refusals still write:** `llmModel` (checked against the provider's list) and `beginMessageDelayMs`
+  (0–5 s at the provider, 0–10 s in the editor) answered 400 and GHL kept the value.
+- `backchannelWords` answered 200 and read back `[]` while `enableBackchannel` was off.
+
+`update_voiceai_agent` is the tool for all of this. The create path below still builds a whole document.
 
 Practical consequence for the engine: `POST /voice-ai/agents` accepts almost nothing — per
 the capture, just `{locationId}` — the backend auto-generates a default agent (name, prompt,

@@ -98,7 +98,8 @@ import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/eng
 import { compileConvaiAgent } from '../../engines/ai/convai-compiler.mjs';
 import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../engines/ai/voiceai-compiler.mjs';
 import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/ai/studio-compiler.mjs';
-import { executeAgentPlan, executeAgentUpdate } from '../../engines/ai/driver.mjs';
+import { executeAgentPlan, executeAgentUpdate, serverMessage } from '../../engines/ai/driver.mjs';
+import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from '../../engines/ai/voiceai-update.mjs';
 import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
 import { StudioApi, queryProjectHistory, filterRoutes, classifySite, nameWarning,
          sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor } from './ai-studio.mjs';
@@ -1952,6 +1953,52 @@ export const TOOLS = [
       const data = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
       return report.ok ? ok(data) : withFailureData(fail(report.code, 'Voice AI creation did not complete and verify.',
         'This unproven path may have partially created a canary. Inspect data.created and clean it up before retrying.'), data);
+    }, args),
+  },
+  {
+    // T1 (2026-09-28). Voice AI's PUT merges a partial body at the top level and validates nested objects whole, and
+    // some refusals come from the voice provider AFTER GHL stored the value — see engines/ai/voiceai-update.mjs.
+    name: 'update_voiceai_agent',
+    description: describe('update_voiceai_agent',
+      'Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, '
+      + 'llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, '
+      + 're-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL '
+      + 'saves), it writes the previous values back and says so. Refuses action arrays, numbers, session variables and '
+      + 'unknown keys. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes.'),
+    inputSchema: schema({ locationId: z.string(), agentId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
+    capabilities: [
+      { method: 'GET', path: '/voice-ai/agents/{agentId}' },
+      { method: 'PUT', path: '/voice-ai/agents/{agentId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const cur = await gw.call('GET', `/voice-ai/agents/${args.agentId}?locationId=${encodeURIComponent(args.locationId)}`);
+      if (!cur?.ok) return fromHttp(cur?.status ?? 502, cur?.json);
+      const before = cur.json?.agent ?? cur.json;
+      if (!before || typeof before !== 'object') {
+        return fail(CODES.ENGINE_ABORT, 'the agent GET returned no record.', 'Confirm the agentId; nothing was written.');
+      }
+      let plan;
+      try {
+        plan = compileVoiceAiPartialUpdate(before, args.spec, { agentId: args.agentId, locationId: args.locationId });
+      } catch (error) {
+        return fail(CODES.ENGINE_ABORT, `update rejected (${error.code ?? 'ENGINE_ABORT'}): ${error.message}`,
+          'The spec was rejected before any request was sent — nothing was written.');
+      }
+      const preview = { agent: { id: args.agentId, name: before.agentName }, body: plan.body };
+      if (args.confirm !== true) {
+        return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Voice AI update preview is ready; no write was made.',
+          'Review data.preview.body, then repeat with confirm:true.'), { preview });
+      }
+      const report = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+      const data = { preview, verification: report.verification, collateral: report.collateral,
+        ...(report.written ? { written: report.written, restored: report.restored } : {}), ...(report.warning ? { warning: report.warning } : {}) };
+      return report.ok
+        ? ok(data)
+        : withFailureData(fail(report.code ?? CODES.ENGINE_ABORT, report.detail ?? 'The Voice AI update did not verify.',
+          report.code === 'PROVIDER_REFUSED_BUT_STORED'
+            ? 'Read data.warning; fix the value from the provider message and retry.'
+            : 'Inspect data.verification and data.collateral; the record is live, so re-read before retrying.'), data);
     }, args),
   },
   {
