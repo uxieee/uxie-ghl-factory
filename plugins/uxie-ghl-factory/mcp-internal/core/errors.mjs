@@ -246,6 +246,12 @@ export function containsSecrets(value, key = '', depth = 0) {
   // live-3J-webhook-chain-run2-authorization-refused.json). Exactly that shape only: any other type,
   // or any data at all, still falls through to the key-name refusal below.
   if (isNoAuthObject(key, value)) return false;
+  // An EMPTY string under a secret-named key carries no credential either. The chatgpt drawer
+  // stores apiKey:"" (GHL then uses its own key), and the key-name rule refused that default, so
+  // the drawer's shape could not be authored (live 2026-09-28, knowledge sniffs/workflows-wave1-
+  // 2026-09-25/live-3P-chatgpt-run1-apikey-refused.json). Exactly '' only: whitespace or any
+  // character still falls through to the key-name refusal below.
+  if (value === '' && isSecretKey(key)) return false;
   if (isSecretKey(key)) return true;
   if (value == null) return false;
   if (typeof value === 'string') return hasSecretText(value);
@@ -291,7 +297,13 @@ export function scrubSecrets(value) {
       // "sk_live_…"}}`), so recursing would leak it. Callers wanting to expose metadata
       // ABOUT a credential must name the field something that is not itself a credential
       // name — see authStatus's `jwtClaims` / `tokenIdClaims`.
-      isSecretKey(key) ? '<redacted>' : scrubSecrets(item),
+      //
+      // Two values under a secret-named key carry no credential and are passed through as they are:
+      // an EMPTY string and the exact no-auth object. Redacting them manufactured one: a chatgpt
+      // step's apiKey:"" read back as "<redacted>", and writing that export back would store the
+      // literal as the key (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
+      // live-3P2-chatgpt-apikey.json).
+      isSecretKey(key) ? (item === '' || isNoAuthObject(key, item) ? item : '<redacted>') : scrubSecrets(item),
     ]));
   }
   return value;
