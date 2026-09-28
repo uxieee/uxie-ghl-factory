@@ -1997,12 +1997,15 @@ export const TOOLS = [
       }
       const report = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
       const data = { preview, verification: report.verification, collateral: report.collateral,
-        ...(report.written ? { written: report.written, restored: report.restored } : {}), ...(report.warning ? { warning: report.warning } : {}) };
+        ...(report.written ? { written: report.written, restored: report.restored, values: report.values } : {}),
+        ...(report.diverged ? { diverged: report.diverged } : {}), ...(report.warning ? { warning: report.warning } : {}) };
       return report.ok
         ? ok(data)
         : withFailureData(fail(report.code ?? CODES.ENGINE_ABORT, report.detail ?? 'The Voice AI update did not verify.',
-          report.code === 'PROVIDER_REFUSED_BUT_STORED'
-            ? 'Read data.warning; fix the value from the provider message and retry.'
+          report.code === 'PROVIDER_REFUSED_RESTORE_FAILED'
+            ? 'URGENT: data.diverged lists fields where GHL and the voice provider now disagree. Re-read the agent and write a valid value for each.'
+            : report.code === 'PROVIDER_REFUSED_BUT_STORED'
+            ? 'Read data.warning and data.values; fix the value from the provider message and retry.'
             : 'Inspect data.verification and data.collateral; the record is live, so re-read before retrying.'), data);
     }, args),
   },

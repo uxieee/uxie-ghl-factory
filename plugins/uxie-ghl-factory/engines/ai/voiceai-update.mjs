@@ -11,6 +11,9 @@
 //   - 🔴 Some refusals come from the VOICE PROVIDER after GHL has stored the value: `llmModel: "bogus-llm"` and
 //     `beginMessageDelayMs: 11000` both answered HTTP 400 carrying the provider's error, and GHL kept the value, so
 //     the GHL record and the provider agent diverged. This module restores the previous values when that happens.
+//   - `knowledgeBaseIds` is stored on the agent AND makes the server mint (or remove) a KNOWLEDGE_BASE action. The
+//     `knowledgeBasePrompt` is stored as that action's actionParameters.triggerPrompt — never on the agent — and is
+//     IGNORED (200, nothing changes) unless `knowledgeBaseIds` rides in the same PUT (measured 2026-09-28).
 import { IRError } from './convai-ir.mjs';
 
 // Nested objects the PUT validates whole. Each is merged over the stored object before sending.
@@ -83,6 +86,15 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
     }
   }
   const body = { locationId: locationId ?? current.locationId };
+  // A lone knowledgeBasePrompt is accepted and ignored, so it travels with the stored KB ids, as the builder sends it.
+  if ('knowledgeBasePrompt' in spec && !('knowledgeBaseIds' in spec)) {
+    const ids = Array.isArray(current.knowledgeBaseIds) ? current.knowledgeBaseIds : [];
+    if (!ids.length) {
+      throw new IRError('SCHEMA', 'knowledgeBasePrompt needs a knowledge base on the agent: none is attached, and the '
+        + 'prompt lives on the knowledge-base action the attach creates. Send knowledgeBaseIds with it. Nothing was sent.');
+    }
+    body.knowledgeBaseIds = ids;
+  }
   const expected = {};
   for (const [k, v] of Object.entries(spec)) {
     if (NESTED_WHOLE.includes(k)) {
@@ -98,6 +110,17 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
 }
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const KB_KEYS = ['knowledgeBaseIds', 'knowledgeBasePrompt'];
+const kbActions = (record) => (record?.actions ?? []).filter((a) => a?.actionType === 'KNOWLEDGE_BASE');
+
+/** The value the READ shows for a set key; knowledgeBasePrompt lives on the KNOWLEDGE_BASE action(s). */
+function readSet(record, key) {
+  if (key === 'knowledgeBasePrompt') {
+    const prompts = [...new Set(kbActions(record).map((a) => a.actionParameters?.triggerPrompt))];
+    return prompts.length === 1 ? prompts[0] : prompts;
+  }
+  return readFlat(record, key);
+}
 const IGNORE = new Set(['updatedAt', 'traceId', '__v']);
 
 /** Every readable field of a record, flattened one level (agentSettings.* and top level) for the collateral diff. */
@@ -135,22 +158,41 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
     for (const k of stored) undo[k] = readFlat(before, k);
     const u = await gw.call('PUT', plan.path, undo);
     const again = await read();
-    const restored = stored.every((k) => same(readFlat(again, k), readFlat(before, k)));
+    const diverged = stored.filter((k) => !same(readFlat(again, k), readFlat(before, k)));
+    const restored = diverged.length === 0 && Boolean(u?.ok);
+    // Both facts, with values: what the refusal left stored, and what the record reads after the write-back.
+    const values = Object.fromEntries(stored.map((k) => [k, { sent: plan.body[k], storedAfterRefusal: readFlat(after, k),
+      restoredTo: readFlat(before, k), readsNow: again ? readFlat(again, k) : undefined }]));
+    if (!restored) {
+      return {
+        ok: false, code: 'PROVIDER_REFUSED_RESTORE_FAILED', status: put?.status ?? null, detail: message,
+        written: stored, restored: false, values, diverged,
+        warning: `🔴 The refusal stored [${stored.join(', ')}] and writing the previous values back did NOT verify for `
+          + `[${diverged.join(', ') || stored.join(', ')}]. The GHL record and the voice provider now DISAGREE on those fields — `
+          + 're-read the agent and write a valid value for each.',
+      };
+    }
     return {
       ok: false, code: 'PROVIDER_REFUSED_BUT_STORED', status: put?.status ?? null, detail: message,
-      written: stored, restored: restored && Boolean(u?.ok),
+      written: stored, restored: true, values,
       warning: `The refusal came back AFTER GHL stored [${stored.join(', ')}] — the GHL record and the voice provider disagreed. `
-        + (restored ? 'The previous values were written back and read back.' : 'Writing the previous values back did NOT verify — re-read the agent and fix it.'),
+        + 'The previous values were written back and read back (data.values shows sent / stored / restored / now).',
     };
   }
 
   const confirmed = []; const mismatches = [];
-  for (const k of plan.setKeys) (same(readFlat(after, k), plan.expected[k]) ? confirmed : mismatches).push(k);
+  for (const k of plan.setKeys) (same(readSet(after, k), plan.expected[k]) ? confirmed : mismatches).push(k);
   const setNames = new Set(plan.setKeys.flatMap(readNames));
   const b = fields(before); const a = fields(after);
   const changed = [];
+  const kbChange = plan.setKeys.some((k) => KB_KEYS.includes(k));
+  const nonKb = (list) => JSON.stringify((list ?? []).filter((x) => x?.actionType !== 'KNOWLEDGE_BASE'));
+  const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
   for (const k of new Set([...Object.keys(b), ...Object.keys(a)])) {
     if (setNames.has(k)) continue;
+    // Attaching or detaching a knowledge base mints or removes its KNOWLEDGE_BASE action: expected, not collateral.
+    if (kbChange && k === 'actions' && nonKb(b[k]) === nonKb(a[k])) continue;
+    if (kbChange && k === 'actionIds' && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
     if (same(b[k], a[k])) continue;
     if (b[k] === undefined && isObj(a[k]) && !Object.keys(a[k]).length) continue; // e.g. prompts: undefined -> {}
     changed.push({ key: k, before: b[k], after: a[k] });
