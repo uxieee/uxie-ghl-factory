@@ -49,7 +49,10 @@ into three parts, not a tool-calling system prompt.
 | Move agents into a folder | `POST` | `/ai-employees/employees/move-to-folder` |
 | Dashboard metrics (a read with a body; answers 201) | `POST` | `/ai-employees/employees/:locationId/fetch-dashboard-data` |
 | Conversation table under the dashboard | `GET` | `/ai-employees/employees/:locationId/conversation-logs` |
+| A contact's stored conversation summaries (the table's Summary action; a read, never generates) | `GET` | `/ai-employees/summary/:locationId/contact/:contactId?page=1&limit=100&channelName=…` |
 | Test chat (billed per message) | `POST` | `/ai-employees/interactions/trial` |
+| Reset the test chat (the panel's ↻; no body) | `DELETE` | `/ai-employees/employees/:agentId/reset-memory` |
+| The location prompt for an intent (falls back to the default template) | `GET` | `/conversations-ai/prompt?locationId=…&intentType=…` |
 | Prompt templates | `GET` | `/conversations-ai/prompt/templates?locationId=…&intentType=…` |
 | Primary agent (location-wide) | `GET` | `/ai-employees/employees/primary/:locationId` |
 
@@ -72,7 +75,9 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   `Live_Chat`, `Email`, `TIKTOK`. The editor offers eight (`GMB` is accepted but hidden); `WebChat` is the editor's
   "Chat widget". The create default is `SMS, IG, FB, WebChat, Live_Chat, WhatsApp`. Both tools accept all nine. Non-empty required unless the location has `conversationsAI.channelManagement` on, in which
   case where the bot answers is decided by the deployment rows and `channels` is the legacy "Workflow & Transfer
-  bot channels" list.
+  bot channels" list. Under that flag the editor's Save of an EXISTING agent always sends `channels` (captured
+  unedited, 2026-09-29); only a NEW agent's create drops them when the picker was not touched. The editor's
+  `supportedChannelsEdited` is client-only and never sent. `update_convai_agent` writes the list (live, read back).
 - **The prompt: `fullPrompt` or the three fields** (live 2026-09-29, own test agent, 3 trial messages). The current
   builder edits ONE prompt box and saves it as `fullPrompt`, a markdown document (`## Personality\n\n… ## Goal\n\n…
   ## Instructions\n\n…`), sending `personality`, `goal` and `instructions` as `""`. The server stores `fullPrompt` and
@@ -421,7 +426,19 @@ All executed on a test account on 2026-09-26 and read back, unless a line says o
   and it is **billed** (about US$0.02 a message). It reports `actionData` only for **Stop Bot**; phrases that should
   trigger Human Handover, Trigger a Workflow or Contact Info produced no action in the trial. So a trial proves
   the prompt and the knowledge base, not those three actions. The flow-bot editor also warns that its trial "is
-  currently experiencing some issues".
+  currently experiencing some issues". The panel's ↻ resets it: `DELETE /ai-employees/employees/{id}/reset-memory`,
+  no body → `200 {success: true, message: "No test contact found for this location"}` when no trial contact exists
+  (live 2026-09-29).
+- **Conversation logs and summaries** (live 2026-09-29). Each `conversation-logs` row is `{id, conversationId,
+  dateAdded, employeeId, contactId, channel, lastMessage, contactName, isContactDeleted, employeeName,
+  isEmployeeDeleted}`, with `pagination{page, limit, totalItems, sortOrder}`. The row's Summary action is
+  `GET /ai-employees/summary/{locationId}/contact/{contactId}?page=1&limit=100&channelName=` → `{items[], totalCount}`.
+  It reads what the agent's `summary{}` setting stored. It generates nothing: the AI usage snapshot did not move.
+- **Intents and prompt templates.** `intentType` is `generalSupport` | `appointmentFlow` | `appointmentBooking`
+  (anything else 422s); each selects a different stored template, and the Create Agent picker's General Q&A /
+  Appointment booking cards apply them at create. `GET /conversations-ai/prompt` falls back to the default template.
+  `GET /conversations-ai/intents/{locationId}` returns the legacy v1 location prompt, not intents; the current app
+  never calls it.
 - **Primary agent.** `GET /ai-employees/employees/primary/{locationId}` answers `200 {success:false, message:"No
   primary employee found"}` when there is none, which is not an error. Setting a primary is location-wide. With
   `conversationsAI.channelManagement` ON, the editor hides "Set as Primary" and saves drop `isPrimary`, because the
@@ -453,7 +470,12 @@ record's own lifecycle are in `ghl-knowledge-base/SKILL.md`.
 Reverse-engineered + engine-captured 2026-07-14/15 (was previously "not captured / out of
 scope"). **A flow bot's logic IS a workflow.** Creating a `FLOW_BUILDER_BOT` and opening its
 "Launch/Edit Flow Builder" loads the normal workflow builder at
-`/automation/workflow/{WID}?triggerType=conv_ai_trigger&convTriggerBotId={AGENT_ID}`:
+`/automation/workflow/{WID}?triggerType=conv_ai_trigger&convTriggerBotId={AGENT_ID}`.
+On a flow bot with NO workflow yet (live 2026-09-29), the button first sends `POST backend /workflow/{locationId}`
+`{name: <the bot's name>, status: "draft", …}` and opens `/automation/setup-workflow?triggerType=conv_ai_trigger&botId=…`.
+That create alone is a bare draft with no trigger, and the bot stays unlinked (`objectiveBuilderWorkflowId` absent)
+until the workflow builder saves the trigger (inferred from the query it opens with; that save was not captured). So
+leaving the builder right after the launch leaves an orphan draft workflow named after the bot.
 
 - The flow lives in a workflow (`workflowType: "agent"`) whose entry trigger is
   **`conv_ai_trigger`** ("Chat Initiated"), bound to the agent by **`convTriggerBotId`**.
