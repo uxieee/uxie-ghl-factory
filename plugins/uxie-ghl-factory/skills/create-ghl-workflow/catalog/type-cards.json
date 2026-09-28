@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 524,
+ "count": 527,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -1122,8 +1122,8 @@
    "family": "steps-marketplace",
    "title": "Marketplace — AI Actions",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
-   "summary": "`appName: \"AI Actions\"` exposes **4 actions** in `sniffs/02-assets.json::actions[21].actions[]`. `executionConfig.type` set: `WF_PUBSUB`. `workflowsActionType`: `INTERNAL`. `section` values: `AI Actions`. 4 marked premium in `additionalConfig`.",
+   "lastVerified": "2026-09-28",
+   "summary": "`appName: \"AI Actions\"` exposes **7 actions** in the live assets read on 2026-09-25 (`sniffs/workflows-domain-recon-2026-09-25/marketplace-assets-2026-09-25.json`, the \"AI Actions\" group). The 2026-08 capture (`sniffs/02-assets.json::actions[21]`) had only the first four. Every action is `workflowsA",
    "fields": [
     {
      "name": "from",
@@ -1145,36 +1145,6 @@
      "required": true,
      "default": "default `Hello, how are you?`",
      "notes": "Hello, how are you?"
-    }
-   ],
-   "appActions": [
-    {
-     "key": "workflow_ai_translate_content",
-     "displayName": "AI Translate",
-     "requiredInputs": "`from`, `to`, `inputText`",
-     "executionType": "WF_PUBSUB",
-     "host": "pubsub: `automation-workflows-premium-actions-chatgpt-events`"
-    },
-    {
-     "key": "workflow_ai_summarize_text",
-     "displayName": "AI Summarize",
-     "requiredInputs": "`maxLength`, `inputText`",
-     "executionType": "WF_PUBSUB",
-     "host": "pubsub: `automation-workflows-premium-actions-chatgpt-events`"
-    },
-    {
-     "key": "workflow_ai_intent_detection",
-     "displayName": "AI Intent Detection",
-     "requiredInputs": "`inputText`",
-     "executionType": "WF_PUBSUB",
-     "host": "pubsub: `automation-workflows-premium-actions-chatgpt-events`"
-    },
-    {
-     "key": "workflow_ai_decision_maker",
-     "displayName": "AI Decision Maker",
-     "requiredInputs": "`instructions`",
-     "executionType": "WF_PUBSUB",
-     "host": "pubsub: `automation-workflows-premium-actions-chatgpt-events`"
     }
    ],
    "hasCanonicalExample": false
@@ -6562,7 +6532,8 @@
    "summary": "Clear selected fields of the primary company associated with the contact.",
    "proven": [
     "- 🔴 **On a contact with NO company, it FAILS** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ2-r7-contact-company.json]`. The log shows `status: failed`, \"Contact does not have a business\", in the same run where `update_associated_company` only skipped. A failed step triggers GHL's workflow error notification, which by default emails every agency and location admin (see [`../../50-runtime/error-notifications.md`](../../50-runtime/error-notifications.md)). **Guard it with an If/Else on the contact having a company**, or run it only where every contact has one.",
-    "- ⚠ **Accepted, not applied, with the row shape the asset declares** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ2-r7-contact-company.json, live-3BZ2-reread-company.json]`. On a contact WITH a company, a `{filterField: \"business.website\"}` row logged `success`, yet the company's website still read back set on a separate direct GET. Whether the builder saves an extra key in the row is unmeasured, and it needs a capture from the builder's own drawer. Until then, do not rely on this step to blank a field."
+    "- 🔴 **Accepted, not applied — even with the builder's own row** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CC-clear-company-reproof.json; live-3BZ2-r7-contact-company.json, live-3BZ2-reread-company.json]`. The builder saves each row as `{\"__customInputs__\": {}, \"filterField\": \"business.<key>\"}` `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CB2-clear-company-builder-row.json, builder drawer captured under a write guard]`. That exact row (website + description) ran on a contact whose company had both fields set. It logged `success`, \"Action execution",
+    "- 🔴 **The UI promises a skip; the runtime fails** (third failure class) `[proven-live 2026-09-28]`. The step's drawer says \"If no company is associated, this action will be skipped.\" The run on a contact with no company logged `status: failed`, not skipped. Every read of the step agrees with the drawer, but a user reading that sentence expects the opposite of what happens."
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/company.md"
   },
@@ -28884,7 +28855,7 @@
     }
    ],
    "validator": "`waitValidator` runs on publish. Per `sniffs/bundle/validators.json::waitValidator`:\n\n1. Checks `name` against `isWithinLimits` if present (error: `wait_name_too_long`).\n2. Switches on `attributes.type` to delegate.\n3. Also runs `validateTimeout` if `convertToMultipath && startAfter`.\n\nValidator length: 794 chars. Result level: `error` (one of the few validators that emits errors rather than warnings — `wait_type_required`, `wait_window_start_required`, `wait_appointment_when_required`).",
-   "notes": "- **`appointment` waits read the `event_start_date` anchor when the run has no appointment** `[proven-live 2026-09-28]` (`sniffs/workflows-wave1-2026-09-25/live-3L-event-start.json`): before/after offsets resolve against the anchor (before 3 min ≈ T−3; after 1 min = T+1), and a past anchor follows `appointmentCondition` (`next` → continues at once).\n- **`specificDateStep` (and `appointmentSpecificStep`, `reply`, `emailEventSteps`) can be authored by step REF with our build** since plugin workflows/wave3: the compiler maps the ref to the minted id; before, `specific_step` could only be set by a post-build edit `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3D-flow.json`.\n- **Time waits, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`, `live-3C2-windows.json`: a 1-minute wait released after ~63 s. **Dynamic period**: `timePeriodInputMode: \"dynamic\"`, `dynamicTimePeriod: \"{{contact.<num field>}}\"` = 3 held 3 min 4 s although `startAfter.value` was 1 — the dynamic value wins. **Dynamic unit**: `unitInputMode: \"dynamic\"`, `dynamicUnit: \"{{contact.<text field>}}\"` = `minutes` with a dynamic period of 2 held 2 min 2 s although `startAfter.type` was `hour`. `startAfter` still ships in both.\n- **Windows hold until they open, then release on a coarse schedule** `[proven-live 2026-09-28]` `live-3C2-windows.json`: after a 1-minute wait, an all-day `when` window released at +1:01 (control); a `when` window 12:01–12:06 (account timezone) entered at 11:55 released at 12:03:51; an `exact` 12:01 window released at 12:04:47. Both held well past the 1-minute delay, but neither released on the minute — allow a few minutes of lag, unlike `specific_date` / `recurring_schedule`, which released at hh:mm:00.\n- **`specific_date`, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`: a future date+time (12-hour `specificTimeHour` + `specificTimePeriod`, account timezone) released at exactly hh:mm:00. With the date already passed: `next` continued at once; `exit` ended the run (the next step never ran); `skip` continued (outbound suppression itself not yet exercised); `specific_step` jumped to `specificDateStep` and skipped the step in between. Dynamic `dynamicSpecificDate: \"{{contact.<date field>}}\"` holding a past date followed `next`.\n- **`recurring_schedule` monthly and yearly, proven live, with controls** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3AL-waits-condition-recurring.json`: on Monday 28 September, time set 5 minutes ahead (account zone), each of these released at exactly hh:mm:00: monthly by day (`recurringMonthlyMode: \"day\"`, day 28, `recurringMonths: [9]`), monthly `nth_weekday` `'4th'` Monday, monthly `nth_weekday` `'last'` Monday, and yearly (`recurringYearlyMonth: 9`, day 28). Both controls with month `8` held. So **months are 1-based** (9 = September), as the drawer's options say. The run log records the release as `wait_time` → `wait_finished`, not a recurring-specific type.\n- **A `condition` wait with a timeout, both paths, authored by our engine** `[proven-live 2026-09-28]` `live-3AL-waits-condition-recurring.json`: `kind: \"wait\"`, `waitType: \"condition\"`, `timeout: {value: 2, unit: \"minutes\"}`, `onEvent` / `onTimeout`. The contact whose own text field was set 40 s in left by the event path about 3 s after the write. The other left by the timeout path 2 min 1 s after enrolment.\n- **`recurring_schedule` weekly, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`: `recurringWeeklyDays: [1]` on a Monday with the time set a few minutes ahead released at exactly hh:mm:00 — **`1` = Monday** (the drawer's default `[1,2,3,4,5]` is Mon–Fri).\n- **A `condition` wait (\"contact field has a value\") releases within seconds of the field being set.** Set at 05:05:48, the run moved at 05:05:51. With no change, it took the timeout branch when the timeout ran out `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **Hybrid actions split**. A `wait` with `convertToMultipath: true` carries both `next: \"<uuid>\"` (the timeout path) AND a `transitions[]` array (the event-fired paths). The runtime takes whichever fires first.\n- **`type` is the discriminator** — change it and the entire required-field set changes. Don't migrate without re-validating.\n- **`window` is timezone-naive**. `start`/`end` are `HH:MM` strings without zone; resolution depends on the location's timezone (`samples` show wait windows like `\"04:00\"`–`\"04:15\"`).\n- **`appointmentStartAfter.distributed`** is the drawer's months/days/hours/minutes offset (clamped 9999/30/23/59). Save folds it into `type: \"minutes\"` + `value` (total minutes); the runtime reads `type`/`value`. Choosing `when: \"now\"` sets `distributed: {}`, `type: \"minutes\"`, `value: 0`. With `before`/`after`, an all-zero offset is refused by the drawer [source-derived 2026-09-26 — models/conditions/Wait.ts:777-782,1106-1112,1395-1420].\n- **Only five wait types can branch.** `convertToMultipath` / an array `next` on a `time`, `appointment`, `specific_date`, etc. wait is a blocking publish error (`unsupportedBranchingWaitType`); a branching wait with fewer than 2 `next` entries fails `requiresAtLeastTwoTransitions`; a transition id with no matching template fails `missingTransition` [source-derived 2026-09-26 — utils/WorkflowValidator.ts:925-968].\n- For appointment subtypes the validator's three triggers (`appointment` / `service_booking` / `overdue`) all share `validateAppointmentWait`. Whether the runtime treats them identically isn't verified — likely they share the wait shape but differ in event source.\n- The validator returns `result: \"error\"` for several missing-field cases (rather than `\"warning\"`). The publish endpoint treats both equivalently (rejects), but the UI distinguishes them.",
+   "notes": "- **`appointment` waits read the `event_start_date` anchor when the run has no appointment** `[proven-live 2026-09-28]` (`sniffs/workflows-wave1-2026-09-25/live-3L-event-start.json`): before/after offsets resolve against the anchor (before 3 min ≈ T−3; after 1 min = T+1), and a past anchor follows `appointmentCondition` (`next` → continues at once).\n- **`specificDateStep` (and `appointmentSpecificStep`, `reply`, `emailEventSteps`) can be authored by step REF with our build** since plugin workflows/wave3: the compiler maps the ref to the minted id; before, `specific_step` could only be set by a post-build edit `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3D-flow.json`.\n- **Time waits, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`, `live-3C2-windows.json`: a 1-minute wait released after ~63 s. **Dynamic period**: `timePeriodInputMode: \"dynamic\"`, `dynamicTimePeriod: \"{{contact.<num field>}}\"` = 3 held 3 min 4 s although `startAfter.value` was 1 — the dynamic value wins. **Dynamic unit**: `unitInputMode: \"dynamic\"`, `dynamicUnit: \"{{contact.<text field>}}\"` = `minutes` with a dynamic period of 2 held 2 min 2 s although `startAfter.type` was `hour`. `startAfter` still ships in both.\n- **Windows hold until they open; the release lag after the opening varies from run to run** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3C2R-windows-clean.json; first run live-3C2-windows.json]`. In both runs, after a 1-minute wait, an all-day `when` window (the control) released at about +1:01, and a `when` window or `exact` time set about 6–8 min ahead held well past the 1-minute delay. The two runs disagree on the lag after the window opened. **Clean rerun (3C2R):** an `exact` 22:47 and a `when` 22:47–22:52 window (account timezone) both released at 22:47:01–02, one to two seconds after opening. **First run (3C2):** a `when` window released 2:51 after opening, and an `exact` one 3:47 after. So do not rely on the exact moment. Expect anywhere from seconds to a few minutes, unlike `specific_date` / `recurring_schedule`, which released at hh:mm:00 in every run.\n- **`specific_date`, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`: a future date+time (12-hour `specificTimeHour` + `specificTimePeriod`, account timezone) released at exactly hh:mm:00. With the date already passed: `next` continued at once; `exit` ended the run (the next step never ran); `skip` continued (outbound suppression itself not yet exercised); `specific_step` jumped to `specificDateStep` and skipped the step in between. Dynamic `dynamicSpecificDate: \"{{contact.<date field>}}\"` holding a past date followed `next`.\n- **`recurring_schedule` monthly and yearly, proven live, with controls** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3AL-waits-condition-recurring.json`: on Monday 28 September, time set 5 minutes ahead (account zone), each of these released at exactly hh:mm:00: monthly by day (`recurringMonthlyMode: \"day\"`, day 28, `recurringMonths: [9]`), monthly `nth_weekday` `'4th'` Monday, monthly `nth_weekday` `'last'` Monday, and yearly (`recurringYearlyMonth: 9`, day 28). Both controls with month `8` held. So **months are 1-based** (9 = September), as the drawer's options say. The run log records the release as `wait_time` → `wait_finished`, not a recurring-specific type.\n- **A `condition` wait with a timeout, both paths, authored by our engine** `[proven-live 2026-09-28]` `live-3AL-waits-condition-recurring.json`: `kind: \"wait\"`, `waitType: \"condition\"`, `timeout: {value: 2, unit: \"minutes\"}`, `onEvent` / `onTimeout`. The contact whose own text field was set 40 s in left by the event path about 3 s after the write. The other left by the timeout path 2 min 1 s after enrolment.\n- **`recurring_schedule` weekly, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`: `recurringWeeklyDays: [1]` on a Monday with the time set a few minutes ahead released at exactly hh:mm:00 — **`1` = Monday** (the drawer's default `[1,2,3,4,5]` is Mon–Fri).\n- **A `condition` wait (\"contact field has a value\") releases within seconds of the field being set.** Set at 05:05:48, the run moved at 05:05:51. With no change, it took the timeout branch when the timeout ran out `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **Hybrid actions split**. A `wait` with `convertToMultipath: true` carries both `next: \"<uuid>\"` (the timeout path) AND a `transitions[]` array (the event-fired paths). The runtime takes whichever fires first.\n- **`type` is the discriminator** — change it and the entire required-field set changes. Don't migrate without re-validating.\n- **`window` is timezone-naive**. `start`/`end` are `HH:MM` strings without zone; resolution depends on the location's timezone (`samples` show wait windows like `\"04:00\"`–`\"04:15\"`).\n- **`appointmentStartAfter.distributed`** is the drawer's months/days/hours/minutes offset (clamped 9999/30/23/59). Save folds it into `type: \"minutes\"` + `value` (total minutes); the runtime reads `type`/`value`. Choosing `when: \"now\"` sets `distributed: {}`, `type: \"minutes\"`, `value: 0`. With `before`/`after`, an all-zero offset is refused by the drawer [source-derived 2026-09-26 — models/conditions/Wait.ts:777-782,1106-1112,1395-1420].\n- **Only five wait types can branch.** `convertToMultipath` / an array `next` on a `time`, `appointment`, `specific_date`, etc. wait is a blocking publish error (`unsupportedBranchingWaitType`); a branching wait with fewer than 2 `next` entries fails `requiresAtLeastTwoTransitions`; a transition id with no matching template fails `missingTransition` [source-derived 2026-09-26 — utils/WorkflowValidator.ts:925-968].\n- For appointment subtypes the validator's three triggers (`appointment` / `service_booking` / `overdue`) all share `validateAppointmentWait`. Whether the runtime treats them identically isn't verified — likely they share the wait shape but differ in event source.\n- The validator returns `result: \"error\"` for several missing-field cases (rather than `\"warning\"`). The publish endpoint treats both equivalently (rejects), but the UI distinguishes them.",
    "hasCanonicalExample": true
   },
   {
@@ -29167,13 +29138,54 @@
    "page": "corpus/workflows/30-types/steps-marketplace/communication.md"
   },
   {
+   "type": "workflow_ai_analyze_image",
+   "family": "steps-marketplace",
+   "app": "ai-actions",
+   "title": "workflow_ai_analyze_image",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-28",
+   "summary": "Describe or answer a question about an image.",
+   "fields": [
+    {
+     "name": "model",
+     "type": "select",
+     "required": true,
+     "default": "`gpt-5.6-luna` | `gpt-5.6-terra`"
+    },
+    {
+     "name": "image",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "an image URL (not a file upload)"
+    },
+    {
+     "name": "prompt",
+     "type": "textarea",
+     "required": true,
+     "default": "—"
+    },
+    {
+     "name": "detailLevel",
+     "type": "select",
+     "required": true,
+     "default": "`auto` | `high` | `low`"
+    }
+   ],
+   "proven": [
+    "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CA-r6-ai-actions.json]` Two steps. A green-leaf JPEG on luna/low answered \"Green\" and an orange-leaf PNG on terra/auto answered \"Orange\", for both contacts, in `{{workflow_ai_analyze_image.1.response}}` and `.2.response`. The images are the account's own media URLs. A dead URL would fail the step, so check the URL first."
+   ],
+   "page": "corpus/workflows/30-types/steps-marketplace/ai-actions.md"
+  },
+  {
    "type": "workflow_ai_decision_maker",
    "family": "steps-marketplace",
    "app": "ai-actions",
-   "title": "AI Decision Maker",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "title": "workflow_ai_decision_maker",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-28",
    "summary": "Let AI decide which branch to go into",
    "fields": [
     {
@@ -29190,6 +29202,64 @@
      "default": "default `We sell to small (1-50), medium (51-200), and large (200+) companies. Engagement scores range 0-100. Large companies get priority regardless of score.`",
      "notes": "Add business context to help AI decide better. Exa"
     }
+   ],
+   "proven": [
+    "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CA-r6-ai-actions.json]` The instructions quoted `{{contact.testconfwf_text}}` and routed on its first word. A contact whose text started \"ALPHA\" took the **Alpha** branch, and one starting \"BRAVO\" took **Bravo**. Each branch's `update_contact_field` wrote its own marker, read back on a separate GET. The log message is \"WorkflowAI response: Alpha\" / \"…: Bravo\"."
+   ],
+   "page": "corpus/workflows/30-types/steps-marketplace/ai-actions.md"
+  },
+  {
+   "type": "workflow_ai_email_parser",
+   "family": "steps-marketplace",
+   "app": "ai-actions",
+   "title": "workflow_ai_email_parser",
+   "status": "source-derived",
+   "source": "asset",
+   "lastVerified": "2026-09-28",
+   "summary": "Parse an inbound email into fields (beta).",
+   "page": "corpus/workflows/30-types/steps-marketplace/ai-actions.md"
+  },
+  {
+   "type": "workflow_ai_extract_data",
+   "family": "steps-marketplace",
+   "app": "ai-actions",
+   "title": "workflow_ai_extract_data",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-28",
+   "summary": "Extract structured fields from text (beta, `isBeta: true`).",
+   "fields": [
+    {
+     "name": "sourceData",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "the text to read; merge tags allowed"
+    },
+    {
+     "name": "information",
+     "type": "textarea",
+     "required": false,
+     "default": "—",
+     "notes": "extra context"
+    },
+    {
+     "name": "templates",
+     "type": "select",
+     "required": false,
+     "default": "`contact_info` | `opportunity_info` | `order_info` | `appointment_info`",
+     "notes": "a preset set of rows"
+    },
+    {
+     "name": "__customInputFields__",
+     "type": "rows",
+     "required": false,
+     "default": "—",
+     "notes": "`{fieldName, dataType, description}`, up to 15; `dataType` ∈ text, email, phone, number, date, datetime, url, boolean"
+    }
+   ],
+   "proven": [
+    "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CA-r6-ai-actions.json]` Rows `full_name` (text) and `email` (email), with `sourceData: \"{{contact.testconfwf_text}}\"` and no template. Each contact's own person was extracted (\"Sarah Johnson\" / \"Tom Baker\" and their emails). 🔴 **The output tag is `{{workflow_ai_extract_data.1.<fieldName>}}`.** `{{workflow_ai_extract_data.1.output.<fieldName>}}` renders EMPTY, and so do the unused forms. The log message carries the JSON: `WorkflowAI response: {\"full_name\": …, \"email\": …}`."
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/ai-actions.md"
   },
@@ -29317,10 +29387,10 @@
    "type": "workflow_ai_intent_detection",
    "family": "steps-marketplace",
    "app": "ai-actions",
-   "title": "AI Intent Detection",
+   "title": "workflow_ai_intent_detection",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-28",
    "summary": "Generate an analysis of the sentiment of the input text",
    "fields": [
     {
@@ -29337,10 +29407,10 @@
    "type": "workflow_ai_summarize_text",
    "family": "steps-marketplace",
    "app": "ai-actions",
-   "title": "AI Summarize",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "title": "workflow_ai_summarize_text",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-28",
    "summary": "Enter a text and generate a summary",
    "fields": [
     {
@@ -29358,16 +29428,19 @@
      "notes": "In the year 2424..."
     }
    ],
+   "proven": [
+    "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CA-r6-ai-actions.json]` `inputText: \"{{contact.testconfwf_text}}\"` with `maxLength: \"1 sentence\"`. Two contacts with different texts each got a one-sentence summary of their OWN text in `{{workflow_ai_summarize_text.1.response}}`, read back on a separate GET."
+   ],
    "page": "corpus/workflows/30-types/steps-marketplace/ai-actions.md"
   },
   {
    "type": "workflow_ai_translate_content",
    "family": "steps-marketplace",
    "app": "ai-actions",
-   "title": "AI Translate",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "title": "workflow_ai_translate_content",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-28",
    "summary": "Translate your default content to contact language",
    "fields": [
     {
@@ -29391,6 +29464,9 @@
      "default": "default `Hello, how are you?`",
      "notes": "Hello, how are you?"
     }
+   ],
+   "proven": [
+    "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3CA-r6-ai-actions.json]` Two steps in one workflow translated \"Good morning, my friend.\" from English to French and to German, each with the builder's `prompt`. Both logged `success`. For both contacts, `{{workflow_ai_translate_content.1.response}}` rendered \"Bonjour, mon ami.\" and `.2.response` rendered \"Guten Morgen, mein Freund.\", read back from a contact field on a separate GET. Whether the runtime reads `prompt` or `from`/`to`/`inputText` is not separated: no run left `prompt` out, because a failing step emails every admi"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/ai-actions.md"
   },

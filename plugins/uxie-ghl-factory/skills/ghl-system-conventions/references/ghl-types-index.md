@@ -5,7 +5,7 @@ One line per step and trigger type. For the full card (fields, allowed values, v
 gotchas) run `node scripts/types.mjs <type-key>`, or `describe_step_type` if the
 uxie-ghl-factory plugin is installed — same data.
 
-523 types: 147 native, 376 marketplace. Status is each card's floor: 
+526 types: 147 native, 379 marketplace. Status is each card's floor: 
 `proven-live` > `source-derived` > `inferred`; `deprecated` means do not build on it.
 
 ## Triggers (native) (59)
@@ -272,7 +272,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `user_group_gamification_level_changed` | user_group_gamification_level_changed (Marketplace) | source-derived |
 | `whatsapp_referral` | whatsapp_referral (Marketplace) | source-derived |
 
-## Steps (marketplace apps) (274)
+## Steps (marketplace apps) (277)
 
 | type | title | status |
 |---|---|---|
@@ -545,8 +545,11 @@ uxie-ghl-factory plugin is installed — same data.
 | `whatsapp_interactive_messages` | WhatsApp Interactive Messages | source-derived |
 | `whatsapp_media` | WhatsApp Media | source-derived |
 | `whatsapp_v2` | WhatsApp | source-derived |
-| `workflow_ai_decision_maker` | AI Decision Maker | source-derived |
-| `workflow_ai_intent_detection` | AI Intent Detection | source-derived |
-| `workflow_ai_summarize_text` | AI Summarize | source-derived |
-| `workflow_ai_translate_content` | AI Translate | source-derived |
+| `workflow_ai_analyze_image` | workflow_ai_analyze_image | proven-live |
+| `workflow_ai_decision_maker` | workflow_ai_decision_maker | proven-live |
+| `workflow_ai_email_parser` | workflow_ai_email_parser | source-derived |
+| `workflow_ai_extract_data` | workflow_ai_extract_data | proven-live |
+| `workflow_ai_intent_detection` | workflow_ai_intent_detection | source-derived |
+| `workflow_ai_summarize_text` | workflow_ai_summarize_text | proven-live |
+| `workflow_ai_translate_content` | workflow_ai_translate_content | proven-live |
 | `workflow-ai` | Marketplace — workflow_ai | source-derived |

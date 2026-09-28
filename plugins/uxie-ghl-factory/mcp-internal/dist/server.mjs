@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1384,
+      count: 1387,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -12192,7 +12192,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:452"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:455"
           ]
         },
         {
@@ -14474,7 +14474,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:444"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:447"
           ]
         },
         {
@@ -14505,7 +14505,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:456"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:459"
           ]
         },
         {
@@ -16715,7 +16715,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:457",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:460",
             "workflows/70-research/ENDPOINTS.md:243"
           ]
         },
@@ -17409,7 +17409,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps-marketplace/company.md:54"
+            "workflows/30-types/steps-marketplace/company.md:54",
+            "workflows/30-types/steps-marketplace/company.md:68"
           ]
         },
         {
@@ -37929,8 +37930,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:386",
             "ai-agents/20-api/agent-deployment-routing.md:25",
-            "ai-agents/20-api/agent-deployment-routing.md:267",
-            "ai-agents/20-api/agent-deployment-routing.md:467",
+            "ai-agents/20-api/agent-deployment-routing.md:271",
+            "ai-agents/20-api/agent-deployment-routing.md:471",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:98"
           ]
         },
@@ -37964,8 +37965,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:105",
-            "ai-agents/20-api/agent-deployment-routing.md:269",
+            "ai-agents/20-api/agent-deployment-routing.md:109",
+            "ai-agents/20-api/agent-deployment-routing.md:273",
             "workflows/50-runtime/flow-bot-four-node-certification.md:55"
           ]
         },
@@ -38004,9 +38005,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:268",
-            "ai-agents/20-api/agent-deployment-routing.md:75",
-            "ai-agents/20-api/agent-deployment-routing.md:466"
+            "ai-agents/20-api/agent-deployment-routing.md:272",
+            "ai-agents/20-api/agent-deployment-routing.md:79",
+            "ai-agents/20-api/agent-deployment-routing.md:470"
           ]
         },
         {
@@ -38047,8 +38048,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:270",
-            "ai-agents/20-api/agent-deployment-routing.md:87",
+            "ai-agents/20-api/agent-deployment-routing.md:274",
+            "ai-agents/20-api/agent-deployment-routing.md:91",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:99"
           ]
         },
@@ -38111,7 +38112,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:139",
+            "ai-agents/10-anatomy/flow-agent-shape.md:148",
             "ai-agents/20-api/actions-and-plugins.md:24"
           ]
         },
@@ -38154,7 +38155,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:142",
+            "ai-agents/10-anatomy/flow-agent-shape.md:151",
             "ai-agents/20-api/actions-and-plugins.md:25",
             "ai-agents/20-api/actions-and-plugins.md:61"
           ]
@@ -38285,9 +38286,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:114",
-            "ai-agents/20-api/agent-logs.md:173",
-            "ai-agents/20-api/agent-logs.md:236"
+            "ai-agents/20-api/agent-logs.md:117",
+            "ai-agents/20-api/agent-logs.md:176",
+            "ai-agents/20-api/agent-logs.md:239"
           ]
         },
         {
@@ -38390,7 +38391,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:30",
-            "ai-agents/20-api/agent-logs.md:79"
+            "ai-agents/20-api/agent-logs.md:82"
           ]
         },
         {
@@ -38485,8 +38486,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:116",
-            "ai-agents/20-api/agent-logs.md:223"
+            "ai-agents/20-api/agent-logs.md:119",
+            "ai-agents/20-api/agent-logs.md:226"
           ]
         },
         {
@@ -38522,7 +38523,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:123"
+            "ai-agents/20-api/agent-logs.md:126"
           ]
         },
         {
@@ -38564,9 +38565,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:96",
-            "ai-agents/20-api/agent-logs.md:113",
-            "ai-agents/20-api/agent-logs.md:133"
+            "ai-agents/20-api/agent-logs.md:99",
+            "ai-agents/20-api/agent-logs.md:116",
+            "ai-agents/20-api/agent-logs.md:136"
           ]
         },
         {
@@ -38611,7 +38612,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:65",
-            "ai-agents/20-api/agent-logs.md:124"
+            "ai-agents/20-api/agent-logs.md:127"
           ]
         },
         {
@@ -38655,9 +38656,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:117",
-            "ai-agents/20-api/agent-logs.md:350",
-            "ai-agents/20-api/agent-logs.md:351"
+            "ai-agents/20-api/agent-logs.md:120",
+            "ai-agents/20-api/agent-logs.md:353",
+            "ai-agents/20-api/agent-logs.md:354"
           ]
         },
         {
@@ -38704,9 +38705,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:119",
-            "ai-agents/20-api/agent-logs.md:357",
-            "ai-agents/20-api/agent-logs.md:368"
+            "ai-agents/20-api/agent-logs.md:122",
+            "ai-agents/20-api/agent-logs.md:360",
+            "ai-agents/20-api/agent-logs.md:371"
           ]
         },
         {
@@ -38752,8 +38753,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:121",
-            "ai-agents/20-api/agent-logs.md:369"
+            "ai-agents/20-api/agent-logs.md:124",
+            "ai-agents/20-api/agent-logs.md:372"
           ]
         },
         {
@@ -38799,9 +38800,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:118",
-            "ai-agents/20-api/agent-logs.md:353",
-            "ai-agents/20-api/agent-logs.md:366"
+            "ai-agents/20-api/agent-logs.md:121",
+            "ai-agents/20-api/agent-logs.md:356",
+            "ai-agents/20-api/agent-logs.md:369"
           ]
         },
         {
@@ -38853,9 +38854,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:120",
-            "ai-agents/20-api/agent-logs.md:277",
-            "ai-agents/20-api/agent-logs.md:367"
+            "ai-agents/20-api/agent-logs.md:123",
+            "ai-agents/20-api/agent-logs.md:280",
+            "ai-agents/20-api/agent-logs.md:370"
           ]
         },
         {
@@ -38897,9 +38898,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:77",
-            "ai-agents/20-api/agent-logs.md:115",
-            "ai-agents/20-api/agent-logs.md:246"
+            "ai-agents/20-api/agent-logs.md:80",
+            "ai-agents/20-api/agent-logs.md:118",
+            "ai-agents/20-api/agent-logs.md:249"
           ]
         },
         {
@@ -38942,8 +38943,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:122",
-            "ai-agents/20-api/agent-logs.md:264"
+            "ai-agents/20-api/agent-logs.md:125",
+            "ai-agents/20-api/agent-logs.md:267"
           ]
         },
         {
@@ -38976,8 +38977,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:68",
-            "ai-agents/20-api/agent-logs.md:125"
+            "ai-agents/20-api/agent-logs.md:71",
+            "ai-agents/20-api/agent-logs.md:128"
           ]
         },
         {
@@ -39024,8 +39025,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:71",
-            "ai-agents/20-api/agent-logs.md:127"
+            "ai-agents/20-api/agent-logs.md:74",
+            "ai-agents/20-api/agent-logs.md:130"
           ]
         },
         {
@@ -39072,8 +39073,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:69",
-            "ai-agents/20-api/agent-logs.md:126"
+            "ai-agents/20-api/agent-logs.md:72",
+            "ai-agents/20-api/agent-logs.md:129"
           ]
         },
         {
@@ -39111,7 +39112,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:117"
+            "ai-agents/10-anatomy/flow-agent-shape.md:126"
           ]
         },
         {
@@ -39143,6 +39144,48 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/flow-agent-shape.md:29"
+          ]
+        },
+        {
+          id: "ai-agents--agent-studio-agents-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents/{agentId}",
+          path: "/agent-studio/agents/{agentId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:76"
           ]
         },
         {
@@ -39213,7 +39256,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:158"
+            "ai-agents/10-anatomy/managed-agent-shape.md:162"
           ]
         },
         {
@@ -39244,7 +39287,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:157"
+            "ai-agents/10-anatomy/managed-agent-shape.md:161"
           ]
         },
         {
@@ -39279,7 +39322,42 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:159"
+            "ai-agents/10-anatomy/managed-agent-shape.md:163"
+          ]
+        },
+        {
+          id: "ai-agents--folders-agents",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents/folders/{id}/agents",
+          path: "/agent-studio/agents/folders/{id}/agents",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:170"
           ]
         },
         {
@@ -39353,7 +39431,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:150"
+            "ai-agents/10-anatomy/managed-agent-shape.md:154"
           ]
         },
         {
@@ -39384,7 +39462,49 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:148"
+            "ai-agents/10-anatomy/managed-agent-shape.md:152"
+          ]
+        },
+        {
+          id: "ai-agents--plugins-custom-skills-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/agent-studio/plugins/custom-skills/{uuid}",
+          path: "/agent-studio/plugins/custom-skills/{uuid}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "uuid"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:171"
           ]
         },
         {
@@ -39491,7 +39611,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:161",
+            "ai-agents/10-anatomy/managed-agent-shape.md:165",
             "ai-agents/20-api/12-ai-agents-api.md:249"
           ]
         },
@@ -39600,6 +39720,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:97",
             "ai-agents/20-api/12-ai-agents-api.md:251"
           ]
         },
@@ -39813,7 +39934,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:123"
+            "ai-agents/10-anatomy/managed-agent-shape.md:127"
           ]
         },
         {
@@ -39848,7 +39969,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:99"
+            "ai-agents/10-anatomy/managed-agent-shape.md:103"
           ]
         },
         {
@@ -39879,7 +40000,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:176"
+            "ai-agents/10-anatomy/managed-agent-shape.md:187"
           ]
         },
         {
@@ -39911,7 +40032,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/managed-agent-shape.md:79",
-            "ai-agents/10-anatomy/managed-agent-shape.md:117",
+            "ai-agents/10-anatomy/managed-agent-shape.md:121",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:245",
             "ai-agents/20-api/12-ai-agents-api.md:258",
@@ -40457,7 +40578,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:100",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:163"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:163",
+            "ai-agents/20-api/agent-deployment-routing.md:73"
           ]
         },
         {
@@ -41147,7 +41269,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:374",
+            "ai-agents/20-api/agent-logs.md:377",
             "ai-agents/20-api/logs-deployment-email.md:46"
           ]
         },
@@ -41418,7 +41540,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:134"
+            "ai-agents/10-anatomy/managed-agent-shape.md:138"
           ]
         },
         {
@@ -41459,7 +41581,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:131",
+            "ai-agents/10-anatomy/managed-agent-shape.md:135",
             "ai-agents/20-api/conversation-ai-boundary.md:85",
             "ai-studio/60-recipes/run-one-generation.md:26",
             "funnels/20-api/funnel-ai.md:73"
@@ -43261,7 +43383,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:465"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:468"
           ]
         },
         {
@@ -43322,9 +43444,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:467",
-            "ai-agents/20-api/agent-deployment-routing.md:182",
-            "ai-agents/20-api/agent-deployment-routing.md:407"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:470",
+            "ai-agents/20-api/agent-deployment-routing.md:186",
+            "ai-agents/20-api/agent-deployment-routing.md:411"
           ]
         },
         {
@@ -43589,8 +43711,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:129",
-            "ai-agents/20-api/agent-logs.md:130"
+            "ai-agents/20-api/agent-logs.md:132",
+            "ai-agents/20-api/agent-logs.md:133"
           ]
         },
         {
@@ -44251,8 +44373,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:433",
-            "ai-agents/20-api/agent-deployment-routing.md:468"
+            "ai-agents/20-api/agent-deployment-routing.md:437",
+            "ai-agents/20-api/agent-deployment-routing.md:472"
           ]
         },
         {
@@ -47279,7 +47401,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:404"
+            "ai-agents/20-api/agent-deployment-routing.md:408"
           ]
         },
         {
@@ -47495,7 +47617,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:133",
+            "ai-agents/10-anatomy/flow-agent-shape.md:142",
             "ai-agents/20-api/12-ai-agents-api.md:319",
             "ai-agents/20-api/knowledge-base.md:59",
             "ai-agents/20-api/knowledge-base.md:106",
@@ -49257,7 +49379,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-deployment-routing.md:55",
-            "ai-agents/20-api/agent-deployment-routing.md:408"
+            "ai-agents/20-api/agent-deployment-routing.md:412"
           ]
         },
         {
@@ -57462,7 +57584,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:417"
           ]
         },
         {
@@ -58551,7 +58673,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:406"
+            "ai-agents/20-api/agent-deployment-routing.md:410"
           ]
         },
         {
@@ -60111,7 +60233,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:166",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:385"
+            "ai-agents/10-anatomy/flow-agent-shape.md:74",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:344",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:388"
           ]
         },
         {
@@ -60469,7 +60593,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:469",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:472",
             "ai-agents/20-api/logs-deployment-email.md:129"
           ]
         },
@@ -60515,7 +60639,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:468"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:471"
           ]
         },
         {
@@ -60550,7 +60674,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:373"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
           ]
         },
         {
@@ -60725,7 +60849,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:390"
           ]
         },
         {
@@ -60868,7 +60992,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:395"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:398"
           ]
         },
         {
@@ -60951,7 +61075,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:410",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:413",
             "ai-agents/20-api/logs-deployment-email.md:27"
           ]
         },
@@ -60990,7 +61114,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:391",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:394",
             "ai-agents/10-anatomy/flow-agent-shape.md:63"
           ]
         },
@@ -61029,7 +61153,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:394"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:397"
           ]
         },
         {
@@ -61085,7 +61209,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:397",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:400",
             "ai-agents/20-api/logs-deployment-email.md:24",
             "ai-agents/20-api/voice-ai-boundary.md:71",
             "ai-agents/30-types/voice-ai-actions.md:109"
@@ -61132,7 +61256,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:398",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:401",
             "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
@@ -61741,7 +61865,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:381",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:384",
             "ai-agents/20-api/voice-ai-boundary.md:64"
           ]
         },
@@ -61773,7 +61897,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:380"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:383"
           ]
         },
         {
@@ -61808,7 +61932,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:384"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
           ]
         },
         {
@@ -61843,7 +61967,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:383"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:386"
           ]
         },
         {
@@ -61878,7 +62002,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:382"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:385"
           ]
         },
         {
@@ -61922,7 +62046,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:475"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:478"
           ]
         },
         {
@@ -61957,7 +62081,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:347"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:350"
           ]
         },
         {
@@ -62123,7 +62247,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:369"
           ]
         },
         {
@@ -62253,7 +62377,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:363"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
           ]
         },
         {
@@ -62297,7 +62421,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:359",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:362",
             "ai-agents/20-api/voice-ai-boundary.md:66"
           ]
         },
@@ -62333,7 +62457,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:367"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:370"
           ]
         },
         {
@@ -62383,7 +62507,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:361"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:364"
           ]
         },
         {
