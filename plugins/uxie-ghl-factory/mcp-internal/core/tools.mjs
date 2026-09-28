@@ -9767,7 +9767,8 @@ export const TOOLS = [
       { method: 'POST', path: '/opportunities/forecast/drilldown' },
       { method: 'POST', path: '/opportunities/forecast/slippage' },
       { method: 'GET', path: '/opportunities/pipelines' },
-      { method: 'GET', path: '/users/' },
+      // The owner-name join dials the default (backend) gateway, not the ai rail the reports use.
+      { method: 'GET', path: '/users/', origin: 'https://backend.leadconnectorhq.com' },
     ],
     // The four POSTs are report computations (measured 2026-09-07 and 2026-09-25): they answer 201
     // with rows and no id. classifyCall would otherwise treat the tool as a write.
