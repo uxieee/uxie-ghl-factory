@@ -2913,6 +2913,9 @@
     },
     {
       "id": "shared--contacts",
+      "aka": [
+        "/contacts/{id}"
+      ],
       "method": "PUT",
       "url": "https://backend.leadconnectorhq.com/contacts/{contactId}",
       "path": "/contacts/{contactId}",
@@ -2943,7 +2946,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "_shared/conformance/three-tiers-of-write-verification.md:46"
+        "_shared/conformance/three-tiers-of-write-verification.md:46",
+        "workflows/30-types/triggers/contact_changed.md:98"
       ]
     },
     {
