@@ -10910,7 +10910,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType}; pipelineIds scopes where it shows. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+          note: "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -59241,7 +59241,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "write",
-          note: "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType}; pipelineIds scopes where it shows. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+          note: "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
         },
         "DELETE /lists/dynamic/{locationId}/{smartListId}": {
           reach: "proven",
@@ -186982,7 +186982,7 @@ var TOOLS2 = [
   // labelled with their UUIDs, so the pipeline and user lists are read and the names joined in.
   {
     name: "get_pipeline_forecast",
-    description: `${describe3("get_pipeline_forecast", "Read the opportunity forecast \u2014 risk: read")}. The app's Forecast tab: expected, weighted and won revenue grouped by stage, owner, status or close date (view:"summary"); one period's deals and metrics (view:"timeline", periodType week|month|quarter with startDate/endDate); the deals behind a period's weighted or unweighted number (view:"drilldown"); and deals whose close date keeps slipping, by risk band (view:"slippage"). Rows carry pipeline, stage and owner NAMES; GHL itself labels stage and owner rows with UUIDs. Weighting follows the pipeline's useOpportunityProbability switch. Slippage bands: the server default is "1+ times AND 7+ days" for medium, the app sends OR; read the returned rule strings. raw:true adds the service's untouched answer. No public API equivalent. Stores nothing. Not for editing: edit_pipeline changes pipelines and stages; the public opportunities tools (ghl MCP) read and change individual opportunities; list_account_entities lists pipelines. Board-only features have no tool: the board/list layout, card fields, drag-to-change-status, the All pipelines list, remembered filters, the full-page Record View, and CSV Export/Import. GHL does them on the Opportunities screen.`,
+    description: `${describe3("get_pipeline_forecast", "Read the opportunity forecast \u2014 risk: read")}. The app's Forecast tab: expected, weighted and won revenue grouped by stage, owner, status or close date (view:"summary"); one period's deals and metrics (view:"timeline", periodType week|month|quarter with startDate/endDate); the deals behind a period's weighted or unweighted number (view:"drilldown"); and deals whose close date keeps slipping, by risk band (view:"slippage"). Rows carry pipeline, stage and owner NAMES; GHL itself labels stage and owner rows with UUIDs. Weighting follows the pipeline's useOpportunityProbability switch. Slippage bands: the server default is "1+ times AND 7+ days" for medium, the app sends OR; read the returned rule strings. raw:true adds the service's untouched answer. No public API equivalent. Stores nothing. Not for editing: edit_pipeline changes pipelines and stages; the public opportunities tools (ghl MCP) read and change individual opportunities; list_account_entities lists pipelines. Board-only features have no tool: the board/list layout, card fields, drag-to-change-status, the All pipelines list, remembered filters, the full-page Record View, and CSV Export/Import. GHL does them on the Opportunities screen. Which fields search matches is an account-wide setting: Settings \u203A Custom Fields \u203A Edit searchable fields.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       view: external_exports.enum(FORECAST_VIEWS),

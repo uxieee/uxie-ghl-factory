@@ -10733,7 +10733,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType}; pipelineIds scopes where it shows. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "note": "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
