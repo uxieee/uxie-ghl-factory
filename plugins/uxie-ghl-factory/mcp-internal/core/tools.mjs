@@ -1861,7 +1861,10 @@ async function editPage(args, deps, composeSection) {
   const problems = auditPageData(pageData);
   const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, expectPage, ...r }) => r), ...(seo ? { seo: { from: seo.before, to: seo.write } } : {}), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
     ...(problems.length ? { preexistingProblems: problems } : {}),
-    note: 'Writes a DRAFT through autosave. Nothing outside the named ops changes. A PINNED (published) page does not show this until it is published again.' };
+    willPublish: args.publish === true,
+    note: args.publish === true
+      ? 'Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes.'
+      : 'Writes a DRAFT through autosave. Nothing outside the named ops changes. A published page shows neither content nor SEO changes until it is published again (publish:true).' };
   if (args.confirm !== true) {
     return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Funnel page edit preview is ready; no write was sent.', 'Repeat with confirm:true to autosave the edited draft.'), { preview });
   }
@@ -1900,6 +1903,22 @@ async function editPage(args, deps, composeSection) {
   const allApplied = checks.every((v) => v.applied ?? v.present ?? v.absent) && (seoCheck?.applied ?? true);
   const out = { ...preview, autosave: saved.status, readBack: { checks, ...(seoCheck ? { seo: seoCheck } : {}), attempts: settled.attempts }, stored: allApplied };
   if (!allApplied) return withFailureData(fail(CODES.VERIFY_FAILED, 'the autosave was accepted but at least one edit did not read back with its value', 'data.readBack.checks names each op; the page-data read can lag, so re-read before re-writing.'), out);
+  if (args.publish === true) {
+    // The public page serves the published VERSION — content and SEO alike (corpus funnels/40-rules
+    // silent-failures rule 31) — so an edit reaches visitors only when the version this autosave minted
+    // is published. Pick it by TIMESTAMP, never by array position (a live row is appended at the end).
+    if (typeof gw.uid !== 'string' || gw.uid.trim() === '') return withFailureData(fail(CODES.VALIDATION_FAILED, 'the edit is saved, but this credential carries no user id and publish-version requires one', 'Publish from the builder.'), out);
+    const vres = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+    const rows = Array.isArray(vres.json) ? vres.json : [];
+    const newest = rows.filter((v) => v.pageType === 'draft').sort((a, b) => (b.updated_at?._seconds ?? 0) - (a.updated_at?._seconds ?? 0))[0] ?? null;
+    if (!newest?.version_id) return withFailureData(fail(CODES.ENGINE_ABORT, 'the edit is saved but no draft version was found to publish', 'Publish from the builder.'), out);
+    const pub = await gw.call('POST', '/funnels/builder/publish-version', { pageId: args.pageId, versionId: newest.version_id, userId: gw.uid });
+    if (!pub.ok) return fromHttp(pub.status, pub.json);
+    const after = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+    const row = (Array.isArray(after.json) ? after.json : []).find((v) => v.version_id === newest.version_id) ?? null;
+    out.published = { versionId: newest.version_id, pageType: row?.pageType ?? null, verified: row?.pageType === 'live' };
+    if (!out.published.verified) return withFailureData(fail(CODES.VERIFY_FAILED, 'publish-version was accepted but that version did not read back as live', 'The edit is saved; re-read get-versions.'), out);
+  }
   return ok(out);
 }
 
@@ -10469,9 +10488,11 @@ export const TOOLS = [
       + 'its descendants, or a whole section), page (trackingCode {headerCode, footerCode}; customCss — '
       + 'kept in general.general.pageStyles AND appended to the compiled pageStyles the public page serves; '
       + 'background {imageUrl, color}); and `seo` {title, description, keywords, author, imageUrl, language, '
-      + 'customMeta, canonicalMeta} — only the keys you pass change. The SEO write is Firestore-direct (the '
-      + 'builder\'s path; no REST route exists): the page RECORD (GET /funnels/page/{pageId}) is what the public '
-      + 'page renders, and the autosave\'s own `meta` lands on the draft version only. The target is checked first (pageId must be a page of stepId, '
+      + 'customMeta, canonicalMeta} — only the keys you pass change. SEO is written twice, as the builder does: '
+      + 'to the page RECORD (GET /funnels/page/{pageId}) Firestore-direct — the builder\'s path; no REST route '
+      + 'exists — and as `meta` on the autosave\'s version. The public page renders the SERVED VERSION\'s meta, '
+      + 'so pass publish:true (or publish from the builder) for any edit — content or SEO — to reach visitors. '
+      + 'The target is checked first (pageId must be a page of stepId, '
       + 'and stepName must match that step exactly; refused otherwise), everything the ops do not name is '
       + 'written back as read, and each op is verified by VALUE on a separate read. Get node ids from the '
       + 'page data (GET /funnels/builder/page/data?pageId=).',

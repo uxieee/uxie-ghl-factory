@@ -73,10 +73,11 @@ on a separate read. Node ids come from `GET /funnels/builder/page/data?pageId=`.
 recomposing a page: `sections` REPLACES the whole page.
 
 Page-level settings ride the same mode: op `page` sets tracking code (header/footer), custom CSS and the
-page background; `seo` sets title, description, keywords, author, social image and language. 🔴 SEO is
-written Firestore-direct to the page record (the builder's own path — no REST route exists); the
-autosave's own `meta` lands on the draft only. 🔴 Public SEO, like content, changes only when the page is
-PUBLISHED again — a 201 and a correct record are not a changed `<title>`.
+page background; `seo` sets title, description, keywords, author, social image and language. SEO is
+written twice, as the builder does: Firestore-direct to the page record (the builder's own path — no REST
+route exists) and as `meta` on the autosave's version. 🔴 The public page renders the SERVED VERSION's
+meta, so SEO — like content — changes in public only when the page is published again: pass
+`publish:true`. A correct record is not a changed `<title>`.
 
 **`edit_redirects`** — URL redirects (domain-scoped 301s, Settings → Domains & URL Redirects): create /
 update (target only; the source is locked) / delete, preview first, id AND path target check. It refuses
