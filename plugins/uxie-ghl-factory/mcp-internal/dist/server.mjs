@@ -14701,6 +14701,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "build_workflow",
             "edit_pipeline",
             "edit_workflow",
+            "get_pipeline_forecast",
             "list_account_entities"
           ],
           rawCallable: true,
@@ -14749,6 +14750,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "build_workflow",
             "edit_pipeline",
             "edit_workflow",
+            "get_pipeline_forecast",
             "list_account_entities"
           ],
           rawCallable: true,
@@ -18610,6 +18612,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "build_workflow",
             "check_workflow",
             "edit_workflow",
+            "get_pipeline_forecast",
             "list_account_entities",
             "repair_workflow",
             "set_workflow_error_alerts"
@@ -18632,7 +18635,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, set_workflow_error_alerts)"
+            "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, set_workflow_error_alerts, get_pipeline_forecast)"
           ]
         },
         {
@@ -49333,7 +49336,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_pipeline_forecast"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -49364,7 +49369,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_pipeline_forecast"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -49395,7 +49402,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_pipeline_forecast"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -49426,7 +49435,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_pipeline_forecast"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -49602,6 +49613,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "build_workflow",
             "edit_pipeline",
             "edit_workflow",
+            "get_pipeline_forecast",
             "list_account_entities"
           ],
           rawCallable: true,
@@ -59823,6 +59835,44 @@ var init_define_TOOL_CATALOG = __esm({
           "pipelines-opportunities--opportunities-put",
           "pipelines-opportunities--opportunities-get",
           "pipelines-opportunities--opportunities-pipelines-put-put"
+        ]
+      },
+      get_pipeline_forecast: {
+        description: "Read the opportunity forecast \u2014 proof: live-runtime (2026-09-28); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-28)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "pipelines-opportunities--forecast-summary",
+          "pipelines-opportunities--forecast-column",
+          "pipelines-opportunities--forecast-drilldown",
+          "pipelines-opportunities--forecast-slippage",
+          "pipelines-opportunities--opportunities-pipelines",
+          "typed--list_account_entities--users"
+        ],
+        proofFloorRows: [
+          "pipelines-opportunities--forecast-summary",
+          "pipelines-opportunities--forecast-column",
+          "pipelines-opportunities--forecast-drilldown",
+          "pipelines-opportunities--forecast-slippage",
+          "pipelines-opportunities--opportunities-pipelines",
+          "typed--list_account_entities--users"
+        ],
+        riskRows: [
+          "pipelines-opportunities--forecast-summary",
+          "pipelines-opportunities--forecast-column",
+          "pipelines-opportunities--forecast-drilldown",
+          "pipelines-opportunities--forecast-slippage",
+          "pipelines-opportunities--opportunities-pipelines",
+          "typed--list_account_entities--users"
+        ],
+        rows: [
+          "pipelines-opportunities--forecast-summary",
+          "pipelines-opportunities--forecast-column",
+          "pipelines-opportunities--forecast-drilldown",
+          "pipelines-opportunities--forecast-slippage",
+          "pipelines-opportunities--opportunities-pipelines",
+          "typed--list_account_entities--users"
         ]
       }
     };
@@ -168337,11 +168387,11 @@ function multipathDefects(t, byId) {
   if (unwired.length) bad.push(`attributes.transitions has ${unwired.length} branch(es) next[] does not wire (${unwired.map((x) => `'${x?.name}'`).join(", ")})`);
   return bad;
 }
-function knownAttributeKeys(type, card) {
-  const model = (card?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
+function knownAttributeKeys(type, card2) {
+  const model = (card2?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
   return /* @__PURE__ */ new Set([
-    ...card?.attrKeys ?? [],
-    ...(card?.requiredFields ?? []).map((k) => String(k).split(/[.[]/)[0]),
+    ...card2?.attrKeys ?? [],
+    ...(card2?.requiredFields ?? []).map((k) => String(k).split(/[.[]/)[0]),
     ...model,
     ...OBSERVED_ATTRIBUTE_KEYS[type] ?? [],
     ...CONDITIONAL_ATTR_KEYS[type] ?? [],
@@ -168369,10 +168419,10 @@ function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceType
         `unknown top-level step key '${k}' \u2014 no stored step on either calibration account carries it`
       ));
     }
-    const card = catalog.step(t.type);
+    const card2 = catalog.step(t.type);
     if (t.isMarketplaceAction === true) continue;
-    if (!card && typeof t.workflowsActionType === "string" && marketplaceTypes?.has(t.type)) continue;
-    if (!card) {
+    if (!card2 && typeof t.workflowsActionType === "string" && marketplaceTypes?.has(t.type)) continue;
+    if (!card2) {
       if (marketplaceTypes?.has(t.type)) {
         out.push(finding(
           "MARKETPLACE_FLAG",
@@ -168391,24 +168441,24 @@ function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceType
       continue;
     }
     const attrs = t.attributes ?? {};
-    const innerAllowed = INNER_ATTRIBUTE_TYPE[t.type] ? /* @__PURE__ */ new Set([INNER_ATTRIBUTE_TYPE[t.type]]) : OBSERVED_INNER_TYPES[t.type] ? /* @__PURE__ */ new Set([...OBSERVED_INNER_TYPES[t.type], ...(card.modelFields?.fields ?? []).find((f) => f?.name === "type")?.members ?? []]) : null;
+    const innerAllowed = INNER_ATTRIBUTE_TYPE[t.type] ? /* @__PURE__ */ new Set([INNER_ATTRIBUTE_TYPE[t.type]]) : OBSERVED_INNER_TYPES[t.type] ? /* @__PURE__ */ new Set([...OBSERVED_INNER_TYPES[t.type], ...(card2.modelFields?.fields ?? []).find((f) => f?.name === "type")?.members ?? []]) : null;
     if (innerAllowed && "type" in attrs && !innerAllowed.has(attrs.type)) out.push(finding(
       "INNER_TYPE",
       "error",
       t,
       `attributes.type is ${JSON.stringify(attrs.type)}; '${t.type}' stores ${[...innerAllowed].map((v) => `'${v}'`).join(" or ")}. It saves, publishes and round-trips clean, and the builder's drawer then cannot bind it. GHL does not catch this.`
     ));
-    const known = knownAttributeKeys(t.type, card);
+    const known = knownAttributeKeys(t.type, card2);
     const bad = Object.keys(attrs).filter((k) => !known.has(k));
     if (bad.length) out.push(finding(
       "ATTRIBUTE_KEY",
-      card.confidence === "verified-live" ? "error" : "warning",
+      card2.confidence === "verified-live" ? "error" : "warning",
       t,
       `unknown attribute key(s) [${bad.join(", ")}] \u2014 an invented key saves but moves nothing. GHL does not catch this.`
     ));
     const missing = requiredKeysFor(t.type).filter((k) => !isSupplied(t.type, k, attrs));
     if (missing.length) out.push(finding("REQUIRED", "error", t, `missing required field(s): ${missing.join(", ")}`));
-    for (const r of card.enforcement?.throw ?? []) {
+    for (const r of card2.enforcement?.throw ?? []) {
       if (fires(r, attrs)) out.push(finding("ENFORCEMENT", "error", t, `GHL's own guard fires: ${r.field ?? ""} ${r.guard ?? ""}`.trim()));
     }
   }
@@ -170718,6 +170768,107 @@ function verifyPipeline(body, row) {
     if (s.id && sorted.indexOf(r) !== i) bad.push(`stage "${s.name}" is at index ${sorted.indexOf(r)}, sent at ${i}`);
   });
   return bad;
+}
+
+// core/forecast.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var FORECAST_VIEWS = ["summary", "timeline", "drilldown", "slippage"];
+var GROUP_BY = ["stage", "owner", "status", "close_date"];
+var PATHS = {
+  summary: "/opportunities/forecast/summary",
+  timeline: "/opportunities/forecast/column",
+  drilldown: "/opportunities/forecast/drilldown",
+  slippage: "/opportunities/forecast/slippage"
+};
+function forecastBody(view, a) {
+  const filters = [...a.filters ?? []];
+  if (a.pipelineId) filters.push({ field: "pipeline_id", operator: "eq", value: [a.pipelineId] });
+  const withFilters = (b) => filters.length ? { ...b, filters } : b;
+  switch (view) {
+    case "summary": {
+      const b = { locationId: a.locationId, groupBy: a.groupBy ?? "status" };
+      if (b.groupBy === "close_date") {
+        if (a.closeDateBucket) b.closeDateBucket = a.closeDateBucket;
+        if (a.closeDateMode) b.closeDateMode = a.closeDateMode;
+      } else if (a.closeDateBucket || a.closeDateMode) {
+        return { error: 'closeDateBucket and closeDateMode apply only with groupBy:"close_date"' };
+      }
+      return { body: withFilters(b) };
+    }
+    case "timeline": {
+      const b = { locationId: a.locationId };
+      for (const k of ["periodType", "startDate", "endDate", "showBy"]) if (a[k] !== void 0) b[k] = a[k];
+      return { body: withFilters(b) };
+    }
+    case "drilldown":
+      if (!a.periodStart || !a.metric) return { error: 'drilldown needs periodStart (YYYY-MM-DD) and metric ("weighted" or "unweighted")' };
+      if (filters.length) return { error: 'drilldown has only been measured with locationId, periodStart and metric; filters and pipelineId are not sent rather than guessed. Use view:"timeline" for a filtered period' };
+      return { body: { locationId: a.locationId, periodStart: a.periodStart, metric: a.metric } };
+    case "slippage": {
+      const b = { locationId: a.locationId };
+      for (const k of ["risk", "riskThresholds", "page", "limit"]) if (a[k] !== void 0) b[k] = a[k];
+      return { body: withFilters(b) };
+    }
+    default:
+      return { error: `view must be one of ${FORECAST_VIEWS.join(", ")}` };
+  }
+}
+function nameMaps(pipelines = [], users = []) {
+  const stages = /* @__PURE__ */ new Map(), pipes = /* @__PURE__ */ new Map(), people = /* @__PURE__ */ new Map();
+  for (const p2 of pipelines) {
+    pipes.set(p2.id, p2.name);
+    for (const s of p2.stages ?? []) stages.set(s.id, s.name);
+  }
+  for (const u of users) people.set(u.id, u.name || [u.firstName, u.lastName].filter(Boolean).join(" ") || u.email || u.id);
+  return { stages, pipes, people };
+}
+var card = (o, m) => {
+  const stageId = o.pipelineStageId ?? o.stage;
+  const ownerId = o.ownerId ?? o.assignedTo ?? o.owner;
+  const out = {
+    id: o.id,
+    name: o.name,
+    status: o.status,
+    value: o.monetaryValue ?? o.amount ?? null,
+    pipeline: m.pipes.get(o.pipelineId) ?? o.pipelineId ?? null,
+    stage: m.stages.get(stageId) ?? stageId ?? null,
+    owner: m.people.get(ownerId) ?? ownerId ?? null,
+    closeDate: o.forecastExpectedCloseDate ?? o.newCloseDate ?? null,
+    probability: o.effectiveProbability ?? o.forecastProbability ?? o.probability ?? null
+  };
+  if (o.contribution !== void 0) out.contribution = o.contribution;
+  const times = o.slippageCount ?? o.forecastSlippageCount;
+  if (times !== void 0) out.slipped = { times, days: o.daysSlipped ?? o.forecastDaysSlipped, from: o.origCloseDate ?? o.forecastOriginalCloseDate, lastAt: o.lastSlippedAt ?? o.forecastLastSlippedAt };
+  if (o.risk !== void 0) out.risk = o.risk;
+  return out;
+};
+function shapeForecast(view, json2, m) {
+  const j = json2 ?? {};
+  if (view === "summary") {
+    const g = j.grouping ?? {};
+    const rename = (row) => {
+      if (g.groupBy === "stage") return m.stages.get(row.key) ?? row.label;
+      if (g.groupBy === "owner") return m.people.get(row.key) ?? row.label;
+      return row.label;
+    };
+    return {
+      summary: j.summary,
+      readiness: j.readiness,
+      groupBy: g.groupBy,
+      closeDateBucket: g.closeDateBucket,
+      closeDateMode: g.closeDateMode,
+      rows: (g.rows ?? []).map((r) => ({ ...r, label: rename(r) })),
+      total: g.total
+    };
+  }
+  if (view === "timeline") return { periodStart: j.periodStart, periodEnd: j.periodEnd, metrics: j.metrics, total: j.total, opportunities: (j.opportunities ?? []).map((o) => card(o, m)) };
+  if (view === "drilldown") return { total: j.total, opportunities: (j.opportunities ?? []).map((o) => card(o, m)) };
+  return { summary: j.summary, pagination: j.pagination, opportunities: (j.opportunities ?? []).map((o) => card(o, m)) };
 }
 
 // core/snapshots.mjs
@@ -174928,17 +175079,17 @@ var endpointStub = (e, callerClass = null) => {
 };
 var CARD_STOP = /* @__PURE__ */ new Set(["a", "an", "the", "to", "of", "for", "and", "or", "in", "on", "with", "my", "me", "i", "it", "is", "that", "this", "when", "how", "do", "does", "add", "set", "use"]);
 var cardWords = (s) => String(s || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 1 && !CARD_STOP.has(w));
-var scoreCard = (card, terms) => {
+var scoreCard = (card2, terms) => {
   if (!terms.length) return 0;
-  const type = String(card.type || "").toLowerCase();
+  const type = String(card2.type || "").toLowerCase();
   const slug = new Set(type.split(/[^a-z0-9]+/).filter(Boolean));
   const hay = [
-    card.type,
-    card.title,
-    card.summary,
-    card.family,
-    card.validator,
-    ...(card.fields ?? []).map((f) => f.name)
+    card2.type,
+    card2.title,
+    card2.summary,
+    card2.family,
+    card2.validator,
+    ...(card2.fields ?? []).map((f) => f.name)
   ].join(" ").toLowerCase();
   let score = 0, slugHits = 0;
   for (const t of terms) {
@@ -174954,16 +175105,16 @@ var scoreCard = (card, terms) => {
   if (type === terms.join("_") || type === terms.join("")) score += 200;
   score += slugHits * slugHits * 8;
   if (slugHits === slug.size && slug.size > 1) score += 15;
-  if (card.fields?.length) score += 2;
-  if (!card.family?.includes("marketplace")) score += 6;
+  if (card2.fields?.length) score += 2;
+  if (!card2.family?.includes("marketplace")) score += 6;
   return score;
 };
-var cardStub = (card) => ({
-  type: card.type,
-  family: card.family,
-  summary: card.summary?.slice(0, 160),
-  fields: card.fields?.length ?? 0,
-  configSurface: card.configSurface
+var cardStub = (card2) => ({
+  type: card2.type,
+  family: card2.family,
+  summary: card2.summary?.slice(0, 160),
+  fields: card2.fields?.length ?? 0,
+  configSurface: card2.configSurface
 });
 function processAuditPacing() {
   sharedAuditLimiter ??= makeAuditLimiter();
@@ -179931,8 +180082,8 @@ var TOOLS2 = [
     capabilities: [],
     handler: async (args) => guard(async () => {
       const cards = typeCards();
-      const card = cards.find((c) => c.type === args.type) ?? cards.find((c) => c.type.toLowerCase() === String(args.type).toLowerCase());
-      if (!card) {
+      const card2 = cards.find((c) => c.type === args.type) ?? cards.find((c) => c.type.toLowerCase() === String(args.type).toLowerCase());
+      if (!card2) {
         const near = cards.filter((c) => c.type.includes(String(args.type).toLowerCase())).slice(0, 5).map((c) => c.type);
         return {
           ok: false,
@@ -179941,8 +180092,8 @@ var TOOLS2 = [
           remediation: near.length ? `Did you mean: ${near.join(", ")}?` : "Use search_step_types to find the right slug."
         };
       }
-      const caps = FIELD_CAPS[card.type];
-      return { ok: true, data: caps ? { ...card, caps, capsNote: "Character caps measured live (the server stores an over-length value verbatim; the builder flags it). edit_workflow and repair_workflow refuse an over-cap value on a step they touch unless allowOverCap:true." } : card };
+      const caps = FIELD_CAPS[card2.type];
+      return { ok: true, data: caps ? { ...card2, caps, capsNote: "Character caps measured live (the server stores an over-length value verbatim; the builder flags it). edit_workflow and repair_workflow refuse an over-cap value on a step they touch unless allowOverCap:true." } : card2 };
     })
   },
   // ── THE MARKETPLACE ACTION RAIL ─────────────────────────────────────────────────────────────
@@ -183158,11 +183309,11 @@ var TOOLS2 = [
         if (!a.moveCardsTo || !a.cards) continue;
         const res = await search([pipeFilter, stageFilter(a.id)], MAX_MOVES);
         if (!res.ok) return fromHttp(res.status, res.json);
-        for (const card of res.json?.opportunities ?? []) {
-          const put = await gw.call("PUT", `/opportunities/${encodeURIComponent(card.id)}`, { pipelineId: args.pipelineId, pipelineStageId: a.moveCardsTo });
-          const back = put.ok ? await gw.call("GET", `/opportunities/${encodeURIComponent(card.id)}?${new URLSearchParams({ locationId: loc })}`) : null;
+        for (const card2 of res.json?.opportunities ?? []) {
+          const put = await gw.call("PUT", `/opportunities/${encodeURIComponent(card2.id)}`, { pipelineId: args.pipelineId, pipelineStageId: a.moveCardsTo });
+          const back = put.ok ? await gw.call("GET", `/opportunities/${encodeURIComponent(card2.id)}?${new URLSearchParams({ locationId: loc })}`) : null;
           const stage = back?.ok ? back.json?.opportunity?.pipelineStageId ?? null : null;
-          moved.push({ id: card.id, name: card.name, from: a.name, to: a.moveCardsToName, httpStatus: put.status, movedTo: stage, ok: stage === a.moveCardsTo });
+          moved.push({ id: card2.id, name: card2.name, from: a.name, to: a.moveCardsToName, httpStatus: put.status, movedTo: stage, ok: stage === a.moveCardsTo });
         }
       }
       const moveFailed = moved.filter((m) => !m.ok);
@@ -183208,6 +183359,63 @@ var TOOLS2 = [
         ), result);
       }
       return ok(result);
+    }, args)
+  },
+  // PIPELINE FORECAST (coordinator decision P3). Four report endpoints behind one flat `view` enum;
+  // each is a POST that answers 201 with computed rows and no id. Stage and owner rows come back
+  // labelled with their UUIDs, so the pipeline and user lists are read and the names joined in.
+  {
+    name: "get_pipeline_forecast",
+    description: `${describe3("get_pipeline_forecast", "Read the opportunity forecast \u2014 risk: read")}. The app's Forecast tab: expected, weighted and won revenue grouped by stage, owner, status or close date (view:"summary"); one period's deals and metrics (view:"timeline", periodType week|month|quarter with startDate/endDate); the deals behind a period's weighted or unweighted number (view:"drilldown"); and deals whose close date keeps slipping, by risk band (view:"slippage"). Rows carry pipeline, stage and owner NAMES; GHL itself labels stage and owner rows with UUIDs. Weighting follows the pipeline's useOpportunityProbability switch. Slippage bands: the server default is "1+ times AND 7+ days" for medium, the app sends OR; read the returned rule strings. raw:true adds the service's untouched answer. No public API equivalent. Stores nothing. Not for editing: edit_pipeline changes pipelines and stages; the public opportunities tools (ghl MCP) read and change individual opportunities; list_account_entities lists pipelines.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      view: external_exports.enum(FORECAST_VIEWS),
+      pipelineId: external_exports.string().optional(),
+      groupBy: external_exports.enum(GROUP_BY).optional(),
+      closeDateBucket: external_exports.enum(["month", "quarter"]).optional(),
+      closeDateMode: external_exports.enum(["all_available", "windowed"]).optional(),
+      periodType: external_exports.enum(["week", "month", "quarter"]).optional(),
+      startDate: external_exports.string().optional(),
+      endDate: external_exports.string().optional(),
+      showBy: external_exports.enum(["forecast_expected_close_date", "date_added"]).optional(),
+      periodStart: external_exports.string().optional(),
+      metric: external_exports.enum(["weighted", "unweighted"]).optional(),
+      risk: external_exports.enum(["high", "medium", "low"]).optional(),
+      riskThresholds: external_exports.object({}).passthrough().optional(),
+      page: external_exports.number().int().optional(),
+      limit: external_exports.number().int().optional(),
+      filters: external_exports.array(external_exports.object({}).passthrough()).optional(),
+      raw: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "POST", path: "/opportunities/forecast/summary" },
+      { method: "POST", path: "/opportunities/forecast/column" },
+      { method: "POST", path: "/opportunities/forecast/drilldown" },
+      { method: "POST", path: "/opportunities/forecast/slippage" },
+      { method: "GET", path: "/opportunities/pipelines" },
+      // The owner-name join dials the default (backend) gateway, not the ai rail the reports use.
+      { method: "GET", path: "/users/", origin: "https://backend.leadconnectorhq.com" }
+    ],
+    // The four POSTs are report computations (measured 2026-09-07 and 2026-09-25): they answer 201
+    // with rows and no id. classifyCall would otherwise treat the tool as a write.
+    readOnly: true,
+    handler: async (args, deps) => guard(async () => {
+      const built = forecastBody(args.view, args);
+      if (built.error) return fail(CODES.VALIDATION_FAILED, built.error, "Adjust the arguments for this view.");
+      const ai = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const wf = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const r = await ai.call("POST", PATHS[args.view], built.body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const notes = [];
+      const pl = await ai.call("GET", `/opportunities/pipelines?${new URLSearchParams({ locationId: args.locationId })}`);
+      if (!pl.ok) notes.push(`pipeline names unavailable (${pl.status}); stage and pipeline ids shown`);
+      const us = await wf.call("GET", `/users/?${new URLSearchParams({ locationId: args.locationId })}`);
+      if (!us.ok) notes.push(`user names unavailable (${us.status}); owner ids shown`);
+      const maps = nameMaps(pl.ok ? pl.json?.pipelines : [], us.ok ? us.json?.users : []);
+      const data2 = { view: args.view, ...shapeForecast(args.view, r.json, maps) };
+      if (notes.length) data2.notes = notes;
+      if (args.raw === true) data2.raw = r.json;
+      return ok(data2);
     }, args)
   },
   {

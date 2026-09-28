@@ -1840,6 +1840,36 @@
     "path": "/opportunities/pipelines/{pipelineId}"
   },
   {
+    "tool": "get_pipeline_forecast",
+    "method": "POST",
+    "path": "/opportunities/forecast/summary"
+  },
+  {
+    "tool": "get_pipeline_forecast",
+    "method": "POST",
+    "path": "/opportunities/forecast/column"
+  },
+  {
+    "tool": "get_pipeline_forecast",
+    "method": "POST",
+    "path": "/opportunities/forecast/drilldown"
+  },
+  {
+    "tool": "get_pipeline_forecast",
+    "method": "POST",
+    "path": "/opportunities/forecast/slippage"
+  },
+  {
+    "tool": "get_pipeline_forecast",
+    "method": "GET",
+    "path": "/opportunities/pipelines"
+  },
+  {
+    "tool": "get_pipeline_forecast",
+    "method": "GET",
+    "path": "/users/"
+  },
+  {
     "tool": "create_smart_list",
     "method": "POST",
     "path": "/contacts/smartlist/"

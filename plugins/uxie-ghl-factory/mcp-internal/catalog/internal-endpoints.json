@@ -14524,6 +14524,7 @@
         "build_workflow",
         "edit_pipeline",
         "edit_workflow",
+        "get_pipeline_forecast",
         "list_account_entities"
       ],
       "rawCallable": true,
@@ -14572,6 +14573,7 @@
         "build_workflow",
         "edit_pipeline",
         "edit_workflow",
+        "get_pipeline_forecast",
         "list_account_entities"
       ],
       "rawCallable": true,
@@ -18433,6 +18435,7 @@
         "build_workflow",
         "check_workflow",
         "edit_workflow",
+        "get_pipeline_forecast",
         "list_account_entities",
         "repair_workflow",
         "set_workflow_error_alerts"
@@ -18455,7 +18458,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, set_workflow_error_alerts)"
+        "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, set_workflow_error_alerts, get_pipeline_forecast)"
       ]
     },
     {
@@ -49144,7 +49147,9 @@
       "rail": "ai",
       "kind": "write",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_pipeline_forecast"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -49175,7 +49180,9 @@
       "rail": "ai",
       "kind": "write",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_pipeline_forecast"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -49206,7 +49213,9 @@
       "rail": "ai",
       "kind": "write",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_pipeline_forecast"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -49237,7 +49246,9 @@
       "rail": "ai",
       "kind": "write",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_pipeline_forecast"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -49413,6 +49424,7 @@
         "build_workflow",
         "edit_pipeline",
         "edit_workflow",
+        "get_pipeline_forecast",
         "list_account_entities"
       ],
       "rawCallable": true,
