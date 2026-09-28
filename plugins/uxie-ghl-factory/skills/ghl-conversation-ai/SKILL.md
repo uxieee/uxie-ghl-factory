@@ -146,6 +146,7 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 | Active Hours (per-bot working hours, off-hours reply) | Agent → Deploy → Working Hours (needs Labs "Working Hours for Conversation AI") | Labs-gated per location |
 | Prompt Optimizer (simulated test chats, auto-optimise) | Agent editor → Prompt Optimizer (Labs) | billed per run, Labs-gated |
 | Flow agents (the node-graph canvas) | Voice AI → Create Agent → **Flow Builder** (any location with the flag); AI Agents → Agent Studio (flow agents, create limited to five agencies) | no typed tool; corpus `ai-agents/10-anatomy/flow-agent-shape.md` has the graph, tools, actions, AI Router and Deploy. 🔴 A Router edge with no condition lets the agent hang up at any turn; Build with AI (vera) built no End Call node when asked to end the call |
+| Agent apps beyond Default: marketplace MCP apps, app connections, custom MCP servers, configured skill copies | Managed Agent editor → Apps → **Add app** / **Add custom MCP** | connecting an app is an OAuth grant, and an MCP server or API-call skill makes GHL call an outside URL — not exercised; corpus `ai-agents/20-api/actions-and-plugins.md` has the Default catalogue, custom skills and the actions catalogue |
 | Chat widgets (create / style / install) | Sites → Chat Widget | raw request only, no typed tool |
 | AI Suite billing, usage limits, rebilling | Agency → AI Suite | agency billing, account-wide |
 

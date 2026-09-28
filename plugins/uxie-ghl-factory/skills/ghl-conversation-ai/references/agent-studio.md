@@ -48,7 +48,11 @@ detail page shows Activity and a **Memory** tab marked "SOON".
 | `POST` | `/agent-studio/super-agent/agents` | the product's own Save: `{locationId, agencyId, builderSessionId, config, folderId?}` (*bundle*; not yet used by this plugin) |
 | `DELETE` | `/agent-studio/super-agent/agents/:id?locationId=` | Delete → `{success:true}` |
 | `GET` | `/agent-studio/super-agent/agents?locationId=&page=&pageSize=` | List |
-| `GET` | `/agent-studio/plugins/default?locationId=&product=Superagents` | 423-tool catalog for the built-in Default plugin |
+| `GET` | `/agent-studio/plugins/default?locationId=&product=Superagents` | the built-in Default plugin (`authKind: crm_internal`): 540 skills in 31 groups (contacts, opportunities, workflows, calendars…), offered to Superagents, Voice AI, Conversation AI and both flow builders; an agent carries it as `plugins: [{slug: "default", allSkills: true}]`, and `plugins: []` removes it (proven live 2026-09-28) |
+| `GET` | `/agent-execution/actions` | the Actions Platform catalogue — 22 action names in 9 entities; send it **without** a `locationId` query (one answers 422). Saved actions are what a **flow** agent's action nodes carry; a Managed Agent stores none (proven live) |
+| `GET` | `/agent-execution/actions/{actionId}?locationId=` | read one saved action (an OpenAPI-style operation + your values); 400 without the query (proven live) |
+| `GET` | `/agent-execution/actions/spec?actionName=&actionEntity=` | the form spec one action type is built from (Send Email: `POST /conversations/messages`, required `type`, `contactId`, `subject`) (proven live) |
+| `GET` | `/agent-execution/actions/{actionId}/safe-template?locationId=` | a reusable copy of a saved action: no `id`, stamped with the caller's location, **your values and the spec's example values stripped**; the editor falls back to it when it cannot read an action, and Save then creates a NEW action (proven live) |
 
 Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the workflow-builder's
 `Authorization: Bearer`. See the parent SKILL.md's Execute section.
