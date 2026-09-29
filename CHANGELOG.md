@@ -11,6 +11,24 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.22.0] — 2026-09-29
+
+**Fix: `edit_funnel` settings no longer change fields you didn't name, and a domain change handles running split
+tests the way GHL does. Executed live on the test account.**
+
+- The settings body is derived the way GHL's Settings page derives it:
+  - "Auto-generate schema" is no longer switched on for documents that never stored it;
+  - the Live/Test payment option is sent only when GHL offers it.
+- After every settings edit, each settings field is re-read. A field you didn't name that changed anyway fails the
+  call, and the result lists it.
+- ⚠️ Changing or removing a funnel's domain stops its split tests and archives the variation pages. GHL asks for
+  confirmation, and the tool now refuses unless you pass `resetSplitTests: true`.
+  - Before, the domain went away and the split kept "running" on a funnel with no domain. That was measured on the
+    released version.
+- A domain that isn't on the location, or that carries a regex redirect (GHL's Settings page hides those), is refused.
+
+Catalogue: +3 routes.
+
 ## [1.21.0] — 2026-09-29
 
 **Fix: pages built by `build_funnel_page` keep their look after anyone saves them in the page builder. Executed live
