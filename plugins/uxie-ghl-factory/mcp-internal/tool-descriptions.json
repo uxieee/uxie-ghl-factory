@@ -604,9 +604,9 @@
     ]
   },
   "fast_forward_contacts": {
-    "description": "Fast-forward contacts — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Fast-forward contacts — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-07-18)",
     "proofRows": [
       "fast-forward-count-per-step",
