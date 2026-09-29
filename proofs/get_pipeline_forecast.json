@@ -64,6 +64,16 @@
         "row:pipelines-opportunities--forecast-column"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:de7dd70d",
+        "row:pipelines-opportunities--forecast-summary"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -85,7 +95,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "aace93819a562eb4c84c691a3a50601282afbaeda75c49c253799595154fc1e4",
-      "plugins/uxie-ghl-factory/mcp-internal/core/forecast.mjs": "e417a79648bc4140aa40ea5d1eb31e97eed71f3bd51e7591802c88a42a934c31"
+      "plugins/uxie-ghl-factory/mcp-internal/core/forecast.mjs": "48e16fc9a9cb4cfbd94ef43f7a0187571ef69fb8357806ad453b971406e503f6"
     }
   }
 }

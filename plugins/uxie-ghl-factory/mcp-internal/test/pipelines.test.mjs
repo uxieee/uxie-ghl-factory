@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { planPipelineEdit, verifyPipeline } from '../core/pipelines.mjs';
+import { planPipelineEdit, verifyPipeline, strayArrivals, cardsInRemovedStages } from '../core/pipelines.mjs';
 
 // The GET row shape, trimmed to what matters (sandbox capture 2026-09-28).
 const row = () => ({
@@ -103,4 +103,26 @@ test('a new stage gets the UI defaults: both charts on and colour #64748B, unles
   // CONTROL: explicit values win
   const own = planPipelineEdit(row(), { addStages: [{ name: 'Quiet', stageWinProbability: 5, showInPieChart: false, color: '#155EEF' }] });
   assert.deepEqual([own.body.stages.at(-1).showInPieChart, own.body.stages.at(-1).color], [false, '#155EEF']);
+});
+
+test('strayArrivals: a card the pre-write snapshot never saw, already existing at write time, is named (index-lag race, T12)', () => {
+  const writeStartedAt = '2026-09-29T05:00:10.000Z';
+  const landing = [
+    { id: 'old', name: 'counted before', dateAdded: '2026-09-01T00:00:00Z' },
+    { id: 'lag', name: 'created seconds before', dateAdded: '2026-09-29T05:00:05.000Z' },
+    { id: 'after', name: 'created after the write', dateAdded: '2026-09-29T05:00:20.000Z' },
+  ];
+  assert.deepEqual(strayArrivals({ snapshotIds: ['old'], landingCards: landing, writeStartedAt }),
+    [{ id: 'lag', name: 'created seconds before', dateAdded: '2026-09-29T05:00:05.000Z' }]);
+  // CONTROL: everything was in the snapshot → nothing to report.
+  assert.deepEqual(strayArrivals({ snapshotIds: ['old', 'lag'], landingCards: landing.slice(0, 2), writeStartedAt }), []);
+  // No timestamp at all → reported (fail loud, not silent).
+  assert.equal(strayArrivals({ snapshotIds: [], landingCards: [{ id: 'x', name: 'no date' }], writeStartedAt }).length, 1);
+});
+
+test('cardsInRemovedStages: the last snapshot stops the edit when a card reached a stage being removed (live miss 2026-09-29)', () => {
+  const rows = [{ id: 'a', pipelineStageId: 'L1' }, { id: 'late', pipelineStageId: 'L2' }];
+  assert.deepEqual(cardsInRemovedStages(rows, new Set(['L2'])).map((c) => c.id), ['late']);
+  // CONTROL: no card in a removed stage.
+  assert.deepEqual(cardsInRemovedStages(rows, ['L3']), []);
 });

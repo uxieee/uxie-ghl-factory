@@ -70,6 +70,21 @@ test('pipeline position is refused without an integer targetPosition — the UI\
   assert.equal(refuseRawRequest({ method: 'PATCH', path: '/opportunities/pipelines/P1', body: {} }), null);
 });
 
+test('a pipeline PUT whose stages are missing any stageWinProbability is refused — GHL would rewrite them all (control: every stage carries one)', () => {
+  const path = '/opportunities/pipelines/P1';
+  const st = (name, p) => (p === undefined ? { name } : { name, stageWinProbability: p });
+  for (const stages of [[st('A', 10), st('B')], [st('A'), st('B')], [st('A', 10), st('B', '20')], [st('A', 10), st('B', undefined)]]) {
+    const r = refuseRawRequest({ method: 'PUT', path, body: { name: 'X', stages } });
+    assert.equal(r?.rule, 'pipeline-stages-need-every-probability', JSON.stringify(stages));
+    assert.match(r.message, /REWRITES EVERY/);
+  }
+  // CONTROL: every stage has a numeric probability (0 included); a PUT with no stages array is not this rule.
+  assert.equal(refuseRawRequest({ method: 'PUT', path, body: { name: 'X', stages: [st('A', 0), st('B', 50)] } }), null);
+  assert.equal(refuseRawRequest({ method: 'PUT', path, body: { name: 'X' } }), null);
+  // Scoping: create (POST) assigns the ramp to a NEW pipeline — nothing is lost — and the position route is its own rule.
+  assert.equal(refuseRawRequest({ method: 'POST', path: '/opportunities/pipelines', body: { name: 'X', stages: [st('A')] } }), null);
+});
+
 test('guards are method-scoped: a GET on the same path is never refused', () => {
   assert.equal(refuseRawRequest({ method: 'GET', path: `/workflow/${L}/${W}/start-workflow` }), null);
 });

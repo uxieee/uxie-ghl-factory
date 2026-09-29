@@ -154,3 +154,26 @@ export function verifyPipeline(body, row) {
   });
   return bad;
 }
+
+/**
+ * Cards that reached the landing stage without being counted (T12, sweep 2026-09-29). The search index lags a write by
+ * seconds, so a card created just before a stage is removed is invisible to every count; GHL then moves it to the
+ * pipeline's first stage and nothing says so. After the write, a card in the landing stage that was NOT in the
+ * pre-write snapshot of the whole pipeline, and that already existed when the write started, is exactly that card
+ * (or one created in the landing stage in the same few seconds — the caller is told to check).
+ */
+export function strayArrivals({ snapshotIds, landingCards, writeStartedAt }) {
+  const seen = new Set(snapshotIds);
+  const t0 = Date.parse(writeStartedAt);
+  return (landingCards ?? []).filter((c) => {
+    if (!c?.id || seen.has(c.id)) return false;
+    const added = Date.parse(c.dateAdded ?? c.createdAt ?? '');
+    return !Number.isFinite(added) || !Number.isFinite(t0) || added <= t0;
+  }).map((c) => ({ id: c.id, name: c.name, dateAdded: c.dateAdded ?? c.createdAt ?? null }));
+}
+
+/** Cards of a pipeline snapshot that sit in a stage being removed — GHL would move them to the first stage (T12). */
+export function cardsInRemovedStages(rows, removedStageIds) {
+  const gone = new Set(removedStageIds);
+  return (rows ?? []).filter((c) => c && gone.has(c.pipelineStageId));
+}

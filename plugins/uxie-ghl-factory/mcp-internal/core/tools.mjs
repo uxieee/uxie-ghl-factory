@@ -89,7 +89,7 @@ import {
   isGroup,
   leaves as filterLeaves,
 } from './smart-lists.mjs';
-import { planPipelineEdit, verifyPipeline, COLOR_RENDER_MODES } from './pipelines.mjs';
+import { planPipelineEdit, verifyPipeline, COLOR_RENDER_MODES, strayArrivals, cardsInRemovedStages } from './pipelines.mjs';
 import { CLOSE_DATE_BUCKETS, DRILLDOWN_BY, FORECAST_VIEWS, GROUP_BY, PATHS as FORECAST_PATHS, forecastBody, nameMaps, shapeForecast } from './forecast.mjs';
 import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId } from './snapshots.mjs';
 import {
@@ -10733,13 +10733,15 @@ export const TOOLS = [
       + 'full body, because the stages array REPLACES: a stage left out is deleted and its cards silently land in '
       + 'the first stage. Removing a stage that holds cards is refused unless you name moveCardsTo; the cards are '
       + 'then moved there first, one by one (each move fires opportunity stage-change workflow triggers), and the '
-      + 'stage is removed only once none are left. Every stage must end with a stageWinProbability, since one '
+      + 'stage is removed only once none are left. Card counts come from a search index that lags by seconds, so a stage '
+      + 'removal re-counts right before the write and afterwards checks the first stage: a card the counts never saw '
+      + 'that GHL moved there fails the call (VERIFY_FAILED) with the card named. Every stage must end with a stageWinProbability, since one '
       + 'missing value makes GHL rewrite them all. The pipeline-level Funnel / Pie-chart switches are recomputed from the stages '
       + '(on when any stage is on), as the GHL UI does; dashboards read only those, so a stale pair hides the pipeline. '
       + 'New stages start with both charts on and colour #64748B, like the UI. expectedName must match the pipeline\'s current name. Previews by '
       + 'default; confirm:true writes, then reads the pipeline back and fails on any difference. Does not create or '
       + 'delete pipelines, change sharing permissions, or edit opportunities (except the moves above). '
-      + 'Read pipelines with list_account_entities. No tool changes the account-wide opportunity settings (owner '
+      + 'Read pipelines with list_account_entities (ids and names; current probabilities and colours show in this tool\'s preview). No tool changes the account-wide opportunity settings (owner '
       + 'decoupling, follower sync, allowing two cards per contact): GHL does them in Settings > Opportunities & Pipelines '
       + 'and Settings > Objects > Opportunities.',
     inputSchema: schema({
@@ -10852,7 +10854,33 @@ export const TOOLS = [
             'A card may have arrived after the count. Re-run the edit to move it.'), { moved });
         }
       }
-      // 3. Write the whole pipeline, then read it back.
+      // 3. When stages go, GHL moves any card still in them to the first stage without a word, and the search index
+      //    lags a write by seconds: a card created just before this call is invisible to every count above (T12, sweep
+      //    2026-09-29). So settle, re-count right before the write, and snapshot every card id in the pipeline; after
+      //    the write, a card in the landing stage that the snapshot never saw is one GHL moved there.
+      const removing = affected.length > 0;
+      const pipelineIds = [];
+      if (removing) {
+        await new Promise((r) => setTimeout(r, 3000));
+        // One snapshot of every card in the pipeline, WITH its stage, taken as late as possible: it is both the last
+        // re-count (a card now sitting in a stage being removed stops the edit) and the baseline for the check after.
+        const removedIds = new Set(affected.map((a) => a.id));
+        const late = [];
+        for (let page = 1; page <= 20; page++) {
+          const res = await search([pipeFilter], 100, page);
+          if (!res.ok) return fromHttp(res.status, res.json);
+          const rows = res.json?.opportunities ?? [];
+          pipelineIds.push(...rows.map((c) => c.id));
+          late.push(...cardsInRemovedStages(rows, removedIds));
+          if (rows.length < 100) break;
+        }
+        if (late.length) {
+          return withFailureData(fail(CODES.VERIFY_FAILED, `${late.length} card(s) reached a stage being removed after the count: ${late.map((c) => `"${c.name}" (${c.id}) in "${stageName(c.pipelineStageId)}"`).join(', ')}; the pipeline was NOT changed`,
+            'Re-run the edit so they are counted (and moved with moveCardsTo).'), { moved, late: late.map((c) => ({ id: c.id, name: c.name, stage: stageName(c.pipelineStageId) })) });
+        }
+      }
+      // 4. Write the whole pipeline, then read it back.
+      const writeStartedAt = new Date().toISOString();
       const write = await gw.call('PUT', `/opportunities/pipelines/${encodeURIComponent(args.pipelineId)}?${new URLSearchParams({ locationId: loc })}`, plan.body);
       if (!write.ok) return withFailureData(fromHttp(write.status, write.json), { moved });
       const after = await readRow();
@@ -10863,6 +10891,23 @@ export const TOOLS = [
       if (mismatches.length) {
         return withFailureData(fail(CODES.VERIFY_FAILED, `the pipeline read back differently: ${mismatches.join('; ')}`,
           'The write was sent; inspect data.stages for what GHL stored.'), result);
+      }
+      // 5. Nothing the counts missed may have landed in the first stage. Polled: the index catches up in seconds.
+      if (removing) {
+        const landing = [...(after.row?.stages ?? [])].sort((x, y) => (x.position ?? 0) - (y.position ?? 0))[0];
+        let strays = [];
+        for (let i = 0; i < 6 && landing; i++) {
+          const res = await search([pipeFilter, stageFilter(landing.id)], 100);
+          if (res.ok) strays = strayArrivals({ snapshotIds: pipelineIds, landingCards: res.json?.opportunities, writeStartedAt });
+          if (strays.length) break;
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+        result.landingCheck = { stage: landing?.name, cardsCountedBeforeWrite: pipelineIds.length, strays };
+        if (strays.length) {
+          return withFailureData(fail(CODES.VERIFY_FAILED,
+            `the pipeline was changed, but ${strays.length} card(s) the counts never saw now sit in "${landing.name}": ${strays.map((c) => `"${c.name}" (${c.id})`).join(', ')} — GHL moves a removed stage's cards to the first stage, and these were not yet in the search index`,
+            'Check each named card: if it belonged to the removed stage, move it with the public opportunity update. (A card created in the first stage during the same seconds is named too.)'), result);
+        }
       }
       return ok(result);
     }, args),

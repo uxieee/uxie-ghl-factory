@@ -459,21 +459,33 @@
         "commit:b853ea4e"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:de7dd70d",
+        "row:pipelines-opportunities--opportunities-pipelines-put-put"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-28",
+    "hashedAt": "2026-09-29",
     "endpoints": {},
     "builds": {},
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#raw_request": "c9f3e1127d05fd923f4343ff73b016a481c8e981f890f4a1dc7fa1deb2d32ab2",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/auth.mjs": "467b14cd1ab05c33a228d0f51ecfc9483950c4b77aaf5d8c91acdb1effc0723a",
       "plugins/uxie-ghl-factory/mcp-internal/core/build-provenance.mjs": "6cabad4e34366c6ff6ab1886b20c3ad24f924b477d9145f0b2969a5ec62ed997",
       "plugins/uxie-ghl-factory/mcp-internal/core/credential-class.mjs": "40578038582ebf0323dd11dd8b2d4b481543bfa527d0b4e7593b38cd43f78516",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "aace93819a562eb4c84c691a3a50601282afbaeda75c49c253799595154fc1e4",
-      "plugins/uxie-ghl-factory/mcp-internal/core/raw-request-guards.mjs": "d6696a752c87abef8fded8256a1e7a13cc4ca349f30900b03d49442a6430c124"
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd",
+      "plugins/uxie-ghl-factory/mcp-internal/core/raw-request-guards.mjs": "48cf39d8efc7bfa5bbe01fd674505ced925cc7f4af9829e9f8d7beb64bb17ef7"
     }
   }
 }
