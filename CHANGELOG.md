@@ -11,6 +11,75 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.20.0] — 2026-09-29
+
+**Agent Logs you can read, workflow edits that no longer damage what they don't touch, and fixes from a full
+completeness check of the pipelines, AI agents and workflows surfaces. Everything here was executed live on the test
+account.**
+
+### Added — Agent Logs and AI agents
+- `get_voice_call_logs`:
+  - Voice AI call logs with every dashboard filter, real calls vs test calls;
+  - one call's transcript, with its tool calls;
+  - the outbound call queue.
+- `get_convai_conversation_logs`: the Conversation AI dashboard's conversation logs, and each contact's stored
+  conversation summaries and transcripts.
+- `get_agent_log_filter_values`: the agent, contact, channel and voice names Agent Logs can filter on. It is a read,
+  so the write gate does not stop it.
+- `list_agent_sessions` returns each session's message count and accepts the AI Studio product (`ai_studio`).
+- `get_agent_session`:
+  - returns every message of a turn (`userQueries` / `aiResponses`), not only the first;
+  - for Managed Agent sessions, adds the thumbs rating of each reply and of the session. The ratings are sentiment
+    only, from GHL's single location-wide list. That list has no paging, so a cap on a very long list is unmeasured.
+- `create_convai_agent`: email-channel settings at create (wait time and email settings).
+- `get_ai_agent_options` `product: "conversation_ai"` returns the Conversation AI model list, with prices and the
+  default. It used to return only the workflow step's list, which is the wrong one for Conversation AI.
+- `create_studio_agent`:
+  - `templateId` creates from one of GHL's 12 Managed Agent templates;
+  - `folderId`/`folderName` on both paths, with membership verified;
+  - `customApiEnabled`.
+  - 🔴 GHL ignores `triggers: []` in the config write, so template triggers are sent back disabled, and the result
+    names any trigger that would arm on publish.
+
+### Fixed — workflows
+- 🔴 `edit_workflow` renumbered every marketplace step when an edit touched one of them, so merge tags like
+  `{{text_formatter.2.result}}` on steps the edit never touched pointed at the wrong step. An edit now numbers only the
+  steps it creates, the way the builder does.
+- Changing a step's type keeps its notes, loop membership and canvas metadata.
+- Loop-body and connected-account steps no longer block `publish_workflow`, `edit_workflow` or `repair_workflow`.
+  The step keys now come from the builder's own model.
+- These are no longer dropped:
+  - email "send to associated contacts" (`emailRecipients`, `associationLabels`);
+  - internal-notification owners, followers and bcc.
+- A three-way split defaults to 33/33/34 (the builder rejects 33/33/33).
+- `check_workflow` reports a GHL validator that crashes as "not checked", never as passed. The builder's validators
+  are refreshed from today's builder: 112, and the split validator now runs.
+- `edit_workflow` can re-point a goto that lost its target. The advanced canvas cannot, after a reload.
+
+### Added — workflows
+- `build_workflow` builds branching waits on user replied, trigger link clicked and email event.
+- A reference for the advanced canvas: what each gesture stores. Our tools preserve canvas layout on edit, which is
+  proven.
+
+### Fixed — pipelines
+- `edit_pipeline` recomputes the pipeline-level Funnel / Pie-chart switches from the stages on every write, as the UI
+  does. A stale pair used to hide a pipeline from dashboards. New stages start with both charts on and colour #64748B,
+  as in the UI.
+- `get_pipeline_forecast` `view: "drilldown"` lists what the Forecast tab lists (KPI, stage, owner, status and
+  close-date buckets), with paging. It used to call an endpoint the app never uses. `view: "timeline"` pages too.
+- `list_account_entities` pages lost reasons. This is defensive: no truncation was ever seen.
+
+### Changed
+- ⚠️ `build_workflow` refuses:
+  - a branching wait without a positive timeout;
+  - a split with more than 5 paths, or with weights that don't total 100;
+  - a WhatsApp notification whose userType is not assign/user.
+- Funnels pages skill: the builder has 72 element kinds and the tool composes 60 (the 12 newest are edit-in-place
+  only); fallback colours use palette variables; survey routes; the form_submission trigger key.
+
+Catalogue: re-pinned to today's workflow builder (+10 routes); +149 funnels routes; Agent Logs, voice, pipelines and
+forms rows.
+
 ## [1.19.0] — 2026-09-29
 
 **Creating AI agents: the three create tools now build what GHL's builders build, and refuse what they cannot
