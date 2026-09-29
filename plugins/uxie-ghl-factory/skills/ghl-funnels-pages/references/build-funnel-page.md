@@ -125,6 +125,15 @@ Autosave answers `201` to all of these:
 - 🔴 **The public page renders the SERVED VERSION.** Pass `publish: true` (or publish from the builder) for any
   edit, content or SEO, to reach visitors.
 
+## Style values
+
+An authored `styles` / `wrapper` / device-map value is stored in the builder's shape, never bare (a bare value compiled for the
+public page but the builder canvas ignored it, bl-332): `"16px"` / `"50%"` / `"1.3em"` → `{value:16, unit:"px"}` etc.;
+`"#d00000"`, keywords (`bold`, `center`), `var(--x)`, `rgb(…)`, shorthands (`"0 1px 2px rgba(0,0,0,.1)"`) → `{value:"…"}`; a number →
+px on a key that carries a unit (padding, margin, size, radius, gap, width, height…), else plain (`opacity`, `zIndex`); an
+already-shaped `{value, unit}` passes untouched. `null`, booleans, arrays, an object with no `value`/`unit`, an empty string
+and NaN are refused by key name (`styles.color: null …`) before anything is written.
+
 ## Structure and motion
 
 - **Styles compile as the builder compiles them.** A node's `styles`, `wrapper` and tablet / mobile maps go through

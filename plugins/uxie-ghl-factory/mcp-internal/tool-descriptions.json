@@ -630,9 +630,9 @@
     ]
   },
   "find_ghl_site": {
-    "description": "Find ghl site — proof: live-runtime (2026-09-28); risk: read",
+    "description": "Find ghl site — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects",
@@ -2200,9 +2200,9 @@
     ]
   },
   "edit_redirects": {
-    "description": "Create, retarget or delete a URL redirect (Settings → Domains & URL Redirects) — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Create, retarget or delete a URL redirect (Settings → Domains & URL Redirects) — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "funnels--redirect-list",

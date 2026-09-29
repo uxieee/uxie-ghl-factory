@@ -185,7 +185,13 @@ meta, so SEO — like content — changes in public only when the page is publis
 update (target only; the source is locked) / delete, preview first, id AND path target check. It refuses
 the storefront/blog prefixes (`/b/ /c/ /product/ /collections/ /post/ /category/ /author/ /tag/`): GHL
 stores those and serves 404 on the exact path. A redirect forwards the request's query string to the
-target. Read them with **`find_ghl_site`** `includeRedirects:true` (domains, every redirect, 30-day clicks).
+target. Targets: a URL `target`, or `to {type: funnel|website, funnelId, stepId}` (the step must be on that funnel AND
+have a domain attached — GHL answers 400 for a step with none, the tool says so first). `entireDomain:true` (path `*`,
+action `all`, to a URL) is the screen's "Entire Domain (/*)": it sends EVERY page of the domain away, other teams'
+pages included, so it also needs `confirmEntireDomain` equal to the domain — never use it on a shared domain (its
+live path was not run: it needs a domain whose every page is yours). Read them with **`find_ghl_site`**
+`includeRedirects:true` (domains, every redirect, clicks — 30 days, or `redirectClicksFrom` / `redirectClicksTo`
+YYYY-MM-DD, with the previous period and each row's per-interval series).
 
 ### Not offered by a tool — tell the user GHL does it, and where
 

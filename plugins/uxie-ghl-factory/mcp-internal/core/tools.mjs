@@ -33,9 +33,10 @@ import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { elementSpecProblem } from './element-spec.mjs';
 import { makePopup, popupRefProblems } from './page-popup.mjs';
+import { normalizeStyles } from './style-values.mjs';
 import { fontRegistry, typographyValue, typographyFamily, setRootVars, typographyRule, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, resolveCustomFont } from './page-fonts.mjs';
 import { checkRecord, metaPost, recordDrift } from './page-seo.mjs';
-import { planCreate, planUpdate, planDelete, resolveTarget, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
+import { planCreate, planUpdate, planDelete, resolveTarget, resolveTo, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
 import { triggerFromVersion, restoreBody, diffVersion } from './version-restore.mjs';
 import {
@@ -2034,6 +2035,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     });
     ops = (args.edits ?? []).map((e, i) => {
       if (e.op === 'append-popup') return { op: 'append-popup', popup: builtPopups.get(i) };
+      // an authored style value takes the builder's stored shape ({value} / {value, unit}) — a bare string is not stored bare (bl-332)
+      if (e.op === 'set' && e.styles) e = { ...e, styles: normalizeStyles(e.styles, `edits[${i}].styles`) };
       if (e.op === 'set' && (e.font !== undefined || e.styles?.fontFamily)) {
         const hit = findNode(current, e.nodeId);
         if (e.font !== undefined) {
@@ -2225,24 +2228,34 @@ async function listSites(args, deps) {
     note: 'Funnel folders are organisational only (create/rename/move them on the Sites screen); folderId is the folder a document is filed in.' };
 }
 
-async function siteRedirects(deps, locationId) {
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+export async function siteRedirects(deps, locationId, range = {}) {
   const gw = deps.makeGw({ loc: locationId, state: deps.state });
   const dom = await gw.call('GET', `/funnels/domain?locationId=${encodeURIComponent(locationId)}`);
   const list = await listRedirects(gw, locationId, '');
   if (!list.rows) return { checked: false, status: list.res?.status ?? null, warning: 'The redirect list could not be read; this is NOT "no redirects".' };
   const today = new Date(); const from = new Date(today.getTime() - 30 * 86400000);
   const d = (x) => x.toISOString().slice(0, 10);
+  // The screen's date picker sends any fromDate/toDate (measured 2026-09-30: a 1-day, 90-day and since-January range all answer; the response
+  // carries the previous period for comparison and, per row, a sparkline {interval, series:[{t,count}]}).
+  const fromDate = range.from ?? d(from), toDate = range.to ?? d(today);
+  for (const [k, v] of [['redirectClicksFrom', fromDate], ['redirectClicksTo', toDate]]) if (!DAY.test(v)) return { checked: false, warning: `${k} must be YYYY-MM-DD` };
+  if (fromDate > toDate) return { checked: false, warning: 'redirectClicksFrom is after redirectClicksTo' };
   let clicks = null;
   if (list.rows.length) {
-    const st = await gw.call('POST', '/stats/url-redirect', statsBody(locationId, list.rows, d(from), d(today)));
-    if (st.ok) clicks = { total: st.json?.cards?.clicks?.curr ?? null, byRow: (st.json?.rows ?? []).map((r, i) => ({ path: list.rows[i]?.path, clicks: r?.clicks?.curr ?? null })) };
+    const st = await gw.call('POST', '/stats/url-redirect', statsBody(locationId, list.rows, fromDate, toDate));
+    if (st.ok) clicks = {
+      from: fromDate, to: toDate, total: st.json?.cards?.clicks?.curr ?? null, previousPeriod: st.json?.cards?.clicks?.prev ?? null,
+      comparison: st.json?.timeframe?.comparison ?? null,
+      byRow: (st.json?.rows ?? []).map((r, i) => ({ path: list.rows[i]?.path, clicks: r?.clicks?.curr ?? null, ...(r?.sparkline ? { interval: r.sparkline.interval, series: r.sparkline.series } : {}) })),
+    };
   }
   return {
     checked: true,
     domains: (dom.json?.domains ?? []).map((x) => ({ id: x.id ?? x._id, url: x.url, defaultDomain: x.defaultDomain ?? false })),
     count: list.count,
     redirects: list.rows.map((r) => ({ id: rowId(r), domain: r.domain, path: r.path, target: r.target, action: r.action })),
-    clicks30d: clicks,
+    ...(range.from || range.to ? { clicks } : { clicks30d: clicks }),
     note: 'Clicks are counted per path as typed; a case-varied hit counts in the total but not in the stored path\'s row.',
   };
 }
@@ -9488,7 +9501,7 @@ export const TOOLS = [
     description: describe('find_ghl_site',
       'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
       + 'includeRedirects:true also returns the location\'s domains and every URL redirect (path → target, '
-      + 'with 30-day clicks); change redirects with edit_redirects. list:true (site optional) instead returns EVERY '
+      + 'with clicks: 30 days, or redirectClicksFrom/To + a per-row series); change redirects with edit_redirects. list:true (site optional) instead returns EVERY '
       + 'funnel, website, store, webinar and blog document on the location (walked to the list\'s count), '
       + 'filtered by type (store = a website with isStoreActive) and a case-insensitive name search. '
       + 'Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint '
@@ -9498,6 +9511,8 @@ export const TOOLS = [
       + 'rail — the same sweep called it live and it succeeded, and '
       + 'knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'),
     inputSchema: schema({ locationId: z.string(), site: z.string().optional(), includeRedirects: z.boolean().default(false),
+      redirectClicksFrom: z.string().optional().describe('with includeRedirects: click range start, YYYY-MM-DD (default: 30 days ago)'),
+      redirectClicksTo: z.string().optional().describe('click range end, YYYY-MM-DD (default: today)'),
       list: z.boolean().default(false), type: z.enum(['funnel', 'website', 'store', 'webinar', 'blog']).optional(), search: z.string().optional() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects' },
@@ -9556,7 +9571,7 @@ export const TOOLS = [
       }
 
       const hit = classifySite(args.site, Array.isArray(studio) ? studio : [], funnels);
-      const redirects = args.includeRedirects === true ? await siteRedirects(deps, args.locationId) : undefined;
+      const redirects = args.includeRedirects === true ? await siteRedirects(deps, args.locationId, { from: args.redirectClicksFrom, to: args.redirectClicksTo }) : undefined;
       return ok({ ...hit, ...(redirects ? { redirects } : {}), locationId: args.locationId, funnelsChecked: true, funnelsRail,
         note: hit.surface === 'not-found'
           ? 'Not on this location. AI Studio has no agency-level list — sweep each bound location before concluding it does not exist.'
@@ -9572,19 +9587,24 @@ export const TOOLS = [
       + `${RESERVED_PREFIXES.join(' ')} — GHL stores those and serves 404 on the exact path. update {redirectId, `
       + 'path, target}: the source is locked, so only the target changes. delete {redirectId, path}. update and '
       + 'delete resolve exactly one row whose id AND path match, or refuse. Matching is case-insensitive in public '
-      + 'and redirects are not edge-cached (a change is visible on the next request). Custom-URL targets only; the '
-      + 'screen\'s Funnel/Website targets and "Entire Domain (/*)" are not covered. Sibling: find_ghl_site '
-      + 'includeRedirects:true reads them.',
+      + 'and redirects are not edge-cached (a change is visible on the next request). Target: a URL `target`, or `to` '
+      + '{type:funnel|website, funnelId, stepId} (the step must be on that funnel). entireDomain:true = the screen\'s '
+      + '"Entire Domain (/*)": EVERY path of the domain goes to a URL — also needs confirmEntireDomain equal to the domain. '
+      + 'Sibling: find_ghl_site includeRedirects:true reads them.',
     inputSchema: schema({
       locationId: z.string(),
       op: z.enum(['create', 'update', 'delete']),
       domain: z.string().optional(),
       path: z.string().optional(),
-      target: z.string().optional(),
+      target: z.string().optional().describe('an absolute http(s) URL'),
+      to: z.object({ type: z.enum(['funnel', 'website']), funnelId: z.string(), stepId: z.string() }).optional().describe('land on a funnel step or a website page instead of a URL'),
+      entireDomain: z.boolean().optional().describe('create only: redirect EVERY path of the domain (Entire Domain (/*)) to `target`'),
+      confirmEntireDomain: z.string().optional().describe('must equal the domain, to allow entireDomain'),
       redirectId: z.string().optional(),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
+      { method: 'GET', path: '/funnels/funnel/fetch/{id}' },
       { method: 'GET', path: '/funnels/lookup/redirect/list' },
       { method: 'POST', path: '/funnels/lookup/exists' },
       { method: 'POST', path: '/funnels/lookup/redirect' },
@@ -9595,36 +9615,66 @@ export const TOOLS = [
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const L = args.locationId;
       const readRow = async (id) => { const l = await listRedirects(gw, L, ''); return l.rows ? { rows: l.rows, row: l.rows.find((r) => rowId(r) === id) ?? null } : { rows: null, status: l.res?.status }; };
+      // A step target is resolved against the funnel document: on this location, of the right type, holding the step.
+      const resolveWhere = async () => {
+        let funnelDoc = null;
+        if (args.to?.funnelId) {
+          const f = await gw.call('GET', `/funnels/funnel/fetch/${encodeURIComponent(args.to.funnelId)}?locationId=${encodeURIComponent(L)}`);
+          if (f.ok) funnelDoc = f.json?.data ?? null;
+        }
+        const res = resolveTo({ to: args.to, target: args.target, funnelDoc });
+        if (res.error || !args.to) return res;
+        // GHL answers 400 "Target step ID error … must be associated with a domain in the funnel/website" for a step with no domain
+        // (measured 2026-09-30: W1R Thanks, a step with no step lookup row) — the screen lists such steps anyway, so say so BEFORE writing.
+        const lk = await readLookups(gw, L, args.to.funnelId);
+        const held = (lk.rows ?? []).find((r) => r.type === 'step' && r.typeId === args.to.stepId && r.domain);
+        if (lk.res?.ok && !held) return { error: `step ${args.to.stepId} of ${funnelDoc.name} has no domain attached (no step lookup row), and GHL refuses a redirect to it — publish it on a domain first` };
+        return res;
+      };
       if (args.op === 'create') {
-        const plan = planCreate({ domain: args.domain, path: args.path, target: args.target, locationId: L });
+        if (args.entireDomain === true && args.confirmEntireDomain !== args.domain) return fail(CODES.VALIDATION_FAILED, 'entireDomain sends EVERY page of the domain to the target, other teams\' pages included', `Repeat with confirmEntireDomain equal to the domain (${args.domain ?? '…'}) if that is really the intent. Nothing was sent.`);
+        const where = args.entireDomain === true ? { action: 'all', target: args.target } : await resolveWhere();
+        if (where.error) return fail(CODES.VALIDATION_FAILED, where.error, 'Nothing was sent.');
+        const plan = planCreate({ domain: args.domain, path: args.path, target: where.target, action: where.action, entireDomain: args.entireDomain === true, locationId: L });
         if (plan.error) return fail(CODES.VALIDATION_FAILED, plan.error, 'Nothing was sent.');
-        const ex = await gw.call('POST', plan.exists.path, plan.exists.body);
+        if (plan.entireDomain) {
+          const cur = await listRedirects(gw, L, '');
+          if (!cur.rows) return fromHttp(cur.res?.status ?? 500, cur.res?.json);
+          const held = cur.rows.find((r) => r.domain === args.domain && (r.path === '*' || r.action === 'all'));
+          if (held) return fail(CODES.VALIDATION_FAILED, `${args.domain} already has an entire-domain redirect (${rowId(held)})`, 'Retarget it with op update.');
+        }
+        const ex = plan.exists ? await gw.call('POST', plan.exists.path, plan.exists.body) : { ok: true, json: {} };
         if (!ex.ok) return fromHttp(ex.status, ex.json);
         if (ex.json?.exists === true) return fail(CODES.VALIDATION_FAILED, `${args.domain}${plan.normalizedPath} is already taken (a funnel step or another redirect holds it)`, 'Pick a free path, or retarget the existing redirect with op update.');
-        if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Redirect create preview is ready; no write was sent.', 'Repeat with confirm:true.'), { preview: { request: plan.request, pathFree: true } });
+        if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Redirect create preview is ready; no write was sent.', 'Repeat with confirm:true.'), { preview: { request: plan.request, ...(plan.exists ? { pathFree: true } : { entireDomain: true }) } });
         const w = await gw.call(plan.request.method, plan.request.path, plan.request.body);
         if (!w.ok) return fromHttp(w.status, w.json);
         const id = w.json?.data?.id ?? w.json?.data?._id ?? null;
-        const back = await reread(() => readRow(id), (x) => x.row?.target === args.target, deps.rereadOptions ?? {});
+        const back = await reread(() => readRow(id), (x) => x.row?.target === plan.request.body.target && (x.row?.action ?? 'url') === plan.request.body.action, deps.rereadOptions ?? {});
         const row = back.value?.row ?? null;
         if (!row) return withFailureData(fail(CODES.VERIFY_FAILED, 'the create was accepted but the redirect is not in the list', 'Re-read with find_ghl_site includeRedirects:true before retrying — do not create twice.'), { id, status: w.status });
-        return ok({ op: 'create', id, domain: row.domain, path: row.path, target: row.target, readBack: { listed: true, attempts: back.attempts } });
+        return ok({ op: 'create', id, domain: row.domain, path: row.path, action: row.action ?? plan.request.body.action, target: row.target, readBack: { listed: true, attempts: back.attempts } });
       }
       if (!args.redirectId || !args.path) return fail(CODES.VALIDATION_FAILED, `${args.op} needs redirectId AND path (the target check matches both)`, 'Read them with find_ghl_site includeRedirects:true.');
       const cur = await listRedirects(gw, L, '');
       if (!cur.rows) return fromHttp(cur.res?.status ?? 500, cur.res?.json);
       const t = resolveTarget(cur.rows, { redirectId: args.redirectId, path: args.path });
       if (t.error) return fail(CODES.VALIDATION_FAILED, t.error, 'Nothing was sent.');
-      const plan = args.op === 'update' ? planUpdate({ redirectId: args.redirectId, target: args.target, locationId: L }) : planDelete({ redirectId: args.redirectId, locationId: L });
+      let where = null;
+      if (args.op === 'update') {
+        where = t.row.action === 'all' && !args.to ? { action: 'all', target: args.target } : await resolveWhere();
+        if (where.error) return fail(CODES.VALIDATION_FAILED, where.error, 'Nothing was sent.');
+      }
+      const plan = args.op === 'update' ? planUpdate({ redirectId: args.redirectId, target: where.target, action: where.action, locationId: L }) : planDelete({ redirectId: args.redirectId, locationId: L });
       if (plan.error) return fail(CODES.VALIDATION_FAILED, plan.error, 'Nothing was sent.');
-      const before = { id: rowId(t.row), domain: t.row.domain, path: t.row.path, target: t.row.target };
+      const before = { id: rowId(t.row), domain: t.row.domain, path: t.row.path, action: t.row.action ?? 'url', target: t.row.target };
       if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `Redirect ${args.op} preview is ready; no write was sent.`, 'Repeat with confirm:true.'), { preview: { affects: before, request: plan.request } });
       const w = await gw.call(plan.request.method, plan.request.path, plan.request.body);
       if (!w.ok) return fromHttp(w.status, w.json);
-      const want = args.op === 'update' ? (x) => x.row?.target === args.target : (x) => x.rows && !x.row;
+      const want = args.op === 'update' ? (x) => x.row?.target === where.target && (x.row?.action ?? 'url') === where.action : (x) => x.rows && !x.row;
       const back = await reread(() => readRow(args.redirectId), want, deps.rereadOptions ?? {});
       if (!want(back.value ?? {})) return withFailureData(fail(CODES.VERIFY_FAILED, `the ${args.op} was accepted but the list does not show it`, 'Re-read before retrying.'), { before, status: w.status });
-      return ok({ op: args.op, before, ...(args.op === 'update' ? { after: { target: back.value.row.target } } : { deleted: true }), readBack: { attempts: back.attempts } });
+      return ok({ op: args.op, before, ...(args.op === 'update' ? { after: { action: back.value.row.action ?? where.action, target: back.value.row.target } } : { deleted: true }), readBack: { attempts: back.attempts } });
     }, args),
   },
   {
@@ -11755,7 +11805,7 @@ export const TOOLS = [
       const composeLeaf = (e0, salt) => {
         const keyProblem = elementSpecProblem(e0);
         if (keyProblem) throw Object.assign(new Error(keyProblem), { remediation: 'Text goes in `html`; any other stored prop goes in `extra` as {<prop>: {value}}. Nothing was written.' });
-        const e = { ...e0, ...(e0.css?.font ? { css: { ...e0.css, font: fonts.reg.ref(e0.css.font) } } : {}), ...(e0.styles ? { styles: viaVar(e0.styles) } : {}) };
+        const e = { ...e0, ...(e0.css?.font ? { css: { ...e0.css, font: fonts.reg.ref(e0.css.font) } } : {}), ...(e0.styles ? { styles: normalizeStyles(viaVar(e0.styles), 'styles') } : {}) };
         if (e.font !== undefined && !TYPOGRAPHY_SLOTS[e.font]) throw new Error(`font must be 'headline' or 'content' (the page's typography fonts), not "${e.font}"`);
         if (e.font && !fonts.typography[e.font]) throw Object.assign(new Error(`font: '${e.font}' names the page's ${e.font} font, but this page has none set, so the element would reference an unset variable`), { remediation: `Set typography.${TYPOGRAPHY_SLOTS[e.font][0]} (compose) or a \`page\` op with typography (edit) in the same call.` });
         let cls = {};
@@ -11827,7 +11877,7 @@ export const TOOLS = [
           columns, background: spec.background ?? 'transparent', padY: spec.padY ?? 60,
           maxWidth: spec.maxWidth ?? BUILDER_INNER_MAX_WIDTH, elementCss: css.join(''),
           sticky: spec.sticky, width: spec.width, fullWidthRows: spec.fullWidthRows, pdp: spec.pdp,
-          styles: spec.styles, wrapper: spec.wrapper, tabletStyles: spec.tabletStyles, mobileStyles: spec.mobileStyles,
+          styles: normalizeStyles(spec.styles, 'section.styles'), wrapper: spec.wrapper, tabletStyles: spec.tabletStyles, mobileStyles: spec.mobileStyles,
           tabletWrapper: spec.tabletWrapper, mobileWrapper: spec.mobileWrapper, visibility: spec.visibility, customClass: spec.customClass,
           bgImage: spec.bgImage, cls: secCls,
           pageId: args.pageId, funnelId: args.funnelId, locationId: args.locationId, salt: `${saltBase}${si}`,
