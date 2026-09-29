@@ -1712,6 +1712,28 @@ function malformedSelectedParkedRows(rows) {
   return null;
 }
 
+// The workflow's status, for the draft warning (bl-314). A failed read returns null: no warning, never a refusal.
+async function readWorkflowStatus(gw, loc, wid) {
+  try { const r = await gw.call('GET', `/workflow/${loc}/${wid}`); return r?.ok ? (r.json?.status ?? null) : null; } catch { return null; }
+}
+
+// Re-read the parked roster after a requeue and report which attempted ids have LEFT the step (bl-314). Polled up to
+// four times, 1.5 s apart, because the requeue is processed asynchronously.
+async function readBackRequeue(ff, wid, stepId, statusIds, sleep = (ms) => new Promise((r) => setTimeout(r, ms))) {
+  let stillParked = statusIds; let polls = 0;
+  try {
+    for (; polls < 4; ) {
+      await sleep(1500); polls += 1;
+      const parkedNow = new Set((await ff.allParked(wid, stepId)).map((row) => row._id));
+      stillParked = statusIds.filter((id) => parkedNow.has(id));
+      if (!stillParked.length) break;
+    }
+  } catch (err) {
+    return { verified: false, moved: [], stillParked: [], polls, error: String(err?.message ?? err).slice(0, 200) };
+  }
+  return { verified: true, moved: statusIds.filter((id) => !stillParked.includes(id)), stillParked, polls };
+}
+
 function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) {
   const sample = rows.slice(0, 10);
   const statusIds = rows.map((row) => row._id);
@@ -4179,7 +4201,8 @@ export const TOOLS = [
     name: 'get_workflow_stats',
     description: describe(
       'get_workflow_stats',
-      'The builder\'s Stats view as data: per-step SMS/email delivery aggregates, per-trigger attempted/matched counts, contacts per step, and per-path entered counts for every A/B split (last 30 days max).',
+      'The builder\'s Stats view as data: per-step SMS/email delivery aggregates, per-trigger attempted/matched counts, contacts per step, and per-path entered counts for every A/B split (last 30 days max). '
+      + 'There is no builder route for per-step success/failed/skipped counts (bundle 2026-09-29-2): a step\'s outcomes come from get_workflow_logs. For WHY a trigger did not match (ranked reasons, per-contact rows), use get_trigger_logs.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -5163,7 +5186,7 @@ export const TOOLS = [
     name: 'get_account_workflow_overview',
     description: describe(
       'get_account_workflow_overview',
-      'The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match. '
+      'The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match. triggerCountFilter runs ONE filtered count (workflowId / triggerType / recordId = contact ids / entityId = form or survey ids, max 31 days): "is this trigger firing and matching, for this contact or form?". For WHY a trigger does not match, use get_trigger_logs. '
       + 'In the enrollment rows, total:null means GHL RETURNED NO ROW for that workflow, which is not the same as zero: the enroll-stats route omits a workflow rather than reporting 0, and a ghost id gets the identical empty answer (measured with a control 2026-09-21), so absence cannot distinguish "no enrolments" from "no such workflow". Read null as unknown and never as 0 — this tool reports what GHL stated, and states nothing where GHL did not.',
     ),
     inputSchema: schema({
@@ -5175,6 +5198,15 @@ export const TOOLS = [
       // ONE CALL PER WORKFLOW: the route sums whatever id list it is given (measured 2026-09-20:
       // 237 + 38 -> 275, a ghost id adds 0), so batching would return one number for the account.
       includeTriggerCounts: z.boolean().default(false),
+      // ONE filtered trigger-analysis count, the Overview page's own filter bar. Filters combine (measured 2026-09-29: a
+      // workflow + one contact gave 9 of the workflow's 12 attempts; a wrong triggerType gave 0).
+      triggerCountFilter: z.object({
+        workflowId: z.array(z.string().min(1)).min(1).optional().describe('workflow ids (the route sums them into one number)'),
+        triggerType: z.array(z.string().min(1)).min(1).optional().describe('trigger type slugs, e.g. contact_tag'),
+        recordId: z.array(z.string().min(1)).min(1).optional().describe('CONTACT ids'),
+        entityId: z.array(z.string().min(1)).min(1).optional().describe('FORM or SURVEY ids only, with triggerType form_submission / survey_submission'),
+        days: z.number().int().positive().max(31).default(30).describe('window in days back from now; the builder allows at most 31'),
+      }).strict().optional(), // strict: a misspelt filter (contactId for recordId) must be refused, not dropped into a broader count
     }),
     capabilities: [
       { method: 'GET', path: '/workflows/statistics' },
@@ -5226,6 +5258,38 @@ export const TOOLS = [
           triggerCounts.push({ workflowId: id, attempted, matched, unmatched: Math.max(0, attempted - matched), neverMatches: attempted > 0 && matched === 0 });
         }
       }
+      // The filtered count (one POST). Refused BY NAME before any call: entityId means a form or survey id and nothing else,
+      // and the window is the builder's 31 days. The server accepted 40 days and ignored nothing, but the builder's own
+      // date guard stops at 31, so that is the contract here.
+      let triggerCountsFiltered = null;
+      if (args.triggerCountFilter) {
+        const f = args.triggerCountFilter;
+        const FORM_TYPES = new Set(['form_submission', 'survey_submission']);
+        if (!f.workflowId && !f.triggerType && !f.recordId && !f.entityId) {
+          return fail(CODES.VALIDATION_FAILED, 'triggerCountFilter needs at least one of workflowId, triggerType, recordId, entityId — an unfiltered count is the whole account and the Overview page never sends one.');
+        }
+        if (f.entityId && (!f.triggerType || !f.triggerType.every((t) => FORM_TYPES.has(t)))) {
+          return fail(CODES.VALIDATION_FAILED, 'entityId is a FORM or SURVEY id: pass it only with triggerType [form_submission] and/or [survey_submission]. The builder never sends it for another trigger type, and GHL answers 0 rather than an error for a mismatch.', 'Drop entityId, or set triggerType to form_submission / survey_submission.');
+        }
+        const now = deps.now ? new Date(deps.now).getTime() : Date.now();
+        const days = f.days ?? 30;
+        // The schema caps this too, but a caller that reaches the handler without it (a direct call, an older client) must
+        // still be refused BY NAME rather than sent a window the builder never asks for (live 2026-09-29: a 40-day call passed).
+        if (!Number.isInteger(days) || days < 1 || days > 31) {
+          return fail(CODES.VALIDATION_FAILED, `triggerCountFilter.days must be 1-31 (the builder's own date guard); got ${days}.`, 'Use days 31 or fewer.');
+        }
+        // fromDate / toDate MUST be strings: GHL answered an empty body for epoch-ms numbers (measured 2026-09-29).
+        const body = { locationId: args.locationId, dateType: 'custom', fromDate: String(now - days * 86_400_000), toDate: String(now),
+          ...(f.workflowId ? { workflowId: f.workflowId } : {}), ...(f.triggerType ? { triggerType: f.triggerType } : {}),
+          ...(f.recordId ? { recordId: f.recordId } : {}), ...(f.entityId ? { entityId: f.entityId } : {}) };
+        const r = await gw.call('POST', '/workflows/trigger/logs/count', body);
+        const row = Array.isArray(r.json) ? r.json[0] : null;
+        const { locationId: _l, dateType: _d, fromDate, toDate, ...filters } = body;
+        triggerCountsFiltered = !r.ok || !row
+          ? { filters, window: { days, fromDate: Number(fromDate), toDate: Number(toDate) }, attempted: null, matched: null, unmatched: null, error: { status: r.status } }
+          : (() => { const attempted = Number(row.total ?? 0), matched = Number(row.matched ?? 0);
+            return { filters, window: { days, fromDate: Number(fromDate), toDate: Number(toDate) }, attempted, matched, unmatched: Math.max(0, attempted - matched) }; })();
+      }
       return ok({
         statistics,
         weeklyEnrollment: weekly.ok ? (Array.isArray(weekly.json) ? weekly.json : recordsFrom(weekly.json, 'data')) : null,
@@ -5237,6 +5301,7 @@ export const TOOLS = [
         },
         enrollment,
         triggerCounts,
+        ...(triggerCountsFiltered ? { triggerCountsFiltered } : {}),
         note: 'Needs Review = workflows with a recent failing step (the list page\'s tab badge). errorEmailSettings.users are EXTRA recipients: GHL emails every agency and location admin on failures by default (UI copy), so users:[] means admins only; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} — deliberately not exposed here. triggerCounts (opt-in) is the last 30 days; neverMatches = the triggers fired and not once matched their filters — a ghost workflowId reads 0/0, never an error, so it cannot be told from a quiet workflow here.',
       });
     }, args),
@@ -8937,8 +9002,8 @@ export const TOOLS = [
   {
     name: 'fast_forward_contacts',
     description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step. '
-      + '🔴 `moved` counts the enrollments GHL ACCEPTED, not a read-back: on a DRAFT workflow GHL answers 200 and moves nobody '
-      + '(reported, bl-314). After a confirm, read the step again with get_contacts_at_step before relying on the move. '
+      + '`moved` is what a separate re-read shows has LEFT the step (statusIdsStillParked lists the rest; verified:false if '
+      + 'the re-read failed). 🔴 On a DRAFT workflow GHL accepts the requeue and moves nobody: the preview warns. '
       + '(proof: documented).'),
     inputSchema: schema({
       locationId: z.string(),
@@ -8987,6 +9052,13 @@ export const TOOLS = [
         );
       }
       const preview = fastForwardPreview(selectedRows, selector, args);
+      // bl-314: on a DRAFT workflow GHL answers the requeue 200 and moves nobody (reported 2026-09-29 on a client
+      // account; the read-back below is what proves it either way). Said up front, in the preview.
+      const workflowStatus = await readWorkflowStatus(gw, args.locationId, args.workflowId);
+      if (workflowStatus && workflowStatus !== 'published') {
+        preview.warning = `The workflow is '${workflowStatus}', not published: GHL accepts a requeue on a draft and moves nobody. `
+          + 'Publish it first if the move must happen; the result reports what actually left the step.';
+      }
       if (args.confirm !== true) {
         return withFailureData(
           fail(
@@ -9055,11 +9127,22 @@ export const TOOLS = [
         }, selectedRows);
       }
       partialProgress.write.acknowledged = true;
+      // bl-314: `moved` used to be statusIds.length — what GHL ACCEPTED. It is now what a separate read shows has LEFT
+      // the step (polled briefly: the requeue is asynchronous). An id still parked after the polls is reported as such.
+      const readBack = await readBackRequeue(ff, args.workflowId, args.stepId, statusIds, deps.sleep);
       return ok({
-        moved: statusIds.length,
+        moved: readBack.moved.length,
         statusIds,
         statusIdsAttempted: statusIds,
-        statusIdsMoved: statusIds,
+        statusIdsMoved: readBack.moved,
+        statusIdsStillParked: readBack.stillParked,
+        verified: readBack.verified,
+        ...(workflowStatus ? { workflowStatus } : {}),
+        ...(preview.warning ? { warning: preview.warning } : {}),
+        ...(readBack.verified && readBack.stillParked.length
+          ? { note: `GHL accepted ${statusIds.length} but ${readBack.stillParked.length} still sit at this step after ${readBack.polls} reads.` }
+          : {}),
+        ...(readBack.verified ? {} : { note: `The requeue was accepted but the step could not be re-read (${readBack.error}); moved is unverified.` }),
         partialProgress,
         upstream: requeueCall.value,
       });

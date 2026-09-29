@@ -28,6 +28,12 @@ Capture the *runtime* behind a HighLevel workflow — the execution trace, the e
 
 This is a narrow, read-only extraction-and-interpretation skill, not a full audit. It gets the runtime data onto disk and explains what it means.
 
+**Per-step outcome counts = `get_workflow_logs` status counts.** The builder has NO route for per-step
+success / failed / skipped totals (bundle 2026-09-29-2); its only per-step numbers are contacts parked now
+(`count-per-step`), SMS/email delivery aggregates and marketplace-app action stats. For a *trigger* that fires but does not
+match, use `get_trigger_logs` (ranked reasons and per-contact rows), and `get_account_workflow_overview`
+`triggerCountFilter` for one filtered count (workflow / trigger type / contact / form or survey, at most 31 days).
+
 ## Three things that will mislead you, all proven live 2026-08-25
 
 **`finished` is not completion.** A roster status of `finished` means the contact LEFT the

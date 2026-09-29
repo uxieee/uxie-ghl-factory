@@ -79,3 +79,83 @@ test('includeTriggerCounts is a DECLARED argument — a real MCP caller can swit
   assert.equal(bad.ok, false);
   assert.equal(bad.code, 'VALIDATION_FAILED');
 });
+
+// wave26: triggerCountFilter — the Overview page's filter bar as ONE call (measured live 2026-09-29, GROM sandbox:
+// knowledge sniffs/workflows-wave1-2026-09-25/live-W26-trigger-count-filters.json).
+const NOW = Date.parse('2026-09-29T12:00:00Z');
+const filtered = async (triggerCountFilter, countFor = () => counted(12, 1)) => {
+  const f = fixture(countFor);
+  const r = await tool().handler({ locationId: 'L', triggerCountFilter }, { ...f.deps, now: NOW });
+  return { f, r, posts: f.calls.filter((c) => c.method === 'POST') };
+};
+
+test('triggerCountFilter sends ONE POST: filters combine, dates are epoch-ms STRINGS, and the array answer is read', async () => {
+  const { r, posts } = await filtered({ workflowId: ['w1'], recordId: ['c1'], days: 25 }, () => counted(9, 1));
+  assert.equal(posts.length, 1);
+  assert.deepEqual(posts[0].body, { locationId: 'L', dateType: 'custom', fromDate: String(NOW - 25 * 86_400_000), toDate: String(NOW), workflowId: ['w1'], recordId: ['c1'] });
+  assert.equal(typeof posts[0].body.fromDate, 'string', 'numeric dates got an empty answer from GHL');
+  assert.deepEqual([r.data.triggerCountsFiltered.attempted, r.data.triggerCountsFiltered.matched, r.data.triggerCountsFiltered.unmatched], [9, 1, 8]);
+  assert.deepEqual(r.data.triggerCountsFiltered.filters, { workflowId: ['w1'], recordId: ['c1'] });
+});
+
+test('triggerCountFilter defaults to 30 days and never sends the account-wide (unfiltered) count', async () => {
+  const { posts } = await filtered({ triggerType: ['contact_tag'] });
+  assert.equal(posts[0].body.fromDate, String(NOW - 30 * 86_400_000));
+  const none = await filtered({});
+  assert.equal(none.r.ok, false); assert.equal(none.r.code, 'VALIDATION_FAILED'); assert.equal(none.posts.length, 0);
+});
+
+test('CONTROL: entityId is refused BY NAME unless triggerType is form_submission / survey_submission — nothing is sent', async () => {
+  for (const bad of [{ entityId: ['f1'] }, { entityId: ['f1'], triggerType: ['contact_tag'] }, { entityId: ['f1'], triggerType: ['form_submission', 'contact_tag'] }]) {
+    const { r, posts } = await filtered(bad);
+    assert.equal(r.ok, false, JSON.stringify(bad)); assert.equal(r.code, 'VALIDATION_FAILED'); assert.match(r.error ?? r.message ?? JSON.stringify(r), /FORM or SURVEY id/); assert.equal(posts.length, 0);
+  }
+  const good = await filtered({ entityId: ['f1'], triggerType: ['form_submission', 'survey_submission'] });
+  assert.equal(good.posts.length, 1); assert.deepEqual(good.posts[0].body.entityId, ['f1']);
+});
+
+test('CONTROL: a window beyond 31 days is refused BY NAME in the handler itself (no schema in the way), nothing sent', async () => {
+  for (const days of [32, 40, 0, 1.5]) {
+    const { r, posts } = await filtered({ triggerType: ['contact_tag'], days });
+    assert.equal(r.ok, false, `days ${days}`); assert.equal(r.code, 'VALIDATION_FAILED'); assert.equal(posts.length, 0);
+  }
+});
+
+test('a failed filtered count is nulls + error, never zeros', async () => {
+  const failed = await filtered({ triggerType: ['contact_tag'] }, () => ({ status: 500, ok: false, json: {} }));
+  assert.equal(failed.r.ok, true);
+  assert.deepEqual([failed.r.data.triggerCountsFiltered.attempted, failed.r.data.triggerCountsFiltered.error], [null, { status: 500 }]);
+});
+
+test('through the real MCP server: the filter is declared, 31 days passes, 40 is refused, a misspelt filter key is refused', async () => {
+  const { McpServer } = await import('@modelcontextprotocol/sdk/server/mcp.js');
+  const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+  const { InMemoryTransport } = await import('@modelcontextprotocol/sdk/inMemory.js');
+  const f = fixture(() => counted(12, 1));
+  f.deps.state.allowedLocations = new Set(['L']);
+  const server = new McpServer({ name: 't', version: '0' }); const client = new Client({ name: 'c', version: '0' });
+  const [ct, st] = InMemoryTransport.createLinkedPair();
+  registerTools(server, f.deps, [tool()]);
+  await server.connect(st); await client.connect(ct);
+  const run = async (triggerCountFilter) => {
+    const res = await client.callTool({ name: 'get_account_workflow_overview', arguments: { locationId: 'L', triggerCountFilter } });
+    const text = res.content?.[0]?.text ?? '';
+    try { return { isError: res.isError === true, json: JSON.parse(text) }; } catch { return { isError: res.isError === true, json: null, text }; }
+  };
+  try {
+    const good = await run({ triggerType: ['contact_tag'], days: 31 });
+    assert.equal(good.isError, false, JSON.stringify(good).slice(0, 300));
+    assert.equal(good.json.data.triggerCountsFiltered.attempted, 12);
+    const over = await run({ triggerType: ['contact_tag'], days: 40 });
+    assert.equal(over.isError, true, '40 days must be refused by the schema');
+    const stray = await run({ triggerType: ['contact_tag'], contactId: 'c1' });
+    assert.equal(stray.isError, true, 'a misspelt filter key must be refused, not dropped into a broader count');
+    assert.equal(f.calls.filter((c) => c.method === 'POST').length, 1, 'only the good call reached GHL');
+  } finally { await client.close(); }
+});
+
+test('OFF by default: without triggerCountFilter there is no triggerCountsFiltered key and no POST (control)', async () => {
+  const f = fixture(() => counted(1, 1));
+  const r = await tool().handler({ locationId: 'L' }, f.deps);
+  assert.equal('triggerCountsFiltered' in r.data, false); assert.equal(f.calls.some((c) => c.method === 'POST'), false);
+});

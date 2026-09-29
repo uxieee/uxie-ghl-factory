@@ -90,9 +90,17 @@ const REMEDIATION = new Map([
   ['ASSET_CALENDAR_NOT_FOUND', ' — NOTE: GHL returns this same not-found text for a calendar that merely has isActive:false as for one that is gone. Read the calendar directly before assuming it was deleted; if it answers 200, re-activate it rather than re-pointing the step.'],
 ]);
 
+// A DRAFT membership offer draws the same "does not exist or does not belong to this location" as a ghost id
+// (live 2026-09-29, knowledge sniffs/workflows-wave1-2026-09-25/live-W25-grant-offer-refused.json vs the published
+// control in live-W25-grant-offer.json). The builder's offer picker lists only what
+// GET /membership/smart-list/offers-products/{loc} returns, and that held only the published offer.
+const REMEDIATION_BY_ASSET_TYPE = new Map([
+  ['membership_offer', ' — NOTE: GHL gives this same not-found text for an offer that exists but is still a DRAFT. Only a PUBLISHED offer can be granted or revoked: publish it, or pick one from GET /membership/smart-list/offers-products/{loc} (the list the builder offers).'],
+]);
+
 /** The hint that turns a misleading GHL message into an actionable one, or '' when there is none. */
 export function remediationFor(f) {
-  return REMEDIATION.get(f?.ruleId) ?? '';
+  return REMEDIATION.get(f?.ruleId) ?? REMEDIATION_BY_ASSET_TYPE.get(f?.assetType) ?? '';
 }
 
 /**

@@ -195,6 +195,14 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   was never run. The engine cannot see any of this: whether a contact has a company
   is runtime data. The company steps' fields live in `__customInputFields__` rows
   (`{filterField: "business.<key>", valueField}`), not in `inputs`. Read the card.
+- **Email click tracking skips a link whose href is a contact merge tag.** With
+  `trackingOptions.hasTrackingLinks: true`, a literal URL and a `{{custom_values.x}}` href are
+  wrapped in tracking redirects, but `href="{{contact.website}}"` goes out raw. Clicks on it are
+  never recorded, so a "clicked link" condition or trigger cannot see them (live 2026-09-29). Put a
+  literal or custom-value URL where a click must count.
+- **A `from_email` on a domain the location cannot send from is rewritten, not dropped.** It goes
+  out as `local+domain@<the location's sending subdomain>`, with the From NAME kept. The step's log
+  shows the address as authored; read the conversation message to see what was sent (live 2026-09-29).
 - **`workflow_ai_extract_data` output is `{{workflow_ai_extract_data.N.<fieldName>}}`.**
   `{{workflow_ai_extract_data.N.output.<fieldName>}}` builds clean and renders EMPTY (live
   2026-09-28).
