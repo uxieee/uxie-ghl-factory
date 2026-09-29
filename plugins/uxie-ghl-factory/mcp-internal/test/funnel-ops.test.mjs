@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
-import { planCreateStep, planReorder, planDeleteStep, planPublishState, settingsBody, reread } from '../core/funnel-ops.mjs';
+import { planCreateStep, planReorder, planDeleteStep, planPublishState, settingsBody, reread, paymentModeFields, domainChangeGuard } from '../core/funnel-ops.mjs';
 
 const tool = (n) => TOOLS.find((t) => t.name === n);
 const FUNNEL = () => ({
@@ -38,9 +38,14 @@ function fakeDeps({ db = { funnel: FUNNEL(), lookups: LOOKUPS(), headers: [] }, 
         if (method === 'GET' && path.startsWith('/funnels/domain/')) return { ok: true, status: 200, json: { domains: [{ id: 'D1', url: 'sandbox.example.com' }] } };
         if (method === 'GET' && path.startsWith('/users/')) return { ok: true, status: 200, json: { firstName: 'Test', lastName: 'User' } };
         if (method === 'GET' && path.startsWith('/funnels/funnel/headers')) return { ok: true, status: 200, json: { securityHeaders: db.headers } };
+        if (method === 'GET' && path.startsWith('/locations/')) return { ok: true, status: 200, json: { location: db.location ?? { stripe: { publishable_key: 'pk_x' }, stripeConnectMode: true } } };
+        if (method === 'GET' && path.startsWith('/funnels/lookup/redirect/regex/bulk')) return { ok: true, status: 200, json: db.regex ?? [] };
         if (path === '/funnels/funnel/update-settings') {
           db.funnel.url = body.funnelPath; db.funnel.name = body.funnelName; db.funnel.trackingCodeHead = body.headTrackingCode;
-          db.funnel.isLivePaymentMode = body.paymentMode; db.funnel.chatWidgetId = body.chatWidgetId;
+          if ('paymentMode' in body) db.funnel.isLivePaymentMode = body.paymentMode;
+          db.funnel.chatWidgetId = body.chatWidgetId; db.funnel.autoGenerateSchema = body.autoGenerateSchema; db.funnel.domainId = body.domainId;
+          if (db.sideEffect) db.funnel[db.sideEffect.key] = db.sideEffect.value;
+          db.lastSettings = body;
           return { ok: true, status: 201, json: {} };
         }
         if (path === '/funnels/funnel/create-step') {
@@ -221,4 +226,68 @@ test('build_funnel_page: a page-data read that lags is re-read, not reported as 
   assert.equal(res.ok, true);
   assert.equal(res.data.stored, true, 'the first read saw 0 sections; the second saw the write');
   assert.equal(res.data.readBack.attempts, 2);
+});
+
+// f2 (2026-09-29): the settings body is DERIVED as the Settings page derives it (funnelWebsiteApp funnels.da6ddfb…
+// onMounted, the `ti` watcher, body `tR`), and every unnamed field is checked unchanged after the write.
+test('an absent autoGenerateSchema is sent as false, as the Settings page reads it', () => {
+  const f = { ...FUNNEL() }; delete f.autoGenerateSchema;
+  assert.equal(settingsBody('LOC', f, { faviconUrl: 'x' }).autoGenerateSchema, false);
+  assert.equal(settingsBody('LOC', { ...f, autoGenerateSchema: true }, {}).autoGenerateSchema, true);
+});
+
+test('the payment-mode option is derived, never hard-coded', () => {
+  const f = { ...FUNNEL() }; delete f.isLivePaymentMode;
+  assert.deepEqual(paymentModeFields(f, { stripe: { publishable_key: 'pk' } }), { allowPaymentModeOption: false }, 'a Stripe-connected location: not offered, no paymentMode sent');
+  assert.deepEqual(paymentModeFields(f, { stripe: {} }), { allowPaymentModeOption: true, paymentMode: true }, 'no Stripe key: offered, stripeConnectMode || true');
+  assert.deepEqual(paymentModeFields(f, { stripe: {}, stripeConnectMode: 'test' }), { allowPaymentModeOption: true, paymentMode: 'test' });
+  assert.deepEqual(paymentModeFields({ ...f, isLivePaymentMode: false }, null), { allowPaymentModeOption: true, paymentMode: false }, 'a stored mode is kept');
+  assert.deepEqual(paymentModeFields(f, { stripe: { publishable_key: 'pk' } }, { paymentMode: false }), { allowPaymentModeOption: true, paymentMode: false }, 'naming paymentMode asks for the option');
+});
+
+test('the location is read only when the payment-mode derivation needs it', async () => {
+  const d = fakeDeps();
+  await run('edit_funnel', { op: 'settings', settings: { chatWidgetId: 'W' } }, d);
+  assert.equal(d.calls.filter((c) => c.path.startsWith('/locations/')).length, 0, 'the funnel stores isLivePaymentMode');
+  const f = FUNNEL(); delete f.isLivePaymentMode;
+  const d2 = fakeDeps({ db: { funnel: f, lookups: LOOKUPS(), headers: [] } });
+  const r = await run('edit_funnel', { op: 'settings', settings: { chatWidgetId: 'W' } }, d2);
+  assert.equal(d2.calls.filter((c) => c.path.startsWith('/locations/')).length, 1);
+  assert.equal(r.data.preview.request.body.allowPaymentModeOption, false);
+  assert.ok(!('paymentMode' in r.data.preview.request.body));
+});
+
+test('a domain change on a funnel that has one needs resetSplitTests, and then sends the UI\'s reset object', async () => {
+  assert.equal(domainChangeGuard(FUNNEL(), { domainId: 'D2' }), 'changing');
+  assert.equal(domainChangeGuard(FUNNEL(), { domainId: '' }), 'removing');
+  assert.equal(domainChangeGuard({ ...FUNNEL(), type: 'website' }, { domainId: 'D2' }), null, 'websites and webinars skip the modal');
+  assert.equal(domainChangeGuard({ ...FUNNEL(), domainId: '' }, { domainId: 'D1' }), null, 'attaching a first domain resets nothing');
+  const d = fakeDeps();
+  const r = await run('edit_funnel', { op: 'settings', settings: { domainId: '' }, confirm: true }, d);
+  assert.equal(r.code, 'VALIDATION_FAILED'); assert.match(r.detail ?? r.message ?? JSON.stringify(r), /split-test/);
+  assert.equal(writes(d.calls).length, 0);
+  const d2 = fakeDeps();
+  const ok = await run('edit_funnel', { op: 'settings', settings: { domainId: '' }, resetSplitTests: true }, d2);
+  assert.deepEqual(ok.data.preview.request.body.stopAllSplitTestsAndReset, { locationId: 'LOC', funnelId: 'F1', userId: 'U1' });
+});
+
+test('a domain carrying a regex redirect is refused, as the Settings page never lists it', async () => {
+  const f = { ...FUNNEL(), domainId: '' };
+  const d = fakeDeps({ db: { funnel: f, lookups: LOOKUPS(), headers: [], regex: [{ domain: 'sandbox.example.com', target: 'https://elsewhere.example' }] } });
+  const r = await run('edit_funnel', { op: 'settings', settings: { domainId: 'D1' }, confirm: true }, d);
+  assert.equal(r.code, 'VALIDATION_FAILED'); assert.match(JSON.stringify(r), /regex\/wildcard redirect/);
+  assert.equal(writes(d.calls).length, 0);
+  const d2 = fakeDeps({ db: { funnel: { ...FUNNEL(), domainId: '' }, lookups: LOOKUPS(), headers: [] } });
+  assert.match(JSON.stringify(await run('edit_funnel', { op: 'settings', settings: { domainId: 'NOPE' }, confirm: true }, d2)), /not a domain of this location/);
+});
+
+test('a field the call did not name that changes anyway fails the edit; a materialised default is reported, not failed', async () => {
+  const d = fakeDeps({ db: { funnel: FUNNEL(), lookups: LOOKUPS(), headers: [], sideEffect: { key: 'isGdprCompliant', value: false } } });
+  const r = await run('edit_funnel', { op: 'settings', settings: { chatWidgetId: 'W' }, confirm: true }, d);
+  assert.equal(r.code, 'VERIFY_FAILED'); assert.deepEqual(r.data.unrequestedChanges.map((c) => c.key), ['isGdprCompliant']);
+  const f = FUNNEL(); delete f.autoGenerateSchema;
+  const d2 = fakeDeps({ db: { funnel: f, lookups: LOOKUPS(), headers: [] } });
+  const ok = await run('edit_funnel', { op: 'settings', settings: { chatWidgetId: 'W' }, confirm: true }, d2);
+  assert.equal(ok.ok, true, JSON.stringify(ok));
+  assert.match(ok.data.notes.join(' '), /autoGenerateSchema=false/);
 });

@@ -19,6 +19,7 @@ import {
 } from './funnel-pages.mjs';
 import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
+  needsLocationForSettings, domainChangeGuard, regexRedirectOn, settingsSideEffects,
   planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader,
   planDeleteFunnel, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
   readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS, planAddStepProduct, STEP_PRODUCT_NOTE, readStepProducts, stepProductView,
@@ -11986,7 +11987,8 @@ export const TOOLS = [
     name: 'edit_funnel',
     description: `${describe('edit_funnel', 'Edit a GHL funnel or website document: settings, steps, publish state, headers')}. `
       + 'One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings '
-      + '(the full update-settings body from a fresh read; only named fields change) · create-step (refused without a '
+      + '(the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is '
+      + 'checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) · create-step (refused without a '
       + 'domain) · update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, '
       + 'never retried) · reorder-steps (full permutation) · clone-step · delete-step (id AND name) · publish-page / '
       + 'unpublish-page (routing only; content publishes via build_funnel_page publish:true) · add-header (exact-case '
@@ -12026,10 +12028,13 @@ export const TOOLS = [
       displayText: z.string().optional(),
       quantity: z.object({ max: z.number().int().min(1).optional(), allowMultiple: z.boolean().optional() }).optional(),
       bump: z.boolean().optional(),
+      resetSplitTests: z.boolean().optional(),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
       { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },
+      { method: 'GET', path: '/locations/{id}' },
+      { method: 'GET', path: '/funnels/lookup/redirect/regex/bulk' },
       { method: 'GET', path: '/funnels/lookup/list' },
       { method: 'GET', path: '/funnels/domain/' },
       { method: 'GET', path: '/users/{userId}' },
@@ -12075,7 +12080,33 @@ export const TOOLS = [
                 `Settable keys: ${Object.keys(SETTINGS_KEYS).join(', ')}.`);
             }
             requested = s;
-            plan = { method: 'POST', path: '/funnels/funnel/update-settings', body: settingsBody(args.locationId, funnel, s) };
+            // A domain change on a funnel that has one: the UI's confirm, as an explicit argument (it stops every split
+            // test and deletes their stats in the same write).
+            const change = domainChangeGuard(funnel, s);
+            if (change && args.resetSplitTests !== true) {
+              plan = { refuse: `${change} the domain of this funnel stops and deletes every split-test variation step and deletes the split-test stats (the page builder asks for the same confirmation). Pass resetSplitTests:true to do it; nothing was sent.` };
+              break;
+            }
+            // The Settings page never lists a domain that carries a regex/wildcard redirect.
+            if (s.domainId) {
+              const d = await gw.call('GET', `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              if (!d.ok) return fromHttp(d.status, d.json);
+              const list = d.json?.domains ?? d.json?.data ?? [];
+              const dom = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === s.domainId);
+              if (!dom) { plan = { refuse: `domainId ${s.domainId} is not a domain of this location (${(Array.isArray(list) ? list : []).length} domain(s))` }; break; }
+              const rx = await gw.call('GET', `/funnels/lookup/redirect/regex/bulk?${new URLSearchParams({ domains: dom.url, locationId: args.locationId })}`);
+              if (!rx.ok) return fromHttp(rx.status, rx.json);
+              const hits = regexRedirectOn(dom.url, rx.json);
+              if (hits.length) { plan = { refuse: `${dom.url} carries a regex/wildcard redirect${hits[0]?.target ? ` (to ${hits[0].target})` : ''}, so the Settings page does not offer it and its pages would be redirected away. Remove the redirect first (edit_redirects) or pick another domain.` }; break; }
+            }
+            let location;
+            if (needsLocationForSettings(funnel, s)) {
+              const l = await gw.call('GET', `/locations/${encodeURIComponent(args.locationId)}`);
+              if (!l.ok) return fromHttp(l.status, l.json);
+              location = l.json?.location ?? l.json;
+            }
+            if (change && typeof gw.uid !== 'string') { plan = { refuse: 'resetting split tests needs the user id, and this credential carries none. Change the domain in the page builder settings.' }; break; }
+            plan = { method: 'POST', path: '/funnels/funnel/update-settings', body: settingsBody(args.locationId, funnel, s, { location, resetSplitTests: !!change, userId: gw.uid }) };
             break;
           }
           case 'create-step': plan = need('step') ? { refuse: need('step') } : planCreateStep({ funnel, step: args.step }); break;
@@ -12242,11 +12273,15 @@ export const TOOLS = [
             const after = await fresh();
             const diff = settingsDiff(requested, after);
             const notApplied = diff.filter((d) => !d.applied);
+            const side = settingsSideEffects(requested, funnel, after, plan.body);
             const notes = [];
+            if (side.materialised.length) notes.push(`The save stored default(s) the document never had: ${side.materialised.map((m) => `${m.key}=${JSON.stringify(m.readBack)}`).join(', ')} — the values the Settings page itself sends.`);
+            if (plan.body.stopAllSplitTestsAndReset) notes.push('The domain change stopped every split test on this funnel and deleted their variation steps and stats, as confirmed with resetSplitTests.');
             if ('funnelPath' in requested) notes.push(`funnelPath is the funnel ROOT lookup row: it moved in place and the old path now 404s. ${CACHE_NOTE}`);
             if ('headTrackingCode' in requested || 'bodyTrackingCode' in requested) notes.push('Tracking code renders on every page of the funnel: head code in <head>, body code at the end of <body>.');
-            const out = { op: 'settings', status: w.status, readBack: diff, ...(notes.length ? { notes } : {}) };
+            const out = { op: 'settings', status: w.status, readBack: diff, ...(side.changed.length ? { unrequestedChanges: side.changed } : {}), ...(notes.length ? { notes } : {}) };
             if (notApplied.length) return withFailureData(fail(CODES.VERIFY_FAILED, `update-settings answered ${w.status} but ${notApplied.length} field(s) did not read back as requested`, 'Compare data.readBack; the server may normalise a value.'), out);
+            if (side.changed.length) return withFailureData(fail(CODES.VERIFY_FAILED, `update-settings also changed ${side.changed.length} field(s) the call did not name: ${side.changed.map((c) => c.key).join(', ')}`, 'Compare data.unrequestedChanges; set them back with another settings op if unwanted.'), out);
             return ok(out);
           }
           case 'create-step': {
