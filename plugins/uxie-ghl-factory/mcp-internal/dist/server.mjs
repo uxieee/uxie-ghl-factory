@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1388,
+      count: 1537,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -355,9 +355,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -509,9 +506,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -558,10 +552,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -695,9 +686,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -848,9 +836,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -901,9 +886,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -979,9 +961,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1060,9 +1039,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1141,9 +1117,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1223,9 +1196,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery proven live 2026-09-10: product.",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1271,9 +1241,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1312,9 +1279,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1586,13 +1550,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          refusedFor: [
-            "location-user-bearer"
-          ],
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1702,6 +1660,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/20-api/funnels-api.md:68",
             "funnels/20-api/funnels-api.md:71"
+          ]
+        },
+        {
+          id: "funnels--site-create",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/blogs/site/create",
+          path: "/blogs/site/create",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:26"
+          ]
+        },
+        {
+          id: "funnels--site-delete",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/blogs/site/delete",
+          path: "/blogs/site/delete",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:27"
           ]
         },
         {
@@ -1875,9 +1895,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2047,10 +2064,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2113,6 +2127,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/60-recipes/build-a-multi-step-funnel.md:73"
+          ]
+        },
+        {
+          id: "ai-agents--calendars-services",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/calendars/services",
+          path: "/calendars/services",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/conversation-ai-actions.md:109"
           ]
         },
         {
@@ -2661,9 +2713,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
           note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2716,7 +2765,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/chat-widget.md:28",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "funnels/10-anatomy/websites-and-global-sections.md:278",
-            "funnels/20-api/funnels-api.md:356",
+            "funnels/20-api/funnels-api.md:361",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -2867,10 +2916,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2940,10 +2986,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3152,10 +3195,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3197,10 +3237,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3459,7 +3496,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/triggers/contact_tag.md:86"
+            "workflows/30-types/triggers/contact_tag.md:87"
           ]
         },
         {
@@ -3470,7 +3507,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3536,7 +3573,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "write",
           summary: "Contact search. Treat its results as unverified \u2014 see the note.",
           note: "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row -- always run a baseline and a KNOWN-ZERO control, never a single query. Filter FIELDS and OPERATORS are validated (422, and an invalid operator prints the whole 22-value enum); COLUMN keys are not. Fields are snake_case (first_name works, firstName 422s). On a keyword field eq/contains/match are exact SYNONYMS -- `contains` is NOT substring; only `wildcard` with an explicit * is partial. `active_workflows_2`/`finished_workflows_2` filter workflow membership; `finished_workflows` WITHOUT the _2 validates and silently matches nothing. includeTotal:true is what makes `total` appear, and pageLimit:0 returns the count alone.",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "create_smart_list"
           ],
@@ -3614,7 +3651,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           note: "Effectively PERMANENT: there is no delete on this rail (DELETE 404s, and PUT with deleted:true is refused 'property deleted should not exist'), so removal is UI-only. The validator is the documentation -- it rejects userId and name, and demands listName, a non-empty columns array of exactly {key,value,order}, and an object filterSpecs. filterSpecs:{} is ACCEPTED and creates a list that filters NOTHING.",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "create_smart_list"
           ],
@@ -3836,7 +3873,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3868,9 +3905,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3969,10 +4003,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "get_workflow_stats"
           ],
@@ -4079,10 +4110,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "get_workflow_stats"
           ],
@@ -4510,6 +4538,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--countdown-timer",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/countdown-timer",
+          path: "/countdown-timer",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:29"
+          ]
+        },
+        {
           id: "funnels--countdown-timer-fetch",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/countdown-timer/fetch/",
@@ -4538,6 +4597,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/30-types/native-elements.md:127"
+          ]
+        },
+        {
+          id: "funnels--countdown-timer-fetch-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/countdown-timer/fetch/{id}/{id2}",
+          path: "/countdown-timer/fetch/{id}/{id2}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:28"
           ]
         },
         {
@@ -4582,9 +4679,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4824,9 +4918,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4900,6 +4991,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--custom-widgets-details",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/custom-widgets/details",
+          path: "/custom-widgets/details",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:30"
+          ]
+        },
+        {
           id: "domain-connect--get-a-cname-record",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/domain-connect/a-cname-record",
@@ -4908,7 +5030,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           proof: "observed",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4940,7 +5062,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           proof: "executed",
-          reach: "reached",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5005,7 +5127,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           proof: "executed",
-          reach: "reached",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5093,6 +5215,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--domains-domain",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/domains/domain",
+          path: "/domains/domain",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:32"
+          ]
+        },
+        {
           id: "domains--post-domain-record",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/domains/domain/{domainId}/record",
@@ -5165,6 +5318,47 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json"
+          ]
+        },
+        {
+          id: "funnels--domain-record",
+          aka: [
+            "/domains/domain/{id}/record/{id2}"
+          ],
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/domains/domain/{domainId}/record/{recordId}",
+          path: "/domains/domain/{domainId}/record/{recordId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "domainId"
+            },
+            {
+              name: "recordId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:31"
           ]
         },
         {
@@ -5390,9 +5584,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_account_entities"
           ],
@@ -5566,9 +5757,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5793,9 +5981,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5890,7 +6075,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6445,10 +6630,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6565,10 +6747,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6820,10 +6999,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "list_account_entities"
           ],
@@ -7234,9 +7410,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Executed 2026-09-10 \u2014 returns {tickets, traceId}; empty on the sandbox.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -7489,6 +7662,72 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--categories-get-categories",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/categories/get-categories",
+          path: "/forms/categories/get-categories",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:33"
+          ]
+        },
+        {
+          id: "funnels--categories-get-themes",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/categories/get-themes/{id}",
+          path: "/forms/categories/get-themes/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:34"
+          ]
+        },
+        {
           id: "forms--forms-data",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/forms/data/{id}",
@@ -7496,7 +7735,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "get_form"
           ],
@@ -7697,9 +7936,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -7758,6 +7994,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnel-ai.md:31"
+          ]
+        },
+        {
+          id: "funnels--copilot-messages-event-id2",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot-messages/{id}/event{id2}",
+          path: "/funnel-ai-v2/copilot-messages/{id}/event{id2}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:35"
           ]
         },
         {
@@ -8021,10 +8295,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "funnels--page-generate",
+          id: "funnels--copilot-feedback",
           method: "POST",
-          url: "https://backend.leadconnectorhq.com/funnel-ai/page/generate",
-          path: "/funnel-ai/page/generate",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/feedback",
+          path: "/funnel-ai-v2/copilot/feedback",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -8048,18 +8322,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:11",
-            "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:26"
+            "funnels/70-research/2026-09-29-route-census.md:36"
           ]
         },
         {
-          id: "funnels--funnel-ai-tracker",
-          aka: [
-            "/funnel-ai/tracker/{id}"
-          ],
+          id: "funnels--copilot-page-data",
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/funnel-ai/tracker/{trackerId}",
-          path: "/funnel-ai/tracker/{trackerId}",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/page-data/{id}",
+          path: "/funnel-ai-v2/copilot/page-data/{id}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -8074,17 +8344,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "trackerId"
+              name: "id"
             }
           ],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
+          query: [],
           body: null,
           returns: null,
           confidence: {
@@ -8094,8 +8357,73 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:11",
-            "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:50"
+            "funnels/70-research/2026-09-29-route-census.md:37"
+          ]
+        },
+        {
+          id: "funnels--copilot-screenshot-result",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/screenshot-result",
+          path: "/funnel-ai-v2/copilot/screenshot-result",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:38"
+          ]
+        },
+        {
+          id: "funnels--pages-active",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnel-ai/sessions/pages/{id}/active",
+          path: "/funnel-ai/sessions/pages/{id}/active",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:39"
           ]
         },
         {
@@ -8204,6 +8532,165 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:303"
+          ]
+        },
+        {
+          id: "funnels--builder-element-template",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/element-template",
+          path: "/funnels/builder/element-template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:42"
+          ]
+        },
+        {
+          id: "funnels--builder-element-template-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/element-template",
+          path: "/funnels/builder/element-template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:43"
+          ]
+        },
+        {
+          id: "funnels--builder-element-template-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/element-template",
+          path: "/funnels/builder/element-template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:44"
+          ]
+        },
+        {
+          id: "funnels--builder-element-template-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/element-template/{id}",
+          path: "/funnels/builder/element-template/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:40"
+          ]
+        },
+        {
+          id: "funnels--sync-changes-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/element-template/sync/changes",
+          path: "/funnels/builder/element-template/sync/changes",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:41"
           ]
         },
         {
@@ -8403,7 +8890,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "audit_site",
             "build_funnel_page"
@@ -8449,10 +8936,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -8751,6 +9235,120 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--prebuilt-section-template-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{id}/template/{id2}",
+          path: "/funnels/builder/prebuilt-section/{id}/template/{id2}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:45"
+          ]
+        },
+        {
+          id: "funnels--prebuilt-section-template-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{id}/template/{id2}",
+          path: "/funnels/builder/prebuilt-section/{id}/template/{id2}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:46"
+          ]
+        },
+        {
+          id: "funnels--prebuilt-section-template-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{id}/template/{id2}",
+          path: "/funnels/builder/prebuilt-section/{id}/template/{id2}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:47"
+          ]
+        },
+        {
           id: "funnels--hero-hero",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/hero/template/hero/hero",
@@ -8760,9 +9358,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -8893,6 +9488,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--builder-redis-key-data",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/redis-key-data/{id}",
+          path: "/funnels/builder/redis-key-data/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:48"
+          ]
+        },
+        {
           id: "funnels--builder-restore-version",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/builder/restore-version",
@@ -8925,6 +9555,107 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--builder-section-data",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/section-data/{id}",
+          path: "/funnels/builder/section-data/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:49"
+          ]
+        },
+        {
+          id: "funnels--builder-section-template",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/section-template",
+          path: "/funnels/builder/section-template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:52"
+          ]
+        },
+        {
+          id: "funnels--builder-section-template-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/section-template/{id}",
+          path: "/funnels/builder/section-template/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:50"
+          ]
+        },
+        {
           id: "funnels--section-template-insert",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/builder/section-template/insert",
@@ -8953,6 +9684,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/styling-and-saved-assets.md:109"
+          ]
+        },
+        {
+          id: "funnels--section-template-update",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/section-template/update",
+          path: "/funnels/builder/section-template/update",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:51"
           ]
         },
         {
@@ -9033,6 +9795,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--funnels-custom-fonts-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/funnels/custom-fonts/{id}",
+          path: "/funnels/custom-fonts/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:53"
+          ]
+        },
+        {
           id: "funnels--funnels-domain",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/domain",
@@ -9082,10 +9879,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "audit_site",
             "edit_funnel",
@@ -9198,6 +9992,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--domain-attach-domain",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/domain/attach-domain",
+          path: "/funnels/domain/attach-domain",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:54"
+          ]
+        },
+        {
+          id: "funnels--domain-funnel-unique-domain",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/domain/funnel-unique-domain",
+          path: "/funnels/domain/funnel-unique-domain",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:55"
+          ]
+        },
+        {
           id: "funnels--domain-invalidate-cache",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/domain/invalidate-cache",
@@ -9230,6 +10086,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--domain-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/domain/list",
+          path: "/funnels/domain/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:56"
+          ]
+        },
+        {
           id: "funnels--domain-validate",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/domain/validate",
@@ -9258,6 +10145,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/url-redirects.md:139"
+          ]
+        },
+        {
+          id: "funnels--domain-xml-sitemap",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/domain/xml-sitemap",
+          path: "/funnels/domain/xml-sitemap",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:57"
           ]
         },
         {
@@ -9325,6 +10243,76 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--funnels-event-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/funnels/event/{id}",
+          path: "/funnels/event/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:58"
+          ]
+        },
+        {
+          id: "funnels--funnels-event-patch",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/funnels/event/{id}",
+          path: "/funnels/event/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:59"
+          ]
+        },
+        {
           id: "funnels--funnels-funnel",
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/{id}",
@@ -9357,6 +10345,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:111"
+          ]
+        },
+        {
+          id: "funnels--funnel-step-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/{id}/step/{id2}",
+          path: "/funnels/funnel/{id}/step/{id2}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:60"
           ]
         },
         {
@@ -9503,7 +10529,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:107",
+            "funnels/10-anatomy/domains-and-public-urls.md:113",
             "funnels/20-api/funnels-api.md:147",
             "funnels/40-rules/silent-failures.md:120",
             "funnels/40-rules/silent-failures.md:237"
@@ -9746,6 +10772,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--funnel-create-store",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/create-store",
+          path: "/funnels/funnel/create-store",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:61"
+          ]
+        },
+        {
+          id: "funnels--funnel-create-webinar",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/create-webinar",
+          path: "/funnels/funnel/create-webinar",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:62"
+          ]
+        },
+        {
           id: "funnels--funnel-delete",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/delete",
@@ -9813,6 +10901,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--funnel-delete-store",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/delete-store",
+          path: "/funnels/funnel/delete-store",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:63"
+          ]
+        },
+        {
           id: "funnels-service--get-funnel-by-id",
           aka: [
             "/funnels/funnel/fetch/{id}"
@@ -9823,7 +10942,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "audit_site",
             "create_funnel",
@@ -9874,6 +10993,161 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--folder-create",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/folder/create",
+          path: "/funnels/funnel/folder/create",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:64"
+          ]
+        },
+        {
+          id: "funnels--folder-delete",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/folder/delete",
+          path: "/funnels/funnel/folder/delete",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:65"
+          ]
+        },
+        {
+          id: "funnels--folder-entities",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/folder/entities",
+          path: "/funnels/funnel/folder/entities",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:66"
+          ]
+        },
+        {
+          id: "funnels--folder-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/folder/list",
+          path: "/funnels/funnel/folder/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:67"
+          ]
+        },
+        {
+          id: "funnels--folder-rename",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/folder/rename",
+          path: "/funnels/funnel/folder/rename",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:68"
+          ]
+        },
+        {
           id: "funnels--funnel-funnel-page",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/funnel-page/{pageId}",
@@ -9912,7 +11186,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:300",
             "funnels/20-api/funnel-ai.md:60",
             "funnels/20-api/funnels-api.md:310",
-            "funnels/20-api/funnels-api.md:377"
+            "funnels/20-api/funnels-api.md:382"
           ]
         },
         {
@@ -9923,7 +11197,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9951,6 +11225,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:319"
+          ]
+        },
+        {
+          id: "funnels--funnel-funnel-url",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/funnel-url",
+          path: "/funnels/funnel/funnel-url",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:69"
           ]
         },
         {
@@ -10051,6 +11356,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--funnel-headers-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/headers",
+          path: "/funnels/funnel/headers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:71"
+          ]
+        },
+        {
+          id: "funnels--headers-delete",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/headers/delete",
+          path: "/funnels/funnel/headers/delete",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:70"
+          ]
+        },
+        {
           id: "funnels-service--get-funnels",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/list",
@@ -10059,9 +11426,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "audit_site",
             "create_funnel",
@@ -10137,6 +11501,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--list-by-location-and-domain",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/list/by-location-and-domain",
+          path: "/funnels/funnel/list/by-location-and-domain",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:72"
+          ]
+        },
+        {
+          id: "funnels--funnel-move",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/move",
+          path: "/funnels/funnel/move",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:73"
+          ]
+        },
+        {
           id: "funnels--funnel-step",
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/step/{funnelId}",
@@ -10170,12 +11596,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:109",
-            "funnels/10-anatomy/domains-and-public-urls.md:163",
+            "funnels/10-anatomy/domains-and-public-urls.md:115",
+            "funnels/10-anatomy/domains-and-public-urls.md:169",
             "funnels/20-api/funnels-api.md:164",
             "funnels/40-rules/silent-failures.md:123",
             "funnels/40-rules/silent-failures.md:245",
             "funnels/40-rules/silent-failures.md:531"
+          ]
+        },
+        {
+          id: "funnels--funnel-stop-all-split-tests-and-reset",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/stop-all-split-tests-and-reset",
+          path: "/funnels/funnel/stop-all-split-tests-and-reset",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:74"
           ]
         },
         {
@@ -10350,6 +11807,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--upgrade-rollback",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/upgrade/rollback",
+          path: "/funnels/funnel/upgrade/rollback",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:75"
+          ]
+        },
+        {
           id: "funnels--funnel-webinar",
           method: "PATCH",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/webinar/{funnelId}",
@@ -10417,6 +11905,72 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/webinars.md:87"
+          ]
+        },
+        {
+          id: "funnels--webinar-template-folder",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/webinar/{id}/template-folder",
+          path: "/funnels/funnel/webinar/{id}/template-folder",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:76"
+          ]
+        },
+        {
+          id: "funnels--webinar-max-end-date",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/webinar/max-end-date",
+          path: "/funnels/funnel/webinar/max-end-date",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:77"
           ]
         },
         {
@@ -10491,7 +12045,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -10511,7 +12065,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:168"
+            "funnels/10-anatomy/domains-and-public-urls.md:174"
           ]
         },
         {
@@ -10542,7 +12096,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:113"
+            "funnels/10-anatomy/domains-and-public-urls.md:119"
+          ]
+        },
+        {
+          id: "funnels--funnels-lookup-delete",
+          aka: [
+            "/funnels/lookup/{id}"
+          ],
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/{lookupId}",
+          path: "/funnels/lookup/{lookupId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "lookupId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:78"
           ]
         },
         {
@@ -10577,7 +12169,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:93",
+            "funnels/10-anatomy/domains-and-public-urls.md:99",
             "funnels/20-api/funnels-api.md:309",
             "funnels/40-rules/silent-failures.md:270",
             "funnels/40-rules/silent-failures.md:937",
@@ -10615,9 +12207,40 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:111",
-            "funnels/10-anatomy/domains-and-public-urls.md:157",
+            "funnels/10-anatomy/domains-and-public-urls.md:117",
+            "funnels/10-anatomy/domains-and-public-urls.md:163",
             "funnels/40-rules/silent-failures.md:239"
+          ]
+        },
+        {
+          id: "funnels--lookup-domain-and-path",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/domain-and-path",
+          path: "/funnels/lookup/domain-and-path",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:79"
           ]
         },
         {
@@ -10663,7 +12286,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "audit_site",
             "edit_funnel",
@@ -10700,10 +12323,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:165",
+            "funnels/10-anatomy/domains-and-public-urls.md:171",
             "funnels/40-rules/silent-failures.md:618",
             "funnels/40-rules/silent-failures.md:650",
             "funnels/40-rules/silent-failures.md:940"
+          ]
+        },
+        {
+          id: "funnels--lookup-multiple-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/multiple",
+          path: "/funnels/lookup/multiple",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:80"
           ]
         },
         {
@@ -10767,7 +12421,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:167"
+            "funnels/10-anatomy/domains-and-public-urls.md:173"
           ]
         },
         {
@@ -10802,6 +12456,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/20-api/url-redirects.md:77",
             "funnels/20-api/url-redirects.md:119"
+          ]
+        },
+        {
+          id: "funnels--lookup-redirect-exists-for-domain",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/redirect-exists-for-domain",
+          path: "/funnels/lookup/redirect-exists-for-domain",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:81"
           ]
         },
         {
@@ -10893,10 +12578,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "edit_redirects",
             "find_ghl_site"
@@ -10948,6 +12630,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--redirect-regex",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/redirect/regex",
+          path: "/funnels/lookup/redirect/regex",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:82"
+          ]
+        },
+        {
           id: "funnels--regex-bulk",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/lookup/redirect/regex/bulk",
@@ -10955,7 +12668,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11002,7 +12715,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "audit_site"
           ],
@@ -11032,6 +12745,72 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/20-api/funnels-api.md:308",
             "funnels/10-anatomy/routing-and-publishing.md:61",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
+          ]
+        },
+        {
+          id: "funnels--funnels-order",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/order",
+          path: "/funnels/order",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:86"
+          ]
+        },
+        {
+          id: "funnels--funnels-products",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/order-form/funnels/{id}/products",
+          path: "/funnels/order-form/funnels/{id}/products",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:83"
           ]
         },
         {
@@ -11224,6 +13003,72 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--order-form-products-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/funnels/order-form/products/{id}",
+          path: "/funnels/order-form/products/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:84"
+          ]
+        },
+        {
+          id: "funnels--public-products",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/order-form/public/products",
+          path: "/funnels/order-form/public/products",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:85"
+          ]
+        },
+        {
           id: "funnels-service--get-pages-by-funnel-id",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/page",
@@ -11303,7 +13148,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "build_funnel_page",
             "edit_funnel"
@@ -11340,7 +13185,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:540",
             "funnels/20-api/funnel-object-operations.md:84",
             "funnels/20-api/funnels-api.md:232",
-            "funnels/20-api/funnels-api.md:375"
+            "funnels/20-api/funnels-api.md:380"
           ]
         },
         {
@@ -11420,7 +13265,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "edit_funnel",
             "get_funnel"
@@ -11458,6 +13303,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/20-api/funnel-object-operations.md:91",
             "funnels/20-api/funnels-api.md:233"
+          ]
+        },
+        {
+          id: "funnels--page-page-domain",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/page/page-domain/{id}",
+          path: "/funnels/page/page-domain/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:87"
           ]
         },
         {
@@ -11601,6 +13481,72 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--ig-feed-connected-accounts",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/v1/ig-feed/connected-accounts",
+          path: "/funnels/v1/ig-feed/connected-accounts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:89"
+          ]
+        },
+        {
+          id: "funnels--ig-feed-connected-accounts-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/v1/ig-feed/connected-accounts/{id}",
+          path: "/funnels/v1/ig-feed/connected-accounts/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:88"
+          ]
+        },
+        {
           id: "workflows--prompt-enhance-post",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/generate-image-ai/{locationId}/prompt/enhance",
@@ -11727,9 +13673,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11788,9 +13731,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11828,9 +13768,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_account_entities"
           ],
@@ -11879,7 +13816,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11916,9 +13853,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11953,7 +13887,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -12129,7 +14063,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -12202,7 +14136,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -12227,7 +14161,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:455"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:481"
           ]
         },
         {
@@ -12238,7 +14172,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -12281,9 +14215,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -12570,10 +14501,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -13031,7 +14959,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -13192,10 +15120,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "check_snapshot_conflicts",
             "copy_workflow_to_location",
@@ -13286,9 +15211,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "check_smart_lists",
             "create_smart_list"
@@ -13547,9 +15469,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "documentType=folder&model=all lists custom-FIELD folders ONLY with includeStandards=true \u2014 with includeStandards=false (the plugin's habitual value on FIELD searches) the same query returns [], which reads as 'this account has no folders' and is false (proven 2026-08-30).",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "build_workflow",
             "check_workflow",
@@ -13629,9 +15548,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "audit_site",
             "build_workflow",
@@ -13759,9 +15675,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "documentType=folder lists custom-value folders under customValueFolders: {id, name, documentType, fieldsCount, \u2026}.",
           note: "Answers byte-identically on BOTH backend and services (differential 2026-08-31) \u2014 either rail works.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -13917,10 +15830,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "edit_workflow"
@@ -14077,9 +15987,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_account_entities"
           ],
@@ -14182,13 +16089,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          refusedFor: [
-            "location-user-bearer"
-          ],
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14384,7 +16285,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14509,7 +16410,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:447"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:473"
           ]
         },
         {
@@ -14540,7 +16441,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:459"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:485"
           ]
         },
         {
@@ -14583,7 +16484,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14660,7 +16561,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Answers on BOTH hosts (settled 2026-09-23, one live GET each: backend with the location JWT and services with the dual-credential AI rail both return 200 and the same array). list_marketplace_apps uses services. Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [
             "edit_workflow",
             "list_marketplace_apps"
@@ -14729,10 +16630,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14803,7 +16701,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -15666,10 +17564,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "list_courses"
           ],
@@ -15796,7 +17691,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "build_course"
           ],
@@ -15886,10 +17781,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "list_account_entities"
           ],
@@ -16536,9 +18428,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16588,9 +18477,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16626,10 +18512,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16750,7 +18633,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:460",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:486",
             "workflows/70-research/ENDPOINTS.md:243"
           ]
         },
@@ -16800,7 +18683,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16997,10 +18880,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17068,7 +18948,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:386"
+            "funnels/20-api/funnels-api.md:391"
           ]
         },
         {
@@ -17175,10 +19055,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "MINED + PROVEN LIVE \u2014 see corpus workflows/20-api/refused-but-mined.md. The custom-object FIELD SCHEMA. Executed on a test sub-account 2026-09-21 as ?locationId=&fetchProperties=true \u2192 200 {object:{id, key, type, labels{singular,plural}, icon, description, primaryDisplayProperty, requiredProperties[], searchableProperties[], uniqueProperties[], addRecordConfiguration[]}, fields:[{id, fieldKey, name, standard, dataType, position, parentId, objectKey, options[], \u2026}], cache:true}. \u{1F534} objectKey is a SLUG, NEVER the id: bare for standard objects (contact, business), namespaced custom_objects.<slug> for user-defined ones \u2014 passing the id is a well-formed call that asks for the wrong thing. \u{1F534} REAL, LOAD-BEARING LIMIT (not a mock value): for objectKey=contact this endpoint CAPS custom fields at 250 and GHL's own client patches around it by re-fetching from CustomFieldService and merging \u2014 the raw response is known-incomplete by the vendor above 250 fields. \u{1F534} THIS BARE SPELLING IS THE ONE WE REACH AND THE ONE THE CLIENT NEVER SENDS; its trailing-slash twin is what the UI issues and it REFUSES us. Do not 'correct' either row into the other. `cache:true` means a read here may be served from a cache rather than the store.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "check_workflow",
@@ -17244,7 +19121,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "MINED, refused to us \u2014 see corpus workflows/20-api/refused-but-mined.md. This is the spelling GHL's own client issues (CustomObjectsService pins its base URL to '\u2026/objects/', so every real call carries the trailing slash) and it is the one our credential class does NOT reach. Its BARE twin, GET /objects/{objectKey}, is proven live from here and carries the same custom-object field schema \u2014 use that. Neither row is a phantom: this is a gateway/routing distinction between two real spellings, not one route recorded twice.",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "check_workflow",
@@ -17501,10 +19378,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "list_account_entities"
           ],
@@ -17603,10 +19477,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "edit_pipeline",
@@ -17652,10 +19523,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "edit_pipeline",
@@ -18063,9 +19931,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18154,9 +20019,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_account_entities"
           ],
@@ -18237,10 +20099,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18276,7 +20135,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Test vs Live is two layers: the provider integration holds a test key pair and a live key pair (one Stripe Connect fills both), and each payment link carries liveMode and asks this endpoint for the matching keys. Nothing validates a provider at link-save time -- a link saves fine in Live mode with no gateway connected, and the public Pay button is simply disabled.",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18346,9 +20205,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18392,7 +20248,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18442,7 +20298,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18511,10 +20367,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18546,6 +20399,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--payments-transactions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payments/transactions",
+          path: "/payments/transactions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:90"
+          ]
+        },
+        {
           id: "platform--phone-system-call-dispositions",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/phone-system/call-dispositions",
@@ -18556,9 +20440,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
           note: "?includeDeleted=true returns ONLY the soft-deleted rows, not the union -- the name reads like 'include', the behaviour is 'only'. Every account ships the SAME SIX system defaults (proven 2026-09-02: a sandbox listing four returned exactly the two missing ones, Follow Up and Requested Appointment, under includeDeleted=true, both isDefault:true with a deletedAt). A short list means somebody soft-deleted defaults, not that defaults vary by account. call_status triggers match BY NAME.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "check_workflow",
             "list_account_entities"
@@ -18739,10 +20620,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18780,10 +20658,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -18827,9 +20702,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18871,10 +20743,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "proven",
-          refusedFor: [
-            "location-user-bearer"
-          ],
+          reach: "refused",
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -19484,6 +21353,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--products-public",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/products/public",
+          path: "/products/public",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:91"
+          ]
+        },
+        {
+          id: "funnels--products-stripe-plans",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/products/stripe-plans",
+          path: "/products/stripe-plans",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:92"
+          ]
+        },
+        {
           id: "workflows--proposals-templates",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/proposals/templates",
@@ -19622,13 +21553,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          refusedFor: [
-            "location-user-bearer"
-          ],
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19667,7 +21592,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19707,9 +21632,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19749,9 +21671,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19791,9 +21710,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19836,7 +21752,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19876,9 +21792,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19973,9 +21886,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -20516,7 +22426,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Load-wizard step 2 counter. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -20688,7 +22598,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -20817,9 +22727,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_snapshot_manifest"
           ],
@@ -20945,7 +22852,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21155,10 +23062,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21201,7 +23105,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Load-wizard step 1. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21373,9 +23277,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "create_snapshot",
             "get_snapshot_manifest"
@@ -21428,9 +23329,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix \u2014 the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21764,6 +23662,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--stats-filter-values",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/filter-values",
+          path: "/stats/filter-values",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:93"
+          ]
+        },
+        {
           id: "funnels--graph-data",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/stats/graph/data",
@@ -22060,6 +23989,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/webinars.md:88"
+          ]
+        },
+        {
+          id: "funnels--setup-progress",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/store/setup/progress",
+          path: "/store/setup/progress",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:94"
+          ]
+        },
+        {
+          id: "funnels--setup-progress-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/store/setup/progress",
+          path: "/store/setup/progress",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:95"
           ]
         },
         {
@@ -22387,13 +24378,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          refusedFor: [
-            "location-user-bearer"
-          ],
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22516,9 +24501,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22565,9 +24547,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_studio_sites"
           ],
@@ -22759,9 +24738,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "find_ghl_site",
             "list_studio_sites"
@@ -24756,7 +26732,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: `FENCED \u2014 COMPANY-WIDE SETTINGS, named explicitly in the standing fence ("sends, billing, company-wide settings, ad spend, smart lists, the iatf proxy"). It is scoped by companyId, not locationId, so a write here reaches every sub-account of the agency at once; that blast radius is the operator's to accept, not a tool's. Reachable, never called.`,
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24910,9 +26886,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "NO TASK NEEDS THIS \u2014 a second, unpaginated census rail of workflow METADATA. list_workflows is proven a SUPERSET of it on every live run (conformance: 'every workflow the bare route returns IS in the roster'), so a tool on this route could only return a subset of an answer we already give.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21 (it had NO note at all): a SECOND, UNPAGINATED CENSUS RAIL. Returns a bare ARRAY of workflow METADATA \u2014 not a graph dump: 0 of 726 entries carried workflowData.templates. `limit` is IGNORED (limit=2 returned all 726, ~1.2 MB). Every entry is type:'workflow', none deleted.\n\u{1F534} IT DISAGREES WITH THE LIST RAIL ABOUT WHAT EXISTS, and neither is a superset. Measured the same hour on the designated sandbox:\n    this route                726 workflows, of which workflowType:'agent' = 0\n    list_workflows            700 workflows, of which workflowType:'agent' = 90\n    in this route only        116 (all draft, mostly parentId:null)\n    in list_workflows only     90 (ALL of them workflowType:'agent')\n    union                     816\n\u{1F534} THIS IS NOT A BUG IN list_workflows, and do not 'fix' it as one. That tool asks /workflow/{loc}/list?type=workflow WITH includeObjectiveBuilder and includeCustomObjects, GHL answers reportedTotal:700, and the walk returns exactly 700 unique over 7 pages with terminalReason 'unique_count_equals_reported_total'. Its complete:true is a TRUE statement about that rail: it saw everything the rail said existed. The rail's own total simply does not account for the 116 this route returns.\nCONSEQUENCE for census work: no single route we have returns every workflow on an account. This route is blind to agent workflows; the list rail under-reports by 116 here. A census that must not miss anything has to read BOTH and union them \u2014 and should say which rail each row came from.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25157,10 +27130,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: `?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> "version": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.`,
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "check_workflow",
@@ -25215,13 +27185,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:30",
+            "workflows/10-anatomy/advanced-canvas.md:36",
             "workflows/20-api/03-endpoints.md:191",
             "workflows/20-api/trash-and-restore.md:24",
             "workflows/40-rules/publish-gate.md:138",
             "workflows/40-rules/settings-semantics.md:167",
             "workflows/00-overview/10-caveats.md:138",
-            "workflows/10-anatomy/04-workflow-anatomy.md:40",
-            "workflows/10-anatomy/07-id-resolution.md:204"
+            "workflows/10-anatomy/04-workflow-anatomy.md:40"
           ]
         },
         {
@@ -25471,9 +27441,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_workflow_versions"
           ],
@@ -25616,9 +27583,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_workflow_versions"
           ],
@@ -26586,9 +28550,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -27029,9 +28990,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -27068,10 +29026,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "edit_workflow",
             "publish_workflow",
@@ -27463,9 +29418,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "Answers 201 (not 200) on a GET. \u26A0\uFE0F NOT BACKEND-ONLY \u2014 the catalogue row is mined from backend source, but it answers 201 with an identical body on services.leadconnectorhq.com too (verified GROM Sandbox 2026-09-11). Returns provider.domain, provider.domainOwnershipType ('agency_owned' | 'location_owned'), warmupInfo{warmupStage,warmupStatus,warmupMode}, type and applyRateLimit. \u{1F534} THIS IS THE READ THAT TELLS YOU AN ACCOUNT HAS A SENDING DOMAIN AT ALL \u2014 /email-isv/feature/domain/list returns [] for an agency-owned domain, so use this one before concluding an account is unconfigured.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -27726,9 +29678,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -27771,9 +29720,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -27871,9 +29817,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_account_workflow_overview",
             "set_workflow_error_alerts"
@@ -28657,9 +30600,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -28701,9 +30641,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
           note: `Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders". TRAP: without &includeObjectiveBuilder=true every workflowType:'agent' workflow (a Conversation AI flow bot) is SILENTLY omitted -- 200, no error, count simply excludes it; proven on four accounts. A roster showing no flow bot is not evidence the account has none. TRAP 2 (proven-live 2026-09-23): ONE PAGE IS NOT THE LIST -- page by offset to the envelope count (pages of 100); on the sandbox one page of 200 held 200 of 1,125. The typed list_workflows sends the flag and walks every page.`,
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "copy_workflow_to_location",
             "create_workflow_folder",
@@ -29070,10 +31007,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
           note: "Covered by get_premium_usage (2026-09-23). Premium CONSUMPTION for one tier: GET /workflow/{loc}/premium-tier-usage/{tier}?locationId= -> 200 {usage:{plan, locationId, usage, limit, remaining, resetTime, percentage, credits}}; tier = workflow_ai | workflow_premium_actions. HOW MUCH has been spent, not WHETHER premium is on (preflight.mjs reads config.optIn for that). Only an idle account is measured (usage 0, limit/remaining/resetTime null), so the tool passes the record through verbatim.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "get_premium_usage"
           ],
@@ -29376,9 +31310,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "Whether this workflow is paused on a schedule, and the window if so.",
           note: "The read side of the scheduled-pause rail, and the ONLY way to obtain a config's `_id`: the POST that creates one answers 201 {success:true} and does NOT return the id, so an update or delete must GET this list and read `_id` off the matching entry. [proven-live] 2026-09-21, full create \u2192 read \u2192 delete, cleaned up. A pause is WORKFLOW-SCOPED (it carries `workflowIds`), the window must be at least 24 hours, and `isActive` is the config's enabled flag, not \"currently pausing\". \u{1F534} An active pause does NOT hold a contact already parked at a wait \u2014 the wait fired on schedule and the contact completed the workflow with the pause active. See workflows/50-runtime/scheduled-pause.md.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -29922,9 +31853,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: 'NO TASK NEEDS THIS \u2014 it answers "has this split ever run", which `get_workflow_stats` already answers better. That tool returns `splits[]` with the per-path statistics, so a caller who wants the boolean reads it off numbers they need anyway, in a call they were already making. A dedicated round trip for one flag is a second read that can only disagree with the first.',
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -29961,7 +31889,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/SplitService.ts:33"
+            "services/SplitService.ts:33",
+            "workflows/10-anatomy/advanced-canvas.md:59",
+            "workflows/30-types/steps/workflow_split.md:147"
           ]
         },
         {
@@ -30074,10 +32004,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "check_workflow",
             "duplicate_workflow",
@@ -30173,8 +32100,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "workflows/10-anatomy/04-workflow-anatomy.md:434",
             "workflows/10-anatomy/04-workflow-anatomy.md:571",
             "workflows/10-anatomy/05-build-flow.md:24",
-            "workflows/20-api/trigger-create.md:11",
-            "workflows/30-types/triggers/affiliate_created.md:63"
+            "workflows/10-anatomy/advanced-canvas.md:52",
+            "workflows/20-api/trigger-create.md:11"
           ]
         },
         {
@@ -30308,6 +32235,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/BaseService.ts:46",
+            "workflows/10-anatomy/advanced-canvas.md:38",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
             "workflows/50-runtime/flow-bot-four-node-certification.md:58"
           ]
@@ -30971,9 +32899,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -31049,9 +32974,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -31198,9 +33120,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_workflow_templates"
           ],
@@ -31407,9 +33326,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_ai_agent_options"
           ],
@@ -31745,9 +33661,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_ai_agent_options"
           ],
@@ -32458,13 +34371,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "NO TASK NEEDS THIS \u2014 the LEGACY Campaigns list, GHL's pre-workflow automation product, not a workflows capability (identified 2026-09-21). Nothing this plugin builds reads or writes campaigns.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21 (it had NO note at all): the LEGACY CAMPAIGNS list, GHL's pre-workflow automation product \u2014 not a workflows capability. Answers 200 {campaigns: []} on the designated sandbox, which holds no campaigns, so the row SHAPE is unmeasured and only the envelope key is known. Left as a candidate rather than excluded: a campaigns-to-workflows migration is a plausible task, but nothing can be said about the payload from an empty answer, and this account cannot discriminate.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          refusedFor: [
-            "location-user-bearer"
-          ],
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33043,9 +34950,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33151,9 +35055,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33297,7 +35198,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "MINED, not callable \u2014 see corpus workflows/20-api/refused-but-mined.md. Read out of IVRService.ts:23-34: body is exactly {phones: string[], locationId}; the response is an array of {phones, workflowId, workflowName} (names recovered from DESTRUCTURING, not a captured type \u2014 IIVRPhoneMapping is a type-only import and was erased from the bundle). Purpose: an IVR trigger number is EXCLUSIVE ACROSS WORKFLOWS, and the builder calls this to strip already-claimed numbers out of its picker and to deep-link the author to the owning workflow. \u{1F534} That exclusivity is enforced in the UI, not at write time \u2014 a workflow we author through the API with an IVR trigger on a taken number is not something this route would stop. TRAP: FilterState.fetchPhoneMappings catches everything and returns [], so an empty mapping list is equally consistent with 'nothing is mapped' and 'the call failed'.",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33946,7 +35847,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "describe_marketplace_action"
           ],
@@ -34300,7 +36201,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "describe_marketplace_action"
           ],
@@ -34384,7 +36285,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "Execution stats for one marketplace/premium action step over a window.",
           note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge sniffs/reached-2026-09-23.',
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34457,13 +36358,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "FENCED \u2014 the workflows-marketplace family needs an ESCALATION DECISION before it is used, and proving a route does not un-gate it. `workflows-marketplace` is one of the four gated families named in console/lib/surface-state.mjs (flowguard, workflows-marketplace, oauth2, secret-manager); this row reads USABLE-UNUSED only because the counter tests isProven BEFORE it tests the family. The one marketplace capability that HAS been taken through the purpose test is already built \u2014 describe_marketplace_action, which covers GET /workflows-marketplace/actions/options/{key} and exists because the compiler is otherwise blind to what a marketplace action requires. Widening past that needs a decision about the family, not another row.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          refusedFor: [
-            "location-user-bearer"
-          ],
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34622,7 +36517,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "describe_marketplace_action"
           ],
@@ -34689,7 +36584,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34755,7 +36650,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34952,10 +36847,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "FENCED \u2014 the workflows-marketplace family needs an ESCALATION DECISION before it is used, and proving a route does not un-gate it. `workflows-marketplace` is one of the four gated families named in console/lib/surface-state.mjs (flowguard, workflows-marketplace, oauth2, secret-manager); this row reads USABLE-UNUSED only because the counter tests isProven BEFORE it tests the family. The one marketplace capability that HAS been taken through the purpose test is already built \u2014 describe_marketplace_action, which covers GET /workflows-marketplace/actions/options/{key} and exists because the compiler is otherwise blind to what a marketplace action requires. Widening past that needs a decision about the family, not another row.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35053,7 +36945,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35119,7 +37011,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35185,7 +37077,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35685,9 +37577,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "check_workflow",
             "edit_workflow",
@@ -35857,9 +37746,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "NO TASK NEEDS THIS as a call \u2014 its answer is the resolver's own list. The Documents & Contracts (and estimate) trigger's Template dropdown: {options:[{label, value, assignedRoles}]}, where value IS the /proposals/templates id and label its name. Proven by DIFFERENTIAL on the sandbox 2026-09-23: {options:[]} while the account had no template, exactly that template's id after one was made in the UI. So build_workflow / edit_workflow resolve a template NAME on filter field documentCreatedByTemplateId through GET /proposals/templates (list_account_entities' documentTemplates), and document-template-trigger-proof.mjs reads this route as the oracle. Stored condition: {operator:'==', field:'documentCreatedByTemplateId', value:<24-hex template id>, title:'Template', type:'select', id:'documentCreatedByTemplateId'}.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36074,9 +37960,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge sniffs/reached-2026-09-23.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36133,9 +38016,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge sniffs/reached-2026-09-23.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "copy_workflow_to_location"
           ],
@@ -36271,7 +38151,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: `NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.
 \u2014 PRIOR NOTE: Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 "workflowId is required"). Reached, not yet answered 200.`,
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36333,10 +38213,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21. The POLL rail for the async log-export job (POST /workflows/logs/export starts it). workflowId is REQUIRED (400 'workflowId is required' without it, even with locationId). With it -> 200 {exports:[]} on the sandbox, which has run no export. Corpus page exists: workflows/50-runtime/log-export.md. Pairs with the POST; neither is covered by a tool. A log-export tool would be the POST + this poll + the download of the result, and the task is 'get the raw execution log off the platform', which get_workflow_logs does not do (it reads the live rail, it does not export). Candidate, not yet proposed \u2014 the export FORMAT and what the finished job's row looks like are unmeasured because nothing has been exported here.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36393,10 +38270,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "Execution log rows for one workflow; executionId returns one run's full step trace.",
           note: "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "get_workflow_logs",
             "get_workflow_runtime_window"
@@ -36456,9 +38330,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "Enrollment counts for the last 7 weeks, for the Automation Overview chart.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -36503,9 +38374,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "Account-level automation KPIs: total workflows, published workflows, total enrollments.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -36603,10 +38471,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "How many contacts are sitting at each step right now.",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Wants BOTH locationId and workflowId. Discovered iteratively: the endpoint names ONE missing key at a time, so a single probe round under-reports what it needs.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "edit_workflow",
             "fast_forward_contacts",
@@ -36663,7 +38528,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [
             "fast_forward_contacts",
             "get_contacts_at_step",
@@ -36740,10 +38605,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: 'Re-measured 2026-09-21 on the designated sandbox with controls, correcting the 2026-08-25 reading. The 400 is "workflowId or workflowIds needs to be present" \u2014 an EITHER/OR, not a singular requirement; the 08-25 note recorded only the first name in that sentence. The two forms return DIFFERENT SHAPES: ?workflowId={id} answers a bare OBJECT {total, finished, workflowId, traceId}; ?workflowIds[]={id}&... answers an ARRAY of {total, finished, workflowId}. \u1F534 TRAP: a workflow with no enrolments is not reported as zero \u2014 the array form OMITS its row entirely (8 ids asked, 3 rows returned) and the singular form answers 200 with an EMPTY STRING body. CONTROL: a ghost workflowId answers the IDENTICAL 200 "", so an empty answer says nothing about whether the workflow exists. Absence is GHL declining to state a number, never a measured zero \u2014 get_account_workflow_overview therefore reports an omitted id as total:null, not 0.',
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -37044,7 +38906,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [
             "get_account_workflow_overview",
             "get_workflow_logs",
@@ -37348,10 +39210,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "get_workflow_logs",
             "get_workflow_runtime_window"
@@ -37620,9 +39479,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "export_workflow",
             "get_workflow_runtime_window"
@@ -37758,10 +39614,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "get_trigger_logs",
             "get_workflow_stats"
@@ -37805,7 +39658,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [
             "get_trigger_logs"
           ],
@@ -37847,7 +39700,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [
             "get_trigger_logs"
           ],
@@ -37927,9 +39780,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
           note: 'A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row. Executed on the sandbox 2026-09-10 on host:"ai" \u2014 returns a BARE ARRAY of routing rows {id, createdAt, deleted, locationId, channel, providerId, ...}, 11 of them here. Its POST twin is deliberately NOT probed: a new routing row can change WHICH agent answers an inbound conversation on the account, which is a behaviour change dressed as a create.',
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "get_ai_configuration_bundle",
             "set_agent_deployment"
@@ -37965,7 +39815,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:386",
+            "ai-agents/20-api/12-ai-agents-api.md:397",
             "ai-agents/20-api/agent-deployment-routing.md:25",
             "ai-agents/20-api/agent-deployment-routing.md:271",
             "ai-agents/20-api/agent-deployment-routing.md:471",
@@ -38325,7 +40175,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/agent-logs.md:117",
             "ai-agents/20-api/agent-logs.md:176",
-            "ai-agents/20-api/agent-logs.md:239"
+            "ai-agents/20-api/agent-logs.md:243"
           ]
         },
         {
@@ -38524,7 +40374,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:119",
-            "ai-agents/20-api/agent-logs.md:226"
+            "ai-agents/20-api/agent-logs.md:228"
           ]
         },
         {
@@ -38538,9 +40388,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "Service health: {status, timestamp, traceId}.",
           note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface).",
           reach: "proven-live",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38694,8 +40541,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:120",
-            "ai-agents/20-api/agent-logs.md:353",
-            "ai-agents/20-api/agent-logs.md:354"
+            "ai-agents/20-api/agent-logs.md:357",
+            "ai-agents/20-api/agent-logs.md:358"
           ]
         },
         {
@@ -38743,8 +40590,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:122",
-            "ai-agents/20-api/agent-logs.md:360",
-            "ai-agents/20-api/agent-logs.md:371"
+            "ai-agents/20-api/agent-logs.md:364",
+            "ai-agents/20-api/agent-logs.md:378"
           ]
         },
         {
@@ -38791,7 +40638,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:124",
-            "ai-agents/20-api/agent-logs.md:372"
+            "ai-agents/20-api/agent-logs.md:379"
           ]
         },
         {
@@ -38838,8 +40685,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:121",
-            "ai-agents/20-api/agent-logs.md:356",
-            "ai-agents/20-api/agent-logs.md:369"
+            "ai-agents/20-api/agent-logs.md:360",
+            "ai-agents/20-api/agent-logs.md:376"
           ]
         },
         {
@@ -38892,8 +40739,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:123",
-            "ai-agents/20-api/agent-logs.md:280",
-            "ai-agents/20-api/agent-logs.md:370"
+            "ai-agents/20-api/agent-logs.md:284",
+            "ai-agents/20-api/agent-logs.md:377"
           ]
         },
         {
@@ -38937,7 +40784,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/agent-logs.md:80",
             "ai-agents/20-api/agent-logs.md:118",
-            "ai-agents/20-api/agent-logs.md:249"
+            "ai-agents/20-api/agent-logs.md:253"
           ]
         },
         {
@@ -38951,9 +40798,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "Saved Metrics dashboard layouts for the location.",
           note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38981,7 +40825,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:125",
-            "ai-agents/20-api/agent-logs.md:267"
+            "ai-agents/20-api/agent-logs.md:271"
           ]
         },
         {
@@ -39293,7 +41137,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:162"
+            "ai-agents/10-anatomy/managed-agent-shape.md:163"
           ]
         },
         {
@@ -39324,7 +41168,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:161"
+            "ai-agents/10-anatomy/managed-agent-shape.md:162"
           ]
         },
         {
@@ -39359,7 +41203,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:163"
+            "ai-agents/10-anatomy/managed-agent-shape.md:164"
           ]
         },
         {
@@ -39394,7 +41238,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:170"
+            "ai-agents/10-anatomy/managed-agent-shape.md:171"
           ]
         },
         {
@@ -39468,7 +41312,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:154"
+            "ai-agents/10-anatomy/managed-agent-shape.md:155"
           ]
         },
         {
@@ -39499,7 +41343,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:152"
+            "ai-agents/10-anatomy/managed-agent-shape.md:153"
           ]
         },
         {
@@ -39541,7 +41385,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:171"
+            "ai-agents/10-anatomy/managed-agent-shape.md:172"
           ]
         },
         {
@@ -39552,10 +41396,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -39600,10 +41441,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -39648,7 +41486,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:165",
+            "ai-agents/10-anatomy/managed-agent-shape.md:166",
             "ai-agents/20-api/12-ai-agents-api.md:249"
           ]
         },
@@ -39757,7 +41595,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:97",
+            "ai-agents/10-anatomy/managed-agent-shape.md:98",
             "ai-agents/20-api/12-ai-agents-api.md:251"
           ]
         },
@@ -39808,7 +41646,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:247",
             "ai-agents/20-api/12-ai-agents-api.md:254",
-            "ai-agents/20-api/12-ai-agents-api.md:383",
+            "ai-agents/20-api/12-ai-agents-api.md:394",
             "ai-agents/10-anatomy/managed-agent-shape.md:20"
           ]
         },
@@ -39852,8 +41690,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:246",
             "ai-agents/20-api/12-ai-agents-api.md:254",
             "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-            "ai-agents/10-anatomy/managed-agent-shape.md:83",
-            "ai-agents/20-api/12-ai-agents-api.md:382"
+            "ai-agents/10-anatomy/managed-agent-shape.md:84",
+            "ai-agents/20-api/12-ai-agents-api.md:393"
           ]
         },
         {
@@ -39971,7 +41809,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:127"
+            "ai-agents/10-anatomy/managed-agent-shape.md:128"
           ]
         },
         {
@@ -40006,7 +41844,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:103"
+            "ai-agents/10-anatomy/managed-agent-shape.md:104"
           ]
         },
         {
@@ -40037,7 +41875,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:187"
+            "ai-agents/10-anatomy/managed-agent-shape.md:188"
           ]
         },
         {
@@ -40069,7 +41907,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/managed-agent-shape.md:79",
-            "ai-agents/10-anatomy/managed-agent-shape.md:121",
+            "ai-agents/10-anatomy/managed-agent-shape.md:122",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:245",
             "ai-agents/20-api/12-ai-agents-api.md:258",
@@ -40238,12 +42076,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:158",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:174",
             "ai-agents/20-api/12-ai-agents-api.md:101",
             "ai-agents/20-api/12-ai-agents-api.md:105",
             "ai-agents/20-api/12-ai-agents-api.md:132",
-            "ai-agents/20-api/12-ai-agents-api.md:301",
-            "ai-agents/20-api/12-ai-agents-api.md:351"
+            "ai-agents/20-api/12-ai-agents-api.md:312",
+            "ai-agents/20-api/12-ai-agents-api.md:362"
           ]
         },
         {
@@ -40419,7 +42257,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:98",
-            "ai-agents/20-api/12-ai-agents-api.md:375"
+            "ai-agents/20-api/12-ai-agents-api.md:386"
           ]
         },
         {
@@ -40431,9 +42269,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -40465,7 +42300,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:80",
-            "ai-agents/30-types/conversation-ai-actions.md:127",
+            "ai-agents/30-types/conversation-ai-actions.md:133",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
             "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
@@ -40563,12 +42398,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:157",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:173",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:95",
             "ai-agents/20-api/12-ai-agents-api.md:105",
-            "ai-agents/20-api/12-ai-agents-api.md:351",
-            "ai-agents/20-api/12-ai-agents-api.md:372"
+            "ai-agents/20-api/12-ai-agents-api.md:362",
+            "ai-agents/20-api/12-ai-agents-api.md:383"
           ]
         },
         {
@@ -40615,7 +42450,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:100",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:163",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:179",
             "ai-agents/20-api/agent-deployment-routing.md:73"
           ]
         },
@@ -40661,7 +42496,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:97",
             "ai-agents/20-api/12-ai-agents-api.md:105",
-            "ai-agents/20-api/12-ai-agents-api.md:373",
+            "ai-agents/20-api/12-ai-agents-api.md:384",
             "ai-agents/20-api/conversation-ai-boundary.md:31",
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
             "ai-agents/40-rules/builder-vs-server.md:33"
@@ -40707,8 +42542,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:96",
             "ai-agents/20-api/12-ai-agents-api.md:128",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:161",
-            "ai-agents/20-api/12-ai-agents-api.md:375",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:177",
+            "ai-agents/20-api/12-ai-agents-api.md:386",
             "ai-agents/40-rules/builder-vs-server.md:24"
           ]
         },
@@ -40755,7 +42590,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -40780,7 +42615,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:81",
-            "ai-agents/20-api/logs-deployment-email.md:42"
+            "ai-agents/20-api/logs-deployment-email.md:65"
           ]
         },
         {
@@ -40815,7 +42650,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:45"
+            "ai-agents/20-api/logs-deployment-email.md:68"
           ]
         },
         {
@@ -40826,7 +42661,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -40846,7 +42681,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:44"
+            "ai-agents/20-api/logs-deployment-email.md:67"
           ]
         },
         {
@@ -40919,7 +42754,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:112"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
           ]
         },
         {
@@ -40950,7 +42785,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:111"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:114"
           ]
         },
         {
@@ -40992,7 +42827,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:118"
           ]
         },
         {
@@ -41034,7 +42869,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:113"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:116"
           ]
         },
         {
@@ -41115,10 +42950,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -41147,7 +42979,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:42",
             "ai-agents/20-api/conversation-ai-boundary.md:79",
-            "ai-agents/30-types/conversation-ai-actions.md:139"
+            "ai-agents/30-types/conversation-ai-actions.md:145"
           ]
         },
         {
@@ -41178,7 +43010,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:114"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:117"
           ]
         },
         {
@@ -41189,10 +43021,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -41227,7 +43056,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "get_ai_configuration_bundle",
@@ -41277,7 +43106,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [
             "get_ai_response_details"
           ],
@@ -41306,8 +43135,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:377",
-            "ai-agents/20-api/logs-deployment-email.md:46"
+            "ai-agents/20-api/agent-logs.md:384",
+            "ai-agents/20-api/logs-deployment-email.md:69"
           ]
         },
         {
@@ -41342,7 +43171,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:47"
+            "ai-agents/20-api/logs-deployment-email.md:70"
           ]
         },
         {
@@ -41454,7 +43283,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:75"
+            "ai-agents/20-api/logs-deployment-email.md:103"
           ]
         },
         {
@@ -41467,9 +43296,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -41509,9 +43335,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -41577,7 +43400,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:138"
+            "ai-agents/10-anatomy/managed-agent-shape.md:139"
           ]
         },
         {
@@ -41588,10 +43411,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -41618,7 +43438,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:135",
+            "ai-agents/10-anatomy/managed-agent-shape.md:136",
             "ai-agents/20-api/conversation-ai-boundary.md:85",
             "ai-studio/60-recipes/run-one-generation.md:26",
             "funnels/20-api/funnel-ai.md:73"
@@ -41905,10 +43725,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -41939,6 +43756,626 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "funnels--blogs-site-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/blogs/site/{id}/{id2}",
+          path: "/blogs/site/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:101"
+          ]
+        },
+        {
+          id: "funnels--site-blog-default",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/blog-default",
+          path: "/blogs/site/blog-default",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:102"
+          ]
+        },
+        {
+          id: "funnels--site-check-sitemap",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/check-sitemap",
+          path: "/blogs/site/check-sitemap",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:103"
+          ]
+        },
+        {
+          id: "funnels--site-create-import",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/blogs/site/create-import",
+          path: "/blogs/site/create-import",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:104"
+          ]
+        },
+        {
+          id: "funnels--create-import",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/blogs/site/create/import/{id}",
+          path: "/blogs/site/create/import/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:105"
+          ]
+        },
+        {
+          id: "funnels--site-domain-list-rss",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/domain-list-rss",
+          path: "/blogs/site/domain-list-rss",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:106"
+          ]
+        },
+        {
+          id: "funnels--site-fetch",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/fetch",
+          path: "/blogs/site/fetch",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:108"
+          ]
+        },
+        {
+          id: "funnels--site-fetch-blog-page",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/blogs/site/fetch-blog-page",
+          path: "/blogs/site/fetch-blog-page",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:107"
+          ]
+        },
+        {
+          id: "funnels--site-import-csv",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/blogs/site/import-csv",
+          path: "/blogs/site/import-csv",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:109"
+          ]
+        },
+        {
+          id: "funnels--site-import-rss",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/blogs/site/import-rss",
+          path: "/blogs/site/import-rss",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:110"
+          ]
+        },
+        {
+          id: "funnels--site-import",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/blogs/site/import/{id}",
+          path: "/blogs/site/import/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:111"
+          ]
+        },
+        {
+          id: "funnels--site-import-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/import/{id}",
+          path: "/blogs/site/import/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:112"
+          ]
+        },
+        {
+          id: "funnels--site-import-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/blogs/site/import/{id}",
+          path: "/blogs/site/import/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:113"
+          ]
+        },
+        {
+          id: "funnels--import-csv",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/blogs/site/import/csv/{id}",
+          path: "/blogs/site/import/csv/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:114"
+          ]
+        },
+        {
+          id: "funnels--import-link",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/blogs/site/import/link/{id}",
+          path: "/blogs/site/import/link/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:115"
+          ]
+        },
+        {
+          id: "funnels--site-imports",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/imports",
+          path: "/blogs/site/imports",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:117"
+          ]
+        },
+        {
+          id: "funnels--imports-all",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/imports/all",
+          path: "/blogs/site/imports/all",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:116"
+          ]
+        },
+        {
+          id: "funnels--site-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/list",
+          path: "/blogs/site/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:118"
+          ]
+        },
+        {
+          id: "funnels--site-migrate-blog-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/blogs/site/migrate-blog-post",
+          path: "/blogs/site/migrate-blog-post",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:119"
+          ]
+        },
+        {
           id: "funnels--site-migration-status",
           method: "GET",
           url: "https://services.leadconnectorhq.com/blogs/site/migration-status",
@@ -41946,10 +44383,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -41977,6 +44411,297 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "funnels/10-anatomy/websites-and-global-sections.md:239"
+          ]
+        },
+        {
+          id: "funnels--refresh-import",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/blogs/site/refresh/import/{id}",
+          path: "/blogs/site/refresh/import/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:120"
+          ]
+        },
+        {
+          id: "funnels--site-rss",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/rss",
+          path: "/blogs/site/rss",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:125"
+          ]
+        },
+        {
+          id: "funnels--site-rss-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/blogs/site/rss",
+          path: "/blogs/site/rss",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:126"
+          ]
+        },
+        {
+          id: "funnels--site-rss-migration",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/rss-migration",
+          path: "/blogs/site/rss-migration",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:121"
+          ]
+        },
+        {
+          id: "funnels--site-rss-migration-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/blogs/site/rss-migration",
+          path: "/blogs/site/rss-migration",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:122"
+          ]
+        },
+        {
+          id: "funnels--site-rss-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/blogs/site/rss/{id}",
+          path: "/blogs/site/rss/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:123"
+          ]
+        },
+        {
+          id: "funnels--site-rss-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/blogs/site/rss/{id}",
+          path: "/blogs/site/rss/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:124"
+          ]
+        },
+        {
+          id: "funnels--site-unique-funnel-domain",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/unique-funnel-domain",
+          path: "/blogs/site/unique-funnel-domain",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:127"
+          ]
+        },
+        {
+          id: "funnels--site-validate-rss",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/blogs/site/validate-rss",
+          path: "/blogs/site/validate-rss",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:128"
           ]
         },
         {
@@ -42021,9 +44746,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "Executed 2026-09-10 \u2014 returns {brandBoards, totalCount, traceId}; zero boards on the sandbox, which is why its /default write twin has nothing to target and is not probed.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -42281,9 +45003,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -42320,10 +45039,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -42360,9 +45076,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -42470,10 +45183,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -43013,7 +45723,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "\u{1F534} NOT the list route \u2014 400s. Use GET /calendars/schedules/search?locationId= instead.",
           note: 'This path collides with /calendars/{calendarId} and answers 400 "Calendar not found for id: schedules". GET by a real schedule id works (/calendars/schedules/{scheduleId}); only the bare collection path is broken.',
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -43194,10 +45904,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "LIST availability schedules for a location \u2014 this is the real list route for calendar opening hours.",
           note: '\u{1F534} NOTE THE `/search`. A bare GET /calendars/schedules routes to /calendars/{calendarId} and answers 400 "Calendar not found for id: schedules" \u2014 two sessions have lost time to that collision. Takes ?locationId=. A schedule governs a calendar only while that calendar\'s id is in its `calendarIds`; editing an UNBOUND schedule is accepted, stored and inert.',
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -43235,10 +45942,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -43420,7 +46124,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:468"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:494"
           ]
         },
         {
@@ -43434,9 +46138,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
           note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -43481,7 +46182,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:470",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:496",
             "ai-agents/20-api/agent-deployment-routing.md:186",
             "ai-agents/20-api/agent-deployment-routing.md:411"
           ]
@@ -43572,7 +46273,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -43671,10 +46372,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -43795,7 +46493,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "get_contact_ai_status",
             "set_contact_ai_status"
@@ -43925,9 +46623,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44074,7 +46769,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44152,7 +46847,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:131",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
             "ai-agents/20-api/conversation-ai-boundary.md:96"
           ]
         },
@@ -44234,7 +46929,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44282,7 +46977,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44377,7 +47072,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44424,9 +47119,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44571,7 +47263,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44606,10 +47298,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44641,7 +47330,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: 'Executed 2026-09-11: 422 ["domains must be a string","domains should not be empty","source should not be empty","source must be a valid enum value"]. The route exists; `source` is an enum whose members the error does NOT spell out, so it was not guessed.',
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44736,9 +47425,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: `Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns []. The original capture saw only services, so "ai host" is where it was observed, not a constraint. \u{1F534} AN EMPTY ARRAY DOES NOT MEAN THE ACCOUNT HAS NO SENDING DOMAIN. GROM Sandbox returns [] while GET /workflow/{loc}/email/location-email-provider reports a live, actively warming domain (link.gromdigital.com, domainOwnershipType 'agency_owned'), and asking this rail for that domain by name answers 400 "not found in the system". This rail is scoped to LOCATION-OWNED domains only; an agency-owned domain is invisible to it. Read [] as 'no domain this location owns', never as an unconfigured account.`,
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44770,7 +47456,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44801,7 +47487,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44834,9 +47520,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "Executed on GROM Sandbox 2026-09-11 \u2014 200 on a location with no domains.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -45071,7 +47754,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -45201,9 +47884,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -45280,9 +47960,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "audit_site",
             "build_workflow",
@@ -45563,9 +48240,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_forms"
           ],
@@ -45683,9 +48357,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -45766,9 +48437,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -45969,6 +48637,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "funnels--graph-data-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/graph/data",
+          path: "/forms/graph/data",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:129"
+          ]
+        },
+        {
           id: "forms--post-forms-image",
           method: "POST",
           url: "https://services.leadconnectorhq.com/forms/image",
@@ -46154,6 +48853,68 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "funnels--stats-count-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/stats/count",
+          path: "/forms/stats/count",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:130"
+          ]
+        },
+        {
+          id: "funnels--stats-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/stats/list",
+          path: "/forms/stats/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:131"
+          ]
+        },
+        {
           id: "forms--get-forms-submissions",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/submissions",
@@ -46164,9 +48925,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit.",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_form_submissions"
           ],
@@ -46230,7 +48988,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           proof: "executed",
-          reach: "reached",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46331,9 +49089,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           proof: "executed",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46367,6 +49122,103 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "funnels--domain-paths",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/funnel-backend/domain/paths",
+          path: "/funnel-backend/domain/paths",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:132"
+          ]
+        },
+        {
+          id: "funnels--builder-save-page-data",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/funnels/builder/save-page-data/{id}",
+          path: "/funnels/builder/save-page-data/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:133"
+          ]
+        },
+        {
+          id: "funnels--domain-generate-sitemap-blog",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/funnels/domain/generate-sitemap-blog",
+          path: "/funnels/domain/generate-sitemap-blog",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:134"
+          ]
+        },
+        {
           id: "funnels--blog-list-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/funnels/funnel/blog/list/",
@@ -46374,10 +49226,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "create_funnel"
           ],
@@ -46425,6 +49274,165 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "funnels/10-anatomy/websites-and-global-sections.md:238"
+          ]
+        },
+        {
+          id: "funnels--funnel-create-blog",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/funnels/funnel/create-blog",
+          path: "/funnels/funnel/create-blog",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:135"
+          ]
+        },
+        {
+          id: "funnels--funnel-fetch-funnel-domain",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/funnels/funnel/fetch-funnel-domain/{id}",
+          path: "/funnels/funnel/fetch-funnel-domain/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:136"
+          ]
+        },
+        {
+          id: "funnels--funnel-pages-with-blog",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/funnels/funnel/pages-with-blog",
+          path: "/funnels/funnel/pages-with-blog",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:137"
+          ]
+        },
+        {
+          id: "funnels--lookup-funnel-unique-url",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/funnels/lookup/funnel-unique-url",
+          path: "/funnels/lookup/funnel-unique-url",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:138"
+          ]
+        },
+        {
+          id: "funnels--lookup-funnel-with-domain",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/funnels/lookup/funnel-with-domain",
+          path: "/funnels/lookup/funnel-with-domain",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:139"
           ]
         },
         {
@@ -46645,10 +49653,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "\u{1F534} Returns requests recorded against ANY `{triggerId}`, real or not \u2014 the receiving URL never checks the trigger exists. [proven-live] 2026-09-19: a ghost id returned its request exactly as a real trigger would. A non-empty answer here is therefore NOT evidence that the trigger id is valid. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "pin_webhook_sample"
@@ -47403,9 +50408,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_account_entities"
           ],
@@ -47554,7 +50556,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -47624,10 +50626,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -47655,7 +50654,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/flow-agent-shape.md:142",
-            "ai-agents/20-api/12-ai-agents-api.md:319",
+            "ai-agents/20-api/12-ai-agents-api.md:330",
             "ai-agents/20-api/knowledge-base.md:59",
             "ai-agents/20-api/knowledge-base.md:106",
             "ai-agents/20-api/knowledge-base.md:120",
@@ -47670,7 +50669,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -48170,7 +51169,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:318",
+            "ai-agents/20-api/12-ai-agents-api.md:329",
             "ai-agents/20-api/conversation-ai-boundary.md:82",
             "ai-agents/20-api/knowledge-base.md:63",
             "ai-agents/20-api/knowledge-base.md:81",
@@ -48185,7 +51184,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -48552,7 +51551,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:385",
+            "ai-agents/20-api/12-ai-agents-api.md:396",
             "ai-agents/20-api/knowledge-base.md:201",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
@@ -48641,9 +51640,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "Open-gap totals per knowledge base.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -48858,8 +51854,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:315",
-            "ai-agents/20-api/12-ai-agents-api.md:384",
+            "ai-agents/20-api/12-ai-agents-api.md:326",
+            "ai-agents/20-api/12-ai-agents-api.md:395",
             "ai-agents/20-api/knowledge-base.md:296"
           ]
         },
@@ -48895,7 +51891,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:317",
+            "ai-agents/20-api/12-ai-agents-api.md:328",
             "ai-agents/20-api/knowledge-base.md:300"
           ]
         },
@@ -48966,7 +51962,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:316",
+            "ai-agents/20-api/12-ai-agents-api.md:327",
             "ai-agents/20-api/knowledge-base.md:298"
           ]
         },
@@ -48978,7 +51974,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49051,7 +52047,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49327,9 +52323,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "documentType=folder lists custom-value folders under customValueFolders: {id, name, documentType, fieldsCount, \u2026}.",
           note: "Answers byte-identically on BOTH backend and services (differential 2026-08-31) \u2014 either rail works.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49369,10 +52362,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49428,13 +52418,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          refusedFor: [
-            "location-user-bearer"
-          ],
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49580,10 +52564,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49624,10 +52605,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -50786,10 +53764,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "list_courses"
           ],
@@ -50921,7 +53896,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -51011,7 +53986,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -51067,7 +54042,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -51340,7 +54315,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "build_course"
           ],
@@ -51992,10 +54967,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "list_account_entities"
           ],
@@ -52221,10 +55193,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -52441,7 +55410,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -53036,10 +56005,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "list_account_entities",
             "list_courses"
@@ -54083,10 +57049,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -54305,10 +57268,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -54526,7 +57486,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -54566,10 +57526,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -54787,10 +57744,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -54831,10 +57785,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -55063,10 +58014,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -55106,10 +58054,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -55409,7 +58354,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -55496,7 +58441,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -55539,10 +58484,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -55847,10 +58789,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -55918,7 +58857,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "\u26A0\uFE0F The spelling that WORKS: [proven-live] 2026-09-21 this answers 200 and engine/entities.mjs calls `/objects/?locationId=` on every build to resolve a custom object by key or label. An earlier `refused` verdict on this row was simply wrong. Its sibling `/objects/{objectKey}/` (trailing slash, the client's own spelling) is the one that refuses us, while the bare `/objects/{objectKey}` answers. See workflows/20-api/refused-but-mined.md.",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "check_workflow",
@@ -56334,7 +59273,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "get_pipeline_forecast"
           ],
@@ -56367,7 +59306,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "get_pipeline_forecast"
           ],
@@ -56400,7 +59339,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "get_pipeline_forecast"
           ],
@@ -56433,7 +59372,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "get_pipeline_forecast"
           ],
@@ -56467,10 +59406,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "list_account_entities"
           ],
@@ -56654,10 +59590,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "edit_pipeline",
@@ -57063,10 +59996,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -57487,10 +60417,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -57521,10 +60448,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -57570,7 +60494,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "Test vs Live is two layers: the provider integration holds a test key pair and a live key pair (one Stripe Connect fills both), and each payment link carries liveMode and asks this endpoint for the matching keys. Nothing validates a provider at link-save time -- a link saves fine in Live mode with no gateway connected, and the public Pay button is simply disabled.",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -57621,7 +60545,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:417"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:443"
           ]
         },
         {
@@ -57698,9 +60622,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: altId, locationId. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "list_account_entities"
           ],
@@ -58048,7 +60969,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "Load-wizard step 2 counter. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -58091,7 +61012,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "Share dialog's assets-protection read. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -58134,7 +61055,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "Sub-accounts available as load targets \u2014 the SOURCE sub-account is excluded, so a snapshot cannot be loaded back onto the account it came from. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -58226,7 +61147,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "Load-wizard step 1. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -58269,7 +61190,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           note: "{version, locationId, createdAt} per refresh. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -58389,9 +61310,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix \u2014 the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -58593,10 +61511,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -58638,10 +61553,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -58676,10 +61588,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -58943,9 +61852,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -59312,6 +62218,144 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "funnels--templates-bulk-update",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/templates/bulk-update",
+          path: "/templates/bulk-update",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:140"
+          ]
+        },
+        {
+          id: "funnels--templates-category",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/templates/category/{id}/{id2}",
+          path: "/templates/category/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:141"
+          ]
+        },
+        {
+          id: "funnels--templates-category-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/category/{id}/{id2}",
+          path: "/templates/category/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:142"
+          ]
+        },
+        {
+          id: "funnels--category-create",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/category/create",
+          path: "/templates/category/create",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:143"
+          ]
+        },
+        {
           id: "funnels--category-list",
           method: "GET",
           url: "https://services.leadconnectorhq.com/templates/category/list",
@@ -59321,9 +62365,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: limit, offset, product. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -59370,6 +62411,106 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "funnels/20-api/template-library.md:22",
             "funnels/20-api/template-library.md:182"
+          ]
+        },
+        {
+          id: "funnels--category-update",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/category/update",
+          path: "/templates/category/update",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:144"
+          ]
+        },
+        {
+          id: "funnels--templates-create-media-urls",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/create-media-urls/{id}/{id2}",
+          path: "/templates/create-media-urls/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:145"
+          ]
+        },
+        {
+          id: "funnels--templates-fetch-preview-url",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/fetch-preview-url",
+          path: "/templates/fetch-preview-url",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:146"
           ]
         },
         {
@@ -59440,6 +62581,542 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "funnels--templates-location-settings",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/location-settings/{id}",
+          path: "/templates/location-settings/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:148"
+          ]
+        },
+        {
+          id: "funnels--templates-location-settings-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/location-settings/{id}/{id2}",
+          path: "/templates/location-settings/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:147"
+          ]
+        },
+        {
+          id: "funnels--location-settings-update",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/location-settings/update",
+          path: "/templates/location-settings/update",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:149"
+          ]
+        },
+        {
+          id: "funnels--locations-search",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/locations/search",
+          path: "/templates/locations/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:150"
+          ]
+        },
+        {
+          id: "funnels--templates-marketplace",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/templates/marketplace/{id}/{id2}",
+          path: "/templates/marketplace/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:151"
+          ]
+        },
+        {
+          id: "funnels--marketplace-share",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/marketplace/share/{id}/{id2}",
+          path: "/templates/marketplace/share/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:152"
+          ]
+        },
+        {
+          id: "funnels--admin-link",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/public/admin/link/{id}",
+          path: "/templates/public/admin/link/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:153"
+          ]
+        },
+        {
+          id: "funnels--admin-link-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/templates/public/admin/link/{id}",
+          path: "/templates/public/admin/link/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:154"
+          ]
+        },
+        {
+          id: "funnels--link-create",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/public/admin/link/create",
+          path: "/templates/public/admin/link/create",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:155"
+          ]
+        },
+        {
+          id: "funnels--snapshots-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/snapshots/list",
+          path: "/templates/snapshots/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:156"
+          ]
+        },
+        {
+          id: "funnels--templates-tag",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/templates/tag/{id}/{id2}",
+          path: "/templates/tag/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:157"
+          ]
+        },
+        {
+          id: "funnels--tags-create",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/tags/create",
+          path: "/templates/tags/create",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:158"
+          ]
+        },
+        {
+          id: "funnels--tags-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/tags/list",
+          path: "/templates/tags/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:159"
+          ]
+        },
+        {
+          id: "funnels--tags-update",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/tags/update",
+          path: "/templates/tags/update",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:160"
+          ]
+        },
+        {
+          id: "funnels--template-search-autocomplete",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template-search/autocomplete",
+          path: "/templates/template-search/autocomplete",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:161"
+          ]
+        },
+        {
+          id: "funnels--template-search-colors",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template-search/colors",
+          path: "/templates/template-search/colors",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:162"
+          ]
+        },
+        {
           id: "funnels--template-search-facets",
           method: "GET",
           url: "https://services.leadconnectorhq.com/templates/template-search/facets",
@@ -59449,9 +63126,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: product.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -59501,6 +63175,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "funnels--template-search-recent-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/templates/template-search/recent",
+          path: "/templates/template-search/recent",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:163"
+          ]
+        },
+        {
           id: "funnels--template-search-recent",
           method: "GET",
           url: "https://services.leadconnectorhq.com/templates/template-search/recent",
@@ -59541,9 +63246,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: product.",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -59587,10 +63289,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -59634,7 +63333,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -59660,6 +63359,357 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "funnels/20-api/template-library.md:23",
             "funnels/20-api/template-library.md:130"
+          ]
+        },
+        {
+          id: "funnels--template-settings-hide-template",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/templates/template-settings/hide-template",
+          path: "/templates/template-settings/hide-template",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:164"
+          ]
+        },
+        {
+          id: "funnels--template-settings-unhide-template",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/templates/template-settings/unhide-template",
+          path: "/templates/template-settings/unhide-template",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:165"
+          ]
+        },
+        {
+          id: "funnels--template-settings-update",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/template-settings/update",
+          path: "/templates/template-settings/update",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:166"
+          ]
+        },
+        {
+          id: "funnels--templates-template-share-details",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template-share-details/{id}/{id2}",
+          path: "/templates/template-share-details/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:167"
+          ]
+        },
+        {
+          id: "funnels--templates-template-share-url",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/template-share-url",
+          path: "/templates/template-share-url",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:168"
+          ]
+        },
+        {
+          id: "funnels--templates-template",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/templates/template/{id}/{id2}",
+          path: "/templates/template/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:171"
+          ]
+        },
+        {
+          id: "funnels--templates-template-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template/{id}/{id2}/{id3}",
+          path: "/templates/template/{id}/{id2}/{id3}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            },
+            {
+              name: "id3"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:170"
+          ]
+        },
+        {
+          id: "funnels--template-publish-status",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template/{id}/{id2}/{id3}/publish-status",
+          path: "/templates/template/{id}/{id2}/{id3}/publish-status",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            },
+            {
+              name: "id3"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:169"
+          ]
+        },
+        {
+          id: "funnels--template-clone",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/template/clone/{id}/{id2}",
+          path: "/templates/template/clone/{id}/{id2}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:172"
+          ]
+        },
+        {
+          id: "funnels--template-create",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/template/create",
+          path: "/templates/template/create",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:173"
           ]
         },
         {
@@ -59698,6 +63748,202 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "funnels/20-api/template-library.md:77",
             "funnels/20-api/template-library.md:192",
             "funnels/30-types/synthesis-contract.md:158"
+          ]
+        },
+        {
+          id: "funnels--template-publish",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/template/publish",
+          path: "/templates/template/publish",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:174"
+          ]
+        },
+        {
+          id: "funnels--template-refresh",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/template/refresh",
+          path: "/templates/template/refresh",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:175"
+          ]
+        },
+        {
+          id: "funnels--template-unpublish",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/template/unpublish",
+          path: "/templates/template/unpublish",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:176"
+          ]
+        },
+        {
+          id: "funnels--template-update",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/template/update",
+          path: "/templates/template/update",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:177"
+          ]
+        },
+        {
+          id: "funnels--user-settings-update",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/user-settings/update",
+          path: "/templates/user-settings/update",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:178"
+          ]
+        },
+        {
+          id: "funnels--templates-visibility",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/visibility/{id}/{id2}/{id3}",
+          path: "/templates/visibility/{id}/{id2}/{id3}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "id2"
+            },
+            {
+              name: "id3"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/70-research/2026-09-29-route-census.md:179"
           ]
         },
         {
@@ -59768,9 +64014,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:167",
             "ai-agents/20-api/12-ai-agents-api.md:175",
             "ai-agents/20-api/12-ai-agents-api.md:196",
-            "ai-agents/20-api/12-ai-agents-api.md:302",
-            "ai-agents/20-api/12-ai-agents-api.md:332",
-            "ai-agents/20-api/12-ai-agents-api.md:379"
+            "ai-agents/20-api/12-ai-agents-api.md:313",
+            "ai-agents/20-api/12-ai-agents-api.md:343",
+            "ai-agents/20-api/12-ai-agents-api.md:390"
           ]
         },
         {
@@ -59907,7 +64153,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:194"
+            "ai-agents/20-api/logs-deployment-email.md:224"
           ]
         },
         {
@@ -59945,7 +64191,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:196"
+            "ai-agents/20-api/logs-deployment-email.md:226"
           ]
         },
         {
@@ -59976,7 +64222,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:199"
+            "ai-agents/20-api/logs-deployment-email.md:229"
           ]
         },
         {
@@ -60007,7 +64253,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:200"
+            "ai-agents/20-api/logs-deployment-email.md:230"
           ]
         },
         {
@@ -60038,7 +64284,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:197"
+            "ai-agents/20-api/logs-deployment-email.md:227"
           ]
         },
         {
@@ -60069,7 +64315,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:203"
+            "ai-agents/20-api/logs-deployment-email.md:233"
           ]
         },
         {
@@ -60080,7 +64326,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [
             "build_workflow",
             "list_account_entities"
@@ -60137,11 +64383,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/flow-agent-shape.md:34",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:163",
             "ai-agents/20-api/12-ai-agents-api.md:175",
-            "ai-agents/20-api/12-ai-agents-api.md:183",
-            "ai-agents/20-api/12-ai-agents-api.md:352"
+            "ai-agents/20-api/12-ai-agents-api.md:183"
           ]
         },
         {
@@ -60271,8 +64517,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:166",
             "ai-agents/10-anatomy/flow-agent-shape.md:74",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:344",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:388"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:370",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
           ]
         },
         {
@@ -60286,7 +64532,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "refused",
+          reach: "source-only",
           coveredBy: [
             "create_voiceai_agent",
             "get_ai_configuration_bundle",
@@ -60323,7 +64569,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:164",
             "ai-agents/20-api/12-ai-agents-api.md:175",
-            "ai-agents/20-api/12-ai-agents-api.md:377",
+            "ai-agents/20-api/12-ai-agents-api.md:388",
             "ai-agents/20-api/voice-ai-boundary.md:62",
             "ai-agents/20-api/voice-ai-boundary.md:23",
             "ai-agents/20-api/voice-ai-boundary.md:24"
@@ -60373,7 +64619,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
             "ai-agents/10-anatomy/flow-agent-shape.md:61",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:257"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:283"
           ]
         },
         {
@@ -60428,11 +64674,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:226",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:238",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:252",
             "ai-agents/20-api/12-ai-agents-api.md:165",
             "ai-agents/20-api/12-ai-agents-api.md:175",
-            "ai-agents/20-api/12-ai-agents-api.md:378",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
+            "ai-agents/20-api/12-ai-agents-api.md:389",
             "ai-agents/10-anatomy/flow-agent-shape.md:57"
           ]
         },
@@ -60468,7 +64715,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:101"
+            "ai-agents/20-api/logs-deployment-email.md:131"
           ]
         },
         {
@@ -60503,7 +64750,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:100"
+            "ai-agents/20-api/logs-deployment-email.md:130"
           ]
         },
         {
@@ -60549,7 +64796,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/voice-ai-boundary.md:63",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:282",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:308",
             "ai-agents/20-api/12-ai-agents-api.md:171"
           ]
         },
@@ -60585,7 +64832,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:130"
+            "ai-agents/20-api/logs-deployment-email.md:160"
           ]
         },
         {
@@ -60630,8 +64877,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:472",
-            "ai-agents/20-api/logs-deployment-email.md:129"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:498",
+            "ai-agents/20-api/logs-deployment-email.md:159"
           ]
         },
         {
@@ -60676,7 +64923,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:471"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:497"
           ]
         },
         {
@@ -60711,7 +64958,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:402"
           ]
         },
         {
@@ -60753,7 +65000,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:332"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:358"
           ]
         },
         {
@@ -60788,7 +65035,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:328"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:354"
           ]
         },
         {
@@ -60835,7 +65082,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -60886,7 +65133,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:390"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:416"
           ]
         },
         {
@@ -60917,7 +65164,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:124"
+            "ai-agents/20-api/logs-deployment-email.md:154"
           ]
         },
         {
@@ -60928,7 +65175,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [
             "get_ai_configuration_bundle"
           ],
@@ -60981,11 +65228,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:350"
           ]
         },
         {
           id: "ai-agents--voice-ai-call",
+          aka: [
+            "/voice-ai/call/{_id}"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
           path: "/voice-ai/call/{callId}",
@@ -61024,12 +65274,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           returns: null,
           confidence: {
             path: "documented",
-            query: "documented",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:398"
+            "ai-agents/20-api/logs-deployment-email.md:55",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:424",
+            "ai-agents/20-api/logs-deployment-email.md:23"
           ]
         },
         {
@@ -61064,7 +65316,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:26"
+            "ai-agents/20-api/logs-deployment-email.md:29"
           ]
         },
         {
@@ -61112,8 +65364,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:413",
-            "ai-agents/20-api/logs-deployment-email.md:27"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:439",
+            "ai-agents/20-api/logs-deployment-email.md:30"
           ]
         },
         {
@@ -61151,7 +65403,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:394",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:420",
             "ai-agents/10-anatomy/flow-agent-shape.md:63"
           ]
         },
@@ -61190,7 +65442,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:397"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:423"
           ]
         },
         {
@@ -61201,7 +65453,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61246,8 +65498,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:400",
-            "ai-agents/20-api/logs-deployment-email.md:24",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:426",
+            "ai-agents/20-api/logs-deployment-email.md:27",
             "ai-agents/20-api/voice-ai-boundary.md:71",
             "ai-agents/30-types/voice-ai-actions.md:109"
           ]
@@ -61260,7 +65512,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61293,8 +65545,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:401",
-            "ai-agents/20-api/logs-deployment-email.md:25",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:427",
+            "ai-agents/20-api/logs-deployment-email.md:28",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
         },
@@ -61361,7 +65613,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:115"
+            "ai-agents/20-api/logs-deployment-email.md:145"
           ]
         },
         {
@@ -61396,7 +65648,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:116"
+            "ai-agents/20-api/logs-deployment-email.md:146"
           ]
         },
         {
@@ -61427,7 +65679,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:117"
+            "ai-agents/20-api/logs-deployment-email.md:147"
           ]
         },
         {
@@ -61462,7 +65714,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:118"
+            "ai-agents/20-api/logs-deployment-email.md:148"
           ]
         },
         {
@@ -61473,10 +65725,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61500,7 +65749,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:119"
+            "ai-agents/20-api/logs-deployment-email.md:149"
           ]
         },
         {
@@ -61535,7 +65784,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:120"
+            "ai-agents/20-api/logs-deployment-email.md:150"
           ]
         },
         {
@@ -61546,10 +65795,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61573,7 +65819,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:121"
+            "ai-agents/20-api/logs-deployment-email.md:151"
           ]
         },
         {
@@ -61604,7 +65850,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:114"
+            "ai-agents/20-api/logs-deployment-email.md:144"
           ]
         },
         {
@@ -61615,10 +65861,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61643,7 +65886,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:173",
-            "ai-agents/20-api/logs-deployment-email.md:113",
+            "ai-agents/20-api/logs-deployment-email.md:143",
             "ai-agents/20-api/voice-ai-boundary.md:73",
             "ai-agents/30-types/voice-ai-actions.md:79"
           ]
@@ -61676,8 +65919,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:263",
-            "ai-agents/20-api/logs-deployment-email.md:123"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
+            "ai-agents/20-api/logs-deployment-email.md:153"
           ]
         },
         {
@@ -61708,7 +65951,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:122"
+            "ai-agents/20-api/logs-deployment-email.md:152"
           ]
         },
         {
@@ -61719,7 +65962,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61739,7 +65982,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:22",
+            "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:68"
           ]
         },
@@ -61751,7 +65994,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61771,7 +66014,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:23",
+            "ai-agents/20-api/logs-deployment-email.md:26",
             "ai-agents/20-api/voice-ai-boundary.md:69"
           ]
         },
@@ -61783,7 +66026,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61803,9 +66046,40 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:340",
-            "ai-agents/20-api/logs-deployment-email.md:19",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366",
+            "ai-agents/20-api/logs-deployment-email.md:20",
             "ai-agents/20-api/voice-ai-boundary.md:70"
+          ]
+        },
+        {
+          id: "ai-agents--dashboard-pending-call-logs",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/dashboard/pending-call-logs",
+          path: "/voice-ai/dashboard/pending-call-logs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:24"
           ]
         },
         {
@@ -61851,7 +66125,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61902,7 +66176,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:384",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:410",
             "ai-agents/20-api/voice-ai-boundary.md:64"
           ]
         },
@@ -61934,7 +66208,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:383"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:409"
           ]
         },
         {
@@ -61969,7 +66243,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:413"
           ]
         },
         {
@@ -62004,7 +66278,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:386"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:412"
           ]
         },
         {
@@ -62039,7 +66313,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:385"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:411"
           ]
         },
         {
@@ -62083,7 +66357,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:478"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:504"
           ]
         },
         {
@@ -62118,7 +66392,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:350"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
           ]
         },
         {
@@ -62149,7 +66423,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:201"
+            "ai-agents/20-api/logs-deployment-email.md:231"
           ]
         },
         {
@@ -62180,7 +66454,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:202"
+            "ai-agents/20-api/logs-deployment-email.md:232"
           ]
         },
         {
@@ -62211,7 +66485,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:204"
+            "ai-agents/20-api/logs-deployment-email.md:234"
           ]
         },
         {
@@ -62242,7 +66516,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:346"
           ]
         },
         {
@@ -62284,7 +66558,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:369"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:395"
           ]
         },
         {
@@ -62295,10 +66569,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -62333,7 +66604,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:63",
             "ai-agents/20-api/12-ai-agents-api.md:170",
-            "ai-agents/20-api/12-ai-agents-api.md:380",
+            "ai-agents/20-api/12-ai-agents-api.md:391",
             "ai-agents/20-api/voice-ai-boundary.md:65",
             "ai-agents/20-api/voice-ai-boundary.md:82"
           ]
@@ -62346,7 +66617,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -62414,7 +66685,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:392"
           ]
         },
         {
@@ -62425,7 +66696,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "reached",
+          reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -62458,7 +66729,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:362",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:388",
             "ai-agents/20-api/voice-ai-boundary.md:66"
           ]
         },
@@ -62494,7 +66765,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:370"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:396"
           ]
         },
         {
@@ -62544,7 +66815,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:364"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:390"
           ]
         },
         {
@@ -62556,9 +66827,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -68343,9 +72611,9 @@ var init_define_TOOL_CATALOG = __esm({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/code.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68503,9 +72771,9 @@ var require_code = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/scope.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js
 var require_scope = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68654,9 +72922,9 @@ var require_scope = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js
 var require_codegen = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69380,9 +73648,9 @@ var require_codegen = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/util.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js
 var require_util = __commonJS({
-  "node_modules/ajv/dist/compile/util.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69553,9 +73821,9 @@ var require_util = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/names.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js
 var require_names = __commonJS({
-  "node_modules/ajv/dist/compile/names.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69598,9 +73866,9 @@ var require_names = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js
 var require_errors = __commonJS({
-  "node_modules/ajv/dist/compile/errors.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69726,9 +73994,9 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/boolSchema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js
 var require_boolSchema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69783,9 +74051,9 @@ var require_boolSchema = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/rules.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js
 var require_rules = __commonJS({
-  "node_modules/ajv/dist/compile/rules.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69820,9 +74088,9 @@ var require_rules = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/applicability.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js
 var require_applicability = __commonJS({
-  "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69849,9 +74117,9 @@ var require_applicability = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/dataType.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js
 var require_dataType = __commonJS({
-  "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70039,9 +74307,9 @@ var require_dataType = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/defaults.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js
 var require_defaults = __commonJS({
-  "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70082,9 +74350,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/code.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js
 var require_code2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/code.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70221,9 +74489,9 @@ var require_code2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/keyword.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js
 var require_keyword = __commonJS({
-  "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70345,9 +74613,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/subschema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js
 var require_subschema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70434,9 +74702,9 @@ var require_subschema = __commonJS({
   }
 });
 
-// node_modules/fast-deep-equal/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "node_modules/fast-deep-equal/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70475,9 +74743,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// node_modules/json-schema-traverse/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "node_modules/json-schema-traverse/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70569,9 +74837,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/resolve.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js
 var require_resolve = __commonJS({
-  "node_modules/ajv/dist/compile/resolve.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70731,9 +74999,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js
 var require_validate = __commonJS({
-  "node_modules/ajv/dist/compile/validate/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71245,9 +75513,9 @@ var require_validate = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/validation_error.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js
 var require_validation_error = __commonJS({
-  "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71267,9 +75535,9 @@ var require_validation_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/ref_error.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js
 var require_ref_error = __commonJS({
-  "node_modules/ajv/dist/compile/ref_error.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71290,9 +75558,9 @@ var require_ref_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js
 var require_compile = __commonJS({
-  "node_modules/ajv/dist/compile/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71520,9 +75788,9 @@ var require_compile = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/data.json
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json
 var require_data = __commonJS({
-  "node_modules/ajv/dist/refs/data.json"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json"(exports, module) {
     module.exports = {
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
       description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
@@ -71539,9 +75807,9 @@ var require_data = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/utils.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71858,9 +76126,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/schemes.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -72074,9 +76342,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// node_modules/fast-uri/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "node_modules/fast-uri/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -72372,9 +76640,9 @@ var require_fast_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/uri.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js
 var require_uri = __commonJS({
-  "node_modules/ajv/dist/runtime/uri.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -72389,9 +76657,9 @@ var require_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/core.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js
 var require_core = __commonJS({
-  "node_modules/ajv/dist/core.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73006,9 +77274,9 @@ var require_core = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/id.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js
 var require_id = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73027,9 +77295,9 @@ var require_id = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/ref.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js
 var require_ref = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73155,9 +77423,9 @@ var require_ref = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js
 var require_core2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73182,9 +77450,9 @@ var require_core2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
 var require_limitNumber = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73220,9 +77488,9 @@ var require_limitNumber = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
 var require_multipleOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73254,9 +77522,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/ucs2length.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js
 var require_ucs2length = __commonJS({
-  "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73286,9 +77554,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitLength.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js
 var require_limitLength = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73324,9 +77592,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/pattern.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js
 var require_pattern = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73367,9 +77635,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
 var require_limitProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73402,9 +77670,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/required.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js
 var require_required = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73490,9 +77758,9 @@ var require_required = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js
 var require_limitItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73525,9 +77793,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/equal.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73542,9 +77810,9 @@ var require_equal = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73615,9 +77883,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/const.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js
 var require_const = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73650,9 +77918,9 @@ var require_const = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/enum.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js
 var require_enum = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73705,9 +77973,9 @@ var require_enum = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js
 var require_validation = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73749,9 +78017,9 @@ var require_validation = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
 var require_additionalItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73808,9 +78076,9 @@ var require_additionalItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js
 var require_items = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73871,9 +78139,9 @@ var require_items = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
 var require_prefixItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73894,9 +78162,9 @@ var require_prefixItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items2020.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js
 var require_items2020 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -73935,9 +78203,9 @@ var require_items2020 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/contains.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js
 var require_contains = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74035,9 +78303,9 @@ var require_contains = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
 var require_dependencies = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74135,9 +78403,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
 var require_propertyNames = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74184,9 +78452,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
 var require_additionalProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74296,9 +78564,9 @@ var require_additionalProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/properties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js
 var require_properties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74360,9 +78628,9 @@ var require_properties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
 var require_patternProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74440,9 +78708,9 @@ var require_patternProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/not.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js
 var require_not = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74477,9 +78745,9 @@ var require_not = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
 var require_anyOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74500,9 +78768,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
 var require_oneOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74564,9 +78832,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/allOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js
 var require_allOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74597,9 +78865,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/if.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js
 var require_if = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74672,9 +78940,9 @@ var require_if = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
 var require_thenElse = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74696,9 +78964,9 @@ var require_thenElse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js
 var require_applicator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74750,9 +79018,9 @@ var require_applicator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/format.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js
 var require_format = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74846,9 +79114,9 @@ var require_format = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js
 var require_format2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74863,9 +79131,9 @@ var require_format2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/metadata.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js
 var require_metadata = __commonJS({
-  "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74892,9 +79160,9 @@ var require_metadata = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/draft7.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js
 var require_draft7 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74920,9 +79188,9 @@ var require_draft7 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js
 var require_types = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -74940,9 +79208,9 @@ var require_types = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js
 var require_discriminator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -75051,9 +79319,9 @@ var require_discriminator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/json-schema-draft-07.json
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
     module.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -75208,9 +79476,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/ajv.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js
 var require_ajv = __commonJS({
-  "node_modules/ajv/dist/ajv.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -75284,9 +79552,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/formats.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js
 var require_formats = __commonJS({
-  "node_modules/ajv-formats/dist/formats.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -75493,9 +79761,9 @@ var require_formats = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/limit.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js
 var require_limit = __commonJS({
-  "node_modules/ajv-formats/dist/limit.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -75571,9 +79839,9 @@ var require_limit = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/ajv-formats/dist/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -75627,7 +79895,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75635,7 +79903,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75643,7 +79911,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75651,7 +79919,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75659,7 +79927,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75667,7 +79935,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75675,7 +79943,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75683,7 +79951,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/util.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/util.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75823,7 +80091,7 @@ var getParsedType = (data2) => {
   }
 };
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 var ZodIssueCode = util.arrayToEnum([
   "invalid_type",
   "invalid_literal",
@@ -75937,7 +80205,7 @@ ZodError.create = (issues) => {
   return error51;
 };
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 var errorMap = (issue2, _ctx) => {
   let message;
   switch (issue2.code) {
@@ -76040,13 +80308,13 @@ var errorMap = (issue2, _ctx) => {
 };
 var en_default = errorMap;
 
-// node_modules/zod/v3/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 var overrideErrorMap = en_default;
 function getErrorMap() {
   return overrideErrorMap;
 }
 
-// node_modules/zod/v3/helpers/parseUtil.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/parseUtil.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76161,7 +80429,7 @@ var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
-// node_modules/zod/v3/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76169,7 +80437,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/errorUtil.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/errorUtil.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76182,7 +80450,7 @@ var errorUtil;
   errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
 })(errorUtil || (errorUtil = {}));
 
-// node_modules/zod/v3/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
   constructor(parent, value, path, key) {
     this._cachedPath = [];
@@ -79585,7 +83853,7 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
-// node_modules/zod/v4/mini/external.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/external.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79593,7 +83861,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -79878,7 +84146,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/core.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/core.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79961,7 +84229,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79969,7 +84237,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79977,7 +84245,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/util.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -80679,7 +84947,7 @@ var Class = class {
   }
 };
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 var initializer = (inst, def) => {
   inst.name = "$ZodError";
   Object.defineProperty(inst, "_zod", {
@@ -80818,7 +85086,7 @@ function prettifyError(error51) {
   return lines.join("\n");
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 var _parse = (_Err) => (schema2, value, _ctx, _params) => {
   const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
   const result = schema2._zod.run({ value, issues: [] }, ctx);
@@ -80906,7 +85174,7 @@ var _safeDecodeAsync = (_Err) => async (schema2, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80914,7 +85182,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80922,7 +85190,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/regexes.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   base64: () => base64,
@@ -81087,7 +85355,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -81635,7 +85903,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// node_modules/zod/v4/core/doc.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/doc.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81677,7 +85945,7 @@ var Doc = class {
   }
 };
 
-// node_modules/zod/v4/core/versions.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/versions.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81690,7 +85958,7 @@ var version = {
   patch: 3
 };
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -83783,7 +88051,7 @@ function handleRefineResult(result, payload, input, inst) {
   }
 }
 
-// node_modules/zod/v4/locales/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -83846,7 +88114,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/ar.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ar.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83959,7 +88227,7 @@ function ar_default() {
   };
 }
 
-// node_modules/zod/v4/locales/az.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/az.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84071,7 +88339,7 @@ function az_default() {
   };
 }
 
-// node_modules/zod/v4/locales/be.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/be.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84234,7 +88502,7 @@ function be_default() {
   };
 }
 
-// node_modules/zod/v4/locales/bg.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/bg.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84361,7 +88629,7 @@ function bg_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ca.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ca.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84476,7 +88744,7 @@ function ca_default() {
   };
 }
 
-// node_modules/zod/v4/locales/cs.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/cs.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84594,7 +88862,7 @@ function cs_default() {
   };
 }
 
-// node_modules/zod/v4/locales/da.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/da.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84716,7 +88984,7 @@ function da_default() {
   };
 }
 
-// node_modules/zod/v4/locales/de.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/de.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84831,7 +89099,7 @@ function de_default() {
   };
 }
 
-// node_modules/zod/v4/locales/el.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/el.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84947,7 +89215,7 @@ function el_default() {
   };
 }
 
-// node_modules/zod/v4/locales/en.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/en.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85066,7 +89334,7 @@ function en_default2() {
   };
 }
 
-// node_modules/zod/v4/locales/eo.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/eo.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85182,7 +89450,7 @@ function eo_default() {
   };
 }
 
-// node_modules/zod/v4/locales/es.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/es.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85321,7 +89589,7 @@ function es_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fa.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fa.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85442,7 +89710,7 @@ function fa_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fi.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fi.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85561,7 +89829,7 @@ function fi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85693,7 +89961,7 @@ function fr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr-CA.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr-CA.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85807,7 +90075,7 @@ function fr_CA_default() {
   };
 }
 
-// node_modules/zod/v4/locales/he.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/he.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86008,7 +90276,7 @@ function he_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hr.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86137,7 +90405,7 @@ function hr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hu.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hu.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86252,7 +90520,7 @@ function hu_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hy.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hy.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86406,7 +90674,7 @@ function hy_default() {
   };
 }
 
-// node_modules/zod/v4/locales/id.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/id.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86519,7 +90787,7 @@ function id_default() {
   };
 }
 
-// node_modules/zod/v4/locales/is.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/is.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86635,7 +90903,7 @@ function is_default() {
   };
 }
 
-// node_modules/zod/v4/locales/it.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/it.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86750,7 +91018,7 @@ function it_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ja.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ja.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86864,7 +91132,7 @@ function ja_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ka.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ka.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86983,7 +91251,7 @@ function ka_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86991,7 +91259,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/km.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/km.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87108,12 +91376,12 @@ function km_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// node_modules/zod/v4/locales/ko.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ko.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87231,7 +91499,7 @@ function ko_default() {
   };
 }
 
-// node_modules/zod/v4/locales/lt.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/lt.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87441,7 +91709,7 @@ function lt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/mk.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/mk.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87557,7 +91825,7 @@ function mk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ms.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ms.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87671,7 +91939,7 @@ function ms_default() {
   };
 }
 
-// node_modules/zod/v4/locales/nl.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/nl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87788,7 +92056,7 @@ function nl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/no.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/no.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87903,7 +92171,7 @@ function no_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ota.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ota.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88019,7 +92287,7 @@ function ota_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ps.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ps.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88140,7 +92408,7 @@ function ps_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pl.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88256,7 +92524,7 @@ function pl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pt.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pt.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88371,7 +92639,7 @@ function pt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ro.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ro.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88497,7 +92765,7 @@ function ro_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ru.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ru.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88660,7 +92928,7 @@ function ru_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sl.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88776,7 +93044,7 @@ function sl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sv.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sv.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88893,7 +93161,7 @@ function sv_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ta.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ta.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89010,7 +93278,7 @@ function ta_default() {
   };
 }
 
-// node_modules/zod/v4/locales/th.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/th.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89127,7 +93395,7 @@ function th_default() {
   };
 }
 
-// node_modules/zod/v4/locales/tr.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/tr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89239,7 +93507,7 @@ function tr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89247,7 +93515,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/uk.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uk.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89362,12 +93630,12 @@ function uk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// node_modules/zod/v4/locales/ur.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ur.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89484,7 +93752,7 @@ function ur_default() {
   };
 }
 
-// node_modules/zod/v4/locales/uz.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uz.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89601,7 +93869,7 @@ function uz_default() {
   };
 }
 
-// node_modules/zod/v4/locales/vi.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/vi.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89716,7 +93984,7 @@ function vi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-CN.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-CN.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89832,7 +94100,7 @@ function zh_CN_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-TW.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-TW.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89946,7 +94214,7 @@ function zh_TW_default() {
   };
 }
 
-// node_modules/zod/v4/locales/yo.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/yo.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -90060,7 +94328,7 @@ function yo_default() {
   };
 }
 
-// node_modules/zod/v4/core/registries.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/registries.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -90116,7 +94384,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// node_modules/zod/v4/core/api.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/api.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -91161,7 +95429,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// node_modules/zod/v4/core/to-json-schema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/to-json-schema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -91526,7 +95794,7 @@ var createStandardJSONSchemaMethod = (schema2, io, processors = {}) => (params) 
   return finalize(ctx, schema2);
 };
 
-// node_modules/zod/v4/core/json-schema-processors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-processors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92076,7 +96344,7 @@ function toJSONSchema(input, params) {
   return finalize(ctx, input);
 }
 
-// node_modules/zod/v4/core/json-schema-generator.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-generator.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92157,7 +96425,7 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// node_modules/zod/v4/core/json-schema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -92166,7 +96434,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92174,7 +96442,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/schemas.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92226,7 +96494,7 @@ function object(shape, params) {
   return new ZodMiniObject(def);
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
   const schema2 = s;
   return !!schema2._zod;
@@ -92370,7 +96638,7 @@ function getLiteralValue(schema2) {
   return void 0;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92378,7 +96646,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -92627,7 +96895,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny2,
@@ -92804,7 +97072,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/checks.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -92844,7 +97112,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/iso.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/iso.js
 var iso_exports2 = {};
 __export(iso_exports2, {
   ZodISODate: () => ZodISODate,
@@ -92891,7 +97159,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92899,7 +97167,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92945,7 +97213,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, {
   Parent: Error
 });
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse3 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -92959,7 +97227,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var _installedGroups = /* @__PURE__ */ new WeakMap();
 function _installLazyMethods(inst, group, methods) {
   const proto = Object.getPrototypeOf(inst);
@@ -94249,7 +98517,7 @@ function preprocess(fn, schema2) {
   });
 }
 
-// node_modules/zod/v4/classic/compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94281,7 +98549,7 @@ var ZodFirstPartyTypeKind2;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind3) {
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
-// node_modules/zod/v4/classic/from-json-schema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/from-json-schema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94767,7 +99035,7 @@ function fromJSONSchema(schema2, params) {
   return convertSchema(normalized, ctx);
 }
 
-// node_modules/zod/v4/classic/coerce.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/coerce.js
 var coerce_exports2 = {};
 __export(coerce_exports2, {
   bigint: () => bigint3,
@@ -94798,10 +99066,10 @@ function date4(params) {
   return _coercedDate(ZodDate2, params);
 }
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 config(en_default2());
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
 var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
 var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
@@ -96332,7 +100600,7 @@ var UrlElicitationRequiredError = class extends McpError {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96343,7 +100611,7 @@ function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96351,7 +100619,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96359,7 +100627,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/Options.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Options.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96399,7 +100667,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
   ...options
 };
 
-// node_modules/zod-to-json-schema/dist/esm/Refs.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Refs.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96426,7 +100694,7 @@ var getRefs = (options) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96448,7 +100716,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
   addErrorMessage(res, key, errorMessage, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96464,7 +100732,7 @@ var getRelativePath = (pathA, pathB) => {
   return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96472,7 +100740,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96480,7 +100748,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96502,7 +100770,7 @@ function parseAnyDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96532,7 +100800,7 @@ function parseArrayDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96584,7 +100852,7 @@ function parseBigintDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96597,7 +100865,7 @@ function parseBooleanDef() {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96608,7 +100876,7 @@ function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96619,7 +100887,7 @@ var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96684,7 +100952,7 @@ var integerDateParser = (def, refs) => {
   return res;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96698,7 +100966,7 @@ function parseDefaultDef(_def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96709,7 +100977,7 @@ function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96723,7 +100991,7 @@ function parseEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96771,7 +101039,7 @@ function parseIntersectionDef(def, refs) {
   } : void 0;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96797,7 +101065,7 @@ function parseLiteralDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96805,7 +101073,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96813,7 +101081,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97144,7 +101412,7 @@ function stringifyRegExpWithFlags(regex, refs) {
   return pattern;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 function parseRecordDef(def, refs) {
   if (refs.target === "openAi") {
     console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
@@ -97196,7 +101464,7 @@ function parseRecordDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 function parseMapDef(def, refs) {
   if (refs.mapStrategy === "record") {
     return parseRecordDef(def, refs);
@@ -97221,7 +101489,7 @@ function parseMapDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97241,7 +101509,7 @@ function parseNativeEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97257,7 +101525,7 @@ function parseNeverDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97273,7 +101541,7 @@ function parseNullDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97281,7 +101549,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97355,7 +101623,7 @@ var asAnyOf = (def, refs) => {
   return anyOf.length ? { anyOf } : void 0;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 function parseNullableDef(def, refs) {
   if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
     if (refs.target === "openApi3") {
@@ -97387,7 +101655,7 @@ function parseNullableDef(def, refs) {
   return base && { anyOf: [base, { type: "null" }] };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97442,7 +101710,7 @@ function parseNumberDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97518,7 +101786,7 @@ function safeIsOptional(schema2) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97543,7 +101811,7 @@ var parseOptionalDef = (def, refs) => {
   } : parseAnyDef(refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97569,7 +101837,7 @@ var parsePipelineDef = (def, refs) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97580,7 +101848,7 @@ function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97606,7 +101874,7 @@ function parseSetDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97640,7 +101908,7 @@ function parseTupleDef(def, refs) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97653,7 +101921,7 @@ function parseUndefinedDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97664,7 +101932,7 @@ function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97675,7 +101943,7 @@ var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 var selectParser = (def, typeName, refs) => {
   switch (typeName) {
     case ZodFirstPartyTypeKind.ZodString:
@@ -97751,7 +102019,7 @@ var selectParser = (def, typeName, refs) => {
   }
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 function parseDef(def, refs, forceResolution = false) {
   const seenItem = refs.seen.get(def);
   if (refs.override) {
@@ -97807,7 +102075,7 @@ var addMeta = (def, refs, jsonSchema) => {
   return jsonSchema;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseTypes.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97815,7 +102083,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97883,7 +102151,7 @@ var zodToJsonSchema = (schema2, options) => {
   return combined;
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 function mapMiniTarget(t) {
   if (!t)
     return "draft-7";
@@ -97925,7 +102193,7 @@ function parseWithCompat(schema2, data2) {
   return result.data;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 var DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
 var Protocol = class {
   constructor(_options) {
@@ -98879,7 +103147,7 @@ function mergeCapabilities(base, additional) {
   return result;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -98953,7 +103221,7 @@ var AjvJsonSchemaValidator = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -99172,7 +103440,7 @@ var ExperimentalServerTasks = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -99213,7 +103481,7 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
   }
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 var Server = class extends Protocol {
   /**
    * Initializes this server with the given name and version information.
@@ -99593,7 +103861,7 @@ var Server = class extends Protocol {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -99613,7 +103881,7 @@ var McpZodTypeKind;
   McpZodTypeKind2["Completable"] = "McpCompletable";
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -99621,7 +103889,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -99685,7 +103953,7 @@ function validateAndWarnToolName(name) {
   return result.isValid;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -99706,7 +103974,7 @@ var ExperimentalMcpServerTasks = class {
   }
 };
 
-// node_modules/zod/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -99714,7 +103982,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 var McpServer = class {
   constructor(serverInfo, options) {
     this._registeredResources = {};
@@ -100506,7 +104774,7 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -100515,7 +104783,7 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -100549,7 +104817,7 @@ function serializeMessage(message) {
   return JSON.stringify(message) + "\n";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
   constructor(_stdin = process3.stdin, _stdout = process3.stdout) {
     this._stdin = _stdin;
