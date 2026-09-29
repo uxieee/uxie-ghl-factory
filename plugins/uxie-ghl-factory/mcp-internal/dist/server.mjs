@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1388,
+      count: 1389,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2116,6 +2116,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--calendars-services",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/calendars/services",
+          path: "/calendars/services",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/conversation-ai-actions.md:109"
+          ]
+        },
+        {
           id: "memberships-courses--locations-registry",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/certificates/locations/{locationId}/registry",
@@ -2716,7 +2754,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/chat-widget.md:28",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "funnels/10-anatomy/websites-and-global-sections.md:278",
-            "funnels/20-api/funnels-api.md:356",
+            "funnels/20-api/funnels-api.md:361",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -9503,7 +9541,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:107",
+            "funnels/10-anatomy/domains-and-public-urls.md:113",
             "funnels/20-api/funnels-api.md:147",
             "funnels/40-rules/silent-failures.md:120",
             "funnels/40-rules/silent-failures.md:237"
@@ -9912,7 +9950,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:300",
             "funnels/20-api/funnel-ai.md:60",
             "funnels/20-api/funnels-api.md:310",
-            "funnels/20-api/funnels-api.md:377"
+            "funnels/20-api/funnels-api.md:382"
           ]
         },
         {
@@ -10170,8 +10208,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:109",
-            "funnels/10-anatomy/domains-and-public-urls.md:163",
+            "funnels/10-anatomy/domains-and-public-urls.md:115",
+            "funnels/10-anatomy/domains-and-public-urls.md:169",
             "funnels/20-api/funnels-api.md:164",
             "funnels/40-rules/silent-failures.md:123",
             "funnels/40-rules/silent-failures.md:245",
@@ -10511,7 +10549,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:168"
+            "funnels/10-anatomy/domains-and-public-urls.md:174"
           ]
         },
         {
@@ -10542,7 +10580,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:113"
+            "funnels/10-anatomy/domains-and-public-urls.md:119"
           ]
         },
         {
@@ -10577,7 +10615,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:93",
+            "funnels/10-anatomy/domains-and-public-urls.md:99",
             "funnels/20-api/funnels-api.md:309",
             "funnels/40-rules/silent-failures.md:270",
             "funnels/40-rules/silent-failures.md:937",
@@ -10615,8 +10653,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:111",
-            "funnels/10-anatomy/domains-and-public-urls.md:157",
+            "funnels/10-anatomy/domains-and-public-urls.md:117",
+            "funnels/10-anatomy/domains-and-public-urls.md:163",
             "funnels/40-rules/silent-failures.md:239"
           ]
         },
@@ -10700,7 +10738,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:165",
+            "funnels/10-anatomy/domains-and-public-urls.md:171",
             "funnels/40-rules/silent-failures.md:618",
             "funnels/40-rules/silent-failures.md:650",
             "funnels/40-rules/silent-failures.md:940"
@@ -10767,7 +10805,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:167"
+            "funnels/10-anatomy/domains-and-public-urls.md:173"
           ]
         },
         {
@@ -11340,7 +11378,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:540",
             "funnels/20-api/funnel-object-operations.md:84",
             "funnels/20-api/funnels-api.md:232",
-            "funnels/20-api/funnels-api.md:375"
+            "funnels/20-api/funnels-api.md:380"
           ]
         },
         {
@@ -12227,7 +12265,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:455"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:481"
           ]
         },
         {
@@ -14509,7 +14547,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:447"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:473"
           ]
         },
         {
@@ -14540,7 +14578,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:459"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:485"
           ]
         },
         {
@@ -16750,7 +16788,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:460",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:486",
             "workflows/70-research/ENDPOINTS.md:243"
           ]
         },
@@ -17068,7 +17106,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:386"
+            "funnels/20-api/funnels-api.md:391"
           ]
         },
         {
@@ -25215,13 +25253,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:30",
+            "workflows/10-anatomy/advanced-canvas.md:35",
             "workflows/20-api/03-endpoints.md:191",
             "workflows/20-api/trash-and-restore.md:24",
             "workflows/40-rules/publish-gate.md:138",
             "workflows/40-rules/settings-semantics.md:167",
             "workflows/00-overview/10-caveats.md:138",
-            "workflows/10-anatomy/04-workflow-anatomy.md:40",
-            "workflows/10-anatomy/07-id-resolution.md:204"
+            "workflows/10-anatomy/04-workflow-anatomy.md:40"
           ]
         },
         {
@@ -30173,8 +30211,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "workflows/10-anatomy/04-workflow-anatomy.md:434",
             "workflows/10-anatomy/04-workflow-anatomy.md:571",
             "workflows/10-anatomy/05-build-flow.md:24",
-            "workflows/20-api/trigger-create.md:11",
-            "workflows/30-types/triggers/affiliate_created.md:63"
+            "workflows/10-anatomy/advanced-canvas.md:51",
+            "workflows/20-api/trigger-create.md:11"
           ]
         },
         {
@@ -30308,6 +30346,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/BaseService.ts:46",
+            "workflows/10-anatomy/advanced-canvas.md:37",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
             "workflows/50-runtime/flow-bot-four-node-certification.md:58"
           ]
@@ -37965,7 +38004,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:386",
+            "ai-agents/20-api/12-ai-agents-api.md:397",
             "ai-agents/20-api/agent-deployment-routing.md:25",
             "ai-agents/20-api/agent-deployment-routing.md:271",
             "ai-agents/20-api/agent-deployment-routing.md:471",
@@ -39293,7 +39332,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:162"
+            "ai-agents/10-anatomy/managed-agent-shape.md:163"
           ]
         },
         {
@@ -39324,7 +39363,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:161"
+            "ai-agents/10-anatomy/managed-agent-shape.md:162"
           ]
         },
         {
@@ -39359,7 +39398,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:163"
+            "ai-agents/10-anatomy/managed-agent-shape.md:164"
           ]
         },
         {
@@ -39394,7 +39433,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:170"
+            "ai-agents/10-anatomy/managed-agent-shape.md:171"
           ]
         },
         {
@@ -39468,7 +39507,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:154"
+            "ai-agents/10-anatomy/managed-agent-shape.md:155"
           ]
         },
         {
@@ -39499,7 +39538,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:152"
+            "ai-agents/10-anatomy/managed-agent-shape.md:153"
           ]
         },
         {
@@ -39541,7 +39580,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:171"
+            "ai-agents/10-anatomy/managed-agent-shape.md:172"
           ]
         },
         {
@@ -39648,7 +39687,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:165",
+            "ai-agents/10-anatomy/managed-agent-shape.md:166",
             "ai-agents/20-api/12-ai-agents-api.md:249"
           ]
         },
@@ -39757,7 +39796,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:97",
+            "ai-agents/10-anatomy/managed-agent-shape.md:98",
             "ai-agents/20-api/12-ai-agents-api.md:251"
           ]
         },
@@ -39808,7 +39847,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:247",
             "ai-agents/20-api/12-ai-agents-api.md:254",
-            "ai-agents/20-api/12-ai-agents-api.md:383",
+            "ai-agents/20-api/12-ai-agents-api.md:394",
             "ai-agents/10-anatomy/managed-agent-shape.md:20"
           ]
         },
@@ -39852,8 +39891,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:246",
             "ai-agents/20-api/12-ai-agents-api.md:254",
             "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-            "ai-agents/10-anatomy/managed-agent-shape.md:83",
-            "ai-agents/20-api/12-ai-agents-api.md:382"
+            "ai-agents/10-anatomy/managed-agent-shape.md:84",
+            "ai-agents/20-api/12-ai-agents-api.md:393"
           ]
         },
         {
@@ -39971,7 +40010,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:127"
+            "ai-agents/10-anatomy/managed-agent-shape.md:128"
           ]
         },
         {
@@ -40006,7 +40045,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:103"
+            "ai-agents/10-anatomy/managed-agent-shape.md:104"
           ]
         },
         {
@@ -40037,7 +40076,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:187"
+            "ai-agents/10-anatomy/managed-agent-shape.md:188"
           ]
         },
         {
@@ -40069,7 +40108,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/managed-agent-shape.md:79",
-            "ai-agents/10-anatomy/managed-agent-shape.md:121",
+            "ai-agents/10-anatomy/managed-agent-shape.md:122",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:245",
             "ai-agents/20-api/12-ai-agents-api.md:258",
@@ -40238,12 +40277,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:158",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:174",
             "ai-agents/20-api/12-ai-agents-api.md:101",
             "ai-agents/20-api/12-ai-agents-api.md:105",
             "ai-agents/20-api/12-ai-agents-api.md:132",
-            "ai-agents/20-api/12-ai-agents-api.md:301",
-            "ai-agents/20-api/12-ai-agents-api.md:351"
+            "ai-agents/20-api/12-ai-agents-api.md:312",
+            "ai-agents/20-api/12-ai-agents-api.md:362"
           ]
         },
         {
@@ -40419,7 +40458,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:98",
-            "ai-agents/20-api/12-ai-agents-api.md:375"
+            "ai-agents/20-api/12-ai-agents-api.md:386"
           ]
         },
         {
@@ -40465,7 +40504,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:80",
-            "ai-agents/30-types/conversation-ai-actions.md:127",
+            "ai-agents/30-types/conversation-ai-actions.md:133",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
             "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
@@ -40563,12 +40602,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:157",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:173",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:95",
             "ai-agents/20-api/12-ai-agents-api.md:105",
-            "ai-agents/20-api/12-ai-agents-api.md:351",
-            "ai-agents/20-api/12-ai-agents-api.md:372"
+            "ai-agents/20-api/12-ai-agents-api.md:362",
+            "ai-agents/20-api/12-ai-agents-api.md:383"
           ]
         },
         {
@@ -40615,7 +40654,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:100",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:163",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:179",
             "ai-agents/20-api/agent-deployment-routing.md:73"
           ]
         },
@@ -40661,7 +40700,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:97",
             "ai-agents/20-api/12-ai-agents-api.md:105",
-            "ai-agents/20-api/12-ai-agents-api.md:373",
+            "ai-agents/20-api/12-ai-agents-api.md:384",
             "ai-agents/20-api/conversation-ai-boundary.md:31",
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
             "ai-agents/40-rules/builder-vs-server.md:33"
@@ -40707,8 +40746,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:96",
             "ai-agents/20-api/12-ai-agents-api.md:128",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:161",
-            "ai-agents/20-api/12-ai-agents-api.md:375",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:177",
+            "ai-agents/20-api/12-ai-agents-api.md:386",
             "ai-agents/40-rules/builder-vs-server.md:24"
           ]
         },
@@ -40919,7 +40958,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:112"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
           ]
         },
         {
@@ -40950,7 +40989,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:111"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:114"
           ]
         },
         {
@@ -40992,7 +41031,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:118"
           ]
         },
         {
@@ -41034,7 +41073,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:113"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:116"
           ]
         },
         {
@@ -41147,7 +41186,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:42",
             "ai-agents/20-api/conversation-ai-boundary.md:79",
-            "ai-agents/30-types/conversation-ai-actions.md:139"
+            "ai-agents/30-types/conversation-ai-actions.md:145"
           ]
         },
         {
@@ -41178,7 +41217,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:114"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:117"
           ]
         },
         {
@@ -41577,7 +41616,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:138"
+            "ai-agents/10-anatomy/managed-agent-shape.md:139"
           ]
         },
         {
@@ -41618,7 +41657,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:135",
+            "ai-agents/10-anatomy/managed-agent-shape.md:136",
             "ai-agents/20-api/conversation-ai-boundary.md:85",
             "ai-studio/60-recipes/run-one-generation.md:26",
             "funnels/20-api/funnel-ai.md:73"
@@ -43420,7 +43459,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:468"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:494"
           ]
         },
         {
@@ -43481,7 +43520,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:470",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:496",
             "ai-agents/20-api/agent-deployment-routing.md:186",
             "ai-agents/20-api/agent-deployment-routing.md:411"
           ]
@@ -44152,7 +44191,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:131",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
             "ai-agents/20-api/conversation-ai-boundary.md:96"
           ]
         },
@@ -47655,7 +47694,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/flow-agent-shape.md:142",
-            "ai-agents/20-api/12-ai-agents-api.md:319",
+            "ai-agents/20-api/12-ai-agents-api.md:330",
             "ai-agents/20-api/knowledge-base.md:59",
             "ai-agents/20-api/knowledge-base.md:106",
             "ai-agents/20-api/knowledge-base.md:120",
@@ -48170,7 +48209,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:318",
+            "ai-agents/20-api/12-ai-agents-api.md:329",
             "ai-agents/20-api/conversation-ai-boundary.md:82",
             "ai-agents/20-api/knowledge-base.md:63",
             "ai-agents/20-api/knowledge-base.md:81",
@@ -48552,7 +48591,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:385",
+            "ai-agents/20-api/12-ai-agents-api.md:396",
             "ai-agents/20-api/knowledge-base.md:201",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
@@ -48858,8 +48897,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:315",
-            "ai-agents/20-api/12-ai-agents-api.md:384",
+            "ai-agents/20-api/12-ai-agents-api.md:326",
+            "ai-agents/20-api/12-ai-agents-api.md:395",
             "ai-agents/20-api/knowledge-base.md:296"
           ]
         },
@@ -48895,7 +48934,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:317",
+            "ai-agents/20-api/12-ai-agents-api.md:328",
             "ai-agents/20-api/knowledge-base.md:300"
           ]
         },
@@ -48966,7 +49005,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:316",
+            "ai-agents/20-api/12-ai-agents-api.md:327",
             "ai-agents/20-api/knowledge-base.md:298"
           ]
         },
@@ -57621,7 +57660,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:417"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:443"
           ]
         },
         {
@@ -59768,9 +59807,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:167",
             "ai-agents/20-api/12-ai-agents-api.md:175",
             "ai-agents/20-api/12-ai-agents-api.md:196",
-            "ai-agents/20-api/12-ai-agents-api.md:302",
-            "ai-agents/20-api/12-ai-agents-api.md:332",
-            "ai-agents/20-api/12-ai-agents-api.md:379"
+            "ai-agents/20-api/12-ai-agents-api.md:313",
+            "ai-agents/20-api/12-ai-agents-api.md:343",
+            "ai-agents/20-api/12-ai-agents-api.md:390"
           ]
         },
         {
@@ -60137,11 +60176,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/flow-agent-shape.md:34",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:163",
             "ai-agents/20-api/12-ai-agents-api.md:175",
-            "ai-agents/20-api/12-ai-agents-api.md:183",
-            "ai-agents/20-api/12-ai-agents-api.md:352"
+            "ai-agents/20-api/12-ai-agents-api.md:183"
           ]
         },
         {
@@ -60271,8 +60310,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:166",
             "ai-agents/10-anatomy/flow-agent-shape.md:74",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:344",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:388"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:370",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
           ]
         },
         {
@@ -60323,7 +60362,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:164",
             "ai-agents/20-api/12-ai-agents-api.md:175",
-            "ai-agents/20-api/12-ai-agents-api.md:377",
+            "ai-agents/20-api/12-ai-agents-api.md:388",
             "ai-agents/20-api/voice-ai-boundary.md:62",
             "ai-agents/20-api/voice-ai-boundary.md:23",
             "ai-agents/20-api/voice-ai-boundary.md:24"
@@ -60373,7 +60412,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
             "ai-agents/10-anatomy/flow-agent-shape.md:61",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:257"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:283"
           ]
         },
         {
@@ -60428,11 +60467,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:226",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:238",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:252",
             "ai-agents/20-api/12-ai-agents-api.md:165",
             "ai-agents/20-api/12-ai-agents-api.md:175",
-            "ai-agents/20-api/12-ai-agents-api.md:378",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
+            "ai-agents/20-api/12-ai-agents-api.md:389",
             "ai-agents/10-anatomy/flow-agent-shape.md:57"
           ]
         },
@@ -60549,7 +60589,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/voice-ai-boundary.md:63",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:282",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:308",
             "ai-agents/20-api/12-ai-agents-api.md:171"
           ]
         },
@@ -60630,7 +60670,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:472",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:498",
             "ai-agents/20-api/logs-deployment-email.md:129"
           ]
         },
@@ -60676,7 +60716,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:471"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:497"
           ]
         },
         {
@@ -60711,7 +60751,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:402"
           ]
         },
         {
@@ -60753,7 +60793,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:332"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:358"
           ]
         },
         {
@@ -60788,7 +60828,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:328"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:354"
           ]
         },
         {
@@ -60886,7 +60926,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:390"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:416"
           ]
         },
         {
@@ -60981,7 +61021,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:350"
           ]
         },
         {
@@ -61029,7 +61069,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:398"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:424"
           ]
         },
         {
@@ -61112,7 +61152,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:413",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:439",
             "ai-agents/20-api/logs-deployment-email.md:27"
           ]
         },
@@ -61151,7 +61191,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:394",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:420",
             "ai-agents/10-anatomy/flow-agent-shape.md:63"
           ]
         },
@@ -61190,7 +61230,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:397"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:423"
           ]
         },
         {
@@ -61246,7 +61286,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:400",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:426",
             "ai-agents/20-api/logs-deployment-email.md:24",
             "ai-agents/20-api/voice-ai-boundary.md:71",
             "ai-agents/30-types/voice-ai-actions.md:109"
@@ -61293,7 +61333,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:401",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:427",
             "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
@@ -61676,7 +61716,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:263",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
             "ai-agents/20-api/logs-deployment-email.md:123"
           ]
         },
@@ -61803,7 +61843,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:340",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366",
             "ai-agents/20-api/logs-deployment-email.md:19",
             "ai-agents/20-api/voice-ai-boundary.md:70"
           ]
@@ -61902,7 +61942,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:384",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:410",
             "ai-agents/20-api/voice-ai-boundary.md:64"
           ]
         },
@@ -61934,7 +61974,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:383"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:409"
           ]
         },
         {
@@ -61969,7 +62009,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:413"
           ]
         },
         {
@@ -62004,7 +62044,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:386"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:412"
           ]
         },
         {
@@ -62039,7 +62079,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:385"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:411"
           ]
         },
         {
@@ -62083,7 +62123,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:478"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:504"
           ]
         },
         {
@@ -62118,7 +62158,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:350"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
           ]
         },
         {
@@ -62242,7 +62282,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:346"
           ]
         },
         {
@@ -62284,7 +62324,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:369"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:395"
           ]
         },
         {
@@ -62333,7 +62373,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:63",
             "ai-agents/20-api/12-ai-agents-api.md:170",
-            "ai-agents/20-api/12-ai-agents-api.md:380",
+            "ai-agents/20-api/12-ai-agents-api.md:391",
             "ai-agents/20-api/voice-ai-boundary.md:65",
             "ai-agents/20-api/voice-ai-boundary.md:82"
           ]
@@ -62414,7 +62454,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:392"
           ]
         },
         {
@@ -62458,7 +62498,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:362",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:388",
             "ai-agents/20-api/voice-ai-boundary.md:66"
           ]
         },
@@ -62494,7 +62534,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:370"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:396"
           ]
         },
         {
@@ -62544,7 +62584,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:364"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:390"
           ]
         },
         {
@@ -66329,9 +66369,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_convai_agent: {
-        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-09-28); risk: write",
+        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-09-29); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-convai-agent-create"
@@ -66446,9 +66486,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_studio_agent: {
-        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-09-28); risk: write",
+        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-09-29); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-studio-agent-build"
@@ -66482,9 +66522,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_voiceai_agent: {
-        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-28); risk: write",
+        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-29); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-voiceai-agent-create"
@@ -67917,9 +67957,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_convai_agent: {
-        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-28); risk: write",
+        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-29); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "unrecorded",
         proofRows: [
           "aiemployee-service--get-employee-by-id",
@@ -68142,9 +68182,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_voiceai_agent: {
-        description: "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) \u2014 proof: live-runtime (2026-09-28); risk: write",
+        description: "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) \u2014 proof: live-runtime (2026-09-29); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "ai-agents--voice-ai-agents-get",
@@ -185661,6 +185701,40 @@ function checkFlowFields(ir) {
     throw new IRError2("SCHEMA", "isObjectiveBuilderEnabled must be a boolean");
   if (ir.objectiveBuilderWorkflowId !== void 0 && typeof ir.objectiveBuilderWorkflowId !== "string")
     throw new IRError2("SCHEMA", "objectiveBuilderWorkflowId must be a string");
+  for (const k of ["cancelEnabled", "rescheduleEnabled"]) {
+    if (ir[k] !== void 0 && typeof ir[k] !== "boolean") throw new IRError2("SCHEMA", `${k} must be a boolean`);
+  }
+}
+function checkFullPrompt(v) {
+  if (v === void 0) return;
+  if (typeof v !== "string" || !v.trim()) {
+    throw new IRError2("SCHEMA", "fullPrompt must be a non-empty string: the whole prompt, as the builder stores it");
+  }
+}
+var KB_TRIGGER_MODES = ["custom", "all"];
+var KB_TRIGGER_MAX = 4;
+function checkKnowledgeBaseTriggers(list) {
+  if (list === void 0) return;
+  if (!Array.isArray(list)) throw new IRError2("SCHEMA", "knowledgeBaseTriggers must be an array");
+  if (list.length > KB_TRIGGER_MAX) {
+    throw new IRError2("SCHEMA", `knowledgeBaseTriggers holds at most ${KB_TRIGGER_MAX} (server rule: priority must not be greater than 4)`);
+  }
+  for (const [i, t] of list.entries()) {
+    if (!t || typeof t !== "object" || Array.isArray(t)) throw new IRError2("SCHEMA", `knowledgeBaseTriggers[${i}] must be an object`);
+    if (!KB_TRIGGER_MODES.includes(t.mode)) {
+      throw new IRError2("SCHEMA", `knowledgeBaseTriggers[${i}].mode must be one of ${KB_TRIGGER_MODES.join(", ")}, got ${JSON.stringify(t.mode)}`);
+    }
+    if (t.knowledgeBaseIds !== void 0 && (!Array.isArray(t.knowledgeBaseIds) || t.knowledgeBaseIds.some((x) => typeof x !== "string" || !x))) {
+      throw new IRError2("SCHEMA", `knowledgeBaseTriggers[${i}].knowledgeBaseIds must be an array of knowledge base ids`);
+    }
+    if (t.mode === "custom" && !(t.knowledgeBaseIds ?? []).length) {
+      throw new IRError2("SCHEMA", `knowledgeBaseTriggers[${i}] is mode custom and names no knowledgeBaseIds`);
+    }
+    if (t.triggerCondition !== void 0 && typeof t.triggerCondition !== "string") {
+      throw new IRError2("SCHEMA", `knowledgeBaseTriggers[${i}].triggerCondition must be a string`);
+    }
+    if (t.id !== void 0 && (typeof t.id !== "string" || !t.id)) throw new IRError2("SCHEMA", `knowledgeBaseTriggers[${i}].id must be a string`);
+  }
 }
 function parseConvaiIR(ir) {
   if (!ir || typeof ir !== "object") throw new IRError2("SCHEMA", "IR must be an object");
@@ -185678,6 +185752,9 @@ function parseConvaiIR(ir) {
   checkResponseStyle(ir);
   checkLlm(ir.llm);
   checkBusinessName(ir.businessName);
+  checkFullPrompt(ir.fullPrompt);
+  checkKnowledgeBaseTriggers(ir.knowledgeBaseTriggers);
+  if (ir.isPrimary !== void 0 && typeof ir.isPrimary !== "boolean") throw new IRError2("SCHEMA", "isPrimary must be a boolean");
   return { ...ir, mode: normalizeMode(ir.mode) };
 }
 function parseConvaiPartialIR(ir) {
@@ -185696,6 +185773,7 @@ function parseConvaiPartialIR(ir) {
   checkResponseStyle(ir);
   checkLlm(ir.llm);
   checkBusinessName(ir.businessName);
+  checkKnowledgeBaseTriggers(ir.knowledgeBaseTriggers);
   return ir.mode !== void 0 ? { ...ir, mode: normalizeMode(ir.mode) } : { ...ir };
 }
 
@@ -185728,6 +185806,7 @@ function buildCreateBody(ir, { locationId }) {
     businessName: ir.businessName ?? "",
     mode: ir.mode,
     channels: ir.channels,
+    // Always false: a true is refused in compileConvaiAgent (the primary agent is location-wide).
     isPrimary: false,
     waitTime: wait.value ?? DEFAULT_WAIT.value,
     waitTimeUnit: wait.unit ?? DEFAULT_WAIT.unit,
@@ -185744,10 +185823,17 @@ function buildCreateBody(ir, { locationId }) {
     personality: ir.personality ?? "",
     goal: ir.goal ?? "",
     instructions: ir.instructions ?? "",
+    // The current builder's create: the whole prompt in fullPrompt, the three fields "" (agentBuilderApp
+    // useConversationAIBuilder, AB/853927@544724). Only when authored; compileConvaiAgent refuses it beside the three.
+    ...ir.fullPrompt !== void 0 ? { fullPrompt: ir.fullPrompt } : {},
     tones: ir.tones ?? [],
     botType: ir.botType ?? "PROMPT_BASED_BOT",
     knowledgeBaseIds: ir.knowledgeBaseIds ?? [],
-    knowledgeBaseTriggers: [],
+    knowledgeBaseTriggers: normalizeKbTriggers(ir.knowledgeBaseTriggers),
+    // Flow-bot agent-level booking switches (the builder deletes them for every other bot type; applyBotTypeCleanup
+    // does the same). Only when authored.
+    ...ir.cancelEnabled !== void 0 ? { cancelEnabled: ir.cancelEnabled } : {},
+    ...ir.rescheduleEnabled !== void 0 ? { rescheduleEnabled: ir.rescheduleEnabled } : {},
     summary: mergeSummary(defaultSummary(), ir.summary),
     respondToImages: ir.respondToImages ?? false,
     respondToAudio: ir.respondToAudio ?? false,
@@ -185760,9 +185846,73 @@ function buildCreateBody(ir, { locationId }) {
     isObjectiveBuilderEnabled: ir.isObjectiveBuilderEnabled ?? false,
     aiResponseLengthEnabled: style.aiResponseLengthEnabled ?? false,
     responseLength: style.responseLength ?? "balanced",
-    // Only when authored: applyBotTypeCleanup drops an empty llm, and the server picks its default.
-    ...ir.llm ? { llm: { ...ir.llm } } : {}
+    // Only when authored: applyBotTypeCleanup drops an empty llm, and the server picks its default. A fullPrompt create
+    // follows the builder, which defaults and REQUIRES llm.primary "gpt-4.1" (AB/853927@542453, validator @572046).
+    ...ir.llm ? { llm: { ...ir.llm } } : ir.fullPrompt !== void 0 ? { llm: { primary: BUILDER_DEFAULT_LLM } } : {}
   };
+}
+var BUILDER_DEFAULT_LLM = "gpt-4.1";
+function normalizeKbTriggers(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map((t, i) => ({
+    id: t.id ?? `kbt_${Date.now()}_${Math.random().toString(36).slice(2, 9).padEnd(7, "0")}`,
+    mode: t.mode,
+    knowledgeBaseIds: t.knowledgeBaseIds ?? [],
+    triggerCondition: t.triggerCondition ?? "",
+    priority: i + 1
+  }));
+}
+var CREATE_KEYS = /* @__PURE__ */ new Set([
+  "name",
+  "businessName",
+  "mode",
+  "channels",
+  "wait",
+  "sleep",
+  "autoPilotMaxMessages",
+  "actions",
+  "personality",
+  "goal",
+  "instructions",
+  "fullPrompt",
+  "tones",
+  "botType",
+  "knowledgeBaseIds",
+  "knowledgeBaseTriggers",
+  "summary",
+  "respondToImages",
+  "respondToAudio",
+  "objectiveBuilderWorkflowId",
+  "isObjectiveBuilderEnabled",
+  "responseLength",
+  "aiResponseLengthEnabled",
+  "llm",
+  "isPrimary",
+  "cancelEnabled",
+  "rescheduleEnabled"
+]);
+var CREATE_ELSEWHERE = {
+  employeeName: "the agent name is spec.name",
+  flow: "a flow bot's logic is a workflow: create the agent with botType FLOW_BUILDER_BOT, build the workflow with build_workflow (a conv_ai_trigger bound to the agent), then link it with update_convai_agent {isObjectiveBuilderEnabled:true, objectiveBuilderWorkflowId}",
+  emailSettings: "Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record",
+  emailWaitTime: "Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record",
+  emailWaitTimeUnit: "Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record",
+  workingHours: "working hours are their own resource: raw_request POST /ai-employees/employees/{id}/working-hours",
+  folderId: "folders are set after create: raw_request on the /ai-employees/employees/folders routes",
+  brandId: "form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body",
+  steps: "form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body",
+  botInitialMessage: "form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body",
+  skipIfAlreadyFilled: "form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body",
+  notificationSettings: "form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body"
+};
+function refuseUnappliedCreateKeys(spec) {
+  const unapplied = Object.keys(spec ?? {}).filter((k) => !CREATE_KEYS.has(k));
+  if (!unapplied.length) return;
+  const where = unapplied.filter((k) => k in CREATE_ELSEWHERE).map((k) => `${k}: ${CREATE_ELSEWHERE[k]}`);
+  throw new IRError2(
+    "SPEC_KEY_UNAPPLIED",
+    `create_convai_agent cannot apply spec key(s) [${unapplied.join(", ")}], and refuses rather than creating an agent without them. ${where.length ? `${where.join("; ")}. ` : ""}Nothing was sent. Applicable keys: ${[...CREATE_KEYS].sort().join(", ")}.`
+  );
 }
 function responseStyleFields(ir) {
   const out = {};
@@ -185826,14 +185976,53 @@ var APPOINTMENT_BOOKING_DETAIL_DEFAULTS = {
   cancelEnabled: false,
   rescheduleEnabled: false
 };
+var CALENDAR_ACTION_TYPES = ["single", "multiple"];
+var MULTI_CALENDAR_MAX = 50;
 function buildAppointmentBookingDetails(details) {
-  if (typeof details.calendarId !== "string" || details.calendarId.length === 0) {
-    throw new IRError2(
-      "SCHEMA",
-      `appointmentBooking action.details.calendarId is required (gates the calendar-selection step; convai-actions-all.json), got: ${JSON.stringify(details.calendarId)}`
-    );
+  const type = details.calendarActionType ?? "single";
+  if (type === "service") {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", 'appointmentBooking calendarActionType "service" is not written by this tool (never executed live: no calendar service to test against). The modal saves calendarIds [{id: <service id from GET /calendars/services>, triggerCondition: ""}] plus aiDescription: send it with raw_request POST /ai-employees/actions and read the action back. Nothing was sent.');
   }
-  return { ...APPOINTMENT_BOOKING_DETAIL_DEFAULTS, ...details };
+  if (!CALENDAR_ACTION_TYPES.includes(type)) {
+    throw new IRError2("SCHEMA", `appointmentBooking details.calendarActionType must be one of ${CALENDAR_ACTION_TYPES.join(", ")}, got ${JSON.stringify(type)}`);
+  }
+  if (type === "single") {
+    if (typeof details.calendarId !== "string" || details.calendarId.length === 0) {
+      throw new IRError2(
+        "SCHEMA",
+        `appointmentBooking action.details.calendarId is required (gates the calendar-selection step; convai-actions-all.json), got: ${JSON.stringify(details.calendarId)}`
+      );
+    }
+    for (const k of ["calendarIds", "aiDescription", "fallbackCalendar", "fallbackCalendarId"]) {
+      if (details[k] !== void 0) throw new IRError2("SCHEMA", `appointmentBooking details.${k} belongs to calendarActionType multiple; this action is single`);
+    }
+    return { ...APPOINTMENT_BOOKING_DETAIL_DEFAULTS, ...details };
+  }
+  if (details.calendarId !== void 0) {
+    throw new IRError2("SCHEMA", `appointmentBooking details.calendarId is the single-calendar field; a ${type} action lists calendarIds`);
+  }
+  const ids = details.calendarIds;
+  if (!Array.isArray(ids) || !ids.length || ids.length > MULTI_CALENDAR_MAX) {
+    throw new IRError2("SCHEMA", `appointmentBooking (${type}) details.calendarIds must list 1\u2013${MULTI_CALENDAR_MAX} calendar ids`);
+  }
+  const calendarIds = ids.map((x, i) => {
+    const entry = typeof x === "string" ? { id: x } : x;
+    if (!entry || typeof entry.id !== "string" || !entry.id) throw new IRError2("SCHEMA", `appointmentBooking details.calendarIds[${i}] needs an id`);
+    if (entry.triggerCondition !== void 0 && typeof entry.triggerCondition !== "string") {
+      throw new IRError2("SCHEMA", `appointmentBooking details.calendarIds[${i}].triggerCondition must be a string`);
+    }
+    return { id: entry.id, triggerCondition: entry.triggerCondition ?? "" };
+  });
+  if (typeof details.aiDescription !== "string" || !details.aiDescription.trim()) {
+    throw new IRError2("SCHEMA", `appointmentBooking (${type}) details.aiDescription is required: it tells the bot how to choose (the modal will not proceed without it)`);
+  }
+  const out = { ...APPOINTMENT_BOOKING_DETAIL_DEFAULTS, ...details, calendarActionType: type, calendarIds };
+  out.fallbackCalendar = details.fallbackCalendar === true;
+  if (out.fallbackCalendar && (typeof details.fallbackCalendarId !== "string" || !details.fallbackCalendarId)) {
+    throw new IRError2("SCHEMA", "appointmentBooking details.fallbackCalendar:true needs fallbackCalendarId");
+  }
+  out.fallbackCalendarId = out.fallbackCalendar ? details.fallbackCalendarId : null;
+  return out;
 }
 function buildTriggerWorkflowDetails(details) {
   if (!Array.isArray(details.workflowIds) || details.workflowIds.length === 0) {
@@ -185955,7 +186144,7 @@ function uiSaveViolations(body2, botType) {
   const v = [];
   const push = (field, rule, msg) => v.push({ field, rule, msg });
   if (!Array.isArray(body2.channels) || !body2.channels.length) push("channels", "selectChannel", "Please select at least one channel");
-  for (const f of ["personality", "goal", "instructions"]) {
+  for (const f of nonEmpty(body2.fullPrompt) ? [] : ["personality", "goal", "instructions"]) {
     if (typeof body2[f] !== "string" || !body2[f].trim()) {
       push(f, "notEmpty", "Personality, Instructions, and Goal should not be empty.");
     }
@@ -185974,17 +186163,44 @@ function uiSaveViolations(body2, botType) {
 }
 var FATAL_FOR_FLOW_BOT = /* @__PURE__ */ new Set(["toneEmpty", "errorMaxTones", "selectChannel"]);
 function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
+  refuseUnappliedCreateKeys(ir);
   const norm3 = parseConvaiIR(ir);
+  if (norm3.isPrimary === true) {
+    throw new IRError2(
+      "SPEC_KEY_UNAPPLIED",
+      "isPrimary:true is refused: the primary agent is location-wide; setting it can unseat the current primary. Set it in the Conversation AI UI (Settings \u2192 primary agent). Nothing was sent."
+    );
+  }
+  const botType = norm3.botType ?? "PROMPT_BASED_BOT";
+  if (norm3.fullPrompt !== void 0) {
+    if (botType !== "PROMPT_BASED_BOT") {
+      throw new IRError2("SPEC_KEY_UNAPPLIED", `fullPrompt is the prompt bot's builder field; this spec is ${botType}. Nothing was sent.`);
+    }
+    const alsoFields = PROMPT_KEYS.filter((k) => norm3[k] !== void 0);
+    if (alsoFields.length) {
+      throw new IRError2(
+        "FULLPROMPT_OWNS_PROMPT",
+        `the spec sets fullPrompt AND [${alsoFields.join(", ")}], which is ambiguous: the bot answers from fullPrompt once it is stored and the three fields are then frozen (live 2026-09-29). Nothing was sent. Pass the whole prompt as fullPrompt (the builder writes "## Personality \u2026 ## Goal \u2026 ## Instructions \u2026"), or the three fields without it.`
+      );
+    }
+  }
+  const bookingSwitches = ["cancelEnabled", "rescheduleEnabled"].filter((k) => norm3[k] !== void 0);
+  if (bookingSwitches.length && botType !== "FLOW_BUILDER_BOT") {
+    throw new IRError2(
+      "SPEC_KEY_UNAPPLIED",
+      `[${bookingSwitches.join(", ")}] are agent-level only on a FLOW_BUILDER_BOT; this spec is ${botType}. On a prompt bot set details.cancelEnabled / details.rescheduleEnabled on the appointmentBooking action in actions[] (a bot with the action flag on reschedules, live 2026-09-25). Nothing was sent.`
+    );
+  }
   const rawBody = buildCreateBody(norm3, { locationId });
   const body2 = applyBotTypeCleanup(rawBody);
   for (const k of Object.keys(rawBody)) {
     if (k in body2 || norm3[k] === void 0) continue;
     warn?.(`BOT_TYPE_KEY: '${k}' is not accepted for botType '${body2.botType}' and was dropped \u2014 the server refuses the whole create otherwise ("${k} is only allowed when bot type is FLOW_BUILDER_BOT").`);
   }
-  if (body2.botType !== "FLOW_BUILDER_BOT" && !PROMPT_KEYS.some((k) => nonEmpty(body2[k]))) {
+  if (body2.botType !== "FLOW_BUILDER_BOT" && !nonEmpty(body2.fullPrompt) && !PROMPT_KEYS.some((k) => nonEmpty(body2[k]))) {
     throw new IRError2(
       "MISSING_FIELD",
-      "a prompt-based agent needs at least one of goal, personality or instructions. Created without all three, GHL answers 500 to every later update of the agent, and some of that update still lands."
+      "a prompt-based agent needs a prompt: fullPrompt (the current builder's single prompt), or at least one of goal, personality or instructions. Created with none, GHL answers 500 to every later update of the agent, and some of that update still lands."
     );
   }
   const violations = uiSaveViolations(body2, body2.botType);
@@ -186120,6 +186336,12 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
     body2.fullPrompt = norm3.fullPrompt;
     setKeys.add("fullPrompt");
   }
+  const flowBot = (norm3.botType ?? current.botType) === "FLOW_BUILDER_BOT";
+  const flowSwitches = flowBot ? ["cancelEnabled", "rescheduleEnabled"] : [];
+  for (const k of flowSwitches) if (norm3[k] !== void 0) {
+    body2[k] = norm3[k];
+    setKeys.add(k);
+  }
   if (norm3.wait !== void 0) {
     if (norm3.wait.value !== void 0) {
       body2.waitTime = norm3.wait.value;
@@ -186153,7 +186375,7 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
       setKeys.add("sleepTimeUnit");
     }
   }
-  const applicable = /* @__PURE__ */ new Set([...Object.keys(UPDATE_FIELD_MAP), "wait", "sleep", "fullPrompt"]);
+  const applicable = /* @__PURE__ */ new Set([...Object.keys(UPDATE_FIELD_MAP), "wait", "sleep", "fullPrompt", ...flowSwitches]);
   const unapplied = Object.keys(partialIr ?? {}).filter((k) => !applicable.has(k));
   if (unapplied.length) {
     const actionsAsked = unapplied.includes("actions");
@@ -186195,9 +186417,13 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-var DENOISING_MODES = ["noise-cancellation"];
+var DENOISING_MODES = ["no-denoise", "noise-cancellation", "noise-and-background-speech-cancellation"];
 var STT_MODES = ["accurate", "fast", "custom"];
-var WELCOME_MESSAGE_MODES = ["ai_custom"];
+var WELCOME_MESSAGE_MODES = ["ai_custom", "user_first"];
+var USER_FIRST_SILENCE_DEFAULT_MS = 200;
+var S2S_MODELS = ["gpt-realtime-2", "gpt-realtime-2.1", "gemini-3.1-flash-live-preview", "gpt-live-1"];
+var isS2sModel = (m) => typeof m === "string" && S2S_MODELS.includes(m);
+var SPAM_NOTIFY_MODES = ["admin", "custom"];
 function assertNonEmptyString2(v, field) {
   if (typeof v !== "string" || v.length === 0) throw new IRError2("SCHEMA", `${field} must be a non-empty string`);
 }
@@ -186255,6 +186481,9 @@ function checkCallSettings(cs) {
   assertObject(cs, "callSettings");
   assertNumberIfPresent(cs.maxCallDuration, "callSettings.maxCallDuration");
   assertStringIfPresent(cs.language, "callSettings.language");
+  if (cs.languages !== void 0 && (!Array.isArray(cs.languages) || !cs.languages.length || cs.languages.some((x) => typeof x !== "string" || !x.trim()))) {
+    throw new IRError2("SCHEMA", "callSettings.languages must be a non-empty array of language codes (the builder's multi-select)");
+  }
   assertBooleanIfPresent(cs.sendUserIdleReminders, "callSettings.sendUserIdleReminders");
   assertNumberIfPresent(cs.reminderAfterIdleTimeSeconds, "callSettings.reminderAfterIdleTimeSeconds");
   assertNumberIfPresent(cs.reminderFrequency, "callSettings.reminderFrequency");
@@ -186272,7 +186501,6 @@ function checkOutbound(ob) {
   if (ob === void 0) return;
   assertObject(ob, "outbound");
   if (ob.aiDisclaimerConfiguration !== void 0) assertObject(ob.aiDisclaimerConfiguration, "outbound.aiDisclaimerConfiguration");
-  assertArrayIfPresent(ob.inboundNumbers, "outbound.inboundNumbers");
 }
 function checkKnowledgeBase(kb) {
   if (kb === void 0) return;
@@ -186302,18 +186530,161 @@ function checkActions2(actions) {
       throw new IRError2("SCHEMA", "action.actionParameters must be an object when present");
   }
 }
+var SECTION_KEYS = {
+  voice: [
+    "voiceId",
+    "voiceModel",
+    "voiceSpeed",
+    "voiceVolume",
+    "voiceTemperature",
+    "normalizeForSpeech",
+    "ambientSoundVolume",
+    "enableDynamicVoiceSpeed",
+    "denoisingMode",
+    "backgroundSound"
+  ],
+  behavior: [
+    "responsiveness",
+    "interruptionSensitivity",
+    "modelTemperature",
+    "enableBackchannel",
+    "backchannelFrequency",
+    "backchannelWords",
+    "enableDynamicResponsiveness"
+  ],
+  transcription: ["sttMode", "customSttConfig", "vocabSpecialization", "boostedKeywords", "pronunciationDictionary"],
+  callSettings: [
+    "maxCallDuration",
+    "language",
+    "languages",
+    "sendUserIdleReminders",
+    "reminderAfterIdleTimeSeconds",
+    "reminderFrequency",
+    "endCallAfterSilenceMs",
+    "ringDurationSeconds"
+  ],
+  postCall: ["callEndWorkflowIds", "sendPostCallNotificationTo", "saveCallSummaryAsNote"],
+  outbound: ["voicemailOption", "ivrOption", "aiDisclaimerConfiguration"],
+  knowledgeBase: ["knowledgeBaseIds", "knowledgeBasePrompt"],
+  translation: ["enabled", "language"],
+  noResponseConfig: ["enabled", "keywords"]
+};
+var TOP_KEYS = [
+  "agentName",
+  "agentPrompt",
+  "businessName",
+  "timezone",
+  "llmModel",
+  "welcomeMessage",
+  "welcomeMessageMode",
+  "userFirstFallback",
+  "beginAfterUserSilenceMs",
+  "beginMessageDelayMs",
+  "agentWorkingHours",
+  ...Object.keys(SECTION_KEYS),
+  "advancedSettingsEnabled",
+  "isAgentAsBackupDisabled",
+  "actions",
+  "prompts",
+  "disabledPrompts",
+  "sessionVariables",
+  "s2sBehaviour",
+  "endCallConfig",
+  "spamConfig",
+  "folderId"
+];
+var NUMBERS = "numbers are assigned on the Voice AI deploy screen, which is location-wide; this tool does not assign them";
+var ELSEWHERE = {
+  provider: 'the provider follows llmModel (a speech-to-speech model makes GHL switch it to "lc")',
+  inboundPhoneNumber: NUMBERS,
+  inboundNumbers: NUMBERS,
+  numberPoolId: NUMBERS,
+  mcpServers: "MCP servers are their own resource (/voice-ai/mcp/*)",
+  patienceLevel: "GHL accepts patienceLevel and stores nothing (a legacy control the builder still sends; measured 2026-09-29)"
+};
+var WHERE = Object.fromEntries(Object.entries(SECTION_KEYS).flatMap(([sec, keys]) => keys.map((k) => [k, sec])));
+function refuseUnapplied(ir) {
+  const problems = [];
+  for (const k of Object.keys(ir)) {
+    if (TOP_KEYS.includes(k)) continue;
+    if (k in ELSEWHERE) problems.push(`${k}: ${ELSEWHERE[k]}`);
+    else if (k in WHERE) problems.push(`${k}: in create_voiceai_agent it is ${WHERE[k]}.${k}`);
+    else problems.push(`${k}: not a field this tool writes`);
+  }
+  for (const [sec, keys] of Object.entries(SECTION_KEYS)) {
+    const v = ir[sec];
+    if (!v || typeof v !== "object" || Array.isArray(v)) continue;
+    for (const k of Object.keys(v)) {
+      if (keys.includes(k)) continue;
+      if (k in ELSEWHERE) problems.push(`${sec}.${k}: ${ELSEWHERE[k]}`);
+      else problems.push(`${sec}.${k}: not a field this tool writes (${sec} takes ${keys.join(", ")})`);
+    }
+  }
+  if (problems.length) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `create_voiceai_agent refuses spec key(s) it cannot apply, rather than creating an agent without them: ${problems.join("; ")}. Nothing was sent.`);
+  }
+}
+function checkWelcome(ir) {
+  if (ir.welcomeMessageMode !== void 0 && !WELCOME_MESSAGE_MODES.includes(ir.welcomeMessageMode))
+    throw new IRError2("BAD_WELCOME_MESSAGE_MODE", `welcomeMessageMode must be one of ${WELCOME_MESSAGE_MODES.join(", ")}, got: ${JSON.stringify(ir.welcomeMessageMode)}`);
+  const userFirst = ir.welcomeMessageMode === "user_first";
+  for (const k of ["userFirstFallback", "beginAfterUserSilenceMs"]) {
+    if (ir[k] !== void 0 && !userFirst) throw new IRError2("SCHEMA", `${k} applies only with welcomeMessageMode "user_first" (the builder sends it only then)`);
+  }
+  if (ir.userFirstFallback !== void 0) {
+    assertObject(ir.userFirstFallback, "userFirstFallback");
+    if (Object.keys(ir.userFirstFallback).some((k) => k !== "enabled") || typeof ir.userFirstFallback.enabled !== "boolean") {
+      throw new IRError2("SCHEMA", "userFirstFallback must be { enabled: boolean }");
+    }
+  }
+  if (ir.beginAfterUserSilenceMs !== void 0 && (typeof ir.beginAfterUserSilenceMs !== "number" || ir.beginAfterUserSilenceMs < 0)) {
+    throw new IRError2("SCHEMA", "beginAfterUserSilenceMs must be a non-negative number of milliseconds");
+  }
+}
+function checkEndCallConfig(v) {
+  if (v === void 0) return;
+  assertObject(v, "endCallConfig");
+  const keys = ["instruction", "spamDetectionEnabled", "spamDetectionInstruction"];
+  const other = Object.keys(v).filter((k) => !keys.includes(k));
+  if (other.length) throw new IRError2("SPEC_KEY_UNAPPLIED", `endCallConfig.${other.join(", ")} is not a field (endCallConfig takes ${keys.join(", ")})`);
+  assertStringIfPresent(v.instruction, "endCallConfig.instruction");
+  assertBooleanIfPresent(v.spamDetectionEnabled, "endCallConfig.spamDetectionEnabled");
+  assertStringIfPresent(v.spamDetectionInstruction, "endCallConfig.spamDetectionInstruction");
+}
+function checkSpamConfig(v) {
+  if (v === void 0) return;
+  assertObject(v, "spamConfig");
+  if (Object.keys(v).some((k) => k !== "postCallAnalysis")) throw new IRError2("SPEC_KEY_UNAPPLIED", "spamConfig takes only postCallAnalysis");
+  const p2 = v.postCallAnalysis;
+  assertObject(p2, "spamConfig.postCallAnalysis");
+  const keys = ["enabled", "blockThreshold", "notifyModes", "notifyEmails"];
+  const other = Object.keys(p2).filter((k) => !keys.includes(k));
+  if (other.length) throw new IRError2("SPEC_KEY_UNAPPLIED", `spamConfig.postCallAnalysis.${other.join(", ")} is not a field (it takes ${keys.join(", ")})`);
+  assertBooleanIfPresent(p2.enabled, "spamConfig.postCallAnalysis.enabled");
+  assertNumberIfPresent(p2.blockThreshold, "spamConfig.postCallAnalysis.blockThreshold");
+  if (p2.notifyModes !== void 0 && (!Array.isArray(p2.notifyModes) || !p2.notifyModes.length || p2.notifyModes.some((m) => !SPAM_NOTIFY_MODES.includes(m)))) {
+    throw new IRError2("SCHEMA", `spamConfig.postCallAnalysis.notifyModes must be a non-empty array of ${SPAM_NOTIFY_MODES.join(", ")}`);
+  }
+  if (p2.notifyEmails !== void 0 && (!Array.isArray(p2.notifyEmails) || p2.notifyEmails.some((e) => typeof e !== "string" || !e.trim()))) {
+    throw new IRError2("SCHEMA", "spamConfig.postCallAnalysis.notifyEmails must be an array of email addresses");
+  }
+  if ((p2.notifyEmails ?? []).length && !(p2.notifyModes ?? []).includes("custom")) {
+    throw new IRError2("SCHEMA", 'spamConfig.postCallAnalysis.notifyEmails needs notifyModes to include "custom" (the builder drops them otherwise)');
+  }
+}
 function parseVoiceAiIR(ir) {
   if (!ir || typeof ir !== "object") throw new IRError2("SCHEMA", "IR must be an object");
+  refuseUnapplied(ir);
   assertNonEmptyString2(ir.agentName, "agentName");
   assertNonEmptyString2(ir.agentPrompt, "agentPrompt");
   assertStringIfPresent(ir.businessName, "businessName");
   assertStringIfPresent(ir.timezone, "timezone");
   assertStringIfPresent(ir.llmModel, "llmModel");
   assertStringIfPresent(ir.welcomeMessage, "welcomeMessage");
-  if (ir.welcomeMessageMode !== void 0 && !WELCOME_MESSAGE_MODES.includes(ir.welcomeMessageMode))
-    throw new IRError2("BAD_WELCOME_MESSAGE_MODE", `welcomeMessageMode must be one of ${WELCOME_MESSAGE_MODES.join(", ")}, got: ${JSON.stringify(ir.welcomeMessageMode)}`);
+  checkWelcome(ir);
   assertNumberIfPresent(ir.beginMessageDelayMs, "beginMessageDelayMs");
   assertArrayIfPresent(ir.agentWorkingHours, "agentWorkingHours");
+  if (ir.folderId !== void 0 && (typeof ir.folderId !== "string" || !ir.folderId)) throw new IRError2("SCHEMA", "folderId must be a Voice AI folder id");
   checkVoice(ir.voice);
   checkBehavior(ir.behavior);
   checkTranscription(ir.transcription);
@@ -186323,10 +186694,469 @@ function parseVoiceAiIR(ir) {
   checkKnowledgeBase(ir.knowledgeBase);
   checkTranslation(ir.translation);
   checkNoResponseConfig(ir.noResponseConfig);
+  checkEndCallConfig(ir.endCallConfig);
+  checkSpamConfig(ir.spamConfig);
   assertBooleanIfPresent(ir.advancedSettingsEnabled, "advancedSettingsEnabled");
   assertBooleanIfPresent(ir.isAgentAsBackupDisabled, "isAgentAsBackupDisabled");
+  const s2s = isS2sModel(ir.llmModel);
+  if (ir.s2sBehaviour !== void 0 && !s2s) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `s2sBehaviour applies only to a speech-to-speech agent: llmModel must be one of ${S2S_MODELS.join(", ")} (got ${JSON.stringify(ir.llmModel)}). Nothing was sent.`);
+  }
+  if (ir.noResponseConfig !== void 0 && s2s) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", "noResponseConfig belongs to a Retell (text-model) agent; the builder never sends it for a speech-to-speech model. Nothing was sent.");
+  }
   checkActions2(ir.actions);
   return { ...ir };
+}
+
+// ../engines/ai/voiceai-update.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var NESTED_WHOLE = [
+  "aiDisclaimerConfiguration",
+  "sendPostCallNotificationTo",
+  "translation",
+  "noResponseConfig",
+  "endCallConfig",
+  "userFirstFallback"
+];
+var READ_ONLY_INNER = { aiDisclaimerConfiguration: ["isGreetingMessageDynamic"] };
+var writable = (key, v) => {
+  if (key === "s2sBehaviour" && isObj(v)) return Object.fromEntries(Object.entries(v).filter(([k]) => S2S_KEYS.includes(k)));
+  return isObj(v) && READ_ONLY_INNER[key] ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v;
+};
+var S2S_KEYS = ["responseDepth", "vadEagerness", "languages"];
+var S2S_ENUMS = { responseDepth: ["minimal", "low", "medium", "high", "xhigh"], vadEagerness: ["auto", "low", "medium", "high"] };
+function compileS2sBehaviour(current, v) {
+  const provider = current?.provider;
+  if (provider !== "lc") {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `s2sBehaviour applies only to a speech-to-speech agent; the stored agent's provider is ${JSON.stringify(provider)}. Switch it with llmModel (an s2s model such as gpt-realtime-2.1) in its own call first, or tune a text agent with responsiveness / interruptionSensitivity / modelTemperature and voiceModel. Nothing was sent.`);
+  }
+  if (!isObj(v) || !Object.keys(v).length) throw new IRError2("SCHEMA", `s2sBehaviour must be an object with any of ${S2S_KEYS.join(", ")}`);
+  const other = Object.keys(v).filter((k) => !S2S_KEYS.includes(k));
+  if (other.length) throw new IRError2("SPEC_KEY_UNAPPLIED", `s2sBehaviour.${other.join(", ")} is not written by this tool (writable: ${S2S_KEYS.join(", ")}; the s2s voice and model follow llmModel). Nothing was sent.`);
+  const out = {};
+  for (const [k, allowed] of Object.entries(S2S_ENUMS)) {
+    if (!(k in v)) continue;
+    if (!allowed.includes(v[k])) {
+      throw new IRError2("SCHEMA", `s2sBehaviour.${k} must be one of ${allowed.join(", ")} \u2014 this tool's rule (GHL stores any string, but the builder cannot render one outside this list). Nothing was sent.`);
+    }
+    out[k] = v[k];
+  }
+  if ("languages" in v) {
+    if (!Array.isArray(v.languages) || !v.languages.length || v.languages.some((x) => typeof x !== "string" || !x.trim())) {
+      throw new IRError2("SCHEMA", "s2sBehaviour.languages must be a non-empty array of language codes; it REPLACES the stored list");
+    }
+    out.languages = [...new Set(v.languages.map((x) => x.trim().split(/[-_]/)[0].toLowerCase()))];
+  }
+  return out;
+}
+var WRITABLE = /* @__PURE__ */ new Set([
+  "advancedSettingsEnabled",
+  "agentName",
+  "agentPrompt",
+  "agentWorkingHours",
+  "ambientSoundVolume",
+  "backchannelFrequency",
+  "backchannelWords",
+  "backgroundSound",
+  "beginMessageDelayMs",
+  "boostedKeywords",
+  "businessName",
+  "callEndWorkflowIds",
+  "customSttConfig",
+  "denoisingMode",
+  "enableBackchannel",
+  "enableDynamicResponsiveness",
+  "enableDynamicVoiceSpeed",
+  "endCallAfterSilenceMs",
+  "interruptionSensitivity",
+  "isAgentAsBackupDisabled",
+  "ivrOption",
+  "knowledgeBaseIds",
+  "knowledgeBasePrompt",
+  "language",
+  "llmModel",
+  "maxCallDuration",
+  "modelTemperature",
+  "normalizeForSpeech",
+  "pronunciationDictionary",
+  "reminderAfterIdleTimeSeconds",
+  "reminderFrequency",
+  "responsiveness",
+  "ringDurationSeconds",
+  "saveCallSummaryAsNote",
+  "sendUserIdleReminders",
+  "sttMode",
+  "timezone",
+  "vocabSpecialization",
+  "voiceId",
+  "voiceModel",
+  "voiceSpeed",
+  "voiceTemperature",
+  "voiceVolume",
+  "voicemailOption",
+  "welcomeMessage",
+  "welcomeMessageMode",
+  ...NESTED_WHOLE,
+  "sessionVariables",
+  "s2sBehaviour",
+  "prompts",
+  "disabledPrompts",
+  // the builder's save sends these too (voiceAiApp 2cd393ea@118300–121361)
+  "languages",
+  "beginAfterUserSilenceMs",
+  "spamConfig"
+]);
+var SPAM_KEYS = ["enabled", "blockThreshold", "notifyModes", "notifyEmails"];
+function compileSpamConfigUpdate(current, v) {
+  if (!isObj(v) || Object.keys(v).some((k) => k !== "postCallAnalysis") || !isObj(v.postCallAnalysis)) {
+    throw new IRError2("SCHEMA", "spamConfig must be { postCallAnalysis: { enabled?, blockThreshold?, notifyModes?, notifyEmails? } }");
+  }
+  const other = Object.keys(v.postCallAnalysis).filter((k) => !SPAM_KEYS.includes(k));
+  if (other.length) throw new IRError2("SPEC_KEY_UNAPPLIED", `spamConfig.postCallAnalysis.${other.join(", ")} is not a field (it takes ${SPAM_KEYS.join(", ")}). Nothing was sent.`);
+  const stored = readFlat(current, "spamConfig")?.postCallAnalysis;
+  const p2 = { enabled: false, blockThreshold: 5, notifyModes: ["admin"], notifyEmails: [], ...isObj(stored) ? stored : {}, ...v.postCallAnalysis };
+  if (typeof p2.enabled !== "boolean") throw new IRError2("SCHEMA", "spamConfig.postCallAnalysis.enabled must be a boolean");
+  if (typeof p2.blockThreshold !== "number") throw new IRError2("SCHEMA", "spamConfig.postCallAnalysis.blockThreshold must be a number");
+  if (!Array.isArray(p2.notifyModes) || !p2.notifyModes.length || p2.notifyModes.some((m) => m !== "admin" && m !== "custom")) {
+    throw new IRError2("SCHEMA", "spamConfig.postCallAnalysis.notifyModes must be a non-empty array of admin, custom");
+  }
+  if (!Array.isArray(p2.notifyEmails) || p2.notifyEmails.some((e) => typeof e !== "string" || !e.trim())) {
+    throw new IRError2("SCHEMA", "spamConfig.postCallAnalysis.notifyEmails must be an array of email addresses");
+  }
+  const notifyModes = [...new Set(p2.notifyModes)];
+  return { postCallAnalysis: {
+    enabled: p2.enabled,
+    blockThreshold: p2.blockThreshold,
+    notifyModes,
+    notifyEmails: notifyModes.includes("custom") ? p2.notifyEmails.map((e) => e.trim()) : []
+  } };
+}
+var ELSEWHERE2 = {
+  actions: "actions are their own resource (POST/PUT/DELETE /voice-ai/actions)",
+  callTransferActions: "actions are their own resource",
+  contactFieldActions: "actions are their own resource",
+  workflowActions: "actions are their own resource",
+  smsActions: "actions are their own resource",
+  customActions: "actions are their own resource",
+  agentTransferActions: "actions are their own resource",
+  capActions: "actions are their own resource",
+  appointmentBookingAction: "actions are their own resource",
+  mcpServers: "MCP servers are their own resource (/voice-ai/mcp/*)",
+  inboundNumber: "numbers are assigned on the deploy screen (location-wide)",
+  inboundNumbers: "numbers are assigned on the deploy screen (location-wide)",
+  inboundPhoneNumber: "numbers are assigned on the deploy screen (location-wide)",
+  numberPoolId: "numbers are assigned on the deploy screen (location-wide)",
+  provider: "the provider changes only through the upgrade (switch-provider) path",
+  // Measured 2026-09-29 on a test agent: the builder save still sends patienceLevel, GHL answers 200 and stores it nowhere
+  // (absent from every read, create PUT and partial PUT alike). A write that changes nothing is refused.
+  patienceLevel: "GHL accepts patienceLevel and stores nothing (a legacy control, measured 2026-09-29); tune responsiveness / interruptionSensitivity instead"
+};
+var PROVIDER_BOUNDS = {
+  beginMessageDelayMs: [0, 5e3, "Begin message delay ms must be between 0 and 5 seconds"],
+  // Measured 2026-09-28: 1.5 answered 400 "backchannel_frequency must be within [0,1]" and was stored.
+  backchannelFrequency: [0, 1, "backchannel_frequency must be within [0,1]"]
+};
+var isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+function readFlat(record2, key) {
+  const s = record2?.agentSettings ?? {};
+  if (key === "voiceId") return (record2?.provider === "lc" ? s.s2sBehaviour?.voiceId : void 0) ?? s.voice?.voiceId ?? record2?.voiceId;
+  if (key === "language") return isObj(s.language) ? s.language.code : s.language ?? record2?.language;
+  if (key === "ringDurationSeconds") return typeof s.ringDurationMs === "number" ? s.ringDurationMs / 1e3 : record2?.ringDurationSeconds;
+  if (key === "welcomeMessage") return record2?.welcomeMessage ?? record2?.agentWelcomeMessage;
+  if (key in (record2 ?? {})) return record2[key];
+  return s[key];
+}
+var SESSION_VAR_NAME = /^session\.[A-Za-z0-9_-]+$/;
+var SESSION_VAR_TYPES = ["string", "number", "boolean", "object", "array"];
+function mergeSessionVariables(stored, entries) {
+  if (!Array.isArray(entries) || !entries.length) {
+    throw new IRError2("SCHEMA", "sessionVariables must be a non-empty array of { name, label?, dataType?, defaultValue?, description? } (or { name, remove: true }). It is merged into the stored list by name; nothing stored is dropped unless removed by name.");
+  }
+  const out = (Array.isArray(stored) ? stored : []).map((v) => ({ ...v }));
+  const seen = /* @__PURE__ */ new Set();
+  for (const e of entries) {
+    if (!isObj(e) || typeof e.name !== "string") throw new IRError2("SCHEMA", "each sessionVariables entry needs a string name");
+    if (seen.has(e.name)) throw new IRError2("SCHEMA", `sessionVariables names ${e.name} twice (the server refuses duplicates: 400 "Duplicate session variable name")`);
+    seen.add(e.name);
+    const i = out.findIndex((v) => v.name === e.name);
+    if (e.remove === true) {
+      if (i < 0) throw new IRError2("SCHEMA", `cannot remove session variable ${e.name}: the agent has none of that name. Nothing was sent.`);
+      out.splice(i, 1);
+      continue;
+    }
+    if (!SESSION_VAR_NAME.test(e.name)) throw new IRError2("SCHEMA", `session variable name ${JSON.stringify(e.name)} must be "session." followed by letters, numbers, underscores or dashes (server rule)`);
+    if (e.name.length > 64) throw new IRError2("SCHEMA", `session variable name ${e.name} exceeds 64 characters (server rule)`);
+    const { remove, ...fields2 } = e;
+    const next = i < 0 ? { label: e.name.slice("session.".length), dataType: "string", defaultValue: "", ...fields2 } : { ...out[i], ...fields2 };
+    if (!SESSION_VAR_TYPES.includes(next.dataType)) throw new IRError2("SCHEMA", `session variable ${e.name} dataType must be one of ${SESSION_VAR_TYPES.join(", ")} (server rule)`);
+    if (i < 0) out.push(next);
+    else out[i] = next;
+  }
+  return out;
+}
+var PROMPT_SECTIONS = ["personality", "appointmentBooking", "dateAndTimeAwareness", "numericAndEmailHandling", "emailConfirmationProcess"];
+var PROMPT_ELSEWHERE = {
+  endCall: "the hangup prompt is endCallConfig.instruction (send endCallConfig)",
+  endCallSts: "the speech-to-speech hangup prompt is endCallConfig.instruction (send endCallConfig)",
+  endCallSpamDetection: "the spam rule is endCallConfig.spamDetectionInstruction (send endCallConfig)",
+  greetingRule: "GHL does not store it: a prompts write answered 200 and dropped it"
+};
+function compilePrompts(v) {
+  if (!isObj(v) || !Object.keys(v).length) throw new IRError2("SCHEMA", "prompts must be an object of { section: text | null }");
+  const elsewhere = Object.keys(v).filter((k) => k in PROMPT_ELSEWHERE);
+  if (elsewhere.length) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", elsewhere.map((k) => `prompts.${k}: ${PROMPT_ELSEWHERE[k]}`).join("; ") + ". Nothing was sent.");
+  }
+  const unknown2 = Object.keys(v).filter((k) => !PROMPT_SECTIONS.includes(k));
+  if (unknown2.length) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `unknown system-prompt section(s) [${unknown2.join(", ")}]. Sections GHL stores: ${PROMPT_SECTIONS.join(", ")}. Nothing was sent. If GHL has added a section, write it with raw_request (PUT /voice-ai/agents/{id} {prompts}) and read the agent back: a section it does not store answers 200 and is dropped.`);
+  }
+  for (const [k, text] of Object.entries(v)) {
+    if (text !== null && (typeof text !== "string" || !text.trim())) {
+      throw new IRError2("SCHEMA", `prompts.${k} must be text, or null to reset the section to GHL's default`);
+    }
+  }
+  return { ...v };
+}
+function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}) {
+  if (!agentId) throw new IRError2("MISSING_FIELD", "update_voiceai_agent requires agentId");
+  if (!isObj(current)) throw new IRError2("SCHEMA", "the CURRENT agent record is required \u2014 read it first");
+  if (!isObj(spec) || !Object.keys(spec).length) throw new IRError2("SCHEMA", "spec must name at least one field to change");
+  const elsewhere = Object.keys(spec).filter((k) => k in ELSEWHERE2);
+  if (elsewhere.length) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `update_voiceai_agent does not write [${elsewhere.join(", ")}]: ` + elsewhere.map((k) => `${k} \u2014 ${ELSEWHERE2[k]}`).join("; ") + ". Nothing was sent.");
+  }
+  const unknown2 = Object.keys(spec).filter((k) => !WRITABLE.has(k));
+  if (unknown2.length) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `unknown or read-only key(s) [${unknown2.join(", ")}] \u2014 refused rather than sent. Writable keys: ${[...WRITABLE].sort().join(", ")}.`);
+  }
+  for (const [k, [lo, hi, msg]] of Object.entries(PROVIDER_BOUNDS)) {
+    if (k in spec && (typeof spec[k] !== "number" || spec[k] < lo || spec[k] > hi)) {
+      throw new IRError2("SCHEMA", `${k} must be ${lo}\u2013${hi} (${msg}). The provider enforces this AFTER GHL stores the value, so an out-of-range write leaves the agent diverged; it is refused here. Nothing was sent.`);
+    }
+  }
+  const body2 = { locationId: locationId ?? current.locationId };
+  if ("knowledgeBasePrompt" in spec && !("knowledgeBaseIds" in spec)) {
+    const ids = Array.isArray(current.knowledgeBaseIds) ? current.knowledgeBaseIds : [];
+    if (!ids.length) {
+      throw new IRError2("SCHEMA", "knowledgeBasePrompt needs a knowledge base on the agent: none is attached, and the prompt lives on the knowledge-base action the attach creates. Send knowledgeBaseIds with it. Nothing was sent.");
+    }
+    body2.knowledgeBaseIds = ids;
+  }
+  const expected = {};
+  for (const [k, v] of Object.entries(spec)) {
+    if (NESTED_WHOLE.includes(k)) {
+      if (!isObj(v)) throw new IRError2("SCHEMA", `${k} must be an object (it is sent whole, merged over the stored one)`);
+      const refused = Object.keys(v).filter((x) => READ_ONLY_INNER[k]?.includes(x));
+      if (refused.length) {
+        throw new IRError2("SPEC_KEY_UNAPPLIED", `${k}.${refused.join(", ")} is read-only: the agent read carries it but the write refuses it (422 "should not exist"). Drop it from the spec. Nothing was sent.`);
+      }
+      const stored = readFlat(current, k);
+      body2[k] = writable(k, { ...isObj(stored) ? stored : {}, ...v });
+    } else if (k === "prompts") {
+      body2[k] = compilePrompts(v);
+    } else if (k === "disabledPrompts") {
+      if (!Array.isArray(v) || !v.length || v.some((x) => typeof x !== "string" || !x.trim())) {
+        throw new IRError2("SCHEMA", "disabledPrompts must be a non-empty array of section names (it replaces the stored list). An empty list is refused: clearing it has not been measured. Nothing was sent.");
+      }
+      body2[k] = [...v];
+    } else if (k === "s2sBehaviour") {
+      body2[k] = compileS2sBehaviour(current, v);
+    } else if (k === "sessionVariables") {
+      body2[k] = mergeSessionVariables(current.sessionVariables, v);
+    } else if (k === "spamConfig") {
+      body2[k] = compileSpamConfigUpdate(current, v);
+    } else if (k === "languages") {
+      if (!Array.isArray(v) || !v.length || v.some((x) => typeof x !== "string" || !x.trim())) {
+        throw new IRError2("SCHEMA", "languages must be a non-empty array of language codes (the builder's multi-select; it replaces the stored list)");
+      }
+      body2[k] = [...v];
+    } else if (k === "beginAfterUserSilenceMs") {
+      const mode = spec.welcomeMessageMode ?? readFlat(current, "welcomeMessageMode");
+      if (mode !== "user_first") {
+        throw new IRError2("SPEC_KEY_UNAPPLIED", `beginAfterUserSilenceMs applies only with welcomeMessageMode "user_first" (the agent's is ${JSON.stringify(mode)}); send welcomeMessageMode with it. Nothing was sent.`);
+      }
+      if (typeof v !== "number" || v < 0) throw new IRError2("SCHEMA", "beginAfterUserSilenceMs must be a non-negative number of milliseconds");
+      body2[k] = v;
+    } else {
+      body2[k] = v;
+    }
+    expected[k] = body2[k];
+  }
+  return { method: "PUT", path: `/voice-ai/agents/${agentId}`, body: body2, expected, setKeys: Object.keys(spec) };
+}
+var same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+var KB_KEYS = ["knowledgeBaseIds", "knowledgeBasePrompt"];
+var MODEL_CASCADE = /* @__PURE__ */ new Set(["provider", "providerAgentId", "providerAgents", "agentSettings.s2sBehaviour"]);
+var kbActions = (record2) => (record2?.actions ?? []).filter((a) => a?.actionType === "KNOWLEDGE_BASE");
+function readSet(record2, key) {
+  if (key === "knowledgeBasePrompt") {
+    const prompts = [...new Set(kbActions(record2).map((a) => a.actionParameters?.triggerPrompt))];
+    return prompts.length === 1 ? prompts[0] : prompts;
+  }
+  return writable(key, readFlat(record2, key));
+}
+var IGNORE = /* @__PURE__ */ new Set(["updatedAt", "traceId", "__v"]);
+function fields(record2) {
+  const out = {};
+  for (const [k, v] of Object.entries(record2 ?? {})) if (!IGNORE.has(k) && k !== "agentSettings") out[k] = v;
+  for (const [k, v] of Object.entries(record2?.agentSettings ?? {})) out[`agentSettings.${k}`] = v;
+  if (isObj(out["agentSettings.s2sBehaviour"])) {
+    const { totalTokens, ...rest } = out["agentSettings.s2sBehaviour"];
+    out["agentSettings.s2sBehaviour"] = rest;
+  }
+  return out;
+}
+function readNames(key) {
+  if (key === "voiceId") return ["agentSettings.voice", "voiceId"];
+  if (key === "language") return ["agentSettings.language", "language"];
+  if (key === "ringDurationSeconds") return ["agentSettings.ringDurationMs"];
+  if (key === "welcomeMessage") return ["welcomeMessage", "agentWelcomeMessage"];
+  return [key, `agentSettings.${key}`];
+}
+async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMessage2 }) {
+  const read = async () => {
+    const r = await gw.call("GET", `${plan.path}?locationId=${encodeURIComponent(plan.body.locationId)}`);
+    return r?.ok ? r.json?.agent ?? r.json : null;
+  };
+  const put = await gw.call("PUT", plan.path, plan.body);
+  const after = await read();
+  if (!after) return { ok: false, code: "AGENT_VERIFY_UNREACHABLE", detail: "the write answered but the agent could not be re-read; nothing is proven" };
+  if (!put?.ok) {
+    const stored = plan.setKeys.filter((k) => !same(readFlat(after, k), readFlat(before, k)));
+    const message = serverMessage2(put?.json) ?? `HTTP ${put?.status ?? "?"}`;
+    if (!stored.length) return { ok: false, code: "AGENT_UPDATE_FAILED", status: put?.status ?? null, detail: message, written: [] };
+    const undo = { locationId: plan.body.locationId };
+    for (const k of stored) {
+      undo[k] = k === "prompts" ? Object.fromEntries(Object.keys(plan.body.prompts).map((s) => [s, before?.prompts?.[s] ?? null])) : writable(k, readFlat(before, k));
+    }
+    const u = await gw.call("PUT", plan.path, undo);
+    const again = await read();
+    const diverged = stored.filter((k) => !same(readFlat(again, k), readFlat(before, k)));
+    const restored = diverged.length === 0 && Boolean(u?.ok);
+    const values = Object.fromEntries(stored.map((k) => [k, {
+      sent: plan.body[k],
+      storedAfterRefusal: readFlat(after, k),
+      restoredTo: readFlat(before, k),
+      readsNow: again ? readFlat(again, k) : void 0
+    }]));
+    if (!restored) {
+      return {
+        ok: false,
+        code: "PROVIDER_REFUSED_RESTORE_FAILED",
+        status: put?.status ?? null,
+        detail: message,
+        written: stored,
+        restored: false,
+        values,
+        diverged,
+        warning: `\u{1F534} The refusal stored [${stored.join(", ")}] and writing the previous values back did NOT verify for [${diverged.join(", ") || stored.join(", ")}]. The GHL record and the voice provider now DISAGREE on those fields \u2014 re-read the agent and write a valid value for each.`
+      };
+    }
+    return {
+      ok: false,
+      code: "PROVIDER_REFUSED_BUT_STORED",
+      status: put?.status ?? null,
+      detail: message,
+      written: stored,
+      restored: true,
+      values,
+      warning: `The refusal came back AFTER GHL stored [${stored.join(", ")}] \u2014 the GHL record and the voice provider disagreed. The previous values were written back and read back (data.values shows sent / stored / restored / now).`
+    };
+  }
+  const confirmed = [];
+  const mismatches = [];
+  const pick3 = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
+  const got = (k) => {
+    if (k === "s2sBehaviour") return pick3(readFlat(after, k), Object.keys(plan.expected[k]));
+    if (k === "spamConfig") return { postCallAnalysis: pick3(readFlat(after, k)?.postCallAnalysis, Object.keys(plan.expected[k].postCallAnalysis)) };
+    if (k === "prompts") return Object.fromEntries(Object.keys(plan.expected.prompts).map((s) => [s, after?.prompts?.[s] ?? null]));
+    return readSet(after, k);
+  };
+  for (const k of plan.setKeys) (same(got(k), plan.expected[k]) ? confirmed : mismatches).push(k);
+  const setNames = new Set(plan.setKeys.flatMap(readNames));
+  const b = fields(before);
+  const a = fields(after);
+  const changed = [];
+  const cascade = [];
+  const modelChange = plan.setKeys.includes("llmModel");
+  const kbChange = plan.setKeys.some((k) => KB_KEYS.includes(k));
+  const nonKb = (list) => JSON.stringify((list ?? []).filter((x) => x?.actionType !== "KNOWLEDGE_BASE"));
+  const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
+  const retemplated = [];
+  const oldName = readFlat(before, "agentName");
+  const newName = plan.body.agentName;
+  const renameOnly = plan.setKeys.includes("agentName") && !plan.setKeys.includes("agentPrompt") && typeof oldName === "string" && oldName.length > 0 && typeof newName === "string" && oldName !== newName;
+  const isRetemplate = (x, y) => renameOnly && typeof x === "string" && typeof y === "string" && x.includes(oldName) && x.split(oldName).join(newName) === y;
+  for (const k of /* @__PURE__ */ new Set([...Object.keys(b), ...Object.keys(a)])) {
+    if (setNames.has(k)) continue;
+    if (k === "agentSettings.s2sBehaviour" && plan.setKeys.includes("voiceId")) {
+      const omitVoice = (o) => isObj(o) ? Object.fromEntries(Object.entries(o).filter(([x]) => x !== "voiceId")) : o;
+      if (same(omitVoice(b[k]), omitVoice(a[k]))) continue;
+    }
+    if (kbChange && k === "actions" && nonKb(b[k]) === nonKb(a[k])) continue;
+    if (kbChange && k === "actionIds" && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
+    if (same(b[k], a[k])) continue;
+    if (k === "agentPrompt" && isRetemplate(b[k], a[k])) {
+      retemplated.push({ key: k, from: oldName, to: newName });
+      continue;
+    }
+    if (b[k] === void 0 && isObj(a[k]) && !Object.keys(a[k]).length) continue;
+    if (modelChange && MODEL_CASCADE.has(k)) {
+      cascade.push({ key: k, before: b[k], after: a[k] });
+      continue;
+    }
+    changed.push({ key: k, before: b[k], after: a[k] });
+  }
+  if (plan.setKeys.includes("prompts")) {
+    const pb = before?.prompts ?? {};
+    const pa = after?.prompts ?? {};
+    for (const s of /* @__PURE__ */ new Set([...Object.keys(pb), ...Object.keys(pa)])) {
+      if (s in plan.expected.prompts) continue;
+      if (!same(pb[s], pa[s])) changed.push({ key: `prompts.${s}`, before: pb[s], after: pa[s] });
+    }
+  }
+  if (plan.setKeys.includes("s2sBehaviour")) {
+    const sb = readFlat(before, "s2sBehaviour") ?? {};
+    const sa = readFlat(after, "s2sBehaviour") ?? {};
+    const sent = Object.keys(plan.expected.s2sBehaviour);
+    for (const k of /* @__PURE__ */ new Set([...Object.keys(sb), ...Object.keys(sa)])) {
+      if (sent.includes(k) || k === "totalTokens") continue;
+      if (!same(sb[k], sa[k])) changed.push({ key: `agentSettings.s2sBehaviour.${k}`, before: sb[k], after: sa[k] });
+    }
+  }
+  const verification = { verified: mismatches.length === 0 && confirmed.length > 0, confirmed, mismatches };
+  const collateral = {
+    unchanged: changed.length === 0,
+    changed,
+    ...cascade.length ? { cascade } : {},
+    ...retemplated.length ? { retemplated, note: `GHL re-templated the agent name inside agentPrompt ("${oldName}" \u2192 "${newName}" at every occurrence); nothing else in the prompt moved` } : {}
+  };
+  if (changed.length) {
+    return {
+      ok: false,
+      code: "AGENT_COLLATERAL_CHANGED",
+      verification,
+      collateral,
+      detail: `the update moved ${changed.length} field(s) it was not asked to touch: ${changed.map((c) => c.key).join(", ")}`
+    };
+  }
+  if (mismatches.length) {
+    return {
+      ok: false,
+      code: "AGENT_VERIFY_MISMATCH",
+      verification,
+      collateral,
+      detail: `accepted but not stored as sent: [${mismatches.join(", ")}] \u2014 e.g. backchannelWords reads back [] while enableBackchannel is off`
+    };
+  }
+  return { ok: true, verification, collateral };
 }
 
 // ../engines/ai/voiceai-compiler.mjs
@@ -186356,13 +187186,12 @@ var DEFAULTS2 = {
   llmModel: "gpt-4.1",
   knowledgeBaseIds: null,
   knowledgeBasePrompt: "Use this knowledge base if the user asks any questions about the business, services, products, contact details, or other relevant information that requires accessing the business wiki to provide accurate and up-to-date information.",
-  provider: "RETELL",
-  // Retell is the only backing voice provider observed; not IR-settable.
   translation: { enabled: false, language: null },
   beginMessageDelayMs: 0,
   welcomeMessageMode: "ai_custom",
   responsiveness: 1,
   endCallAfterSilenceMs: 15e3,
+  // a speech-to-speech agent's default is 60000 (the builder's per-provider default)
   ringDurationSeconds: 5,
   sttMode: "accurate",
   customSttConfig: null,
@@ -186399,6 +187228,27 @@ function disclaimerFor(businessName) {
   const who = typeof businessName === "string" && businessName.trim() ? `${businessName.trim()}'s AI assistant` : "an AI assistant";
   return `Hi {{contact.first_name}}, this is ${who}. You can say, 'Don't call me again,' to opt out.`;
 }
+var S2S_END_CALL_AFTER_SILENCE_MS = 6e4;
+function compileDisabledPrompts(v) {
+  if (!Array.isArray(v) || !v.length || v.some((x) => typeof x !== "string" || !x.trim())) {
+    throw new IRError2("SCHEMA", 'disabledPrompts must be a non-empty array of section names (build 707 sends ["personality"]: the Personality section is retired)');
+  }
+  return [...v];
+}
+function compileEndCallConfig(v) {
+  const text = (x) => typeof x === "string" && x.trim() ? x.trim() : null;
+  return { instruction: text(v.instruction), spamDetectionEnabled: v.spamDetectionEnabled === true, spamDetectionInstruction: text(v.spamDetectionInstruction) };
+}
+function compileSpamConfig(v) {
+  const p2 = v.postCallAnalysis ?? {};
+  const notifyModes = [...new Set(p2.notifyModes ?? ["admin"])];
+  return { postCallAnalysis: {
+    enabled: p2.enabled === true,
+    blockThreshold: p2.blockThreshold ?? 5,
+    notifyModes,
+    notifyEmails: notifyModes.includes("custom") ? (p2.notifyEmails ?? []).map((e) => e.trim()) : []
+  } };
+}
 function buildUpdateBody(ir, { locationId } = {}) {
   const voice = ir.voice ?? {};
   const behavior = ir.behavior ?? {};
@@ -186409,6 +187259,7 @@ function buildUpdateBody(ir, { locationId } = {}) {
   const kb = ir.knowledgeBase ?? {};
   const translation = ir.translation ?? {};
   const noResponseConfig = ir.noResponseConfig ?? {};
+  const s2s = isS2sModel(ir.llmModel);
   const enableBackchannel = behavior.enableBackchannel ?? DEFAULTS2.enableBackchannel;
   const backchannelFrequency = behavior.backchannelFrequency ?? (enableBackchannel ? 0.8 : DEFAULTS2.backchannelFrequency);
   return {
@@ -186416,12 +187267,15 @@ function buildUpdateBody(ir, { locationId } = {}) {
     welcomeMessage: ir.welcomeMessage ?? DEFAULTS2.welcomeMessage,
     voiceId: voice.voiceId ?? DEFAULTS2.voiceId,
     voiceModel: voice.voiceModel ?? DEFAULTS2.voiceModel,
-    language: callSettings.language ?? DEFAULTS2.language,
+    language: callSettings.language ?? callSettings.languages?.[0] ?? DEFAULTS2.language,
+    // the builder's multi-select; sent beside `language` as it sends it (2cd393ea@118300)
+    ...callSettings.languages !== void 0 ? { languages: [...callSettings.languages] } : {},
     locationId,
     businessName: ir.businessName ?? DEFAULTS2.businessName,
-    inboundPhoneNumber: outbound.inboundPhoneNumber ?? DEFAULTS2.inboundPhoneNumber,
-    inboundNumbers: outbound.inboundNumbers ?? DEFAULTS2.inboundNumbers,
-    numberPoolId: outbound.numberPoolId ?? DEFAULTS2.numberPoolId,
+    // numbers are the deploy screen's (location-wide): never assigned here, sent empty as the builder sends an unassigned agent
+    inboundPhoneNumber: DEFAULTS2.inboundPhoneNumber,
+    inboundNumbers: DEFAULTS2.inboundNumbers,
+    numberPoolId: DEFAULTS2.numberPoolId,
     agentPrompt: ir.agentPrompt,
     callEndWorkflowIds: postCall.callEndWorkflowIds ?? DEFAULTS2.callEndWorkflowIds,
     advancedSettingsEnabled: ir.advancedSettingsEnabled ?? DEFAULTS2.advancedSettingsEnabled,
@@ -186444,15 +187298,19 @@ function buildUpdateBody(ir, { locationId } = {}) {
     llmModel: ir.llmModel ?? DEFAULTS2.llmModel,
     knowledgeBaseIds: kb.knowledgeBaseIds ?? DEFAULTS2.knowledgeBaseIds,
     knowledgeBasePrompt: kb.knowledgeBasePrompt ?? DEFAULTS2.knowledgeBasePrompt,
-    provider: DEFAULTS2.provider,
     translation: {
       enabled: translation.enabled ?? DEFAULTS2.translation.enabled,
       language: translation.language ?? DEFAULTS2.translation.language
     },
     beginMessageDelayMs: ir.beginMessageDelayMs ?? DEFAULTS2.beginMessageDelayMs,
     welcomeMessageMode: ir.welcomeMessageMode ?? DEFAULTS2.welcomeMessageMode,
+    // user_first: the builder always adds these two (2cd393ea@120431)
+    ...ir.welcomeMessageMode === "user_first" ? {
+      userFirstFallback: { enabled: ir.userFirstFallback?.enabled ?? true },
+      beginAfterUserSilenceMs: ir.beginAfterUserSilenceMs ?? USER_FIRST_SILENCE_DEFAULT_MS
+    } : {},
     responsiveness: behavior.responsiveness ?? DEFAULTS2.responsiveness,
-    endCallAfterSilenceMs: callSettings.endCallAfterSilenceMs ?? DEFAULTS2.endCallAfterSilenceMs,
+    endCallAfterSilenceMs: callSettings.endCallAfterSilenceMs ?? (s2s ? S2S_END_CALL_AFTER_SILENCE_MS : DEFAULTS2.endCallAfterSilenceMs),
     ringDurationSeconds: callSettings.ringDurationSeconds ?? DEFAULTS2.ringDurationSeconds,
     sttMode: transcription.sttMode ?? DEFAULTS2.sttMode,
     customSttConfig: transcription.customSttConfig ?? DEFAULTS2.customSttConfig,
@@ -186473,11 +187331,16 @@ function buildUpdateBody(ir, { locationId } = {}) {
       ...DEFAULTS2.aiDisclaimerConfiguration,
       outboundDisclaimerMessage: disclaimerFor(ir.businessName ?? DEFAULTS2.businessName)
     },
-    prompts: ir.prompts ?? DEFAULTS2.prompts,
-    noResponseConfig: {
+    prompts: ir.prompts !== void 0 ? compilePrompts(ir.prompts) : DEFAULTS2.prompts,
+    ...ir.disabledPrompts !== void 0 ? { disabledPrompts: compileDisabledPrompts(ir.disabledPrompts) } : {},
+    // the builder sends noResponseConfig only for a Retell (text-model) agent
+    ...s2s ? {} : { noResponseConfig: {
       enabled: noResponseConfig.enabled ?? DEFAULTS2.noResponseConfig.enabled,
       keywords: noResponseConfig.keywords ?? DEFAULTS2.noResponseConfig.keywords
-    }
+    } },
+    ...ir.sessionVariables !== void 0 ? { sessionVariables: mergeSessionVariables([], ir.sessionVariables) } : {},
+    ...ir.endCallConfig !== void 0 ? { endCallConfig: compileEndCallConfig(ir.endCallConfig) } : {},
+    ...ir.spamConfig !== void 0 ? { spamConfig: compileSpamConfig(ir.spamConfig) } : {}
   };
 }
 function assertRequiredParam(v, field, type) {
@@ -186641,9 +187504,15 @@ function compileVoiceAiAction(action, { agentId = null, locationId } = {}) {
 }
 function compileVoiceAiAgent(ir, { locationId } = {}) {
   const norm3 = parseVoiceAiIR(ir);
-  const create = { method: "POST", path: "/voice-ai/agents", body: { locationId } };
+  const create = { method: "POST", path: "/voice-ai/agents", body: { locationId, ...norm3.folderId ? { folderId: norm3.folderId } : {} } };
   const actions = (norm3.actions ?? []).map((a) => compileVoiceAiAction(a, { agentId: null, locationId }));
   return { create, actions, authHeader: AUTH_HEADER2 };
+}
+function compileVoiceAiS2sFollowUp(ir, { agentId, locationId } = {}) {
+  const norm3 = parseVoiceAiIR(ir);
+  if (norm3.s2sBehaviour === void 0) return null;
+  const s2sBehaviour = compileS2sBehaviour({ provider: "lc" }, norm3.s2sBehaviour);
+  return { method: "PUT", path: `/voice-ai/agents/${agentId}`, body: { locationId, s2sBehaviour }, authHeader: AUTH_HEADER2 };
 }
 var OMIT_WHEN_EMPTY = ["businessName", "welcomeMessage", "timezone"];
 function compileVoiceAiUpdate(fullIr, { agentId, locationId } = {}) {
@@ -186750,6 +187619,36 @@ function checkStarterPrompts(prompts) {
     assertNonEmptyString3(p2.label, "starterPrompt.label");
     assertNonEmptyString3(p2.prompt, "starterPrompt.prompt");
   }
+}
+var CREATE_KEYS2 = [
+  "name",
+  "buildPrompt",
+  "systemPrompt",
+  "description",
+  "model",
+  "tools",
+  "trigger",
+  "triggers",
+  "plugins",
+  "reasoningEffort",
+  "knowledgeBaseIds",
+  "starterPrompts",
+  "imageGeneration",
+  "mediaSettings"
+];
+var ELSEWHERE3 = {
+  folderId: "folder placement at create is not written by this tool: move the agent afterwards (raw_request on the /agent-studio agent-folder routes)",
+  folderName: "folder placement at create is not written by this tool: move the agent afterwards (raw_request on the /agent-studio agent-folder routes)",
+  templateId: "template creation is its own route: raw_request POST /agent-studio/super-agent/agents/from-template {templateId, locationId}",
+  customApiEnabled: "custom API calls are not written at create: raw_request PUT the agent config afterwards",
+  publish: "this tool never publishes; the agent is created as a draft",
+  config: "pass the config fields at the top level of spec (name, systemPrompt, tools, triggers, \u2026)"
+};
+function refuseUnappliedStudioKeys(spec) {
+  const unapplied = Object.keys(spec ?? {}).filter((k) => !CREATE_KEYS2.includes(k));
+  if (!unapplied.length) return;
+  const where = unapplied.filter((k) => k in ELSEWHERE3).map((k) => `${k}: ${ELSEWHERE3[k]}`);
+  throw new IRError2("SPEC_KEY_UNAPPLIED", `create_studio_agent cannot apply spec key(s) [${unapplied.join(", ")}], and refuses rather than creating an agent without them. ${where.length ? `${where.join("; ")}. ` : ""}Nothing was sent. Applicable keys: ${CREATE_KEYS2.join(", ")}.`);
 }
 function parseSuperAgentIR(ir) {
   if (!ir || typeof ir !== "object") throw new IRError2("SCHEMA", "IR must be an object");
@@ -186876,6 +187775,31 @@ function extractAgentId(kind, response) {
   return null;
 }
 var actionId = (body2) => responseId(body2);
+var STUDIO_TERMINAL_EVENTS = ["done", "agent_saved", "awaiting_input"];
+var MAX_OPTIONS_SHOWN = 20;
+function awaitingInput(events) {
+  const list = Array.isArray(events) ? events : [];
+  const wait = list.find((e) => e?.event === "awaiting_input");
+  if (!wait) return null;
+  const questions = list.filter((e) => e?.event === "build_question").map(({ data: q3 = {} }) => {
+    const options = Array.isArray(q3.options) ? q3.options : [];
+    return {
+      id: q3.id ?? null,
+      prompt: q3.prompt ?? null,
+      allowMultiple: Boolean(q3.allowMultiple),
+      options: options.slice(0, MAX_OPTIONS_SHOWN).map((o) => ({ value: o?.value ?? null, label: o?.label ?? null })),
+      ...options.length > MAX_OPTIONS_SHOWN || q3.hasMore ? { moreOptions: true, totalCount: q3.totalCount ?? options.length } : {}
+    };
+  });
+  const started = list.find((e) => e?.event === "conversation_started");
+  return {
+    sessionId: wait.data?.sessionId ?? null,
+    count: Number(wait.data?.count ?? questions.length),
+    questions,
+    stale: list.some((e) => e?.event === "answers_stale"),
+    inlineQuestionsEnabled: typeof started?.data?.inlineQuestionsEnabled === "boolean" ? started.data.inlineQuestionsEnabled : null
+  };
+}
 var serverMessage = (json2) => {
   const m = json2?.message ?? json2?.error ?? null;
   if (Array.isArray(m)) return m.join("; ");
@@ -186965,12 +187889,14 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   if (!gw?.call || !plan?.create || !kind) return failure("AGENT_PLAN_INVALID", "validation", report);
   let created;
   try {
-    created = kind === "studio" ? await gw.stream("POST", plan.create.path, plan.create.body, { base: AI_BASE2 }) : await gw.call(plan.create.method, plan.create.path, plan.create.body, { base: AI_BASE2 });
+    created = kind === "studio" ? await gw.stream("POST", plan.create.path, plan.create.body, { base: AI_BASE2, terminalEvents: STUDIO_TERMINAL_EVENTS }) : await gw.call(plan.create.method, plan.create.path, plan.create.body, { base: AI_BASE2 });
   } catch (error51) {
     return failure(error51?.code ?? "AGENT_CREATE_FAILED", "create", report);
   }
   if (!created.ok) return failure(`HTTP_${created.status}`, "create", report, { createStatus: created.status, serverMessage: serverMessage(created.json) });
   report.agentId = extractAgentId(kind, created);
+  const paused = kind === "studio" ? awaitingInput(created.events) : null;
+  if (paused) return failure("STUDIO_BUILD_AWAITING_INPUT", "create", report, { awaitingInput: paused });
   if (!report.agentId) {
     const extra = kind === "studio" ? { events: (created.events ?? []).map((event) => ({ event: event?.event ?? null, id: responseId(event?.data) })) } : {};
     return failure("AGENT_ID_MISSING", "create", report, extra);
@@ -187105,409 +188031,6 @@ async function executeAgentUpdate({ plan, gw } = {}) {
   }
   if (mismatches.length) return { ok: false, code: "AGENT_VERIFY_MISMATCH", phase: "verify", ...report };
   return { ok: true, ...report };
-}
-
-// ../engines/ai/voiceai-update.mjs
-init_define_BUILDER_VALIDATORS();
-init_define_CONTACT_FILTER_FIELDS();
-init_define_ENDPOINT_CATALOG();
-init_define_ENDPOINT_OVERLAY();
-init_define_FUNNEL_ELEMENTS();
-init_define_TOOL_CATALOG();
-var NESTED_WHOLE = [
-  "aiDisclaimerConfiguration",
-  "sendPostCallNotificationTo",
-  "translation",
-  "noResponseConfig",
-  "endCallConfig",
-  "userFirstFallback"
-];
-var READ_ONLY_INNER = { aiDisclaimerConfiguration: ["isGreetingMessageDynamic"] };
-var writable = (key, v) => {
-  if (key === "s2sBehaviour" && isObj(v)) return Object.fromEntries(Object.entries(v).filter(([k]) => S2S_KEYS.includes(k)));
-  return isObj(v) && READ_ONLY_INNER[key] ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v;
-};
-var S2S_KEYS = ["responseDepth", "vadEagerness", "languages"];
-var S2S_ENUMS = { responseDepth: ["minimal", "low", "medium", "high", "xhigh"], vadEagerness: ["auto", "low", "medium", "high"] };
-function compileS2sBehaviour(current, v) {
-  const provider = current?.provider;
-  if (provider !== "lc") {
-    throw new IRError2("SPEC_KEY_UNAPPLIED", `s2sBehaviour applies only to a speech-to-speech agent; the stored agent's provider is ${JSON.stringify(provider)}. Switch it with llmModel (an s2s model such as gpt-realtime-2.1) in its own call first, or tune a text agent with responsiveness / interruptionSensitivity / modelTemperature and voiceModel. Nothing was sent.`);
-  }
-  if (!isObj(v) || !Object.keys(v).length) throw new IRError2("SCHEMA", `s2sBehaviour must be an object with any of ${S2S_KEYS.join(", ")}`);
-  const other = Object.keys(v).filter((k) => !S2S_KEYS.includes(k));
-  if (other.length) throw new IRError2("SPEC_KEY_UNAPPLIED", `s2sBehaviour.${other.join(", ")} is not written by this tool (writable: ${S2S_KEYS.join(", ")}; the s2s voice and model follow llmModel). Nothing was sent.`);
-  const out = {};
-  for (const [k, allowed] of Object.entries(S2S_ENUMS)) {
-    if (!(k in v)) continue;
-    if (!allowed.includes(v[k])) {
-      throw new IRError2("SCHEMA", `s2sBehaviour.${k} must be one of ${allowed.join(", ")} \u2014 this tool's rule (GHL stores any string, but the builder cannot render one outside this list). Nothing was sent.`);
-    }
-    out[k] = v[k];
-  }
-  if ("languages" in v) {
-    if (!Array.isArray(v.languages) || !v.languages.length || v.languages.some((x) => typeof x !== "string" || !x.trim())) {
-      throw new IRError2("SCHEMA", "s2sBehaviour.languages must be a non-empty array of language codes; it REPLACES the stored list");
-    }
-    out.languages = [...new Set(v.languages.map((x) => x.trim().split(/[-_]/)[0].toLowerCase()))];
-  }
-  return out;
-}
-var WRITABLE = /* @__PURE__ */ new Set([
-  "advancedSettingsEnabled",
-  "agentName",
-  "agentPrompt",
-  "agentWorkingHours",
-  "ambientSoundVolume",
-  "backchannelFrequency",
-  "backchannelWords",
-  "backgroundSound",
-  "beginMessageDelayMs",
-  "boostedKeywords",
-  "businessName",
-  "callEndWorkflowIds",
-  "customSttConfig",
-  "denoisingMode",
-  "enableBackchannel",
-  "enableDynamicResponsiveness",
-  "enableDynamicVoiceSpeed",
-  "endCallAfterSilenceMs",
-  "interruptionSensitivity",
-  "isAgentAsBackupDisabled",
-  "ivrOption",
-  "knowledgeBaseIds",
-  "knowledgeBasePrompt",
-  "language",
-  "llmModel",
-  "maxCallDuration",
-  "modelTemperature",
-  "normalizeForSpeech",
-  "pronunciationDictionary",
-  "reminderAfterIdleTimeSeconds",
-  "reminderFrequency",
-  "responsiveness",
-  "ringDurationSeconds",
-  "saveCallSummaryAsNote",
-  "sendUserIdleReminders",
-  "sttMode",
-  "timezone",
-  "vocabSpecialization",
-  "voiceId",
-  "voiceModel",
-  "voiceSpeed",
-  "voiceTemperature",
-  "voiceVolume",
-  "voicemailOption",
-  "welcomeMessage",
-  "welcomeMessageMode",
-  ...NESTED_WHOLE,
-  "sessionVariables",
-  "s2sBehaviour",
-  "prompts",
-  "disabledPrompts"
-]);
-var ELSEWHERE = {
-  actions: "actions are their own resource (POST/PUT/DELETE /voice-ai/actions)",
-  callTransferActions: "actions are their own resource",
-  contactFieldActions: "actions are their own resource",
-  workflowActions: "actions are their own resource",
-  smsActions: "actions are their own resource",
-  customActions: "actions are their own resource",
-  agentTransferActions: "actions are their own resource",
-  capActions: "actions are their own resource",
-  appointmentBookingAction: "actions are their own resource",
-  mcpServers: "MCP servers are their own resource (/voice-ai/mcp/*)",
-  inboundNumber: "numbers are assigned on the deploy screen (location-wide)",
-  inboundNumbers: "numbers are assigned on the deploy screen (location-wide)",
-  inboundPhoneNumber: "numbers are assigned on the deploy screen (location-wide)",
-  numberPoolId: "numbers are assigned on the deploy screen (location-wide)",
-  provider: "the provider changes only through the upgrade (switch-provider) path"
-};
-var PROVIDER_BOUNDS = {
-  beginMessageDelayMs: [0, 5e3, "Begin message delay ms must be between 0 and 5 seconds"],
-  // Measured 2026-09-28: 1.5 answered 400 "backchannel_frequency must be within [0,1]" and was stored.
-  backchannelFrequency: [0, 1, "backchannel_frequency must be within [0,1]"]
-};
-var isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
-function readFlat(record2, key) {
-  const s = record2?.agentSettings ?? {};
-  if (key === "voiceId") return (record2?.provider === "lc" ? s.s2sBehaviour?.voiceId : void 0) ?? s.voice?.voiceId ?? record2?.voiceId;
-  if (key === "language") return isObj(s.language) ? s.language.code : s.language ?? record2?.language;
-  if (key === "ringDurationSeconds") return typeof s.ringDurationMs === "number" ? s.ringDurationMs / 1e3 : record2?.ringDurationSeconds;
-  if (key === "welcomeMessage") return record2?.welcomeMessage ?? record2?.agentWelcomeMessage;
-  if (key in (record2 ?? {})) return record2[key];
-  return s[key];
-}
-var SESSION_VAR_NAME = /^session\.[A-Za-z0-9_-]+$/;
-var SESSION_VAR_TYPES = ["string", "number", "boolean", "object", "array"];
-function mergeSessionVariables(stored, entries) {
-  if (!Array.isArray(entries) || !entries.length) {
-    throw new IRError2("SCHEMA", "sessionVariables must be a non-empty array of { name, label?, dataType?, defaultValue?, description? } (or { name, remove: true }). It is merged into the stored list by name; nothing stored is dropped unless removed by name.");
-  }
-  const out = (Array.isArray(stored) ? stored : []).map((v) => ({ ...v }));
-  const seen = /* @__PURE__ */ new Set();
-  for (const e of entries) {
-    if (!isObj(e) || typeof e.name !== "string") throw new IRError2("SCHEMA", "each sessionVariables entry needs a string name");
-    if (seen.has(e.name)) throw new IRError2("SCHEMA", `sessionVariables names ${e.name} twice (the server refuses duplicates: 400 "Duplicate session variable name")`);
-    seen.add(e.name);
-    const i = out.findIndex((v) => v.name === e.name);
-    if (e.remove === true) {
-      if (i < 0) throw new IRError2("SCHEMA", `cannot remove session variable ${e.name}: the agent has none of that name. Nothing was sent.`);
-      out.splice(i, 1);
-      continue;
-    }
-    if (!SESSION_VAR_NAME.test(e.name)) throw new IRError2("SCHEMA", `session variable name ${JSON.stringify(e.name)} must be "session." followed by letters, numbers, underscores or dashes (server rule)`);
-    if (e.name.length > 64) throw new IRError2("SCHEMA", `session variable name ${e.name} exceeds 64 characters (server rule)`);
-    const { remove, ...fields2 } = e;
-    const next = i < 0 ? { label: e.name.slice("session.".length), dataType: "string", defaultValue: "", ...fields2 } : { ...out[i], ...fields2 };
-    if (!SESSION_VAR_TYPES.includes(next.dataType)) throw new IRError2("SCHEMA", `session variable ${e.name} dataType must be one of ${SESSION_VAR_TYPES.join(", ")} (server rule)`);
-    if (i < 0) out.push(next);
-    else out[i] = next;
-  }
-  return out;
-}
-var PROMPT_SECTIONS = ["personality", "appointmentBooking", "dateAndTimeAwareness", "numericAndEmailHandling", "emailConfirmationProcess"];
-var PROMPT_ELSEWHERE = {
-  endCall: "the hangup prompt is endCallConfig.instruction (send endCallConfig)",
-  endCallSts: "the speech-to-speech hangup prompt is endCallConfig.instruction (send endCallConfig)",
-  endCallSpamDetection: "the spam rule is endCallConfig.spamDetectionInstruction (send endCallConfig)",
-  greetingRule: "GHL does not store it: a prompts write answered 200 and dropped it"
-};
-function compilePrompts(v) {
-  if (!isObj(v) || !Object.keys(v).length) throw new IRError2("SCHEMA", "prompts must be an object of { section: text | null }");
-  const elsewhere = Object.keys(v).filter((k) => k in PROMPT_ELSEWHERE);
-  if (elsewhere.length) {
-    throw new IRError2("SPEC_KEY_UNAPPLIED", elsewhere.map((k) => `prompts.${k}: ${PROMPT_ELSEWHERE[k]}`).join("; ") + ". Nothing was sent.");
-  }
-  const unknown2 = Object.keys(v).filter((k) => !PROMPT_SECTIONS.includes(k));
-  if (unknown2.length) {
-    throw new IRError2("SPEC_KEY_UNAPPLIED", `unknown system-prompt section(s) [${unknown2.join(", ")}]. Sections GHL stores: ${PROMPT_SECTIONS.join(", ")}. Nothing was sent. If GHL has added a section, write it with raw_request (PUT /voice-ai/agents/{id} {prompts}) and read the agent back: a section it does not store answers 200 and is dropped.`);
-  }
-  for (const [k, text] of Object.entries(v)) {
-    if (text !== null && (typeof text !== "string" || !text.trim())) {
-      throw new IRError2("SCHEMA", `prompts.${k} must be text, or null to reset the section to GHL's default`);
-    }
-  }
-  return { ...v };
-}
-function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}) {
-  if (!agentId) throw new IRError2("MISSING_FIELD", "update_voiceai_agent requires agentId");
-  if (!isObj(current)) throw new IRError2("SCHEMA", "the CURRENT agent record is required \u2014 read it first");
-  if (!isObj(spec) || !Object.keys(spec).length) throw new IRError2("SCHEMA", "spec must name at least one field to change");
-  const elsewhere = Object.keys(spec).filter((k) => k in ELSEWHERE);
-  if (elsewhere.length) {
-    throw new IRError2("SPEC_KEY_UNAPPLIED", `update_voiceai_agent does not write [${elsewhere.join(", ")}]: ` + elsewhere.map((k) => `${k} \u2014 ${ELSEWHERE[k]}`).join("; ") + ". Nothing was sent.");
-  }
-  const unknown2 = Object.keys(spec).filter((k) => !WRITABLE.has(k));
-  if (unknown2.length) {
-    throw new IRError2("SPEC_KEY_UNAPPLIED", `unknown or read-only key(s) [${unknown2.join(", ")}] \u2014 refused rather than sent. Writable keys: ${[...WRITABLE].sort().join(", ")}.`);
-  }
-  for (const [k, [lo, hi, msg]] of Object.entries(PROVIDER_BOUNDS)) {
-    if (k in spec && (typeof spec[k] !== "number" || spec[k] < lo || spec[k] > hi)) {
-      throw new IRError2("SCHEMA", `${k} must be ${lo}\u2013${hi} (${msg}). The provider enforces this AFTER GHL stores the value, so an out-of-range write leaves the agent diverged; it is refused here. Nothing was sent.`);
-    }
-  }
-  const body2 = { locationId: locationId ?? current.locationId };
-  if ("knowledgeBasePrompt" in spec && !("knowledgeBaseIds" in spec)) {
-    const ids = Array.isArray(current.knowledgeBaseIds) ? current.knowledgeBaseIds : [];
-    if (!ids.length) {
-      throw new IRError2("SCHEMA", "knowledgeBasePrompt needs a knowledge base on the agent: none is attached, and the prompt lives on the knowledge-base action the attach creates. Send knowledgeBaseIds with it. Nothing was sent.");
-    }
-    body2.knowledgeBaseIds = ids;
-  }
-  const expected = {};
-  for (const [k, v] of Object.entries(spec)) {
-    if (NESTED_WHOLE.includes(k)) {
-      if (!isObj(v)) throw new IRError2("SCHEMA", `${k} must be an object (it is sent whole, merged over the stored one)`);
-      const refused = Object.keys(v).filter((x) => READ_ONLY_INNER[k]?.includes(x));
-      if (refused.length) {
-        throw new IRError2("SPEC_KEY_UNAPPLIED", `${k}.${refused.join(", ")} is read-only: the agent read carries it but the write refuses it (422 "should not exist"). Drop it from the spec. Nothing was sent.`);
-      }
-      const stored = readFlat(current, k);
-      body2[k] = writable(k, { ...isObj(stored) ? stored : {}, ...v });
-    } else if (k === "prompts") {
-      body2[k] = compilePrompts(v);
-    } else if (k === "disabledPrompts") {
-      if (!Array.isArray(v) || !v.length || v.some((x) => typeof x !== "string" || !x.trim())) {
-        throw new IRError2("SCHEMA", "disabledPrompts must be a non-empty array of section names (it replaces the stored list). An empty list is refused: clearing it has not been measured. Nothing was sent.");
-      }
-      body2[k] = [...v];
-    } else if (k === "s2sBehaviour") {
-      body2[k] = compileS2sBehaviour(current, v);
-    } else if (k === "sessionVariables") {
-      body2[k] = mergeSessionVariables(current.sessionVariables, v);
-    } else {
-      body2[k] = v;
-    }
-    expected[k] = body2[k];
-  }
-  return { method: "PUT", path: `/voice-ai/agents/${agentId}`, body: body2, expected, setKeys: Object.keys(spec) };
-}
-var same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-var KB_KEYS = ["knowledgeBaseIds", "knowledgeBasePrompt"];
-var MODEL_CASCADE = /* @__PURE__ */ new Set(["provider", "providerAgentId", "providerAgents", "agentSettings.s2sBehaviour"]);
-var kbActions = (record2) => (record2?.actions ?? []).filter((a) => a?.actionType === "KNOWLEDGE_BASE");
-function readSet(record2, key) {
-  if (key === "knowledgeBasePrompt") {
-    const prompts = [...new Set(kbActions(record2).map((a) => a.actionParameters?.triggerPrompt))];
-    return prompts.length === 1 ? prompts[0] : prompts;
-  }
-  return writable(key, readFlat(record2, key));
-}
-var IGNORE = /* @__PURE__ */ new Set(["updatedAt", "traceId", "__v"]);
-function fields(record2) {
-  const out = {};
-  for (const [k, v] of Object.entries(record2 ?? {})) if (!IGNORE.has(k) && k !== "agentSettings") out[k] = v;
-  for (const [k, v] of Object.entries(record2?.agentSettings ?? {})) out[`agentSettings.${k}`] = v;
-  if (isObj(out["agentSettings.s2sBehaviour"])) {
-    const { totalTokens, ...rest } = out["agentSettings.s2sBehaviour"];
-    out["agentSettings.s2sBehaviour"] = rest;
-  }
-  return out;
-}
-function readNames(key) {
-  if (key === "voiceId") return ["agentSettings.voice", "voiceId"];
-  if (key === "language") return ["agentSettings.language", "language"];
-  if (key === "ringDurationSeconds") return ["agentSettings.ringDurationMs"];
-  if (key === "welcomeMessage") return ["welcomeMessage", "agentWelcomeMessage"];
-  return [key, `agentSettings.${key}`];
-}
-async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMessage2 }) {
-  const read = async () => {
-    const r = await gw.call("GET", `${plan.path}?locationId=${encodeURIComponent(plan.body.locationId)}`);
-    return r?.ok ? r.json?.agent ?? r.json : null;
-  };
-  const put = await gw.call("PUT", plan.path, plan.body);
-  const after = await read();
-  if (!after) return { ok: false, code: "AGENT_VERIFY_UNREACHABLE", detail: "the write answered but the agent could not be re-read; nothing is proven" };
-  if (!put?.ok) {
-    const stored = plan.setKeys.filter((k) => !same(readFlat(after, k), readFlat(before, k)));
-    const message = serverMessage2(put?.json) ?? `HTTP ${put?.status ?? "?"}`;
-    if (!stored.length) return { ok: false, code: "AGENT_UPDATE_FAILED", status: put?.status ?? null, detail: message, written: [] };
-    const undo = { locationId: plan.body.locationId };
-    for (const k of stored) {
-      undo[k] = k === "prompts" ? Object.fromEntries(Object.keys(plan.body.prompts).map((s) => [s, before?.prompts?.[s] ?? null])) : writable(k, readFlat(before, k));
-    }
-    const u = await gw.call("PUT", plan.path, undo);
-    const again = await read();
-    const diverged = stored.filter((k) => !same(readFlat(again, k), readFlat(before, k)));
-    const restored = diverged.length === 0 && Boolean(u?.ok);
-    const values = Object.fromEntries(stored.map((k) => [k, {
-      sent: plan.body[k],
-      storedAfterRefusal: readFlat(after, k),
-      restoredTo: readFlat(before, k),
-      readsNow: again ? readFlat(again, k) : void 0
-    }]));
-    if (!restored) {
-      return {
-        ok: false,
-        code: "PROVIDER_REFUSED_RESTORE_FAILED",
-        status: put?.status ?? null,
-        detail: message,
-        written: stored,
-        restored: false,
-        values,
-        diverged,
-        warning: `\u{1F534} The refusal stored [${stored.join(", ")}] and writing the previous values back did NOT verify for [${diverged.join(", ") || stored.join(", ")}]. The GHL record and the voice provider now DISAGREE on those fields \u2014 re-read the agent and write a valid value for each.`
-      };
-    }
-    return {
-      ok: false,
-      code: "PROVIDER_REFUSED_BUT_STORED",
-      status: put?.status ?? null,
-      detail: message,
-      written: stored,
-      restored: true,
-      values,
-      warning: `The refusal came back AFTER GHL stored [${stored.join(", ")}] \u2014 the GHL record and the voice provider disagreed. The previous values were written back and read back (data.values shows sent / stored / restored / now).`
-    };
-  }
-  const confirmed = [];
-  const mismatches = [];
-  const pick3 = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
-  const got = (k) => {
-    if (k === "s2sBehaviour") return pick3(readFlat(after, k), Object.keys(plan.expected[k]));
-    if (k === "prompts") return Object.fromEntries(Object.keys(plan.expected.prompts).map((s) => [s, after?.prompts?.[s] ?? null]));
-    return readSet(after, k);
-  };
-  for (const k of plan.setKeys) (same(got(k), plan.expected[k]) ? confirmed : mismatches).push(k);
-  const setNames = new Set(plan.setKeys.flatMap(readNames));
-  const b = fields(before);
-  const a = fields(after);
-  const changed = [];
-  const cascade = [];
-  const modelChange = plan.setKeys.includes("llmModel");
-  const kbChange = plan.setKeys.some((k) => KB_KEYS.includes(k));
-  const nonKb = (list) => JSON.stringify((list ?? []).filter((x) => x?.actionType !== "KNOWLEDGE_BASE"));
-  const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
-  const retemplated = [];
-  const oldName = readFlat(before, "agentName");
-  const newName = plan.body.agentName;
-  const renameOnly = plan.setKeys.includes("agentName") && !plan.setKeys.includes("agentPrompt") && typeof oldName === "string" && oldName.length > 0 && typeof newName === "string" && oldName !== newName;
-  const isRetemplate = (x, y) => renameOnly && typeof x === "string" && typeof y === "string" && x.includes(oldName) && x.split(oldName).join(newName) === y;
-  for (const k of /* @__PURE__ */ new Set([...Object.keys(b), ...Object.keys(a)])) {
-    if (setNames.has(k)) continue;
-    if (k === "agentSettings.s2sBehaviour" && plan.setKeys.includes("voiceId")) {
-      const omitVoice = (o) => isObj(o) ? Object.fromEntries(Object.entries(o).filter(([x]) => x !== "voiceId")) : o;
-      if (same(omitVoice(b[k]), omitVoice(a[k]))) continue;
-    }
-    if (kbChange && k === "actions" && nonKb(b[k]) === nonKb(a[k])) continue;
-    if (kbChange && k === "actionIds" && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
-    if (same(b[k], a[k])) continue;
-    if (k === "agentPrompt" && isRetemplate(b[k], a[k])) {
-      retemplated.push({ key: k, from: oldName, to: newName });
-      continue;
-    }
-    if (b[k] === void 0 && isObj(a[k]) && !Object.keys(a[k]).length) continue;
-    if (modelChange && MODEL_CASCADE.has(k)) {
-      cascade.push({ key: k, before: b[k], after: a[k] });
-      continue;
-    }
-    changed.push({ key: k, before: b[k], after: a[k] });
-  }
-  if (plan.setKeys.includes("prompts")) {
-    const pb = before?.prompts ?? {};
-    const pa = after?.prompts ?? {};
-    for (const s of /* @__PURE__ */ new Set([...Object.keys(pb), ...Object.keys(pa)])) {
-      if (s in plan.expected.prompts) continue;
-      if (!same(pb[s], pa[s])) changed.push({ key: `prompts.${s}`, before: pb[s], after: pa[s] });
-    }
-  }
-  if (plan.setKeys.includes("s2sBehaviour")) {
-    const sb = readFlat(before, "s2sBehaviour") ?? {};
-    const sa = readFlat(after, "s2sBehaviour") ?? {};
-    const sent = Object.keys(plan.expected.s2sBehaviour);
-    for (const k of /* @__PURE__ */ new Set([...Object.keys(sb), ...Object.keys(sa)])) {
-      if (sent.includes(k) || k === "totalTokens") continue;
-      if (!same(sb[k], sa[k])) changed.push({ key: `agentSettings.s2sBehaviour.${k}`, before: sb[k], after: sa[k] });
-    }
-  }
-  const verification = { verified: mismatches.length === 0 && confirmed.length > 0, confirmed, mismatches };
-  const collateral = {
-    unchanged: changed.length === 0,
-    changed,
-    ...cascade.length ? { cascade } : {},
-    ...retemplated.length ? { retemplated, note: `GHL re-templated the agent name inside agentPrompt ("${oldName}" \u2192 "${newName}" at every occurrence); nothing else in the prompt moved` } : {}
-  };
-  if (changed.length) {
-    return {
-      ok: false,
-      code: "AGENT_COLLATERAL_CHANGED",
-      verification,
-      collateral,
-      detail: `the update moved ${changed.length} field(s) it was not asked to touch: ${changed.map((c) => c.key).join(", ")}`
-    };
-  }
-  if (mismatches.length) {
-    return {
-      ok: false,
-      code: "AGENT_VERIFY_MISMATCH",
-      verification,
-      collateral,
-      detail: `accepted but not stored as sent: [${mismatches.join(", ")}] \u2014 e.g. backchannelWords reads back [] while enableBackchannel is off`
-    };
-  }
-  return { ok: true, verification, collateral };
 }
 
 // ../engines/ai/deployment.mjs
@@ -188389,6 +188912,18 @@ function readProjectLintPack(state2, locationId) {
     return null;
   }
 }
+function aiPlanOrRefusal(kind, args) {
+  try {
+    return { plan: compileAiAgentPlan(kind, args) };
+  } catch (error51) {
+    if (!(error51 instanceof IRError2)) throw error51;
+    return { refusal: withFailureData(fail(
+      CODES.ENGINE_ABORT,
+      `create rejected (${error51.code}): ${error51.message}`,
+      "The spec was rejected before any request was sent \u2014 nothing was created."
+    ), { irCode: error51.code }) };
+  }
+}
 function compileAiAgentPlan(kind, args) {
   if (kind === "convai") {
     const compiled = compileConvaiAgent(args.spec, { locationId: args.locationId });
@@ -188398,8 +188933,15 @@ function compileAiAgentPlan(kind, args) {
   if (kind === "voiceai") {
     const compiled = compileVoiceAiAgent(args.spec, { locationId: args.locationId });
     const update2 = compileVoiceAiUpdate(args.spec, { agentId: "{agentId}", locationId: args.locationId });
-    return { ...compiled, followUps: [update2], verifyExpected: update2.body };
+    const s2s = compileVoiceAiS2sFollowUp(args.spec, { agentId: "{agentId}", locationId: args.locationId });
+    const verifyExpected = {
+      ...update2.body,
+      ...s2s ? { s2sBehaviour: s2s.body.s2sBehaviour } : {},
+      ...compiled.create.body.folderId ? { folderId: compiled.create.body.folderId } : {}
+    };
+    return { ...compiled, followUps: s2s ? [update2, s2s] : [update2], verifyExpected };
   }
+  refuseUnappliedStudioKeys(args.spec);
   const studioSpec = {
     ...args.spec,
     buildPrompt: args.spec?.buildPrompt ?? args.spec?.systemPrompt,
@@ -189766,7 +190308,7 @@ var TOOLS2 = [
   },
   {
     name: "create_convai_agent",
-    description: `${describe3("create_convai_agent", "Create Conversation AI agent")}. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_convai_agent", "Create Conversation AI agent")}. POST the agent, then each action, then a verified re-read. spec: name, mode (off|suggestive|auto-pilot), channels, and a prompt: fullPrompt (the current builder's one prompt, "## Personality \u2026 ## Goal \u2026 ## Instructions \u2026"; the three fields go as "" and llm.primary defaults to gpt-4.1, as the builder creates) OR goal/personality/instructions, never both. Also botType (PROMPT_BASED_BOT | FLOW_BUILDER_BOT), businessName, wait, sleep, autoPilotMaxMessages, tones (flow), knowledgeBaseIds, knowledgeBaseTriggers [{mode custom|all, knowledgeBaseIds, triggerCondition}] (\u22644, priority renumbered), summary, respondToImages/Audio, responseLength, llm, cancelEnabled/rescheduleEnabled (FLOW bots only; on a prompt bot they belong on the appointmentBooking action), actions[] (humanHandOver, appointmentBooking single|multiple (service: raw_request), triggerWorkflow, updateContactField, stopBot, transferBot, advancedFollowup). Refused before anything is sent: any other spec key (SPEC_KEY_UNAPPLIED names where it lives: email settings, working hours, folders and form bots are raw_request), isPrimary:true (the primary agent is location-wide; set it in the Conversation AI UI), a prompt bot with no prompt. A flow bot is the agent shell only: build its workflow with build_workflow, then link it with update_convai_agent. Does not deploy to a channel (set_agent_deployment). To change an existing agent use update_convai_agent. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "POST", path: "/ai-employees/employees" },
@@ -189774,7 +190316,8 @@ var TOOLS2 = [
       { method: "GET", path: "/ai-employees/employees/{agentId}" }
     ],
     handler: async (args, deps) => guard(async () => {
-      const plan = compileAiAgentPlan("convai", args);
+      const { plan, refusal } = aiPlanOrRefusal("convai", args);
+      if (refusal) return refusal;
       const preview = aiPlanPreview(plan);
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
@@ -189808,7 +190351,7 @@ var TOOLS2 = [
     name: "update_convai_agent",
     description: describe3(
       "update_convai_agent",
-      "Update a Conversation AI agent by READ-MERGE-WRITE GETs the current record, overlays your spec, applies the builder's own bot-type cleanup, PUTs the WHOLE record, re-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any collateral change fails with AGENT_COLLATERAL_CHANGED. PROMPT: an agent saved in the current builder stores its prompt as one fullPrompt document; the bot then answers from it and GHL ignores writes to personality/goal/instructions (live 2026-09-29). Pass spec.fullPrompt (the whole text; it switches the agent to fullPrompt for good). The three fields on such an agent, or with fullPrompt, refuse with FULLPROMPT_OWNS_PROMPT before any write, returning currentFullPrompt. The result names promptOwner. Previews by default; confirm:true writes."
+      "Update a Conversation AI agent by READ-MERGE-WRITE GETs the current record, overlays your spec, applies the builder's own bot-type cleanup, PUTs the WHOLE record, re-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any collateral change fails with AGENT_COLLATERAL_CHANGED. PROMPT: an agent saved in the current builder stores its prompt as one fullPrompt document; the bot then answers from it and GHL ignores writes to personality/goal/instructions (live 2026-09-29). Pass spec.fullPrompt (the whole text; it switches the agent to fullPrompt for good). The three fields on such an agent, or with fullPrompt, refuse with FULLPROMPT_OWNS_PROMPT before any write, returning currentFullPrompt. The result names promptOwner. cancelEnabled/rescheduleEnabled apply to a FLOW bot; on a prompt bot they are refused (set them on the appointmentBooking action). Previews by default; confirm:true writes."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -189879,7 +190422,7 @@ var TOOLS2 = [
   },
   {
     name: "create_voiceai_agent",
-    description: `${describe3("create_voiceai_agent", "Create Voice AI agent")}. Live-proven end-to-end (create \u2192 full-replace update \u2192 verified). \u{1F534} Post-call defaults: unless spec.postCall says otherwise, every call summary is saved as a NOTE on the caller's contact (GHL default) and ALL admins get an email after every call \u2014 set postCall.saveCallSummaryAsNote:false and postCall.sendPostCallNotificationTo to change them; the preview names what applies. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_voiceai_agent", "Create Voice AI agent")}. POST {locationId, folderId?}, then the builder's save PUT, then a verified re-read. spec (sections): agentName, agentPrompt, businessName, timezone, llmModel (a speech-to-speech model \u2014 gpt-realtime-2, gpt-realtime-2.1, gpt-live-1, gemini-3.1-flash-live-preview \u2014 makes GHL switch the provider to lc, and s2sBehaviour then goes in a second PUT), welcomeMessage, welcomeMessageMode ai_custom|user_first (+ userFirstFallback, beginAfterUserSilenceMs), folderId, voice{\u2026 denoisingMode no-denoise|noise-cancellation|noise-and-background-speech-cancellation}, behavior{}, transcription{}, callSettings{language, languages[], \u2026}, postCall{}, outbound{voicemailOption, ivrOption, aiDisclaimerConfiguration}, knowledgeBase{}, translation{}, noResponseConfig{} (text models), prompts, disabledPrompts, sessionVariables, endCallConfig, spamConfig{postCallAnalysis}, actions[]. Any other key \u2014 flat names such as voiceId included, and phone numbers (the deploy screen's, location-wide) \u2014 is refused before anything is sent. To change an existing agent use update_voiceai_agent. \u{1F534} Post-call defaults: unless spec.postCall says otherwise, every call summary is saved as a NOTE on the caller's contact (GHL default) and ALL admins get an email after every call \u2014 set postCall.saveCallSummaryAsNote:false and postCall.sendPostCallNotificationTo to change them; the preview names what applies. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "POST", path: "/voice-ai/agents" },
@@ -189888,7 +190431,8 @@ var TOOLS2 = [
       { method: "GET", path: "/voice-ai/agents/{agentId}" }
     ],
     handler: async (args, deps) => guard(async () => {
-      const plan = compileAiAgentPlan("voiceai", args);
+      const { plan, refusal } = aiPlanOrRefusal("voiceai", args);
+      if (refusal) return refusal;
       const preview = { ...aiPlanPreview(plan), defaults: voiceDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
@@ -189910,7 +190454,7 @@ var TOOLS2 = [
     name: "update_voiceai_agent",
     description: describe3(
       "update_voiceai_agent",
-      "Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, re-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL saves), it writes the previous values back and says so. sessionVariables are MERGED by name into the stored list ({name, remove:true} removes one; nothing else is dropped). s2sBehaviour {responseDepth, vadEagerness, languages} only on a speech-to-speech agent (stored provider lc): it MERGES, languages REPLACE the list as base codes (en-US \u2192 en); GHL stores any string for the two enums, so refusing values outside the builder's lists is this tool's rule. prompts {section: text|null} MERGES by section (null resets it to Default); GHL stores only personality, appointmentBooking, dateAndTimeAwareness, numericAndEmailHandling, emailConfirmationProcess (the hangup/spam prompts are endCallConfig). disabledPrompts replaces the list; an empty list is refused (clearing is unmeasured). Refuses action arrays, numbers and unknown keys. A rename makes GHL rewrite the old name inside agentPrompt: reported as collateral.retemplated, not a failure. \u{1F534} A Test Audio call binds to the SIGNED-IN USER's own contact: on an agent that updates contact fields, saves summary notes or runs post-call workflows, a test call writes to that real contact. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes."
+      "Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, re-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL saves), it writes the previous values back and says so. sessionVariables are MERGED by name into the stored list ({name, remove:true} removes one; nothing else is dropped). s2sBehaviour {responseDepth, vadEagerness, languages} only on a speech-to-speech agent (stored provider lc): it MERGES, languages REPLACE the list as base codes (en-US \u2192 en); GHL stores any string for the two enums, so refusing values outside the builder's lists is this tool's rule. prompts {section: text|null} MERGES by section (null resets it to Default); GHL stores only personality, appointmentBooking, dateAndTimeAwareness, numericAndEmailHandling, emailConfirmationProcess (the hangup/spam prompts are endCallConfig). disabledPrompts replaces the list; an empty list is refused (clearing is unmeasured). languages[] (the multi-select) is written flat; patienceLevel is refused (GHL stores nothing); spamConfig {postCallAnalysis} is merged over the stored one; beginAfterUserSilenceMs only with welcomeMessageMode user_first. Refuses action arrays, numbers and unknown keys. A rename makes GHL rewrite the old name inside agentPrompt: reported as collateral.retemplated, not a failure. \u{1F534} A Test Audio call binds to the SIGNED-IN USER's own contact: on an agent that updates contact fields, saves summary notes or runs post-call workflows, a test call writes to that real contact. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes."
     ),
     inputSchema: schema({ locationId: external_exports.string(), agentId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
@@ -190017,7 +190561,7 @@ var TOOLS2 = [
   },
   {
     name: "create_studio_agent",
-    description: `${describe3("create_studio_agent", "Create Agent Studio agent")}. Creates a Managed Agent (the UI's AI Agents \u2192 Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt \u2014 either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). \u{1F534} Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none \u2014 the preview names what applies. \u{1F534} A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. The agent is created as a draft (never published). Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_studio_agent", "Create Agent Studio agent")}. Creates a Managed Agent (the UI's AI Agents \u2192 Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt \u2014 either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). \u{1F534} Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none \u2014 the preview names what applies. \u{1F534} A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. The agent is created as a draft (never published). Any other spec key (folderId, templateId, customApiEnabled\u2026) is refused before the build, naming where it lives. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), companyId: external_exports.string().optional(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "SSE", path: "/agent-studio/super-agents/build" },
@@ -190025,7 +190569,8 @@ var TOOLS2 = [
       { method: "GET", path: "/agent-studio/super-agent/agents/{agentId}" }
     ],
     handler: async (args, deps) => guard(async () => {
-      const plan = compileAiAgentPlan("studio", args);
+      const { plan, refusal } = aiPlanOrRefusal("studio", args);
+      if (refusal) return refusal;
       const preview = { ...aiPlanPreview(plan), defaults: studioDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
@@ -190051,6 +190596,15 @@ var TOOLS2 = [
       }
       const report = await executeAgentPlan({ plan, gw });
       const data2 = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
+      if (report.awaitingInput) {
+        const q3 = report.awaitingInput.questions;
+        data2.awaitingInput = report.awaitingInput;
+        return withFailureData(fail(
+          report.code,
+          `The Managed Agent builder stopped to ask ${q3.length} question(s) and is waiting for answers: ` + q3.map((x) => `"${x.prompt}"${x.options.length ? ` (options: ${x.options.map((o) => o.label).join(" / ")}${x.moreOptions ? " / \u2026" : ""})` : ""}`).join("; ") + ". Nothing after the build was sent: no config PUT, no verification.",
+          "This tool does not answer build questions. Put the answers in buildPrompt (name the calendar, form, pipeline\u2026 the questions ask about) and create again" + (report.agentId ? `; agent ${report.agentId} was already saved by the builder \u2014 inspect it before creating another.` : "; no agent was saved.")
+        ), data2);
+      }
       return report.ok ? ok(data2) : withFailureData(fail(
         report.code,
         "Agent Studio creation did not complete and verify.",

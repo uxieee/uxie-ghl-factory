@@ -6119,7 +6119,7 @@
    "status": "proven-live",
    "source": "measured",
    "lastVerified": "2026-08-22",
-   "summary": "`[proven-live 2026-09-29]` Stored as `{appointmentId, body, type, __customInputs__:{}}` and read back by export on a never-published draft (`sniffs/workflows-wave1-2026-09-25/live-3CL-draft-bc.json`); the builder drawer renders APPOINTMENT ID as the `Appointment.ID` merge chip and NOTE with its merg",
+   "summary": "Create note for a calendar appointment, service booking or rental booking",
    "fields": [
     {
      "name": "appointmentId",
@@ -21864,7 +21864,7 @@
    "status": "proven-live",
    "source": "measured",
    "lastVerified": "2026-08-22",
-   "summary": "`[proven-live 2026-09-29]` Stored as `{liveChatResponse:<html>, type, __customInputs__:{}}` and read back by export on a never-published draft (`sniffs/workflows-wave1-2026-09-25/live-3CL-draft-bc.json`); the drawer renders the rich-text MESSAGE with its merge tag (`sniffs/workflows-wave1-2026-09-25",
+   "summary": "Automatically send response message to the live chat",
    "fields": [
     {
      "name": "liveChatResponse",

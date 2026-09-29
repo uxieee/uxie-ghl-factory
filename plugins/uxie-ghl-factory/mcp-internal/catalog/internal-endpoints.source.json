@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T23:55:47.032Z",
+      "capturedAt": "2026-09-29T01:29:48.781Z",
       "hash": "corpus",
-      "fileCount": 1112,
-      "endpoints": 1112
+      "fileCount": 1113,
+      "endpoints": 1113
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1587,
+  "discoveredCallSites": 1588,
   "skippedCallSites": 656,
-  "count": 1378,
+  "count": 1379,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1551,6 +1551,39 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--calendars-services",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/calendars/services",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/30-types/conversation-ai-actions.md:109"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "memberships-courses--locations-registry",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -2004,7 +2037,7 @@
         "ai-agents/20-api/chat-widget.md:28",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
         "funnels/10-anatomy/websites-and-global-sections.md:278",
-        "funnels/20-api/funnels-api.md:356",
+        "funnels/20-api/funnels-api.md:361",
         "workflows/70-research/ENDPOINTS.md:137"
       ],
       "serviceClass": null,
@@ -7328,7 +7361,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:107",
+        "funnels/10-anatomy/domains-and-public-urls.md:113",
         "funnels/20-api/funnels-api.md:147",
         "funnels/40-rules/silent-failures.md:120",
         "funnels/40-rules/silent-failures.md:237"
@@ -7654,7 +7687,7 @@
         "funnels/10-anatomy/websites-and-global-sections.md:300",
         "funnels/20-api/funnel-ai.md:60",
         "funnels/20-api/funnels-api.md:310",
-        "funnels/20-api/funnels-api.md:377"
+        "funnels/20-api/funnels-api.md:382"
       ],
       "serviceBasis": "declared"
     },
@@ -7864,8 +7897,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:109",
-        "funnels/10-anatomy/domains-and-public-urls.md:163",
+        "funnels/10-anatomy/domains-and-public-urls.md:115",
+        "funnels/10-anatomy/domains-and-public-urls.md:169",
         "funnels/20-api/funnels-api.md:164",
         "funnels/40-rules/silent-failures.md:123",
         "funnels/40-rules/silent-failures.md:245",
@@ -8135,7 +8168,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:168"
+        "funnels/10-anatomy/domains-and-public-urls.md:174"
       ],
       "serviceBasis": "declared"
     },
@@ -8161,7 +8194,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:113"
+        "funnels/10-anatomy/domains-and-public-urls.md:119"
       ],
       "serviceBasis": "declared"
     },
@@ -8187,7 +8220,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:93",
+        "funnels/10-anatomy/domains-and-public-urls.md:99",
         "funnels/20-api/funnels-api.md:309",
         "funnels/40-rules/silent-failures.md:270",
         "funnels/40-rules/silent-failures.md:937",
@@ -8218,8 +8251,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:111",
-        "funnels/10-anatomy/domains-and-public-urls.md:157",
+        "funnels/10-anatomy/domains-and-public-urls.md:117",
+        "funnels/10-anatomy/domains-and-public-urls.md:163",
         "funnels/40-rules/silent-failures.md:239"
       ],
       "serviceBasis": "declared"
@@ -8286,7 +8319,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:165",
+        "funnels/10-anatomy/domains-and-public-urls.md:171",
         "funnels/40-rules/silent-failures.md:618",
         "funnels/40-rules/silent-failures.md:650",
         "funnels/40-rules/silent-failures.md:940"
@@ -8341,7 +8374,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:167"
+        "funnels/10-anatomy/domains-and-public-urls.md:173"
       ],
       "serviceBasis": "declared"
     },
@@ -8800,7 +8833,7 @@
         "funnels/10-anatomy/websites-and-global-sections.md:540",
         "funnels/20-api/funnel-object-operations.md:84",
         "funnels/20-api/funnels-api.md:232",
-        "funnels/20-api/funnels-api.md:375"
+        "funnels/20-api/funnels-api.md:380"
       ],
       "serviceClass": "FunnelsService",
       "serviceBasis": "inferred-from-path",
@@ -9528,7 +9561,7 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:455"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:481"
       ],
       "serviceClass": "WorkflowMarketplaceService",
       "serviceBasis": "inferred-from-path"
@@ -11274,7 +11307,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:447"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:473"
       ],
       "serviceBasis": "declared"
     },
@@ -11300,7 +11333,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:459"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:485"
       ],
       "serviceBasis": "declared"
     },
@@ -13022,7 +13055,7 @@
       "sources": [
         "services/api/slack-marketplace-install-service.ts:129",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:460",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:486",
         "workflows/70-research/ENDPOINTS.md:243"
       ],
       "serviceClass": null,
@@ -13266,7 +13299,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:386"
+        "funnels/20-api/funnels-api.md:391"
       ],
       "serviceBasis": "declared"
     },
@@ -19538,13 +19571,13 @@
       },
       "sources": [
         "services/BaseService.ts:30",
+        "workflows/10-anatomy/advanced-canvas.md:35",
         "workflows/20-api/03-endpoints.md:191",
         "workflows/20-api/trash-and-restore.md:24",
         "workflows/40-rules/publish-gate.md:138",
         "workflows/40-rules/settings-semantics.md:167",
         "workflows/00-overview/10-caveats.md:138",
-        "workflows/10-anatomy/04-workflow-anatomy.md:40",
-        "workflows/10-anatomy/07-id-resolution.md:204"
+        "workflows/10-anatomy/04-workflow-anatomy.md:40"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path",
@@ -23467,8 +23500,8 @@
         "workflows/10-anatomy/04-workflow-anatomy.md:434",
         "workflows/10-anatomy/04-workflow-anatomy.md:571",
         "workflows/10-anatomy/05-build-flow.md:24",
-        "workflows/20-api/trigger-create.md:11",
-        "workflows/30-types/triggers/affiliate_created.md:63"
+        "workflows/10-anatomy/advanced-canvas.md:51",
+        "workflows/20-api/trigger-create.md:11"
       ],
       "serviceClass": "TriggerService",
       "serviceBasis": "inferred-from-path"
@@ -23562,6 +23595,7 @@
       },
       "sources": [
         "services/BaseService.ts:46",
+        "workflows/10-anatomy/advanced-canvas.md:37",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
         "workflows/50-runtime/flow-bot-four-node-certification.md:58"
       ],
@@ -30015,7 +30049,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:386",
+        "ai-agents/20-api/12-ai-agents-api.md:397",
         "ai-agents/20-api/agent-deployment-routing.md:25",
         "ai-agents/20-api/agent-deployment-routing.md:271",
         "ai-agents/20-api/agent-deployment-routing.md:471",
@@ -31011,7 +31045,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:162"
+        "ai-agents/10-anatomy/managed-agent-shape.md:163"
       ],
       "serviceBasis": "declared"
     },
@@ -31037,7 +31071,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:161"
+        "ai-agents/10-anatomy/managed-agent-shape.md:162"
       ],
       "serviceBasis": "declared"
     },
@@ -31063,7 +31097,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:163"
+        "ai-agents/10-anatomy/managed-agent-shape.md:164"
       ],
       "serviceBasis": "declared"
     },
@@ -31089,7 +31123,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:170"
+        "ai-agents/10-anatomy/managed-agent-shape.md:171"
       ],
       "serviceBasis": "declared"
     },
@@ -31149,7 +31183,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:154"
+        "ai-agents/10-anatomy/managed-agent-shape.md:155"
       ],
       "serviceBasis": "declared"
     },
@@ -31175,7 +31209,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:152"
+        "ai-agents/10-anatomy/managed-agent-shape.md:153"
       ],
       "serviceBasis": "declared"
     },
@@ -31208,7 +31242,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:171"
+        "ai-agents/10-anatomy/managed-agent-shape.md:172"
       ],
       "serviceBasis": "declared"
     },
@@ -31299,7 +31333,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:165",
+        "ai-agents/10-anatomy/managed-agent-shape.md:166",
         "ai-agents/20-api/12-ai-agents-api.md:249"
       ],
       "serviceBasis": "declared"
@@ -31388,7 +31422,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:247",
         "ai-agents/20-api/12-ai-agents-api.md:254",
-        "ai-agents/20-api/12-ai-agents-api.md:383",
+        "ai-agents/20-api/12-ai-agents-api.md:394",
         "ai-agents/10-anatomy/managed-agent-shape.md:20"
       ],
       "serviceBasis": "declared",
@@ -31421,8 +31455,8 @@
         "ai-agents/20-api/12-ai-agents-api.md:246",
         "ai-agents/20-api/12-ai-agents-api.md:254",
         "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-        "ai-agents/10-anatomy/managed-agent-shape.md:83",
-        "ai-agents/20-api/12-ai-agents-api.md:382"
+        "ai-agents/10-anatomy/managed-agent-shape.md:84",
+        "ai-agents/20-api/12-ai-agents-api.md:393"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -31484,7 +31518,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:97",
+        "ai-agents/10-anatomy/managed-agent-shape.md:98",
         "ai-agents/20-api/12-ai-agents-api.md:251"
       ],
       "serviceBasis": "declared",
@@ -31548,7 +31582,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:127"
+        "ai-agents/10-anatomy/managed-agent-shape.md:128"
       ],
       "serviceBasis": "declared"
     },
@@ -31574,7 +31608,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:103"
+        "ai-agents/10-anatomy/managed-agent-shape.md:104"
       ],
       "serviceBasis": "declared"
     },
@@ -31600,7 +31634,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:187"
+        "ai-agents/10-anatomy/managed-agent-shape.md:188"
       ],
       "serviceBasis": "declared"
     },
@@ -31627,7 +31661,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/managed-agent-shape.md:79",
-        "ai-agents/10-anatomy/managed-agent-shape.md:121",
+        "ai-agents/10-anatomy/managed-agent-shape.md:122",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:245",
         "ai-agents/20-api/12-ai-agents-api.md:258",
@@ -31762,12 +31796,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:158",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:174",
         "ai-agents/20-api/12-ai-agents-api.md:101",
         "ai-agents/20-api/12-ai-agents-api.md:105",
         "ai-agents/20-api/12-ai-agents-api.md:132",
-        "ai-agents/20-api/12-ai-agents-api.md:301",
-        "ai-agents/20-api/12-ai-agents-api.md:351"
+        "ai-agents/20-api/12-ai-agents-api.md:312",
+        "ai-agents/20-api/12-ai-agents-api.md:362"
       ],
       "serviceBasis": "declared"
     },
@@ -31908,7 +31942,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:98",
-        "ai-agents/20-api/12-ai-agents-api.md:375"
+        "ai-agents/20-api/12-ai-agents-api.md:386"
       ],
       "serviceBasis": "declared"
     },
@@ -31942,7 +31976,7 @@
       },
       "sources": [
         "ai-agents/20-api/conversation-ai-boundary.md:80",
-        "ai-agents/30-types/conversation-ai-actions.md:127",
+        "ai-agents/30-types/conversation-ai-actions.md:133",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
         "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
@@ -32023,12 +32057,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:157",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:173",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:95",
         "ai-agents/20-api/12-ai-agents-api.md:105",
-        "ai-agents/20-api/12-ai-agents-api.md:351",
-        "ai-agents/20-api/12-ai-agents-api.md:372"
+        "ai-agents/20-api/12-ai-agents-api.md:362",
+        "ai-agents/20-api/12-ai-agents-api.md:383"
       ],
       "serviceBasis": "declared"
     },
@@ -32062,7 +32096,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:100",
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:163",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:179",
         "ai-agents/20-api/agent-deployment-routing.md:73"
       ],
       "serviceBasis": "declared",
@@ -32095,7 +32129,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:97",
         "ai-agents/20-api/12-ai-agents-api.md:105",
-        "ai-agents/20-api/12-ai-agents-api.md:373",
+        "ai-agents/20-api/12-ai-agents-api.md:384",
         "ai-agents/20-api/conversation-ai-boundary.md:31",
         "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
         "ai-agents/40-rules/builder-vs-server.md:33"
@@ -32130,8 +32164,8 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:96",
         "ai-agents/20-api/12-ai-agents-api.md:128",
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:161",
-        "ai-agents/20-api/12-ai-agents-api.md:375",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:177",
+        "ai-agents/20-api/12-ai-agents-api.md:386",
         "ai-agents/40-rules/builder-vs-server.md:24"
       ],
       "serviceBasis": "declared",
@@ -32300,7 +32334,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:112"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
       ],
       "serviceBasis": "declared"
     },
@@ -32326,7 +32360,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:111"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:114"
       ],
       "serviceBasis": "declared"
     },
@@ -32359,7 +32393,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:118"
       ],
       "serviceBasis": "declared"
     },
@@ -32392,7 +32426,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:113"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:116"
       ],
       "serviceBasis": "declared"
     },
@@ -32479,7 +32513,7 @@
       "sources": [
         "ai-agents/10-anatomy/conversation-ai-agent-shape.md:42",
         "ai-agents/20-api/conversation-ai-boundary.md:79",
-        "ai-agents/30-types/conversation-ai-actions.md:139"
+        "ai-agents/30-types/conversation-ai-actions.md:145"
       ],
       "serviceBasis": "declared"
     },
@@ -32505,7 +32539,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:114"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:117"
       ],
       "serviceBasis": "declared"
     },
@@ -32803,7 +32837,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:138"
+        "ai-agents/10-anatomy/managed-agent-shape.md:139"
       ],
       "serviceBasis": "declared"
     },
@@ -32836,7 +32870,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:135",
+        "ai-agents/10-anatomy/managed-agent-shape.md:136",
         "ai-agents/20-api/conversation-ai-boundary.md:85",
         "ai-studio/60-recipes/run-one-generation.md:26",
         "funnels/20-api/funnel-ai.md:73"
@@ -34222,7 +34256,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:468"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:494"
       ],
       "serviceBasis": "declared"
     },
@@ -34273,7 +34307,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:470",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:496",
         "ai-agents/20-api/agent-deployment-routing.md:186",
         "ai-agents/20-api/agent-deployment-routing.md:411"
       ],
@@ -34829,7 +34863,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:131",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
         "ai-agents/20-api/conversation-ai-boundary.md:96"
       ],
       "serviceBasis": "declared"
@@ -37640,7 +37674,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/flow-agent-shape.md:142",
-        "ai-agents/20-api/12-ai-agents-api.md:319",
+        "ai-agents/20-api/12-ai-agents-api.md:330",
         "ai-agents/20-api/knowledge-base.md:59",
         "ai-agents/20-api/knowledge-base.md:106",
         "ai-agents/20-api/knowledge-base.md:120",
@@ -38090,7 +38124,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:318",
+        "ai-agents/20-api/12-ai-agents-api.md:329",
         "ai-agents/20-api/conversation-ai-boundary.md:82",
         "ai-agents/20-api/knowledge-base.md:63",
         "ai-agents/20-api/knowledge-base.md:81",
@@ -38400,7 +38434,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:385",
+        "ai-agents/20-api/12-ai-agents-api.md:396",
         "ai-agents/20-api/knowledge-base.md:201",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
@@ -38650,8 +38684,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:315",
-        "ai-agents/20-api/12-ai-agents-api.md:384",
+        "ai-agents/20-api/12-ai-agents-api.md:326",
+        "ai-agents/20-api/12-ai-agents-api.md:395",
         "ai-agents/20-api/knowledge-base.md:296"
       ],
       "serviceBasis": "declared"
@@ -38678,7 +38712,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:317",
+        "ai-agents/20-api/12-ai-agents-api.md:328",
         "ai-agents/20-api/knowledge-base.md:300"
       ],
       "serviceBasis": "declared"
@@ -38731,7 +38765,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:316",
+        "ai-agents/20-api/12-ai-agents-api.md:327",
         "ai-agents/20-api/knowledge-base.md:298"
       ],
       "serviceBasis": "declared"
@@ -45385,7 +45419,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:417"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:443"
       ],
       "serviceBasis": "declared"
     },
@@ -47059,9 +47093,9 @@
         "ai-agents/20-api/12-ai-agents-api.md:167",
         "ai-agents/20-api/12-ai-agents-api.md:175",
         "ai-agents/20-api/12-ai-agents-api.md:196",
-        "ai-agents/20-api/12-ai-agents-api.md:302",
-        "ai-agents/20-api/12-ai-agents-api.md:332",
-        "ai-agents/20-api/12-ai-agents-api.md:379"
+        "ai-agents/20-api/12-ai-agents-api.md:313",
+        "ai-agents/20-api/12-ai-agents-api.md:343",
+        "ai-agents/20-api/12-ai-agents-api.md:390"
       ],
       "serviceBasis": "declared"
     },
@@ -47357,11 +47391,11 @@
       },
       "sources": [
         "ai-agents/10-anatomy/flow-agent-shape.md:34",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:163",
         "ai-agents/20-api/12-ai-agents-api.md:175",
-        "ai-agents/20-api/12-ai-agents-api.md:183",
-        "ai-agents/20-api/12-ai-agents-api.md:352"
+        "ai-agents/20-api/12-ai-agents-api.md:183"
       ],
       "serviceBasis": "declared"
     },
@@ -47469,8 +47503,8 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:166",
         "ai-agents/10-anatomy/flow-agent-shape.md:74",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:344",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:388"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:370",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -47508,7 +47542,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:164",
         "ai-agents/20-api/12-ai-agents-api.md:175",
-        "ai-agents/20-api/12-ai-agents-api.md:377",
+        "ai-agents/20-api/12-ai-agents-api.md:388",
         "ai-agents/20-api/voice-ai-boundary.md:62",
         "ai-agents/20-api/voice-ai-boundary.md:23",
         "ai-agents/20-api/voice-ai-boundary.md:24"
@@ -47549,7 +47583,7 @@
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
         "ai-agents/10-anatomy/flow-agent-shape.md:61",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:257"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:283"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -47591,11 +47625,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:226",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:238",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:252",
         "ai-agents/20-api/12-ai-agents-api.md:165",
         "ai-agents/20-api/12-ai-agents-api.md:175",
-        "ai-agents/20-api/12-ai-agents-api.md:378",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
+        "ai-agents/20-api/12-ai-agents-api.md:389",
         "ai-agents/10-anatomy/flow-agent-shape.md:57"
       ],
       "serviceBasis": "declared",
@@ -47686,7 +47721,7 @@
       },
       "sources": [
         "ai-agents/20-api/voice-ai-boundary.md:63",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:282",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:308",
         "ai-agents/20-api/12-ai-agents-api.md:171"
       ],
       "serviceBasis": "declared",
@@ -47749,7 +47784,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:472",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:498",
         "ai-agents/20-api/logs-deployment-email.md:129"
       ],
       "serviceBasis": "declared"
@@ -47783,7 +47818,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:471"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:497"
       ],
       "serviceBasis": "declared"
     },
@@ -47809,7 +47844,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:402"
       ],
       "serviceBasis": "declared"
     },
@@ -47842,7 +47877,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:332"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:358"
       ],
       "serviceBasis": "declared"
     },
@@ -47868,7 +47903,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:328"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:354"
       ],
       "serviceBasis": "declared"
     },
@@ -47947,7 +47982,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:390"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:416"
       ],
       "serviceBasis": "declared"
     },
@@ -48025,7 +48060,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:350"
       ],
       "serviceBasis": "declared"
     },
@@ -48064,7 +48099,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:398"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:424"
       ],
       "serviceBasis": "declared"
     },
@@ -48129,7 +48164,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:413",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:439",
         "ai-agents/20-api/logs-deployment-email.md:27"
       ],
       "serviceBasis": "declared"
@@ -48156,7 +48191,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:394",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:420",
         "ai-agents/10-anatomy/flow-agent-shape.md:63"
       ],
       "serviceBasis": "declared",
@@ -48186,7 +48221,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:397"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:423"
       ],
       "serviceBasis": "declared"
     },
@@ -48237,7 +48272,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:400",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:426",
         "ai-agents/20-api/logs-deployment-email.md:24",
         "ai-agents/20-api/voice-ai-boundary.md:71",
         "ai-agents/30-types/voice-ai-actions.md:109"
@@ -48279,7 +48314,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:401",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:427",
         "ai-agents/20-api/logs-deployment-email.md:25",
         "ai-agents/20-api/voice-ai-boundary.md:72"
       ],
@@ -48570,7 +48605,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:263",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
         "ai-agents/20-api/logs-deployment-email.md:123"
       ],
       "serviceBasis": "declared"
@@ -48677,7 +48712,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:340",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:366",
         "ai-agents/20-api/logs-deployment-email.md:19",
         "ai-agents/20-api/voice-ai-boundary.md:70"
       ],
@@ -48762,7 +48797,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:384",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:410",
         "ai-agents/20-api/voice-ai-boundary.md:64"
       ],
       "serviceBasis": "declared"
@@ -48789,7 +48824,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:383"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:409"
       ],
       "serviceBasis": "declared"
     },
@@ -48815,7 +48850,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:413"
       ],
       "serviceBasis": "declared"
     },
@@ -48841,7 +48876,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:386"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:412"
       ],
       "serviceBasis": "declared"
     },
@@ -48867,7 +48902,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:385"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:411"
       ],
       "serviceBasis": "declared"
     },
@@ -48906,7 +48941,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:478"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:504"
       ],
       "serviceBasis": "declared"
     },
@@ -48932,7 +48967,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:350"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
       ],
       "serviceBasis": "declared"
     },
@@ -49036,7 +49071,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:346"
       ],
       "serviceBasis": "declared"
     },
@@ -49069,7 +49104,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:369"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:395"
       ],
       "serviceBasis": "declared"
     },
@@ -49110,7 +49145,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:63",
         "ai-agents/20-api/12-ai-agents-api.md:170",
-        "ai-agents/20-api/12-ai-agents-api.md:380",
+        "ai-agents/20-api/12-ai-agents-api.md:391",
         "ai-agents/20-api/voice-ai-boundary.md:65",
         "ai-agents/20-api/voice-ai-boundary.md:82"
       ],
@@ -49177,7 +49212,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:392"
       ],
       "serviceBasis": "declared"
     },
@@ -49216,7 +49251,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:362",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:388",
         "ai-agents/20-api/voice-ai-boundary.md:66"
       ],
       "serviceBasis": "declared"
@@ -49243,7 +49278,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:370"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:396"
       ],
       "serviceBasis": "declared"
     },
@@ -49288,7 +49323,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:364"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:390"
       ],
       "serviceBasis": "declared"
     },
