@@ -11,6 +11,30 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.26.1] — 2026-09-29
+
+**Fixes: a false warning on Find company in 1.25.0, and first-party trigger filters stored as the builder stores
+them. Executed live on the test account.**
+
+### Fixed
+- 🔴 1.25.0 warned that a *Find company* step authored on its own (or added by `edit_workflow` to a workflow with no
+  other marketplace step) carried "unknown attribute keys", including `transitions`. Stripping them would break both
+  branches. The check now follows the compiled workflow. It is proven live on build and edit, and 1.25.0 is the control.
+- Filters on GHL's first-party marketplace triggers (Company Created and the like) are checked against the trigger's
+  published filters, and stored with the builder's `id`, `type` and `title`. In 1.25.0 every such row was stored
+  without a title. An unknown filter field is refused, naming the trigger's filters. A multiselect row whose array
+  mode is not known is refused, not guessed.
+
+### Changed
+- `fast_forward_contacts` says plainly that `moved` counts what GHL accepted, not a read-back, and that a draft
+  workflow moves nobody.
+- `raw_request` knows the lost-reason rename (PUT) and delete as proven routes.
+
+### Docs — ghl-pipeline-specialist
+- Deleting an opportunity UNLINKS its notes and tasks; it does not delete them, whatever the app says. Restoring the
+  opportunity relinks both.
+- Renaming and deleting lost reasons; risk thresholds are not saved; readiness bulk edit needs one pipeline selected.
+
 ## [1.26.0] — 2026-09-29
 
 **Pages: margins, tablet and mobile styles, and section styling, all kept exactly by a builder save. Executed live on
