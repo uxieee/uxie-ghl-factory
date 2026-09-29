@@ -203160,7 +203160,9 @@ function normalizeCondition(rawC, ctx) {
       conditionType: "contact_detail",
       conditionSubType: "tags",
       conditionOperator: negate ? "index-of-false" : "index-of-true",
-      conditionValue: raw == null ? [] : Array.isArray(raw) ? raw : [raw]
+      // GHL stores tags lower case, and an if/else tag condition holding a capital letter NEVER MATCHES: with the same own contact and the
+      // same tag, the lower-case condition took Yes and the mixed-case one took Else (live 2026-09-30, live-W31-ifelse-tag-result.json).
+      conditionValue: raw == null ? [] : (Array.isArray(raw) ? raw : [raw]).map((v) => typeof v === "string" && !/\{\{/.test(v) ? v.toLowerCase() : v)
     };
   }
   const stageIntent = c.stage !== void 0 || c.conditionSubType === OPP_STAGE_SUBTYPE;
@@ -205409,7 +205411,34 @@ function mixedCaseTagRows(conditions) {
   return out;
 }
 var tagCaseFix = (value) => `edit_workflow { op: 'replaceTag', oldTag: '${value}', newTag: '${value.toLowerCase()}', allowNoop: true }`;
-var TAG_CASE_NOT_COVERED = "NOT COVERED: if/else tag conditions and step tag values \u2014 how GHL compares their case at run time was not measured.";
+var TAG_CASE_NOT_COVERED = "NOT COVERED: the tag values that add/remove-tag STEPS write \u2014 how GHL treats their case was not measured.";
+function mixedCaseIfElseTags(attributes) {
+  const out = [];
+  for (const b of Array.isArray(attributes?.branches) ? attributes.branches : []) {
+    const values = [];
+    for (const seg of Array.isArray(b?.segments) ? b.segments : []) for (const c of Array.isArray(seg?.conditions) ? seg.conditions : []) {
+      if (c?.conditionType !== "contact_detail" || c?.conditionSubType !== "tags") continue;
+      values.push(...[].concat(c.conditionValue ?? []).filter(isMixedCaseTag));
+    }
+    if (values.length) out.push({ branch: b?.name ?? null, values });
+  }
+  return out;
+}
+function lintIfElseTagCase(templates) {
+  const out = [];
+  for (const t of Array.isArray(templates) ? templates : []) {
+    if (t?.type !== "if_else") continue;
+    for (const r of mixedCaseIfElseTags(t.attributes)) for (const v of r.values) {
+      out.push({
+        code: "IFELSE_TAG_CASE",
+        severity: "error",
+        stepId: t.id,
+        msg: `if/else '${t.name ?? t.id}' branch '${r.branch ?? "?"}' tests the tag '${v}' \u2014 GHL stores tags in lower case and a condition with a capital letter never matched in the live test (the contact took Else). Fix: ${tagCaseFix(v)}`
+      });
+    }
+  }
+  return out;
+}
 
 // ../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs
 function lintTriggerRows(triggers, catalog) {
@@ -211911,6 +211940,7 @@ function runLints(doc, {
       for (const f of lintContactLessSteps(T, triggers)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintSmsTemplateBody(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintEventStartRecurring(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
+      for (const f of lintIfElseTagCase(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F("platform", f.code, f.severity, f.msg, { triggerId: f.triggerId });
       for (const f of lintNameLength(T, triggers))
         F("platform", f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : { triggerId: f.triggerId });
@@ -218258,25 +218288,29 @@ async function createWorkflowFromVersion(args, deps, gw, wf) {
 var DIGEST_INCLUDE_VALUES = Object.freeze(["raw"]);
 async function auditMixedCaseTagRows(args, deps) {
   const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-  const read = async (pageLimit) => gw.call("POST", "/workflows/es/search", {
-    locationId: args.locationId,
-    pageLimit,
-    offset: 0,
-    filters: [{ field: "docType", operator: "eq", value: "trigger" }],
-    sort: []
-  });
-  let requests = 1;
-  let r = await read(Math.max(args.limit ?? 0, 1e3));
-  if (!r.ok) return fromHttp(r.status, r.json);
-  let rows = r.json?.workflows ?? [];
-  const count = r.json?.count ?? null;
-  if (typeof count === "number" && rows.length < count && count < 1e4) {
-    requests += 1;
-    r = await read(count + 100);
-    if (!r.ok) return fromHttp(r.status, r.json);
-    rows = r.json?.workflows ?? rows;
-  }
-  const complete = typeof count === "number" && rows.length >= count;
+  let requests = 0;
+  const slice = async (filters) => {
+    const read = async (pageLimit) => {
+      requests += 1;
+      return gw.call("POST", "/workflows/es/search", { locationId: args.locationId, pageLimit, offset: 0, filters, sort: [] });
+    };
+    let r = await read(Math.max(args.limit ?? 0, 1e3));
+    if (!r.ok) return { failure: fromHttp(r.status, r.json) };
+    let rows2 = r.json?.workflows ?? [];
+    const count2 = r.json?.count ?? null;
+    if (typeof count2 === "number" && rows2.length < count2 && count2 < 1e4) {
+      r = await read(count2 + 100);
+      if (!r.ok) return { failure: fromHttp(r.status, r.json) };
+      rows2 = r.json?.workflows ?? rows2;
+    }
+    return { rows: rows2, count: count2, complete: typeof count2 === "number" && rows2.length >= count2 };
+  };
+  const trig = await slice([{ field: "docType", operator: "eq", value: "trigger" }]);
+  if (trig.failure) return trig.failure;
+  const ife = await slice([{ field: "docType", operator: "eq", value: "action" }, { field: "docKey", operator: "eq", value: "if_else" }]);
+  if (ife.failure) return ife.failure;
+  const rows = trig.rows, count = trig.count;
+  const complete = trig.complete && ife.complete;
   const hits = [];
   for (const d of rows) {
     const found = mixedCaseTagRows(d.meta?.conditions);
@@ -218284,6 +218318,7 @@ async function auditMixedCaseTagRows(args, deps) {
     const all = new Set((d.meta?.conditions ?? []).flatMap((c) => [].concat(c?.value ?? [])).filter((v) => typeof v === "string"));
     for (const row of found) for (const value of row.values) {
       hits.push({
+        kind: "trigger-row",
         workflowId: d.meta?.workflowId ?? d.workflowJoinField?.parent ?? null,
         triggerId: d.meta?.id ?? null,
         triggerName: d.meta?.name ?? null,
@@ -218292,6 +218327,19 @@ async function auditMixedCaseTagRows(args, deps) {
         operator: row.operator,
         value,
         lowercaseTwinInSameTrigger: all.has(value.toLowerCase()),
+        fix: tagCaseFix(value)
+      });
+    }
+  }
+  for (const d of ife.rows) {
+    for (const r of mixedCaseIfElseTags(d.meta?.attributes)) for (const value of r.values) {
+      hits.push({
+        workflowId: d.workflowJoinField?.parent ?? d.meta?.workflowId ?? null,
+        kind: "if_else-condition",
+        stepId: d.meta?.id ?? null,
+        stepName: d.meta?.name ?? null,
+        branch: r.branch,
+        value,
         fix: tagCaseFix(value)
       });
     }
@@ -218312,6 +218360,7 @@ async function auditMixedCaseTagRows(args, deps) {
   return ok({
     problem: "mixed-case-tag-rows",
     triggerDocsScanned: rows.length,
+    ifElseDocsScanned: ife.rows.length,
     indexCount: count,
     complete,
     requests,
@@ -218322,7 +218371,7 @@ async function auditMixedCaseTagRows(args, deps) {
     partialHits: complete ? null : hits,
     warnings: complete ? [] : [{
       code: CODES.ES_SEARCH_RECONCILIATION_SHORT,
-      detail: `es/search returned ${rows.length} trigger doc(s) against its own count:${count} \u2014 the sweep is INCOMPLETE. Re-run; walking offset or searchAfter does not help (measured).`
+      detail: `es/search returned ${rows.length} trigger doc(s) against its own count:${count} and ${ife.rows.length} if/else doc(s) against count:${ife.count} \u2014 the sweep is INCOMPLETE. Re-run; walking offset or searchAfter does not help (measured).`
     }],
     note: `A trigger row naming a tag with a capital letter never fires: GHL stores tags in lower case. Rows made in the builder are lower case (its picker lists lower-case tags), so a hit was written by an API/engine call. Fix one with the fix string (edit_workflow, then read the trigger back). ${TAG_CASE_NOT_COVERED}`
   });
@@ -223184,7 +223233,7 @@ var TOOLS2 = [
   // silently return nothing. Attribute questions still need an export. See console bl-148.
   {
     name: "find_workflows_using",
-    description: `${describe3("find_workflows_using", "Find which workflows contain a step or trigger type \u2014 risk: read")}. Pass step/trigger TYPE names (as \`describe_step_type\` spells them, e.g. \`wait\`, \`appointment\`). returns:"workflows" (default) lists workflows containing any; returns:"steps" lists the matching step documents with workflowId and stored attributes. \u{1F534} The modes count DIFFERENT THINGS (\`wait\`: 438 step documents in 61 workflows) \u2014 never report one as the other. \u{1F534} OFFSET PAGING IS UNSTABLE (measured 2026-09-21: 326 rows walked at limit 100 gave 300 unique) and \`searchAfter\` in the body is IGNORED (page 1 again). The complete read is ONE call with \`limit\` above \`count\`; rows are reconciled against GHL's \`count\` and deduped, and a short result is \`complete:false\` with a coded warning. \u{1F534} It CANNOT filter on attribute VALUES (no working operator for the attributes sub-document); that needs an export. problems:"mixed-case-tag-rows" (no types) is the exception: trigger docs carry their stored conditions, so it lists every trigger row naming a tag with a CAPITAL letter \u2014 such a row NEVER FIRES (GHL stores tags lower case; measured live 2026-09-30) \u2014 with workflow, trigger, value, twin flag and the edit_workflow replaceTag fix. One index call, one GET per hit. NOT covered (says so): if/else tag conditions and step tag values.`,
+    description: `${describe3("find_workflows_using", "Find which workflows contain a step or trigger type \u2014 risk: read")}. Pass step/trigger TYPE names (as \`describe_step_type\` spells them, e.g. \`wait\`, \`appointment\`). returns:"workflows" (default) lists workflows containing any; returns:"steps" lists the matching step documents with workflowId and stored attributes. \u{1F534} The modes count DIFFERENT THINGS (\`wait\`: 438 step documents in 61 workflows) \u2014 never report one as the other. \u{1F534} OFFSET PAGING IS UNSTABLE (measured 2026-09-21: 326 rows walked at limit 100 gave 300 unique) and \`searchAfter\` in the body is IGNORED (page 1 again). The complete read is ONE call with \`limit\` above \`count\`; rows are reconciled against GHL's \`count\` and deduped, and a short result is \`complete:false\` with a coded warning. \u{1F534} It CANNOT filter on attribute VALUES (no working operator for the attributes sub-document); that needs an export. problems:"mixed-case-tag-rows" (no types) is the exception: trigger docs and if/else step docs carry their stored conditions, so it lists every trigger row and if/else tag condition naming a tag with a CAPITAL letter \u2014 such a row NEVER MATCHES (GHL stores tags lower case; measured live 2026-09-30) \u2014 with workflow, value and the edit_workflow replaceTag fix. One call per index slice, one GET per hit. NOT covered (says so): the tags add/remove-tag steps write.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       types: external_exports.array(external_exports.string()).min(1).optional(),
