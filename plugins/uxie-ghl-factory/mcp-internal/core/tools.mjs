@@ -1165,7 +1165,12 @@ async function webhookReferenceFor(gw, loc, triggers) {
  * contact workflows each get their own catalogue). A failed read returns null: the old warning, not a refusal.
  */
 async function gateAssetsFor(gw, loc, doc, templates, catalog) {
-  const needs = (templates ?? []).some((t) => typeof t?.type === 'string' && t.isMarketplaceAction !== true && !catalog?.step?.(t.type));
+  // Two checks need the list: STEP_TYPE (a step with no native card) and ATTRIBUTE_KEY, which skips an
+  // asset-LABELLED step (workflowsActionType) only when the list confirms the key — without it, a
+  // builder-made Find company drew "unknown attribute key(s) [cat, convertToMultipath, transitions,
+  // __name__]" on publish once bl-310 gave it a card (live 2026-09-29, live-W24-bl309-main.json).
+  const needs = (templates ?? []).some((t) => typeof t?.type === 'string' && t.isMarketplaceAction !== true
+    && (!catalog?.step?.(t.type) || typeof t.workflowsActionType === 'string'));
   if (!needs) return null;
   try { const r = await gw.call('GET', assetsPath(loc, doc)); return r?.ok ? r.json : null; } catch { return null; }
 }

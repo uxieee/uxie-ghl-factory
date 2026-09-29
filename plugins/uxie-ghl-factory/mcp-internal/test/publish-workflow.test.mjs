@@ -554,3 +554,25 @@ test('bl-309: a native-only document makes no catalogue read (network-identical 
   await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
   assert.equal(calls.some(({ path }) => path.startsWith('/workflows-marketplace/')), false);
 });
+
+// bl-309 follow-up: since bl-310 gave Find company a card, a builder-made one (asset-LABELLED, with the builder's own
+// multipath keys) drew ATTRIBUTE_KEY on publish because the list that marks it labelled was never read.
+const BUILDER_FIND = { id: 'f2', type: 'co_find_company_record', name: 'Find company', workflowsActionType: 'INTERNAL', parentKey: null, next: null,
+  attributes: { type: 'co_find_company_record', filter_on: 'earliest', __customInputFields__: [], cat: 'multi-path', convertToMultipath: true, transitions: [], __name__: 'Find company' } };
+const FIND_ASSETS = { actions: [{ appName: 'Company', actions: [{ key: 'co_find_company_record', workflowsActionType: 'INTERNAL', inputs: [] }] }], triggers: [] };
+const attributeKeyWarnings = (result) => (result.data?.preview?.warnings ?? []).filter((w) => /ATTRIBUTE_KEY/.test(w));
+
+test('bl-309: an asset-labelled step WITH a card is judged against the asset list, so the builder\'s keys draw no ATTRIBUTE_KEY', async () => {
+  const { gw, calls } = publishGateway({ initial: companyDoc([BUILDER_FIND]), assets: FIND_ASSETS });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', skipWorkflowRules: true }, deps(gw));
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.deepEqual(attributeKeyWarnings(result), []);
+  assert.ok(calls.some(({ path }) => path.startsWith('/workflows-marketplace/')), 'the list is read for a labelled step');
+});
+
+test('bl-309 CONTROL: without the list the same step draws the ATTRIBUTE_KEY warning', async () => {
+  const { gw } = publishGateway({ initial: companyDoc([BUILDER_FIND]), assets: null });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', skipWorkflowRules: true }, deps(gw));
+  assert.equal(attributeKeyWarnings(result).length, 1);
+  assert.match(attributeKeyWarnings(result)[0], /convertToMultipath/);
+});
