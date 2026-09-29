@@ -11,7 +11,7 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## [1.33.1] — 2026-10-01
+## [1.33.1] — 2026-09-30
 
 **Fixes: tool results no longer blank out ordinary words after "session:", and the capitalised-tag check states
 exactly what it covers.**
