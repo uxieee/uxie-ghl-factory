@@ -4095,6 +4095,78 @@ export const TOOLS = [
     }, args),
   },
   {
+    name: 'get_contact_workflow_history',
+    description: describe(
+      'get_contact_workflow_history',
+      'One contact\'s (or one company record\'s) workflow runs, newest first: every enrolment with the workflow NAME beside '
+      + 'its id, the run\'s status, when it entered, and the step it is at or ended on. Pass workflowId to narrow to that '
+      + 'workflow\'s runs of the contact. Paged: pass back `nextCursor` until it is null. '
+      + 'Use it for "which workflows has this contact been through, and where is it now". For "what happened inside '
+      + 'workflow X" (each step\'s outcome, skips, errors) use get_workflow_logs — this tool returns runs, not step logs. '
+      + 'A company workflow\'s record is addressed as contactId "business_<company id>". '
+      + 'Each run id is what get_workflow_logs takes as its executionId filter.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      contactId: z.string().describe('A contact id, or "business_<company id>" for a company record.'),
+      workflowId: z.string().optional().describe('Only this workflow\'s runs of the contact.'),
+      limit: z.number().int().min(1).max(100).default(20),
+      cursor: z.string().optional().describe('The nextCursor of the previous page.'),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflows/status/search/contact-executions' },
+      { method: 'GET', path: '/workflows/status/search/workflow-with-filter' },
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const limit = args.limit ?? 20;
+      // THE CURSOR is the reference triple of the LAST run this tool returned — (createdAt, _id, sid), the tuple the map
+      // itself sends back (services/api/workflow-status-service.ts: action=next&referenceCreatedAt&referenceId&referenceSid).
+      // The status search is measured INCLUSIVE of the reference row (it re-returns it first), so a next page drops a
+      // leading row equal to the cursor; if a page ever starts after it instead, nothing is dropped and nothing is lost.
+      let ref = null;
+      if (args.cursor) {
+        try { ref = JSON.parse(Buffer.from(args.cursor, 'hex').toString('utf8')); } catch { ref = null; }
+        if (!ref?.i || !ref?.c || (ref.w ?? null) !== (args.workflowId ?? null) || ref.k !== args.contactId)
+          return fail(CODES.VALIDATION_FAILED, 'cursor is not a nextCursor this tool returned for the same contact and workflowId',
+            'Pass back nextCursor exactly as returned, with the same contactId and workflowId; omit it for the first page.');
+      }
+      const q = new URLSearchParams({ action: ref ? 'next' : 'first', contactId: args.contactId, limit: String(limit + (ref ? 2 : 1)), locationId: args.locationId });
+      if (args.workflowId) q.set('workflowId', args.workflowId);
+      if (ref) { q.set('referenceCreatedAt', ref.c); q.set('referenceId', ref.i); if (ref.s) q.set('referenceSid', ref.s); }
+      const path = args.workflowId ? '/workflows/status/search/workflow-with-filter' : '/workflows/status/search/contact-executions';
+      const r = await gw.call('GET', `${path}?${q}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      let rows = Array.isArray(r.json?.statuses) ? r.json.statuses : [];
+      if (ref && rows[0]?._id === ref.i) rows = rows.slice(1);
+      const more = rows.length > limit;
+      const page = rows.slice(0, limit);
+      // Names beside ids: one workflow read per distinct workflow on the page.
+      const names = new Map();
+      for (const wid of [...new Set(page.map((x) => x.workflowId).filter(Boolean))]) {
+        const w = await gw.call('GET', `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(wid)}`);
+        names.set(wid, w.ok ? (w.json?.name ?? null) : null);
+      }
+      const last = page.at(-1);
+      const nextCursor = more && last
+        // HEX, not base64: base64 of a JSON object starts `eyJ`, which the result scrubber reads as a JWT and redacts.
+        ? Buffer.from(JSON.stringify({ c: last.createdAt, i: last._id, s: last.sid ?? null, w: args.workflowId ?? null, k: args.contactId })).toString('hex')
+        : null;
+      return ok({
+        contactId: args.contactId,
+        ...(args.workflowId ? { workflowId: args.workflowId } : {}),
+        runs: page.map((x) => ({
+          runId: x._id, workflowId: x.workflowId ?? null, workflowName: names.get(x.workflowId) ?? null,
+          status: x.status ?? null, enteredAt: x.createdAt ?? null, updatedAt: x.updatedAt ?? null,
+          step: x.currentStepName || x.currentStepType ? { name: x.currentStepName ?? null, type: x.currentStepType ?? null } : null,
+        })),
+        nextCursor,
+        ...(nextCursor ? { next: 'call again with cursor: nextCursor for older runs' } : {}),
+      });
+    }, args),
+  },
+  {
     name: 'get_workflow_stats',
     description: describe(
       'get_workflow_stats',
