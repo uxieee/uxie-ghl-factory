@@ -14,8 +14,13 @@ Every item was executed on the designated test sub-account and read back on a se
   `(i + 1) / (n + 1) * 100`, and still answers 201.
 - **A stage rename keeps its id,** so workflows (which reference stages by id) keep working. A
   rename fires no stage-changed trigger; moving a card fires everything.
-- **Deleting a pipeline deletes its opportunities,** with no DELETED audit row, so they cannot be
-  restored from Settings › Audit logs. A single-opportunity delete can be restored.
+- **Deleting a pipeline deletes its opportunities,** and the cards get no DELETED audit row of their
+  own. Restore the **pipeline** instead: Settings › Audit logs › Pipeline · Deleted › Restore
+  (`POST /opportunities/pipelines/{id}/restore {}`). That brought back the pipeline and its card four
+  days after the delete. A single-opportunity delete is restored from its own row.
+- **Deleting a contact deletes its opportunities.** Each card gets its own Opportunity · Deleted audit row.
+  Restoring a card from that row (`PUT /opportunities/{id}/restore {forceRestore:true}`) brings the card
+  back **and restores the deleted contact with it**. Warn before deleting a contact that holds deals.
 - **`PATCH …/position` with an empty body moves the pipeline.** `raw_request` refuses it without
   `targetPosition`.
 - The update body is the GET row with `id`, `position`, `dateAdded`, `dateUpdated`, `locationId`
@@ -43,6 +48,10 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
   public status route: `status:"lost"` with `lostReasonId`.
 - A second opportunity for the same contact in the same pipeline is refused while duplicates are
   off (`OPPORTUNITY_NO_DUPLICATE`, with the blocking card's id in `meta.existingId`).
+- **The edit form's Business name, Primary email and Primary phone belong to the CONTACT.** A save sends
+  `PUT /contacts/{contactId}` with just those keys, so the change shows everywhere that contact appears. The
+  public opportunity update never touches them. To change them from a script, update the contact
+  (the public contacts tools) and say it changes the contact, not only this deal.
 - **Additional contacts are association relations, not a field.** The relation reads from the
   CONTACT side only: `relations/record/{opportunityId}` answers empty, and the edit form's
   Associated objects tab shows "No association found" for a card that has two contacts. To list an
@@ -57,6 +66,11 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
 - **An invoice linked to an opportunity** is saved, even as a draft, by `POST /invoices/finalize`.
   The name does not mean sent: it read back as a draft, not sent. It needs the contact's email and
   an E.164 phone. Without them it answers 422 while the UI shows nothing.
+
+- **A linked invoice can quote the deal.** With `opportunityDetails.opportunityId` set, its text takes
+  `{{ opportunity.name }}` and the rest of the Opportunity Details group (pipeline, stage, status, value, owner,
+  source, lost reason, close date, probability, custom fields). The tag is stored raw and renders only on the
+  hosted invoice page (⋮ › Preview, or when sent). The editor's own preview shows it blank.
 
 - **A lost reason typed into the edit form is created the moment you pick it** (`POST
   /opportunities/lost-reason`), even if the form is then cancelled. Stray reasons stay in the list.
@@ -111,3 +125,30 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
 - A bulk delete can be undone there (Restore) or per card. A bulk edit cannot be undone.
 - A CSV import is a background job (`bulk-import-v2`) that can sit at "processing 0/N" for minutes before
   it runs. A `Source` column is written to both the contact and the opportunity.
+
+## Contacts into a pipeline in one job (`bulk-ops-v2`)
+
+This is the job behind Contacts › select › **Manage opportunities**. Call it with `raw_request`, host `ai`, `confirm:true`:
+
+```
+POST /bulk-actions/request
+{"bulkActionType":"bulk-ops-v2","title":"<name>","locationId":"{loc}","documentSource":"search","scheduleType":"NOW",
+ "documentIds":["{contactId}", "…"],
+ "opSpecs":{"opType":"bulk-ops-v2","note":"<name>","pipelineId":"{pipelineId}","pipelineStageId":"{stageId}",
+            "description":"Pipeline: <name> | Stage: <name>","name":"…","monetaryValue":0,"status":"open","customFields":[]}}
+```
+
+- `documentIds` are **contact** ids. List them explicitly and show the user the count first. The app sends a
+  filter (`documentSourceQuery`) for "select all", and that runs against whatever matches when the job starts.
+- 🔴 **It is an upsert.** A contact that already has a card in that pipeline has that card updated; it does
+  not get a second card. Say so before running it on contacts that already have cards. This was
+  proven with "Allow more than one opportunity per contact in the same pipeline" off (Settings › Objects ›
+  Opportunities). With it on, the result is untested: read the setting first.
+- Other fields go in `opSpecs` by their own key: assignedTo, followers, source, lostReasonId. Custom fields
+  go in `customFields:[{id, field_value}]`.
+- It answers `201 {bulkRequest:{id, status:"processing"}}`. Poll `GET /bulk-actions/request/{id}` until
+  `bulkRequest.status` is `complete`, then check that `stats.processed` equals the number of ids. Read the cards
+  back with the public opportunity search.
+- Undo is not proven for this job type (Restore is offered on delete jobs). Treat it as irreversible.
+- Every card it creates or moves can fire that pipeline's opportunity triggers. Check them first (see
+  reference-pipelines.md, "Before any bulk card move").
