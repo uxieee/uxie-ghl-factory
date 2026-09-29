@@ -11,6 +11,31 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.29.1] — 2026-09-30
+
+**🔴 Fix: a tag trigger written with a capital letter never fired. Trigger filters now match what the builder
+writes. Executed live on the test account.**
+
+### Fixed
+- 🔴 Tag filters on triggers (contact tag, contact changed, opportunity tags) are stored in lower case. GHL stores every
+  tag in lower case, so a filter row written as `VIP` matched nothing, and the workflow never enrolled anyone. Live:
+  two identical published workflows. The mixed-case one never enrolled the tagged contact; the lower-case one enrolled
+  it within a second. **Workflows built by earlier versions with a capitalised tag in a trigger filter are inert:
+  check them.**
+- *Payment received* filters on sub-source, transaction type, form, calendar and product price, and the *Global
+  product* filter, are written the way the builder writes them. They showed "Select operator" in the builder before.
+- Dropdown filters store the option's value, not its label (`website`, not `Website`).
+- *Contact changed* accepts Added / Removed on multi-select custom fields, as the builder offers.
+
+### Changed
+- ⚠️ A trigger filter row with no value is warned about (`TRIGGER_FILTER_EMPTY_VALUE`).
+
+### Docs
+- Trigger pages describe the builder's filter drawer. The claim that empty filters are allowed at create time is
+  corrected.
+- Tests pin that a tool-built node carries every default a builder-created collection list or featured-products
+  element writes.
+
 ## [1.29.0] — 2026-09-30
 
 **Pages: insert, move and clone anything on a page, and manage popups, without rebuilding it. Executed live on the
