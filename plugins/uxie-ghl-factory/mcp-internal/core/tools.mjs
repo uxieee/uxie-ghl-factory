@@ -4201,7 +4201,8 @@ export const TOOLS = [
     name: 'get_workflow_stats',
     description: describe(
       'get_workflow_stats',
-      'The builder\'s Stats view as data: per-step SMS/email delivery aggregates, per-trigger attempted/matched counts, contacts per step, and per-path entered counts for every A/B split (last 30 days max).',
+      'The builder\'s Stats view as data: per-step SMS/email delivery aggregates, per-trigger attempted/matched counts, contacts per step, and per-path entered counts for every A/B split (last 30 days max). '
+      + 'There is no builder route for per-step success/failed/skipped counts (bundle 2026-09-29-2): a step\'s outcomes come from get_workflow_logs. For WHY a trigger did not match (ranked reasons, per-contact rows), use get_trigger_logs.',
     ),
     inputSchema: schema({
       locationId: z.string(),
