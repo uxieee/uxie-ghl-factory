@@ -10883,6 +10883,7 @@
         "audit_site",
         "create_funnel",
         "edit_funnel",
+        "edit_redirects",
         "get_funnel"
       ],
       "rawCallable": true,

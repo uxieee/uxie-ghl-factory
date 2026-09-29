@@ -11060,6 +11060,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "audit_site",
             "create_funnel",
             "edit_funnel",
+            "edit_redirects",
             "get_funnel"
           ],
           rawCallable: true,
@@ -74110,9 +74111,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       find_ghl_site: {
-        description: "Find ghl site \u2014 proof: live-runtime (2026-09-28); risk: read",
+        description: "Find ghl site \u2014 proof: live-runtime (2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects",
@@ -75680,9 +75681,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_redirects: {
-        description: "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects) \u2014 proof: live-runtime (2026-09-28); risk: write",
+        description: "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects) \u2014 proof: live-runtime (2026-09-29); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "funnels--redirect-list",
@@ -111116,6 +111117,42 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
+
+// core/style-values.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var SIZED = /^(-?\d+(?:\.\d+)?)(px|%|em|rem|vh|vw|vmin|vmax|pt|ch)$/;
+var UNIT_KEYS = /(padding|margin|width|height|size|radius|gap|spacing|thickness|blur|spread|offset|^top$|^left$|^right$|^bottom$|indent)/i;
+var SHAPED = /* @__PURE__ */ new Set(["value", "unit", "desktop", "tablet", "mobile"]);
+var isShaped = (v) => v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length > 0 && Object.keys(v).some((k) => SHAPED.has(k)) && Object.keys(v).every((k) => SHAPED.has(k) || /^(label|isCustom|text|id)$/.test(k));
+function normalizeStyleValue(key, v, where = "styles") {
+  const at = `${where}.${key}`;
+  if (isShaped(v)) return v;
+  if (typeof v === "number") {
+    if (!Number.isFinite(v)) throw new Error(`${at}: ${v} is not a finite number`);
+    return UNIT_KEYS.test(key) ? { value: v, unit: "px" } : { value: v };
+  }
+  if (typeof v === "string") {
+    const t = v.trim();
+    if (!t) throw new Error(`${at}: an empty string is not a value (leave the key out, or name a keyword such as "none")`);
+    const m = SIZED.exec(t);
+    if (m) return { value: Number(m[1]), unit: m[2] };
+    if (/^-?\d+(?:\.\d+)?$/.test(t)) return UNIT_KEYS.test(key) ? { value: Number(t), unit: "px" } : { value: Number(t) };
+    return { value: t };
+  }
+  throw new Error(`${at}: ${v === null ? "null" : Array.isArray(v) ? "an array" : typeof v === "object" ? `an object with none of ${[...SHAPED].join(" / ")}` : typeof v} cannot be stored as a style value \u2014 give a string ("16px", "#d00000", "bold"), a number, or {value, unit}`);
+}
+function normalizeStyles(map2, where = "styles") {
+  if (map2 === void 0) return void 0;
+  if (!map2 || typeof map2 !== "object" || Array.isArray(map2)) throw new Error(`${where} must be an object of {prop: value}`);
+  return Object.fromEntries(Object.entries(map2).map(([k, v]) => [k, normalizeStyleValue(k, v, where)]));
+}
+
+// core/style-layer.mjs
 var STYLE_LAYER_SOURCE = Object.freeze({ chunk: "pageBuilder index.e1b163ff.js", measured: "2026-09-29" });
 var PAGE_SCOPE = "hl_page-preview--content";
 var TABLET_QUERY = "@media screen and (min-width:768px) and (max-width:1024px)";
@@ -111197,7 +111234,7 @@ function nodeLayerCss(node, scope = PAGE_SCOPE) {
 function storedMap(map2) {
   if (map2 === void 0) return void 0;
   if (!map2 || typeof map2 !== "object" || Array.isArray(map2)) throw new Error("a style / wrapper map must be an object of {prop: number | string | {value, unit}}");
-  return Object.fromEntries(Object.entries(map2).map(([k, v]) => [k, typeof v === "number" ? { value: v, unit: "px" } : typeof v === "string" ? { value: v } : v]));
+  return Object.fromEntries(Object.entries(map2).map(([k, v]) => [k, typeof v === "number" ? { value: v, unit: "px" } : typeof v === "string" ? normalizeStyleValue(k, v, "wrapper / device map") : v]));
 }
 var LAYER_SPEC_KEYS = Object.freeze(["wrapper", "tabletStyles", "mobileStyles", "tabletWrapper", "mobileWrapper"]);
 
@@ -132018,31 +132055,61 @@ function validateTarget(target) {
     return "target must be an absolute http(s) URL";
   }
 }
-function planCreate({ domain: domain2, path, target, locationId }) {
-  if (!domain2 || !path || !target) return { error: "create needs domain, path and target" };
+function resolveTo({ to, target, funnelDoc }) {
+  if (!to) {
+    const bad = validateTarget(target);
+    return bad ? { error: bad } : { action: "url", target };
+  }
+  if (target) return { error: "name a URL `target` OR a step target `to`, not both" };
+  if (!["funnel", "website"].includes(to.type)) return { error: 'to.type must be "funnel" or "website"' };
+  if (!to.funnelId || !to.stepId) return { error: "to needs funnelId and stepId (the step the redirect lands on)" };
+  if (!funnelDoc) return { error: `funnel ${to.funnelId} was not found on this location` };
+  if ((funnelDoc._id ?? funnelDoc.id) !== to.funnelId) return { error: `the document read is not ${to.funnelId}` };
+  if (to.type === "website" ? funnelDoc.type !== "website" : funnelDoc.type === "website") return { error: `${funnelDoc.name} is a ${funnelDoc.type}, not a ${to.type}` };
+  if (!(funnelDoc.steps ?? []).some((st) => st.id === to.stepId)) return { error: `${funnelDoc.name} has no step ${to.stepId} (${(funnelDoc.steps ?? []).map((st) => `${st.name}: ${st.id}`).join(", ") || "none"})` };
+  return { action: to.type, target: to.stepId };
+}
+var ENTIRE_DOMAIN = Object.freeze({ path: "*", action: "all" });
+function planCreate({ domain: domain2, path, target, action = "url", entireDomain = false, locationId }) {
+  if (!domain2 || !target) return { error: "create needs domain and a target" };
+  if (entireDomain) {
+    if (path && !["*", "/*"].includes(String(path))) return { error: "entireDomain redirects every path of the domain; do not also name a path" };
+    const bad = validateTarget(target);
+    if (bad) return { error: `an entire-domain redirect goes to a URL: ${bad}` };
+    return {
+      entireDomain: true,
+      request: { method: "POST", path: "/funnels/lookup/redirect", body: { domain: domain2, path: ENTIRE_DOMAIN.path, action: ENTIRE_DOMAIN.action, locationId, type: "redirect", target } },
+      normalizedPath: ENTIRE_DOMAIN.path
+    };
+  }
+  if (!path) return { error: "create needs a path (or entireDomain:true)" };
   const p2 = normPath2(path);
-  if (p2 === "/") return { error: `path "/" would redirect the domain root; the screen's "Entire Domain (/*)" form is a separate, unmapped surface` };
+  if (p2 === "/") return { error: `path "/" would redirect the domain root; use entireDomain:true for the screen's "Entire Domain (/*)" form` };
   const reserved = reservedPrefix(p2);
   if (reserved) return { error: `path ${p2} is under the reserved prefix ${reserved}: GHL stores it but its exact path answers 404 in public (the storefront/blog router takes it first)` };
-  const bad = validateTarget(target);
-  if (bad) return { error: bad };
+  if (action === "url") {
+    const bad = validateTarget(target);
+    if (bad) return { error: bad };
+  }
   return {
     exists: { method: "POST", path: "/funnels/lookup/exists", body: { domain: domain2, path: p2, locationId } },
-    request: { method: "POST", path: "/funnels/lookup/redirect", body: { domain: domain2, path: p2, action: "url", locationId, type: "redirect", target } },
+    request: { method: "POST", path: "/funnels/lookup/redirect", body: { domain: domain2, path: p2, action, locationId, type: "redirect", target } },
     normalizedPath: p2
   };
 }
 function resolveTarget(rows, { redirectId, path }) {
-  const p2 = normPath2(path);
+  const p2 = ["*", "/*"].includes(String(path).trim()) ? "*" : normPath2(path);
   const byId = rows.filter((r) => rowId(r) === redirectId);
   if (byId.length !== 1) return { error: `no single redirect with id ${redirectId} on this location (${byId.length} found)` };
   if (byId[0].path !== p2 && byId[0].path_lowercase !== p2.toLowerCase()) return { error: `redirect ${redirectId} is ${byId[0].path}, not ${p2} \u2014 refusing` };
   return { row: byId[0] };
 }
-function planUpdate({ redirectId, target, locationId }) {
-  const bad = validateTarget(target);
-  if (bad) return { error: bad };
-  return { request: { method: "PATCH", path: `/funnels/lookup/redirect/${encodeURIComponent(redirectId)}`, body: { action: "url", target, locationId } } };
+function planUpdate({ redirectId, target, action = "url", locationId }) {
+  if (action === "url" || action === "all") {
+    const bad = validateTarget(target);
+    if (bad) return { error: bad };
+  }
+  return { request: { method: "PATCH", path: `/funnels/lookup/redirect/${encodeURIComponent(redirectId)}`, body: { action, target, locationId } } };
 }
 function planDelete({ redirectId, locationId }) {
   return { request: { method: "DELETE", path: `/funnels/lookup/redirect/${encodeURIComponent(redirectId)}?locationId=${encodeURIComponent(locationId)}` } };
@@ -217532,6 +217599,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     });
     ops = (args.edits ?? []).map((e, i) => {
       if (e.op === "append-popup") return { op: "append-popup", popup: builtPopups.get(i) };
+      if (e.op === "set" && e.styles) e = { ...e, styles: normalizeStyles(e.styles, `edits[${i}].styles`) };
       if (e.op === "set" && (e.font !== void 0 || e.styles?.fontFamily)) {
         const hit = findNode(current, e.nodeId);
         if (e.font !== void 0) {
@@ -217736,7 +217804,8 @@ async function listSites(args, deps) {
     note: "Funnel folders are organisational only (create/rename/move them on the Sites screen); folderId is the folder a document is filed in."
   };
 }
-async function siteRedirects(deps, locationId) {
+var DAY2 = /^\d{4}-\d{2}-\d{2}$/;
+async function siteRedirects(deps, locationId, range = {}) {
   const gw = deps.makeGw({ loc: locationId, state: deps.state });
   const dom = await gw.call("GET", `/funnels/domain?locationId=${encodeURIComponent(locationId)}`);
   const list = await listRedirects(gw, locationId, "");
@@ -217744,17 +217813,27 @@ async function siteRedirects(deps, locationId) {
   const today = /* @__PURE__ */ new Date();
   const from = new Date(today.getTime() - 30 * 864e5);
   const d = (x) => x.toISOString().slice(0, 10);
+  const fromDate = range.from ?? d(from), toDate = range.to ?? d(today);
+  for (const [k, v] of [["redirectClicksFrom", fromDate], ["redirectClicksTo", toDate]]) if (!DAY2.test(v)) return { checked: false, warning: `${k} must be YYYY-MM-DD` };
+  if (fromDate > toDate) return { checked: false, warning: "redirectClicksFrom is after redirectClicksTo" };
   let clicks = null;
   if (list.rows.length) {
-    const st = await gw.call("POST", "/stats/url-redirect", statsBody(locationId, list.rows, d(from), d(today)));
-    if (st.ok) clicks = { total: st.json?.cards?.clicks?.curr ?? null, byRow: (st.json?.rows ?? []).map((r, i) => ({ path: list.rows[i]?.path, clicks: r?.clicks?.curr ?? null })) };
+    const st = await gw.call("POST", "/stats/url-redirect", statsBody(locationId, list.rows, fromDate, toDate));
+    if (st.ok) clicks = {
+      from: fromDate,
+      to: toDate,
+      total: st.json?.cards?.clicks?.curr ?? null,
+      previousPeriod: st.json?.cards?.clicks?.prev ?? null,
+      comparison: st.json?.timeframe?.comparison ?? null,
+      byRow: (st.json?.rows ?? []).map((r, i) => ({ path: list.rows[i]?.path, clicks: r?.clicks?.curr ?? null, ...r?.sparkline ? { interval: r.sparkline.interval, series: r.sparkline.series } : {} }))
+    };
   }
   return {
     checked: true,
     domains: (dom.json?.domains ?? []).map((x) => ({ id: x.id ?? x._id, url: x.url, defaultDomain: x.defaultDomain ?? false })),
     count: list.count,
     redirects: list.rows.map((r) => ({ id: rowId(r), domain: r.domain, path: r.path, target: r.target, action: r.action })),
-    clicks30d: clicks,
+    ...range.from || range.to ? { clicks } : { clicks30d: clicks },
     note: "Clicks are counted per path as typed; a case-varied hit counts in the total but not in the stored path's row."
   };
 }
@@ -224309,12 +224388,14 @@ var TOOLS2 = [
     name: "find_ghl_site",
     description: describe3(
       "find_ghl_site",
-      `Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. includeRedirects:true also returns the location's domains and every URL redirect (path \u2192 target, with 30-day clicks); change redirects with edit_redirects. list:true (site optional) instead returns EVERY funnel, website, store, webinar and blog document on the location (walked to the list's count), filtered by type (store = a website with isStoreActive) and a case-insensitive name search. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.`
+      `Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. includeRedirects:true also returns the location's domains and every URL redirect (path \u2192 target, with clicks: 30 days, or redirectClicksFrom/To + a per-row series); change redirects with edit_redirects. list:true (site optional) instead returns EVERY funnel, website, store, webinar and blog document on the location (walked to the list's count), filtered by type (store = a website with isStoreActive) and a case-insensitive name search. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.`
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
       site: external_exports.string().optional(),
       includeRedirects: external_exports.boolean().default(false),
+      redirectClicksFrom: external_exports.string().optional().describe("with includeRedirects: click range start, YYYY-MM-DD (default: 30 days ago)"),
+      redirectClicksTo: external_exports.string().optional().describe("click range end, YYYY-MM-DD (default: today)"),
       list: external_exports.boolean().default(false),
       type: external_exports.enum(["funnel", "website", "store", "webinar", "blog"]).optional(),
       search: external_exports.string().optional()
@@ -224349,7 +224430,7 @@ var TOOLS2 = [
         });
       }
       const hit = classifySite(args.site, Array.isArray(studio) ? studio : [], funnels);
-      const redirects = args.includeRedirects === true ? await siteRedirects(deps, args.locationId) : void 0;
+      const redirects = args.includeRedirects === true ? await siteRedirects(deps, args.locationId, { from: args.redirectClicksFrom, to: args.redirectClicksTo }) : void 0;
       return ok({
         ...hit,
         ...redirects ? { redirects } : {},
@@ -224362,17 +224443,21 @@ var TOOLS2 = [
   },
   {
     name: "edit_redirects",
-    description: `${describe3("edit_redirects", "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects)")}. Redirects are DOMAIN-scoped 301s from a path to a URL. Preview by default; confirm:true writes and reads back on a separate request. create {domain, path, target}: pre-checks that the path is free (a funnel step or another redirect already holding it is refused), and REFUSES the storefront/blog prefixes ${RESERVED_PREFIXES.join(" ")} \u2014 GHL stores those and serves 404 on the exact path. update {redirectId, path, target}: the source is locked, so only the target changes. delete {redirectId, path}. update and delete resolve exactly one row whose id AND path match, or refuse. Matching is case-insensitive in public and redirects are not edge-cached (a change is visible on the next request). Custom-URL targets only; the screen's Funnel/Website targets and "Entire Domain (/*)" are not covered. Sibling: find_ghl_site includeRedirects:true reads them.`,
+    description: `${describe3("edit_redirects", "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects)")}. Redirects are DOMAIN-scoped 301s from a path to a URL. Preview by default; confirm:true writes and reads back on a separate request. create {domain, path, target}: pre-checks that the path is free (a funnel step or another redirect already holding it is refused), and REFUSES the storefront/blog prefixes ${RESERVED_PREFIXES.join(" ")} \u2014 GHL stores those and serves 404 on the exact path. update {redirectId, path, target}: the source is locked, so only the target changes. delete {redirectId, path}. update and delete resolve exactly one row whose id AND path match, or refuse. Matching is case-insensitive in public and redirects are not edge-cached (a change is visible on the next request). Target: a URL \`target\`, or \`to\` {type:funnel|website, funnelId, stepId} (the step must be on that funnel). entireDomain:true = the screen's "Entire Domain (/*)": EVERY path of the domain goes to a URL \u2014 also needs confirmEntireDomain equal to the domain. Sibling: find_ghl_site includeRedirects:true reads them.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       op: external_exports.enum(["create", "update", "delete"]),
       domain: external_exports.string().optional(),
       path: external_exports.string().optional(),
-      target: external_exports.string().optional(),
+      target: external_exports.string().optional().describe("an absolute http(s) URL"),
+      to: external_exports.object({ type: external_exports.enum(["funnel", "website"]), funnelId: external_exports.string(), stepId: external_exports.string() }).optional().describe("land on a funnel step or a website page instead of a URL"),
+      entireDomain: external_exports.boolean().optional().describe("create only: redirect EVERY path of the domain (Entire Domain (/*)) to `target`"),
+      confirmEntireDomain: external_exports.string().optional().describe("must equal the domain, to allow entireDomain"),
       redirectId: external_exports.string().optional(),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
+      { method: "GET", path: "/funnels/funnel/fetch/{id}" },
       { method: "GET", path: "/funnels/lookup/redirect/list" },
       { method: "POST", path: "/funnels/lookup/exists" },
       { method: "POST", path: "/funnels/lookup/redirect" },
@@ -224386,36 +224471,63 @@ var TOOLS2 = [
         const l = await listRedirects(gw, L, "");
         return l.rows ? { rows: l.rows, row: l.rows.find((r) => rowId(r) === id) ?? null } : { rows: null, status: l.res?.status };
       };
+      const resolveWhere = async () => {
+        let funnelDoc = null;
+        if (args.to?.funnelId) {
+          const f = await gw.call("GET", `/funnels/funnel/fetch/${encodeURIComponent(args.to.funnelId)}?locationId=${encodeURIComponent(L)}`);
+          if (f.ok) funnelDoc = f.json?.data ?? null;
+        }
+        const res = resolveTo({ to: args.to, target: args.target, funnelDoc });
+        if (res.error || !args.to) return res;
+        const lk = await readLookups(gw, L, args.to.funnelId);
+        const held = (lk.rows ?? []).find((r) => r.type === "step" && r.typeId === args.to.stepId && r.domain);
+        if (lk.res?.ok && !held) return { error: `step ${args.to.stepId} of ${funnelDoc.name} has no domain attached (no step lookup row), and GHL refuses a redirect to it \u2014 publish it on a domain first` };
+        return res;
+      };
       if (args.op === "create") {
-        const plan2 = planCreate({ domain: args.domain, path: args.path, target: args.target, locationId: L });
+        if (args.entireDomain === true && args.confirmEntireDomain !== args.domain) return fail(CODES.VALIDATION_FAILED, "entireDomain sends EVERY page of the domain to the target, other teams' pages included", `Repeat with confirmEntireDomain equal to the domain (${args.domain ?? "\u2026"}) if that is really the intent. Nothing was sent.`);
+        const where2 = args.entireDomain === true ? { action: "all", target: args.target } : await resolveWhere();
+        if (where2.error) return fail(CODES.VALIDATION_FAILED, where2.error, "Nothing was sent.");
+        const plan2 = planCreate({ domain: args.domain, path: args.path, target: where2.target, action: where2.action, entireDomain: args.entireDomain === true, locationId: L });
         if (plan2.error) return fail(CODES.VALIDATION_FAILED, plan2.error, "Nothing was sent.");
-        const ex = await gw.call("POST", plan2.exists.path, plan2.exists.body);
+        if (plan2.entireDomain) {
+          const cur2 = await listRedirects(gw, L, "");
+          if (!cur2.rows) return fromHttp(cur2.res?.status ?? 500, cur2.res?.json);
+          const held = cur2.rows.find((r) => r.domain === args.domain && (r.path === "*" || r.action === "all"));
+          if (held) return fail(CODES.VALIDATION_FAILED, `${args.domain} already has an entire-domain redirect (${rowId(held)})`, "Retarget it with op update.");
+        }
+        const ex = plan2.exists ? await gw.call("POST", plan2.exists.path, plan2.exists.body) : { ok: true, json: {} };
         if (!ex.ok) return fromHttp(ex.status, ex.json);
         if (ex.json?.exists === true) return fail(CODES.VALIDATION_FAILED, `${args.domain}${plan2.normalizedPath} is already taken (a funnel step or another redirect holds it)`, "Pick a free path, or retarget the existing redirect with op update.");
-        if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, "Redirect create preview is ready; no write was sent.", "Repeat with confirm:true."), { preview: { request: plan2.request, pathFree: true } });
+        if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, "Redirect create preview is ready; no write was sent.", "Repeat with confirm:true."), { preview: { request: plan2.request, ...plan2.exists ? { pathFree: true } : { entireDomain: true } } });
         const w2 = await gw.call(plan2.request.method, plan2.request.path, plan2.request.body);
         if (!w2.ok) return fromHttp(w2.status, w2.json);
         const id = w2.json?.data?.id ?? w2.json?.data?._id ?? null;
-        const back2 = await reread(() => readRow(id), (x) => x.row?.target === args.target, deps.rereadOptions ?? {});
+        const back2 = await reread(() => readRow(id), (x) => x.row?.target === plan2.request.body.target && (x.row?.action ?? "url") === plan2.request.body.action, deps.rereadOptions ?? {});
         const row = back2.value?.row ?? null;
         if (!row) return withFailureData(fail(CODES.VERIFY_FAILED, "the create was accepted but the redirect is not in the list", "Re-read with find_ghl_site includeRedirects:true before retrying \u2014 do not create twice."), { id, status: w2.status });
-        return ok({ op: "create", id, domain: row.domain, path: row.path, target: row.target, readBack: { listed: true, attempts: back2.attempts } });
+        return ok({ op: "create", id, domain: row.domain, path: row.path, action: row.action ?? plan2.request.body.action, target: row.target, readBack: { listed: true, attempts: back2.attempts } });
       }
       if (!args.redirectId || !args.path) return fail(CODES.VALIDATION_FAILED, `${args.op} needs redirectId AND path (the target check matches both)`, "Read them with find_ghl_site includeRedirects:true.");
       const cur = await listRedirects(gw, L, "");
       if (!cur.rows) return fromHttp(cur.res?.status ?? 500, cur.res?.json);
       const t = resolveTarget(cur.rows, { redirectId: args.redirectId, path: args.path });
       if (t.error) return fail(CODES.VALIDATION_FAILED, t.error, "Nothing was sent.");
-      const plan = args.op === "update" ? planUpdate({ redirectId: args.redirectId, target: args.target, locationId: L }) : planDelete({ redirectId: args.redirectId, locationId: L });
+      let where = null;
+      if (args.op === "update") {
+        where = t.row.action === "all" && !args.to ? { action: "all", target: args.target } : await resolveWhere();
+        if (where.error) return fail(CODES.VALIDATION_FAILED, where.error, "Nothing was sent.");
+      }
+      const plan = args.op === "update" ? planUpdate({ redirectId: args.redirectId, target: where.target, action: where.action, locationId: L }) : planDelete({ redirectId: args.redirectId, locationId: L });
       if (plan.error) return fail(CODES.VALIDATION_FAILED, plan.error, "Nothing was sent.");
-      const before = { id: rowId(t.row), domain: t.row.domain, path: t.row.path, target: t.row.target };
+      const before = { id: rowId(t.row), domain: t.row.domain, path: t.row.path, action: t.row.action ?? "url", target: t.row.target };
       if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `Redirect ${args.op} preview is ready; no write was sent.`, "Repeat with confirm:true."), { preview: { affects: before, request: plan.request } });
       const w = await gw.call(plan.request.method, plan.request.path, plan.request.body);
       if (!w.ok) return fromHttp(w.status, w.json);
-      const want = args.op === "update" ? (x) => x.row?.target === args.target : (x) => x.rows && !x.row;
+      const want = args.op === "update" ? (x) => x.row?.target === where.target && (x.row?.action ?? "url") === where.action : (x) => x.rows && !x.row;
       const back = await reread(() => readRow(args.redirectId), want, deps.rereadOptions ?? {});
       if (!want(back.value ?? {})) return withFailureData(fail(CODES.VERIFY_FAILED, `the ${args.op} was accepted but the list does not show it`, "Re-read before retrying."), { before, status: w.status });
-      return ok({ op: args.op, before, ...args.op === "update" ? { after: { target: back.value.row.target } } : { deleted: true }, readBack: { attempts: back.attempts } });
+      return ok({ op: args.op, before, ...args.op === "update" ? { after: { action: back.value.row.action ?? where.action, target: back.value.row.target } } : { deleted: true }, readBack: { attempts: back.attempts } });
     }, args)
   },
   {
@@ -226441,7 +226553,7 @@ var TOOLS2 = [
       const composeLeaf = (e0, salt) => {
         const keyProblem = elementSpecProblem(e0);
         if (keyProblem) throw Object.assign(new Error(keyProblem), { remediation: "Text goes in `html`; any other stored prop goes in `extra` as {<prop>: {value}}. Nothing was written." });
-        const e = { ...e0, ...e0.css?.font ? { css: { ...e0.css, font: fonts.reg.ref(e0.css.font) } } : {}, ...e0.styles ? { styles: viaVar(e0.styles) } : {} };
+        const e = { ...e0, ...e0.css?.font ? { css: { ...e0.css, font: fonts.reg.ref(e0.css.font) } } : {}, ...e0.styles ? { styles: normalizeStyles(viaVar(e0.styles), "styles") } : {} };
         if (e.font !== void 0 && !TYPOGRAPHY_SLOTS[e.font]) throw new Error(`font must be 'headline' or 'content' (the page's typography fonts), not "${e.font}"`);
         if (e.font && !fonts.typography[e.font]) throw Object.assign(new Error(`font: '${e.font}' names the page's ${e.font} font, but this page has none set, so the element would reference an unset variable`), { remediation: `Set typography.${TYPOGRAPHY_SLOTS[e.font][0]} (compose) or a \`page\` op with typography (edit) in the same call.` });
         let cls = {};
@@ -226511,7 +226623,7 @@ var TOOLS2 = [
           width: spec.width,
           fullWidthRows: spec.fullWidthRows,
           pdp: spec.pdp,
-          styles: spec.styles,
+          styles: normalizeStyles(spec.styles, "section.styles"),
           wrapper: spec.wrapper,
           tabletStyles: spec.tabletStyles,
           mobileStyles: spec.mobileStyles,
