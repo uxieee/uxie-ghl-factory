@@ -11,10 +11,17 @@
 //     rewritten as (i + 1) / (n + 1) * 100;
 //   - stages must hold at least one element; names are 1–255 characters and unique case-insensitively
 //     (the UI's rule);
-//   - colorRenderMode is none | dot | bg-tint, stages[].color a #RRGGBB string.
+//   - colorRenderMode is none | dot | bg-tint, stages[].color a #RRGGBB string;
+//   - the top-level showInFunnel / showInPieChart are DERIVED: the UI sends each as "any stage has it on" on
+//     every save, and the dashboards read only this pair (a false pair hides the pipeline from the Funnel and
+//     Stage-distribution widgets). It is stored: one UI save turned a stale false/false into true/true (live
+//     2026-09-29), so this module always recomputes it;
+//   - a stage added in the UI starts with both charts on and colour #64748B.
 
 export const COLOR_RENDER_MODES = ['none', 'dot', 'bg-tint'];
 const TOP_LEVEL = ['name', 'showInFunnel', 'showInPieChart', 'useOpportunityProbability', 'colorRenderMode'];
+const DERIVED = ['showInFunnel', 'showInPieChart'];
+export const NEW_STAGE_COLOR = '#64748B';
 const STAGE_PROPS = ['name', 'stageWinProbability', 'color', 'showInFunnel', 'showInPieChart'];
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 
@@ -67,8 +74,7 @@ export function planPipelineEdit(row, edit = {}) {
 
   for (const a of add) {
     const stage = { name: trimName(a?.name), stageWinProbability: a?.stageWinProbability,
-      showInFunnel: a?.showInFunnel ?? true, showInPieChart: a?.showInPieChart ?? false };
-    if (a?.color !== undefined) stage.color = a.color;
+      showInFunnel: a?.showInFunnel ?? true, showInPieChart: a?.showInPieChart ?? true, color: a?.color ?? NEW_STAGE_COLOR };
     if (a?.afterStageId === undefined) { final.push(stage); continue; }
     const at = final.findIndex((s) => s.id === a.afterStageId);
     if (at < 0) { errors.push(`addStages "${stage.name}": afterStageId ${a.afterStageId} is not a kept stage`); continue; }
@@ -89,9 +95,12 @@ export function planPipelineEdit(row, edit = {}) {
     if (s.color !== undefined && !HEX.test(String(s.color))) errors.push(`stage "${s.name}": color must be #RRGGBB (got ${s.color})`);
   }
 
+  for (const k of DERIVED) if (edit[k] !== undefined) {
+    errors.push(`${k} at pipeline level is derived from the stages (true when any stage has it on, as the GHL UI sends it); set it per stage in updateStages / addStages instead`);
+  }
   const top = {};
-  for (const k of TOP_LEVEL) if (row?.[k] !== undefined) top[k] = row[k];
-  for (const k of TOP_LEVEL) if (edit[k] !== undefined) top[k] = k === 'name' ? trimName(edit[k]) : edit[k];
+  for (const k of TOP_LEVEL) if (!DERIVED.includes(k) && row?.[k] !== undefined) top[k] = row[k];
+  for (const k of TOP_LEVEL) if (!DERIVED.includes(k) && edit[k] !== undefined) top[k] = k === 'name' ? trimName(edit[k]) : edit[k];
   if (typeof top.name !== 'string' || !top.name || top.name.length > 255) errors.push('pipeline name must be 1–255 characters');
   if (top.colorRenderMode !== undefined && !COLOR_RENDER_MODES.includes(top.colorRenderMode)) {
     errors.push(`colorRenderMode must be one of ${COLOR_RENDER_MODES.join(', ')}`);
@@ -106,7 +115,7 @@ export function planPipelineEdit(row, edit = {}) {
     if (s.color !== undefined) out.color = s.color;
     return out;
   });
-  const body = { ...top, stages };
+  const body = { ...top, showInFunnel: stages.some((s) => s.showInFunnel === true), showInPieChart: stages.some((s) => s.showInPieChart === true), stages };
   return { body, final: stages, removed: remove.map((r) => ({ id: r.id, name: byId.get(r.id)?.name, moveCardsTo: r.moveCardsTo })),
     diff: diffPipeline(row, body) };
 }

@@ -1257,9 +1257,9 @@
     ]
   },
   "list_account_entities": {
-    "description": "List account entities — proof: live-runtime (2026-09-25), floor: documented; risk: read",
+    "description": "List account entities — proof: live-runtime (2026-09-29), floor: documented; risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "documented",
     "proofRows": [
       "entities-ai-employees-agents-list",
@@ -2053,9 +2053,9 @@
     ]
   },
   "edit_pipeline": {
-    "description": "Edit a pipeline and its stages safely — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Edit a pipeline and its stages safely — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "pipelines-opportunities--opportunities-pipelines",
@@ -2084,9 +2084,9 @@
     ]
   },
   "get_pipeline_forecast": {
-    "description": "Read the opportunity forecast — proof: live-runtime (2026-09-28); risk: read",
+    "description": "Read the opportunity forecast — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "pipelines-opportunities--forecast-summary",

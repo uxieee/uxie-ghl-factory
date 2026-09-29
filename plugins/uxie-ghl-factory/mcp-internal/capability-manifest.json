@@ -2002,12 +2002,12 @@
   {
     "tool": "get_pipeline_forecast",
     "method": "POST",
-    "path": "/opportunities/forecast/drilldown"
+    "path": "/opportunities/forecast/slippage"
   },
   {
     "tool": "get_pipeline_forecast",
     "method": "POST",
-    "path": "/opportunities/forecast/slippage"
+    "path": "/opportunities/search"
   },
   {
     "tool": "get_pipeline_forecast",

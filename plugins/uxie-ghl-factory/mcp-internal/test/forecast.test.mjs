@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { forecastBody, nameMaps, shapeForecast } from '../core/forecast.mjs';
+import { bucketEnd, forecastBody, nameMaps, shapeForecast } from '../core/forecast.mjs';
 
 const maps = nameMaps(
   [{ id: 'P', name: 'Sales', stages: [{ id: 's1', name: 'New' }, { id: 's2', name: 'Won-ish' }] }],
@@ -20,10 +20,62 @@ test('close-date bucketing is refused outside groupBy close_date', () => {
     { locationId: 'L', groupBy: 'close_date', closeDateBucket: 'quarter', closeDateMode: 'windowed' });
 });
 
-test('drilldown needs periodStart and metric, and sends nothing it was not measured with', () => {
-  assert.match(forecastBody('drilldown', { locationId: 'L' }).error, /periodStart/);
-  assert.match(forecastBody('drilldown', { locationId: 'L', periodStart: '2026-11-01', metric: 'weighted', pipelineId: 'P' }).error, /not sent rather than guessed/);
-  assert.deepEqual(forecastBody('drilldown', { locationId: 'L', periodStart: '2026-11-01', metric: 'weighted' }).body, { locationId: 'L', periodStart: '2026-11-01', metric: 'weighted' });
+const NOT_LOST = [{ field: 'status', operator: 'not_eq', value: 'lost' }, { field: 'status', operator: 'not_eq', value: 'abandoned' }];
+
+test('drilldown is the Forecast tab\'s own list — search, never POST /forecast/drilldown (0 call sites in the app)', () => {
+  const r = forecastBody('drilldown', { locationId: 'L', drilldownBy: 'stage', key: 's1', pipelineId: 'P' });
+  assert.equal(r.path, '/opportunities/search');
+  assert.deepEqual(r.body, { locationId: 'L', page: 1, limit: 10,
+    filters: [{ field: 'pipeline_id', operator: 'eq', value: 'P' }, ...NOT_LOST, { field: 'pipeline_stage_id', operator: 'eq', value: 's1' }] });
+  assert.match(forecastBody('drilldown', { locationId: 'L' }).error, /drilldownBy/);
+});
+
+test('drilldown leaves lost and abandoned out — unless you drill INTO that status', () => {
+  const open = forecastBody('drilldown', { locationId: 'L', drilldownBy: 'status', key: 'open' }).body.filters;
+  assert.deepEqual(open, [...NOT_LOST, { field: 'status', operator: 'eq', value: 'open' }]);
+  // CONTROL: a lost row lists lost deals, so the exclusion is not sent.
+  const lost = forecastBody('drilldown', { locationId: 'L', drilldownBy: 'status', key: 'lost' }).body.filters;
+  assert.deepEqual(lost, [{ field: 'status', operator: 'eq', value: 'lost' }]);
+});
+
+test('KPI tiles: won revenue lists won deals, the other three list open deals; an unknown tile is refused', () => {
+  const f = (key) => forecastBody('drilldown', { locationId: 'L', drilldownBy: 'kpi', key }).body?.filters?.at(-1);
+  assert.deepEqual(f('closedWon'), { field: 'status', operator: 'eq', value: 'won' });
+  for (const k of ['activeOpportunities', 'bestCase', 'weightedForecast']) assert.deepEqual(f(k), { field: 'status', operator: 'eq', value: 'open' });
+  assert.match(forecastBody('drilldown', { locationId: 'L', drilldownBy: 'kpi', key: 'wonValue' }).error, /closedWon/);
+});
+
+test('owner drilldown: the summary\'s __unassigned__ row becomes the app\'s __none__ filter', () => {
+  const last = (key) => forecastBody('drilldown', { locationId: 'L', drilldownBy: 'owner', key }).body.filters.at(-1);
+  assert.deepEqual(last('__unassigned__'), { field: 'assigned_to', operator: 'eq', value: ['__none__'] });
+  assert.deepEqual(last('u1'), { field: 'assigned_to', operator: 'eq', value: 'u1' });
+});
+
+test('close-date buckets: month and quarter page forecast/column, a year searches a close-date range', () => {
+  assert.equal(bucketEnd('2026-11-01', 'month'), '2026-11-30');
+  assert.equal(bucketEnd('2026-10-01', 'quarter'), '2026-12-31');
+  assert.equal(bucketEnd('2024-02-01', 'month'), '2024-02-29');
+  assert.equal(bucketEnd('2026-01-01', 'year'), '2026-12-31');
+  const q = forecastBody('drilldown', { locationId: 'L', drilldownBy: 'close_date', key: '2026-10-01', closeDateBucket: 'quarter', page: 2, limit: 5 });
+  assert.equal(q.path, '/opportunities/forecast/column');
+  assert.deepEqual(q.body, { locationId: 'L', startDate: '2026-10-01', endDate: '2026-12-31', periodType: 'quarter', filters: NOT_LOST, query: '', sort: [], page: 2, limit: 5 });
+  const y = forecastBody('drilldown', { locationId: 'L', drilldownBy: 'close_date', key: '2026-01-01', closeDateBucket: 'year' });
+  assert.equal(y.path, '/opportunities/search');
+  assert.deepEqual(y.body.filters.at(-1), { field: 'forecast_expected_close_date', operator: 'range', value: { gte: Date.parse('2026-01-01T00:00:00.000Z'), lte: Date.parse('2026-12-31T23:59:59.999Z') } });
+  assert.match(forecastBody('drilldown', { locationId: 'L', drilldownBy: 'close_date', key: 'Nov' }).error, /YYYY-MM-DD/);
+  // CONTROL: the earlier periodStart contract lands on the same month bucket.
+  assert.deepEqual(forecastBody('drilldown', { locationId: 'L', periodStart: '2026-11-01', metric: 'weighted' }).body,
+    forecastBody('drilldown', { locationId: 'L', drilldownBy: 'close_date', key: '2026-11-01' }).body);
+});
+
+test('timeline pages with page and limit; without them the body carries neither', () => {
+  assert.deepEqual(forecastBody('timeline', { locationId: 'L', periodType: 'month', startDate: '2026-09-01', endDate: '2026-09-30', page: 2, limit: 5 }).body,
+    { locationId: 'L', periodType: 'month', startDate: '2026-09-01', endDate: '2026-09-30', page: 2, limit: 5 });
+  assert.deepEqual(forecastBody('timeline', { locationId: 'L' }).body, { locationId: 'L' });
+});
+
+test('summary refuses the year bucket — measured with month and quarter only', () => {
+  assert.match(forecastBody('summary', { locationId: 'L', groupBy: 'close_date', closeDateBucket: 'year' }).error, /month and quarter/);
 });
 
 test('stage and owner rows get their NAMES — the service labels them with the uuid', () => {

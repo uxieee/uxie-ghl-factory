@@ -5,7 +5,7 @@ import { planPipelineEdit, verifyPipeline } from '../core/pipelines.mjs';
 // The GET row shape, trimmed to what matters (sandbox capture 2026-09-28).
 const row = () => ({
   id: 'P', name: 'Sales', locationId: 'LOC', position: 'a4C0TZl', dateAdded: 'x', dateUpdated: 'y',
-  showInFunnel: false, showInPieChart: false, useOpportunityProbability: false, colorRenderMode: 'dot',
+  showInFunnel: true, showInPieChart: true, useOpportunityProbability: false, colorRenderMode: 'dot', // as a UI save leaves it
   stages: [
     { id: 's1', name: 'New', position: 0, showInFunnel: true, showInPieChart: false, stageWinProbability: 10, color: '#155EEF' },
     { id: 's2', name: 'Qualified', position: 1, showInFunnel: true, showInPieChart: true, stageWinProbability: 40, color: '#039855' },
@@ -74,4 +74,33 @@ test('verifyPipeline passes an exact read-back and names every mismatch', () => 
   const wrong = { ...back, stages: back.stages.map((s) => ({ ...s, stageWinProbability: 25 })) };
   assert.ok(verifyPipeline(plan.body, wrong).some((m) => /stageWinProbability/.test(m)));
   assert.deepEqual(verifyPipeline(plan.body, null), ['the pipeline is missing from the list after the write']);
+});
+
+// Sweep 2026-09-29 / live 2026-09-29: the UI derives the pipeline-level pair as OR over the stages on every save, and
+// the dashboards read only that pair. A pipeline left false/false with stages on is invisible to the Funnel widget.
+test('the pipeline-level showInFunnel/showInPieChart are recomputed from the stages, not copied from the row', () => {
+  const stale = { ...row(), showInFunnel: false, showInPieChart: false }; // a script copied the old pair (P1-dup, live)
+  const plan = planPipelineEdit(stale, {});
+  assert.equal(plan.body.showInFunnel, true);
+  assert.equal(plan.body.showInPieChart, true);
+  // CONTROL: every stage off → the pair is false, exactly as the UI would send
+  const off = planPipelineEdit(row(), { updateStages: ['s1', 's2', 's3'].map((id) => ({ id, showInFunnel: false, showInPieChart: false })) });
+  assert.equal(off.body.showInFunnel, false);
+  assert.equal(off.body.showInPieChart, false);
+  // and the stale pair shows up in the diff, so a preview says it will change
+  assert.deepEqual(plan.diff.pipeline.map((d) => d.field).sort(), ['showInFunnel', 'showInPieChart']);
+});
+
+test('setting the pipeline-level pair directly is refused: it is derived from the stages', () => {
+  assert.match(planPipelineEdit(row(), { showInFunnel: false }).errors.join(' '), /derived from the stages/);
+  assert.match(planPipelineEdit(row(), { showInPieChart: true }).errors.join(' '), /derived from the stages/);
+});
+
+test('a new stage gets the UI defaults: both charts on and colour #64748B, unless the caller says otherwise', () => {
+  const plan = planPipelineEdit(row(), { addStages: [{ name: 'Won-ish', stageWinProbability: 95 }] });
+  const s = plan.body.stages.at(-1);
+  assert.deepEqual([s.showInFunnel, s.showInPieChart, s.color], [true, true, '#64748B']);
+  // CONTROL: explicit values win
+  const own = planPipelineEdit(row(), { addStages: [{ name: 'Quiet', stageWinProbability: 5, showInPieChart: false, color: '#155EEF' }] });
+  assert.deepEqual([own.body.stages.at(-1).showInPieChart, own.body.stages.at(-1).color], [false, '#155EEF']);
 });

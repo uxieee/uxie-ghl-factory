@@ -108,6 +108,25 @@ test('a service that ignores the offset returns page one again: the walk stops, 
   assert.equal(gw.calls.filter((p) => p.includes('/workflow/LOC/list')).length, 2);
 });
 
+test('lost reasons are walked with skip/limit to the envelope total, as the UI reads them', async () => {
+  const lr = (i) => ({ _id: `lr${i}`, name: `Reason ${i}` });
+  const calls = [];
+  const gw = { loc: 'LOC', call: async (m, p) => {
+    if (!p.includes('/opportunities/lost-reason')) return { ok: true, status: 200, json: {} };
+    calls.push(p);
+    const u = new URLSearchParams(p.split('?')[1]);
+    const skip = Number(u.get('skip')), lim = Number(u.get('limit'));
+    return { ok: true, status: 200, json: { lostReasons: Array.from({ length: Math.max(0, Math.min(lim, 130 - skip)) }, (_, k) => lr(skip + k)), total: 130 } };
+  } };
+  const out = await fetchEntities(gw);
+  assert.equal(out.lostReasons.length, 130, 'a reason past the first page must be resolvable');
+  assert.deepEqual(calls.map((p) => new URLSearchParams(p.split('?')[1]).get('skip')), ['0', '100']);
+  assert.ok(calls.every((p) => p.includes('getCount=true') && p.includes('limit=100')));
+  // CONTROL: a list inside one page is one call.
+  const one = []; await fetchEntities({ loc: 'LOC', call: async (m, p) => { if (p.includes('/opportunities/lost-reason')) { one.push(p); return { ok: true, status: 200, json: { lostReasons: [lr(1)], total: 1 } }; } return { ok: true, status: 200, json: {} }; } });
+  assert.equal(one.length, 1);
+});
+
 test('documentTemplates asks within the service limit (21), and a refused leg is recorded as UNREADABLE, not empty', async () => {
   const gw = pagedGw(0, { status: { '/proposals/templates': 422 } });
   const out = await fetchEntities(gw);

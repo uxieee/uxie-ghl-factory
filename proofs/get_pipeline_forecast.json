@@ -53,27 +53,39 @@
         "row:pipelines-opportunities--forecast-summary"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:0640eb6c",
+        "row:pipelines-opportunities--opportunities-search",
+        "row:pipelines-opportunities--forecast-column"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-28",
+    "hashedAt": "2026-09-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /opportunities/pipelines": "698f44e2a959e288cc81fdba3df9a1363a7cba3265be3ea16bc51ff59e9c33dd",
       "GET https://services.leadconnectorhq.com /opportunities/pipelines": "b7bfbb9c12e38a2093b5311d1dfb07794ac4018d05e21285bb05ec9359027159",
       "POST https://services.leadconnectorhq.com /opportunities/forecast/column": "8cc36f6003e8a071bce0f0fcea11bf7bf0a344e982af43a9c41b5839cc3ed520",
-      "POST https://services.leadconnectorhq.com /opportunities/forecast/drilldown": "4364b5ed3edf2815c4116fb689e22b6b571a6c0e3a3dedbab20b07a5204fd38b",
       "POST https://services.leadconnectorhq.com /opportunities/forecast/slippage": "4f192200915d37e13005657a154d279b6ad6560a32407f113d4dd0dfe0eb699c",
-      "POST https://services.leadconnectorhq.com /opportunities/forecast/summary": "f9fec1fae333a5f3f747302d19ec31971f4b3b254caf4996530a940264fa706d"
+      "POST https://services.leadconnectorhq.com /opportunities/forecast/summary": "f9fec1fae333a5f3f747302d19ec31971f4b3b254caf4996530a940264fa706d",
+      "POST https://services.leadconnectorhq.com /opportunities/search": "450af8bab3e3178bf660f899ce66add48a248265b5e238eedafa3c860b64f51c"
     },
     "builds": {
       "opportunitiesApp": 2451
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_pipeline_forecast": "906fb1d8f8124b71c80f2aca97e5ab606f50227f52dda1b467860a479829dd22",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_pipeline_forecast": "8db1569555079350a397d8b19dc7b52e2f33d13ad4a3b38a6ff4f3d861fd339a",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
-      "plugins/uxie-ghl-factory/mcp-internal/core/forecast.mjs": "813ae5bd7f3fbb254089befc5a25a22fc9320efd53c485ca35f1422944ea9be6"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "aace93819a562eb4c84c691a3a50601282afbaeda75c49c253799595154fc1e4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/forecast.mjs": "e417a79648bc4140aa40ea5d1eb31e97eed71f3bd51e7591802c88a42a934c31"
     }
   }
 }
