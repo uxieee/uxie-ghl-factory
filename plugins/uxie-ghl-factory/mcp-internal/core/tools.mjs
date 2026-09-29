@@ -118,7 +118,7 @@ import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
 import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/engine/tags.mjs';
-import { buildMarketplaceIndex, parseInstalledModules } from '../../skills/create-ghl-workflow/engine/marketplace.mjs';
+import { buildMarketplaceIndex, parseInstalledModules, hasAssetLabelledStep } from '../../skills/create-ghl-workflow/engine/marketplace.mjs';
 import { makeFF } from '../../skills/ghl-workflow-fast-forward/engine/ff.mjs';
 import { GhlMembershipsApi } from '../../skills/ghl-memberships/engine/api.mjs';
 import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/engine/course-builder.mjs';
@@ -6197,7 +6197,13 @@ export const TOOLS = [
         // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
         // array made GHL judge bytes we never send, and refused a correctly authored if_else.
         gw, loc: args.locationId, wid: args.workflowId, fresh, document: commitBody, triggers: gateTriggers,
-        scope: editTouchedIds, catalog: ctx.catalog, assets: marketplaceRaw?.assets, allow: args.allowValidationFailure === true, warnings,
+        scope: editTouchedIds, catalog: ctx.catalog, allow: args.allowValidationFailure === true, warnings,
+        // An op with no marketplace:true can still write an asset-labelled step (a Find company container
+        // compiles to one): read the list when a step THIS edit touches carries the label, or its own keys
+        // draw a false ATTRIBUTE_KEY (bl-315). The gate judges touched steps only, so an edit that merely
+        // passes a labelled step stays network-identical.
+        assets: marketplaceRaw?.assets ?? (hasAssetLabelledStep((commitBody.workflowData?.templates ?? []).filter((t) => editTouchedIds.has(t?.id)))
+          ? await gateAssetsFor(gw, args.locationId, fresh, commitBody.workflowData?.templates, ctx.catalog) : null),
         intent: 'edit', status: fresh.status, skipWorkflowRules: args.skipWorkflowRules,
         settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress },
         baselineTriggers: triggerOps.length ? existingTriggers : gateTriggers,
@@ -8930,7 +8936,10 @@ export const TOOLS = [
   },
   {
     name: 'fast_forward_contacts',
-    description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step (proof: documented).'),
+    description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step. '
+      + '🔴 `moved` counts the enrollments GHL ACCEPTED, not a read-back: on a DRAFT workflow GHL answers 200 and moves nobody '
+      + '(reported, bl-314). After a confirm, read the step again with get_contacts_at_step before relying on the move. '
+      + '(proof: documented).'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),

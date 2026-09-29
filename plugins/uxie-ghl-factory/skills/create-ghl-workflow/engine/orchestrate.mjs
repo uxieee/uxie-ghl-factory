@@ -33,7 +33,7 @@ import { danglingParentKeys } from './edit.mjs';
 import { requiredKeysFor, isSupplied } from './required-fields.mjs';
 import { fires } from './enforce.mjs';
 import { fetchActionSchema, checkWorkflow, assetsPath } from './action-schema.mjs';
-import { buildMarketplaceIndex } from './marketplace.mjs';
+import { buildMarketplaceIndex, hasAssetLabelledStep } from './marketplace.mjs';
 import { walkNodes } from './ir.mjs';
 import { validateAssets, describeFinding } from './asset-preflight.mjs';
 import { engineReferenceFindings } from './engine-references.mjs';
@@ -372,6 +372,16 @@ export async function orchestrate(ir, gw, opts = {}) {
   // schema layer (action-schema) is the general check; this names the four caps crossed live.
   for (const f of checkFieldCaps(built.autoSaveBody?.workflowData?.templates)) report.warnings.push(`FIELD_CAP: ${describeCap(f)}`);
 
+  // The gate's marketplace types come from the COMPILED document (bl-315): a step GHL labels as an asset
+  // (workflowsActionType) needs the list even when no IR node said marketplace:true — Find company is
+  // authored as a container and compiles to an INTERNAL-labelled step. Read here only in that case, so a
+  // native build stays network-identical.
+  const gateMarketplaceTypes = usesMarketplace
+    ? (marketplace.actionTypes?.() ?? null)
+    : (hasAssetLabelledStep(built.autoSaveBody?.workflowData?.templates)
+      ? (buildMarketplaceIndex(await fetchMarketplace(call, loc, ir)).actionTypes?.() ?? null)
+      : new Set());
+
   // ── THE VALIDATION GATE, offline half (write-validation.mjs) — before ANYTHING is created ──
   // One call, every offline layer: GHL's WorkflowValidator rules (publish-only ones when this
   // build publishes), the canvas's stored error flag, and the engine oracle — the classes GHL's
@@ -384,7 +394,7 @@ export async function orchestrate(ir, gw, opts = {}) {
     settings: { senderAddress: built.autoSaveBody?.senderAddress ?? ir.settings?.senderAddress },
     status: opts.publish === true ? 'published' : 'draft',
     catalog,
-    marketplaceTypes: usesMarketplace ? (marketplace.actionTypes?.() ?? null) : new Set(),
+    marketplaceTypes: gateMarketplaceTypes,
     skipWorkflowRules: opts.skipWorkflowRules,
   });
   report.validation = { intent: 'build', publishing: offline.publishing, engine: { errors: offline.engine.errors, warnings: offline.engine.warnings.length },
@@ -511,7 +521,7 @@ export async function orchestrate(ir, gw, opts = {}) {
     // GHL's validator is shown only the ones it can judge yet.
     intent: 'build', call, loc, wid: WID, document: sent, triggers: built.triggerBodies.map(swap), serverTriggers: gateTriggers,
     settings: { senderAddress: sent.senderAddress }, status: opts.publish === true ? 'published' : 'draft',
-    catalog, marketplaceTypes: usesMarketplace ? (marketplace.actionTypes?.() ?? null) : new Set(), skipWorkflowRules: opts.skipWorkflowRules,
+    catalog, marketplaceTypes: gateMarketplaceTypes, skipWorkflowRules: opts.skipWorkflowRules,
   });
   const serverGate = gate.server;
   report.validation.server = serverGate;

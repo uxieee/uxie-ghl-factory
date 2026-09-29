@@ -184,3 +184,14 @@ export function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     },
   };
 }
+
+/**
+ * True when a COMPILED document carries a step GHL labels as an asset (workflowsActionType). Whether the
+ * gate needs the asset list is a fact about the bytes written, not about the IR's `marketplace: true`
+ * flags: a Find company container is authored with no flag and compiles to an INTERNAL-labelled step, and
+ * judged against an empty type set its own container keys (cat, transitions, …) drew a false
+ * "unknown attribute key" warning (bl-315, live 2026-09-29).
+ */
+export function hasAssetLabelledStep(templates) {
+  return (templates ?? []).some((t) => typeof t?.workflowsActionType === 'string');
+}

@@ -64,7 +64,9 @@ export function renderCard(e) {
     if (rows.length) lines.push(`  filters: ${rows.map((r) => `${r.label} (${r.value}, ${r.type})`).join(' | ')}`);
     // Rulebook-sourced triggers carry the assets-side filter schema instead — a different
     // row shape, so it is reported separately rather than pretended to be expandable.
-    else if (e.schemaFilters?.length) lines.push(`  filters (schema, pass through verbatim): ${e.schemaFilters.map((r) => `${r.title} (${r.field}, ${r.fieldType})`).join(' | ')}`);
+    else if (e.schemaFilters?.length) lines.push(`  filters (${e.workflowsTriggerType === 'INTERNAL'
+      ? 'asset schema: author {field, operator, value}; the engine checks the field and fills id/type/title, the operator menu comes from the live asset'
+      : 'schema, pass through verbatim'}): ${e.schemaFilters.map((r) => `${r.title} (${r.field}, ${r.fieldType})`).join(' | ')}`);
     if (e.example) lines.push(`  example: ${e.example}`);
     lines.push(`  IR: triggers: [{ ref, type: ${e.type}, name, filters: [{ field, value }] }]`);
   } else {

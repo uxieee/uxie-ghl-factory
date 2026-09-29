@@ -2452,6 +2452,30 @@ function expandFilter(f, rows, extra = {}) {
       const { on: _on, ...rest } = f;
       return { ...rest, field: seen.field, ...(operator ? { operator } : {}), title: f.title ?? seen.title, type: f.type ?? seen.type, ...(seen.id ? { id: f.id ?? seen.id } : {}) };
     }
+    // THIRD ROW SOURCE: a GHL first-party (INTERNAL) marketplace trigger has no bundle-recovered rows — its drawer
+    // is built from the live asset's `filters`, which the rulebook ships as `schemaFilters`
+    // ({field, title, fieldType, …}). The builder stores such a row as {field, operator, value, title, id: field,
+    // type: fieldType} (MarketplaceFilter.ts:718-723, TriggerFilter.ts:137-145,188-190). The operator is left to
+    // the marketplace block below, which reads the LIVE asset (the rulebook drops useArrayToArrayComparison, so a
+    // multiselect's comparison mode is known only there). A field the trigger does not declare is refused
+    // loudly instead of stored unchecked (live 2026-09-29: business_created drew TRIGGER_FILTER_UNCHECKED).
+    const meta = extra?.meta;
+    const schema = meta?.workflowsTriggerType === 'INTERNAL' && Array.isArray(meta?.schemaFilters) ? meta.schemaFilters : [];
+    if (schema.length && !rows.length) {
+      const s = schema.find((r) => r.field === key || norm(r.field) === norm(key) || norm(r.title) === norm(key));
+      if (!s) {
+        extra?.ctx?.warn?.(`🔴 TRIGGER_FILTER_UNKNOWN: filter '${key}' (operator '${f.operator ?? 'none'}') is not a filter the `
+          + `'${triggerType}' drawer offers — it is sent AS AUTHORED and GHL stores it without complaint. Filters this trigger `
+          + `offers: ${schema.map((r) => `${r.field} (${r.title}, ${r.fieldType})`).join(', ')}.`);
+        return f;
+      }
+      if (/^multiselect/.test(String(s.fieldType)) && !extra?.ctx?.marketplace?.get?.(triggerType, 'trigger'))
+        extra?.ctx?.warn?.(`TRIGGER_FILTER_ARRAY_MODE_UNKNOWN: filter '${s.field}' on '${triggerType}' is a multiselect, and `
+          + `without the live asset read the engine cannot tell whether the drawer compares it array-to-array `
+          + `(contains-any) or by member (is-any-of). Author the trigger with marketplace:true so the asset is read.`);
+      const { on: _on, ...rest } = f;
+      return { ...rest, field: s.field, title: f.title ?? s.title, id: f.id ?? s.field, type: f.type ?? s.fieldType };
+    }
     if (rows.length > 0 || (OBSERVED_TRIGGER_FILTERS[triggerType] ?? []).length > 0)
       extra?.ctx?.warn?.(`🔴 TRIGGER_FILTER_UNKNOWN: filter '${key}' (operator '${f.operator ?? 'none'}') is not a row the `
         + `'${triggerType}' drawer offers — it is sent AS AUTHORED, with no title/type, and GHL accepts a filter it does not `
@@ -2642,8 +2666,10 @@ export function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
     conditions = conditions.map((c) => {
       const model = table ? marketplaceOperatorModel(entry, c.field, table) : null;
       const ftype = model?.ftype ?? marketplaceFilterType(entry, c.field);
-      const title = c.title
-        ?? entry?.filters?.find((x) => x.field === c.field || x.reference === c.field)?.name
+      // An asset filter carries `title` (the builder's row title: MarketplaceFilter.ts:718-723); a customVar
+      // carries `name`. Reading only `.name` stored every first-party trigger row without its title (wave25).
+      const assetFilter = entry?.filters?.find((x) => x.field === c.field || x.reference === c.field);
+      const title = c.title ?? assetFilter?.title ?? assetFilter?.name
         ?? entry?.customVars?.find((v) => v.reference === c.field)?.name;
       return {
         ...c,
