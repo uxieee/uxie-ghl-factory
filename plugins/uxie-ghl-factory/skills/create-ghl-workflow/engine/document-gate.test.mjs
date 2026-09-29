@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { gateDocument, knownAttributeKeys, STEP_TOP_LEVEL_KEYS } from './document-gate.mjs';
+import { gateDocument, knownAttributeKeys, STEP_TOP_LEVEL_KEYS, BUILDER_TEMPLATE_KEYS, MODEL_KEYS_UNMAPPED_BY_EXTRACTOR } from './document-gate.mjs';
 import { validateForWrite } from './write-validation.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { liveValidate } from './live-validate.mjs';
@@ -119,4 +119,101 @@ test('MULTIPATH_SHAPE refuses a linear find_opportunity and passes a wired one',
   assert.match(gateDocument(wired.slice(0, 2)).errors.find((e) => e.check === 'MULTIPATH_SHAPE').message, /'t2' in next\[\] is not a step/);
   // outside the write's scope it is reported, not blocking
   assert.equal(gateDocument(linear, { scope: new Set(['h']) }).errors.filter((e) => e.check === 'MULTIPATH_SHAPE').length, 0);
+});
+
+// wave22: a branching wait's transition rows carry attributes.type `wait_<wait type>` (Wait.ts:512,536) for every type
+// GHL lets a wait branch on (WorkflowValidator.ts:927, carried in workflowRules.vocab.multipathSupportedWaitTypes), plus
+// `wait_timeout` for the timeout leg. The census had seen only wait_condition / wait_reply / wait_timeout, so the gate
+// refused a builder-authored user_replied / link_clicked / email_event branch.
+const transition = (id, type) => ({ id, name: type, type: 'transition', parentKey: 'w', parent: 'w', order: 0, cat: 'transition',
+  attributes: { type, description: '' } });
+test('transition inner types are derived from the branching-wait vocabulary: every wait_<type> + wait_timeout passes', () => {
+  const vocab = catalog.workflowRules.vocab.multipathSupportedWaitTypes;
+  assert.ok(vocab.includes('user_replied') && vocab.includes('link_clicked') && vocab.includes('email_event'), JSON.stringify(vocab));
+  const rows = [...vocab.map((v, i) => transition(`t${i}`, `wait_${v}`)), transition('tt', 'wait_timeout')];
+  const r = gateDocument(rows, { catalog, marketplaceTypes: new Set() });
+  assert.deepEqual(r.errors.filter((f) => f.check === 'INNER_TYPE'), [], JSON.stringify(r.errors));
+});
+test('CONTROL: a transition named for a wait that cannot branch, or for no wait at all, is still refused', () => {
+  const r = gateDocument([transition('a', 'wait_time'), transition('b', 'wait_specific_date'), transition('c', 'wait_nonsense')], { catalog, marketplaceTypes: new Set() });
+  assert.deepEqual(r.errors.filter((f) => f.check === 'INNER_TYPE').map((f) => f.stepId).sort(), ['a', 'b', 'c']);
+});
+
+// wave22 (completeness sweep 2026-09-29 §3 #3): the gate's top-level allowlist was a 09-11 census of 18 keys, so it
+// refused keys the builder stores — parentContainerId on every loop-body step, integrationAccountId / testRequest /
+// testResponse on every account-bound INTEGRATION_AI step — and publish_workflow (scope null) refused those whole
+// workflows. The builder's own step type is the list (models/Workflow.ts WorkflowTemplateBase).
+const builderDoc = () => [
+  { id: 'L', type: 'loop', name: 'Loop', cat: '', order: 0, next: 'b1', attributes: { type: 'loop', items: '{{inboundWebhookRequest.items}}', exitNext: 'ia' } },
+  { id: 'b1', type: 'add_contact_tag', name: 'Tag', cat: '', order: 1, parentKey: 'L', next: 'ia', parentContainerId: 'L', attributes: { type: 'add_contact_tag', tags: ['x'] } },
+  { id: 'ia', type: 'lc_linear_create_issue', name: 'Linear', order: 2, parentKey: 'b1', workflowsActionType: 'INTEGRATION_AI', version: '1', stepIndex: 1,
+    integrationAccountId: 'acct_1', testRequest: '{}', testResponse: '{}', attributes: { type: 'lc_linear_create_issue' } },
+];
+test('builder-stored step keys pass the gate on publish (scope null) and edit (scoped): loop body + integration step', () => {
+  for (const scope of [null, new Set(['b1'])]) {
+    const g = gateDocument(builderDoc(), { catalog, scope, marketplaceTypes: new Set(['lc_linear_create_issue']) });
+    assert.deepEqual(g.errors.map((f) => `${f.check} ${f.stepId}`), [], JSON.stringify(g.errors));
+    assert.deepEqual(g.warnings.filter((f) => /exitNext/.test(f.message)), [], 'the loop exit pointer is a real builder key');
+  }
+});
+test('every WorkflowTemplateBase key is accepted at the step root', () => {
+  for (const k of BUILDER_TEMPLATE_KEYS) assert.ok(STEP_TOP_LEVEL_KEYS.has(k), k);
+});
+test('CONTROL: an invented top-level key is still refused', () => {
+  const doc = builderDoc(); doc[1] = { ...doc[1], inventedRootKey: 1 };
+  const g = gateDocument(doc, { catalog, marketplaceTypes: new Set(['lc_linear_create_issue']) });
+  assert.deepEqual(g.errors.map((f) => `${f.check} ${f.stepId}`), ['TOP_LEVEL_KEY b1']);
+});
+// Drift guard: when the captured builder source sits beside this repo, the list must equal the interface's keys.
+test('BUILDER_TEMPLATE_KEYS matches the newest captured WorkflowTemplateBase (skipped without the capture)', async (t) => {
+  const { readdirSync, readFileSync, existsSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  // main checkout: six levels up is gohighlevel/; a worktree sits two deeper (plugin/.worktrees/<name>).
+  const sniffs = ['../../../../../../knowledge/sniffs/', '../../../../../../../../knowledge/sniffs/']
+    .map((r) => decodeURIComponent(new URL(r, import.meta.url).pathname)).find((p) => existsSync(p));
+  if (!sniffs) return t.skip('no knowledge/ capture beside this checkout');
+  const found = [];
+  for (const a of readdirSync(sniffs)) for (const b of ['', ...(existsSync(join(sniffs, a)) && !a.includes('.') ? readdirSync(join(sniffs, a)) : [])]) {
+    const f = join(sniffs, a, b, 'recovered-source/src/models/Workflow.ts');
+    const m = /bundle-(\d{4}-\d{2}-\d{2}(?:-\d+)?)/.exec(join(a, b));
+    if (m && existsSync(f)) found.push([m[1], f]);
+  }
+  if (!found.length) return t.skip('no captured Workflow.ts');
+  const newest = found.sort((x, y) => x[0].localeCompare(y[0])).at(-1)[1];
+  const src = readFileSync(newest, 'utf8');
+  const body = src.slice(src.indexOf('export interface WorkflowTemplateBase'), src.indexOf('export type AdvanceCanvasMeta'));
+  const keys = [...body.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/^\s{2}([A-Za-z_]+)\??:/gm)].map((m) => m[1]);
+  assert.deepEqual([...keys].sort(), [...BUILDER_TEMPLATE_KEYS].sort(), newest);
+});
+
+// wave22: send_to_eliza's drawer keys (models/actions/SendToEliza.ts) were flagged unknown — the extractor never mapped
+// the type to ISendToEliza, so the card had no model fields.
+test('send_to_eliza: the drawer keys sendToSpecificUser / userId pass; an invented key does not', () => {
+  const step = (attrs) => [{ id: 'e', name: 'Eliza', type: 'send_to_eliza', order: 0, attributes: { type: 'send_to_eliza', ...attrs } }];
+  const ok = gateDocument(step({ sendToSpecificUser: true, userId: 'U1' }), { catalog, marketplaceTypes: new Set() });
+  assert.deepEqual(ok.errors.concat(ok.warnings).filter((f) => f.check === 'ATTRIBUTE_KEY'), [], JSON.stringify(ok));
+  const bad = gateDocument(step({ sendToEveryone: true }), { catalog, marketplaceTypes: new Set() });
+  assert.equal(bad.errors.concat(bad.warnings).filter((f) => f.check === 'ATTRIBUTE_KEY').length, 1);
+});
+test('MODEL_KEYS_UNMAPPED_BY_EXTRACTOR matches ISendToEliza in the newest capture (skipped without it)', async (t) => {
+  const { readdirSync, readFileSync, existsSync } = await import('node:fs'); const { join } = await import('node:path');
+  const sniffs = ['../../../../../../knowledge/sniffs/', '../../../../../../../../knowledge/sniffs/']
+    .map((r) => decodeURIComponent(new URL(r, import.meta.url).pathname)).find((p) => existsSync(p));
+  if (!sniffs) return t.skip('no knowledge/ capture');
+  const found = [];
+  for (const a of readdirSync(sniffs)) for (const b of ['', ...(!a.includes('.') ? readdirSync(join(sniffs, a)) : [])]) {
+    const f = join(sniffs, a, b, 'recovered-source/src/models/actions/SendToEliza.ts'); const m = /bundle-(\d{4}-\d{2}-\d{2}(?:-\d+)?)/.exec(join(a, b));
+    if (m && existsSync(f)) found.push([m[1], f]);
+  }
+  if (!found.length) return t.skip('no captured SendToEliza.ts');
+  const src = readFileSync(found.sort((x, y) => x[0].localeCompare(y[0])).at(-1)[1], 'utf8');
+  const body = src.slice(src.indexOf('export interface ISendToEliza'), src.indexOf('}', src.indexOf('export interface ISendToEliza')));
+  assert.deepEqual([...body.matchAll(/^\s+([A-Za-z_]+)\??:/gm)].map((m) => m[1]).sort(), [...MODEL_KEYS_UNMAPPED_BY_EXTRACTOR.send_to_eliza].sort());
+});
+
+test('update_appointment_status rental partial WARNS (drawer cannot show it); appointment partial does not', () => {
+  const st = (category) => [{ id: 'u', name: 'Status', type: 'update_appointment_status', order: 0, attributes: { type: 'update_appointment_status', category, status_type: 'partial' } }];
+  const w = gateDocument(st('rental_booking'), { catalog, marketplaceTypes: new Set() }).warnings.filter((f) => f.check === 'DRAWER_CANNOT_SHOW');
+  assert.equal(w.length, 1); assert.match(w[0].message, /cannot display 'partial' for rental appointments/);
+  assert.equal(gateDocument(st('service_booking'), { catalog, marketplaceTypes: new Set() }).warnings.filter((f) => f.check === 'DRAWER_CANNOT_SHOW').length, 0);
 });

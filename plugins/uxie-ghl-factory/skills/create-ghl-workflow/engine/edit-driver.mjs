@@ -6,7 +6,7 @@ import {
   addBranch, deleteContainer, deleteBranch, setStepDisabled, disableStepsByType,
   appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch, repairParentKeys,
   insertBefore, insertSubgraphBefore, prependStep,
-  retypeStep, assignMarketplaceStepIndexes,
+  retypeStep, numberNewSteps,
   addStepNote,
   duplicateStep,
   replaceTagInTemplates,
@@ -900,7 +900,7 @@ export function applyOp(templates, op, { ctx, idGen }) {
 }
 
 // Apply an ordered list of ops, threading templates and merging diffs.
-export function applyOps(templates, ops, { ctx, idGen }) {
+export function applyOps(templates, ops, { ctx, idGen, stepIndexCounter = {} }) {
   let tpls = templates;
   let diff = empty();
   // refs authored by EARLIER ops in this call -> the ids they minted, so op 2 can target op 1.
@@ -930,22 +930,18 @@ export function applyOps(templates, ops, { ctx, idGen }) {
     }
   }
   const norm = normalizeDiff(diff);
-  // A marketplace step's `stepIndex` is a per-action-key occurrence counter over the WHOLE
-  // workflow, and the builder renders it as the canvas `#N` prefix. Each op compiles its
-  // step standalone, so every added/retyped marketplace step arrives numbered `1` — it can
-  // only be numbered correctly once all the ops have landed and the final step order is
-  // known. Renumber here, at the one choke point both callers (the MCP tool and the edit
-  // CLI) share, rather than in either of them.
-  //
-  // Gated on this edit having TOUCHED a marketplace step: a purely native edit — even on a
-  // workflow that happens to contain marketplace steps elsewhere — leaves their numbering
-  // exactly as stored.
-  const touched = new Set([...norm.createdSteps, ...norm.modifiedSteps]);
-  if (tpls.some((t) => t?.isMarketplaceAction === true && touched.has(t.id))) {
-    const renumbered = assignMarketplaceStepIndexes(tpls);
-    tpls = renumbered.templates;
-    if (renumbered.changed.length)
-      norm.modifiedSteps = [...new Set([...norm.modifiedSteps, ...renumbered.changed])];
+  // Number what this edit CREATED, plus a touched step left without a stepIndex (a retype that changed its type).
+  // Steps already stored keep their number: the builder never renumbers, and `{{<key>.N.*}}` merge tags name step N
+  // of its type. See numberNewSteps.
+  const created = new Set(norm.createdSteps);
+  const numberIds = new Set(tpls.filter((t) => created.has(t.id)
+    || (norm.modifiedSteps.includes(t.id) && (t.stepIndex === undefined || t.stepIndex === null))).map((t) => t.id));
+  if (numberIds.size) {
+    const numbered = numberNewSteps(tpls, numberIds, stepIndexCounter ?? {});
+    tpls = numbered.templates;
+    const touched = new Set([...norm.createdSteps, ...norm.modifiedSteps]);
+    const extra = numbered.changed.filter((id) => !touched.has(id));
+    if (extra.length) norm.modifiedSteps = [...norm.modifiedSteps, ...extra];
   }
   return { templates: tpls, diff: norm, opRefs, opResults };
 }

@@ -3080,11 +3080,15 @@ export const TOOLS = [
             uncheckedByType: Object.fromEntries(Object.entries(r.unchecked).map(([t, xs]) => [t, xs.length])),
             uncheckedSteps: Object.values(r.unchecked).reduce((n, xs) => n + xs.length, 0),
             crashed: r.crashed,
+            // GHL's TRIGGER validators (contact_changed, contact_created, ig_comment_on_post …) are recovered but not run
+            // here: this layer replays step validators only. Say so rather than let "0 findings" cover the triggers.
+            triggersChecked: false,
             mappedTypes: Object.keys(vname).length,
             helperFidelity: HELPER_FIDELITY,
-            note: 'A validator body exists for 114 step types as of 0.86.0, up from 61 — the trigger validators '
-              + 'were recovered when the capture behind this was re-mined off its four-month-old baseline. The rest '
-              + 'have no validator at all. Read uncheckedByType before reading findings: zero findings over few '
+            note: 'GHL ships a validator for part of the surface only; a step whose validator THREW is listed in `crashed` and '
+              + 'counted in uncheckedByType, never as validated (update_contact_field, create_update_contact, find_contact, '
+              + 'workflow_split, workflow_goal, messenger and instagram-dm crash in this capture until it is re-extracted). '
+              + 'Read uncheckedByType before reading findings: zero findings over few '
               + 'validated steps is not a clean workflow. And read assetReferences: GHL\'s validators do not check '
               + 'whether a referenced pipeline, calendar or user still exists.',
           };
@@ -5851,7 +5855,7 @@ export const TOOLS = [
       // Sticky notes — a SEPARATE resource (POST/PATCH /workflows/sticky-note); planned now so a bad
       // note fails the preview, written after the step commit and trigger writes.
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
-      const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen, stepIndexCounter: fresh?.meta?.stepIndexCounter });
       // PARKED CONTACTS ON A DELETED STEP ARE EJECTED (backlog 23, D-83): the run ends with
       // `step_was_deleted_by_user`, and an autonomous trigger does not re-fire for them in that
       // session. Counted BEFORE the confirm gate on a PUBLISHED workflow only (a draft has no

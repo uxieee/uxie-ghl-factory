@@ -854,3 +854,104 @@ test('an email with a REAL template_id still compiles to the template shape', ()
   assert.equal(step.attributes.template_id, '6a2632febba50b0bbd1031d2');
   assert.equal(step.attributes.templatesource, 'email-builder');
 });
+
+// wave22: a branching wait's timeout is the author's `timeout`. A user_replied wait's attributes carry the drawer's seed
+// startAfter {minutes, 0} (Wait.ts:583-586); spread after the timeout it silently replaced it, and the builder then shows
+// Timeout OFF on a wait that branches (live 2026-09-29, knowledge sniffs/workflows-wave1-2026-09-25/ui/walk-w22-render-eed39b62.json).
+const urWait = (over = {}) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'w', kind: 'wait', waitType: 'user_replied', name: 'Wait for staff',
+    attributes: { type: 'user_replied', channel: ['any_channel'], repliedBy: ['any_user'], startAfter: { type: 'minutes', value: 0, when: 'after' } },
+    timeout: { unit: 'days', value: 1 }, onEvent: [{ ref: 'y', kind: 'action', type: 'add_contact_tag', name: 'Y', attributes: { tags: ['y'] } }],
+    onTimeout: [{ ref: 'n', kind: 'action', type: 'add_contact_tag', name: 'N', attributes: { tags: ['n'] } }], ...over }] });
+test('branching wait: the author\'s timeout wins over an attributes.startAfter seed', () => {
+  const c = compile(urWait(), ctx()).autoSaveBody.workflowData.templates.find((s) => s.type === 'wait');
+  assert.deepEqual(c.attributes.startAfter, { type: 'days', value: 1, when: 'after' });
+});
+test('branching wait: a timeout of 0 is refused (the drawer refuses to save it and shows the toggle off)', () => {
+  assert.throws(() => compile(urWait({ timeout: { unit: 'minutes', value: 0 } }), ctx()), /WAIT_TIMEOUT|timeout/i);
+  const noTimeout = urWait(); delete noTimeout.graph[0].timeout;
+  assert.throws(() => compile(noTimeout, ctx()), /WAIT_TIMEOUT|timeout/i);
+});
+test('CONTROL: a branching reply wait with a positive timeout compiles unchanged', () => {
+  const ir = { name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+    { ref: 'sms', kind: 'action', type: 'sms', name: 'Ask', attributes: { body: 'Reply YES' } },
+    { ref: 'w', kind: 'wait', waitType: 'reply', name: 'Wait for reply', reply: { steps: ['sms'], labels: ['Ask'] }, timeout: { unit: 'hours', value: 2 },
+      onEvent: [{ ref: 'y', kind: 'action', type: 'add_contact_tag', name: 'Y', attributes: { tags: ['y'] } }],
+      onTimeout: [{ ref: 'n', kind: 'action', type: 'add_contact_tag', name: 'N', attributes: { tags: ['n'] } }] }] };
+  const c = compile(ir, ctx()).autoSaveBody.workflowData.templates.find((s) => s.type === 'wait');
+  assert.deepEqual(c.attributes.startAfter, { type: 'hours', value: 2, when: 'after' });
+});
+
+// wave22 (completeness sweep 2026-09-29 §3 #5): emailAttributes built a fixed key set, so "send to associated contacts"
+// (emailRecipients + associationLabels, Email.ts:108-164) and the linked-snippet attachment snapshot vanished silently.
+const emailIR = (attrs) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'e', kind: 'action', type: 'email', name: 'Mail', attributes: { subject: 'S', html: '<p>x</p>', ...attrs } }] });
+const emailOf = (ir, c = ctx()) => compile(ir, c).autoSaveBody.workflowData.templates.find((s) => s.type === 'email').attributes;
+test('email: emailRecipients, associationLabels and linkedSnippetAttachmentUrls reach the wire', () => {
+  const a = emailOf(emailIR({ emailRecipients: 'all_associated_contacts', associationLabels: [{ associationId: 'ASSOC1' }, { associationId: 'ASSOC2', label: 'Manager' }],
+    linkedSnippetAttachmentUrls: ['https://x.test/a.pdf'] }));
+  assert.equal(a.emailRecipients, 'all_associated_contacts');
+  assert.deepEqual(a.associationLabels, [{ associationId: 'ASSOC1' }, { associationId: 'ASSOC2', label: 'Manager' }]);
+  assert.deepEqual(a.linkedSnippetAttachmentUrls, ['https://x.test/a.pdf']);
+});
+test('email: an unknown emailRecipients mode is refused with the four real ones named', () => {
+  assert.throws(() => emailOf(emailIR({ emailRecipients: 'everyone' })), /enrolled_contacts.*most_recently_associated.*earliest_associated.*all_associated_contacts/);
+});
+test('email: a fan-out mode with no association label warns (the drawer flags it outside Company workflows)', () => {
+  const warns = []; emailOf(emailIR({ emailRecipients: 'most_recently_associated' }), { ...ctx(), warn: (w) => warns.push(w) });
+  assert.ok(warns.some((w) => /associationLabels/.test(w)), JSON.stringify(warns));
+});
+test('CONTROL: an email with none of these keys compiles without them', () => {
+  const a = emailOf(emailIR({}));
+  for (const k of ['emailRecipients', 'associationLabels', 'linkedSnippetAttachmentUrls']) assert.equal(k in a, false, k);
+});
+
+// wave22 (completeness sweep 2026-09-29 §3 #10): internal_notification email/sms/whatsapp dropped the drawer's own
+// recipient keys — followers toggles (FollowerToggleSection.vue), assigned owners (Email.ts:299-320, SMS.ts:262-266,
+// WhatsApp.ts:64-72) and the internal email's bcc (SendEmail.vue:171-216).
+const notifIR = (channel, b) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'n', kind: 'action', type: 'internal_notification', name: 'Notify', attributes: { type: channel, [channel]: b } }] });
+const notifOf = (ir, warns = []) => compile(ir, { ...ctx(), warn: (w) => warns.push(w) }).autoSaveBody.workflowData.templates.find((s) => s.type === 'internal_notification').attributes;
+test('internal_notification email/sms/whatsapp keep assigned owners + follower toggles; email keeps bcc', () => {
+  for (const ch of ['email', 'sms', 'whatsapp']) {
+    const warns = [];
+    const a = notifOf(notifIR(ch, { userType: 'assign', assignedOwners: ['contact_owner', 'opportunity_owner'], alsoNotifyContactFollowers: true,
+      alsoNotifyOpportunityFollowers: true, ...(ch === 'email' ? { subject: 's', html: '<p>h</p>', bcc: '{{custom_values.ops_inbox}}' } : { body: 'b' }) }), warns);
+    assert.deepEqual(a[ch].assignedOwners, ['contact_owner', 'opportunity_owner'], ch);
+    assert.equal(a[ch].alsoNotifyContactFollowers, true, ch); assert.equal(a[ch].alsoNotifyOpportunityFollowers, true, ch);
+    if (ch === 'email') assert.equal(a.email.bcc, '{{custom_values.ops_inbox}}');
+    assert.deepEqual(warns.filter((w) => /NOTIFICATION_KEY_DROPPED/.test(w)), [], ch);
+  }
+});
+test('internal_notification sms/email/whatsapp assign with no owners stamps none (undefined = contact owner in the builder)', () => {
+  assert.equal('assignedOwners' in notifOf(notifIR('sms', { userType: 'assign', body: 'b' })).sms, false);
+});
+test('internal_notification whatsapp refuses a userType the drawer cannot produce', () => {
+  assert.throws(() => notifOf(notifIR('whatsapp', { userType: 'all', body: 'b' })), /whatsapp.*assign.*user/i);
+});
+test('CONTROL: a particular-user email notification carries no owner/follower keys', () => {
+  const a = notifOf(notifIR('email', { userType: 'user', selectedUser: ['U1'], subject: 's', html: '<p>h</p>' }));
+  for (const k of ['assignedOwners', 'alsoNotifyContactFollowers', 'bcc']) assert.equal(k in a.email, false, k);
+});
+
+// wave22 (completeness sweep 2026-09-29 §3 #9): a 3-path split defaulted to 33/33/33 = 99, which the drawer marks red
+// (Split.ts randomSplitWeightageInvalid: the total must be exactly 100); no 5-path cap (MAX_TRANSITION_COUNT); stale
+// modes accepted though the drawer offers only random-split.
+const splitIR = (paths, extra = {}) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 's', kind: 'split', name: 'Split', paths: paths.map((p, i) => ({ ref: `p${i}`, name: `Path ${i}`, then: [], ...p })), ...extra }] });
+const weightsOf = (ir) => { const c = compile(ir, ctx()).autoSaveBody.workflowData.templates.find((t) => t.type === 'workflow_split');
+  return c.attributes.paths.map((p) => c.attributes.extras.weightDistribution[p.id]); };
+test('split: default weights total exactly 100 (remainder on the last path)', () => {
+  assert.deepEqual(weightsOf(splitIR([{}, {}, {}])), [33, 33, 34]);
+  assert.deepEqual(weightsOf(splitIR([{}, {}])), [50, 50]);
+  assert.equal(weightsOf(splitIR([{}, {}, {}, {}, {}, ])).reduce((a, b) => a + b, 0), 100);
+});
+test('split: more than 5 paths, a stale mode, or authored weights not totalling 100 are refused', () => {
+  assert.throws(() => compile(splitIR([{}, {}, {}, {}, {}, {}]), ctx()), /5/);
+  assert.throws(() => compile(splitIR([{}, {}], { condition: 'even-split' }), ctx()), /random-split/);
+  assert.throws(() => compile(splitIR([{ weight: 60 }, { weight: 30 }], { mode: 'weighted' }), ctx()), /100/);
+});
+test('CONTROL: authored weights totalling 100 compile as written', () => {
+  assert.deepEqual(weightsOf(splitIR([{ weight: 70 }, { weight: 30 }], { mode: 'weighted' })), [70, 30]);
+  assert.deepEqual(weightsOf(splitIR([{ weight: 33.3 }, { weight: 33.3 }, { weight: 33.4 }], { mode: 'weighted' })), [33.3, 33.3, 33.4]);
+});

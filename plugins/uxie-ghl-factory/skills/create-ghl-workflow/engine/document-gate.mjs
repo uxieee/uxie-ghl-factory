@@ -29,7 +29,16 @@ import { checkFieldCaps, describeCap } from './field-caps.mjs';
 import { ENGINE_ATTR_KEYS } from './compiler.mjs';
 import { OBSERVED_TOP_LEVEL_KEYS, OBSERVED_ATTRIBUTE_KEYS, OBSERVED_INNER_TYPES } from './observed-step-keys.mjs';
 
-export const STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
+// The builder's own step type, models/Workflow.ts `WorkflowTemplateBase` (09-29 capture, lines 805-850): every key a
+// builder-saved step may carry at its root. The 09-11 census alone refused real builder keys — `parentContainerId` on
+// every loop-body step, `integrationAccountId` / `testRequest` / `testResponse` on every account-bound INTEGRATION_AI
+// step — so publish_workflow refused those whole workflows (completeness sweep 2026-09-29 §3 #3). A drift test compares
+// this list with the newest capture when one sits beside the checkout.
+export const BUILDER_TEMPLATE_KEYS = Object.freeze(['id', 'stepIndex', 'type', 'customVarPrefix', 'name', 'window', 'start_after',
+  'attributes', 'next', 'parent', 'sibling', 'order', 'cat', 'comments', 'nodeType', 'position', 'isMarketplaceAction', 'version',
+  'workflowsActionType', 'integrationAccountId', 'parentKey', 'parentContainerId', 'currentStepEnd', 'hasErrors', 'errorMessage',
+  'advanceCanvasMeta', 'testRequest', 'testResponse']);
+export const STEP_TOP_LEVEL_KEYS = new Set([...OBSERVED_TOP_LEVEL_KEYS, ...BUILDER_TEMPLATE_KEYS]);
 
 // Keys a type carries only in one state, so a census can miss them. Each is grounded in the file
 // that already handles it: conversationai_objective gains closingMessage (required) and tags the
@@ -38,7 +47,17 @@ export const STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
 // ({referenceImages:[{content, filename, attachmentMode:'url'}]}), outside the IGenerateImageAI model. Live
 // 2026-09-28 a step whose only reference was `{{workflow_ai_generate_image.1.image_url}}` redrew that image
 // (knowledge sniffs/workflows-wave1-2026-09-25/live-3Q-generate-image.json), so the key moves the output.
-const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'], workflow_ai_generate_image: ['__dynamicAttachments__'] };
+// Step types whose attribute interface the model-shapes extractor leaves UNMAPPED (it cannot pair the type with its
+// interface), so the card carries no model fields and the gate called the drawer's own keys unknown. Each entry is the
+// interface's keys verbatim; a drift test re-reads the interface from the newest capture.
+//   send_to_eliza — models/actions/SendToEliza.ts `ISendToEliza` {sendToSpecificUser, userId?}
+export const MODEL_KEYS_UNMAPPED_BY_EXTRACTOR = { send_to_eliza: ['sendToSpecificUser', 'userId'] };
+
+// loop.exitNext: the builder persists the step that runs after the loop — "the one fact that cannot be recovered from
+// the tree" (utils/loop.helper.ts:571-596, use-latest-node-saved.ts:935). Absent from the census only because no
+// census workflow had a loop.
+const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'], workflow_ai_generate_image: ['__dynamicAttachments__'], loop: ['exitNext'],
+  ...MODEL_KEYS_UNMAPPED_BY_EXTRACTOR };
 
 // Keys GHL's SERVER writes onto a step when the document is saved. The author never sends them and
 // the builder's front-end source does not contain them, so no model, card or asset lists them — and
@@ -125,6 +144,14 @@ const finding = (check, severity, t, message) => ({
  *   as warnings: a pre-existing defect on a step nobody touched must not block an unrelated edit.
  * @returns {errors, warnings, checked}
  */
+// A branching wait's transition rows store `wait_<wait type>` (Wait.ts:512,536) for each type GHL lets a wait branch on
+// (WorkflowValidator.ts:927, extracted into workflowRules.vocab.multipathSupportedWaitTypes), plus `wait_timeout` for the
+// timeout leg. Derived, not listed: the census had seen only three of them and refused builder-made
+// user_replied / link_clicked / email_event branches.
+export function transitionInnerTypes(catalog) {
+  return [...(catalog?.workflowRules?.vocab?.multipathSupportedWaitTypes ?? []).map((w) => `wait_${w}`), 'wait_timeout'];
+}
+
 export function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null } = {}) {
   const out = [];
   for (const t of templates) {
@@ -151,13 +178,19 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
       continue;
     }
     const attrs = t.attributes ?? {};
+    // A value the model allows but the drawer cannot show: RentalBookingStatusType includes 'partial', the rental status
+    // list (AppointmentStatus.ts:39-47) does not. It saves and reads back; a person who opens and saves the step loses it.
+    if (t.type === 'update_appointment_status' && attrs.category === 'rental_booking' && attrs.status_type === 'partial')
+      out.push(finding('DRAWER_CANNOT_SHOW', 'warning', t,
+        "the builder's drawer cannot display 'partial' for rental appointments; a person who opens and saves this step will lose it (AppointmentStatus.ts:39-47)"));
     // attributes.type: the explicit map where the inner spelling differs from the row type, else every
     // value a stored step of this type was seen carrying (plus the source model's union members). A
     // type never observed is not judged — absence of evidence is not a rule.
     const innerAllowed = INNER_ATTRIBUTE_TYPE[t.type]
       ? new Set([INNER_ATTRIBUTE_TYPE[t.type]])
       : (OBSERVED_INNER_TYPES[t.type]
-        ? new Set([...OBSERVED_INNER_TYPES[t.type], ...((card.modelFields?.fields ?? []).find((f) => f?.name === 'type')?.members ?? [])])
+        ? new Set([...OBSERVED_INNER_TYPES[t.type], ...((card.modelFields?.fields ?? []).find((f) => f?.name === 'type')?.members ?? []),
+          ...(t.type === 'transition' ? transitionInnerTypes(catalog) : [])])
         : null);
     if (innerAllowed && 'type' in attrs && !innerAllowed.has(attrs.type)) out.push(finding('INNER_TYPE', 'error', t,
       `attributes.type is ${JSON.stringify(attrs.type)}; '${t.type}' stores ${[...innerAllowed].map((v) => `'${v}'`).join(' or ')}. `

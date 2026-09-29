@@ -24,9 +24,15 @@ export const NORMALIZE_SKIP = new Set([
 // unconditional warning fired on every goto / opportunity / custom_code modifyStep — 100% noise
 // (backlog 6, D-85/D-89) — and a correct edit was indistinguishable from a suspect one. Without
 // `opts` (a caller that does not know the patch) the warning stays unconditional.
+// Keys that ARE a skipped type's wire shape, so adding one back is never an author-shape guess. A goto whose edge was
+// deleted on the advanced canvas has no targetNodeId at all, and re-targeting it (the rescue for a goto the canvas can
+// no longer re-target after a reload) introduced the key and drew the warning.
+const SKIPPED_TYPE_WIRE_KEYS = { goto: ['targetNodeId'] };
+
 export function normalizeStoredAttributes(template, ctx, opts) {
   if (!template?.attributes || template.isMarketplaceAction === true || NORMALIZE_SKIP.has(template.type)) {
-    const novel = Array.isArray(opts?.novelKeys) ? opts.novelKeys : null;
+    const wire = SKIPPED_TYPE_WIRE_KEYS[template?.type] ?? [];
+    const novel = Array.isArray(opts?.novelKeys) ? opts.novelKeys.filter((k) => !wire.includes(k)) : null;
     if (novel && !novel.length) return { attributes: template?.attributes, warnings: [] };
     const which = novel
       ? `the patch introduces key(s) [${novel.join(', ')}] the stored step did not carry, and they were merged as given`

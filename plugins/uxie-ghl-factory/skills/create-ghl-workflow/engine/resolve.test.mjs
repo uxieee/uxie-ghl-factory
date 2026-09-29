@@ -150,3 +150,26 @@ test('resolveIR: already-resolved ids pass through; unknown names reported', () 
   assert.equal(unresolved.length, 1);
   assert.equal(unresolved[0].name, 'Ghost Pipeline');
 });
+
+// wave22: the builder stores linksLabel (the trigger links' names) beside link[] on a link_clicked wait (Wait.ts:66,789);
+// without it the drawer rewrites the step on open and asks to discard changes on close (live 2026-09-29).
+test('resolveIR: a link_clicked wait gains linksLabel from the location trigger links; a name in link[] becomes its id', () => {
+  const rr = buildResolvers({ triggerLinks: [{ id: 'LINK_A1b2C3d4E5f6G7h8', name: 'Book now' }, { id: 'LINK_Z9y8X7w6V5u4T3s2', name: 'Pricing' }] });
+  const ir = { graph: [
+    { ref: 'w', kind: 'wait', waitType: 'link_clicked', name: 'W', attributes: { type: 'link_clicked', link: ['LINK_A1b2C3d4E5f6G7h8', 'Pricing'] } },
+    { ref: 'x', kind: 'action', type: 'wait', name: 'X', attributes: { type: 'link_clicked', link: ['Book now'] } }] };
+  const { unresolved } = resolveIR(ir, rr);
+  assert.deepEqual(unresolved, []);
+  assert.deepEqual(ir.graph[0].attributes.link, ['LINK_A1b2C3d4E5f6G7h8', 'LINK_Z9y8X7w6V5u4T3s2']);
+  assert.deepEqual(ir.graph[0].attributes.linksLabel, ['Book now', 'Pricing']);
+  assert.deepEqual(ir.graph[1].attributes.linksLabel, ['Book now']);
+});
+test('resolveIR CONTROL: an unknown link name is reported; an author-supplied linksLabel is kept', () => {
+  const rr = buildResolvers({ triggerLinks: [{ id: 'LINK_A1b2C3d4E5f6G7h8', name: 'Book now' }] });
+  const ir = { graph: [
+    { ref: 'w', kind: 'wait', waitType: 'link_clicked', name: 'W', attributes: { type: 'link_clicked', link: ['No such link'] } },
+    { ref: 'v', kind: 'wait', waitType: 'link_clicked', name: 'V', attributes: { type: 'link_clicked', link: ['LINK_A1b2C3d4E5f6G7h8'], linksLabel: ['Mine'] } }] };
+  const { unresolved } = resolveIR(ir, rr);
+  assert.equal(unresolved.length, 1); assert.match(unresolved[0].where, /link/);
+  assert.deepEqual(ir.graph[1].attributes.linksLabel, ['Mine']);
+});

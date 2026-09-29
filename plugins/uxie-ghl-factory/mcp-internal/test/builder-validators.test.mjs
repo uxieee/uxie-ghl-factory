@@ -225,3 +225,20 @@ test('assignToUserValidator is the ONLY validator emitting both resource and mes
   assert.deepEqual([...dual], ['assignToUserValidator'],
     'a new dual-shape validator appeared — re-read the resource/message split before trusting it');
 });
+
+// wave22 (completeness sweep 2026-09-29 §3 #7): a validator that throws must never count as a validated step.
+test('a crashing validator leaves its step UNCHECKED, not validated', () => {
+  const bag = { okValidator: () => [], boomValidator: () => { throw new ReferenceError('W$ is not defined'); } };
+  const r = runBuilderValidators([{ id: 'a', name: 'A', type: 'ok' }, { id: 'b', name: 'B', type: 'boom' }], bag, { ok: 'okValidator', boom: 'boomValidator' });
+  assert.equal(r.validated, 1);
+  assert.deepEqual(r.unchecked, { boom: ['B'] });
+  assert.equal(r.crashed.length, 1);
+});
+test('every shipped validator is run once: those that throw are exactly the ones reported as crashed (no silent pass)', () => {
+  const bag = compileValidators(SOURCE);
+  const vname = Object.fromEntries(Object.keys(bag).map((k) => [`t_${k}`, k]));
+  const tpls = Object.keys(bag).map((k) => ({ id: k, name: k, type: `t_${k}`, attributes: { fields: [], paths: [], conditions: [] }, extras: {} }));
+  const r = runBuilderValidators(tpls, bag, vname);
+  assert.equal(r.validated + r.crashed.length, tpls.length);
+  assert.equal(Object.values(r.unchecked).flat().length, r.crashed.length);
+});

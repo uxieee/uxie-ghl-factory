@@ -56,6 +56,7 @@ export function buildResolvers(raw = {}) {
     workflowId: (q) => byName(raw.workflows, [(w) => w.name])(q)?.id,
     customValueId: (q) => byName(raw.customValues, [(v) => v.name, (v) => v.fieldKey, (v) => String(v.fieldKey ?? '').replace(/^\{\{\s*custom_values\./, '').replace(/\s*\}\}$/, '')])(q)?.id,
     triggerLinkId: (q) => byName(raw.triggerLinks, [(l) => l.name])(q)?.id,
+    triggerLinkName: (id) => (raw.triggerLinks ?? []).find((l) => l.id === id)?.name,
     offerId: (q) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q)?.id,
     membershipProductId: (q) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q)?.id,
     // G4/G5/G6/G9
@@ -192,6 +193,16 @@ export function resolveIR(ir, r) {
     // task-notification / opportunity owner: assignedTo/owner name → id (skip literals like contact_owner)
     if (type === 'task-notification' && a.assignedTo && !looksLikeId(a.assignedTo) && !/_/.test(a.assignedTo)) {
       a.assignedTo = need(r.userId(a.assignedTo), 'task.assignedTo', a.assignedTo) ?? a.assignedTo;
+    }
+    // link_clicked wait: link NAMES → ids, and linksLabel = the links' names — the builder stores both (Wait.ts:66,789).
+    // Without linksLabel the drawer rewrites the step on open and asks to discard changes on close (live 2026-09-29).
+    const waitType = n.waitType ?? (type === 'wait' ? a.type : undefined);
+    if ((n.kind === 'wait' || type === 'wait') && (a.type ?? waitType) === 'link_clicked' && Array.isArray(a.link)) {
+      a.link = a.link.map((l) => (looksLikeId(l) ? l : need(r.triggerLinkId(l), 'wait.link', l) ?? l));
+      if (!Array.isArray(a.linksLabel)) {
+        const names = a.link.map((id) => r.triggerLinkName?.(id));
+        if (names.every(Boolean)) a.linksLabel = names;
+      }
     }
     // appointment_booking: calendar name → calendarId
     if (type === 'appointment_booking' && a.calendar && !a.calendarId) {

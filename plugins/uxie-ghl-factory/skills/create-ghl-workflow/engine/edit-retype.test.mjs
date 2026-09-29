@@ -7,7 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  retypeStep, editCommitBody, assignMarketplaceStepIndexes, marketplaceStepIndexCounter,
+  retypeStep, editCommitBody, numberNewSteps, marketplaceStepIndexCounter,
   RETYPE_PRESERVED_FIELDS,
 } from './edit.mjs';
 import { applyOps, opsUseMarketplace } from './edit-driver.mjs';
@@ -174,29 +174,75 @@ test('a new marketplace step is numbered against the ones ALREADY stored', () =>
     'the retyped step kept the standalone compile\'s stepIndex:1 and collided with the stored step');
 });
 
-test('assignMarketplaceStepIndexes counts per KEY, not globally', () => {
-  const { templates, counter } = assignMarketplaceStepIndexes([
-    { id: 'a', type: 'key_x', isMarketplaceAction: true },
+test('numberNewSteps numbers only the given ids, per KEY, from the highest stored index', () => {
+  const { templates, counter } = numberNewSteps([
+    { id: 'a', type: 'key_x', isMarketplaceAction: true, stepIndex: 4 },
     { id: 'b', type: 'wait' },
-    { id: 'c', type: 'key_y', isMarketplaceAction: true },
-    { id: 'd', type: 'key_x', isMarketplaceAction: true },
-  ]);
-  assert.deepEqual(templates.map((t) => t.stepIndex), [1, undefined, 1, 2]);
-  assert.deepEqual(Object.fromEntries(counter), { key_x: 2, key_y: 1 });
+    { id: 'c', type: 'key_y', isMarketplaceAction: true, stepIndex: 1 },
+    { id: 'd', type: 'key_x', isMarketplaceAction: true, stepIndex: 1 },
+    { id: 'e', type: 'key_y', isMarketplaceAction: true, stepIndex: 1 },
+  ], new Set(['d', 'e']));
+  assert.deepEqual(templates.map((t) => t.stepIndex), [4, undefined, 1, 5, 2]);
+  assert.deepEqual(Object.fromEntries(counter), { key_x: 5, key_y: 2 });
 });
 
-test('a step whose stepIndex moved is reported as modified', () => {
+test('the stored counter wins over the templates when it is higher (steps were deleted)', () => {
+  const { templates } = numberNewSteps([
+    { id: 'a', type: 'key_x', isMarketplaceAction: true, stepIndex: 1 },
+    { id: 'd', type: 'key_x', isMarketplaceAction: true, stepIndex: 1 },
+  ], new Set(['d']), { key_x: 3 });
+  assert.deepEqual(templates.map((t) => t.stepIndex), [1, 4]);
+});
+
+test('a mis-numbered stored step is NOT renumbered; the retyped step is numbered after it', () => {
   n = 0;
-  // A stored WA step mis-numbered 7. Retyping the sms beside it renumbers both, and the
-  // repaired one must be listed for the server to persist it.
+  // The builder never renumbers: step 7 stays 7 and every {{imessage_a.7.*}} tag keeps pointing at it.
   const before = [
     { id: 'm1', type: 'imessage_a', name: 'WA', isMarketplaceAction: true, stepIndex: 7,
       next: 's2', parentKey: null, order: 0, attributes: { type: 'imessage_a', message: 'a' } },
     { id: 's2', type: 'sms', name: 'SMS', next: null, parentKey: 'm1', order: 1, attributes: { body: 'b' } },
   ];
   const { templates, diff } = applyOps(before, [waOp('s2', 'b', 'WA two')], { ctx: ctx(), idGen });
+  assert.equal(templates.find((t) => t.id === 'm1').stepIndex, 7);
+  assert.equal(templates.find((t) => t.id === 's2').stepIndex, 8);
+  assert.deepEqual(diff.modifiedSteps, ['s2']);
+});
+
+test('DIFFERENTIAL: an edit to one marketplace step leaves every other step byte-identical (stepIndex + merge tags)', () => {
+  n = 0;
+  // Stored in an order that is NOT the numbering order — the old driver renumbered by array order and swapped them.
+  const before = [
+    { id: 'm2', type: 'imessage_a', name: 'WA second', isMarketplaceAction: true, stepIndex: 2,
+      next: 'm1', parentKey: null, order: 0, attributes: { type: 'imessage_a', message: 'two' } },
+    { id: 'm1', type: 'imessage_a', name: 'WA first', isMarketplaceAction: true, stepIndex: 1,
+      next: 's3', parentKey: 'm2', order: 1, attributes: { type: 'imessage_a', message: 'one' } },
+    { id: 's3', type: 'sms', name: 'Uses step 2', next: null, parentKey: 'm1', order: 2,
+      attributes: { body: 'reply was {{imessage_a.2.message}}' } },
+  ];
+  const { templates, diff } = applyOps(before,
+    [{ op: 'modifyStep', stepId: 'm1', attrPatch: { message: 'one, edited' } }], { ctx: ctx(), idGen });
+  for (const id of ['m2', 's3']) {
+    assert.equal(JSON.stringify(templates.find((t) => t.id === id)), JSON.stringify(before.find((t) => t.id === id)), id);
+  }
   assert.equal(templates.find((t) => t.id === 'm1').stepIndex, 1);
-  assert.deepEqual(diff.modifiedSteps.sort(), ['m1', 's2']);
+  assert.deepEqual(diff.modifiedSteps, ['m1']);
+});
+
+test('retypeStep carries loop membership, notes, canvas meta and cat; stepIndex + account only within one type', () => {
+  n = 0;
+  const loopStep = { id: 's1', type: 'sms', name: 'In loop', next: null, parentKey: null, order: 0, cat: 'loop-body-x',
+    parentContainerId: 'LOOP1', comments: [{ id: 'c1', comment: '<p>note</p>' }], advanceCanvasMeta: { position: { x: 5, y: 6 } },
+    attributes: { body: 'hi' } };
+  const { templates } = applyOps([loopStep], [waOp('s1', 'hi', 'WA in loop')], { ctx: ctx(), idGen });
+  const t = templates[0];
+  assert.equal(t.parentContainerId, 'LOOP1');
+  assert.deepEqual(t.comments, loopStep.comments);
+  assert.deepEqual(t.advanceCanvasMeta, loopStep.advanceCanvasMeta);
+  assert.equal(t.stepIndex, 1, 'a changed type is numbered afresh');
+  const same = { id: 'm1', type: 'imessage_a', name: 'WA', isMarketplaceAction: true, stepIndex: 3, integrationAccountId: 'ACC1',
+    next: null, parentKey: null, order: 0, attributes: { type: 'imessage_a', message: 'a' } };
+  const r = applyOps([same], [waOp('m1', 'b', 'WA again')], { ctx: ctx(), idGen }).templates[0];
+  assert.equal(r.stepIndex, 3); assert.equal(r.integrationAccountId, 'ACC1');
 });
 
 test('a purely native edit never renumbers marketplace steps it did not touch', () => {
@@ -226,14 +272,15 @@ test('the commit body carries meta.stepIndexCounter as a HIGH-WATER MARK', () =>
   assert.deepEqual(body.meta.stepIndexCounter, { imessage_a: 2 });
 });
 
-test('the counter is never ACCUMULATED onto the stored value across re-runs', () => {
+test('the counter follows the builder: a stored counter above the steps numbers new ones after it', () => {
   n = 0;
-  // The live failure mode this guards: a stored counter of 12 plus 12 more steps read back as 24.
+  // The builder numbers a new step counter+1 and never renumbers, so a stored 12 makes the next two 13 and 14.
   const { templates, diff } = applyOps(smsWorkflow(),
-    [waOp('s1', 'Hi', 'WA one'), waOp('s3', 'Bye', 'WA two')], { ctx: ctx(), idGen });
+    [waOp('s1', 'Hi', 'WA one'), waOp('s3', 'Bye', 'WA two')], { ctx: ctx(), idGen, stepIndexCounter: { imessage_a: 12 } });
+  assert.deepEqual(['s1', 's3'].map((id) => templates.find((t) => t.id === id).stepIndex), [13, 14]);
   const body = editCommitBody(
     freshWf(smsWorkflow(), { meta: { stepIndexCounter: { imessage_a: 12 } } }), templates, diff, 'UID');
-  assert.equal(body.meta.stepIndexCounter.imessage_a, 2);
+  assert.equal(body.meta.stepIndexCounter.imessage_a, 14);
 });
 
 test('an unrelated stored meta key survives the merge', () => {

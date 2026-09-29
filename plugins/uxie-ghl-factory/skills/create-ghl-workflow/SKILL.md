@@ -67,7 +67,8 @@ node scripts/query-catalog-cli.mjs           # coverage summary
 ```
 
 Full scannable index (every type, with attribute keys and trigger filter fields):
-`references/capabilities.md`. Marketplace-app steps (219 of the 316) build fine but
+`references/capabilities.md` (its `premium` tag on `text_formatter` / `datetime_formatter` is stale: GHL's 09-29 builder does
+not mark them premium, and `ai_agent` is no longer beta — trust the type cards until the catalogue is re-pinned). Marketplace-app steps (219 of the 316) build fine but
 only RUN if the app is installed on the location. A catalog miss doesn't prove GHL
 lacks the type — harvest a live example (`scripts/harvest-step.js`) and extend the
 catalog rather than improvising a shape.
@@ -114,6 +115,7 @@ them to where it lives in the UI. Never report it as impossible, and never build
 | The exact field set for one step or trigger type | **`describe_step_type`** (the tool — not a file) |
 | Build one of the recipes end to end | `references/build-recipe.md` |
 | Marketplace / third-party steps and triggers | `references/marketplace-steps.md` |
+| The advanced canvas: what a person's gestures store, that our tools keep canvas layout on edit (proven 2026-09-29), and rescuing a goto that lost its target | `references/advanced-canvas.md` |
 | What a step's stored shape must look like, and why mirroring one example misleads | `references/step-shapes.md` |
 | Everything the engine can build | `references/capabilities.md` |
 | Confirm a build actually took on a live account | `references/canary-verification.md` |
