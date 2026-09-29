@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-29T06:36:17.400Z",
+      "capturedAt": "2026-09-29T18:11:56.765Z",
       "hash": "corpus",
-      "fileCount": 1320,
-      "endpoints": 1320
+      "fileCount": 1326,
+      "endpoints": 1326
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1816,
+  "discoveredCallSites": 1822,
   "skippedCallSites": 713,
-  "count": 1574,
+  "count": 1578,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2569,7 +2569,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/50-runtime/forcing-and-removing-contacts.md:45",
+        "workflows/50-runtime/forcing-and-removing-contacts.md:54",
         "workflows/30-types/steps-marketplace/company.md:165"
       ],
       "serviceBasis": "reviewed",
@@ -2601,7 +2601,7 @@
       },
       "sources": [
         "workflows/30-types/steps-marketplace/company.md:40",
-        "workflows/50-runtime/forcing-and-removing-contacts.md:164"
+        "workflows/50-runtime/forcing-and-removing-contacts.md:173"
       ],
       "serviceBasis": "reviewed",
       "aka": [
@@ -3299,6 +3299,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "workflows/30-types/steps/email.md:160",
         "workflows/40-rules/settings-semantics.md:185"
       ],
       "serviceBasis": "declared"
@@ -11660,7 +11661,7 @@
         "platform/20-api/smart-lists.md:278",
         "platform/20-api/smart-lists.md:322",
         "workflows/20-api/03-endpoints.md:355",
-        "workflows/20-api/smart-lists.md:75",
+        "workflows/20-api/smart-lists.md:91",
         "workflows/70-research/ENDPOINTS.md:77"
       ],
       "serviceClass": "SmartListService",
@@ -11691,7 +11692,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/20-api/smart-lists.md:77",
+        "workflows/20-api/smart-lists.md:59",
+        "workflows/20-api/smart-lists.md:93",
         "workflows/70-research/ENDPOINTS.md:79"
       ],
       "serviceBasis": "reviewed",
@@ -11816,7 +11818,7 @@
         "platform/20-api/smart-lists.md:294",
         "platform/20-api/smart-lists.md:332",
         "pipelines-opportunities/20-api/smart-views.md:37",
-        "workflows/20-api/smart-lists.md:76",
+        "workflows/20-api/smart-lists.md:92",
         "workflows/70-research/ENDPOINTS.md:78"
       ],
       "serviceBasis": "declared",
@@ -11848,7 +11850,7 @@
       "sources": [
         "pipelines-opportunities/20-api/smart-views.md:39",
         "platform/20-api/smart-lists.md:292",
-        "workflows/20-api/smart-lists.md:79",
+        "workflows/20-api/smart-lists.md:95",
         "workflows/70-research/ENDPOINTS.md:81"
       ],
       "serviceBasis": "declared"
@@ -11876,7 +11878,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/smart-views.md:38",
-        "workflows/20-api/smart-lists.md:78",
+        "workflows/20-api/smart-lists.md:94",
         "workflows/70-research/ENDPOINTS.md:80"
       ],
       "serviceBasis": "reviewed",
@@ -14657,7 +14659,8 @@
       },
       "sources": [
         "models/Filters/membership.ts:66",
-        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53"
+        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53",
+        "workflows/30-types/steps/membership_grant_offer.md:60"
       ],
       "serviceClass": "LocationMembership",
       "serviceBasis": "inferred-from-path"
@@ -17067,7 +17070,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/20-api/smart-lists.md:43"
+        "workflows/20-api/smart-lists.md:42"
       ],
       "serviceBasis": "declared"
     },
@@ -21385,7 +21388,7 @@
       },
       "sources": [
         "services/BaseService.ts:17",
-        "workflows/50-runtime/overview-and-trigger-analysis.md:43"
+        "workflows/50-runtime/overview-and-trigger-analysis.md:45"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -22027,7 +22030,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "states/app.ts:597"
+        "states/app.ts:597",
+        "workflows/20-api/uploads-and-dynamic-sources.md:22"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -22210,7 +22214,8 @@
       "sources": [
         "states/app.ts:586",
         "hooks/use-note-image-upload.ts:49",
-        "components/sticky-notes/v2/StickyNoteImageUpload.vue:45"
+        "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
+        "workflows/20-api/uploads-and-dynamic-sources.md:21"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -22820,7 +22825,7 @@
       "sources": [
         "services/api/contact-service.ts:59",
         "workflows/20-api/workflow-maps.md:52",
-        "workflows/20-api/workflow-maps.md:78"
+        "workflows/20-api/workflow-maps.md:89"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -22909,7 +22914,7 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:105",
-        "workflows/20-api/workflow-maps.md:68"
+        "workflows/20-api/workflow-maps.md:79"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -23771,8 +23776,8 @@
         "components/workflow-grid/services/index.ts:120",
         "services/api/workflow-overview.service.ts:166",
         "services/ErrorNotificationService.ts:43",
-        "workflows/20-api/workflow-maps.md:68",
-        "workflows/20-api/workflow-maps.md:82",
+        "workflows/20-api/workflow-maps.md:79",
+        "workflows/20-api/workflow-maps.md:93",
         "workflows/50-runtime/error-notifications.md:35"
       ],
       "serviceClass": null,
@@ -23920,7 +23925,7 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:172",
-        "workflows/20-api/workflow-maps.md:83"
+        "workflows/20-api/workflow-maps.md:94"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -23956,8 +23961,8 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:195",
-        "workflows/20-api/workflow-maps.md:69",
-        "workflows/20-api/workflow-maps.md:84"
+        "workflows/20-api/workflow-maps.md:80",
+        "workflows/20-api/workflow-maps.md:95"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -25857,7 +25862,7 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:224",
-        "workflows/20-api/workflow-maps.md:77",
+        "workflows/20-api/workflow-maps.md:88",
         "workflows/10-anatomy/06-fields-glossary.md:137",
         "workflows/20-api/workflow-maps.md:42"
       ],
@@ -26251,7 +26256,7 @@
       },
       "sources": [
         "services/api/workflow-asset-validation.ts:33",
-        "workflows/30-types/steps/email.md:161",
+        "workflows/30-types/steps/email.md:176",
         "workflows/30-types/steps/if_else.md:31",
         "workflows/40-rules/server-side-validation.md:246"
       ],
@@ -26464,6 +26469,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:560",
+        "workflows/20-api/templates-and-recipes.md:19",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:73"
       ],
       "serviceClass": "WorkflowService",
@@ -28622,7 +28628,7 @@
         "Version"
       ],
       "operation": "fetchDynamicSourceOptions",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -28689,7 +28695,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:289"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--get-action-branches-fields",
@@ -28792,7 +28798,7 @@
         "Version"
       ],
       "operation": "fetchActionDynamicSourceDetails",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -28823,7 +28829,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:603"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows--actions-dynamic-source",
@@ -28860,6 +28866,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "workflows/20-api/uploads-and-dynamic-sources.md:36",
         "workflows/40-rules/marketplace-asset-publisher-classes.md:82"
       ],
       "serviceBasis": "declared"
@@ -28879,7 +28886,7 @@
         "Version"
       ],
       "operation": "fetchActionInputAllOptions",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -28915,7 +28922,7 @@
         "workflows/50-runtime/flow-bot-four-node-certification.md:27"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed",
+      "serviceBasis": "inferred-from-path",
       "aka": [
         "/workflows-marketplace/actions/options/conversationai_services_booking"
       ]
@@ -28935,7 +28942,7 @@
         "Version"
       ],
       "operation": "fetchActionInputListOptions",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -28968,7 +28975,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:204"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--get-action-dynamic-fields",
@@ -29037,7 +29044,7 @@
         "Version"
       ],
       "operation": "getActionByKey",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29058,7 +29065,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:148"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "ai-agents--invoke-managed-agents-dynamic-fields",
@@ -29101,7 +29108,7 @@
         "Version"
       ],
       "operation": "getActionStats",
-      "service": null,
+      "service": "workflows",
       "query": [],
       "body": null,
       "returns": null,
@@ -29117,7 +29124,7 @@
         "services/api/marketplace-stats-service.ts:7"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed",
+      "serviceBasis": "inferred-from-path",
       "aka": [
         "/workflows-marketplace/actions/stats/{key}"
       ]
@@ -29137,7 +29144,7 @@
         "Version"
       ],
       "operation": "fetchIntegrationApps",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29162,7 +29169,7 @@
         "workflows/70-research/ENDPOINTS.md:242"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--reset-integration-token",
@@ -29179,7 +29186,7 @@
         "Version"
       ],
       "operation": "resetIntegrationToken",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29204,7 +29211,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:674"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--initiate-oauth-authorization",
@@ -29221,7 +29228,7 @@
         "Version"
       ],
       "operation": "initiateOAuthAuthorization",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29257,7 +29264,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:506"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-integration-oauth-token",
@@ -29274,7 +29281,7 @@
         "Version"
       ],
       "operation": "fetchIntegrationOauthToken",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29313,7 +29320,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:440"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-drives",
@@ -29326,7 +29333,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchDrives",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29374,7 +29381,7 @@
         "services/api/google-sheets-workflows-service.ts:54"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-spreadsheets",
@@ -29387,7 +29394,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSpreadsheets",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29447,7 +29454,7 @@
         "services/api/google-sheets-workflows-service.ts:73"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-sheets",
@@ -29460,7 +29467,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSheets",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29497,7 +29504,7 @@
         "services/api/google-sheets-workflows-service.ts:90"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-sheet-headers",
@@ -29510,7 +29517,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSheetHeaders",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29547,7 +29554,7 @@
         "services/api/google-sheets-workflows-service.ts:111"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-slack-integrations",
@@ -29560,7 +29567,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSlackIntegrations",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29591,7 +29598,7 @@
         "services/api/slack-workflows-service.ts:90"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "slack-service--get-slack-oauth-start-url",
@@ -29609,7 +29616,7 @@
         "Version"
       ],
       "operation": "getSlackOAuthStartUrl",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29636,7 +29643,7 @@
         "services/SlackService.ts:32"
       ],
       "serviceClass": "SlackService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-slack-private-channels",
@@ -29649,7 +29656,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSlackPrivateChannels",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29697,7 +29704,7 @@
         "services/api/slack-workflows-service.ts:120"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-slack-public-channels",
@@ -29710,7 +29717,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSlackPublicChannels",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29758,7 +29765,7 @@
         "services/api/slack-workflows-service.ts:103"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-slack-users",
@@ -29771,7 +29778,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSlackUsers",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29819,7 +29826,7 @@
         "services/api/slack-workflows-service.ts:133"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--test-action",
@@ -29836,7 +29843,7 @@
         "Version"
       ],
       "operation": "testAction",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29888,7 +29895,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:415"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--deregister-test-webhook",
@@ -29905,7 +29912,7 @@
         "Version"
       ],
       "operation": "deregisterTestWebhook",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -29956,7 +29963,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:370"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-webhook-status",
@@ -29973,7 +29980,7 @@
         "Version"
       ],
       "operation": "fetchWebhookStatus",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -30019,7 +30026,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:641"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--register-test-polling",
@@ -30036,7 +30043,7 @@
         "Version"
       ],
       "operation": "registerTestPolling",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -30089,7 +30096,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:360"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--register-test-webhook",
@@ -30106,7 +30113,7 @@
         "Version"
       ],
       "operation": "registerTestWebhook",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -30159,7 +30166,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:345"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--test-trigger",
@@ -30176,7 +30183,7 @@
         "Version"
       ],
       "operation": "testTrigger",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -30229,7 +30236,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:387"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--get-actions-and-triggers",
@@ -30246,7 +30253,7 @@
         "Version"
       ],
       "operation": "getActionsAndTriggers",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "workflowTypes",
@@ -30272,7 +30279,7 @@
         "workflows/30-types/steps/edit_conversation.md:18"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-trigger-dynamic-source-details",
@@ -30289,7 +30296,7 @@
         "Version"
       ],
       "operation": "fetchTriggerDynamicSourceDetails",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -30320,7 +30327,40 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:631"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "workflows--triggers-dynamic-source-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflows-marketplace/triggers/dynamic-source/{key}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/20-api/uploads-and-dynamic-sources.md:37"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-trigger-filter-list-options",
@@ -30377,7 +30417,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": null,
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -30414,7 +30454,7 @@
         "services/api/document-template-service.ts:17"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--get-trigger-dynamic-fields",
@@ -30676,7 +30716,7 @@
       "sources": [
         "components/workflow-grid/services/index.ts:81",
         "workflows/20-api/workflow-maps.md:21",
-        "workflows/20-api/workflow-maps.md:76"
+        "workflows/20-api/workflow-maps.md:87"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -30705,9 +30745,10 @@
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:138",
         "workflows/20-api/smart-lists.md:13",
-        "workflows/20-api/smart-lists.md:81",
-        "workflows/70-research/ENDPOINTS.md:76",
-        "workflows/70-research/RUNTIME-DATA-2.md:72"
+        "workflows/20-api/smart-lists.md:28",
+        "workflows/20-api/smart-lists.md:97",
+        "workflows/20-api/smart-lists.md:107",
+        "workflows/70-research/ENDPOINTS.md:76"
       ],
       "serviceClass": "WorkflowMarketplaceService",
       "serviceBasis": "inferred-from-path"
@@ -30743,6 +30784,7 @@
       },
       "sources": [
         "services/api/log-export-service.ts:48",
+        "workflows/20-api/log-export.md:23",
         "workflows/50-runtime/log-export.md:17"
       ],
       "serviceClass": null,
@@ -30800,6 +30842,7 @@
       },
       "sources": [
         "services/api/log-export-service.ts:32",
+        "workflows/20-api/log-export.md:22",
         "workflows/50-runtime/log-export.md:16"
       ],
       "serviceClass": null,
@@ -30851,6 +30894,7 @@
       },
       "sources": [
         "services/api/log-export-service.ts:62",
+        "workflows/20-api/log-export.md:24",
         "workflows/50-runtime/log-export.md:18"
       ],
       "serviceClass": null,
@@ -31224,7 +31268,7 @@
       },
       "sources": [
         "services/api/workflow-overview.service.ts:149",
-        "workflows/50-runtime/overview-and-trigger-analysis.md:19",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:21",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:75",
         "workflows/70-research/RUNTIME-DATA-2.md:96"
       ],
@@ -31261,7 +31305,7 @@
       },
       "sources": [
         "services/api/workflow-overview.service.ts:157",
-        "workflows/50-runtime/overview-and-trigger-analysis.md:18",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:20",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:74",
         "workflows/70-research/RUNTIME-DATA-2.md:96"
       ],
@@ -31395,7 +31439,7 @@
       "sources": [
         "services/api/workflow-status-service.ts:122",
         "workflows/20-api/workflow-maps.md:54",
-        "workflows/20-api/workflow-maps.md:79"
+        "workflows/20-api/workflow-maps.md:90"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -32097,8 +32141,8 @@
         "components/workflow-grid/services/index.ts:148",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
         "workflows/20-api/03-endpoints.md:365",
-        "workflows/20-api/workflow-maps.md:63",
-        "workflows/20-api/workflow-maps.md:81",
+        "workflows/20-api/workflow-maps.md:74",
+        "workflows/20-api/workflow-maps.md:92",
         "workflows/50-runtime/11-runtime-logs.md:189"
       ],
       "serviceClass": null,
@@ -32175,8 +32219,8 @@
       "sources": [
         "services/api/workflow-status-service.ts:91",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
-        "workflows/20-api/workflow-maps.md:58",
-        "workflows/20-api/workflow-maps.md:80",
+        "workflows/20-api/workflow-maps.md:62",
+        "workflows/20-api/workflow-maps.md:91",
         "workflows/50-runtime/11-runtime-logs.md:159",
         "workflows/50-runtime/11-runtime-logs.md:253"
       ],
@@ -32475,7 +32519,8 @@
       },
       "sources": [
         "services/api/workflow-overview.service.ts:142",
-        "workflows/50-runtime/overview-and-trigger-analysis.md:20",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:22",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:79",
         "workflows/70-research/RUNTIME-DATA-2.md:81"
       ],
       "serviceClass": null,
@@ -32533,6 +32578,7 @@
       },
       "sources": [
         "services/api/trigger-stats-service.ts:25",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:93",
         "workflows/70-research/VERSIONS-STATS-LOGS.md:435"
       ],
       "serviceClass": null,
@@ -32561,6 +32607,7 @@
       },
       "sources": [
         "services/api/trigger-stats-service.ts:20",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:92",
         "workflows/70-research/VERSIONS-STATS-LOGS.md:416"
       ],
       "serviceClass": null,
@@ -35848,7 +35895,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:377"
+        "pipelines-opportunities/20-api/opportunities.md:382"
       ],
       "serviceBasis": "declared"
     },
@@ -35874,7 +35921,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:395"
+        "pipelines-opportunities/20-api/opportunities.md:400"
       ],
       "serviceBasis": "declared"
     },
@@ -35991,7 +36038,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:394"
+        "pipelines-opportunities/20-api/opportunities.md:399"
       ],
       "serviceBasis": "declared"
     },
@@ -36017,7 +36064,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:388"
+        "pipelines-opportunities/20-api/opportunities.md:393"
       ],
       "serviceBasis": "declared"
     },
@@ -36051,8 +36098,8 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/opportunities.md:186",
-        "pipelines-opportunities/20-api/opportunities.md:406",
-        "pipelines-opportunities/20-api/opportunities.md:393",
+        "pipelines-opportunities/20-api/opportunities.md:411",
+        "pipelines-opportunities/20-api/opportunities.md:398",
         "pipelines-opportunities/20-api/opportunities.md:191"
       ],
       "serviceBasis": "declared",
@@ -36083,7 +36130,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:328"
+        "pipelines-opportunities/20-api/opportunities.md:333"
       ],
       "serviceBasis": "declared"
     },
@@ -36150,7 +36197,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:260"
+        "pipelines-opportunities/20-api/opportunities.md:265"
       ],
       "serviceBasis": "declared"
     },
@@ -38315,7 +38362,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:250"
+        "pipelines-opportunities/20-api/opportunities.md:255"
       ],
       "serviceBasis": "declared"
     },
@@ -41730,7 +41777,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:365"
+        "pipelines-opportunities/20-api/opportunities.md:370"
       ],
       "serviceBasis": "declared"
     },
@@ -41756,7 +41803,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:347"
+        "pipelines-opportunities/20-api/opportunities.md:352"
       ],
       "serviceBasis": "declared"
     },
@@ -43251,6 +43298,32 @@
       "sources": [
         "pipelines-opportunities/20-api/settings.md:35",
         "pipelines-opportunities/20-api/settings.md:36"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--locations-custom-fields",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/locations/{locationId}/customFields/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/settings.md:105"
       ],
       "serviceBasis": "declared"
     },
@@ -48360,7 +48433,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:299"
+        "pipelines-opportunities/20-api/opportunities.md:304"
       ],
       "serviceBasis": "declared"
     },
@@ -48421,7 +48494,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/settings.md:81",
-        "pipelines-opportunities/20-api/settings.md:102"
+        "pipelines-opportunities/20-api/settings.md:116"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -48457,7 +48530,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/settings.md:101"
+        "pipelines-opportunities/20-api/settings.md:115"
       ],
       "serviceBasis": "declared"
     },
@@ -48483,7 +48556,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:407"
+        "pipelines-opportunities/20-api/opportunities.md:412"
       ],
       "serviceBasis": "declared"
     },
@@ -48509,7 +48582,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:324"
+        "pipelines-opportunities/20-api/opportunities.md:329"
       ],
       "serviceBasis": "declared"
     },
@@ -48562,10 +48635,10 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/opportunities.md:173",
-        "pipelines-opportunities/20-api/forecast.md:116",
+        "pipelines-opportunities/20-api/forecast.md:127",
         "pipelines-opportunities/20-api/opportunities.md:132",
         "pipelines-opportunities/20-api/opportunities.md:154",
-        "pipelines-opportunities/20-api/opportunities.md:332"
+        "pipelines-opportunities/20-api/opportunities.md:337"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -48594,9 +48667,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:255",
+        "pipelines-opportunities/20-api/opportunities.md:260",
         "pipelines-opportunities/20-api/bulk-actions.md:111",
-        "pipelines-opportunities/20-api/opportunities.md:240"
+        "pipelines-opportunities/20-api/opportunities.md:245"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -48679,7 +48752,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:268"
+        "pipelines-opportunities/20-api/opportunities.md:273"
       ],
       "serviceBasis": "declared"
     },
@@ -48705,7 +48778,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:267"
+        "pipelines-opportunities/20-api/opportunities.md:272"
       ],
       "serviceBasis": "declared"
     },
@@ -48731,7 +48804,33 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:278"
+        "pipelines-opportunities/20-api/opportunities.md:283"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--bulk-actions-request-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/bulk-actions/request",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:101"
       ],
       "serviceBasis": "declared"
     },
@@ -48886,7 +48985,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:169",
+        "pipelines-opportunities/20-api/forecast.md:183",
         "pipelines-opportunities/20-api/pipelines.md:42"
       ],
       "serviceBasis": "declared"
@@ -48913,7 +49012,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:181",
+        "pipelines-opportunities/20-api/forecast.md:195",
         "pipelines-opportunities/20-api/pipelines.md:43",
         "pipelines-opportunities/20-api/pipelines.md:169"
       ],
@@ -48948,8 +49047,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:177",
-        "pipelines-opportunities/20-api/forecast.md:191"
+        "pipelines-opportunities/20-api/forecast.md:191",
+        "pipelines-opportunities/20-api/forecast.md:205"
       ],
       "serviceBasis": "declared"
     },
@@ -48982,7 +49081,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:170"
+        "pipelines-opportunities/20-api/forecast.md:184"
       ],
       "serviceBasis": "declared"
     },
@@ -49008,7 +49107,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:190"
+        "pipelines-opportunities/20-api/forecast.md:204"
       ],
       "serviceBasis": "declared"
     },
@@ -49358,7 +49457,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:171",
+        "pipelines-opportunities/20-api/forecast.md:185",
         "pipelines-opportunities/20-api/pipelines.md:39"
       ],
       "serviceBasis": "declared"
@@ -49386,7 +49485,8 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/forecast.md:15",
-        "pipelines-opportunities/20-api/forecast.md:135",
+        "pipelines-opportunities/20-api/forecast.md:97",
+        "pipelines-opportunities/20-api/forecast.md:146",
         "pipelines-opportunities/20-api/opportunities.md:32"
       ],
       "serviceBasis": "declared"
@@ -49655,6 +49755,32 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/smart-filters.md:131"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-user-preferences",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/user-preferences/{userId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:104"
       ],
       "serviceBasis": "declared"
     },

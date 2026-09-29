@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-29",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1583,
+  "count": 1587,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -3188,7 +3188,7 @@
       },
       "sources": [
         "workflows/30-types/steps-marketplace/company.md:40",
-        "workflows/50-runtime/forcing-and-removing-contacts.md:164"
+        "workflows/50-runtime/forcing-and-removing-contacts.md:173"
       ]
     },
     {
@@ -3311,7 +3311,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/50-runtime/forcing-and-removing-contacts.md:45",
+        "workflows/50-runtime/forcing-and-removing-contacts.md:54",
         "workflows/30-types/steps-marketplace/company.md:165"
       ]
     },
@@ -4196,6 +4196,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "workflows/30-types/steps/email.md:160",
         "workflows/40-rules/settings-semantics.md:185"
       ]
     },
@@ -14702,7 +14703,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+      "note": "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api) Workflow list views too: objectKey:'workflow', body {name, filters:[{group:'OR',filters:[]}], sort:[], pageLimit:20, columns:[], objectKey:'workflow'}. A saved view is LOCATION-WIDE — every user sees the tab (proven live 2026-09-29, create→read→delete, workflows batch e).",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -14774,7 +14775,7 @@
       "sources": [
         "pipelines-opportunities/20-api/smart-views.md:39",
         "platform/20-api/smart-lists.md:292",
-        "workflows/20-api/smart-lists.md:79",
+        "workflows/20-api/smart-lists.md:95",
         "workflows/70-research/ENDPOINTS.md:81"
       ]
     },
@@ -14824,7 +14825,7 @@
         "platform/20-api/smart-lists.md:294",
         "platform/20-api/smart-lists.md:332",
         "pipelines-opportunities/20-api/smart-views.md:37",
-        "workflows/20-api/smart-lists.md:76",
+        "workflows/20-api/smart-lists.md:92",
         "workflows/70-research/ENDPOINTS.md:78"
       ]
     },
@@ -14868,7 +14869,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/smart-views.md:38",
-        "workflows/20-api/smart-lists.md:78",
+        "workflows/20-api/smart-lists.md:94",
         "workflows/70-research/ENDPOINTS.md:80"
       ]
     },
@@ -14984,7 +14985,7 @@
         "platform/20-api/smart-lists.md:278",
         "platform/20-api/smart-lists.md:322",
         "workflows/20-api/03-endpoints.md:355",
-        "workflows/20-api/smart-lists.md:75",
+        "workflows/20-api/smart-lists.md:91",
         "workflows/70-research/ENDPOINTS.md:77"
       ]
     },
@@ -15024,7 +15025,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/20-api/smart-lists.md:77",
+        "workflows/20-api/smart-lists.md:59",
+        "workflows/20-api/smart-lists.md:93",
         "workflows/70-research/ENDPOINTS.md:79"
       ]
     },
@@ -18577,6 +18579,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "The offer list the membership grant/revoke drawers use: PUBLISHED offers only; a draft offer is refused by GHL's asset check with a plain not-found (proven 2026-09-29, workflows wave26).",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -18605,7 +18608,8 @@
       },
       "sources": [
         "models/Filters/membership.ts:66",
-        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53"
+        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53",
+        "workflows/30-types/steps/membership_grant_offer.md:60"
       ]
     },
     {
@@ -21675,7 +21679,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/20-api/smart-lists.md:43"
+        "workflows/20-api/smart-lists.md:42"
       ]
     },
     {
@@ -24409,6 +24413,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Template-library browse, a READ sent as POST: {categories, companyId, product:'workflow', limit, offset, sortOrder, system:false, type:'all'} (source-derived, workflows wave25).",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -24439,7 +24444,8 @@
       "path": "/templates/template/load",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
-      "kind": "read",
+      "kind": "write",
+      "note": "Creates a workflow from an AGENCY-owned library template: {templateId, product:'workflow', locationId, parentId?} (services host); may bump a usage counter on the agency's object. Not executed (coordinator ruling 2026-09-29), body captured blocked from the builder (workflows wave25). IF THE USER WANTS IT: builder › Create workflow › template library.",
       "reach": "source-only",
       "coveredBy": [
         "create_funnel"
@@ -27171,7 +27177,7 @@
       },
       "sources": [
         "services/BaseService.ts:17",
-        "workflows/50-runtime/overview-and-trigger-analysis.md:43"
+        "workflows/50-runtime/overview-and-trigger-analysis.md:45"
       ]
     },
     {
@@ -27182,6 +27188,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
+      "note": "With templateId=<GHL recipe id> (the builder's ?recipeId=) the server fills the recipe's steps, creates NO trigger, does not keep templateId, and REPLACES the sent name with the recipe title — rename after create and read back (proven live 2026-09-29, workflows wave25).",
       "reach": "source-only",
       "coveredBy": [
         "build_workflow",
@@ -27692,7 +27699,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "states/app.ts:597"
+        "states/app.ts:597",
+        "workflows/20-api/uploads-and-dynamic-sources.md:22"
       ]
     },
     {
@@ -28284,7 +28292,8 @@
       "sources": [
         "states/app.ts:586",
         "hooks/use-note-image-upload.ts:49",
-        "components/sticky-notes/v2/StickyNoteImageUpload.vue:45"
+        "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
+        "workflows/20-api/uploads-and-dynamic-sources.md:21"
       ]
     },
     {
@@ -29062,7 +29071,7 @@
       "sources": [
         "services/api/contact-service.ts:59",
         "workflows/20-api/workflow-maps.md:52",
-        "workflows/20-api/workflow-maps.md:78"
+        "workflows/20-api/workflow-maps.md:89"
       ]
     },
     {
@@ -29171,7 +29180,7 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:105",
-        "workflows/20-api/workflow-maps.md:68"
+        "workflows/20-api/workflow-maps.md:79"
       ]
     },
     {
@@ -30229,8 +30238,8 @@
         "components/workflow-grid/services/index.ts:120",
         "services/api/workflow-overview.service.ts:166",
         "services/ErrorNotificationService.ts:43",
-        "workflows/20-api/workflow-maps.md:68",
-        "workflows/20-api/workflow-maps.md:82",
+        "workflows/20-api/workflow-maps.md:79",
+        "workflows/20-api/workflow-maps.md:93",
         "workflows/50-runtime/error-notifications.md:35"
       ]
     },
@@ -30440,7 +30449,7 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:172",
-        "workflows/20-api/workflow-maps.md:83"
+        "workflows/20-api/workflow-maps.md:94"
       ]
     },
     {
@@ -30484,8 +30493,8 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:195",
-        "workflows/20-api/workflow-maps.md:69",
-        "workflows/20-api/workflow-maps.md:84"
+        "workflows/20-api/workflow-maps.md:80",
+        "workflows/20-api/workflow-maps.md:95"
       ]
     },
     {
@@ -32959,7 +32968,7 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:224",
-        "workflows/20-api/workflow-maps.md:77",
+        "workflows/20-api/workflow-maps.md:88",
         "workflows/10-anatomy/06-fields-glossary.md:137",
         "workflows/20-api/workflow-maps.md:42"
       ]
@@ -33439,7 +33448,7 @@
       },
       "sources": [
         "services/api/workflow-asset-validation.ts:33",
-        "workflows/30-types/steps/email.md:161",
+        "workflows/30-types/steps/email.md:176",
         "workflows/30-types/steps/if_else.md:31",
         "workflows/40-rules/server-side-validation.md:246"
       ]
@@ -33709,6 +33718,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:560",
+        "workflows/20-api/templates-and-recipes.md:19",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:73"
       ]
     },
@@ -36286,7 +36296,7 @@
         "Version"
       ],
       "operation": "fetchDynamicSourceOptions",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -36489,7 +36499,7 @@
         "Version"
       ],
       "operation": "fetchActionDynamicSourceDetails",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -36534,7 +36544,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "🔴 One of the TWO sources an asset's dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential (\"not yet supported by the IAM Service\"), so these two proxies are the only door. An unknown action key answers 400 \"Action is not present\" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET …/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md.",
+      "note": "🔴 One of the TWO sources an asset's dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential (\"not yet supported by the IAM Service\"), so these two proxies are the only door. An unknown action key answers 400 \"Action is not present\" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET …/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md. Paging (RTE tools): ?filterField=<field>::<toolId>[&page][&search]; the builder never sends limit; body = the step's current attributes (source-derived, workflows wave25).",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -36572,6 +36582,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "workflows/20-api/uploads-and-dynamic-sources.md:36",
         "workflows/40-rules/marketplace-asset-publisher-classes.md:82"
       ]
     },
@@ -36604,7 +36615,7 @@
         "Version"
       ],
       "operation": "fetchActionInputAllOptions",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -36670,7 +36681,7 @@
         "Version"
       ],
       "operation": "fetchActionInputListOptions",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -36795,7 +36806,7 @@
         "Version"
       ],
       "operation": "getActionByKey",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -36877,7 +36888,7 @@
         "Version"
       ],
       "operation": "getActionStats",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -36956,7 +36967,7 @@
         "Version"
       ],
       "operation": "fetchIntegrationApps",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37003,7 +37014,7 @@
         "Version"
       ],
       "operation": "resetIntegrationToken",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -37054,7 +37065,7 @@
         "Version"
       ],
       "operation": "initiateOAuthAuthorization",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -37117,7 +37128,7 @@
         "Version"
       ],
       "operation": "fetchIntegrationOauthToken",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -37178,7 +37189,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchDrives",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37244,7 +37255,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSpreadsheets",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37321,7 +37332,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSheets",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -37379,7 +37390,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSheetHeaders",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -37444,7 +37455,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSlackIntegrations",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37497,7 +37508,7 @@
         "Version"
       ],
       "operation": "getSlackOAuthStartUrl",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37542,7 +37553,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSlackPrivateChannels",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37608,7 +37619,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSlackPublicChannels",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37674,7 +37685,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSlackUsers",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37743,7 +37754,7 @@
         "Version"
       ],
       "operation": "testAction",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37816,7 +37827,7 @@
         "Version"
       ],
       "operation": "deregisterTestWebhook",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37888,7 +37899,7 @@
         "Version"
       ],
       "operation": "fetchWebhookStatus",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -37955,7 +37966,7 @@
         "Version"
       ],
       "operation": "registerTestPolling",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -38029,7 +38040,7 @@
         "Version"
       ],
       "operation": "registerTestWebhook",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -38103,7 +38114,7 @@
         "Version"
       ],
       "operation": "testTrigger",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -38185,7 +38196,7 @@
         "Version"
       ],
       "operation": "getActionsAndTriggers",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -38237,7 +38248,7 @@
         "Version"
       ],
       "operation": "fetchTriggerDynamicSourceDetails",
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -38272,6 +38283,49 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:631"
+      ]
+    },
+    {
+      "id": "workflows--triggers-dynamic-source-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/workflows-marketplace/triggers/dynamic-source/{key}",
+      "path": "/workflows-marketplace/triggers/dynamic-source/{key}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "note": "The trigger twin of actions/dynamic-source: a READ sent as POST, body = the trigger's current attributes (source-derived, workflows wave25).",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "key"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/20-api/uploads-and-dynamic-sources.md:37"
       ]
     },
     {
@@ -38349,7 +38403,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": null,
-      "service": null,
+      "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -38699,7 +38753,7 @@
       "sources": [
         "components/workflow-grid/services/index.ts:81",
         "workflows/20-api/workflow-maps.md:21",
-        "workflows/20-api/workflow-maps.md:76"
+        "workflows/20-api/workflow-maps.md:87"
       ]
     },
     {
@@ -38736,9 +38790,10 @@
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:138",
         "workflows/20-api/smart-lists.md:13",
-        "workflows/20-api/smart-lists.md:81",
-        "workflows/70-research/ENDPOINTS.md:76",
-        "workflows/70-research/RUNTIME-DATA-2.md:72"
+        "workflows/20-api/smart-lists.md:28",
+        "workflows/20-api/smart-lists.md:97",
+        "workflows/20-api/smart-lists.md:107",
+        "workflows/70-research/ENDPOINTS.md:76"
       ]
     },
     {
@@ -38749,7 +38804,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED — the operator confirmed it in the inbox. 🔴 One export per workflow per ~15 minutes. Use GET …/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything.",
+      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED — the operator confirmed it in the inbox. 🔴 One export per workflow per ~15 minutes. Use GET …/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything. Measured 2026-09-29 (Xander approved one send): explicit recipients[{email,userId?}], any deliverable address; accepted on a sub-account token before the 2026-10-25 UI release (the release gate is client-side); 15-min cooldown after a send (preview.cooldownUntil); status completes in ~2 s. Agency-only per source, unmeasured.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -38782,6 +38837,7 @@
       },
       "sources": [
         "services/api/log-export-service.ts:48",
+        "workflows/20-api/log-export.md:23",
         "workflows/50-runtime/log-export.md:17"
       ]
     },
@@ -38793,7 +38849,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 \"workflowId is required\"). Reached, not yet answered 200.",
+      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 \"workflowId is required\"). Reached, not yet answered 200. Returns exactCount and cooldownUntil (15 min after a send) — proven 2026-09-29.",
       "reach": "reached",
       "coveredBy": [],
       "rawCallable": true,
@@ -38844,6 +38900,7 @@
       },
       "sources": [
         "services/api/log-export-service.ts:32",
+        "workflows/20-api/log-export.md:22",
         "workflows/50-runtime/log-export.md:16"
       ]
     },
@@ -38855,7 +38912,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: IDENTIFIED 2026-09-21. The POLL rail for the async log-export job (POST /workflows/logs/export starts it). workflowId is REQUIRED (400 'workflowId is required' without it, even with locationId). With it -> 200 {exports:[]} on the sandbox, which has run no export. Corpus page exists: workflows/50-runtime/log-export.md. Pairs with the POST; neither is covered by a tool. A log-export tool would be the POST + this poll + the download of the result, and the task is 'get the raw execution log off the platform', which get_workflow_logs does not do (it reads the live rail, it does not export). Candidate, not yet proposed — the export FORMAT and what the finished job's row looks like are unmeasured because nothing has been exported here.",
+      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: IDENTIFIED 2026-09-21. The POLL rail for the async log-export job (POST /workflows/logs/export starts it). workflowId is REQUIRED (400 'workflowId is required' without it, even with locationId). With it -> 200 {exports:[]} on the sandbox, which has run no export. Corpus page exists: workflows/50-runtime/log-export.md. Pairs with the POST; neither is covered by a tool. A log-export tool would be the POST + this poll + the download of the result, and the task is 'get the raw execution log off the platform', which get_workflow_logs does not do (it reads the live rail, it does not export). Candidate, not yet proposed — the export FORMAT and what the finished job's row looks like are unmeasured because nothing has been exported here. Lists exports {createdAt, status, rows, size, recipientCount} — proven 2026-09-29.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -38903,6 +38960,7 @@
       },
       "sources": [
         "services/api/log-export-service.ts:62",
+        "workflows/20-api/log-export.md:24",
         "workflows/50-runtime/log-export.md:18"
       ]
     },
@@ -39298,7 +39356,7 @@
       },
       "sources": [
         "services/api/workflow-overview.service.ts:149",
-        "workflows/50-runtime/overview-and-trigger-analysis.md:19",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:21",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:75",
         "workflows/70-research/RUNTIME-DATA-2.md:96"
       ]
@@ -39345,7 +39403,7 @@
       },
       "sources": [
         "services/api/workflow-overview.service.ts:157",
-        "workflows/50-runtime/overview-and-trigger-analysis.md:18",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:20",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:74",
         "workflows/70-research/RUNTIME-DATA-2.md:96"
       ]
@@ -39494,7 +39552,7 @@
       "sources": [
         "services/api/workflow-status-service.ts:122",
         "workflows/20-api/workflow-maps.md:54",
-        "workflows/20-api/workflow-maps.md:79"
+        "workflows/20-api/workflow-maps.md:90"
       ]
     },
     {
@@ -40239,8 +40297,8 @@
         "components/workflow-grid/services/index.ts:148",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
         "workflows/20-api/03-endpoints.md:365",
-        "workflows/20-api/workflow-maps.md:63",
-        "workflows/20-api/workflow-maps.md:81",
+        "workflows/20-api/workflow-maps.md:74",
+        "workflows/20-api/workflow-maps.md:92",
         "workflows/50-runtime/11-runtime-logs.md:189"
       ]
     },
@@ -40329,8 +40387,8 @@
       "sources": [
         "services/api/workflow-status-service.ts:91",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
-        "workflows/20-api/workflow-maps.md:58",
-        "workflows/20-api/workflow-maps.md:80",
+        "workflows/20-api/workflow-maps.md:62",
+        "workflows/20-api/workflow-maps.md:91",
         "workflows/50-runtime/11-runtime-logs.md:159",
         "workflows/50-runtime/11-runtime-logs.md:253"
       ]
@@ -40672,7 +40730,8 @@
       },
       "sources": [
         "services/api/workflow-overview.service.ts:142",
-        "workflows/50-runtime/overview-and-trigger-analysis.md:20",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:22",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:79",
         "workflows/70-research/RUNTIME-DATA-2.md:81"
       ]
     },
@@ -40762,6 +40821,7 @@
       },
       "sources": [
         "services/api/trigger-stats-service.ts:25",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:93",
         "workflows/70-research/VERSIONS-STATS-LOGS.md:435"
       ]
     },
@@ -40804,6 +40864,7 @@
       },
       "sources": [
         "services/api/trigger-stats-service.ts:20",
+        "workflows/50-runtime/overview-and-trigger-analysis.md:92",
         "workflows/70-research/VERSIONS-STATS-LOGS.md:416"
       ]
     },
@@ -45062,7 +45123,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:377"
+        "pipelines-opportunities/20-api/opportunities.md:382"
       ]
     },
     {
@@ -45097,7 +45158,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:395"
+        "pipelines-opportunities/20-api/opportunities.md:400"
       ]
     },
     {
@@ -45243,7 +45304,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:394"
+        "pipelines-opportunities/20-api/opportunities.md:399"
       ]
     },
     {
@@ -45274,7 +45335,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:388"
+        "pipelines-opportunities/20-api/opportunities.md:393"
       ]
     },
     {
@@ -45325,8 +45386,8 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/opportunities.md:186",
-        "pipelines-opportunities/20-api/opportunities.md:406",
-        "pipelines-opportunities/20-api/opportunities.md:393",
+        "pipelines-opportunities/20-api/opportunities.md:411",
+        "pipelines-opportunities/20-api/opportunities.md:398",
         "pipelines-opportunities/20-api/opportunities.md:191"
       ]
     },
@@ -45358,7 +45419,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:328"
+        "pipelines-opportunities/20-api/opportunities.md:333"
       ]
     },
     {
@@ -45439,7 +45500,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:260"
+        "pipelines-opportunities/20-api/opportunities.md:265"
       ]
     },
     {
@@ -48201,7 +48262,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:250"
+        "pipelines-opportunities/20-api/opportunities.md:255"
       ]
     },
     {
@@ -52433,7 +52494,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:365"
+        "pipelines-opportunities/20-api/opportunities.md:370"
       ]
     },
     {
@@ -52468,7 +52529,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:347"
+        "pipelines-opportunities/20-api/opportunities.md:352"
       ]
     },
     {
@@ -54309,6 +54370,44 @@
       "sources": [
         "pipelines-opportunities/20-api/settings.md:35",
         "pipelines-opportunities/20-api/settings.md:36"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--locations-custom-fields",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/locations/{locationId}/customFields/{id}",
+      "path": "/locations/{locationId}/customFields/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/settings.md:105"
       ]
     },
     {
@@ -60901,7 +61000,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:299"
+        "pipelines-opportunities/20-api/opportunities.md:304"
       ]
     },
     {
@@ -60986,7 +61085,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/settings.md:81",
-        "pipelines-opportunities/20-api/settings.md:102"
+        "pipelines-opportunities/20-api/settings.md:116"
       ]
     },
     {
@@ -61024,7 +61123,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/settings.md:101"
+        "pipelines-opportunities/20-api/settings.md:115"
       ]
     },
     {
@@ -61055,7 +61154,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:407"
+        "pipelines-opportunities/20-api/opportunities.md:412"
       ]
     },
     {
@@ -61086,7 +61185,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:324"
+        "pipelines-opportunities/20-api/opportunities.md:329"
       ]
     },
     {
@@ -61244,10 +61343,10 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/opportunities.md:173",
-        "pipelines-opportunities/20-api/forecast.md:116",
+        "pipelines-opportunities/20-api/forecast.md:127",
         "pipelines-opportunities/20-api/opportunities.md:132",
         "pipelines-opportunities/20-api/opportunities.md:154",
-        "pipelines-opportunities/20-api/opportunities.md:332"
+        "pipelines-opportunities/20-api/opportunities.md:337"
       ]
     },
     {
@@ -61282,7 +61381,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:268"
+        "pipelines-opportunities/20-api/opportunities.md:273"
       ]
     },
     {
@@ -61317,7 +61416,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:267"
+        "pipelines-opportunities/20-api/opportunities.md:272"
       ]
     },
     {
@@ -61359,9 +61458,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:255",
+        "pipelines-opportunities/20-api/opportunities.md:260",
         "pipelines-opportunities/20-api/bulk-actions.md:111",
-        "pipelines-opportunities/20-api/opportunities.md:240"
+        "pipelines-opportunities/20-api/opportunities.md:245"
       ]
     },
     {
@@ -61400,7 +61499,38 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:278"
+        "pipelines-opportunities/20-api/opportunities.md:283"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--bulk-actions-request-post",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/opportunities/bulk-actions/request",
+      "path": "/opportunities/bulk-actions/request",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:101"
       ]
     },
     {
@@ -61592,7 +61722,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:169",
+        "pipelines-opportunities/20-api/forecast.md:183",
         "pipelines-opportunities/20-api/pipelines.md:42"
       ]
     },
@@ -61628,7 +61758,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:181",
+        "pipelines-opportunities/20-api/forecast.md:195",
         "pipelines-opportunities/20-api/pipelines.md:43",
         "pipelines-opportunities/20-api/pipelines.md:169"
       ]
@@ -61676,8 +61806,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:177",
-        "pipelines-opportunities/20-api/forecast.md:191"
+        "pipelines-opportunities/20-api/forecast.md:191",
+        "pipelines-opportunities/20-api/forecast.md:205"
       ]
     },
     {
@@ -61723,7 +61853,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:170"
+        "pipelines-opportunities/20-api/forecast.md:184"
       ]
     },
     {
@@ -61762,7 +61892,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:190"
+        "pipelines-opportunities/20-api/forecast.md:204"
       ]
     },
     {
@@ -62247,7 +62377,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:171",
+        "pipelines-opportunities/20-api/forecast.md:185",
         "pipelines-opportunities/20-api/pipelines.md:39"
       ]
     },
@@ -62287,7 +62417,8 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/forecast.md:15",
-        "pipelines-opportunities/20-api/forecast.md:135",
+        "pipelines-opportunities/20-api/forecast.md:97",
+        "pipelines-opportunities/20-api/forecast.md:146",
         "pipelines-opportunities/20-api/opportunities.md:32"
       ]
     },
@@ -62634,6 +62765,41 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/smart-filters.md:131"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-user-preferences",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/opportunities/user-preferences/{userId}",
+      "path": "/opportunities/user-preferences/{userId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "userId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:104"
       ]
     },
     {
@@ -64841,6 +65007,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
+      "note": "Template-library browse, a READ sent as POST: {categories, companyId, product:'workflow', limit, offset, sortOrder, system:false, type:'all'} (source-derived, workflows wave25).",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -66017,7 +66184,8 @@
       "path": "/templates/template/load",
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
-      "kind": "read",
+      "kind": "write",
+      "note": "Creates a workflow from an AGENCY-owned library template: {templateId, product:'workflow', locationId, parentId?} (services host); may bump a usage counter on the agency's object. Not executed (coordinator ruling 2026-09-29), body captured blocked from the builder (workflows wave25). IF THE USER WANTS IT: builder › Create workflow › template library.",
       "reach": "source-only",
       "coveredBy": [
         "create_funnel"

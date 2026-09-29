@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1583,
+      count: 1587,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -3365,7 +3365,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/30-types/steps-marketplace/company.md:40",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:164"
+            "workflows/50-runtime/forcing-and-removing-contacts.md:173"
           ]
         },
         {
@@ -3488,7 +3488,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/50-runtime/forcing-and-removing-contacts.md:45",
+            "workflows/50-runtime/forcing-and-removing-contacts.md:54",
             "workflows/30-types/steps-marketplace/company.md:165"
           ]
         },
@@ -4373,6 +4373,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "workflows/30-types/steps/email.md:160",
             "workflows/40-rules/settings-semantics.md:185"
           ]
         },
@@ -14879,7 +14880,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)",
+          note: "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api) Workflow list views too: objectKey:'workflow', body {name, filters:[{group:'OR',filters:[]}], sort:[], pageLimit:20, columns:[], objectKey:'workflow'}. A saved view is LOCATION-WIDE \u2014 every user sees the tab (proven live 2026-09-29, create\u2192read\u2192delete, workflows batch e).",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -14951,7 +14952,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "pipelines-opportunities/20-api/smart-views.md:39",
             "platform/20-api/smart-lists.md:292",
-            "workflows/20-api/smart-lists.md:79",
+            "workflows/20-api/smart-lists.md:95",
             "workflows/70-research/ENDPOINTS.md:81"
           ]
         },
@@ -15001,7 +15002,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:294",
             "platform/20-api/smart-lists.md:332",
             "pipelines-opportunities/20-api/smart-views.md:37",
-            "workflows/20-api/smart-lists.md:76",
+            "workflows/20-api/smart-lists.md:92",
             "workflows/70-research/ENDPOINTS.md:78"
           ]
         },
@@ -15045,7 +15046,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "pipelines-opportunities/20-api/smart-views.md:38",
-            "workflows/20-api/smart-lists.md:78",
+            "workflows/20-api/smart-lists.md:94",
             "workflows/70-research/ENDPOINTS.md:80"
           ]
         },
@@ -15161,7 +15162,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:278",
             "platform/20-api/smart-lists.md:322",
             "workflows/20-api/03-endpoints.md:355",
-            "workflows/20-api/smart-lists.md:75",
+            "workflows/20-api/smart-lists.md:91",
             "workflows/70-research/ENDPOINTS.md:77"
           ]
         },
@@ -15201,7 +15202,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/smart-lists.md:77",
+            "workflows/20-api/smart-lists.md:59",
+            "workflows/20-api/smart-lists.md:93",
             "workflows/70-research/ENDPOINTS.md:79"
           ]
         },
@@ -18754,6 +18756,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "The offer list the membership grant/revoke drawers use: PUBLISHED offers only; a draft offer is refused by GHL's asset check with a plain not-found (proven 2026-09-29, workflows wave26).",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -18782,7 +18785,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "models/Filters/membership.ts:66",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53"
+            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53",
+            "workflows/30-types/steps/membership_grant_offer.md:60"
           ]
         },
         {
@@ -21852,7 +21856,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/smart-lists.md:43"
+            "workflows/20-api/smart-lists.md:42"
           ]
         },
         {
@@ -24586,6 +24590,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Template-library browse, a READ sent as POST: {categories, companyId, product:'workflow', limit, offset, sortOrder, system:false, type:'all'} (source-derived, workflows wave25).",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -24616,7 +24621,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/templates/template/load",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "read",
+          kind: "write",
+          note: "Creates a workflow from an AGENCY-owned library template: {templateId, product:'workflow', locationId, parentId?} (services host); may bump a usage counter on the agency's object. Not executed (coordinator ruling 2026-09-29), body captured blocked from the builder (workflows wave25). IF THE USER WANTS IT: builder \u203A Create workflow \u203A template library.",
           reach: "source-only",
           coveredBy: [
             "create_funnel"
@@ -27348,7 +27354,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:17",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:43"
+            "workflows/50-runtime/overview-and-trigger-analysis.md:45"
           ]
         },
         {
@@ -27359,6 +27365,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "With templateId=<GHL recipe id> (the builder's ?recipeId=) the server fills the recipe's steps, creates NO trigger, does not keep templateId, and REPLACES the sent name with the recipe title \u2014 rename after create and read back (proven live 2026-09-29, workflows wave25).",
           reach: "source-only",
           coveredBy: [
             "build_workflow",
@@ -27874,7 +27881,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "states/app.ts:597"
+            "states/app.ts:597",
+            "workflows/20-api/uploads-and-dynamic-sources.md:22"
           ]
         },
         {
@@ -28466,7 +28474,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "states/app.ts:586",
             "hooks/use-note-image-upload.ts:49",
-            "components/sticky-notes/v2/StickyNoteImageUpload.vue:45"
+            "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
+            "workflows/20-api/uploads-and-dynamic-sources.md:21"
           ]
         },
         {
@@ -29244,7 +29253,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/contact-service.ts:59",
             "workflows/20-api/workflow-maps.md:52",
-            "workflows/20-api/workflow-maps.md:78"
+            "workflows/20-api/workflow-maps.md:89"
           ]
         },
         {
@@ -29354,7 +29363,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "components/workflow-grid/services/index.ts:105",
-            "workflows/20-api/workflow-maps.md:68"
+            "workflows/20-api/workflow-maps.md:79"
           ]
         },
         {
@@ -30412,8 +30421,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "components/workflow-grid/services/index.ts:120",
             "services/api/workflow-overview.service.ts:166",
             "services/ErrorNotificationService.ts:43",
-            "workflows/20-api/workflow-maps.md:68",
-            "workflows/20-api/workflow-maps.md:82",
+            "workflows/20-api/workflow-maps.md:79",
+            "workflows/20-api/workflow-maps.md:93",
             "workflows/50-runtime/error-notifications.md:35"
           ]
         },
@@ -30623,7 +30632,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "components/workflow-grid/services/index.ts:172",
-            "workflows/20-api/workflow-maps.md:83"
+            "workflows/20-api/workflow-maps.md:94"
           ]
         },
         {
@@ -30667,8 +30676,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "components/workflow-grid/services/index.ts:195",
-            "workflows/20-api/workflow-maps.md:69",
-            "workflows/20-api/workflow-maps.md:84"
+            "workflows/20-api/workflow-maps.md:80",
+            "workflows/20-api/workflow-maps.md:95"
           ]
         },
         {
@@ -33144,7 +33153,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "components/workflow-grid/services/index.ts:224",
-            "workflows/20-api/workflow-maps.md:77",
+            "workflows/20-api/workflow-maps.md:88",
             "workflows/10-anatomy/06-fields-glossary.md:137",
             "workflows/20-api/workflow-maps.md:42"
           ]
@@ -33626,7 +33635,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/email.md:161",
+            "workflows/30-types/steps/email.md:176",
             "workflows/30-types/steps/if_else.md:31",
             "workflows/40-rules/server-side-validation.md:246"
           ]
@@ -33896,6 +33905,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/WorkflowService.ts:560",
+            "workflows/20-api/templates-and-recipes.md:19",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:73"
           ]
         },
@@ -36473,7 +36483,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchDynamicSourceOptions",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -36676,7 +36686,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchActionDynamicSourceDetails",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -36721,7 +36731,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: '\u{1F534} One of the TWO sources an asset\'s dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential ("not yet supported by the IAM Service"), so these two proxies are the only door. An unknown action key answers 400 "Action is not present" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET \u2026/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md.',
+          note: '\u{1F534} One of the TWO sources an asset\'s dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential ("not yet supported by the IAM Service"), so these two proxies are the only door. An unknown action key answers 400 "Action is not present" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET \u2026/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md. Paging (RTE tools): ?filterField=<field>::<toolId>[&page][&search]; the builder never sends limit; body = the step\'s current attributes (source-derived, workflows wave25).',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -36759,6 +36769,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "workflows/20-api/uploads-and-dynamic-sources.md:36",
             "workflows/40-rules/marketplace-asset-publisher-classes.md:82"
           ]
         },
@@ -36791,7 +36802,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchActionInputAllOptions",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -36857,7 +36868,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchActionInputListOptions",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -36982,7 +36993,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "getActionByKey",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -37064,7 +37075,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "getActionStats",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -37143,7 +37154,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchIntegrationApps",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -37190,7 +37201,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "resetIntegrationToken",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -37241,7 +37252,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "initiateOAuthAuthorization",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -37304,7 +37315,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchIntegrationOauthToken",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -37365,7 +37376,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchDrives",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -37431,7 +37442,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSpreadsheets",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -37508,7 +37519,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSheets",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -37566,7 +37577,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSheetHeaders",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -37631,7 +37642,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackIntegrations",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -37684,7 +37695,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "getSlackOAuthStartUrl",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -37729,7 +37740,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackPrivateChannels",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -37795,7 +37806,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackPublicChannels",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -37861,7 +37872,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackUsers",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -37930,7 +37941,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "testAction",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -38003,7 +38014,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "deregisterTestWebhook",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -38075,7 +38086,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchWebhookStatus",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -38142,7 +38153,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "registerTestPolling",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -38216,7 +38227,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "registerTestWebhook",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -38290,7 +38301,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "testTrigger",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -38372,7 +38383,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "getActionsAndTriggers",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -38424,7 +38435,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchTriggerDynamicSourceDetails",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -38459,6 +38470,49 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:631"
+          ]
+        },
+        {
+          id: "workflows--triggers-dynamic-source-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/triggers/dynamic-source/{key}",
+          path: "/workflows-marketplace/triggers/dynamic-source/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "The trigger twin of actions/dynamic-source: a READ sent as POST, body = the trigger's current attributes (source-derived, workflows wave25).",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/uploads-and-dynamic-sources.md:37"
           ]
         },
         {
@@ -38536,7 +38590,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -38886,7 +38940,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "components/workflow-grid/services/index.ts:81",
             "workflows/20-api/workflow-maps.md:21",
-            "workflows/20-api/workflow-maps.md:76"
+            "workflows/20-api/workflow-maps.md:87"
           ]
         },
         {
@@ -38923,9 +38977,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:138",
             "workflows/20-api/smart-lists.md:13",
-            "workflows/20-api/smart-lists.md:81",
-            "workflows/70-research/ENDPOINTS.md:76",
-            "workflows/70-research/RUNTIME-DATA-2.md:72"
+            "workflows/20-api/smart-lists.md:28",
+            "workflows/20-api/smart-lists.md:97",
+            "workflows/20-api/smart-lists.md:107",
+            "workflows/70-research/ENDPOINTS.md:76"
           ]
         },
         {
@@ -38936,7 +38991,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n\u2014 PRIOR NOTE: Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED \u2014 the operator confirmed it in the inbox. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything.",
+          note: "NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n\u2014 PRIOR NOTE: Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED \u2014 the operator confirmed it in the inbox. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything. Measured 2026-09-29 (Xander approved one send): explicit recipients[{email,userId?}], any deliverable address; accepted on a sub-account token before the 2026-10-25 UI release (the release gate is client-side); 15-min cooldown after a send (preview.cooldownUntil); status completes in ~2 s. Agency-only per source, unmeasured.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -38969,6 +39024,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/log-export-service.ts:48",
+            "workflows/20-api/log-export.md:23",
             "workflows/50-runtime/log-export.md:17"
           ]
         },
@@ -38981,7 +39037,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           note: `NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.
-\u2014 PRIOR NOTE: Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 "workflowId is required"). Reached, not yet answered 200.`,
+\u2014 PRIOR NOTE: Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 "workflowId is required"). Reached, not yet answered 200. Returns exactCount and cooldownUntil (15 min after a send) \u2014 proven 2026-09-29.`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -39032,6 +39088,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/log-export-service.ts:32",
+            "workflows/20-api/log-export.md:22",
             "workflows/50-runtime/log-export.md:16"
           ]
         },
@@ -39043,7 +39100,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21. The POLL rail for the async log-export job (POST /workflows/logs/export starts it). workflowId is REQUIRED (400 'workflowId is required' without it, even with locationId). With it -> 200 {exports:[]} on the sandbox, which has run no export. Corpus page exists: workflows/50-runtime/log-export.md. Pairs with the POST; neither is covered by a tool. A log-export tool would be the POST + this poll + the download of the result, and the task is 'get the raw execution log off the platform', which get_workflow_logs does not do (it reads the live rail, it does not export). Candidate, not yet proposed \u2014 the export FORMAT and what the finished job's row looks like are unmeasured because nothing has been exported here.",
+          note: "NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21. The POLL rail for the async log-export job (POST /workflows/logs/export starts it). workflowId is REQUIRED (400 'workflowId is required' without it, even with locationId). With it -> 200 {exports:[]} on the sandbox, which has run no export. Corpus page exists: workflows/50-runtime/log-export.md. Pairs with the POST; neither is covered by a tool. A log-export tool would be the POST + this poll + the download of the result, and the task is 'get the raw execution log off the platform', which get_workflow_logs does not do (it reads the live rail, it does not export). Candidate, not yet proposed \u2014 the export FORMAT and what the finished job's row looks like are unmeasured because nothing has been exported here. Lists exports {createdAt, status, rows, size, recipientCount} \u2014 proven 2026-09-29.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -39091,6 +39148,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/log-export-service.ts:62",
+            "workflows/20-api/log-export.md:24",
             "workflows/50-runtime/log-export.md:18"
           ]
         },
@@ -39486,7 +39544,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-overview.service.ts:149",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:19",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:21",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:75",
             "workflows/70-research/RUNTIME-DATA-2.md:96"
           ]
@@ -39533,7 +39591,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-overview.service.ts:157",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:18",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:20",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:74",
             "workflows/70-research/RUNTIME-DATA-2.md:96"
           ]
@@ -39682,7 +39740,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/workflow-status-service.ts:122",
             "workflows/20-api/workflow-maps.md:54",
-            "workflows/20-api/workflow-maps.md:79"
+            "workflows/20-api/workflow-maps.md:90"
           ]
         },
         {
@@ -40427,8 +40485,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "components/workflow-grid/services/index.ts:148",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
             "workflows/20-api/03-endpoints.md:365",
-            "workflows/20-api/workflow-maps.md:63",
-            "workflows/20-api/workflow-maps.md:81",
+            "workflows/20-api/workflow-maps.md:74",
+            "workflows/20-api/workflow-maps.md:92",
             "workflows/50-runtime/11-runtime-logs.md:189"
           ]
         },
@@ -40517,8 +40575,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/workflow-status-service.ts:91",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
-            "workflows/20-api/workflow-maps.md:58",
-            "workflows/20-api/workflow-maps.md:80",
+            "workflows/20-api/workflow-maps.md:62",
+            "workflows/20-api/workflow-maps.md:91",
             "workflows/50-runtime/11-runtime-logs.md:159",
             "workflows/50-runtime/11-runtime-logs.md:253"
           ]
@@ -40861,7 +40919,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-overview.service.ts:142",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:20",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:22",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:79",
             "workflows/70-research/RUNTIME-DATA-2.md:81"
           ]
         },
@@ -40951,6 +41010,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/trigger-stats-service.ts:25",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:93",
             "workflows/70-research/VERSIONS-STATS-LOGS.md:435"
           ]
         },
@@ -40993,6 +41053,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/trigger-stats-service.ts:20",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:92",
             "workflows/70-research/VERSIONS-STATS-LOGS.md:416"
           ]
         },
@@ -45251,7 +45312,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:377"
+            "pipelines-opportunities/20-api/opportunities.md:382"
           ]
         },
         {
@@ -45286,7 +45347,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:395"
+            "pipelines-opportunities/20-api/opportunities.md:400"
           ]
         },
         {
@@ -45432,7 +45493,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:394"
+            "pipelines-opportunities/20-api/opportunities.md:399"
           ]
         },
         {
@@ -45463,7 +45524,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:388"
+            "pipelines-opportunities/20-api/opportunities.md:393"
           ]
         },
         {
@@ -45514,8 +45575,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/opportunities.md:186",
-            "pipelines-opportunities/20-api/opportunities.md:406",
-            "pipelines-opportunities/20-api/opportunities.md:393",
+            "pipelines-opportunities/20-api/opportunities.md:411",
+            "pipelines-opportunities/20-api/opportunities.md:398",
             "pipelines-opportunities/20-api/opportunities.md:191"
           ]
         },
@@ -45547,7 +45608,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:328"
+            "pipelines-opportunities/20-api/opportunities.md:333"
           ]
         },
         {
@@ -45628,7 +45689,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:260"
+            "pipelines-opportunities/20-api/opportunities.md:265"
           ]
         },
         {
@@ -48390,7 +48451,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:250"
+            "pipelines-opportunities/20-api/opportunities.md:255"
           ]
         },
         {
@@ -52622,7 +52683,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:365"
+            "pipelines-opportunities/20-api/opportunities.md:370"
           ]
         },
         {
@@ -52657,7 +52718,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:347"
+            "pipelines-opportunities/20-api/opportunities.md:352"
           ]
         },
         {
@@ -54498,6 +54559,44 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "pipelines-opportunities/20-api/settings.md:35",
             "pipelines-opportunities/20-api/settings.md:36"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--locations-custom-fields",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/locations/{locationId}/customFields/{id}",
+          path: "/locations/{locationId}/customFields/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/settings.md:105"
           ]
         },
         {
@@ -61090,7 +61189,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:299"
+            "pipelines-opportunities/20-api/opportunities.md:304"
           ]
         },
         {
@@ -61175,7 +61274,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/settings.md:81",
-            "pipelines-opportunities/20-api/settings.md:102"
+            "pipelines-opportunities/20-api/settings.md:116"
           ]
         },
         {
@@ -61213,7 +61312,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/settings.md:101"
+            "pipelines-opportunities/20-api/settings.md:115"
           ]
         },
         {
@@ -61244,7 +61343,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:407"
+            "pipelines-opportunities/20-api/opportunities.md:412"
           ]
         },
         {
@@ -61275,7 +61374,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:324"
+            "pipelines-opportunities/20-api/opportunities.md:329"
           ]
         },
         {
@@ -61433,10 +61532,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/opportunities.md:173",
-            "pipelines-opportunities/20-api/forecast.md:116",
+            "pipelines-opportunities/20-api/forecast.md:127",
             "pipelines-opportunities/20-api/opportunities.md:132",
             "pipelines-opportunities/20-api/opportunities.md:154",
-            "pipelines-opportunities/20-api/opportunities.md:332"
+            "pipelines-opportunities/20-api/opportunities.md:337"
           ]
         },
         {
@@ -61471,7 +61570,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:268"
+            "pipelines-opportunities/20-api/opportunities.md:273"
           ]
         },
         {
@@ -61506,7 +61605,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:267"
+            "pipelines-opportunities/20-api/opportunities.md:272"
           ]
         },
         {
@@ -61548,9 +61647,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:255",
+            "pipelines-opportunities/20-api/opportunities.md:260",
             "pipelines-opportunities/20-api/bulk-actions.md:111",
-            "pipelines-opportunities/20-api/opportunities.md:240"
+            "pipelines-opportunities/20-api/opportunities.md:245"
           ]
         },
         {
@@ -61589,7 +61688,38 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:278"
+            "pipelines-opportunities/20-api/opportunities.md:283"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--bulk-actions-request-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/bulk-actions/request",
+          path: "/opportunities/bulk-actions/request",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:101"
           ]
         },
         {
@@ -61781,7 +61911,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:169",
+            "pipelines-opportunities/20-api/forecast.md:183",
             "pipelines-opportunities/20-api/pipelines.md:42"
           ]
         },
@@ -61817,7 +61947,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:181",
+            "pipelines-opportunities/20-api/forecast.md:195",
             "pipelines-opportunities/20-api/pipelines.md:43",
             "pipelines-opportunities/20-api/pipelines.md:169"
           ]
@@ -61865,8 +61995,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:177",
-            "pipelines-opportunities/20-api/forecast.md:191"
+            "pipelines-opportunities/20-api/forecast.md:191",
+            "pipelines-opportunities/20-api/forecast.md:205"
           ]
         },
         {
@@ -61912,7 +62042,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:170"
+            "pipelines-opportunities/20-api/forecast.md:184"
           ]
         },
         {
@@ -61951,7 +62081,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:190"
+            "pipelines-opportunities/20-api/forecast.md:204"
           ]
         },
         {
@@ -62436,7 +62566,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:171",
+            "pipelines-opportunities/20-api/forecast.md:185",
             "pipelines-opportunities/20-api/pipelines.md:39"
           ]
         },
@@ -62476,7 +62606,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/forecast.md:15",
-            "pipelines-opportunities/20-api/forecast.md:135",
+            "pipelines-opportunities/20-api/forecast.md:97",
+            "pipelines-opportunities/20-api/forecast.md:146",
             "pipelines-opportunities/20-api/opportunities.md:32"
           ]
         },
@@ -62823,6 +62954,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/smart-filters.md:131"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-user-preferences",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/user-preferences/{userId}",
+          path: "/opportunities/user-preferences/{userId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "userId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:104"
           ]
         },
         {
@@ -65030,6 +65196,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          note: "Template-library browse, a READ sent as POST: {categories, companyId, product:'workflow', limit, offset, sortOrder, system:false, type:'all'} (source-derived, workflows wave25).",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -66206,7 +66373,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           path: "/templates/template/load",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
-          kind: "read",
+          kind: "write",
+          note: "Creates a workflow from an AGENCY-owned library template: {templateId, product:'workflow', locationId, parentId?} (services host); may bump a usage counter on the agency's object. Not executed (coordinator ruling 2026-09-29), body captured blocked from the builder (workflows wave25). IF THE USER WANTS IT: builder \u203A Create workflow \u203A template library.",
           reach: "source-only",
           coveredBy: [
             "create_funnel"
@@ -70195,7 +70363,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven"
         },
         "GET /membership/smart-list/offers-products/{locationId}": {
-          reach: "proven"
+          reach: "proven",
+          note: "The offer list the membership grant/revoke drawers use: PUBLISHED offers only; a draft offer is refused by GHL's asset check with a plain not-found (proven 2026-09-29, workflows wave26)."
         },
         "GET /oauth/whitelabel/{id}": {
           reach: "refused",
@@ -70752,7 +70921,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "GET /workflows/logs/export/preview": {
           note: `NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.
-\u2014 PRIOR NOTE: Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 "workflowId is required"). Reached, not yet answered 200.`,
+\u2014 PRIOR NOTE: Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 "workflowId is required"). Reached, not yet answered 200. Returns exactCount and cooldownUntil (15 min after a send) \u2014 proven 2026-09-29.`,
           requiredQuery: [
             "locationId",
             "workflowId",
@@ -70761,7 +70930,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         "GET /workflows/logs/export/status": {
-          note: "NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21. The POLL rail for the async log-export job (POST /workflows/logs/export starts it). workflowId is REQUIRED (400 'workflowId is required' without it, even with locationId). With it -> 200 {exports:[]} on the sandbox, which has run no export. Corpus page exists: workflows/50-runtime/log-export.md. Pairs with the POST; neither is covered by a tool. A log-export tool would be the POST + this poll + the download of the result, and the task is 'get the raw execution log off the platform', which get_workflow_logs does not do (it reads the live rail, it does not export). Candidate, not yet proposed \u2014 the export FORMAT and what the finished job's row looks like are unmeasured because nothing has been exported here."
+          note: "NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21. The POLL rail for the async log-export job (POST /workflows/logs/export starts it). workflowId is REQUIRED (400 'workflowId is required' without it, even with locationId). With it -> 200 {exports:[]} on the sandbox, which has run no export. Corpus page exists: workflows/50-runtime/log-export.md. Pairs with the POST; neither is covered by a tool. A log-export tool would be the POST + this poll + the download of the result, and the task is 'get the raw execution log off the platform', which get_workflow_logs does not do (it reads the live rail, it does not export). Candidate, not yet proposed \u2014 the export FORMAT and what the finished job's row looks like are unmeasured because nothing has been exported here. Lists exports {createdAt, status, rows, size, recipientCount} \u2014 proven 2026-09-29.",
+          reach: "proven",
+          kind: "read"
         },
         "GET /workflows/logs/v2": {
           note: "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
@@ -71109,10 +71280,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} REFUSES `productType` \u2014 422 ["property productType should not exist"] \u2014 while its sibling POST /forms/folder/ REQUIRES it. Two folder endpoints on the same service with opposite contracts; do not copy one body to the other. Body is just {name, locationId}. Proven: 0 -> 1 folder, found by name.'
         },
         "POST /templates/list": {
-          kind: "read"
+          kind: "read",
+          note: "Template-library browse, a READ sent as POST: {categories, companyId, product:'workflow', limit, offset, sortOrder, system:false, type:'all'} (source-derived, workflows wave25)."
         },
         "POST /templates/template/load": {
-          kind: "read"
+          kind: "write",
+          note: "Creates a workflow from an AGENCY-owned library template: {templateId, product:'workflow', locationId, parentId?} (services host); may bump a usage counter on the agency's object. Not executed (coordinator ruling 2026-09-29), body captured blocked from the builder (workflows wave25). IF THE USER WANTS IT: builder \u203A Create workflow \u203A template library."
         },
         "POST /triggers/dynamic-source/{key}": {
           note: "ABSENT at this path 2026-09-19: the framework's 'Cannot POST'. A MIS-BASED spelling of POST /workflows-marketplace/triggers/dynamic-source/{key}.",
@@ -71400,7 +71573,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "write",
-          note: "NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n\u2014 PRIOR NOTE: Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED \u2014 the operator confirmed it in the inbox. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything."
+          note: "NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n\u2014 PRIOR NOTE: Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED \u2014 the operator confirmed it in the inbox. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything. Measured 2026-09-29 (Xander approved one send): explicit recipients[{email,userId?}], any deliverable address; accepted on a sub-account token before the 2026-10-25 UI release (the release gate is client-side); 15-min cooldown after a send (preview.cooldownUntil); status completes in ~2 s. Agency-only per source, unmeasured."
         },
         "POST /workflows/trigger/logs/count": {
           summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
@@ -71615,7 +71788,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
         },
         "POST /workflows-marketplace/actions/dynamic-source/{key}": {
-          note: '\u{1F534} One of the TWO sources an asset\'s dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential ("not yet supported by the IAM Service"), so these two proxies are the only door. An unknown action key answers 400 "Action is not present" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET \u2026/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md.'
+          note: '\u{1F534} One of the TWO sources an asset\'s dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential ("not yet supported by the IAM Service"), so these two proxies are the only door. An unknown action key answers 400 "Action is not present" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET \u2026/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md. Paging (RTE tools): ?filterField=<field>::<toolId>[&page][&search]; the builder never sends limit; body = the step\'s current attributes (source-derived, workflows wave25).'
         },
         "GET /objects": {
           note: "\u26A0\uFE0F Four spellings exist in this custom-objects family and they do NOT agree. [proven-live] 2026-09-21: `/objects/` (trailing slash) answers 200 and this plugin has always called it \u2014 engine/entities.mjs resolves an object by key or label through it. `/objects/{objectKey}` answers 200 under the BARE spelling, which GHL's own front end never sends; the client only issues `/objects/{objectKey}/`, and THAT is the one that refuses us. A `refused` verdict recorded against a URL nobody sends is not evidence about the capability. See workflows/20-api/refused-but-mined.md."
@@ -71818,7 +71991,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "write",
-          note: "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+          note: "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api) Workflow list views too: objectKey:'workflow', body {name, filters:[{group:'OR',filters:[]}], sort:[], pageLimit:20, columns:[], objectKey:'workflow'}. A saved view is LOCATION-WIDE \u2014 every user sees the tab (proven live 2026-09-29, create\u2192read\u2192delete, workflows batch e)."
         },
         "DELETE /lists/dynamic/{locationId}/{smartListId}": {
           reach: "proven",
@@ -71860,6 +72033,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "write",
           reach: "reached",
           note: 'REQUIRES non-empty correlationId AND correlationType (live 2026-09-28: 422 "should not be empty" when sent with the FeedbackModalRemote defaults, which are ""; nothing stored). The host app that mounts the modal supplies them and none is mined, so do not guess them. trainBot is an OBJECT {question, answer, knowledgeBaseId} or omitted \u2014 there is no false. Offered in the UI on Conversation AI turns, not on Voice AI log turns.'
+        },
+        "POST /workflow/{locationId}": {
+          kind: "write",
+          note: "With templateId=<GHL recipe id> (the builder's ?recipeId=) the server fills the recipe's steps, creates NO trigger, does not keep templateId, and REPLACES the sent name with the recipe title \u2014 rename after create and read back (proven live 2026-09-29, workflows wave25)."
+        },
+        "POST /workflows-marketplace/triggers/dynamic-source/{key}": {
+          kind: "read",
+          note: "The trigger twin of actions/dynamic-source: a READ sent as POST, body = the trigger's current attributes (source-derived, workflows wave25)."
         }
       }
     };
@@ -73903,9 +74084,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       fast_forward_contacts: {
-        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-09-29); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
           "fast-forward-count-per-step",
@@ -73995,9 +74176,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_account_workflow_overview: {
-        description: "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflows-statistics",
@@ -74347,9 +74528,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_trigger_logs: {
-        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "trigger-logs-triggerId",
@@ -202891,8 +203072,11 @@ function describeFinding(f) {
 var REMEDIATION = /* @__PURE__ */ new Map([
   ["ASSET_CALENDAR_NOT_FOUND", " \u2014 NOTE: GHL returns this same not-found text for a calendar that merely has isActive:false as for one that is gone. Read the calendar directly before assuming it was deleted; if it answers 200, re-activate it rather than re-pointing the step."]
 ]);
+var REMEDIATION_BY_ASSET_TYPE = /* @__PURE__ */ new Map([
+  ["membership_offer", " \u2014 NOTE: GHL gives this same not-found text for an offer that exists but is still a DRAFT. Only a PUBLISHED offer can be granted or revoked: publish it, or pick one from GET /membership/smart-list/offers-products/{loc} (the list the builder offers)."]
+]);
 function remediationFor(f) {
-  return REMEDIATION.get(f?.ruleId) ?? "";
+  return REMEDIATION.get(f?.ruleId) ?? REMEDIATION_BY_ASSET_TYPE.get(f?.assetType) ?? "";
 }
 async function validateAssets(call, loc, { templates, triggers, companyId } = {}) {
   if (!Array.isArray(templates)) return { checked: false, skipped: "no templates to validate", errors: EMPTY, warnings: EMPTY };
@@ -213593,6 +213777,30 @@ function malformedSelectedParkedRows(rows) {
   }
   return null;
 }
+async function readWorkflowStatus(gw, loc, wid) {
+  try {
+    const r = await gw.call("GET", `/workflow/${loc}/${wid}`);
+    return r?.ok ? r.json?.status ?? null : null;
+  } catch {
+    return null;
+  }
+}
+async function readBackRequeue(ff, wid, stepId, statusIds, sleep = (ms) => new Promise((r) => setTimeout(r, ms))) {
+  let stillParked = statusIds;
+  let polls = 0;
+  try {
+    for (; polls < 4; ) {
+      await sleep(1500);
+      polls += 1;
+      const parkedNow = new Set((await ff.allParked(wid, stepId)).map((row) => row._id));
+      stillParked = statusIds.filter((id) => parkedNow.has(id));
+      if (!stillParked.length) break;
+    }
+  } catch (err) {
+    return { verified: false, moved: [], stillParked: [], polls, error: String(err?.message ?? err).slice(0, 200) };
+  }
+  return { verified: true, moved: statusIds.filter((id) => !stillParked.includes(id)), stillParked, polls };
+}
 function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) {
   const sample = rows.slice(0, 10);
   const statusIds = rows.map((row) => row._id);
@@ -215743,7 +215951,7 @@ var TOOLS2 = [
     name: "get_workflow_stats",
     description: describe3(
       "get_workflow_stats",
-      "The builder's Stats view as data: per-step SMS/email delivery aggregates, per-trigger attempted/matched counts, contacts per step, and per-path entered counts for every A/B split (last 30 days max)."
+      "The builder's Stats view as data: per-step SMS/email delivery aggregates, per-trigger attempted/matched counts, contacts per step, and per-path entered counts for every A/B split (last 30 days max). There is no builder route for per-step success/failed/skipped counts (bundle 2026-09-29-2): a step's outcomes come from get_workflow_logs. For WHY a trigger did not match (ranked reasons, per-contact rows), use get_trigger_logs."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -216781,7 +216989,7 @@ var TOOLS2 = [
     name: "get_account_workflow_overview",
     description: describe3(
       "get_account_workflow_overview",
-      'The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match. In the enrollment rows, total:null means GHL RETURNED NO ROW for that workflow, which is not the same as zero: the enroll-stats route omits a workflow rather than reporting 0, and a ghost id gets the identical empty answer (measured with a control 2026-09-21), so absence cannot distinguish "no enrolments" from "no such workflow". Read null as unknown and never as 0 \u2014 this tool reports what GHL stated, and states nothing where GHL did not.'
+      'The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match. triggerCountFilter runs ONE filtered count (workflowId / triggerType / recordId = contact ids / entityId = form or survey ids, max 31 days): "is this trigger firing and matching, for this contact or form?". For WHY a trigger does not match, use get_trigger_logs. In the enrollment rows, total:null means GHL RETURNED NO ROW for that workflow, which is not the same as zero: the enroll-stats route omits a workflow rather than reporting 0, and a ghost id gets the identical empty answer (measured with a control 2026-09-21), so absence cannot distinguish "no enrolments" from "no such workflow". Read null as unknown and never as 0 \u2014 this tool reports what GHL stated, and states nothing where GHL did not.'
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -216791,7 +216999,17 @@ var TOOLS2 = [
       // Per-workflow trigger attempted/matched for `workflowIds`, last 30 days. Opt-in because it is
       // ONE CALL PER WORKFLOW: the route sums whatever id list it is given (measured 2026-09-20:
       // 237 + 38 -> 275, a ghost id adds 0), so batching would return one number for the account.
-      includeTriggerCounts: external_exports.boolean().default(false)
+      includeTriggerCounts: external_exports.boolean().default(false),
+      // ONE filtered trigger-analysis count, the Overview page's own filter bar. Filters combine (measured 2026-09-29: a
+      // workflow + one contact gave 9 of the workflow's 12 attempts; a wrong triggerType gave 0).
+      triggerCountFilter: external_exports.object({
+        workflowId: external_exports.array(external_exports.string().min(1)).min(1).optional().describe("workflow ids (the route sums them into one number)"),
+        triggerType: external_exports.array(external_exports.string().min(1)).min(1).optional().describe("trigger type slugs, e.g. contact_tag"),
+        recordId: external_exports.array(external_exports.string().min(1)).min(1).optional().describe("CONTACT ids"),
+        entityId: external_exports.array(external_exports.string().min(1)).min(1).optional().describe("FORM or SURVEY ids only, with triggerType form_submission / survey_submission"),
+        days: external_exports.number().int().positive().max(31).default(30).describe("window in days back from now; the builder allows at most 31")
+      }).strict().optional()
+      // strict: a misspelt filter (contactId for recordId) must be refused, not dropped into a broader count
     }),
     capabilities: [
       { method: "GET", path: "/workflows/statistics" },
@@ -216845,6 +217063,39 @@ var TOOLS2 = [
           triggerCounts.push({ workflowId: id, attempted, matched, unmatched: Math.max(0, attempted - matched), neverMatches: attempted > 0 && matched === 0 });
         }
       }
+      let triggerCountsFiltered = null;
+      if (args.triggerCountFilter) {
+        const f = args.triggerCountFilter;
+        const FORM_TYPES = /* @__PURE__ */ new Set(["form_submission", "survey_submission"]);
+        if (!f.workflowId && !f.triggerType && !f.recordId && !f.entityId) {
+          return fail(CODES.VALIDATION_FAILED, "triggerCountFilter needs at least one of workflowId, triggerType, recordId, entityId \u2014 an unfiltered count is the whole account and the Overview page never sends one.");
+        }
+        if (f.entityId && (!f.triggerType || !f.triggerType.every((t) => FORM_TYPES.has(t)))) {
+          return fail(CODES.VALIDATION_FAILED, "entityId is a FORM or SURVEY id: pass it only with triggerType [form_submission] and/or [survey_submission]. The builder never sends it for another trigger type, and GHL answers 0 rather than an error for a mismatch.", "Drop entityId, or set triggerType to form_submission / survey_submission.");
+        }
+        const now = deps.now ? new Date(deps.now).getTime() : Date.now();
+        const days = f.days ?? 30;
+        if (!Number.isInteger(days) || days < 1 || days > 31) {
+          return fail(CODES.VALIDATION_FAILED, `triggerCountFilter.days must be 1-31 (the builder's own date guard); got ${days}.`, "Use days 31 or fewer.");
+        }
+        const body2 = {
+          locationId: args.locationId,
+          dateType: "custom",
+          fromDate: String(now - days * 864e5),
+          toDate: String(now),
+          ...f.workflowId ? { workflowId: f.workflowId } : {},
+          ...f.triggerType ? { triggerType: f.triggerType } : {},
+          ...f.recordId ? { recordId: f.recordId } : {},
+          ...f.entityId ? { entityId: f.entityId } : {}
+        };
+        const r = await gw.call("POST", "/workflows/trigger/logs/count", body2);
+        const row = Array.isArray(r.json) ? r.json[0] : null;
+        const { locationId: _l, dateType: _d, fromDate, toDate, ...filters } = body2;
+        triggerCountsFiltered = !r.ok || !row ? { filters, window: { days, fromDate: Number(fromDate), toDate: Number(toDate) }, attempted: null, matched: null, unmatched: null, error: { status: r.status } } : (() => {
+          const attempted = Number(row.total ?? 0), matched = Number(row.matched ?? 0);
+          return { filters, window: { days, fromDate: Number(fromDate), toDate: Number(toDate) }, attempted, matched, unmatched: Math.max(0, attempted - matched) };
+        })();
+      }
       return ok({
         statistics,
         weeklyEnrollment: weekly.ok ? Array.isArray(weekly.json) ? weekly.json : recordsFrom2(weekly.json, "data") : null,
@@ -216856,6 +217107,7 @@ var TOOLS2 = [
         },
         enrollment,
         triggerCounts,
+        ...triggerCountsFiltered ? { triggerCountsFiltered } : {},
         note: "Needs Review = workflows with a recent failing step (the list page's tab badge). errorEmailSettings.users are EXTRA recipients: GHL emails every agency and location admin on failures by default (UI copy), so users:[] means admins only; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} \u2014 deliberately not exposed here. triggerCounts (opt-in) is the last 30 days; neverMatches = the triggers fired and not once matched their filters \u2014 a ghost workflowId reads 0/0, never an error, so it cannot be told from a quiet workflow here."
       });
     }, args)
@@ -220181,7 +220433,7 @@ var TOOLS2 = [
   },
   {
     name: "fast_forward_contacts",
-    description: describe3("fast_forward_contacts", "Preview or confirm moving parked workflow enrollments past one step. \u{1F534} `moved` counts the enrollments GHL ACCEPTED, not a read-back: on a DRAFT workflow GHL answers 200 and moves nobody (reported, bl-314). After a confirm, read the step again with get_contacts_at_step before relying on the move. (proof: documented)."),
+    description: describe3("fast_forward_contacts", "Preview or confirm moving parked workflow enrollments past one step. `moved` is what a separate re-read shows has LEFT the step (statusIdsStillParked lists the rest; verified:false if the re-read failed). \u{1F534} On a DRAFT workflow GHL accepts the requeue and moves nobody: the preview warns. (proof: documented)."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -220227,6 +220479,10 @@ var TOOLS2 = [
         );
       }
       const preview = fastForwardPreview(selectedRows, selector, args);
+      const workflowStatus = await readWorkflowStatus(gw, args.locationId, args.workflowId);
+      if (workflowStatus && workflowStatus !== "published") {
+        preview.warning = `The workflow is '${workflowStatus}', not published: GHL accepts a requeue on a draft and moves nobody. Publish it first if the move must happen; the result reports what actually left the step.`;
+      }
       if (args.confirm !== true) {
         return withFailureData(
           fail(
@@ -220292,11 +220548,18 @@ var TOOLS2 = [
         }, selectedRows);
       }
       partialProgress.write.acknowledged = true;
+      const readBack = await readBackRequeue(ff, args.workflowId, args.stepId, statusIds, deps.sleep);
       return ok({
-        moved: statusIds.length,
+        moved: readBack.moved.length,
         statusIds,
         statusIdsAttempted: statusIds,
-        statusIdsMoved: statusIds,
+        statusIdsMoved: readBack.moved,
+        statusIdsStillParked: readBack.stillParked,
+        verified: readBack.verified,
+        ...workflowStatus ? { workflowStatus } : {},
+        ...preview.warning ? { warning: preview.warning } : {},
+        ...readBack.verified && readBack.stillParked.length ? { note: `GHL accepted ${statusIds.length} but ${readBack.stillParked.length} still sit at this step after ${readBack.polls} reads.` } : {},
+        ...readBack.verified ? {} : { note: `The requeue was accepted but the step could not be re-read (${readBack.error}); moved is unverified.` },
         partialProgress,
         upstream: requeueCall.value
       });
