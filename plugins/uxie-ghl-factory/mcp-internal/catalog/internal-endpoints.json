@@ -61640,8 +61640,12 @@
       "path": "/opportunities/lost-reason/{lostReasonId}",
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
-      "kind": "destructive",
-      "reach": "source-only",
+      "kind": "write",
+      "note": "Deletes a lost reason; afterwards GET by id answers 404 LOST_REASON_NOT_FOUND and it leaves the list. The app sends a {} body; no body also works. (pipelines-opportunities, proven live on the designated sandbox 2026-09-28..29; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -61730,7 +61734,11 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Renames a lost reason. Body {name, locationId}; the app sends it from Settings › Custom Fields › Opportunity › Lost reason › Define lost reason options on Update field. Rename read back by id on a separate request, then renamed back. The public API only lists reasons. (pipelines-opportunities, proven live on the designated sandbox 2026-09-29; knowledge corpus pipelines-opportunities/20-api)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",

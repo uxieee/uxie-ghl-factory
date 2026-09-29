@@ -61829,8 +61829,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           path: "/opportunities/lost-reason/{lostReasonId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
-          kind: "destructive",
-          reach: "source-only",
+          kind: "write",
+          note: "Deletes a lost reason; afterwards GET by id answers 404 LOST_REASON_NOT_FOUND and it leaves the list. The app sends a {} body; no body also works. (pipelines-opportunities, proven live on the designated sandbox 2026-09-28..29; knowledge corpus pipelines-opportunities/20-api)",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -61919,7 +61923,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: "Renames a lost reason. Body {name, locationId}; the app sends it from Settings \u203A Custom Fields \u203A Opportunity \u203A Lost reason \u203A Define lost reason options on Update field. Rename read back by id on a separate request, then renamed back. The public API only lists reasons. (pipelines-opportunities, proven live on the designated sandbox 2026-09-29; knowledge corpus pipelines-opportunities/20-api)",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -71763,6 +71771,18 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           credentialClass: "agency-admin-bearer",
           kind: "read",
           note: "One {_id, name, locationId, deleted, createdAt, updatedAt} record. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+        },
+        "PUT /opportunities/lost-reason/{lostReasonId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Renames a lost reason. Body {name, locationId}; the app sends it from Settings \u203A Custom Fields \u203A Opportunity \u203A Lost reason \u203A Define lost reason options on Update field. Rename read back by id on a separate request, then renamed back. The public API only lists reasons. (pipelines-opportunities, proven live on the designated sandbox 2026-09-29; knowledge corpus pipelines-opportunities/20-api)"
+        },
+        "DELETE /opportunities/lost-reason/{lostReasonId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Deletes a lost reason; afterwards GET by id answers 404 LOST_REASON_NOT_FOUND and it leaves the list. The app sends a {} body; no body also works. (pipelines-opportunities, proven live on the designated sandbox 2026-09-28..29; knowledge corpus pipelines-opportunities/20-api)"
         },
         "POST /opportunities/smart-filters": {
           reach: "proven",
