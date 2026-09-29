@@ -578,9 +578,9 @@
     ]
   },
   "export_workflow": {
-    "description": "Export workflow — proof: live-runtime (2026-09-25); risk: read",
+    "description": "Export workflow — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "documented",
     "proofRows": [
       "triggers-list",
@@ -1112,9 +1112,9 @@
     ]
   },
   "get_workflow_logs": {
-    "description": "Get workflow logs — proof: live-runtime (2026-09-25), floor: documented; risk: read",
+    "description": "Get workflow logs — proof: live-runtime (2026-09-29), floor: documented; risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "documented",
     "proofRows": [
       "logs-count-per-step",

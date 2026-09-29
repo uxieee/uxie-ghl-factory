@@ -604,26 +604,38 @@
         "receipt:2026-09-25-1017"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:82cdb753",
+        "corpus:sniffs/workflows-wave1-2026-09-25/live-W28-scrub-export-after.json"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-25",
+    "hashedAt": "2026-09-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/agent/{}/trace/{}": "8409106bd23f690531f7457d2d1258a74494ca617e0764198c6cb0957259a81d",
-      "GET https://backend.leadconnectorhq.com /workflows/logs/v2": "9c833ee51d9f4ff175a6bfec24099a4ab8b5b574256c5b31f74363f149c4b57b",
+      "GET https://backend.leadconnectorhq.com /workflows/logs/v2": "cc039a82806a6d49ec5377ea1d6ef2be78daa593d1e9b25ca30f36a35692a8e2",
       "GET https://backend.leadconnectorhq.com /workflows/status/enroll-stats": "9247e25886284673b2f388696578be7c9becd96f598495ce1213fd44ea9ea9a2",
       "GET https://backend.leadconnectorhq.com /workflows/status/search/count-per-step": "b3a90cd758f345cf6ea41e5d8685a4db7c3f7c0b1ea488a1c1ca83d54f7f99e4",
-      "GET https://backend.leadconnectorhq.com /workflows/status/search/enroll-stats-cache": "f661748195c2b184db7c0dbeef56964065f3ba7d1c4d8e8b27f044dccc0cfd86",
-      "GET https://backend.leadconnectorhq.com /workflows/status/search/workflow-with-filter": "d13cf5d00988c69dd57cbefafc2a046f59a5ae04feaf9889f49b8092c28051e8"
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/enroll-stats-cache": "5b419ba0fbca0690579957eee1bd4771441421cce5a8e516e4b086a7bfb54f5f",
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/workflow-with-filter": "6c525adb75da6c928fb6cc5e811c9449af3411a404ac7c881ac572f86ab7b65a"
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_workflow_logs": "e35dde72f52a3a077e393eba127dc7b62901f2c1c3b39f36408425130abd53c3",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "3a5244f9d52b9efd9bb968b6b33e4859a6594e980cb4b2a2541a6aaf9a7a3085",
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd"
     }
   }
 }
