@@ -133,3 +133,12 @@ test('the working forms pass: dot index, .output., whole output object, and arra
   const f = evaluateMergeTags(tpl('{{custom_webhook.1.response.numbers.0.phoneNumber}} {{custom_code.2.output.number_1}} {{custom_code.2.output}} {{array_functions.1.result[0]}}'), M);
   assert.deepEqual(errs(f), []);
 });
+
+// wave23 W23-2: the Sheets lookup outputs are listed by the picker per lookup step (google_sheets_helpers.ts:88-137) and
+// checked by step-outputs.mjs; the merge-tag pass called them "a namespace the picker does not list" (live 2026-09-29 build).
+test('sheet / sheetLookupResult tags are owned by step-outputs, not flagged here; an unknown namespace still is', () => {
+  const w = []; checkMergeTags(tpl('{{sheet.1.rowNumber}} {{sheet.1.A}} {{sheetLookupResult.2.result}}'), catalog, { warn: (m) => w.push(m) });
+  assert.deepEqual(w.filter((m) => /sheet/i.test(m)), [], JSON.stringify(w));
+  const w2 = []; checkMergeTags(tpl('{{sheetz.1.A}}'), catalog, { warn: (m) => w2.push(m) });
+  assert.ok(w2.some((m) => /sheetz/.test(m)), JSON.stringify(w2));
+});

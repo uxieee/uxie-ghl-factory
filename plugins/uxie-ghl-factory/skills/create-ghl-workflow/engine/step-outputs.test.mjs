@@ -93,3 +93,18 @@ test('a producer WITH a stepIndex answers to that number only', () => {
     attributes: { subject: '{{math_operation.1.result}}' } }], ctx);
   assert.equal(warns.length, 1, 'a different number does not');
 });
+
+// wave23 W23-2: Sheets outputs were unregistered, so {{sheet.N.*}} / {{sheetLookupResult.N.result}} were never checked.
+test('google_sheets outputs: the right action produces each reference; a wrong producer, number or column warns', () => {
+  const lk = { id: 'l', type: 'google_sheets', name: 'L', stepIndex: 1, attributes: { action: { id: 'lookup_row' }, sheetHeaders: ['Email', 'Name'] } };
+  const ml = { id: 'm', type: 'google_sheets', name: 'M', stepIndex: 2, attributes: { action: { id: 'lookup_multiple_rows' } } };
+  const use = (body) => ({ id: 'u', type: 'sms', name: 'U', attributes: { body } });
+  const warnsFor = (body) => { const w = []; checkStepOutputRefs([lk, ml, use(body)], { warn: (m) => w.push(m) }); return w; };
+  assert.deepEqual(warnsFor('{{sheet.1.A}} {{sheet.1.B}} {{sheet.1.rowNumber}} {{sheet.2.rowCount}} {{sheetLookupResult.2.result}}'), []);
+  for (const bad of ['{{sheet.1.C}}', '{{sheet.1.rowCount}}', '{{sheetLookupResult.1.result}}', '{{sheet.2.A}}', '{{sheet.3.A}}'])
+    assert.equal(warnsFor(bad).length, 1, bad);
+});
+test('CONTROL: other steps\' outputs are checked exactly as before', () => {
+  const w = []; checkStepOutputRefs([{ id: 'x', type: 'sms', name: 'X', attributes: { body: '{{math_operation.1.result}}' } }], { warn: (m) => w.push(m) });
+  assert.equal(w.length, 1);
+});

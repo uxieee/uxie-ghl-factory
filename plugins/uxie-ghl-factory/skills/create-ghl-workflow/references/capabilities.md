@@ -80,11 +80,11 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `event_start_date` — attrs: `type`, `event_start_type`, `value`, `recurring_type`, `recurring_time`
 - ✅ `goto` — attrs: `targetNodeId`, `type`, `loopIdentified`
 - ✅ `if_else` — attrs: `else`; container → IR kind `if_else`
-- ◐ `loop`
+- ◐ `loop`. ⛔ **NOT authored** — refused with LOOP_NOT_AUTHORED. GHL stores the body as steps tagged parentContainerId, from the loop's next to attributes.exitNext, and offers Loop only on allowlisted locations (isLoopActionEnabled). Add the loop in the builder where it is offered; edits carry an existing loop as stored.
 - ✅ `math_operation` — attrs: `selectField`, `selectFieldtype`, `sourceCustomValueId`, `updateField`, `updateFieldType`, `targetCustomValueId`, `operators`, `operator`, `value`
 - ◐ `number_formatter` — attrs: `action`
 - ✅ `remove_from_workflow` — attrs: `type`, `workflow_id`, `includeCurrent`, `allWorkflows`
-- ◐ `router`
+- ◐ `router`. ⛔ **NOT authored** — refused with ROUTER_NOT_AUTHORED. GHL stores a router as a condition-node root plus one template per lane, and offers it only on allowlisted locations (IS_ROUTER_ACTION_SHIPPED false). Use `if_else`, or add the Router in the builder where it is offered; edits carry an existing router as stored.
 - ✅ `text_formatter` — attrs: `type`, `extras`, `formatterType`, `field`; premium
 - ◐ `update_custom_value` — attrs: `name`, `custom_value_id`, `current_value`, `new_value`
 - ✅ `wait` — attrs: `type`, `startAfter`, `window`, `condition`, `appointmentStartAfter`, `appointmentCondition`, `appointmentSpecificStep`, `reply`, `replyLabel`, `emailEventSteps`, `emailEventStepsLabel`, `emailEventTypes` +45 more (see card)
@@ -144,11 +144,11 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### send_data
 - ✅ `custom_webhook` — attrs: `event`, `method`, `url`, `body`, `headers`, `parameters`, `authorization`, `saveResponse`, `webhookResponse`, `runSingleAction`; premium
-- ✅ `google_sheets` — attrs: `type`, `action`, `account`, `drive`, `spreadsheet`, `sheet`, `columnRange`, `values`, `sheetHeaders`, `options`, `targetRow`, `rowCount`; premium
+- ✅ `google_sheets` — attrs: `type`, `action`, `account`, `drive`, `spreadsheet`, `sheet`, `columnRange`, `values`, `sheetHeaders`, `options`, `targetRow`, `rowCount` +3 more (see card); premium. GHL refuses to save (hasErrors) unless `action.id`, `account.id` (the Google connection: its altId or id from GET /integrations/google/connections), `drive.id`, `spreadsheet.id` and `sheet.id` are all set; the engine refuses the same. Per action: create/update rows (and createOnEmptyLookup) need `columnRange` [from, to] and at least one non-empty `values`; update/delete/format/remove need `targetRow` (format_row and remove_row take a row spec `2, 4-6`, which must include a data row above 1); lookup_multiple_rows needs `rowCount`; lookup_row / lookup_multiple_rows need `lookupColumns.main {column, value}` (an `extra` pair must name a different column); format_row needs `formatting` with at least one of backgroundColor / textColor (hex, merge tag or theme token) / bold / italic / strikethrough / fontSize (whole number 1-400). `*_from_lookup` actions take `lookupStep` {label, value, id, stepIndex} naming an earlier lookup_row and copy its account/drive/spreadsheet/sheet. Outputs: `{{sheet.N.<column letter>}}` and `{{sheet.N.rowNumber}}` from lookup_row #N; `{{sheet.N.rowCount}}` and `{{sheetLookupResult.N.result}}` from lookup_multiple_rows #N. The Google account must be connected in the sub-account first; the engine cannot connect one.
 - ✅ `webhook` — attrs: `method`, `url`, `customData`, `headers`
 
 ### workflow_ai
-- ✅ `ai_agent` — attrs: `prompt`, `structuredResponse`, `model`, `tools`, `outputFormat`, `outputDescription`, `memoryEnabled`; premium
+- ✅ `ai_agent` — attrs: `prompt`, `structuredResponse`, `model`, `tools`, `outputFormat`, `outputDescription`, `memoryEnabled`, `skills`, `mcpConnections`, `templateId`, `disableToolOutputGuards`; premium. `skills: [{id, name}]` attaches Skills: at most 10 per step, a budget separate from tools. `id` is `builtin:<key>` or a skill document id (list them read-only with GET /workflow/agent/{loc}/skills); `name` is display-only. Until 2026-10-25 the builder hides the Skills section on most accounts (a date gate, `isLevelUp2026Enabled`), so an attached skill is stored but a person cannot see it in the drawer, and on the test sub-account the skills service answered 404 to list and resolve (2026-09-29) — a skill may not resolve at runtime before release. `templateId` (an applied agent template), `mcpConnections` (MCP servers, counted with tools against the drawer's 10-tool cap) and `disableToolOutputGuards` are written by the drawer; the engine keeps them on edit and passes them through verbatim, but does not author templates or MCP connections — attach those in the builder.
 
 ## Containers / control flow (IR node kinds)
 

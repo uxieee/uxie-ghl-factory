@@ -300,6 +300,67 @@ export const CATALOG_CORRECTIONS = {
       + 'the bot says when it gives up) and reveals an optional `tags`; the engine refuses a '
       + 'blocking objective without one.',
   },
+  // The verified-live example predates four keys the drawer writes, so the ATTR_KEY guard and the
+  // document gate called them invented and refused every agent a person had given a template, an MCP
+  // server, a Skill or the output-guard switch (publish_workflow and in-scope edits blocked).
+  // attrKeys REPLACES the generated list: the seven example keys carried verbatim, four appended.
+  ai_agent: {
+    reason: 'the drawer writes templateId (applyTemplate, models/actions/AIAgent.ts:94), disableToolOutputGuards '
+      + '(:136), mcpConnections [{connectionId,name,serverUrl,selectedTools}] (:143-195) and skills [{id,name}] '
+      + '(ai-agent-components/hooks/use-agent-skill-attachment.ts:10-60) — bundle-2026-09-29-2; the 7-key '
+      + 'example had none of them, so the ATTR_KEY guard and the gate refused builder-made agents',
+    attrKeys: ['prompt', 'structuredResponse', 'model', 'tools', 'outputFormat', 'outputDescription', 'memoryEnabled',
+      'skills', 'mcpConnections', 'templateId', 'disableToolOutputGuards'],
+    docNote: '`skills: [{id, name}]` attaches Skills: at most 10 per step, a budget separate from tools. `id` is '
+      + '`builtin:<key>` or a skill document id (list them read-only with GET /workflow/agent/{loc}/skills); `name` '
+      + 'is display-only. Until 2026-10-25 the builder hides the Skills section on most accounts (a date gate, '
+      + '`isLevelUp2026Enabled`), so an attached skill is stored but a person cannot see it in the drawer, and on the '
+      + 'test sub-account the skills service answered 404 to list and resolve (2026-09-29) — a skill may not resolve '
+      + 'at runtime before release. '
+      + '`templateId` (an applied agent template), `mcpConnections` (MCP servers, counted with tools against the '
+      + 'drawer\'s 10-tool cap) and `disableToolOutputGuards` are written by the drawer; the engine keeps them on '
+      + 'edit and passes them through verbatim, but does not author templates or MCP connections — attach those in '
+      + 'the builder.',
+  },
+  // The example is a create/update row, so the lookup, from-lookup and format_row keys were "invented" to the
+  // ATTR_KEY guard and the gate — every builder-made lookup blocked publish and edits. And the generated
+  // requiredFields ['oAuthId'] named a key the builder never writes (oAuthId is only the validator's WARNING
+  // field name, utils/validators/integration-validators.ts:12-46), so it checked nothing: a step with no account
+  // compiled clean. The real save rules are GoogleSheetsApi.hasErrors, enforced by checkGoogleSheetsAttrs.
+  google_sheets: {
+    reason: 'lookupColumns / lookupStep / formatting are IGoogleSheetsApi keys (models/actions/premium-actions/'
+      + 'GoogleSheetsApi.ts:12-55, bundle-2026-09-29-2) absent from the create-row example; requiredFields oAuthId '
+      + 'is not a stored key — the account is attributes.account.id',
+    attrKeys: ['type', 'action', 'account', 'drive', 'spreadsheet', 'sheet', 'columnRange', 'values', 'sheetHeaders',
+      'options', 'targetRow', 'rowCount', 'lookupColumns', 'lookupStep', 'formatting'],
+    requiredFields: [],
+    docNote: 'GHL refuses to save (hasErrors) unless `action.id`, `account.id` (the Google connection: its altId or id '
+      + 'from GET /integrations/google/connections), `drive.id`, `spreadsheet.id` and `sheet.id` are all set; the engine '
+      + 'refuses the same. Per action: create/update rows (and createOnEmptyLookup) need `columnRange` [from, to] and at '
+      + 'least one non-empty `values`; update/delete/format/remove need `targetRow` (format_row and remove_row take a '
+      + 'row spec `2, 4-6`, which must include a data row above 1); lookup_multiple_rows needs `rowCount`; lookup_row / '
+      + 'lookup_multiple_rows need `lookupColumns.main {column, value}` (an `extra` pair must name a different column); '
+      + 'format_row needs `formatting` with at least one of backgroundColor / textColor (hex, merge tag or theme token) / '
+      + 'bold / italic / strikethrough / fontSize (whole number 1-400). `*_from_lookup` actions take `lookupStep` '
+      + '{label, value, id, stepIndex} naming an earlier lookup_row and copy its account/drive/spreadsheet/sheet. '
+      + 'Outputs: `{{sheet.N.<column letter>}}` and `{{sheet.N.rowNumber}}` from lookup_row #N; `{{sheet.N.rowCount}}` '
+      + 'and `{{sheetLookupResult.N.result}}` from lookup_multiple_rows #N. The Google account must be connected in the '
+      + 'sub-account first; the engine cannot connect one.',
+  },
+  // Listed in the index as buildable (◐) though the engine authored neither: a router compiled lane-less, a loop
+  // without a body. parseIR now refuses both by name (ir.mjs NOT_AUTHORED); the index says so.
+  router: {
+    reason: 'the engine has no router kind; an authored router compiled into one lane-less step (sweep 2026-09-29 §4 #23)',
+    docNote: '⛔ **NOT authored** — refused with ROUTER_NOT_AUTHORED. GHL stores a router as a condition-node root plus one '
+      + 'template per lane, and offers it only on allowlisted locations (IS_ROUTER_ACTION_SHIPPED false). Use `if_else`, or '
+      + 'add the Router in the builder where it is offered; edits carry an existing router as stored.',
+  },
+  loop: {
+    reason: 'the engine has no loop-body scope; an authored loop compiled as a straight line (sweep 2026-09-29 §4 #22)',
+    docNote: '⛔ **NOT authored** — refused with LOOP_NOT_AUTHORED. GHL stores the body as steps tagged parentContainerId, '
+      + 'from the loop\'s next to attributes.exitNext, and offers Loop only on allowlisted locations (isLoopActionEnabled). '
+      + 'Add the loop in the builder where it is offered; edits carry an existing loop as stored.',
+  },
 };
 
 // How "supplied" is decided per field. `presence` fields are satisfied by ANY value

@@ -955,3 +955,116 @@ test('CONTROL: authored weights totalling 100 compile as written', () => {
   assert.deepEqual(weightsOf(splitIR([{ weight: 70 }, { weight: 30 }], { mode: 'weighted' })), [70, 30]);
   assert.deepEqual(weightsOf(splitIR([{ weight: 33.3 }, { weight: 33.3 }, { weight: 33.4 }], { mode: 'weighted' })), [33.3, 33.3, 33.4]);
 });
+
+// wave23 W23-1 (completeness sweep 2026-09-29 §4 #24): the drawer writes skills, mcpConnections, templateId and
+// disableToolOutputGuards on an ai_agent (models/actions/AIAgent.ts; hooks/use-agent-skill-attachment.ts). The 7-key
+// example made ATTR_KEY refuse all four at compile, and the gate refuse builder-made agents on publish/edit.
+const agentIR = (attrs) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'a', kind: 'action', type: 'ai_agent', name: 'Agent', attributes: { prompt: 'Answer {{contact.first_name}}', outputFormat: 'text', ...attrs } }] });
+const agentOf = (ir, c = ctx()) => compile(ir, c).autoSaveBody.workflowData.templates.find((s) => s.type === 'ai_agent').attributes;
+const BEFORE = Date.parse('2026-10-01T00:00:00Z'), AFTER = Date.parse('2026-10-26T00:00:00Z');
+test('ai_agent: skills, mcpConnections, templateId and disableToolOutputGuards compile through verbatim', () => {
+  const skills = [{ id: 'builtin:web_search', name: 'Web search' }, { id: '6650aa11bb22cc33dd44ee55', name: 'Refunds' }];
+  const mcp = [{ connectionId: 'c1', name: 'Docs', serverUrl: 'https://mcp.x.test', selectedTools: ['search'] }];
+  const a = agentOf(agentIR({ skills, mcpConnections: mcp, templateId: 'tpl_1', disableToolOutputGuards: true }), { ...ctx(), now: AFTER });
+  assert.deepEqual(a.skills, skills); assert.deepEqual(a.mcpConnections, mcp);
+  assert.equal(a.templateId, 'tpl_1'); assert.equal(a.disableToolOutputGuards, true);
+});
+test('ai_agent: an invented key is still refused (ATTR_KEY guard stays armed)', () => {
+  assert.throws(() => agentOf(agentIR({ skillz: [] })), (e) => e.code === 'ATTR_KEY' && /skillz/.test(e.message));
+});
+test('ai_agent skills: >10, a bad shape, an extra key and a duplicate id are refused', () => {
+  const s = (n) => Array.from({ length: n }, (_, i) => ({ id: `builtin:k${i}`, name: `K${i}` }));
+  assert.doesNotThrow(() => agentOf(agentIR({ skills: s(10) }), { ...ctx(), now: AFTER }));
+  for (const bad of [s(11), 'builtin:x', [{ id: '', name: 'x' }], [{ id: 'builtin:x' }], [{ id: 'builtin:x', name: 'x', extra: 1 }],
+    [{ id: 'builtin:x', name: 'x' }, { id: 'builtin:x', name: 'y' }]])
+    assert.throws(() => agentOf(agentIR({ skills: bad })), (e) => e.code === 'AGENT_SKILLS', JSON.stringify(bad));
+});
+test('ai_agent skills warn before 2026-10-25 (the builder hides Skills) and not after', () => {
+  const run = (now) => { const w = []; agentOf(agentIR({ skills: [{ id: 'builtin:x', name: 'X' }] }), { ...ctx(), now, warn: (m) => w.push(m) }); return w; };
+  assert.ok(run(BEFORE).some((m) => /2026-10-25/.test(m)), 'warns before');
+  assert.equal(run(AFTER).filter((m) => /2026-10-25/.test(m)).length, 0, 'silent after');
+});
+test('ai_agent: mcpConnections / templateId / disableToolOutputGuards shapes are checked; tools+MCP over 10 warns', () => {
+  assert.throws(() => agentOf(agentIR({ mcpConnections: [{ name: 'no id' }] })), (e) => e.code === 'AGENT_MCP');
+  assert.throws(() => agentOf(agentIR({ templateId: 7 })), (e) => e.code === 'AGENT_TEMPLATE');
+  assert.throws(() => agentOf(agentIR({ disableToolOutputGuards: 'yes' })), (e) => e.code === 'AGENT_GUARDS');
+  const w = []; const mcp = Array.from({ length: 11 }, (_, i) => ({ connectionId: `c${i}`, name: `M${i}`, serverUrl: 'https://m.x.test', selectedTools: [] }));
+  agentOf(agentIR({ mcpConnections: mcp }), { ...ctx(), warn: (m) => w.push(m) });
+  assert.ok(w.some((m) => /11 tools \+ MCP/.test(m)), JSON.stringify(w));
+});
+test('CONTROL: an ai_agent with none of the four keys compiles without them and without a skills warning', () => {
+  const w = []; const a = agentOf(agentIR({}), { ...ctx(), now: BEFORE, warn: (m) => w.push(m) });
+  for (const k of ['skills', 'mcpConnections', 'templateId', 'disableToolOutputGuards']) assert.equal(k in a, false, k);
+  assert.equal(w.filter((m) => /skill/i.test(m)).length, 0);
+});
+
+// wave23 W23-2 (completeness sweep 2026-09-29 §4 #25-26): lookup/from-lookup/format_row keys were refused as invented,
+// and the only "required" check was oAuthId — a key the builder never writes — so a Sheets step with no account compiled
+// clean. The engine now enforces GoogleSheetsApi.hasErrors (GoogleSheetsApi.ts:193-386).
+const G = { account: { id: 'acc1', name: 'A' }, drive: { id: 'd1', name: 'D' }, spreadsheet: { id: 's1', name: 'S' }, sheet: { id: 'sh1', name: 'Sh' } };
+const sheetsIR = (attrs) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'g', kind: 'action', type: 'google_sheets', name: 'Sheet', attributes: { ...G, ...attrs } }] });
+const sheetsOf = (ir, c = ctx()) => compile(ir, c).autoSaveBody.workflowData.templates.find((s) => s.type === 'google_sheets').attributes;
+const act = (id) => ({ action: { id, name: id } });
+test('google_sheets: complete lookup, from-lookup and format_row steps compile with their keys', () => {
+  const lk = sheetsOf(sheetsIR({ ...act('lookup_row'), lookupColumns: { main: { column: 'A', value: '{{contact.email}}' }, extra: { column: 'B', value: 'x' } },
+    options: { lookupSearchMethod: 'bottom_to_top', lookupCaseSensitive: false }, sheetHeaders: ['Email', 'Name'] }));
+  assert.deepEqual(lk.lookupColumns.extra, { column: 'B', value: 'x' });
+  const fl = sheetsOf(sheetsIR({ ...act('update_row_from_lookup'), lookupStep: { label: '#1 L', value: 'L1', id: 'L1', stepIndex: 1 }, columnRange: ['A', 'B'], values: ['1', ''] }));
+  assert.equal(fl.lookupStep.stepIndex, 1);
+  const fr = sheetsOf(sheetsIR({ ...act('format_row'), targetRow: '2, 4-6', formatting: { bold: true, backgroundColor: '#FFF2CC', fontSize: 12 } }));
+  assert.deepEqual(fr.formatting, { bold: true, backgroundColor: '#FFF2CC', fontSize: 12 });
+});
+test('google_sheets: each GHL save rule refuses (SHEETS_INCOMPLETE) with the failing field named', () => {
+  const cases = [
+    [{ ...act('create_row'), account: { id: '', name: '' }, columnRange: ['A', 'B'], values: ['x'] }, /account\.id is empty/],
+    [{ ...act('create_row'), sheet: undefined, columnRange: ['A', 'B'], values: ['x'] }, /sheet\.id is empty/],
+    [{ action: { id: '' }, columnRange: ['A', 'B'], values: ['x'] }, /action\.id is empty/],
+    [{ ...act('create_row'), columnRange: ['A'], values: ['x'] }, /columnRange/],
+    [{ ...act('create_row'), columnRange: ['A', 'B'], values: ['', ''] }, /values needs/],
+    [{ ...act('lookup_row'), options: { createOnEmptyLookup: true }, lookupColumns: { main: { column: 'A', value: 'v' } } }, /columnRange/],
+    [{ ...act('update_row'), columnRange: ['A', 'B'], values: ['x'], targetRow: '2-3' }, /not a row number/],
+    [{ ...act('remove_row'), targetRow: '1' }, /data row above 1/],
+    [{ ...act('lookup_multiple_rows'), lookupColumns: { main: { column: 'A', value: 'v' } } }, /rowCount/],
+    [{ ...act('lookup_row'), lookupColumns: { main: { column: 'A' } } }, /Lookup Value is missing/],
+    [{ ...act('lookup_row'), lookupColumns: { main: { column: 'A', value: 'v' }, extra: { column: 'A', value: 'w' } } }, /cannot be the same/],
+    [{ ...act('format_row'), targetRow: '2', formatting: {} }, /at least one option/],
+    [{ ...act('format_row'), targetRow: '2', formatting: { fontSize: 401 } }, /1-400/],
+    [{ ...act('format_row'), targetRow: '2', formatting: { textColor: 'red' } }, /theme token/],
+  ];
+  for (const [attrs, re] of cases)
+    assert.throws(() => sheetsOf(sheetsIR(attrs)), (e) => e.code === 'SHEETS_INCOMPLETE' && re.test(e.message), JSON.stringify(attrs));
+});
+test('google_sheets: merge tags satisfy row/count/colour rules (they resolve at runtime, as in GHL)', () => {
+  assert.doesNotThrow(() => sheetsOf(sheetsIR({ ...act('format_row'), targetRow: '{{contact.row}}', formatting: { textColor: '{{custom_values.c}}' } })));
+  assert.doesNotThrow(() => sheetsOf(sheetsIR({ ...act('lookup_multiple_rows'), rowCount: '{{contact.n}}', lookupColumns: { main: { column: 'A', value: 'v' } } })));
+});
+test('google_sheets: an invented key is still refused; oAuthId is no longer a "known" key', () => {
+  assert.throws(() => sheetsOf(sheetsIR({ ...act('create_row'), columnRange: ['A', 'B'], values: ['x'], oAuthId: 'x' })), (e) => e.code === 'ATTR_KEY' && /oAuthId/.test(e.message));
+});
+test('CONTROL: a complete create_row compiles exactly as before (no lookup/format keys added)', () => {
+  const a = sheetsOf(sheetsIR({ ...act('create_row'), columnRange: ['A', 'C'], values: ['{{contact.email}}', '', 'x'] }));
+  for (const k of ['lookupColumns', 'lookupStep', 'formatting']) assert.equal(k in a, false, k);
+  assert.deepEqual(a.columnRange, ['A', 'C']);
+});
+
+// wave23 W23-3/W23-4 (completeness sweep 2026-09-29 §4 #22-23): an authored router compiled into one lane-less step that
+// validated clean and could not branch; an authored loop compiled as a straight line. Both are refused by name now.
+const oneNode = (node) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+  graph: [node, { ref: 'x', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['a'] } }] });
+test('router: authoring one is refused (ROUTER_NOT_AUTHORED) with the lane shape and the allowlist named', () => {
+  for (const node of [{ ref: 'r', type: 'router', name: 'R', attributes: { branches: [{ id: 'b1', name: 'All', branchType: 'always_run', segments: [] }] } },
+    { ref: 'r', kind: 'action', type: 'router', name: 'R' }])
+    assert.throws(() => compile(oneNode(node), ctx()), (e) => e.code === 'ROUTER_NOT_AUTHORED' && /lane/.test(e.message) && /allowlisted/.test(e.message) && /if_else/.test(e.message));
+});
+test('loop: authoring one is refused (LOOP_NOT_AUTHORED) with the body shape and the allowlist named', () => {
+  assert.throws(() => compile(oneNode({ ref: 'l', type: 'loop', name: 'L', attributes: { items: '{{contact.tags}}' } }), ctx()),
+    (e) => e.code === 'LOOP_NOT_AUTHORED' && /parentContainerId/.test(e.message) && /allowlisted/.test(e.message));
+});
+test('CONTROL: a raw (builder-made) router step is carried through; if_else still compiles', () => {
+  const raw = { ref: 'r', kind: 'raw', type: 'router', name: 'R', attributes: { routerName: 'R', branches: [], version: 1 } };
+  assert.doesNotThrow(() => compile(oneNode(raw), ctx()));
+  const ifElse = { ref: 'i', type: 'if_else', name: 'If', branches: [{ name: 'A', conditions: [{ conditionType: 'contact_detail', tag: 'a' }], then: [] }, { name: 'None', else: true, then: [] }] };
+  assert.doesNotThrow(() => compile({ ...oneNode(ifElse), graph: [ifElse] }, ctx()));
+});

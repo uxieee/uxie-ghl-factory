@@ -313,8 +313,10 @@ modified — a legacy workflow's pre-existing loop elsewhere must not brick an u
 it — and it carries a hatch, `allowGotoLoops: true`, the same way its sibling edit-path guards
 do (`allowDanglingParentKeys`, `allowDanglingStepRefs`, `deadBranchAcknowledged`): edits run over
 harvested legacy data of uncertain provenance, where failing closed by default but allowing an
-informed override is the right posture. Point the goto forward, or use the dedicated `loop`
-step type, which is a supported container with its own body and its own validators.
+informed override is the right posture. Point the goto forward. GHL's dedicated `loop` step (a
+container with its own body and validators) is the builder's way to repeat steps, but the engine
+does not author it (LOOP_NOT_AUTHORED): the builder offers Loop only on allowlisted locations, so
+add it there where it is offered.
 
 `attributes.loopIdentified` is **backend-stamped and read-only** — never emit it. Emitting it
 fabricates a lock (`ACTION-DRAWERS-2.md:1675`).

@@ -331,7 +331,160 @@ function normalizeAttrs(node, attrs, ctx) {
       : (INNER_ATTRIBUTE_TYPE[node.type] ?? node.type);
   }
   checkAttrKeys(node, out, meta);
+  if (node.type === 'ai_agent') checkAiAgentAttrs(node, out, ctx);
+  if (node.type === 'google_sheets') checkGoogleSheetsAttrs(node, out);
   return out;
+}
+
+// integrationAccountId — which connected account an INTEGRATION_AI app step or trigger uses. GHL stores it on the
+// step / trigger ROOT only when set (models/actions/Marketplace.ts:600; models/Triggers/TriggerMain.ts:912,991), offers
+// the account picker only for INTEGRATION_AI (MarketplaceAction.vue:17; TriggerOptions.vue:801-803), and gates SAVE of a
+// step without one: shouldGateForIATF = INTEGRATION_AI && appId && no id (helpers/iatf-account.ts:134-139) →
+// "Choose a connected account before publishing" (Marketplace.ts:771-782). A tool (useAsTool) is exempt — it falls back to
+// the location's default account — and there is no trigger save gate (TriggerMain.hasErrors does not read it).
+// INTERNAL (first-party) and unlabelled third-party assets never carry it, so it is refused there.
+function integrationAccountFor(node, publisher, kind, ctx) {
+  const id = node.integrationAccountId;
+  const where = `${kind} '${node.ref ?? node.name ?? node.type}' (${node.type})`;
+  if (id === undefined || id === null || id === '') {
+    if (publisher === 'INTEGRATION_AI' && kind === 'step')
+      ctx?.warn?.(`${where}: Choose a connected account before publishing — an INTEGRATION_AI app step with no `
+        + 'integrationAccountId is saved with an error by GHL\'s builder and cannot be published until someone picks the '
+        + 'account in the step. Pass integrationAccountId (the connected account id) to set it here.');
+    return {};
+  }
+  if (publisher !== 'INTEGRATION_AI')
+    throw new IRError('INTEGRATION_ACCOUNT_NOT_APPLICABLE', `${where}: integrationAccountId applies only to INTEGRATION_AI `
+      + `app ${kind}s; this one is ${publisher ? `labelled ${publisher}` : (node.marketplace === true ? 'an unlabelled third-party app' : 'not a marketplace ' + kind)}, `
+      + 'and GHL never stores an account on it.');
+  if (typeof id !== 'string' || !id.trim())
+    throw new IRError('INTEGRATION_ACCOUNT_NOT_APPLICABLE', `${where}: integrationAccountId must be the connected account's id string.`);
+  return { integrationAccountId: id };
+}
+
+// GHL's own save rules for a Sheets step: GoogleSheetsApi.hasErrors (models/actions/premium-actions/GoogleSheetsApi.ts:
+// 367-386) and the per-action getters it reads (:193-363); isValidNumeric / isValidRowSpec (utils/validation.ts:84-150);
+// isValidGoogleSheetsColor (constants/google-sheets-colors.ts:28-97). A step failing any of these is saved with the
+// builder's error badge and blocks publish, so the engine refuses it instead of writing it.
+const SHEETS_TARGET_ROW_ACTIONS = new Set(['update_row', 'update_multiple_rows', 'delete_row', 'format_row', 'remove_row']);
+const SHEETS_ROW_SPEC_ACTIONS = new Set(['format_row', 'remove_row']);
+const SHEETS_COLUMN_RANGE_ACTIONS = new Set(['create_row', 'create_multiple_rows', 'update_row', 'update_multiple_rows', 'update_row_from_lookup']);
+const SHEETS_LOOKUP_ACTIONS = new Set(['lookup_row', 'lookup_multiple_rows']);
+const SHEETS_THEME_COLORS = new Set(['TEXT', 'BACKGROUND', 'ACCENT1', 'ACCENT2', 'ACCENT3', 'ACCENT4', 'ACCENT5', 'ACCENT6', 'LINK']);
+const sheetsNumeric = (v) => {
+  if (!v && v !== 0) return false;
+  if (typeof v === 'string') return v.includes('{{') || /^\d{1,}(\.\d{1,})?$/.test(v);
+  return true;
+};
+const sheetsRowSpec = (v) => {
+  if (!v && v !== 0) return false;
+  const spec = String(v).trim();
+  if (!spec) return false;
+  if (spec.includes('{{')) return true;
+  const tokens = spec.split(',').map((x) => x.trim()).filter(Boolean);
+  if (!tokens.length) return false;
+  let dataRow = false;
+  for (const tok of tokens) {
+    if (/^\d+$/.test(tok)) { const r = Number(tok); if (r < 1) return false; if (r > 1) dataRow = true; continue; }
+    const m = tok.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (!m) return false;
+    const [a, b] = [Number(m[1]), Number(m[2])];
+    if (a < 1 || a > b) return false;
+    if (b > 1) dataRow = true;
+  }
+  return dataRow;
+};
+const sheetsColor = (v) => !v || v.includes('{{') || SHEETS_THEME_COLORS.has(v.trim().toUpperCase())
+  || /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v.trim());
+export function checkGoogleSheetsAttrs(node, a) {
+  const where = `google_sheets '${node.ref ?? node.name ?? node.id}'`;
+  const bad = [];
+  const action = a.action?.id;
+  for (const k of ['action', 'account', 'drive', 'spreadsheet', 'sheet'])
+    if (!a[k]?.id) bad.push(`${k}.id is empty${k === 'account' ? ' (the connected Google account: connect one in the sub-account, then use its id from GET /integrations/google/connections)' : ''}`);
+  const hasColumnRange = SHEETS_COLUMN_RANGE_ACTIONS.has(action) || a.options?.createOnEmptyLookup === true;
+  if (hasColumnRange) {
+    const cr = a.columnRange;
+    if (!Array.isArray(cr) || cr.length !== 2 || cr.some((x) => !x)) bad.push('columnRange must be [from, to], both set');
+    const vals = a.values;
+    const empty = !vals || (Array.isArray(vals) ? (!vals.length || vals.every((x) => !x)) : (typeof vals === 'object' && !Object.keys(vals).length));
+    if (empty) bad.push('values needs at least one non-empty cell');
+  }
+  if (SHEETS_TARGET_ROW_ACTIONS.has(action)) {
+    const ok = SHEETS_ROW_SPEC_ACTIONS.has(action) ? sheetsRowSpec(a.targetRow) : sheetsNumeric(a.targetRow);
+    if (!ok) bad.push(SHEETS_ROW_SPEC_ACTIONS.has(action)
+      ? `targetRow '${a.targetRow ?? ''}' is not a row spec (5, 2, 4-6) that includes a data row above 1`
+      : `targetRow '${a.targetRow ?? ''}' is not a row number`);
+  }
+  if (action === 'lookup_multiple_rows' && !sheetsNumeric(a.rowCount)) bad.push('rowCount is required for lookup_multiple_rows');
+  if (SHEETS_LOOKUP_ACTIONS.has(action)) {
+    const lc = a.lookupColumns;
+    if (!lc?.main?.column) bad.push('Lookup Column is missing (lookupColumns.main.column)');
+    if (!lc?.main?.value) bad.push('Lookup Value is missing (lookupColumns.main.value)');
+    if (lc?.extra) {
+      if (!lc.extra.column) bad.push('Extra Lookup Column is missing');
+      else if (lc.extra.column === lc.main?.column) bad.push('Extra Lookup Column cannot be the same as the Lookup Column');
+      if (!lc.extra.value) bad.push('Extra Lookup Value is missing');
+    }
+  }
+  if (action === 'format_row') {
+    const f = a.formatting ?? {};
+    const size = f.fontSize;
+    if (!(f.backgroundColor || f.textColor || f.bold != null || f.italic != null || f.strikethrough != null || (size != null && String(size).trim() !== '')))
+      bad.push('formatting needs at least one option (backgroundColor, textColor, bold, italic, strikethrough, fontSize)');
+    if (size != null && String(size).trim() !== '' && (!/^\d+$/.test(String(size).trim()) || Number(size) < 1 || Number(size) > 400))
+      bad.push(`formatting.fontSize ${JSON.stringify(size)} must be a whole number 1-400`);
+    if (!sheetsColor(f.backgroundColor) || !sheetsColor(f.textColor))
+      bad.push('formatting colours are #RGB / #RRGGBB, a merge tag or a theme token (TEXT, BACKGROUND, ACCENT1-6, LINK)');
+  }
+  if (bad.length)
+    throw new IRError('SHEETS_INCOMPLETE', `${where} (${action || 'no action'}): ${bad.join('; ')}. GHL's builder saves this `
+      + 'step with an error badge and refuses to publish it (GoogleSheetsApi.hasErrors).');
+}
+
+// ai_agent keys the drawer writes beyond the example's seven (catalogue correction in required-fields.mjs).
+// Limits are the builder's: MAX_SKILLS_PER_ACTION = 10 (hooks/use-agent-skill-attachment.ts:26), a budget separate
+// from AIAgent.MAX_TOOLS = 10, which counts tools + MCP connections (models/actions/AIAgent.ts:155-162). The tool cap
+// is a picker limit, not a save gate (hasErrors does not read it), so exceeding it warns rather than refuses.
+// The Skills section is behind a DATE gate, isLevelUp2026Enabled (states/app.ts:1080-1094): hidden before
+// 2026-10-25T00:00Z except in non-production and one GHL company.
+export const AI_AGENT_MAX_SKILLS = 10;
+export const AI_AGENT_MAX_TOOLS = 10;
+export const AI_AGENT_SKILLS_PUBLIC_AT = Date.parse('2026-10-25T00:00:00.000Z');
+export function checkAiAgentAttrs(node, a, ctx, now = ctx?.now ?? Date.now()) {
+  const where = `ai_agent '${node.ref ?? node.name ?? node.id}'`;
+  if (a.skills !== undefined) {
+    if (!Array.isArray(a.skills))
+      throw new IRError('AGENT_SKILLS', `${where}: skills must be an array of {id, name}, not ${typeof a.skills}.`);
+    if (a.skills.length > AI_AGENT_MAX_SKILLS)
+      throw new IRError('AGENT_SKILLS', `${where}: ${a.skills.length} skills — the builder attaches at most `
+        + `${AI_AGENT_MAX_SKILLS} per step (MAX_SKILLS_PER_ACTION).`);
+    const seen = new Set();
+    for (const s of a.skills) {
+      const keys = s && typeof s === 'object' && !Array.isArray(s) ? Object.keys(s) : null;
+      if (!keys || typeof s.id !== 'string' || !s.id.trim() || typeof s.name !== 'string' || keys.some((k) => k !== 'id' && k !== 'name'))
+        throw new IRError('AGENT_SKILLS', `${where}: each skill is exactly {id, name} with a non-empty string id `
+          + `(builtin:<key> or a skill document id from GET /workflow/agent/{loc}/skills); got ${JSON.stringify(s)}.`);
+      if (seen.has(s.id)) throw new IRError('AGENT_SKILLS', `${where}: skill '${s.id}' is attached twice.`);
+      seen.add(s.id);
+    }
+    if (a.skills.length && now < AI_AGENT_SKILLS_PUBLIC_AT)
+      ctx?.warn?.(`${where}: ${a.skills.length} skill(s) attached. Until 2026-10-25 GHL's builder hides the Skills `
+        + 'section on most accounts (a date gate), so the skills are stored but a person opening this step will not see them — '
+        + 'and on the test sub-account the skills service itself answered 404 to list and resolve (2026-09-29), so a skill '
+        + 'may not resolve when the agent runs before then. Check GET /workflow/agent/{loc}/skills on the target account.');
+  }
+  if (a.mcpConnections !== undefined && (!Array.isArray(a.mcpConnections)
+    || a.mcpConnections.some((c) => !c || typeof c !== 'object' || typeof c.connectionId !== 'string' || !c.connectionId)))
+    throw new IRError('AGENT_MCP', `${where}: mcpConnections is the drawer's [{connectionId, name, serverUrl, selectedTools}] `
+      + 'list; the engine passes it through but does not author it — connect MCP servers in the builder.');
+  if (a.templateId !== undefined && a.templateId !== null && typeof a.templateId !== 'string')
+    throw new IRError('AGENT_TEMPLATE', `${where}: templateId is the id string of an applied agent template (set by the builder).`);
+  if (a.disableToolOutputGuards !== undefined && typeof a.disableToolOutputGuards !== 'boolean')
+    throw new IRError('AGENT_GUARDS', `${where}: disableToolOutputGuards is a boolean switch.`);
+  const toolCount = (Array.isArray(a.tools) ? a.tools.length : 0) + (Array.isArray(a.mcpConnections) ? a.mcpConnections.length : 0);
+  if (toolCount > AI_AGENT_MAX_TOOLS)
+    ctx?.warn?.(`${where}: ${toolCount} tools + MCP connections — the builder's picker stops at ${AI_AGENT_MAX_TOOLS} (AIAgent.MAX_TOOLS).`);
 }
 
 // Attribute keys the compiler/orchestrator/resolver own, plus the documented
@@ -1916,7 +2069,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         tmpl.workflowsActionType = asset.publisher;
         if (asset.showStepIndex) tmpl.stepIndex = null; // numbered below, per type, like every other
       } else tmpl.isMarketplaceAction = true;
-    }
+      Object.assign(tmpl, integrationAccountFor(n, asset.publisher, 'step', ctx));
+    } else if (n.integrationAccountId !== undefined) integrationAccountFor(n, null, 'step', ctx);
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl, ctx));
   });
@@ -2380,6 +2534,7 @@ export function buildTrigger(t, ctx, wid, refMap) {
   }
   let marketplaceFields = {};
   let marketplaceMasterType = 'marketplace';
+  if (t.marketplace !== true && t.integrationAccountId !== undefined) integrationAccountFor(t, null, 'trigger', ctx);
   if (t.marketplace === true) {
     // A marketplace TRIGGER is always a trigger key — never an action key.
     const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, 'trigger');
@@ -2390,6 +2545,7 @@ export function buildTrigger(t, ctx, wid, refMap) {
     // validator refuse every first-party trigger: "Master Type has an invalid value". UI-built
     // evidence agrees — 16 stored triggers carry 'internal', none of 710 carries 'marketplace'.
     marketplaceMasterType = entry.publisher ? 'internal' : 'marketplace';
+    Object.assign(marketplaceFields, integrationAccountFor(t, entry.publisher, 'trigger', ctx));
     // A marketplace condition addresses the event payload by dotted path, and the stored
     // shape carries `id` and `field` as the SAME string. It also carries the filter's TYPE and
     // TITLE, and its operator defaults per type exactly as the drawer pre-selects one — the row
@@ -2858,8 +3014,9 @@ export function compile(ir, ctx) {
       + loops.map((l) => `'${l.name ?? l.id}' -> '${l.targetName ?? l.target}'`).join('; ')
       + '. GHL detects the cycle server-side, marks the node "Loop Locked", stamps the workflow '
       + 'loopIdentified and forces its status to draft — a published workflow silently stops. '
-      + 'Loops are not a legal flow shape here: restructure so the goto points forward, or use '
-      + 'the dedicated `loop` step type, which is a supported container with its own body.');
+      + 'Loops are not a legal flow shape here: restructure so the goto points forward. GHL\'s dedicated '
+      + '`loop` step repeats steps properly, but the engine does not author it (the builder offers Loop only on '
+      + 'allowlisted locations) — add it in the builder where it is offered.');
   }
   // custom_code needs a SERVER test run before the builder accepts it: the drawer's Save requires
   // attributes.output to be the non-empty object returned by POST /custom-code/run-test, and editing

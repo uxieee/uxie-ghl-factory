@@ -89,11 +89,13 @@ test('retypeStep refuses a step with no attributes replacement', () => {
 
 test('retypeStep accepts an explicit empty attributes object (type with no required fields)', () => {
   n = 0;
-  // google_sheets carries no THROW-tier enforcement, so {} is a legal starting point for it.
+  // remove_assigned_user's GHL validator pushes nothing (validator-conditions, bundle-2026-09-29-2), so {} is a legal
+  // starting point. (This used google_sheets until wave23: that was the defect — GHL refuses a Sheets step with no
+  // account/drive/spreadsheet/sheet, and the engine now does too.)
   const { templates } = applyOps(smsWorkflow(),
-    [{ op: 'retypeStep', stepId: 's1', step: { kind: 'action', type: 'google_sheets', name: 'Sheet', attributes: {} } }],
+    [{ op: 'retypeStep', stepId: 's1', step: { kind: 'action', type: 'remove_assigned_user', name: 'Unassign', attributes: {} } }],
     { ctx: ctx(), idGen });
-  assert.equal(templates.find((t) => t.id === 's1').type, 'google_sheets');
+  assert.equal(templates.find((t) => t.id === 's1').type, 'remove_assigned_user');
 });
 
 test('retypeStep to a type with required fields REFUSES an empty attributes object', () => {
