@@ -27,8 +27,13 @@ Autosave answers `201` to all of these:
   Each block finds its product through that section (`extra.pdpV2Section`); on the store's step the product comes from
   the URL (`/<step path>/product/<product id>`). Both rules are refused by name before anything is sent. They render
   with the product's data but UNSTYLED (native buttons and select) until the page is saved once in the builder, which
-  compiles their CSS — the tool compiles none for these kinds yet (console bl-298). Every preview and result that writes
-  them lists them under `pdpStyling` with that warning. Edit mode's `append-section` is held to the same two rules.
+  compiles their CSS. Edit mode's `append-section` is held to the same two rules.
+- **`builderStyling`: kinds that look different until a builder save.** 43 kinds compile their look only in the page
+  builder: the 11 product-page blocks, the order forms, nav menus, store lists and details, blog kinds, faq, map,
+  pricing table, testimonial, image slider and others (measured: every kind rendered before and after a builder save).
+  Every preview and result that writes one lists its nodes under `builderStyling` with that sentence: open the page in
+  the builder and save it once before sharing it. (`pdpStyling`, the product-page subset, is kept for 1.24.0 callers and
+  deprecated.)
 - Every declared `extra` property must be present. The renderer reads `extra.<prop>.value` unguarded, so a
   missing one 500s the whole page.
 - `col.extra.bgImage`, `general.general.fontsToLoad` and `colors` must be present.
@@ -46,6 +51,9 @@ Autosave answers `201` to all of these:
   | `tag` | every kind | the node tag |
   | `entranceAnimation` | the entrance kinds | see below |
   | `hoverAnimation` | buttons only | see below |
+  | `wrapper` | every kind | the node's box outside its content: margins, padding, `width` (numbers are px; `{value, unit}` for others) |
+  | `tabletStyles` / `mobileStyles` | every kind | style overrides for 768–1024 / 0–767 px |
+  | `tabletWrapper` / `mobileWrapper` | every kind | wrapper overrides for 768–1024 / 0–767 px |
   | `openPopup` | kinds with `popupId` | a popup name. On `image` / `image-feature` it is written to `extra.imageActions`, on `svg` to `svgImageActions` + `imageActions` — the props their renderer reads; an `extra.action` given for those kinds is moved there too (their own menus: image 11 actions, svg 4) |
 
   Any other key is refused by name, with a "did you mean". A button given `text` instead of `html` was once
@@ -72,8 +80,8 @@ Autosave answers `201` to all of these:
   the call is refused. Get node ids from the page data (`GET /funnels/builder/page/data?pageId=`).
 - **Everything the ops do not name** is written back as read. Each op is verified by VALUE on a separate read.
 - **Ops:**
-  - `set`: merges `extra` / `styles` into one node by id. The styles are compiled into the public stylesheet
-    too. On a section id, `set` also takes `sticky`, `width` and `fullWidthRows`.
+  - `set`: merges `extra` / `styles` / `wrapper` / the tablet and mobile maps into one node by id, and compiles them
+    into the public stylesheet. On a section id, `set` takes the section keys below (not `extra`).
   - `append-section`: a section spec, in the same shape as `sections[i]`.
   - `remove-node`: a node and its descendants, or a whole section.
   - `page`: `trackingCode {headerCode, footerCode}`; `customCss`, which is kept in `general.general.pageStyles`
@@ -90,13 +98,25 @@ Autosave answers `201` to all of these:
 
 ## Structure and motion
 
-- **A section spec** takes:
+- **Styles compile as the builder compiles them.** A node's `styles`, `wrapper` and tablet / mobile maps go through
+  the builder's own generic style rules (reimplemented from its behaviour and checked against it), so a builder save
+  leaves sections, margins and per-device overrides exactly as composed (proven live: no change at desktop, tablet or
+  mobile after a builder save). The rows' container is the builder's 1170 px unless `maxWidth` / `fullWidthRows` says
+  otherwise — a `maxWidth` other than 1170 lasts only until the next builder save.
+- **A section spec** takes (any other key is refused by name):
+  - `styles`, `wrapper`, `tabletStyles`, `mobileStyles`, `tabletWrapper`, `mobileWrapper` — as on an element; the
+    section's padding and background colour are `styles` too (`padY` / `background` are shorthands)
+  - `visibility`: `{hideDesktop, hideTablet, hideMobile}`
+  - `customClass`: a class name or a list of them
+  - `bgImage`: `{url, options?: bgCover | bgContain | bgNoRepeat | bgRepeat | bgFixed, opacity?: 0–1}` — the renderer
+    reads it from the node; it is never in the stylesheet
+  - `entranceAnimation`: as on an element
   - `sticky`: `none` | `top` | `bottom`
   - `width`: `full` | `wide` | `midWide` | `small`
   - `fullWidthRows`, which cannot be combined with `maxWidth`
   - `pdp`: `true` | `{products: [<product id>]}` — the product-page section the `store-pdp-v2-*` blocks need (above)
 - **`entranceAnimation`** `{name, duration, delay, scale, easing}` goes on heading, sub-heading, paragraph,
-  rich-text, bulletList, button and image.
+  rich-text, bulletList, button, image and a section.
 - **`hoverAnimation`** goes on a button: `{name, duration, delay, easing}` plus the effect's own knob, which is
   one of `scale`, `angle`, `distance`, `borderThickness`, or `blur` with `spread`.
 

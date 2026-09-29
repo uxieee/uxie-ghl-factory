@@ -21,6 +21,13 @@ export const ELEMENT_SPEC_KEYS = Object.freeze({
   entranceAnimation: (meta) => ENTRANCE_METAS.includes(meta),
   hoverAnimation: (meta) => HOVER_METAS.includes(meta),
   openPopup: (meta) => props(meta).includes('popupId'), // becomes extra.action openPopup + popupId
+  // The node's wrapper (margins, padding, width) and its tablet / mobile overrides, compiled by core/style-layer.mjs as the
+  // builder compiles them on save.
+  wrapper: () => true,
+  tabletStyles: () => true,
+  mobileStyles: () => true,
+  tabletWrapper: () => true,
+  mobileWrapper: () => true,
 });
 
 // Keys people reach for, and the key that does the job.
@@ -29,6 +36,7 @@ const DID_YOU_MEAN = Object.freeze({
   style: 'styles', class: 'extra.customClass', className: 'extra.customClass', classes: 'extra.customClass',
   animation: 'entranceAnimation', hover: 'hoverAnimation', popup: 'openPopup', popupId: 'openPopup',
   fontFamily: 'css.font (or font: "headline" | "content")', typography: 'font', type: 'meta', kind: 'meta',
+  margin: 'wrapper: {marginTop, …}', margins: 'wrapper: {marginTop, …}', mobile: 'mobileStyles / mobileWrapper', tablet: 'tabletStyles / tabletWrapper', responsive: 'mobileStyles / tabletStyles',
 });
 
 /** The keys this kind accepts. */

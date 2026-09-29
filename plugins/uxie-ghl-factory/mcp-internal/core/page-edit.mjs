@@ -18,7 +18,8 @@ export function findNode(pageData, nodeId) {
   return null;
 }
 
-import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction } from './funnel-pages.mjs';
+import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch } from './funnel-pages.mjs';
+import { nodeLayerCss, storedMap, LAYER_SPEC_KEYS } from './style-layer.mjs';
 import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, customFamily } from './page-fonts.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
 
@@ -47,12 +48,23 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       const hit = findNode(next, o.nodeId);
       if (!hit) { report.push({ i, op: 'set', nodeId: o.nodeId, error: 'no node with this id on the page' }); continue; }
       if (hit.isSection) {
-        // A section takes its three General-tab knobs; its content is edited node by node, its styling by replacing it.
-        if (o.extra || o.styles || o.entranceAnimation || o.hoverAnimation) { report.push({ i, op: 'set', nodeId: o.nodeId, error: 'a section takes sticky, width and fullWidthRows here; set its rows, columns and leaves by their own ids, or replace the section' }); continue; }
-        if (o.sticky === undefined && o.width === undefined && o.fullWidthRows === undefined) { report.push({ i, op: 'set', nodeId: o.nodeId, error: 'set on a section needs sticky, width or fullWidthRows' }); continue; }
-        let knobs;
-        try { knobs = sectionKnobs(o); } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
+        // A section takes its General-tab knobs and its styling (styles, wrapper, tablet / mobile maps, visibility, custom
+        // classes, background image, entrance animation); its content is edited node by node.
+        const SECTION_SET = ['sticky', 'width', 'fullWidthRows', 'styles', 'visibility', 'customClass', 'bgImage', 'entranceAnimation', ...LAYER_SPEC_KEYS];
+        if (o.extra || o.hoverAnimation) { report.push({ i, op: 'set', nodeId: o.nodeId, error: `a section takes ${SECTION_SET.join(', ')} here; set its rows, columns and leaves by their own ids` }); continue; }
+        if (!SECTION_SET.some((k) => o[k] !== undefined)) { report.push({ i, op: 'set', nodeId: o.nodeId, error: `set on a section needs one of ${SECTION_SET.join(', ')}` }); continue; }
+        let knobs; let styling;
+        try { knobs = sectionKnobs(o); styling = sectionStylingPatch(o); } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
         const meta = hit.node; const changed = [];
+        for (const [layer, patch] of Object.entries(styling.merge)) { mergeInto(meta, layer, patch); changed.push(...Object.keys(patch).map((k) => `${layer}.${k}`)); }
+        for (const [k, v] of Object.entries(styling.replace)) { meta[k] = v; changed.push(k); }
+        if (styling.touchesCss) {
+          const sid = hit.section.id;
+          let css = `${hit.section.general?.sectionStyles ?? ''}${nodeLayerCss({ ...meta, id: sid })}`;
+          if (o.entranceAnimation) css = stripAnimationCss(css, sid) + entranceCss(sid, meta.class);
+          hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: css };
+          changed.push('section.general.sectionStyles');
+        }
         if (Object.keys(knobs.extra).length) { mergeInto(meta, 'extra', knobs.extra); changed.push(...Object.keys(knobs.extra).map((k) => `extra.${k}`)); }
         if (Object.keys(knobs.cls).length) {
           mergeInto(meta, 'class', knobs.cls); changed.push('class.width');
@@ -67,7 +79,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
           changed.push('section.general.sectionStyles');
         }
         meta.updated = true;
-        report.push({ i, op: 'set', nodeId: o.nodeId, meta: 'section', changed, expect: { extra: knobs.extra, class: knobs.cls } });
+        report.push({ i, op: 'set', nodeId: o.nodeId, meta: 'section', changed, expect: { extra: { ...knobs.extra, ...(styling.merge.extra ?? {}) }, class: { ...knobs.cls, ...(styling.merge.class ?? {}) }, styles: styling.merge.styles ?? {}, wrapper: styling.merge.wrapper ?? {}, ...styling.replace } });
         continue;
       }
       const changed = [];
@@ -118,6 +130,21 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
           changed.push('section.general.sectionStyles');
         }
       }
+      // The wrapper and tablet / mobile maps: merged into the node, and the node's generic-layer rules recompiled (the later
+      // rule wins) — what a builder save writes for it.
+      const layerPatch = {};
+      try {
+        if (o.wrapper) layerPatch.wrapper = storedMap(o.wrapper);
+        for (const k of ['tabletStyles', 'mobileStyles', 'tabletWrapper', 'mobileWrapper']) if (o[k]) layerPatch[k] = storedMap(o[k]);
+      } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
+      for (const [layer, patch] of Object.entries(layerPatch)) { mergeInto(hit.node, layer, patch); changed.push(...Object.keys(patch).map((k) => `${layer}.${k}`)); }
+      // Only the wrapper and per-device parts are appended here: appended after the page's per-kind rules, the node's
+      // generic STYLES would win over them (the builder writes generic rules first); `styles` keep their own compile above.
+      if (Object.keys(layerPatch).length) {
+        const { styles: _drop, ...rest } = hit.node;
+        hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: `${hit.section.general?.sectionStyles ?? ''}${nodeLayerCss({ ...rest, styles: {} })}` };
+        if (!changed.includes('section.general.sectionStyles')) changed.push('section.general.sectionStyles');
+      }
       // A size or weight change is recompiled from the node, the way the builder compiles it; the later rule wins.
       const sized = Object.keys(o.extra ?? {}).some((k) => /FontSize$/.test(k)) || Object.keys(o.styles ?? {}).some((k) => /^fontWeight/.test(k));
       const sizeRule = sized ? compileSizes(hit.node) : '';
@@ -126,7 +153,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
         changed.push('section.general.sectionStyles');
       }
       hit.node.updated = true;
-      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch } });
+      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...layerPatch } });
     } else if (o.op === 'append-section') {
       next.sections = [...(next.sections ?? []), { ...o.section, sequence: (next.sections ?? []).length }];
       report.push({ i, op: 'append-section', sectionId: o.section.id, nodes: (o.section.elements ?? []).length });
@@ -218,7 +245,7 @@ export function verifyEdits(stored, report) {
       // Compare VALUES, not presence: a set that landed as the old value is the failure to catch.
       const hit = findNode(stored, r.nodeId);
       const wrong = [];
-      for (const key of ['extra', 'styles', 'class']) {
+      for (const key of ['extra', 'styles', 'class', 'wrapper', 'tabletStyles', 'mobileStyles', 'tabletWrapper', 'mobileWrapper']) {
         for (const [k, v] of Object.entries(r.expect?.[key] ?? {})) {
           if (JSON.stringify(hit?.node?.[key]?.[k]) !== JSON.stringify(v)) wrong.push(`${key}.${k}`);
         }

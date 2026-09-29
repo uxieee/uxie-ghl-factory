@@ -1308,3 +1308,32 @@ export const KIND_PDP_STYLES = Object.freeze({
     }
   }
 });
+
+// 🔴 DELIBERATE DIVERGENCE from GHL. The builder's style compilers print these nested text fields unguarded
+// (text-decoration:${…textDecoration}, font-style:${…textStyle}, …), and its OWN fresh blog-post, blog-pined-post,
+// blog-content and social-share-blog nodes lack some of them — so a builder save compiles "undefined" into the public
+// stylesheet even for a node GHL created (knowledge sniffs/funnels-wave30-kind-css-2026-09-29 offline-undefined.*.json,
+// builderFresh). The tool writes each field's CSS INITIAL value where it is absent instead: GHL's fresh node compiles
+// undefined here; we write inherit (text-transform, font-family) / none (text-decoration) — what the browser
+// computes for the dropped invalid declaration, so no visual change (knowledge sniffs/funnels-wave31-styles-live-2026-09-29
+// 04-initials-offline.json: the only compiled differences are those replacements). Only absent fields are filled.
+export const BUILDER_NATIVE_UNDEFINED = Object.freeze({
+  'blog-post': ['blog_style'], 'blog-pined-post': ['blogPinedPostStyle'], 'blog-content': ['blogContentPostStyle'], 'social-share-blog': ['socialShareStyle'],
+});
+// Exactly what the browser does with the invalid declaration it replaces: an invalid declaration is ignored, so an
+// INHERITED property (font-style, text-transform, font-family) takes its parent's value — `inherit` — and a non-inherited
+// one (text-decoration) its initial value — `none`.
+// textStyle is NOT filled: the blog card's premium layer writes `font-style: normal` only while textStyle is absent, so
+// any value there would change what a visitor sees; its `font-style:undefined` stays exactly as GHL's own node writes it.
+export const TEXT_FIELD_INITIALS = Object.freeze({ textDecoration: 'none', textTransform: 'inherit', fontFamily: 'inherit' });
+/** Fill the initial value of every absent text field on the text-bearing parts of the kind's raw style objects. */
+export function fillTextFieldInitials(meta, extra) {
+  for (const prop of BUILDER_NATIVE_UNDEFINED[meta] ?? []) {
+    const obj = extra?.[prop]; if (!obj || typeof obj !== 'object') continue;
+    for (const part of Object.values(obj)) {
+      if (!part || typeof part !== 'object' || Array.isArray(part) || !('fontSize' in part || 'fontWeight' in part || 'fontFamily' in part)) continue;
+      for (const [k, v] of Object.entries(TEXT_FIELD_INITIALS)) if (part[k] === undefined) part[k] = v;
+    }
+  }
+  return extra;
+}
