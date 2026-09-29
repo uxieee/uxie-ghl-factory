@@ -11,6 +11,26 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.33.0] — 2026-09-30
+
+**Funnel analytics: advanced filters, video engagement, and the sales tab. Reads only. Executed live on the test
+account.**
+
+### Added
+- `get_funnel` stats take `filters`, the Analytics screen's Advanced filter: groups of city / region / country /
+  page / browser / device / traffic source / channel, *is* or *is not*, up to 5 groups × 5 conditions. Measured by
+  differential on real traffic: groups OR, conditions within a group AND, and *is not* drops events that carry no
+  value.
+- Stats return the hosted video's pauses, drop-off spike and progress graph, beside plays, completion and average.
+  They match the screen exactly. The video read honours only the page and device filters, and says which filters it did
+  not apply.
+- `get_funnel` `view:"filter-values"` lists a filter field's values; `view:"sales"` reads the Sales tab.
+
+### Docs
+- ⚠️ The Sales tab lists orders from version-1 order forms only. Version-2 orders are in Payments → Orders and
+  Transactions, which the screen itself says. The `sales` view carries that note, because the tab reads empty on
+  funnels that did sell.
+
 ## [1.32.1] — 2026-09-30
 
 **🔴 Fix: an if/else checking for a capitalised tag always took the ELSE branch. Executed live on the test
