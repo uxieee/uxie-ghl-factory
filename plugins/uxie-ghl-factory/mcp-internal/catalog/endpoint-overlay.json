@@ -551,7 +551,8 @@
       "reach": "proven"
     },
     "GET /membership/smart-list/offers-products/{locationId}": {
-      "reach": "proven"
+      "reach": "proven",
+      "note": "The offer list the membership grant/revoke drawers use: PUBLISHED offers only; a draft offer is refused by GHL's asset check with a plain not-found (proven 2026-09-29, workflows wave26)."
     },
     "GET /oauth/whitelabel/{id}": {
       "reach": "refused",
@@ -1102,7 +1103,7 @@
       "reach": "proven"
     },
     "GET /workflows/logs/export/preview": {
-      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 \"workflowId is required\"). Reached, not yet answered 200.",
+      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 \"workflowId is required\"). Reached, not yet answered 200. Returns exactCount and cooldownUntil (15 min after a send) — proven 2026-09-29.",
       "requiredQuery": [
         "locationId",
         "workflowId",
@@ -1111,7 +1112,9 @@
       ]
     },
     "GET /workflows/logs/export/status": {
-      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: IDENTIFIED 2026-09-21. The POLL rail for the async log-export job (POST /workflows/logs/export starts it). workflowId is REQUIRED (400 'workflowId is required' without it, even with locationId). With it -> 200 {exports:[]} on the sandbox, which has run no export. Corpus page exists: workflows/50-runtime/log-export.md. Pairs with the POST; neither is covered by a tool. A log-export tool would be the POST + this poll + the download of the result, and the task is 'get the raw execution log off the platform', which get_workflow_logs does not do (it reads the live rail, it does not export). Candidate, not yet proposed — the export FORMAT and what the finished job's row looks like are unmeasured because nothing has been exported here."
+      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: IDENTIFIED 2026-09-21. The POLL rail for the async log-export job (POST /workflows/logs/export starts it). workflowId is REQUIRED (400 'workflowId is required' without it, even with locationId). With it -> 200 {exports:[]} on the sandbox, which has run no export. Corpus page exists: workflows/50-runtime/log-export.md. Pairs with the POST; neither is covered by a tool. A log-export tool would be the POST + this poll + the download of the result, and the task is 'get the raw execution log off the platform', which get_workflow_logs does not do (it reads the live rail, it does not export). Candidate, not yet proposed — the export FORMAT and what the finished job's row looks like are unmeasured because nothing has been exported here. Lists exports {createdAt, status, rows, size, recipientCount} — proven 2026-09-29.",
+      "reach": "proven",
+      "kind": "read"
     },
     "GET /workflows/logs/v2": {
       "note": "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
@@ -1459,10 +1462,12 @@
       "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. 🔴 REFUSES `productType` — 422 [\"property productType should not exist\"] — while its sibling POST /forms/folder/ REQUIRES it. Two folder endpoints on the same service with opposite contracts; do not copy one body to the other. Body is just {name, locationId}. Proven: 0 -> 1 folder, found by name."
     },
     "POST /templates/list": {
-      "kind": "read"
+      "kind": "read",
+      "note": "Template-library browse, a READ sent as POST: {categories, companyId, product:'workflow', limit, offset, sortOrder, system:false, type:'all'} (source-derived, workflows wave25)."
     },
     "POST /templates/template/load": {
-      "kind": "read"
+      "kind": "write",
+      "note": "Creates a workflow from an AGENCY-owned library template: {templateId, product:'workflow', locationId, parentId?} (services host); may bump a usage counter on the agency's object. Not executed (coordinator ruling 2026-09-29), body captured blocked from the builder (workflows wave25). IF THE USER WANTS IT: builder › Create workflow › template library."
     },
     "POST /triggers/dynamic-source/{key}": {
       "note": "ABSENT at this path 2026-09-19: the framework's 'Cannot POST'. A MIS-BASED spelling of POST /workflows-marketplace/triggers/dynamic-source/{key}.",
@@ -1748,7 +1753,7 @@
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "kind": "write",
-      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED — the operator confirmed it in the inbox. 🔴 One export per workflow per ~15 minutes. Use GET …/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything."
+      "note": "NO TASK NEEDS THIS — operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.\n— PRIOR NOTE: Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED — the operator confirmed it in the inbox. 🔴 One export per workflow per ~15 minutes. Use GET …/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything. Measured 2026-09-29 (Xander approved one send): explicit recipients[{email,userId?}], any deliverable address; accepted on a sub-account token before the 2026-10-25 UI release (the release gate is client-side); 15-min cooldown after a send (preview.cooldownUntil); status completes in ~2 s. Agency-only per source, unmeasured."
     },
     "POST /workflows/trigger/logs/count": {
       "summary": "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
@@ -1963,7 +1968,7 @@
       "note": "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
     },
     "POST /workflows-marketplace/actions/dynamic-source/{key}": {
-      "note": "🔴 One of the TWO sources an asset's dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential (\"not yet supported by the IAM Service\"), so these two proxies are the only door. An unknown action key answers 400 \"Action is not present\" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET …/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md."
+      "note": "🔴 One of the TWO sources an asset's dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential (\"not yet supported by the IAM Service\"), so these two proxies are the only door. An unknown action key answers 400 \"Action is not present\" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET …/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md. Paging (RTE tools): ?filterField=<field>::<toolId>[&page][&search]; the builder never sends limit; body = the step's current attributes (source-derived, workflows wave25)."
     },
     "GET /objects": {
       "note": "⚠️ Four spellings exist in this custom-objects family and they do NOT agree. [proven-live] 2026-09-21: `/objects/` (trailing slash) answers 200 and this plugin has always called it — engine/entities.mjs resolves an object by key or label through it. `/objects/{objectKey}` answers 200 under the BARE spelling, which GHL's own front end never sends; the client only issues `/objects/{objectKey}/`, and THAT is the one that refuses us. A `refused` verdict recorded against a URL nobody sends is not evidence about the capability. See workflows/20-api/refused-but-mined.md."
@@ -2166,7 +2171,7 @@
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "kind": "write",
-      "note": "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+      "note": "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType, cardConfig?}; pipelineIds scopes where it shows. Board card customisation lives only here: cardConfig {mode:'Default'|'Compact'|'Unlabeled', quickAction:[{title, checked}]}, with the card fields as `columns`; the Customize card drawer's Apply saves nothing on its own. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api) Workflow list views too: objectKey:'workflow', body {name, filters:[{group:'OR',filters:[]}], sort:[], pageLimit:20, columns:[], objectKey:'workflow'}. A saved view is LOCATION-WIDE — every user sees the tab (proven live 2026-09-29, create→read→delete, workflows batch e)."
     },
     "DELETE /lists/dynamic/{locationId}/{smartListId}": {
       "reach": "proven",
@@ -2208,6 +2213,14 @@
       "kind": "write",
       "reach": "reached",
       "note": "REQUIRES non-empty correlationId AND correlationType (live 2026-09-28: 422 \"should not be empty\" when sent with the FeedbackModalRemote defaults, which are \"\"; nothing stored). The host app that mounts the modal supplies them and none is mined, so do not guess them. trainBot is an OBJECT {question, answer, knowledgeBaseId} or omitted — there is no false. Offered in the UI on Conversation AI turns, not on Voice AI log turns."
+    },
+    "POST /workflow/{locationId}": {
+      "kind": "write",
+      "note": "With templateId=<GHL recipe id> (the builder's ?recipeId=) the server fills the recipe's steps, creates NO trigger, does not keep templateId, and REPLACES the sent name with the recipe title — rename after create and read back (proven live 2026-09-29, workflows wave25)."
+    },
+    "POST /workflows-marketplace/triggers/dynamic-source/{key}": {
+      "kind": "read",
+      "note": "The trigger twin of actions/dynamic-source: a READ sent as POST, body = the trigger's current attributes (source-derived, workflows wave25)."
     }
   }
 }
