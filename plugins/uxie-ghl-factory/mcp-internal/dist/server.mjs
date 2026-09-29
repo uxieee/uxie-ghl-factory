@@ -123716,11 +123716,11 @@ function hoverClass(spec) {
 }
 function parentAnimationOffset(id, section) {
   const nodes = [section?.metaData, ...section?.elements ?? []].filter(Boolean);
-  const parentOf = /* @__PURE__ */ new Map();
-  for (const n of nodes) for (const c of n.child ?? []) if (!parentOf.has(c)) parentOf.set(c, n);
+  const parentOf2 = /* @__PURE__ */ new Map();
+  for (const n of nodes) for (const c of n.child ?? []) if (!parentOf2.has(c)) parentOf2.set(c, n);
   let total = 0;
   const seen = /* @__PURE__ */ new Set();
-  for (let p2 = parentOf.get(id); p2 && !seen.has(p2.id); p2 = parentOf.get(p2.id)) {
+  for (let p2 = parentOf2.get(id); p2 && !seen.has(p2.id); p2 = parentOf2.get(p2.id)) {
     seen.add(p2.id);
     const layout = ["section", "row", "col"].includes(p2.meta) && String(p2.class?.entranceAnimation?.value ?? "").includes("animate__animated");
     if (layout) total += (Number(p2.class?.animationDuration?.value ?? 1) || 1) + (Number(p2.class?.animationDelay?.value ?? 0) || 0);
@@ -123729,8 +123729,8 @@ function parentAnimationOffset(id, section) {
 }
 function stripAnimationCss(css, id) {
   let out = css ?? "";
-  const esc2 = id.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
-  const at = new RegExp(`@(?:-webkit-)?keyframes [A-Za-z]+-${esc2}\\{`, "g");
+  const esc3 = id.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
+  const at = new RegExp(`@(?:-webkit-)?keyframes [A-Za-z]+-${esc3}\\{`, "g");
   for (let m = at.exec(out); m; m = at.exec(out)) {
     let depth = 0, i = m.index + m[0].length - 1;
     for (; i < out.length; i++) {
@@ -123740,8 +123740,8 @@ function stripAnimationCss(css, id) {
     out = out.slice(0, m.index) + out.slice(i + 1);
     at.lastIndex = m.index;
   }
-  out = out.replace(new RegExp(`\\.animate__[A-Za-z]+-${esc2}\\{[^}]*\\}`, "g"), "");
-  out = out.replace(new RegExp(`\\.${esc2},\\.c${esc2}\\{--hover-[^}]*\\}`, "g"), "");
+  out = out.replace(new RegExp(`\\.animate__[A-Za-z]+-${esc3}\\{[^}]*\\}`, "g"), "");
+  out = out.replace(new RegExp(`\\.${esc3},\\.c${esc3}\\{--hover-[^}]*\\}`, "g"), "");
   return out;
 }
 var ENTRANCE_METAS = Object.freeze(["heading", "sub-heading", "paragraph", "rich-text", "bulletList", "button", "image", "section", "row", "col"]);
@@ -130482,6 +130482,7 @@ function planUpdateStep({ funnel, stepId, name, url: url2, domainName }) {
   }
   return { method: "PUT", path: `/funnels/funnel/step/${enc(funnel._id ?? funnel.id)}`, body: b };
 }
+var isStoreStep = (s) => s?.type === "store" || /^store-/.test(s?.key ?? "");
 function planReorder({ funnel, order }) {
   const steps = funnel.steps ?? [];
   const ids = steps.map((s) => s.id);
@@ -130489,13 +130490,16 @@ function planReorder({ funnel, order }) {
   if (!same4) {
     return { refuse: `order must name EVERY step exactly once (${ids.length} on this funnel). The route replaces the whole steps array; a subset would drop steps.` };
   }
+  if (funnel.type === "store" || steps.some(isStoreStep)) {
+    return { refuse: 'store pages follow a fixed order and cannot be reordered (the page builder refuses the drag: "Store pages cannot be reordered"). Nothing was sent.' };
+  }
   const byId = Object.fromEntries(steps.map((s) => [s.id, s]));
   return {
     method: "PATCH",
     path: `/funnels/funnel/update/${enc(funnel._id ?? funnel.id)}`,
     body: { steps: order.map((id, i) => {
-      const s = byId[id];
-      return { controlTraffic: s.control_traffic ?? s.controlTraffic ?? 100, id: s.id, name: s.name, pages: s.pages ?? [], sequence: i + 1, split: s.split === true, type: s.type, url: s.url };
+      const { control_traffic, ...rest } = byId[id];
+      return { ...rest, controlTraffic: control_traffic ?? rest.controlTraffic ?? 100, pages: rest.pages ?? [], split: rest.split === true, sequence: i + 1 };
     }) }
   };
 }
@@ -130915,6 +130919,209 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
+// core/page-structure.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+function randomId(kind, taken, rnd = Math.random) {
+  for (let attempt = 0; attempt < 1e3; attempt++) {
+    let s = "";
+    for (let i = 0; i < 10; i++) s += ALPHABET[Math.floor(rnd() * ALPHABET.length)];
+    const id = `${kind}-${s}`;
+    if (!taken.has(id)) {
+      taken.add(id);
+      return id;
+    }
+  }
+  throw new Error("could not make an unused node id");
+}
+var esc2 = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var B = "[A-Za-z0-9_-]";
+function idRenamer(map2) {
+  const olds = [...map2.keys()].sort((a, b) => b.length - a.length);
+  if (!olds.length) return (s) => s;
+  const re = new RegExp(`(?<!${B})(c?)(${olds.map(esc2).join("|")})(?!${B})`, "g");
+  return (s) => s.replace(re, (_m, c, id) => `${c}${map2.get(id)}`);
+}
+function renameDeep(value, rename) {
+  if (typeof value === "string") return rename(value);
+  if (Array.isArray(value)) return value.map((v) => renameDeep(v, rename));
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, renameDeep(v, rename)]));
+  return value;
+}
+function blocks(css) {
+  const out = [];
+  let i = 0;
+  const n = css.length;
+  while (i < n) {
+    let j = i;
+    while (j < n && css[j] !== "{" && css[j] !== ";") j++;
+    if (j >= n) {
+      if (css.slice(i).trim()) out.push({ prelude: "", body: null, raw: css.slice(i) });
+      break;
+    }
+    if (css[j] === ";") {
+      out.push({ prelude: css.slice(i, j), body: null, raw: css.slice(i, j + 1) });
+      i = j + 1;
+      continue;
+    }
+    let depth = 1;
+    let k = j + 1;
+    while (k < n && depth) {
+      if (css[k] === "{") depth++;
+      else if (css[k] === "}") depth--;
+      k++;
+    }
+    out.push({ prelude: css.slice(i, j).trim(), body: css.slice(j + 1, depth ? k : k - 1) });
+    i = k;
+  }
+  return out;
+}
+function splitSelectors(prelude) {
+  const parts = [];
+  let depth = 0;
+  let q3 = null;
+  let cur = "";
+  for (let i = 0; i < prelude.length; i++) {
+    const ch = prelude[i];
+    if (q3) {
+      cur += ch;
+      if (ch === "\\") cur += prelude[++i] ?? "";
+      else if (ch === q3) q3 = null;
+      continue;
+    }
+    if (ch === '"' || ch === "'") q3 = ch;
+    else if (ch === "(" || ch === "[") depth++;
+    else if (ch === ")" || ch === "]") depth--;
+    else if (ch === "," && !depth) {
+      parts.push(cur.trim());
+      cur = "";
+      continue;
+    }
+    cur += ch;
+  }
+  if (cur.trim()) parts.push(cur.trim());
+  return parts;
+}
+function copyRulesUnderNewIds(css, map2) {
+  if (!css || !map2.size) return "";
+  const rename = idRenamer(map2);
+  const names = new RegExp(`(?<!${B})c?(${[...map2.keys()].sort((a, b) => b.length - a.length).map(esc2).join("|")})(?!${B})`);
+  const walk3 = (text) => blocks(text).map((b) => {
+    if (b.body === null) return "";
+    if (/^@(media|supports|container|layer)\b/i.test(b.prelude)) {
+      const inner = walk3(b.body);
+      return inner ? `${b.prelude}{${inner}}` : "";
+    }
+    if (b.prelude.startsWith("@")) return "";
+    const sel = splitSelectors(b.prelude).filter((s) => names.test(s));
+    return sel.length ? `${sel.map(rename).join(",")}{${b.body}}` : "";
+  }).join("");
+  return walk3(css);
+}
+function stripRulesNaming(css, ids) {
+  if (!css || !ids.length) return css;
+  const names = new RegExp(`(?<!${B})c?(${[...ids].sort((a, b) => b.length - a.length).map(esc2).join("|")})(?!${B})`);
+  const walk3 = (text) => blocks(text).map((b) => {
+    if (b.body === null) return b.raw ?? `${b.prelude};`;
+    if (/^@(media|supports|container|layer)\b/i.test(b.prelude)) {
+      const inner = walk3(b.body);
+      return inner ? `${b.prelude}{${inner}}` : "";
+    }
+    if (b.prelude.startsWith("@")) return `${b.prelude}{${b.body}}`;
+    const sels = splitSelectors(b.prelude);
+    const keep = sels.filter((x) => !names.test(x));
+    if (keep.length === sels.length) return `${b.prelude}{${b.body}}`;
+    return keep.length ? `${keep.join(",")}{${b.body}}` : "";
+  }).join("");
+  return walk3(css);
+}
+function subtreeIds(section, rootId) {
+  const byId = new Map([[section.id, section.metaData ?? section], ...(section.elements ?? []).map((e) => [e.id, e])]);
+  const out = [];
+  const seen = /* @__PURE__ */ new Set();
+  const walk3 = (id) => {
+    if (seen.has(id) || !byId.has(id)) return;
+    seen.add(id);
+    out.push(id);
+    for (const c of byId.get(id).child ?? []) walk3(c);
+  };
+  walk3(rootId);
+  return out;
+}
+function parentOf(section, id) {
+  const holders = [section.metaData ?? section, ...section.elements ?? []];
+  for (const h of holders) {
+    const at = (h.child ?? []).indexOf(id);
+    if (at >= 0) return { parent: h, index: at };
+  }
+  return null;
+}
+function positionIn(child, where, label2 = "position") {
+  const given = ["index", "after", "before"].filter((k) => where[k] !== void 0);
+  if (given.length > 1) throw new Error(`${label2}: name ONE of index, after, before (got ${given.join(", ")})`);
+  if (where.index !== void 0) {
+    if (!Number.isInteger(where.index) || where.index < 0 || where.index > child.length) throw new Error(`${label2}: index ${where.index} is outside 0..${child.length}`);
+    return where.index;
+  }
+  for (const k of ["after", "before"]) if (where[k] !== void 0) {
+    const at = child.indexOf(where[k]);
+    if (at < 0) throw new Error(`${label2}: ${k} "${where[k]}" is not one of its siblings (${child.join(", ") || "none"})`);
+    return k === "after" ? at + 1 : at;
+  }
+  return child.length;
+}
+function movedIndex(child, from, o) {
+  const dirs = { up: Math.max(0, from - 1), down: Math.min(child.length - 1, from + 1), top: 0, bottom: child.length - 1 };
+  if (o.direction !== void 0) {
+    if (!(o.direction in dirs)) throw new Error(`direction must be up, down, top or bottom, not "${o.direction}"`);
+    if (["index", "after", "before"].some((k) => o[k] !== void 0)) throw new Error("name a direction OR a position (index, after, before), not both");
+    return dirs[o.direction];
+  }
+  const rest = child.filter((_, i) => i !== from);
+  return positionIn(rest, o, "move");
+}
+function cloneSubtree(section, rootId, taken, rnd) {
+  const ids = subtreeIds(section, rootId);
+  const byId = new Map([[section.id, section.metaData ?? section], ...(section.elements ?? []).map((e) => [e.id, e])]);
+  const map2 = new Map(ids.map((id) => [id, randomId(id.replace(/-[^-]*$/, ""), taken, rnd)]));
+  const rename = idRenamer(map2);
+  const nodes = ids.map((id) => {
+    const copy = renameDeep(structuredClone(byId.get(id)), rename);
+    delete copy.element;
+    delete copy.updated;
+    delete copy._id;
+    delete copy.isGlobal;
+    return copy;
+  });
+  return { ids: map2, nodes, rename };
+}
+function allIds(pageData) {
+  const s = /* @__PURE__ */ new Set();
+  for (const sec of pageData.sections ?? []) {
+    s.add(sec.id);
+    for (const e of sec.elements ?? []) s.add(e.id);
+  }
+  for (const p2 of pageData.popupsList ?? []) {
+    s.add(p2.id);
+    for (const e of p2.elements ?? []) s.add(e.id);
+  }
+  return s;
+}
+var popupRoot = (p2) => (p2.elements ?? []).find((n) => n.id === p2.id);
+function findPopup(pageData, ref) {
+  const list = pageData.popupsList ?? [];
+  const byId = list.findIndex((p2) => p2.id === ref);
+  if (byId >= 0) return { index: byId, popup: list[byId] };
+  const named = list.map((p2, index) => ({ p: p2, index })).filter(({ p: p2 }) => popupRoot(p2)?.title === ref);
+  if (named.length === 1) return { index: named[0].index, popup: named[0].p };
+  return named.length > 1 ? { ambiguous: named.map(({ p: p2 }) => p2.id) } : null;
+}
+
 // core/page-fonts.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -131019,6 +131226,147 @@ var mergeInto = (node, key, patch) => {
   node[key] = { ...node[key] ?? {}, ...patch };
   if (node.element && typeof node.element === "object") node.element[key] = { ...node.element[key] ?? {}, ...patch };
 };
+var inPopup = (pageData, nodeId) => (pageData.popupsList ?? []).some((p2) => (p2.elements ?? []).some((e) => e.id === nodeId));
+function insertTarget(pageData, o) {
+  let hit;
+  let col;
+  if (o.parentId) {
+    hit = findNode(pageData, o.parentId);
+    if (!hit || hit.isSection) throw new Error(`insert: no column with id ${o.parentId} on the page`);
+    col = hit.node;
+  } else {
+    const sib = o.after ?? o.before;
+    if (!sib) throw new Error("insert needs parentId (a column) or after / before (a sibling element)");
+    hit = findNode(pageData, sib);
+    if (!hit || hit.isSection) throw new Error(`insert: no element with id ${sib} on the page`);
+    col = parentOf(hit.section, sib)?.parent;
+    if (!col) throw new Error(`insert: ${sib} has no parent column`);
+  }
+  if (col.meta !== "col") throw new Error(`insert: ${col.id} is a ${col.meta}, an element goes into a column (name a column, or a sibling of the element position)`);
+  const where = o.parentId ? { index: o.index, after: o.after, before: o.before } : { after: o.after, before: o.before };
+  return { section: hit.section, col, at: positionIn(col.child ?? [], where, "insert") };
+}
+function moveNode(pageData, o) {
+  const hit = findNode(pageData, o.nodeId);
+  if (!hit) return { error: "no node with this id on the page" };
+  try {
+    if (hit.isSection) {
+      const ids = pageData.sections.map((x) => x.id);
+      const from = ids.indexOf(o.nodeId);
+      const at2 = movedIndex(ids, from, o);
+      const [moving] = pageData.sections.splice(from, 1);
+      pageData.sections.splice(at2, 0, moving);
+      pageData.sections = pageData.sections.map((x, k) => ({ ...x, sequence: k }));
+      return { moved: "section", from, to: at2, order: pageData.sections.map((x) => x.id) };
+    }
+    const cur = parentOf(hit.section, o.nodeId);
+    if (!cur) return { error: "this node has no parent" };
+    let dest = cur.parent;
+    if (o.parentId && o.parentId !== cur.parent.id) {
+      const d = findNode(pageData, o.parentId);
+      if (!d || d.isSection || d.section !== hit.section) return { error: `parentId ${o.parentId}: a node moves between the columns of ITS section only` };
+      if (hit.node.type !== "element" && hit.node.meta !== void 0 && ["row", "col", "section"].includes(hit.node.meta)) return { error: `a ${hit.node.meta} keeps its parent; only elements move between columns` };
+      if (d.node.meta !== "col") return { error: `parentId ${o.parentId} is a ${d.node.meta}; an element goes into a column` };
+      dest = d.node;
+    }
+    if (dest === cur.parent) {
+      const at2 = movedIndex(dest.child, cur.index, o);
+      const child = dest.child.filter((c) => c !== o.nodeId);
+      child.splice(at2, 0, o.nodeId);
+      dest.child = child;
+      if (dest.element && typeof dest.element === "object") dest.element.child = [...child];
+      return { moved: hit.node.meta, parentId: dest.id, from: cur.index, to: at2, siblings: [...child] };
+    }
+    if (o.direction !== void 0) return { error: "a move into another column names a position (index, after, before), not a direction" };
+    cur.parent.child = cur.parent.child.filter((c) => c !== o.nodeId);
+    const at = positionIn(dest.child ?? [], o, "move");
+    dest.child = [...(dest.child ?? []).slice(0, at), o.nodeId, ...(dest.child ?? []).slice(at)];
+    for (const p2 of [cur.parent, dest]) if (p2.element && typeof p2.element === "object") p2.element.child = [...p2.child];
+    return { moved: hit.node.meta, parentId: dest.id, fromParent: cur.parent.id, to: at, siblings: [...dest.child] };
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+function cloneNode(pageData, o) {
+  const hit = findNode(pageData, o.nodeId);
+  if (!hit) return { error: "no node with this id on the page" };
+  const taken = allIds(pageData);
+  const rnd = o.rnd ?? Math.random;
+  if (hit.isSection) {
+    const { ids: ids2, nodes: nodes2 } = cloneSubtree(hit.section, o.nodeId, taken, rnd);
+    const [meta3, ...elements] = nodes2;
+    meta3.styles = { ...meta3.styles ?? {}, background: { value: "none" } };
+    const newId = ids2.get(o.nodeId);
+    const { metaData: _m, elements: _e, general, ...rest } = hit.section;
+    const copy = { ...rest, id: newId, metaData: meta3, elements, general: { ...general ?? {}, sectionStyles: copyRulesUnderNewIds(general?.sectionStyles ?? "", ids2) } };
+    const secs = pageData.sections;
+    pageData.sections = [...secs.slice(0, hit.sectionIndex + 1), copy, ...secs.slice(hit.sectionIndex + 1)].map((x, k) => ({ ...x, sequence: k }));
+    return { cloneId: newId, cloned: "section", at: hit.sectionIndex + 1, ids: Object.fromEntries(ids2) };
+  }
+  const cur = parentOf(hit.section, o.nodeId);
+  if (!cur) return { error: "this node has no parent" };
+  const { ids, nodes } = cloneSubtree(hit.section, o.nodeId, taken, rnd);
+  hit.section.elements = [...hit.section.elements, ...nodes];
+  cur.parent.child = [...cur.parent.child.slice(0, cur.index + 1), ids.get(o.nodeId), ...cur.parent.child.slice(cur.index + 1)];
+  if (cur.parent.element && typeof cur.parent.element === "object") cur.parent.element.child = [...cur.parent.child];
+  const rules = copyRulesUnderNewIds(hit.section.general?.sectionStyles ?? "", ids);
+  if (rules) hit.section.general = { ...hit.section.general ?? {}, sectionStyles: `${hit.section.general?.sectionStyles ?? ""}${rules}` };
+  return { cloneId: ids.get(o.nodeId), cloned: hit.node.meta, parentId: cur.parent.id, at: cur.index + 1, siblings: [...cur.parent.child], nodes: nodes.length, ids: Object.fromEntries(ids) };
+}
+var POPUP_KNOBS = { disabled: "popupDisabled", closeOnOutsideClick: "popupHide" };
+function setPopup(pageData, o) {
+  const hit = findPopup(pageData, o.popupId);
+  if (!hit) return { error: `no popup ${o.popupId} on this page (${(pageData.popupsList ?? []).map((p2) => popupRoot(p2)?.title ?? p2.id).join(", ") || "it has none"})` };
+  if (hit.ambiguous) return { error: `${o.popupId} names several popups (${hit.ambiguous.join(", ")}); use the popup id` };
+  const root = popupRoot(hit.popup);
+  if (!root) return { error: "this popup has no root node" };
+  const changed = [];
+  for (const [k, field] of Object.entries(POPUP_KNOBS)) if (o[k] !== void 0) {
+    if (typeof o[k] !== "boolean") return { error: `${k} must be true or false` };
+    root.extra = { ...root.extra ?? {}, [field]: { value: o[k] } };
+    changed.push(`extra.${field}`);
+  }
+  if (o.showOn !== void 0) {
+    const s = o.showOn;
+    const trig = s === "exit" ? { value: "exit", delay: 1 } : s === "none" ? { value: "none", delay: 1 } : s && Number.isFinite(Number(s.delay)) && Number(s.delay) >= 0 ? { value: "delay", delay: Number(s.delay) } : null;
+    if (!trig) return { error: "showOn must be 'exit', 'none' or {delay: seconds}" };
+    root.extra = { ...root.extra ?? {}, showPopupOnMouseOut: trig };
+    changed.push("extra.showPopupOnMouseOut");
+  }
+  if (!changed.length) return { error: "set-popup needs disabled, closeOnOutsideClick or showOn" };
+  if (root.element && typeof root.element === "object") root.element.extra = { ...root.extra };
+  return { popupId: hit.popup.id, changed, expect: Object.fromEntries(changed.map((c) => [c, root.extra[c.slice(6)]])) };
+}
+function removePopup(pageData, o) {
+  const hit = findPopup(pageData, o.popupId);
+  if (!hit) return { error: `no popup ${o.popupId} on this page (${(pageData.popupsList ?? []).map((p2) => popupRoot(p2)?.title ?? p2.id).join(", ") || "it has none"})` };
+  if (hit.ambiguous) return { error: `${o.popupId} names several popups (${hit.ambiguous.join(", ")}); use the popup id` };
+  const id = hit.popup.id;
+  const openers = [];
+  for (const sec of pageData.sections ?? []) for (const e of sec.elements ?? []) if (e.extra?.popupId?.value === id || Object.values(e.extra ?? {}).some((v) => v?.value?.popupId === id)) openers.push(e.id);
+  if (openers.length) return { error: `${openers.join(", ")} open this popup; point them elsewhere (set) or remove them first` };
+  const ids = (hit.popup.elements ?? []).map((e) => e.id);
+  const before = pageData.pageStyles ?? "";
+  const keep = stripRulesNaming(before, ids);
+  pageData.popupsList = pageData.popupsList.filter((p2) => p2.id !== id);
+  pageData.pageStyles = keep;
+  return { popupId: id, removedNodes: ids.length, pageStylesChanged: keep !== before, remaining: pageData.popupsList.map((p2) => p2.id) };
+}
+function orderPopups(pageData, o) {
+  const list = pageData.popupsList ?? [];
+  if (!Array.isArray(o.order) || !o.order.length) return { error: "order-popups needs `order`: the popup ids or names, first = highest priority" };
+  const picked = [];
+  for (const ref of o.order) {
+    const hit = findPopup(pageData, ref);
+    if (!hit) return { error: `no popup ${ref} on this page` };
+    if (hit.ambiguous) return { error: `${ref} names several popups (${hit.ambiguous.join(", ")}); use the popup id` };
+    if (picked.includes(hit.popup.id)) return { error: `${ref} is listed twice` };
+    picked.push(hit.popup.id);
+  }
+  const next = [...picked.map((id) => list.find((p2) => p2.id === id)), ...list.filter((p2) => !picked.includes(p2.id))];
+  pageData.popupsList = next;
+  return { order: next.map((p2) => p2.id), names: next.map((p2) => popupRoot(p2)?.title ?? p2.id) };
+}
 function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes = () => "", kindLayer = null } = {}) {
   const next = structuredClone(pageData);
   const report = [];
@@ -131026,7 +131374,7 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
     if (o.op === "set") {
       const hit = findNode(next, o.nodeId);
       if (!hit) {
-        report.push({ i, op: "set", nodeId: o.nodeId, error: "no node with this id on the page" });
+        report.push({ i, op: "set", nodeId: o.nodeId, error: inPopup(next, o.nodeId) ? "this node is inside a popup: a popup's own settings go through set-popup; its content is rebuilt with remove-popup + append-popup (content edits inside a popup are not supported)" : "no node with this id on the page" });
         continue;
       }
       const beforeNode = !hit.isSection && kindLayer ? structuredClone(hit.node) : null;
@@ -131197,8 +131545,46 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
       hit.node.updated = true;
       report.push({ i, op: "set", nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...layerPatch } });
     } else if (o.op === "append-section") {
-      next.sections = [...next.sections ?? [], { ...o.section, sequence: (next.sections ?? []).length }];
-      report.push({ i, op: "append-section", sectionId: o.section.id, nodes: (o.section.elements ?? []).length });
+      const secs = next.sections ?? [];
+      let at;
+      try {
+        at = positionIn(secs.map((x) => x.id), o, "append-section");
+      } catch (e) {
+        report.push({ i, op: "append-section", error: e.message });
+        continue;
+      }
+      next.sections = [...secs.slice(0, at), o.section, ...secs.slice(at)].map((x, k) => ({ ...x, sequence: k }));
+      report.push({ i, op: "append-section", sectionId: o.section.id, nodes: (o.section.elements ?? []).length, ...["index", "after", "before"].some((k) => o[k] !== void 0) ? { at } : {} });
+    } else if (o.op === "insert") {
+      let target;
+      try {
+        target = insertTarget(next, o);
+      } catch (e) {
+        report.push({ i, op: "insert", error: e.message });
+        continue;
+      }
+      const { section, col, at } = target;
+      const leaf = withElement(o.leaf);
+      section.elements = [...section.elements, leaf];
+      col.child = [...(col.child ?? []).slice(0, at), leaf.id, ...(col.child ?? []).slice(at)];
+      if (col.element && typeof col.element === "object") col.element.child = [...col.child];
+      if (o.css) section.general = { ...section.general ?? {}, sectionStyles: `${section.general?.sectionStyles ?? ""}${o.css}` };
+      report.push({ i, op: "insert", nodeId: leaf.id, meta: leaf.meta, sectionId: section.id, parentId: col.id, at, siblings: [...col.child] });
+    } else if (o.op === "move") {
+      const r = moveNode(next, o);
+      report.push({ i, op: "move", nodeId: o.nodeId, ...r });
+    } else if (o.op === "clone") {
+      const r = cloneNode(next, o);
+      report.push({ i, op: "clone", nodeId: o.nodeId, ...r });
+    } else if (o.op === "set-popup") {
+      const r = setPopup(next, o);
+      report.push({ i, op: "set-popup", popup: o.popupId, ...r });
+    } else if (o.op === "remove-popup") {
+      const r = removePopup(next, o);
+      report.push({ i, op: "remove-popup", popup: o.popupId, ...r });
+    } else if (o.op === "order-popups") {
+      const r = orderPopups(next, o);
+      report.push({ i, op: "order-popups", ...r });
     } else if (o.op === "append-popup") {
       next.popupsList = [...next.popupsList ?? [], o.popup.entry];
       next.pageStyles = `${next.pageStyles ?? ""}${o.popup.css}`;
@@ -131282,26 +131668,64 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
       }
       report.push({ i, op: "page", changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background, typography: o.typography } });
     } else {
-      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | append-popup | remove-node | page)` });
+      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | insert | move | clone | append-popup | set-popup | remove-popup | order-popups | remove-node | page)` });
     }
   }
   return { pageData: next, report, errors: report.filter((r) => r.error) };
 }
 function verifyEdits(stored, report) {
   const out = [];
-  for (const r of report) {
+  const lastOnParent = /* @__PURE__ */ new Map();
+  report.forEach((r, k) => {
+    if (!r.error && r.parentId && r.siblings) lastOnParent.set(r.parentId, k);
+  });
+  const secOrder = (r) => r.moved === "section" || r.cloned === "section" || r.op === "append-section" && r.at !== void 0;
+  let lastSection = -1;
+  report.forEach((r, k) => {
+    if (!r.error && secOrder(r)) lastSection = k;
+  });
+  const orderOk = (final, snap, exact, id) => exact ? JSON.stringify(final) === JSON.stringify(snap) : (final ?? []).includes(id);
+  for (const [k, r] of report.entries()) {
     if (r.error) continue;
     if (r.op === "set") {
       const hit = findNode(stored, r.nodeId);
       const wrong = [];
       for (const key of ["extra", "styles", "class", "wrapper", "tabletStyles", "mobileStyles", "tabletWrapper", "mobileWrapper"]) {
-        for (const [k, v] of Object.entries(r.expect?.[key] ?? {})) {
-          if (JSON.stringify(hit?.node?.[key]?.[k]) !== JSON.stringify(v)) wrong.push(`${key}.${k}`);
+        for (const [k2, v] of Object.entries(r.expect?.[key] ?? {})) {
+          if (JSON.stringify(hit?.node?.[key]?.[k2]) !== JSON.stringify(v)) wrong.push(`${key}.${k2}`);
         }
       }
       out.push({ nodeId: r.nodeId, present: !!hit, applied: !!hit && wrong.length === 0, ...wrong.length ? { notApplied: wrong } : {} });
     } else if (r.op === "append-section") {
-      out.push({ sectionId: r.sectionId, present: (stored.sections ?? []).some((s) => s.id === r.sectionId) });
+      const at = (stored.sections ?? []).findIndex((s) => s.id === r.sectionId);
+      out.push({ sectionId: r.sectionId, present: at >= 0, ...r.at !== void 0 ? { at, applied: k === lastSection ? at === r.at : at >= 0 } : {} });
+    } else if (r.op === "insert" || r.op === "clone") {
+      const id = r.nodeId && r.op === "insert" ? r.nodeId : r.cloneId;
+      const hit = findNode(stored, id);
+      const parent = hit && !hit.isSection ? parentOf(hit.section, id)?.parent : null;
+      const secOk = r.cloned === "section" ? k === lastSection ? (stored.sections ?? []).findIndex((s) => s.id === id) === r.at : (stored.sections ?? []).some((s) => s.id === id) : null;
+      const sibOk = r.siblings ? orderOk(parent?.child, r.siblings, lastOnParent.get(r.parentId) === k, id) : r.cloned === "section" ? null : parent?.child?.indexOf(id) === r.at;
+      const subtree = hit ? subtreeIds(hit.section, id).length : 0;
+      out.push({ nodeId: id, present: !!hit, ...r.op === "clone" ? { nodes: subtree } : {}, applied: !!hit && sibOk !== false && secOk !== false && (r.op !== "clone" || r.cloned === "section" || subtree === r.nodes) });
+    } else if (r.op === "move") {
+      let ok2;
+      if (r.moved === "section") {
+        const now = (stored.sections ?? []).map((x) => x.id);
+        ok2 = k === lastSection ? JSON.stringify(now) === JSON.stringify(r.order) : JSON.stringify(now.filter((x) => r.order.includes(x))) === JSON.stringify(r.order);
+      } else {
+        const hit = findNode(stored, r.nodeId);
+        ok2 = !!hit && orderOk(parentOf(hit.section, r.nodeId)?.parent?.child, r.siblings, lastOnParent.get(r.parentId) === k, r.nodeId);
+      }
+      out.push({ nodeId: r.nodeId, applied: ok2 });
+    } else if (r.op === "set-popup") {
+      const p2 = (stored.popupsList ?? []).find((x) => x.id === r.popupId);
+      const root = p2 && popupRoot(p2);
+      const wrong = Object.entries(r.expect ?? {}).filter(([c, v]) => JSON.stringify(root?.extra?.[c.slice(6)]) !== JSON.stringify(v)).map(([c]) => c);
+      out.push({ popupId: r.popupId, present: !!p2, applied: !!p2 && wrong.length === 0, ...wrong.length ? { notApplied: wrong } : {} });
+    } else if (r.op === "remove-popup") {
+      out.push({ popupId: r.popupId, absent: !(stored.popupsList ?? []).some((x) => x.id === r.popupId), applied: JSON.stringify((stored.popupsList ?? []).map((x) => x.id)) === JSON.stringify(r.remaining) });
+    } else if (r.op === "order-popups") {
+      out.push({ order: (stored.popupsList ?? []).map((x) => x.id), applied: JSON.stringify((stored.popupsList ?? []).map((x) => x.id)) === JSON.stringify(r.order) });
     } else if (r.op === "append-popup") {
       const p2 = (stored.popupsList ?? []).find((x) => x.id === r.popupId);
       out.push({ popupId: r.popupId, present: !!p2, nodes: p2?.elements?.length ?? 0, applied: !!p2 && p2.elements.length === r.nodes });
@@ -131310,7 +131734,7 @@ function verifyEdits(stored, report) {
     } else if (r.op === "page") {
       const e = r.expectPage ?? {};
       const wrong = [];
-      for (const [k, v] of Object.entries(e.trackingCode ?? {})) if (stored.trackingCode?.[k] !== v) wrong.push(`trackingCode.${k}`);
+      for (const [k2, v] of Object.entries(e.trackingCode ?? {})) if (stored.trackingCode?.[k2] !== v) wrong.push(`trackingCode.${k2}`);
       if (typeof e.customCss === "string") {
         if ((stored.general?.general?.pageStyles ?? "") !== e.customCss) wrong.push("general.general.pageStyles");
         if (e.customCss && !(stored.pageStyles ?? "").endsWith(e.customCss)) wrong.push("pageStyles");
@@ -131503,7 +131927,7 @@ function makePopup(spec, i, composeLeaf, saltBase = "P", label2 = `popups[${i}]`
       bgImage: BG_IMAGE,
       overlayColor: val(spec.overlayColor ?? "rgba(0, 0, 0, 0.5)"),
       left: { value: 50, unit: "%" },
-      popupDisabled: val(false),
+      popupDisabled: val(spec.disabled === true),
       popupHide: val(spec.closeOnOutsideClick ?? true),
       minWidth: val(minWidth),
       showPopupOnMouseOut: trigger,
@@ -205357,7 +205781,7 @@ function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
     showErrors: false,
     branchNameError: "Branch name cannot be empty!"
   });
-  const allIds = next;
+  const allIds2 = next;
   const newEntry = {
     id: newId,
     type: "if_else",
@@ -205367,7 +205791,7 @@ function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
     parentKey: containerId,
     cat: "conditions",
     comments: [],
-    sibling: allIds.filter((x) => x !== newId),
+    sibling: allIds2.filter((x) => x !== newId),
     nodeType: "branch-yes",
     // the editor needs the real non-empty branch-yes attributes, NOT `{}`
     attributes: { if: false, conditionName: "Condition", operator: "and", branches: [] },
@@ -205376,9 +205800,9 @@ function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
   const modified = [containerId];
   const out = templates.map((t) => {
     if (t.id === containerId) return { ...t, next, attributes: { ...t.attributes, branches } };
-    if (t.parent === containerId && allIds.includes(t.id)) {
+    if (t.parent === containerId && allIds2.includes(t.id)) {
       modified.push(t.id);
-      return { ...t, sibling: allIds.filter((x) => x !== t.id), order: next.indexOf(t.id) };
+      return { ...t, sibling: allIds2.filter((x) => x !== t.id), order: next.indexOf(t.id) };
     }
     return t;
   });
@@ -205431,7 +205855,7 @@ function deleteContainer(templates, containerId) {
   const out = templates.filter((t) => !remove.has(t.id)).map((t) => pred && t.id === pred.id ? { ...t, next: null } : t);
   return { templates: out, diff: { createdSteps: [], modifiedSteps: pred ? [pred.id] : [], deletedSteps: [...remove] } };
 }
-function subtreeIds(templates, rootId) {
+function subtreeIds2(templates, rootId) {
   const byId = new Map(templates.map((t) => [t.id, t]));
   const out = /* @__PURE__ */ new Set([rootId]);
   const queue = [rootId];
@@ -205486,7 +205910,7 @@ function deleteBranch(templates, containerId, branch) {
       attributes: { ...container.attributes, transitions: container.attributes.transitions.filter((x) => x.id !== hit.id) }
     };
   }
-  const remove = subtreeIds(templates, hit.id);
+  const remove = subtreeIds2(templates, hit.id);
   const remaining = containerPatch.next;
   const modified = [containerId];
   const out = templates.filter((t) => !remove.has(t.id)).map((t) => {
@@ -217062,8 +217486,22 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
       }
       if (e.op === "append-section") {
         if (!e.section) throw new Error(`edits[${i}]: append-section needs \`section\` (the same shape as sections[i])`);
-        return { op: "append-section", section: composeSection(e.section, i, salt) };
+        return { op: "append-section", section: composeSection(e.section, i, salt), index: e.index, after: e.after, before: e.before };
       }
+      if (e.op === "insert") {
+        if (!e.element) throw new Error(`edits[${i}]: insert needs \`element\` (the same shape as an element of a column) and parentId (a column) or after / before (a sibling)`);
+        const { leaf, css } = composeLeaf(e.element, `${salt}I${i}`);
+        return { op: "insert", leaf, css, parentId: e.parentId, after: e.after, before: e.before, index: e.index };
+      }
+      if (e.op === "move" || e.op === "clone") {
+        if (!e.nodeId) throw new Error(`edits[${i}]: ${e.op} needs nodeId`);
+        return e;
+      }
+      if (e.op === "set-popup" || e.op === "remove-popup") {
+        if (!e.popupId) throw new Error(`edits[${i}]: ${e.op} needs popupId (the popup's id or its name)`);
+        return e;
+      }
+      if (e.op === "order-popups") return e;
       if (e.op === "page") return e;
       if (!e.nodeId) throw new Error(`edits[${i}]: ${e.op} needs nodeId`);
       return e;
@@ -217080,7 +217518,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   if (!errors.length) applyPalette(edited);
   if (errors.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${errors.length} edit(s) could not be applied; nothing was written`, "data.report names each refused op."), { report });
   const touched = /* @__PURE__ */ new Set([
-    ...report.filter((r) => r.op === "set").map((r) => r.nodeId),
+    ...report.filter((r) => r.op === "set" || r.op === "insert").map((r) => r.nodeId),
     ...edited.sections.filter((sec) => report.some((r) => r.op === "append-section" && r.sectionId === sec.id)).flatMap((sec) => sec.elements.map((n) => n.id)),
     ...(edited.popupsList ?? []).filter((p2) => report.some((r) => r.op === "append-popup" && r.popupId === p2.id)).flatMap((p2) => p2.elements.map((n) => n.id))
   ]);
@@ -217101,7 +217539,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   }
   const appendedIds = new Set(report.filter((r) => r.op === "append-section").map((r) => r.sectionId));
   const stepKey2 = (funnel?.steps ?? []).find((st) => st.id === args.stepId)?.key;
-  const pdpBad = pageData.sections.filter((sec) => appendedIds.has(sec.id)).flatMap((sec) => sec.elements.flatMap((n) => pdpNodeProblems(n, sec, { stepKey: stepKey2 })));
+  const insertedIds = new Set(report.filter((r) => r.op === "insert").map((r) => r.nodeId));
+  const pdpBad = pageData.sections.flatMap((sec) => sec.elements.filter((n) => appendedIds.has(sec.id) || insertedIds.has(n.id)).flatMap((n) => pdpNodeProblems(n, sec, { stepKey: stepKey2 })));
   if (pdpBad.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${pdpBad.length} product-page block(s) this call appends are misplaced; nothing was written`, "Append them in a section with pdp:true, on the store's product-detail step (or a custom product page)."), { problems: pdpBad, report });
   const appendedScope = { sectionIds: appendedIds, popupIds: new Set(report.filter((r) => r.op === "append-popup").map((r) => r.popupId)) };
   const problems = auditPageData(pageData);
@@ -225827,7 +226266,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, popups?, typography?): writes the nodes AND the compiled stylesheet. Sizes, margins, tablet/mobile styles and defaults sit on the nodes and compile as the builder compiles them; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (refused by name: text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, remove-node, page (trackingCode, customCss, background, typography), append-popup; seo writes the page record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages \u2192 references/build-funnel-page.md. Siblings: edit_funnel, get_funnel, create_funnel.`,
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, popups?, typography?): writes the nodes AND the compiled stylesheet. Sizes, margins, tablet/mobile styles and defaults sit on the nodes and compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, insert, move, clone, remove-node, page (trackingCode, customCss, background, typography), append-popup, set-popup, remove-popup, order-popups; seo writes the page record AND the version. Target checked first (pageId on stepId, stepName exact); every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages \u2192 references/build-funnel-page.md. Siblings: edit_funnel, get_funnel, create_funnel.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -225837,7 +226276,18 @@ var TOOLS2 = [
       popups: external_exports.array(external_exports.record(external_exports.any())).optional(),
       typography: external_exports.object({ headlineFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional(), contentFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional() }).optional(),
       edits: external_exports.array(external_exports.object({
-        op: external_exports.enum(["set", "append-section", "append-popup", "remove-node", "page"]),
+        op: external_exports.enum(["set", "append-section", "insert", "move", "clone", "append-popup", "set-popup", "remove-popup", "order-popups", "remove-node", "page"]),
+        element: external_exports.record(external_exports.any()).optional().describe("insert: the new element, the same shape as an element of a column"),
+        parentId: external_exports.string().optional().describe("insert: the column to insert into; move: the column of the same section to move an element into"),
+        after: external_exports.string().optional().describe("a position: put it right after this sibling (insert / move: an element, row or column; append-section: a section id)"),
+        before: external_exports.string().optional().describe("a position: put it right before this sibling"),
+        index: external_exports.number().int().min(0).optional().describe("a position: the 0-based place among the siblings"),
+        direction: external_exports.enum(["up", "down", "top", "bottom"]).optional().describe("move: one step up / down, or to the top / bottom of its siblings (instead of a position)"),
+        popupId: external_exports.string().optional().describe("set-popup / remove-popup: the popup id or its name"),
+        order: external_exports.array(external_exports.string()).optional().describe("order-popups: popup ids or names, first = highest priority; unlisted popups follow"),
+        disabled: external_exports.boolean().optional().describe("set-popup: the popup's Disable Popup switch"),
+        closeOnOutsideClick: external_exports.boolean().optional().describe("set-popup: close on clicking outside"),
+        showOn: external_exports.union([external_exports.enum(["exit", "none"]), external_exports.object({ delay: external_exports.number().min(0) })]).optional().describe("set-popup: 'exit' | 'none' | {delay: seconds}"),
         nodeId: external_exports.string().optional(),
         extra: external_exports.record(external_exports.any()).optional(),
         styles: external_exports.record(external_exports.any()).optional(),
