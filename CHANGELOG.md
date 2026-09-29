@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.29.0] — 2026-09-30
+
+**Pages: insert, move and clone anything on a page, and manage popups, without rebuilding it. Executed live on the
+test account.**
+
+### Added
+- `edit_funnel` edits a page in place:
+  - insert an element at a position (inside a parent at an index, or after or before a node);
+  - move sections and elements, including across the columns of a section;
+  - clone an element, row, column or section the way the builder does;
+  - add a section at a position;
+  - popups: disable one, close on outside click, choose when it shows, reorder them, and remove one. A popup a
+    button still opens is refused.
+  Live: the page's stored content was unchanged by a builder Save and by Publish, and the builder's own recompiled
+  styles matched the tool's on every node. A disabled popup is not rendered, and popups stack in the stored order.
+
+### Fixed
+- `edit_funnel` reordering funnel steps sends each step's full stored object. The old body dropped four keys. A funnel
+  with store pages is refused, as the builder does.
+- Removing a popup could leave its style rules behind on a page carrying the builder's malformed bullet rule.
+
 ## [1.28.0] — 2026-09-30
 
 **Pages: 16 more element kinds look right the moment they are built, with no builder save needed. Executed live on
