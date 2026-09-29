@@ -21,6 +21,9 @@ Every item was executed on the designated test sub-account and read back on a se
 - **Deleting a contact deletes its opportunities.** Each card gets its own Opportunity · Deleted audit row.
   Restoring a card from that row (`PUT /opportunities/{id}/restore {forceRestore:true}`) brings the card
   back **and restores the deleted contact with it**. Warn before deleting a contact that holds deals.
+- **Deleting an opportunity unlinks its notes and tasks; it does not delete them.** The notes keep their
+  contact relation (the opportunity relation is soft-deleted), and the tasks stay readable by id. Restoring the
+  card relinks both. The app's warning that a delete "removes linked notes and tasks" overstates it.
 - **`PATCH …/position` with an empty body moves the pipeline.** `raw_request` refuses it without
   `targetPosition`.
 - The update body is the GET row with `id`, `position`, `dateAdded`, `dateUpdated`, `locationId`
@@ -74,6 +77,10 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
 
 - **A lost reason typed into the edit form is created the moment you pick it** (`POST
   /opportunities/lost-reason`), even if the form is then cancelled. Stray reasons stay in the list.
+- **Rename or delete a lost reason** with `PUT /opportunities/lost-reason/{id} {name, locationId}` and
+  `DELETE /opportunities/lost-reason/{id}` (internal `raw_request`); the public API only lists them. In the app this is
+  Settings › Custom Fields › Opportunity › Lost reason › Define lost reason options. A deleted reason answers 404
+  `LOST_REASON_NOT_FOUND` by id.
 
 ## Account settings
 
@@ -99,6 +106,10 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
 - Stage and owner rows are labelled with their UUIDs; join the names yourself.
 - Slippage "medium risk" differs by caller: the server default is "1+ times AND 7+ days", while the
   UI sends "OR". Read the returned `rule` strings.
+- The app's **Adjust risk settings is not saved**: it only re-reads slippage with new thresholds, and a reload
+  goes back to 2|14, 1|7, 1|1. Pass `riskThresholds` on every call if the user wants their own bands.
+- The "Fix your forecast data" lists (missing close date, missing value) can be bulk edited only with ONE pipeline
+  selected; the edit is an ordinary bulk job (`POST /bulk-actions/request`, bulk-edit) listed under Bulk Actions.
 
 ## Smart tags (`/opportunities/smart-filters`, `filterType:"smarttag"`)
 
