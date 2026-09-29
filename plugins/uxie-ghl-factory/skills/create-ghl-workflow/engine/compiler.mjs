@@ -2787,6 +2787,20 @@ export function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
     const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` — GHL: "${ctx.catalog.i18n[r.i18n]}"` : '';
     if (empty) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) — GHL requires filter '${r.field}'${r.beDedupeAssetType ? ' (the SERVER blocks the save without it)' : ''}${ghlText}`);
   }
+  // OBJECT-BASED WORKFLOW (custom_object_created / custom_object_changed): a row's field is the object's FULL field key,
+  // `custom_objects.<object>.<field>`. Authored as the bare label ("Name") it is stored as-is and the drawer shows the row as "Select"
+  // with no field (read on an own object-mode draft, live-W31-g-custom_object-render-*.json); the full key renders. A bare name is
+  // prefixed with the workflow's object key: lower-case, spaces to underscores — the shape GHL gives a field key — and SAID, because a
+  // field whose key was edited away from its label would not match.
+  if (typeof objectKey === 'string' && objectKey.startsWith('custom_objects.')) {
+    conditions = conditions.map((c) => {
+      if (!c || typeof c.field !== 'string' || c.field.startsWith('custom_objects.') || /^(contact|opportunity|business)\./.test(c.field)) return c;
+      const slug = c.field.trim().toLowerCase().replace(/[\s-]+/g, '_');
+      ctx?.warn?.(`TRIGGER_FILTER_OBJECT_FIELD: filter '${c.field}' on '${t.type}' is not a full field key — the drawer shows such a row as "Select" with no field. `
+        + `Written as '${objectKey}.${slug}' (assumed from the label; author the full key '${objectKey}.<fieldKey>' if the field's key differs).`);
+      return { ...c, field: `${objectKey}.${slug}` };
+    });
+  }
   // VALUE-LESS ROWS. The API stores a filter row with no value and reports success, but the builder refuses to SAVE a trigger
   // carrying one (TriggerMain.hasErrors -> checkForEmptyFilter, TriggerMain.ts:306-334): the Save trigger button stays blocked
   // until a value is chosen, so a person who opens the trigger later cannot re-save it (the block is read from source; the drawer's
