@@ -5185,7 +5185,7 @@ export const TOOLS = [
     name: 'get_account_workflow_overview',
     description: describe(
       'get_account_workflow_overview',
-      'The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match. '
+      'The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match. triggerCountFilter runs ONE filtered count (workflowId / triggerType / recordId = contact ids / entityId = form or survey ids, max 31 days): "is this trigger firing and matching, for this contact or form?". For WHY a trigger does not match, use get_trigger_logs. '
       + 'In the enrollment rows, total:null means GHL RETURNED NO ROW for that workflow, which is not the same as zero: the enroll-stats route omits a workflow rather than reporting 0, and a ghost id gets the identical empty answer (measured with a control 2026-09-21), so absence cannot distinguish "no enrolments" from "no such workflow". Read null as unknown and never as 0 — this tool reports what GHL stated, and states nothing where GHL did not.',
     ),
     inputSchema: schema({
@@ -5197,6 +5197,15 @@ export const TOOLS = [
       // ONE CALL PER WORKFLOW: the route sums whatever id list it is given (measured 2026-09-20:
       // 237 + 38 -> 275, a ghost id adds 0), so batching would return one number for the account.
       includeTriggerCounts: z.boolean().default(false),
+      // ONE filtered trigger-analysis count, the Overview page's own filter bar. Filters combine (measured 2026-09-29: a
+      // workflow + one contact gave 9 of the workflow's 12 attempts; a wrong triggerType gave 0).
+      triggerCountFilter: z.object({
+        workflowId: z.array(z.string().min(1)).min(1).optional().describe('workflow ids (the route sums them into one number)'),
+        triggerType: z.array(z.string().min(1)).min(1).optional().describe('trigger type slugs, e.g. contact_tag'),
+        recordId: z.array(z.string().min(1)).min(1).optional().describe('CONTACT ids'),
+        entityId: z.array(z.string().min(1)).min(1).optional().describe('FORM or SURVEY ids only, with triggerType form_submission / survey_submission'),
+        days: z.number().int().positive().max(31).default(30).describe('window in days back from now; the builder allows at most 31'),
+      }).strict().optional(), // strict: a misspelt filter (contactId for recordId) must be refused, not dropped into a broader count
     }),
     capabilities: [
       { method: 'GET', path: '/workflows/statistics' },
@@ -5248,6 +5257,33 @@ export const TOOLS = [
           triggerCounts.push({ workflowId: id, attempted, matched, unmatched: Math.max(0, attempted - matched), neverMatches: attempted > 0 && matched === 0 });
         }
       }
+      // The filtered count (one POST). Refused BY NAME before any call: entityId means a form or survey id and nothing else,
+      // and the window is the builder's 31 days. The server accepted 40 days and ignored nothing, but the builder's own
+      // date guard stops at 31, so that is the contract here.
+      let triggerCountsFiltered = null;
+      if (args.triggerCountFilter) {
+        const f = args.triggerCountFilter;
+        const FORM_TYPES = new Set(['form_submission', 'survey_submission']);
+        if (!f.workflowId && !f.triggerType && !f.recordId && !f.entityId) {
+          return fail(CODES.VALIDATION_FAILED, 'triggerCountFilter needs at least one of workflowId, triggerType, recordId, entityId — an unfiltered count is the whole account and the Overview page never sends one.');
+        }
+        if (f.entityId && (!f.triggerType || !f.triggerType.every((t) => FORM_TYPES.has(t)))) {
+          return fail(CODES.VALIDATION_FAILED, 'entityId is a FORM or SURVEY id: pass it only with triggerType [form_submission] and/or [survey_submission]. The builder never sends it for another trigger type, and GHL answers 0 rather than an error for a mismatch.', 'Drop entityId, or set triggerType to form_submission / survey_submission.');
+        }
+        const now = deps.now ? new Date(deps.now).getTime() : Date.now();
+        const days = f.days ?? 30;
+        // fromDate / toDate MUST be strings: GHL answered an empty body for epoch-ms numbers (measured 2026-09-29).
+        const body = { locationId: args.locationId, dateType: 'custom', fromDate: String(now - days * 86_400_000), toDate: String(now),
+          ...(f.workflowId ? { workflowId: f.workflowId } : {}), ...(f.triggerType ? { triggerType: f.triggerType } : {}),
+          ...(f.recordId ? { recordId: f.recordId } : {}), ...(f.entityId ? { entityId: f.entityId } : {}) };
+        const r = await gw.call('POST', '/workflows/trigger/logs/count', body);
+        const row = Array.isArray(r.json) ? r.json[0] : null;
+        const { locationId: _l, dateType: _d, fromDate, toDate, ...filters } = body;
+        triggerCountsFiltered = !r.ok || !row
+          ? { filters, window: { days, fromDate: Number(fromDate), toDate: Number(toDate) }, attempted: null, matched: null, unmatched: null, error: { status: r.status } }
+          : (() => { const attempted = Number(row.total ?? 0), matched = Number(row.matched ?? 0);
+            return { filters, window: { days, fromDate: Number(fromDate), toDate: Number(toDate) }, attempted, matched, unmatched: Math.max(0, attempted - matched) }; })();
+      }
       return ok({
         statistics,
         weeklyEnrollment: weekly.ok ? (Array.isArray(weekly.json) ? weekly.json : recordsFrom(weekly.json, 'data')) : null,
@@ -5259,6 +5295,7 @@ export const TOOLS = [
         },
         enrollment,
         triggerCounts,
+        ...(triggerCountsFiltered ? { triggerCountsFiltered } : {}),
         note: 'Needs Review = workflows with a recent failing step (the list page\'s tab badge). errorEmailSettings.users are EXTRA recipients: GHL emails every agency and location admin on failures by default (UI copy), so users:[] means admins only; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} — deliberately not exposed here. triggerCounts (opt-in) is the last 30 days; neverMatches = the triggers fired and not once matched their filters — a ghost workflowId reads 0/0, never an error, so it cannot be told from a quiet workflow here.',
       });
     }, args),
