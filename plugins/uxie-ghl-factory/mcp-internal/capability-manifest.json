@@ -76,6 +76,11 @@
   },
   {
     "tool": "create_studio_agent",
+    "method": "POST",
+    "path": "/agent-studio/super-agent/agents/from-template"
+  },
+  {
+    "tool": "create_studio_agent",
     "method": "PUT",
     "path": "/agent-studio/super-agent/agents/{agentId}"
   },
@@ -83,6 +88,11 @@
     "tool": "create_studio_agent",
     "method": "GET",
     "path": "/agent-studio/super-agent/agents/{agentId}"
+  },
+  {
+    "tool": "create_studio_agent",
+    "method": "GET",
+    "path": "/agent-studio/super-agent/agents"
   },
   {
     "tool": "get_contact_ai_status",
@@ -1383,6 +1393,11 @@
     "tool": "describe_marketplace_action",
     "method": "GET",
     "path": "/workflows-marketplace/integration/{appId}/oauth"
+  },
+  {
+    "tool": "get_ai_agent_options",
+    "method": "GET",
+    "path": "/ai-employees/employees/models"
   },
   {
     "tool": "get_ai_agent_options",

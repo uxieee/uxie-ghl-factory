@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-29",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1549,
+  "count": 1551,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -434,40 +434,6 @@
       },
       "sources": [
         "services/marketplaceServices/AffiliateService.ts:32"
-      ]
-    },
-    {
-      "id": "typed--get_ai_configuration_bundle--agents-agents-with-folders",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/agent-studio/agents/agents-with-folders",
-      "path": "/agent-studio/agents/agents-with-folders",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "note": "Read by get_ai_configuration_bundle to INVENTORY an account's flow agents (legacy node-graph Agent Studio) — reading them is in scope. AUTHORING flow agents is excluded (coordinator decision T8, 2026-09-26; new ones are creatable only by five hard-coded agencies). IF THE USER WANTS IT: GHL can do it — AI Agents → Agent Studio (flow agents), or the flow builder embedded in Voice AI / Conversation AI; see corpus ai-agents/00-overview.",
-      "reach": "proven",
-      "coveredBy": [
-        "get_ai_configuration_bundle"
-      ],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "get_ai_configuration_bundle",
-      "tree": "typed-tool",
-      "pathParams": [],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "proven",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "capability-manifest.json (get_ai_configuration_bundle)"
       ]
     },
     {
@@ -40889,7 +40855,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:148",
+        "ai-agents/10-anatomy/flow-agent-shape.md:153",
         "ai-agents/20-api/actions-and-plugins.md:24"
       ]
     },
@@ -40932,7 +40898,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:151",
+        "ai-agents/10-anatomy/flow-agent-shape.md:156",
         "ai-agents/20-api/actions-and-plugins.md:25",
         "ai-agents/20-api/actions-and-plugins.md:61"
       ]
@@ -41896,7 +41862,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:126"
+        "ai-agents/10-anatomy/flow-agent-shape.md:131"
       ]
     },
     {
@@ -41969,7 +41935,86 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:76"
+        "ai-agents/10-anatomy/flow-agent-shape.md:81"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-studio-agents-get",
+      "aka": [
+        "/agent-studio/agents/{id}"
+      ],
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/agent-studio/agents/{agentId}",
+      "path": "/agent-studio/agents/{agentId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "agentId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:34"
+      ]
+    },
+    {
+      "id": "ai-agents--agents-agents-with-folders-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/agent-studio/agents/agents-with-folders",
+      "path": "/agent-studio/agents/agents-with-folders",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "note": "Read by get_ai_configuration_bundle to INVENTORY an account's flow agents (legacy node-graph Agent Studio) — reading them is in scope. AUTHORING flow agents is excluded (coordinator decision T8, 2026-09-26; new ones are creatable only by five hard-coded agencies). IF THE USER WANTS IT: GHL can do it — AI Agents → Agent Studio (flow agents), or the flow builder embedded in Voice AI / Conversation AI; see corpus ai-agents/00-overview.",
+      "reach": "source-only",
+      "coveredBy": [
+        "get_ai_configuration_bundle"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "productId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:174"
       ]
     },
     {
@@ -42040,7 +42085,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:163"
+        "ai-agents/10-anatomy/managed-agent-shape.md:182"
       ]
     },
     {
@@ -42071,7 +42116,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:162"
+        "ai-agents/10-anatomy/flow-agent-shape.md:36",
+        "ai-agents/10-anatomy/managed-agent-shape.md:181"
       ]
     },
     {
@@ -42106,7 +42152,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:164"
+        "ai-agents/10-anatomy/managed-agent-shape.md:183"
       ]
     },
     {
@@ -42141,7 +42187,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:171"
+        "ai-agents/10-anatomy/flow-agent-shape.md:34",
+        "ai-agents/10-anatomy/managed-agent-shape.md:190"
       ]
     },
     {
@@ -42176,8 +42223,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:51",
-        "ai-agents/10-anatomy/flow-agent-shape.md:60"
+        "ai-agents/10-anatomy/flow-agent-shape.md:56",
+        "ai-agents/10-anatomy/flow-agent-shape.md:65"
       ]
     },
     {
@@ -42288,7 +42335,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:172"
+        "ai-agents/10-anatomy/managed-agent-shape.md:191"
       ]
     },
     {
@@ -42351,7 +42398,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "create_studio_agent"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -42362,13 +42411,13 @@
       "pathParams": [],
       "query": [
         {
-          "name": "locationId",
+          "name": "folderId",
           "type": "string",
           "required": false,
           "source": "documented"
         },
         {
-          "name": "folderId",
+          "name": "locationId",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -42395,7 +42444,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:166",
+        "ai-agents/10-anatomy/managed-agent-shape.md:174",
+        "ai-agents/10-anatomy/managed-agent-shape.md:185",
         "ai-agents/20-api/12-ai-agents-api.md:249"
       ]
     },
@@ -42765,7 +42815,9 @@
       "rail": "ai",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_studio_agent"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -42784,7 +42836,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:188"
+        "ai-agents/10-anatomy/managed-agent-shape.md:162",
+        "ai-agents/10-anatomy/managed-agent-shape.md:207"
       ]
     },
     {
@@ -42884,8 +42937,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:42",
-        "ai-agents/10-anatomy/flow-agent-shape.md:44"
+        "ai-agents/10-anatomy/flow-agent-shape.md:47",
+        "ai-agents/10-anatomy/flow-agent-shape.md:49"
       ]
     },
     {
@@ -42916,7 +42969,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:47"
+        "ai-agents/10-anatomy/flow-agent-shape.md:52"
       ]
     },
     {
@@ -42985,7 +43038,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:174",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:194",
         "ai-agents/20-api/12-ai-agents-api.md:101",
         "ai-agents/20-api/12-ai-agents-api.md:105",
         "ai-agents/20-api/12-ai-agents-api.md:132",
@@ -43310,12 +43363,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:173",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:111",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:193",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:95",
         "ai-agents/20-api/12-ai-agents-api.md:105",
-        "ai-agents/20-api/12-ai-agents-api.md:362",
-        "ai-agents/20-api/12-ai-agents-api.md:383"
+        "ai-agents/20-api/12-ai-agents-api.md:362"
       ]
     },
     {
@@ -43362,7 +43415,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:100",
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:179",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:199",
         "ai-agents/20-api/agent-deployment-routing.md:73"
       ]
     },
@@ -43454,7 +43507,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:96",
         "ai-agents/20-api/12-ai-agents-api.md:128",
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:177",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:197",
         "ai-agents/20-api/12-ai-agents-api.md:386",
         "ai-agents/40-rules/builder-vs-server.md:24"
       ]
@@ -43568,6 +43621,37 @@
       ]
     },
     {
+      "id": "ai-agents--employees-agent-list",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/ai-employees/employees/agent-list",
+      "path": "/ai-employees/employees/agent-list",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:122"
+      ]
+    },
+    {
       "id": "ai-agents--dashboard-search",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/ai-employees/employees/dashboard/search",
@@ -43668,7 +43752,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:118"
       ]
     },
     {
@@ -43699,7 +43783,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:114"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:117"
       ]
     },
     {
@@ -43741,7 +43825,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:118"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:121"
       ]
     },
     {
@@ -43783,7 +43867,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:116"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:119"
       ]
     },
     {
@@ -43868,7 +43952,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "get_ai_agent_options"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -43927,7 +44013,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:117"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:120"
       ]
     },
     {
@@ -47814,7 +47900,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:154",
         "ai-agents/20-api/conversation-ai-boundary.md:96"
       ]
     },
@@ -51775,7 +51861,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:142",
+        "ai-agents/10-anatomy/flow-agent-shape.md:147",
         "ai-agents/20-api/12-ai-agents-api.md:330",
         "ai-agents/20-api/knowledge-base.md:59",
         "ai-agents/20-api/knowledge-base.md:106",
@@ -65681,7 +65767,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:34",
+        "ai-agents/10-anatomy/flow-agent-shape.md:39",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:163",
@@ -65815,7 +65901,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:166",
-        "ai-agents/10-anatomy/flow-agent-shape.md:74",
+        "ai-agents/10-anatomy/flow-agent-shape.md:79",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:370",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
       ]
@@ -65917,7 +66003,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
-        "ai-agents/10-anatomy/flow-agent-shape.md:61",
+        "ai-agents/10-anatomy/flow-agent-shape.md:66",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:283"
       ]
     },
@@ -65979,7 +66065,7 @@
         "ai-agents/20-api/12-ai-agents-api.md:175",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
         "ai-agents/20-api/12-ai-agents-api.md:389",
-        "ai-agents/10-anatomy/flow-agent-shape.md:57"
+        "ai-agents/10-anatomy/flow-agent-shape.md:62"
       ]
     },
     {
@@ -66702,7 +66788,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:420",
-        "ai-agents/10-anatomy/flow-agent-shape.md:63"
+        "ai-agents/10-anatomy/flow-agent-shape.md:68"
       ]
     },
     {

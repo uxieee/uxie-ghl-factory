@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-29T03:17:55.929Z",
+      "capturedAt": "2026-09-29T03:19:50.523Z",
       "hash": "corpus",
-      "fileCount": 1267,
-      "endpoints": 1267
+      "fileCount": 1270,
+      "endpoints": 1270
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1763,
+  "discoveredCallSites": 1766,
   "skippedCallSites": 714,
-  "count": 1539,
+  "count": 1542,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -32594,7 +32594,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:148",
+        "ai-agents/10-anatomy/flow-agent-shape.md:153",
         "ai-agents/20-api/actions-and-plugins.md:24"
       ],
       "serviceBasis": "declared"
@@ -32628,7 +32628,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:151",
+        "ai-agents/10-anatomy/flow-agent-shape.md:156",
         "ai-agents/20-api/actions-and-plugins.md:25",
         "ai-agents/20-api/actions-and-plugins.md:61"
       ],
@@ -33328,7 +33328,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:126"
+        "ai-agents/10-anatomy/flow-agent-shape.md:131"
       ],
       "serviceBasis": "declared"
     },
@@ -33387,7 +33387,69 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:76"
+        "ai-agents/10-anatomy/flow-agent-shape.md:81"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agent-studio-agents-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/agents/{agentId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:34"
+      ],
+      "serviceBasis": "declared",
+      "aka": [
+        "/agent-studio/agents/{id}"
+      ]
+    },
+    {
+      "id": "ai-agents--agents-agents-with-folders-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/agents/agents-with-folders",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "productId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:174"
       ],
       "serviceBasis": "declared"
     },
@@ -33447,7 +33509,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:163"
+        "ai-agents/10-anatomy/managed-agent-shape.md:182"
       ],
       "serviceBasis": "declared"
     },
@@ -33473,7 +33535,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:162"
+        "ai-agents/10-anatomy/flow-agent-shape.md:36",
+        "ai-agents/10-anatomy/managed-agent-shape.md:181"
       ],
       "serviceBasis": "declared"
     },
@@ -33499,7 +33562,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:164"
+        "ai-agents/10-anatomy/managed-agent-shape.md:183"
       ],
       "serviceBasis": "declared"
     },
@@ -33525,7 +33588,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:171"
+        "ai-agents/10-anatomy/flow-agent-shape.md:34",
+        "ai-agents/10-anatomy/managed-agent-shape.md:190"
       ],
       "serviceBasis": "declared"
     },
@@ -33551,8 +33615,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:51",
-        "ai-agents/10-anatomy/flow-agent-shape.md:60"
+        "ai-agents/10-anatomy/flow-agent-shape.md:56",
+        "ai-agents/10-anatomy/flow-agent-shape.md:65"
       ],
       "serviceBasis": "declared"
     },
@@ -33644,7 +33708,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:172"
+        "ai-agents/10-anatomy/managed-agent-shape.md:191"
       ],
       "serviceBasis": "declared"
     },
@@ -33702,13 +33766,13 @@
       "service": "ai-agents",
       "query": [
         {
-          "name": "locationId",
+          "name": "folderId",
           "type": "string",
           "required": false,
           "source": "documented"
         },
         {
-          "name": "folderId",
+          "name": "locationId",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -33735,7 +33799,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:166",
+        "ai-agents/10-anatomy/managed-agent-shape.md:174",
+        "ai-agents/10-anatomy/managed-agent-shape.md:185",
         "ai-agents/20-api/12-ai-agents-api.md:249"
       ],
       "serviceBasis": "declared"
@@ -34036,7 +34101,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:188"
+        "ai-agents/10-anatomy/managed-agent-shape.md:162",
+        "ai-agents/10-anatomy/managed-agent-shape.md:207"
       ],
       "serviceBasis": "declared"
     },
@@ -34119,8 +34185,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:42",
-        "ai-agents/10-anatomy/flow-agent-shape.md:44"
+        "ai-agents/10-anatomy/flow-agent-shape.md:47",
+        "ai-agents/10-anatomy/flow-agent-shape.md:49"
       ],
       "serviceBasis": "declared"
     },
@@ -34146,7 +34212,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:47"
+        "ai-agents/10-anatomy/flow-agent-shape.md:52"
       ],
       "serviceBasis": "declared"
     },
@@ -34198,7 +34264,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:174",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:194",
         "ai-agents/20-api/12-ai-agents-api.md:101",
         "ai-agents/20-api/12-ai-agents-api.md:105",
         "ai-agents/20-api/12-ai-agents-api.md:132",
@@ -34459,12 +34525,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:173",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:111",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:193",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:95",
         "ai-agents/20-api/12-ai-agents-api.md:105",
-        "ai-agents/20-api/12-ai-agents-api.md:362",
-        "ai-agents/20-api/12-ai-agents-api.md:383"
+        "ai-agents/20-api/12-ai-agents-api.md:362"
       ],
       "serviceBasis": "declared"
     },
@@ -34498,7 +34564,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:100",
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:179",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:199",
         "ai-agents/20-api/agent-deployment-routing.md:73"
       ],
       "serviceBasis": "declared",
@@ -34566,7 +34632,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:96",
         "ai-agents/20-api/12-ai-agents-api.md:128",
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:177",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:197",
         "ai-agents/20-api/12-ai-agents-api.md:386",
         "ai-agents/40-rules/builder-vs-server.md:24"
       ],
@@ -34656,6 +34722,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--employees-agent-list",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/ai-employees/employees/agent-list",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:122"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--dashboard-search",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -34736,7 +34828,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:118"
       ],
       "serviceBasis": "declared"
     },
@@ -34762,7 +34854,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:114"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:117"
       ],
       "serviceBasis": "declared"
     },
@@ -34795,7 +34887,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:118"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:121"
       ],
       "serviceBasis": "declared"
     },
@@ -34828,7 +34920,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:116"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:119"
       ],
       "serviceBasis": "declared"
     },
@@ -34941,7 +35033,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:117"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:120"
       ],
       "serviceBasis": "declared"
     },
@@ -37993,7 +38085,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:154",
         "ai-agents/20-api/conversation-ai-boundary.md:96"
       ],
       "serviceBasis": "declared"
@@ -41180,7 +41272,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:142",
+        "ai-agents/10-anatomy/flow-agent-shape.md:147",
         "ai-agents/20-api/12-ai-agents-api.md:330",
         "ai-agents/20-api/knowledge-base.md:59",
         "ai-agents/20-api/knowledge-base.md:106",
@@ -51992,7 +52084,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:34",
+        "ai-agents/10-anatomy/flow-agent-shape.md:39",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:163",
@@ -52104,7 +52196,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:166",
-        "ai-agents/10-anatomy/flow-agent-shape.md:74",
+        "ai-agents/10-anatomy/flow-agent-shape.md:79",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:370",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
       ],
@@ -52184,7 +52276,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
-        "ai-agents/10-anatomy/flow-agent-shape.md:61",
+        "ai-agents/10-anatomy/flow-agent-shape.md:66",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:283"
       ],
       "serviceBasis": "declared",
@@ -52233,7 +52325,7 @@
         "ai-agents/20-api/12-ai-agents-api.md:175",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
         "ai-agents/20-api/12-ai-agents-api.md:389",
-        "ai-agents/10-anatomy/flow-agent-shape.md:57"
+        "ai-agents/10-anatomy/flow-agent-shape.md:62"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -52796,7 +52888,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:420",
-        "ai-agents/10-anatomy/flow-agent-shape.md:63"
+        "ai-agents/10-anatomy/flow-agent-shape.md:68"
       ],
       "serviceBasis": "declared",
       "aka": [

@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1549,
+      count: 1551,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -611,40 +611,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/AffiliateService.ts:32"
-          ]
-        },
-        {
-          id: "typed--get_ai_configuration_bundle--agents-agents-with-folders",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/agent-studio/agents/agents-with-folders",
-          path: "/agent-studio/agents/agents-with-folders",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          note: "Read by get_ai_configuration_bundle to INVENTORY an account's flow agents (legacy node-graph Agent Studio) \u2014 reading them is in scope. AUTHORING flow agents is excluded (coordinator decision T8, 2026-09-26; new ones are creatable only by five hard-coded agencies). IF THE USER WANTS IT: GHL can do it \u2014 AI Agents \u2192 Agent Studio (flow agents), or the flow builder embedded in Voice AI / Conversation AI; see corpus ai-agents/00-overview.",
-          reach: "proven",
-          coveredBy: [
-            "get_ai_configuration_bundle"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "get_ai_configuration_bundle",
-          tree: "typed-tool",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "proven",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "capability-manifest.json (get_ai_configuration_bundle)"
           ]
         },
         {
@@ -41078,7 +41044,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:148",
+            "ai-agents/10-anatomy/flow-agent-shape.md:153",
             "ai-agents/20-api/actions-and-plugins.md:24"
           ]
         },
@@ -41121,7 +41087,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:151",
+            "ai-agents/10-anatomy/flow-agent-shape.md:156",
             "ai-agents/20-api/actions-and-plugins.md:25",
             "ai-agents/20-api/actions-and-plugins.md:61"
           ]
@@ -42085,7 +42051,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:126"
+            "ai-agents/10-anatomy/flow-agent-shape.md:131"
           ]
         },
         {
@@ -42158,7 +42124,86 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:76"
+            "ai-agents/10-anatomy/flow-agent-shape.md:81"
+          ]
+        },
+        {
+          id: "ai-agents--agent-studio-agents-get",
+          aka: [
+            "/agent-studio/agents/{id}"
+          ],
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents/{agentId}",
+          path: "/agent-studio/agents/{agentId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:34"
+          ]
+        },
+        {
+          id: "ai-agents--agents-agents-with-folders-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents/agents-with-folders",
+          path: "/agent-studio/agents/agents-with-folders",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Read by get_ai_configuration_bundle to INVENTORY an account's flow agents (legacy node-graph Agent Studio) \u2014 reading them is in scope. AUTHORING flow agents is excluded (coordinator decision T8, 2026-09-26; new ones are creatable only by five hard-coded agencies). IF THE USER WANTS IT: GHL can do it \u2014 AI Agents \u2192 Agent Studio (flow agents), or the flow builder embedded in Voice AI / Conversation AI; see corpus ai-agents/00-overview.",
+          reach: "source-only",
+          coveredBy: [
+            "get_ai_configuration_bundle"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "productId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:174"
           ]
         },
         {
@@ -42229,7 +42274,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:163"
+            "ai-agents/10-anatomy/managed-agent-shape.md:182"
           ]
         },
         {
@@ -42260,7 +42305,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:162"
+            "ai-agents/10-anatomy/flow-agent-shape.md:36",
+            "ai-agents/10-anatomy/managed-agent-shape.md:181"
           ]
         },
         {
@@ -42295,7 +42341,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:164"
+            "ai-agents/10-anatomy/managed-agent-shape.md:183"
           ]
         },
         {
@@ -42330,7 +42376,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:171"
+            "ai-agents/10-anatomy/flow-agent-shape.md:34",
+            "ai-agents/10-anatomy/managed-agent-shape.md:190"
           ]
         },
         {
@@ -42365,8 +42412,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:51",
-            "ai-agents/10-anatomy/flow-agent-shape.md:60"
+            "ai-agents/10-anatomy/flow-agent-shape.md:56",
+            "ai-agents/10-anatomy/flow-agent-shape.md:65"
           ]
         },
         {
@@ -42477,7 +42524,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:172"
+            "ai-agents/10-anatomy/managed-agent-shape.md:191"
           ]
         },
         {
@@ -42540,7 +42587,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "create_studio_agent"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -42551,13 +42600,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           pathParams: [],
           query: [
             {
-              name: "locationId",
+              name: "folderId",
               type: "string",
               required: false,
               source: "documented"
             },
             {
-              name: "folderId",
+              name: "locationId",
               type: "string",
               required: false,
               source: "documented"
@@ -42584,7 +42633,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:166",
+            "ai-agents/10-anatomy/managed-agent-shape.md:174",
+            "ai-agents/10-anatomy/managed-agent-shape.md:185",
             "ai-agents/20-api/12-ai-agents-api.md:249"
           ]
         },
@@ -42954,7 +43004,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_studio_agent"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -42973,7 +43025,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:188"
+            "ai-agents/10-anatomy/managed-agent-shape.md:162",
+            "ai-agents/10-anatomy/managed-agent-shape.md:207"
           ]
         },
         {
@@ -43073,8 +43126,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:42",
-            "ai-agents/10-anatomy/flow-agent-shape.md:44"
+            "ai-agents/10-anatomy/flow-agent-shape.md:47",
+            "ai-agents/10-anatomy/flow-agent-shape.md:49"
           ]
         },
         {
@@ -43105,7 +43158,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:47"
+            "ai-agents/10-anatomy/flow-agent-shape.md:52"
           ]
         },
         {
@@ -43174,7 +43227,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:174",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:194",
             "ai-agents/20-api/12-ai-agents-api.md:101",
             "ai-agents/20-api/12-ai-agents-api.md:105",
             "ai-agents/20-api/12-ai-agents-api.md:132",
@@ -43499,12 +43552,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:173",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:111",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:193",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:95",
             "ai-agents/20-api/12-ai-agents-api.md:105",
-            "ai-agents/20-api/12-ai-agents-api.md:362",
-            "ai-agents/20-api/12-ai-agents-api.md:383"
+            "ai-agents/20-api/12-ai-agents-api.md:362"
           ]
         },
         {
@@ -43551,7 +43604,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:100",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:179",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:199",
             "ai-agents/20-api/agent-deployment-routing.md:73"
           ]
         },
@@ -43643,7 +43696,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:96",
             "ai-agents/20-api/12-ai-agents-api.md:128",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:177",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:197",
             "ai-agents/20-api/12-ai-agents-api.md:386",
             "ai-agents/40-rules/builder-vs-server.md:24"
           ]
@@ -43757,6 +43810,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--employees-agent-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/agent-list",
+          path: "/ai-employees/employees/agent-list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:122"
+          ]
+        },
+        {
           id: "ai-agents--dashboard-search",
           method: "GET",
           url: "https://services.leadconnectorhq.com/ai-employees/employees/dashboard/search",
@@ -43857,7 +43941,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:118"
           ]
         },
         {
@@ -43888,7 +43972,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:114"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:117"
           ]
         },
         {
@@ -43930,7 +44014,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:118"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:121"
           ]
         },
         {
@@ -43972,7 +44056,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:116"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:119"
           ]
         },
         {
@@ -44057,7 +44141,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "get_ai_agent_options"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -44116,7 +44202,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:117"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:120"
           ]
         },
         {
@@ -48003,7 +48089,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:154",
             "ai-agents/20-api/conversation-ai-boundary.md:96"
           ]
         },
@@ -51964,7 +52050,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:142",
+            "ai-agents/10-anatomy/flow-agent-shape.md:147",
             "ai-agents/20-api/12-ai-agents-api.md:330",
             "ai-agents/20-api/knowledge-base.md:59",
             "ai-agents/20-api/knowledge-base.md:106",
@@ -65870,7 +65956,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:34",
+            "ai-agents/10-anatomy/flow-agent-shape.md:39",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:163",
@@ -66004,7 +66090,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:166",
-            "ai-agents/10-anatomy/flow-agent-shape.md:74",
+            "ai-agents/10-anatomy/flow-agent-shape.md:79",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:370",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
           ]
@@ -66106,7 +66192,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
-            "ai-agents/10-anatomy/flow-agent-shape.md:61",
+            "ai-agents/10-anatomy/flow-agent-shape.md:66",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:283"
           ]
         },
@@ -66168,7 +66254,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:175",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
             "ai-agents/20-api/12-ai-agents-api.md:389",
-            "ai-agents/10-anatomy/flow-agent-shape.md:57"
+            "ai-agents/10-anatomy/flow-agent-shape.md:62"
           ]
         },
         {
@@ -66891,7 +66977,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:420",
-            "ai-agents/10-anatomy/flow-agent-shape.md:63"
+            "ai-agents/10-anatomy/flow-agent-shape.md:68"
           ]
         },
         {
@@ -72628,9 +72714,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_ai_agent_options: {
-        description: "List the models and MCP connections an ai_agent step can use \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "List the models and MCP connections an ai_agent step can use \u2014 proof: live-runtime (2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "source-derived (builder bundle 2026-09-14)",
         rows: [
           "workflow-agent-options"
@@ -192013,6 +192099,9 @@ function buildCreateBody(ir, { locationId }) {
     summary: mergeSummary(defaultSummary(), ir.summary),
     respondToImages: ir.respondToImages ?? false,
     respondToAudio: ir.respondToAudio ?? false,
+    // Email channel (only when authored; checkEmailCreate requires channels to include "Email").
+    ...ir.emailWaitTime !== void 0 ? { emailWaitTime: ir.emailWaitTime, emailWaitTimeUnit: ir.emailWaitTimeUnit } : {},
+    ...ir.emailSettings !== void 0 ? { emailSettings: ir.emailSettings } : {},
     // Flow-Based Builder linkage. A FLOW_BUILDER_BOT's logic lives in a workflow whose
     // conv_ai_trigger is bound to this agent; once that workflow exists, the agent is
     // linked via objectiveBuilderWorkflowId + isObjectiveBuilderEnabled:true (usually a
@@ -192065,14 +192154,14 @@ var CREATE_KEYS = /* @__PURE__ */ new Set([
   "llm",
   "isPrimary",
   "cancelEnabled",
-  "rescheduleEnabled"
+  "rescheduleEnabled",
+  "emailWaitTime",
+  "emailWaitTimeUnit",
+  "emailSettings"
 ]);
 var CREATE_ELSEWHERE = {
   employeeName: "the agent name is spec.name",
   flow: "a flow bot's logic is a workflow: create the agent with botType FLOW_BUILDER_BOT, build the workflow with build_workflow (a conv_ai_trigger bound to the agent), then link it with update_convai_agent {isObjectiveBuilderEnabled:true, objectiveBuilderWorkflowId}",
-  emailSettings: "Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record",
-  emailWaitTime: "Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record",
-  emailWaitTimeUnit: "Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record",
   workingHours: "working hours are their own resource: raw_request POST /ai-employees/employees/{id}/working-hours",
   folderId: "folders are set after create: raw_request on the /ai-employees/employees/folders routes",
   brandId: "form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body",
@@ -192081,6 +192170,36 @@ var CREATE_ELSEWHERE = {
   skipIfAlreadyFilled: "form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body",
   notificationSettings: "form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body"
 };
+var EMAIL_WAIT_RANGES = { seconds: [1, 21600], minutes: [1, 360], hours: [1, 6] };
+var EMAIL_SETTINGS_KEYS = ["senderDetails", "replyBehavior", "emailFormat", "signature", "templateId"];
+var EMAIL_FORMATS = ["plain_text", "design_editor"];
+function checkEmailCreate(spec) {
+  const has2 = ["emailWaitTime", "emailWaitTimeUnit", "emailSettings"].filter((k) => spec?.[k] !== void 0);
+  if (!has2.length) return;
+  if (!(spec.channels ?? []).includes("Email")) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `[${has2.join(", ")}] are the Email channel's settings, and channels does not include "Email" (the builder drops them then). Add "Email" to channels, or leave them out. Nothing was sent.`);
+  }
+  if (spec.emailWaitTime === void 0 !== (spec.emailWaitTimeUnit === void 0)) {
+    throw new IRError2("SCHEMA", "emailWaitTime and emailWaitTimeUnit go together (the email wait is required once either is set). Nothing was sent.");
+  }
+  if (spec.emailWaitTime !== void 0) {
+    const range = EMAIL_WAIT_RANGES[spec.emailWaitTimeUnit];
+    if (!range) throw new IRError2("SCHEMA", `emailWaitTimeUnit must be one of ${Object.keys(EMAIL_WAIT_RANGES).join(", ")}. Nothing was sent.`);
+    if (!Number.isInteger(spec.emailWaitTime) || spec.emailWaitTime < range[0] || spec.emailWaitTime > range[1]) {
+      throw new IRError2("SCHEMA", `emailWaitTime must be a whole number ${range[0]}\u2013${range[1]} ${spec.emailWaitTimeUnit} (the editor's range). Nothing was sent.`);
+    }
+  }
+  const es = spec.emailSettings;
+  if (es === void 0) return;
+  if (!es || typeof es !== "object" || Array.isArray(es)) throw new IRError2("SCHEMA", "emailSettings must be an object. Nothing was sent.");
+  const extra = Object.keys(es).filter((k) => !EMAIL_SETTINGS_KEYS.includes(k));
+  if (extra.length) throw new IRError2("SCHEMA", `emailSettings has unknown key(s) [${extra.join(", ")}]; its keys are ${EMAIL_SETTINGS_KEYS.join(", ")}. Nothing was sent.`);
+  if (es.emailFormat !== void 0 && !EMAIL_FORMATS.includes(es.emailFormat)) {
+    throw new IRError2("SCHEMA", `emailSettings.emailFormat must be one of ${EMAIL_FORMATS.join(", ")} (the server stores anything; the editor offers these). Nothing was sent.`);
+  }
+  const g = es.replyBehavior?.greetingPersonalization;
+  if (g !== void 0 && typeof g !== "string") throw new IRError2("SCHEMA", "emailSettings.replyBehavior.greetingPersonalization must be a string (a non-string is refused field by field). Nothing was sent.");
+}
 function refuseUnappliedCreateKeys(spec) {
   const unapplied = Object.keys(spec ?? {}).filter((k) => !CREATE_KEYS.has(k));
   if (!unapplied.length) return;
@@ -192340,6 +192459,7 @@ function uiSaveViolations(body2, botType) {
 var FATAL_FOR_FLOW_BOT = /* @__PURE__ */ new Set(["toneEmpty", "errorMaxTones", "selectChannel"]);
 function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
   refuseUnappliedCreateKeys(ir);
+  checkEmailCreate(ir);
   const norm3 = parseConvaiIR(ir);
   if (norm3.isPrimary === true) {
     throw new IRError2(
@@ -193810,13 +193930,27 @@ var CREATE_KEYS2 = [
   "knowledgeBaseIds",
   "starterPrompts",
   "imageGeneration",
-  "mediaSettings"
+  "mediaSettings",
+  "templateId",
+  "folderId",
+  "folderName",
+  "customApiEnabled"
+];
+var STUDIO_TEMPLATE_IDS = [
+  "knowledge-base-assistant",
+  "social-media-posting",
+  "lead-qualifier",
+  "welcome-email",
+  "review-request",
+  "deal-brief",
+  "opportunity-pipeline",
+  "email-campaign",
+  "weekly-creative-studio",
+  "prospect-finder",
+  "competitor-watch",
+  "marketing-performance-report"
 ];
 var ELSEWHERE3 = {
-  folderId: "folder placement at create is not written by this tool: move the agent afterwards (raw_request on the /agent-studio agent-folder routes)",
-  folderName: "folder placement at create is not written by this tool: move the agent afterwards (raw_request on the /agent-studio agent-folder routes)",
-  templateId: "template creation is its own route: raw_request POST /agent-studio/super-agent/agents/from-template {templateId, locationId}",
-  customApiEnabled: "custom API calls are not written at create: raw_request PUT the agent config afterwards",
   publish: "this tool never publishes; the agent is created as a draft",
   config: "pass the config fields at the top level of spec (name, systemPrompt, tools, triggers, \u2026)"
 };
@@ -193825,6 +193959,35 @@ function refuseUnappliedStudioKeys(spec) {
   if (!unapplied.length) return;
   const where = unapplied.filter((k) => k in ELSEWHERE3).map((k) => `${k}: ${ELSEWHERE3[k]}`);
   throw new IRError2("SPEC_KEY_UNAPPLIED", `create_studio_agent cannot apply spec key(s) [${unapplied.join(", ")}], and refuses rather than creating an agent without them. ${where.length ? `${where.join("; ")}. ` : ""}Nothing was sent. Applicable keys: ${CREATE_KEYS2.join(", ")}.`);
+}
+function checkPlacementAndSwitches(ir) {
+  assertStringIfPresent2(ir.folderId, "folderId");
+  assertStringIfPresent2(ir.folderName, "folderName");
+  if (ir.folderId === "") throw new IRError2("SCHEMA", "folderId must be a Managed Agent folder id");
+  if (ir.folderName !== void 0 && ir.folderId === void 0) throw new IRError2("SCHEMA", "folderName needs folderId");
+  if (ir.customApiEnabled !== void 0 && typeof ir.customApiEnabled !== "boolean") throw new IRError2("SCHEMA", "customApiEnabled must be a boolean");
+}
+function parseSuperAgentTemplateIR(ir) {
+  if (!ir || typeof ir !== "object") throw new IRError2("SCHEMA", "IR must be an object");
+  if (!STUDIO_TEMPLATE_IDS.includes(ir.templateId)) {
+    throw new IRError2("SCHEMA", `templateId must be one of the use-case templates: ${STUDIO_TEMPLATE_IDS.join(", ")}`);
+  }
+  if (ir.buildPrompt !== void 0) {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", "buildPrompt is the AI build's message; a template create runs no build. Pass systemPrompt to replace the template's prompt, or drop templateId to build. Nothing was sent.");
+  }
+  assertNonEmptyString3(ir.name, "name");
+  assertStringIfPresent2(ir.systemPrompt, "systemPrompt");
+  assertStringIfPresent2(ir.description, "description");
+  assertStringIfPresent2(ir.model, "model");
+  checkTools(ir.tools);
+  checkTrigger(ir);
+  checkPlugins(ir.plugins);
+  checkMedia(ir);
+  assertStringIfPresent2(ir.reasoningEffort, "reasoningEffort");
+  checkKnowledgeBaseIds2(ir.knowledgeBaseIds);
+  checkStarterPrompts(ir.starterPrompts);
+  checkPlacementAndSwitches(ir);
+  return { ...ir };
 }
 function parseSuperAgentIR(ir) {
   if (!ir || typeof ir !== "object") throw new IRError2("SCHEMA", "IR must be an object");
@@ -193839,6 +194002,7 @@ function parseSuperAgentIR(ir) {
   assertStringIfPresent2(ir.reasoningEffort, "reasoningEffort");
   checkKnowledgeBaseIds2(ir.knowledgeBaseIds);
   checkStarterPrompts(ir.starterPrompts);
+  checkPlacementAndSwitches(ir);
   return { ...ir, model: ir.model ?? DEFAULT_MODEL };
 }
 
@@ -193882,7 +194046,9 @@ function buildConfig(norm3) {
     knowledgeBaseIds,
     actions: [],
     ...norm3.imageGeneration !== void 0 ? { imageGeneration: norm3.imageGeneration } : {},
-    ...norm3.mediaSettings !== void 0 ? { mediaSettings: norm3.mediaSettings } : {}
+    ...norm3.mediaSettings !== void 0 ? { mediaSettings: norm3.mediaSettings } : {},
+    // The editor's Custom API switch is a top-level config key, sent only by this PUT (superagentsApp 3b22@151825).
+    ...norm3.customApiEnabled !== void 0 ? { customApiEnabled: norm3.customApiEnabled } : {}
   };
 }
 function compileSuperAgentUpdate(ir, { agentId, locationId } = {}) {
@@ -193896,7 +194062,7 @@ function compileSuperAgentUpdate(ir, { agentId, locationId } = {}) {
     authHeader: AUTH_HEADER3
   };
 }
-function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, companyId, mode = "fast" } = {}) {
+function compileSuperAgentCreate({ buildPrompt, name, folderId, folderName } = {}, { locationId, companyId, mode = "fast" } = {}) {
   if (typeof buildPrompt !== "string" || buildPrompt.length === 0)
     throw new IRError2("SCHEMA", "buildPrompt must be a non-empty string");
   if (name !== void 0 && (typeof name !== "string" || name.length === 0))
@@ -193906,9 +194072,41 @@ function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, compa
     message,
     locationId,
     context: { companyId: companyId ?? null },
-    mode
+    mode,
+    // Folder placement rides the build body, each key only when set (superagentsApp 3b22@47060).
+    ...folderId ? { folderId } : {},
+    ...folderId && folderName ? { folderName } : {}
   };
   return { method: "POST", path: "/agent-studio/super-agents/build", body: body2, authHeader: AUTH_HEADER3 };
+}
+function compileSuperAgentFromTemplate({ templateId, folderId, folderName } = {}, { locationId } = {}) {
+  const body2 = { templateId, locationId, ...folderId ? { folderId } : {}, ...folderId && folderName ? { folderName } : {} };
+  return { method: "POST", path: "/agent-studio/super-agent/agents/from-template", body: body2, json: true, authHeader: AUTH_HEADER3 };
+}
+function templateOverrides(ir) {
+  const o = {};
+  for (const k of [
+    "name",
+    "description",
+    "model",
+    "systemPrompt",
+    "plugins",
+    "starterPrompts",
+    "knowledgeBaseIds",
+    "imageGeneration",
+    "mediaSettings",
+    "customApiEnabled"
+  ]) if (ir[k] !== void 0) o[k] = ir[k];
+  if (ir.tools !== void 0) o.tools = [.../* @__PURE__ */ new Set([...ir.tools, ...Array.isArray(ir.knowledgeBaseIds) && ir.knowledgeBaseIds.length ? ["kb_search"] : []])];
+  if (ir.reasoningEffort !== void 0) o.reasoning = { effort: ir.reasoningEffort };
+  if (ir.trigger !== void 0 || Array.isArray(ir.triggers) && ir.triggers.length) o.triggers = buildTriggers(ir);
+  return o;
+}
+var disablesTriggers = (ir) => Array.isArray(ir.triggers) && ir.triggers.length === 0 && ir.trigger === void 0;
+function mergeTemplateConfig(templateConfig, overrides, { disableTriggers = false } = {}) {
+  const merged = { ...templateConfig ?? {}, ...overrides };
+  if (disableTriggers) merged.triggers = (templateConfig?.triggers ?? []).map((t) => ({ ...t, enabled: false }));
+  return merged;
 }
 
 // ../engines/ai/driver.mjs
@@ -193923,6 +194121,7 @@ var kindFor = (create) => {
   if (create?.path === "/ai-employees/employees") return "convai";
   if (create?.path === "/voice-ai/agents") return "voiceai";
   if (create?.path === "/agent-studio/super-agents/build") return "studio";
+  if (create?.path === "/agent-studio/super-agent/agents/from-template") return "studio";
   return null;
 };
 var readPathFor = (kind, agentId, locationId) => {
@@ -193944,7 +194143,7 @@ function extractAgentId(kind, response) {
         if (id) return id;
       }
     }
-    return null;
+    return responseId(response?.json);
   }
   if (kind === "convai") return response?.json?.id ?? response?.json?.data?.id ?? null;
   if (kind === "voiceai") return response?.json?._id ?? response?.json?.id ?? response?.json?.data?._id ?? response?.json?.data?.id ?? null;
@@ -194065,7 +194264,7 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   if (!gw?.call || !plan?.create || !kind) return failure("AGENT_PLAN_INVALID", "validation", report);
   let created;
   try {
-    created = kind === "studio" ? await gw.stream("POST", plan.create.path, plan.create.body, { base: AI_BASE2, terminalEvents: STUDIO_TERMINAL_EVENTS }) : await gw.call(plan.create.method, plan.create.path, plan.create.body, { base: AI_BASE2 });
+    created = kind === "studio" && plan.create.json !== true ? await gw.stream("POST", plan.create.path, plan.create.body, { base: AI_BASE2, terminalEvents: STUDIO_TERMINAL_EVENTS }) : await gw.call(plan.create.method, plan.create.path, plan.create.body, { base: AI_BASE2 });
   } catch (error51) {
     return failure(error51?.code ?? "AGENT_CREATE_FAILED", "create", report);
   }
@@ -194078,7 +194277,15 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
     return failure("AGENT_ID_MISSING", "create", report, extra);
   }
   for (let index = 0; index < (plan.followUps ?? []).length; index++) {
-    const followUp = threadAgentId(plan.followUps[index], report.agentId);
+    let followUp = threadAgentId(plan.followUps[index], report.agentId);
+    if (followUp.mergeCreatedConfig) {
+      const base = created.json?.config;
+      if (!base || typeof base !== "object") return failure("TEMPLATE_CONFIG_MISSING", "follow_up", report);
+      const { overrides, disableTriggers } = followUp.mergeCreatedConfig;
+      report.templateConfig = { triggers: base.triggers ?? [], plugins: base.plugins ?? null, tools: base.tools ?? [] };
+      report.mergedConfig = mergeTemplateConfig(base, overrides, { disableTriggers });
+      followUp = { method: followUp.method, path: followUp.path, body: { ...followUp.body, config: report.mergedConfig } };
+    }
     try {
       const result = await gw.call(followUp.method, followUp.path, followUp.body, { base: AI_BASE2 });
       const observed = { index, path: followUp.path, status: result.status };
@@ -194127,7 +194334,10 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
     return failure(error51?.code ?? "AGENT_VERIFY_FAILED", "verify", report);
   }
   if (!reread2.ok) return failure(`HTTP_${reread2.status}`, "verify", report, { verifyStatus: reread2.status });
-  const baseExpected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
+  let baseExpected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
+  if (Array.isArray(plan.verifyMergedKeys) && report.mergedConfig) {
+    baseExpected = { config: Object.fromEntries(plan.verifyMergedKeys.filter((k) => k in report.mergedConfig).map((k) => [k, report.mergedConfig[k]])) };
+  }
   const actual = normalizeRead(kind, reread2.json);
   const attachedActions = Array.isArray(baseExpected?.actions) && (plan.actions ?? []).length > 0;
   const expected = attachedActions ? { ...baseExpected } : baseExpected;
@@ -195118,6 +195328,28 @@ function compileAiAgentPlan(kind, args) {
     return { ...compiled, followUps: s2s ? [update2, s2s] : [update2], verifyExpected };
   }
   refuseUnappliedStudioKeys(args.spec);
+  if (args.spec?.templateId !== void 0) {
+    const ir = parseSuperAgentTemplateIR(args.spec);
+    const overrides = templateOverrides(ir);
+    const disableTriggers = disablesTriggers(ir);
+    const create2 = compileSuperAgentFromTemplate(ir, { locationId: args.locationId });
+    const update2 = {
+      method: "PUT",
+      path: "/agent-studio/super-agent/agents/{agentId}",
+      body: { locationId: args.locationId },
+      mergeCreatedConfig: { overrides, disableTriggers }
+    };
+    const verifyMergedKeys = [...Object.keys(overrides), ...disableTriggers ? ["triggers"] : []];
+    return {
+      create: create2,
+      actions: [],
+      followUps: [update2],
+      verifyMergedKeys,
+      verifyExpected: { config: overrides },
+      folder: ir.folderId ? { folderId: ir.folderId, folderName: ir.folderName ?? null } : null,
+      template: ir.templateId
+    };
+  }
   const studioSpec = {
     ...args.spec,
     buildPrompt: args.spec?.buildPrompt ?? args.spec?.systemPrompt,
@@ -195125,13 +195357,28 @@ function compileAiAgentPlan(kind, args) {
   };
   const create = compileSuperAgentCreate(studioSpec, { locationId: args.locationId, companyId: args.companyId });
   const update = compileSuperAgentUpdate(studioSpec, { agentId: "{agentId}", locationId: args.locationId });
-  const { name, systemPrompt, plugins, triggers } = update.body.config ?? {};
+  const { name, systemPrompt, plugins, triggers, customApiEnabled } = update.body.config ?? {};
   const verified = { name, systemPrompt };
   if (args.spec?.plugins !== void 0) verified.plugins = plugins;
   if (args.spec?.trigger !== void 0 || args.spec?.triggers !== void 0) verified.triggers = triggers;
-  return { create, actions: [], followUps: [update], verifyExpected: { config: verified } };
+  if (args.spec?.customApiEnabled !== void 0) verified.customApiEnabled = customApiEnabled;
+  return {
+    create,
+    actions: [],
+    followUps: [update],
+    verifyExpected: { config: verified },
+    folder: args.spec?.folderId ? { folderId: args.spec.folderId, folderName: args.spec.folderName ?? null } : null
+  };
 }
 function studioDefaultsNote(spec = {}) {
+  if (spec.templateId !== void 0) {
+    return {
+      plugins: spec.plugins === void 0 ? "NOT SET \u2014 the TEMPLATE's own plugins stay (knowledge-base-assistant: the Default plugin with ALL CRM skills). Pass plugins:[] for no apps." : spec.plugins.length ? `as given: ${spec.plugins.map((p2) => p2.slug).join(", ")}` : "none (plugins: [])",
+      triggers: disablesTriggers(spec) ? "triggers:[] \u2014 every template trigger is sent back DISABLED (a PUT cannot remove one)" : spec.triggers?.length || spec.trigger ? "as given (replacing the template's)" : "NOT SET \u2014 the template's trigger(s) stay ENABLED (they arm on publish)",
+      folder: spec.folderId ? `filed in ${spec.folderId} at create` : "unfiled",
+      publish: "never \u2014 the agent stays a draft"
+    };
+  }
   const plugins = spec.plugins === void 0 ? "NOT SET \u2014 GHL default applies: the Default plugin with ALL built-in CRM skills (can send SMS/email and write contacts and opportunities). Pass plugins:[] for no apps." : spec.plugins.length ? `as given: ${spec.plugins.map((p2) => p2.slug).join(", ")}` : "none (plugins: [])";
   const list = spec.trigger ? [spec.trigger] : spec.triggers ?? [];
   const defaulted = list.filter((t) => t.triggerMessage === void 0).map((t) => t.type);
@@ -196484,7 +196731,7 @@ var TOOLS2 = [
   },
   {
     name: "create_convai_agent",
-    description: `${describe3("create_convai_agent", "Create Conversation AI agent")}. POST the agent, then each action, then a verified re-read. spec: name, mode (off|suggestive|auto-pilot), channels, and a prompt: fullPrompt (the current builder's one prompt, "## Personality \u2026 ## Goal \u2026 ## Instructions \u2026"; the three fields go as "" and llm.primary defaults to gpt-4.1, as the builder creates) OR goal/personality/instructions, never both. Also botType (PROMPT_BASED_BOT | FLOW_BUILDER_BOT), businessName, wait, sleep, autoPilotMaxMessages, tones (flow), knowledgeBaseIds, knowledgeBaseTriggers [{mode custom|all, knowledgeBaseIds, triggerCondition}] (\u22644, priority renumbered), summary, respondToImages/Audio, responseLength, llm, cancelEnabled/rescheduleEnabled (FLOW bots only; on a prompt bot they belong on the appointmentBooking action), actions[] (humanHandOver, appointmentBooking single|multiple (service: raw_request), triggerWorkflow, updateContactField, stopBot, transferBot, advancedFollowup). Refused before anything is sent: any other spec key (SPEC_KEY_UNAPPLIED names where it lives: email settings, working hours, folders and form bots are raw_request), isPrimary:true (the primary agent is location-wide; set it in the Conversation AI UI), a prompt bot with no prompt. A flow bot is the agent shell only: build its workflow with build_workflow, then link it with update_convai_agent. Does not deploy to a channel (set_agent_deployment). To change an existing agent use update_convai_agent. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_convai_agent", "Create Conversation AI agent")}. POST the agent, then each action, then a verified re-read. spec: name, mode (off|suggestive|auto-pilot), channels, and a prompt: fullPrompt (the current builder's one prompt, "## Personality \u2026 ## Goal \u2026 ## Instructions \u2026"; the three fields go as "" and llm.primary defaults to gpt-4.1, as the builder creates) OR goal/personality/instructions, never both. Also botType (PROMPT_BASED_BOT | FLOW_BUILDER_BOT), businessName, wait, sleep, autoPilotMaxMessages, tones (flow), knowledgeBaseIds, knowledgeBaseTriggers [{mode custom|all, knowledgeBaseIds, triggerCondition}] (\u22644, priority renumbered), summary, respondToImages/Audio, responseLength, llm, emailWaitTime + emailWaitTimeUnit + emailSettings {senderDetails, replyBehavior, emailFormat plain_text|design_editor, signature, templateId} (only with "Email" in channels; the editor's wait ranges), cancelEnabled/rescheduleEnabled (FLOW bots only; on a prompt bot they belong on the appointmentBooking action), actions[] (humanHandOver, appointmentBooking single|multiple (service: raw_request), triggerWorkflow, updateContactField, stopBot, transferBot, advancedFollowup). Refused before anything is sent: any other spec key (SPEC_KEY_UNAPPLIED names where it lives: working hours, folders and form bots are raw_request), isPrimary:true (the primary agent is location-wide; set it in the Conversation AI UI), a prompt bot with no prompt. A flow bot is the agent shell only: build its workflow with build_workflow, then link it with update_convai_agent. Does not deploy to a channel (set_agent_deployment). To change an existing agent use update_convai_agent. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "POST", path: "/ai-employees/employees" },
@@ -196737,12 +196984,14 @@ var TOOLS2 = [
   },
   {
     name: "create_studio_agent",
-    description: `${describe3("create_studio_agent", "Create Agent Studio agent")}. Creates a Managed Agent (the UI's AI Agents \u2192 Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt \u2014 either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). \u{1F534} Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none \u2014 the preview names what applies. \u{1F534} A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. The agent is created as a draft (never published). Any other spec key (folderId, templateId, customApiEnabled\u2026) is refused before the build, naming where it lives. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_studio_agent", "Create Agent Studio agent")}. Creates a Managed Agent (the UI's AI Agents \u2192 Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt \u2014 either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). \u{1F534} Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none \u2014 the preview names what applies. \u{1F534} A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. templateId (one of the 12 "Start from a use case" ids) creates from a template instead: no build, the template's own config kept and only what spec authors (name required) applied over it; \u{1F534} a template may carry an ENABLED trigger and the Default plugin \u2014 pass triggers:[] (it DISABLES every trigger: a PUT cannot remove one) and plugins:[]. folderId (+ folderName) files the agent at create, checked in the folder list; customApiEnabled flips the Custom API switch. The agent is created as a draft (never published). Any other spec key is refused before anything is sent. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), companyId: external_exports.string().optional(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "SSE", path: "/agent-studio/super-agents/build" },
+      { method: "POST", path: "/agent-studio/super-agent/agents/from-template" },
       { method: "PUT", path: "/agent-studio/super-agent/agents/{agentId}" },
-      { method: "GET", path: "/agent-studio/super-agent/agents/{agentId}" }
+      { method: "GET", path: "/agent-studio/super-agent/agents/{agentId}" },
+      { method: "GET", path: "/agent-studio/super-agent/agents" }
     ],
     handler: async (args, deps) => guard(async () => {
       const { plan, refusal } = aiPlanOrRefusal("studio", args);
@@ -196779,6 +197028,25 @@ var TOOLS2 = [
           report.code,
           `The Managed Agent builder stopped to ask ${q3.length} question(s) and is waiting for answers: ` + q3.map((x) => `"${x.prompt}"${x.options.length ? ` (options: ${x.options.map((o) => o.label).join(" / ")}${x.moreOptions ? " / \u2026" : ""})` : ""}`).join("; ") + ". Nothing after the build was sent: no config PUT, no verification.",
           "This tool does not answer build questions. Put the answers in buildPrompt (name the calendar, form, pipeline\u2026 the questions ask about) and create again" + (report.agentId ? `; agent ${report.agentId} was already saved by the builder \u2014 inspect it before creating another.` : "; no agent was saved.")
+        ), data2);
+      }
+      if (plan.template) {
+        const triggersNow = report.mergedConfig?.triggers ?? report.templateConfig?.triggers ?? [];
+        data2.template = {
+          templateId: plan.template,
+          triggers: triggersNow.map((t) => ({ type: t.type, name: t.name, enabled: t.enabled })),
+          note: triggersNow.some((t) => t.enabled !== false) ? "The template's trigger(s) are ENABLED and arm when the agent is published. Pass triggers:[] to disable them (a PUT cannot remove a trigger: an empty list is ignored)." : "Every trigger is disabled: publishing arms none of them."
+        };
+      }
+      if (report.ok && plan.folder) {
+        const q3 = new URLSearchParams({ locationId: args.locationId, folderId: plan.folder.folderId });
+        const r = await gw.call("GET", `/agent-studio/super-agent/agents?${q3}`, void 0, { base: AI_BASE3 });
+        const listed = r.ok && JSON.stringify(r.json ?? {}).includes(report.agentId);
+        data2.folder = { ...plan.folder, verified: listed, ...r.ok ? {} : { status: r.status } };
+        if (!listed) return withFailureData(fail(
+          "AGENT_FOLDER_UNVERIFIED",
+          `agent ${report.agentId} was created and verified, but the folder ${plan.folder.folderId} does not list it.`,
+          "Check the folder id (GET /agent-studio/agents/folders?locationId=), then move the agent with POST /agent-studio/agents/folders/{folderId}/move-agents."
         ), data2);
       }
       return report.ok ? ok(data2) : withFailureData(fail(
@@ -201037,14 +201305,41 @@ var TOOLS2 = [
   // cannot know what values are even legal on the step.
   {
     name: "get_ai_agent_options",
-    description: `${describe3("get_ai_agent_options", "List the models and MCP connections an ai_agent step can use \u2014 risk: read")}. Read what an \`ai_agent\` workflow step may be configured with on this sub-account: the MODELS it can pick (with context window, tool support, reasoning level and which is default) and the MCP CONNECTIONS available as tools, plus the OAuth tokens those connections can bind to. \u{1F534} An ai_agent step stores only a \`connectionId\` in \`attributes.mcpConnections[]\`; the connection itself is a separate location-level document, so a connectionId that is not in this list will not resolve. GHL caps built-in tools + MCP connections at 10 COMBINED. This tool READS the options. \u{1F534} CREATING, EDITING, TESTING OR DELETING an MCP connection is deliberately NOT done by this plugin (operator decision 2026-09-23): a connection stores credentials for an external server. When a workflow needs an MCP server that is not in mcpConnections, TELL THE USER to add it themselves in the GHL builder (open the workflow, the AI Agent step, its MCP servers panel, add a connection), then re-run this tool for the new connectionId. Do not reach for raw_request to create one.`,
-    inputSchema: schema({ locationId: external_exports.string() }),
+    description: `${describe3("get_ai_agent_options", "List the models and MCP connections an ai_agent step can use \u2014 risk: read")}. Read what an \`ai_agent\` workflow step may be configured with on this sub-account: the MODELS it can pick (with context window, tool support, reasoning level and which is default) and the MCP CONNECTIONS available as tools, plus the OAuth tokens those connections can bind to. \u{1F534} An ai_agent step stores only a \`connectionId\` in \`attributes.mcpConnections[]\`; the connection itself is a separate location-level document, so a connectionId that is not in this list will not resolve. GHL caps built-in tools + MCP connections at 10 COMBINED. This tool READS the options. \u{1F534} CREATING, EDITING, TESTING OR DELETING an MCP connection is deliberately NOT done by this plugin (operator decision 2026-09-23): a connection stores credentials for an external server. When a workflow needs an MCP server that is not in mcpConnections, TELL THE USER to add it themselves in the GHL builder (open the workflow, the AI Agent step, its MCP servers panel, add a connection), then re-run this tool for the new connectionId. Do not reach for raw_request to create one. product:"conversation_ai" instead reads the models a CONVERSATION AI agent can use (its llm.primary / llm.secondary): GET /ai-employees/employees/models, a different roster from the workflow step's, with per-million-token prices and deprecations. The editor shows it only behind conversationsAI.multiLLM or tokenBasedPricing.`,
+    inputSchema: schema({ locationId: external_exports.string(), product: external_exports.enum(["workflow_ai_agent", "conversation_ai"]).default("workflow_ai_agent") }),
     capabilities: [
-      { method: "GET", path: "/workflow/agent/{loc}/models" },
-      { method: "GET", path: "/workflow/agent/{loc}/mcp-connections" },
-      { method: "GET", path: "/workflow/agent/{loc}/mcp-connections/oauth2-tokens" }
+      // Two rails in one read tool: product:"conversation_ai" dials the AI rail, the workflow step's options the backend one.
+      { method: "GET", path: "/ai-employees/employees/models", origin: "https://services.leadconnectorhq.com" },
+      { method: "GET", path: "/workflow/agent/{loc}/models", origin: "https://backend.leadconnectorhq.com" },
+      { method: "GET", path: "/workflow/agent/{loc}/mcp-connections", origin: "https://backend.leadconnectorhq.com" },
+      { method: "GET", path: "/workflow/agent/{loc}/mcp-connections/oauth2-tokens", origin: "https://backend.leadconnectorhq.com" }
     ],
     handler: async (args, deps) => guard(async () => {
+      if (args.product === "conversation_ai") {
+        const r = await deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state }).call("GET", "/ai-employees/employees/models");
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const list2 = Array.isArray(r.json?.models) ? r.json.models : [];
+        return ok({
+          product: "conversation_ai",
+          models: {
+            count: list2.length,
+            defaultModelId: list2.find((m) => m.default === true)?.value ?? null,
+            models: list2.map((m) => ({
+              id: m.value,
+              provider: m.provider,
+              inputPrice: m.inputPrice ?? null,
+              outputPrice: m.outputPrice ?? null,
+              priceUnit: m.priceUnit ?? null,
+              costTier: m.costTier ?? null,
+              recommended: m.recommended === true,
+              isDefault: m.default === true,
+              isNew: m.isNew === true,
+              deprecation: m.deprecation ?? null
+            }))
+          },
+          note: "Set on the agent as llm {primary, secondary} (create_convai_agent / update_convai_agent). Prices are per million tokens. primary and secondary must differ (the server refuses them equal)."
+        });
+      }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const loc = encodeURIComponent(args.locationId);
       const read = async (path) => {
