@@ -11,6 +11,21 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.33.1] — 2026-10-01
+
+**Fixes: tool results no longer blank out ordinary words after "session:", and the capitalised-tag check states
+exactly what it covers.**
+
+### Fixed
+- The secret scrubber treated any word after `session:` as a credential, so a note like "per session: 3" came back
+  as `<redacted>`. A bare `session` label now redacts only a credential-shaped value. Session ids, tokens and cookies
+  are redacted as before.
+
+### Docs
+- The capitalised-tag check (`find_workflows_using` `problems:"mixed-case-tag-rows"`, `check_workflow`) now says
+  add- and remove-tag STEPS are not affected: GHL lower-cases the tag they write (measured). It also names the trigger
+  types whose tag rows were not fired.
+
 ## [1.33.0] — 2026-09-30
 
 **Funnel analytics: advanced filters, video engagement, and the sales tab. Reads only. Executed live on the test
