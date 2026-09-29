@@ -287,15 +287,38 @@ export function containsSecrets(value, key = '', depth = 0) {
   return false;
 }
 
+// A NAME/VALUE PAIR carries its secret in the VALUE, under generic property names. A custom_webhook's headers are
+// [{key:'X-Hook-Secret', value:'<the secret>'}]: the property names 'key' and 'value' are not secret names, so the
+// key-name rule never fired and export_workflow / get_workflow_logs returned the secret (client QA report, 2026-09-29, bl-326).
+// The pair rule reads the pair's NAME (its `key` or `name`) and redacts the paired `value`. The list is WORDS, not the bare
+// substring "key": Idempotency-Key or contentKey are opaque identifiers, and redacting them would make a workflow
+// unrepairable through an export round trip (repair_workflow refuses a <redacted> write-back).
+const SECRET_PAIR_NAME = /secret|token|passw(?:or)?d|passphrase|bearer|signature|credential|cookie|api[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|authorization|authentication|\bx-?auth\b|auth[-_ ](?:key|token|secret|code|header)/i;
+const isSecretPairName = (name) => typeof name === 'string' && SECRET_PAIR_NAME.test(name);
+// The same names as PROPERTIES of a header-like map: headers: { 'X-Hook-Secret': '…' }.
+const PAIR_MAP_PARENTS = new Set(['headers', 'header', 'parameters', 'params', 'queryparams', 'querystring', 'customdata', 'keyvaluedata', 'cookies']);
+// An empty value and one we already redacted carry no credential (same reasoning as the key-name rule's exemptions).
+const redactPairValue = (v) => (v === '' || v == null || v === REDACTED ? v : REDACTED);
+
 // Tool results are JSON-shaped, so scrub recursively at the contract boundary.
 // This covers a read endpoint unexpectedly returning a credential as well as
 // errors echoing one. A token must never reach the MCP transcript either way.
-export function scrubSecrets(value) {
+export function scrubSecrets(value, parentKey = '') {
   if (typeof value === 'string') return scrub(value);
-  if (Array.isArray(value)) return value.map(scrubSecrets);
+  if (Array.isArray(value)) return value.map((item) => scrubSecrets(item, parentKey));
   if (value && typeof value === 'object') {
+    // `key` names a pair anywhere; `name` only in a LEAN row ({name, value} plus at most type/enabled/description): GHL
+    // also returns rich rows such as a custom value {id, name:'Email Signature', value, fieldKey, …}, which are data, not headers.
+    const lean = Object.keys(value).every((k) => ['name', 'value', 'type', 'enabled', 'description'].includes(k));
+    const pairName = typeof value.key === 'string' ? value.key : (lean && typeof value.name === 'string' ? value.name : null);
+    const isSecretPair = 'value' in value && isSecretPairName(pairName);
+    const isPairMap = PAIR_MAP_PARENTS.has(String(parentKey).replace(/[-_\s]/g, '').toLowerCase());
     return Object.fromEntries(Object.entries(value).map(([key, item]) => [
       scrub(key),
+      // A secret-named pair's value, or a secret-named property of a header-like map (scalar values only).
+      (isSecretPair && key === 'value') || (isPairMap && isSecretPairName(key) && (item === null || typeof item !== 'object'))
+        ? redactPairValue(item)
+        :
       // Deliberately scrubs the WHOLE subtree under a secret-named key, not just
       // primitives. A nested credential need not be JWT-shaped (`{credentials:{value:
       // "sk_live_…"}}`), so recursing would leak it. Callers wanting to expose metadata
@@ -307,7 +330,7 @@ export function scrubSecrets(value) {
       // step's apiKey:"" read back as "<redacted>", and writing that export back would store the
       // literal as the key (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
       // live-3P2-chatgpt-apikey.json).
-      isSecretKey(key) ? (item === '' || isNoAuthObject(key, item) ? item : '<redacted>') : scrubSecrets(item),
+      isSecretKey(key) ? (item === '' || isNoAuthObject(key, item) ? item : '<redacted>') : scrubSecrets(item, key),
     ]));
   }
   return value;
