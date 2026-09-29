@@ -180,9 +180,9 @@
     ]
   },
   "build_workflow": {
-    "description": "Build workflow — proof: live-runtime (2026-09-28), floor: documented; risk: write",
+    "description": "Build workflow — proof: live-runtime (2026-09-29), floor: documented; risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "documented",
     "proofRows": [
       "entities-tags-create",
@@ -275,9 +275,9 @@
     ]
   },
   "check_workflow": {
-    "description": "Read-only conformance check: replays GHL's own validators against a workflow — proof: live-runtime (2026-09-28); risk: read",
+    "description": "Read-only conformance check: replays GHL's own validators against a workflow — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "workflow-service--find-by-id",
@@ -551,9 +551,9 @@
     ]
   },
   "edit_workflow": {
-    "description": "Edit workflow — proof: live-runtime (2026-09-25), floor: live-roundtrip (2026-07-17); risk: destructive",
+    "description": "Edit workflow — proof: live-runtime (2026-09-29), floor: live-roundtrip (2026-07-17); risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-roundtrip (2026-07-17)",
     "proofRows": [
       "triggers-create-for-edit"
@@ -1595,9 +1595,9 @@
     ]
   },
   "publish_workflow": {
-    "description": "Publish workflow — proof: live-runtime (2026-09-28), floor: documented; risk: destructive",
+    "description": "Publish workflow — proof: live-runtime (2026-09-29), floor: documented; risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "documented",
     "proofRows": [
       "workflow-publish"
@@ -1679,9 +1679,9 @@
     ]
   },
   "repair_workflow": {
-    "description": "Repair a workflow from an export or a raw templates body — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Repair a workflow from an export or a raw templates body — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "workflow-service--find-by-id",
