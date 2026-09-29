@@ -47,10 +47,17 @@ export const STEP_TOP_LEVEL_KEYS = new Set([...OBSERVED_TOP_LEVEL_KEYS, ...BUILD
 // ({referenceImages:[{content, filename, attachmentMode:'url'}]}), outside the IGenerateImageAI model. Live
 // 2026-09-28 a step whose only reference was `{{workflow_ai_generate_image.1.image_url}}` redrew that image
 // (knowledge sniffs/workflows-wave1-2026-09-25/live-3Q-generate-image.json), so the key moves the output.
+// Step types whose attribute interface the model-shapes extractor leaves UNMAPPED (it cannot pair the type with its
+// interface), so the card carries no model fields and the gate called the drawer's own keys unknown. Each entry is the
+// interface's keys verbatim; a drift test re-reads the interface from the newest capture.
+//   send_to_eliza — models/actions/SendToEliza.ts `ISendToEliza` {sendToSpecificUser, userId?}
+export const MODEL_KEYS_UNMAPPED_BY_EXTRACTOR = { send_to_eliza: ['sendToSpecificUser', 'userId'] };
+
 // loop.exitNext: the builder persists the step that runs after the loop — "the one fact that cannot be recovered from
 // the tree" (utils/loop.helper.ts:571-596, use-latest-node-saved.ts:935). Absent from the census only because no
 // census workflow had a loop.
-const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'], workflow_ai_generate_image: ['__dynamicAttachments__'], loop: ['exitNext'] };
+const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'], workflow_ai_generate_image: ['__dynamicAttachments__'], loop: ['exitNext'],
+  ...MODEL_KEYS_UNMAPPED_BY_EXTRACTOR };
 
 // Keys GHL's SERVER writes onto a step when the document is saved. The author never sends them and
 // the builder's front-end source does not contain them, so no model, card or asset lists them — and
@@ -171,6 +178,11 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
       continue;
     }
     const attrs = t.attributes ?? {};
+    // A value the model allows but the drawer cannot show: RentalBookingStatusType includes 'partial', the rental status
+    // list (AppointmentStatus.ts:39-47) does not. It saves and reads back; a person who opens and saves the step loses it.
+    if (t.type === 'update_appointment_status' && attrs.category === 'rental_booking' && attrs.status_type === 'partial')
+      out.push(finding('DRAWER_CANNOT_SHOW', 'warning', t,
+        "the builder's drawer cannot display 'partial' for rental appointments; a person who opens and saves this step will lose it (AppointmentStatus.ts:39-47)"));
     // attributes.type: the explicit map where the inner spelling differs from the row type, else every
     // value a stored step of this type was seen carrying (plus the source model's union members). A
     // type never observed is not judged — absence of evidence is not a rule.

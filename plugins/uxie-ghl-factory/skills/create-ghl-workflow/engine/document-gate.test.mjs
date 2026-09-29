@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { gateDocument, knownAttributeKeys, STEP_TOP_LEVEL_KEYS, BUILDER_TEMPLATE_KEYS } from './document-gate.mjs';
+import { gateDocument, knownAttributeKeys, STEP_TOP_LEVEL_KEYS, BUILDER_TEMPLATE_KEYS, MODEL_KEYS_UNMAPPED_BY_EXTRACTOR } from './document-gate.mjs';
 import { validateForWrite } from './write-validation.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { liveValidate } from './live-validate.mjs';
@@ -184,4 +184,36 @@ test('BUILDER_TEMPLATE_KEYS matches the newest captured WorkflowTemplateBase (sk
   const body = src.slice(src.indexOf('export interface WorkflowTemplateBase'), src.indexOf('export type AdvanceCanvasMeta'));
   const keys = [...body.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/^\s{2}([A-Za-z_]+)\??:/gm)].map((m) => m[1]);
   assert.deepEqual([...keys].sort(), [...BUILDER_TEMPLATE_KEYS].sort(), newest);
+});
+
+// wave22: send_to_eliza's drawer keys (models/actions/SendToEliza.ts) were flagged unknown — the extractor never mapped
+// the type to ISendToEliza, so the card had no model fields.
+test('send_to_eliza: the drawer keys sendToSpecificUser / userId pass; an invented key does not', () => {
+  const step = (attrs) => [{ id: 'e', name: 'Eliza', type: 'send_to_eliza', order: 0, attributes: { type: 'send_to_eliza', ...attrs } }];
+  const ok = gateDocument(step({ sendToSpecificUser: true, userId: 'U1' }), { catalog, marketplaceTypes: new Set() });
+  assert.deepEqual(ok.errors.concat(ok.warnings).filter((f) => f.check === 'ATTRIBUTE_KEY'), [], JSON.stringify(ok));
+  const bad = gateDocument(step({ sendToEveryone: true }), { catalog, marketplaceTypes: new Set() });
+  assert.equal(bad.errors.concat(bad.warnings).filter((f) => f.check === 'ATTRIBUTE_KEY').length, 1);
+});
+test('MODEL_KEYS_UNMAPPED_BY_EXTRACTOR matches ISendToEliza in the newest capture (skipped without it)', async (t) => {
+  const { readdirSync, readFileSync, existsSync } = await import('node:fs'); const { join } = await import('node:path');
+  const sniffs = ['../../../../../../knowledge/sniffs/', '../../../../../../../../knowledge/sniffs/']
+    .map((r) => decodeURIComponent(new URL(r, import.meta.url).pathname)).find((p) => existsSync(p));
+  if (!sniffs) return t.skip('no knowledge/ capture');
+  const found = [];
+  for (const a of readdirSync(sniffs)) for (const b of ['', ...(!a.includes('.') ? readdirSync(join(sniffs, a)) : [])]) {
+    const f = join(sniffs, a, b, 'recovered-source/src/models/actions/SendToEliza.ts'); const m = /bundle-(\d{4}-\d{2}-\d{2}(?:-\d+)?)/.exec(join(a, b));
+    if (m && existsSync(f)) found.push([m[1], f]);
+  }
+  if (!found.length) return t.skip('no captured SendToEliza.ts');
+  const src = readFileSync(found.sort((x, y) => x[0].localeCompare(y[0])).at(-1)[1], 'utf8');
+  const body = src.slice(src.indexOf('export interface ISendToEliza'), src.indexOf('}', src.indexOf('export interface ISendToEliza')));
+  assert.deepEqual([...body.matchAll(/^\s+([A-Za-z_]+)\??:/gm)].map((m) => m[1]).sort(), [...MODEL_KEYS_UNMAPPED_BY_EXTRACTOR.send_to_eliza].sort());
+});
+
+test('update_appointment_status rental partial WARNS (drawer cannot show it); appointment partial does not', () => {
+  const st = (category) => [{ id: 'u', name: 'Status', type: 'update_appointment_status', order: 0, attributes: { type: 'update_appointment_status', category, status_type: 'partial' } }];
+  const w = gateDocument(st('rental_booking'), { catalog, marketplaceTypes: new Set() }).warnings.filter((f) => f.check === 'DRAWER_CANNOT_SHOW');
+  assert.equal(w.length, 1); assert.match(w[0].message, /cannot display 'partial' for rental appointments/);
+  assert.equal(gateDocument(st('service_booking'), { catalog, marketplaceTypes: new Set() }).warnings.filter((f) => f.check === 'DRAWER_CANNOT_SHOW').length, 0);
 });
