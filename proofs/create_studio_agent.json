@@ -50,6 +50,15 @@
         "commit:57cffd6e"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:6c12ed12"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -68,12 +77,12 @@
       "voiceAiApp": 707
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_agent": "28ba22da7306d94ee2c2e22c36c62e46331a7c71828e12837ab4f72529b98d1b",
-      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "cfa70e48ef0675296da9d5cf14006a14d7fe6043b44991f1dc35e8122e757516",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_agent": "82c6802eba03b809bc587bae5a49d12b4444ee6e190b6070afa61e3b7a342e48",
+      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "e02b3dc51d18c337c40425d3427c797924366480baa0585e42c63123cbfa8b86",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
-      "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "16904c4e250e8622f8e7800fdee27130f47dea534a392e06fb61908bbc18b6d5",
-      "plugins/uxie-ghl-factory/engines/ai/studio-compiler.mjs": "872ec446f66148c0e67490335afb643652030989c8fdffaae750b70fccfb9d42",
-      "plugins/uxie-ghl-factory/engines/ai/studio-ir.mjs": "bcf547f8978c56b9eb859cfef0e89cbc64a525d58d4ae8d40f39a69bb79b0748",
+      "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "1d2d14585c35659e0a08537d35639cc1983f3171d0d4985c4971598928bd8abb",
+      "plugins/uxie-ghl-factory/engines/ai/studio-compiler.mjs": "8ef3fda150415bbae4fd19cab66f1347549887e80a57d3a0e248a5c24eec1ec7",
+      "plugins/uxie-ghl-factory/engines/ai/studio-ir.mjs": "f94a564a105321c9bb13aa6f5840cdfa56884923597ae750b41b81d81cda50af",
       "plugins/uxie-ghl-factory/engines/ai/voiceai-compiler.mjs": "54884c9d6bf7e62b5bfa9326494a1ca10c0d8c796b99a4142bf1164623439700",
       "plugins/uxie-ghl-factory/engines/ai/voiceai-ir.mjs": "b60279db061a0c36ddc39d2362b700c4169385c8bb713cc6908334322999cf69",
       "plugins/uxie-ghl-factory/engines/ai/voiceai-update.mjs": "77665bca480b2152a0751b631c8792615dafaa96199988d89751f144fb92aced",
