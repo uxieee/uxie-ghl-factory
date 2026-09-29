@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.30.0] — 2026-09-30
+
+**Redirects to funnel steps and pages, redirect click stats, and page styles written the way the builder stores
+them. Executed live on the test account.**
+
+### Added
+- `edit_redirects` redirects to a funnel step, a website page, or an entire domain. An entire-domain redirect needs
+  `confirmEntireDomain` set to the domain, and a second one is refused. Live on a funnel step: the public path answered
+  301 to the step, an update changed the Location, and a delete made it 404. Website-page and entire-domain targets
+  were not sent live, because they would reroute a shared domain.
+- `find_ghl_site` `includeRedirects` takes a date range and returns each redirect's clicks, with the previous period
+  and a series.
+
+### Fixed
+- A redirect to a funnel step whose funnel has no domain is refused before writing, naming the cause. GHL answered 400,
+  though its screen lists such steps.
+- 🔴 Page styles given as plain text (`"16px"`, `"50%"`, `"#d00000"`) were stored bare. The public page showed them,
+  but the builder's editor ignored them. They are now stored in the builder's own shape (`{value:16, unit:"px"}`), and
+  a value that can't be mapped is refused, naming the key. Live: five paragraphs styled that way render in the builder
+  canvas, and a builder save changed none of them.
+
 ## [1.29.1] — 2026-09-30
 
 **🔴 Fix: a tag trigger written with a capital letter never fired. Trigger filters now match what the builder
