@@ -15,7 +15,7 @@ import { makeGateway } from './gateway.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
   makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, nodeExtraFromCss, elementSizeCss, buttonColourCss, applyPalette, resetIds, val,
-  NEEDS_STEP_TYPE, videoSourceProblems, isPdpKind,
+  NEEDS_STEP_TYPE, videoSourceProblems, isPdpKind, pdpNodeProblems, pdpStylingWarning,
 } from './funnel-pages.mjs';
 import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
@@ -2050,11 +2050,18 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     const cur = rec.json?.meta ?? {};
     seo = { before: cur, write: seoMeta(cur, args.seo) };
   }
+  // Product-page blocks this call appends: the same rules as compose (the step's key, a pdp section), refused here —
+  // the audit below only lists what the page already carries.
+  const appendedIds = new Set(report.filter((r) => r.op === 'append-section').map((r) => r.sectionId));
+  const stepKey = (funnel?.steps ?? []).find((st) => st.id === args.stepId)?.key;
+  const pdpBad = pageData.sections.filter((sec) => appendedIds.has(sec.id)).flatMap((sec) => sec.elements.flatMap((n) => pdpNodeProblems(n, sec, { stepKey })));
+  if (pdpBad.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${pdpBad.length} product-page block(s) this call appends are misplaced; nothing was written`, 'Append them in a section with pdp:true, on the store\'s product-detail step (or a custom product page).'), { problems: pdpBad, report });
   const problems = auditPageData(pageData);
   const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, expectPage, ...r }) => r), ...(seo ? { seo: { from: seo.before, to: seo.write } } : {}), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
     ...(problems.length ? { preexistingProblems: problems } : {}),
     ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
     ...(submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {}),
+    ...(pdpStylingWarning(pageData, appendedIds) ? { pdpStyling: pdpStylingWarning(pageData, appendedIds) } : {}),
     willPublish: args.publish === true,
     note: args.publish === true
       ? 'Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes.'
@@ -11565,6 +11572,7 @@ export const TOOLS = [
         compiledCssBytes: cssBytes,
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === 'element').map((e) => e.meta)))],
         audit: 'clean',
+        ...(pdpStylingWarning(pageData) ? { pdpStyling: pdpStylingWarning(pageData) } : {}),
         ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
         ...(submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {}),
         note: args.publish === true

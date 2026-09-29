@@ -233,6 +233,30 @@ export function pdpSectionExtra(pdp) {
   return { selectedProducts: val(products), manageProducts: val(''), typography: val('var(--contentfont)'), pdpV2Section: true };
 }
 
+/** The problems of one product-page block in its section; `stepKey` is checked only when the caller passed it. */
+export function pdpNodeProblems(n, section, opts = {}) {
+  const out = [];
+  if (n?.type !== 'element' || !isPdpKind(n.meta)) return out;
+  if ('stepKey' in opts && !PDP_FUNNEL_STEP_KEYS.includes(opts.stepKey)) {
+    out.push(`node ${n.id} (${n.meta}): product-page blocks belong on a step whose key is ${PDP_FUNNEL_STEP_KEYS.join(' or ')} (the store's "Product details" step, or a custom product page) — this step's key is ${opts.stepKey ? `'${opts.stepKey}'` : 'absent'}; the builder does not offer them anywhere else.`);
+  }
+  if (section?.metaData?.extra?.pdpV2Section !== true) {
+    out.push(`node ${n.id} (${n.meta}): a product-page block reads its product from the section flagged extra.pdpV2Section:true — section ${section?.id} is not; give the section \`pdp: true\` (or {products: [id]}).`);
+  }
+  return out;
+}
+
+// The tool compiles no CSS for the product-page blocks yet; the builder compiles it on its first save of the page, and
+// until then a visitor sees them unstyled — native buttons and select, default font (bl-298; knowledge
+// sniffs/funnels-wave29-kinds-2026-09-29 render.public-pdp.png vs render.public-pdp.after-builder-save.png).
+export const PDP_STYLING_WARNING = 'these blocks render unstyled until the page is opened and saved once in the page builder (bl-298); do that before sharing the page';
+/** The preview/result entry for product-page blocks this call writes (all of the page's, or those in `sectionIds`), or null. */
+export function pdpStylingWarning(pageData, sectionIds = null) {
+  const nodes = (pageData?.sections ?? []).filter((sec) => !sectionIds || sectionIds.has(sec.id))
+    .flatMap((sec) => (sec.elements ?? []).filter((n) => n.type === 'element' && isPdpKind(n.meta)).map((n) => ({ id: n.id, kind: n.meta })));
+  return nodes.length ? { nodes, warning: PDP_STYLING_WARNING } : null;
+}
+
 // 🔴 These kinds carry `tag` EQUAL TO THEIR tagName, not the empty string every other leaf uses.
 // Read off real template nodes; a leaf built with tag:'' does not render.
 export const TAG_IS_TAGNAME = Object.freeze(new Set([
@@ -750,7 +774,7 @@ export const autosaveEnvelope = ({ funnelId, pageData, pageVersion = 1 }) => ({
 // `stepKey` is checked only when the caller passed it (compose reads the step); the edit preview lists problems of a
 // page as it already is, and a real product page's step key is not re-read there.
 export const auditPageData = (pageData, opts = {}) => {
-  const { stepType, stepKey } = opts;
+  const { stepType } = opts;
   const problems = [];
   // A page missing this renders in public and hangs the BUILDER — the failure mode with no error.
   if (!pageData.settings?.settings?.background) {
@@ -833,14 +857,7 @@ export const auditPageData = (pageData, opts = {}) => {
       if (n.type === 'element' && NEEDS_STEP_TYPE[n.meta] && stepType !== NEEDS_STEP_TYPE[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): this kind renders only on a step of type '${NEEDS_STEP_TYPE[n.meta]}' — on a plain funnel page it 500s (or 404s for blog kinds). Create the step with that type.`);
       }
-      if (n.type === 'element' && isPdpKind(n.meta)) {
-        if ('stepKey' in opts && !PDP_FUNNEL_STEP_KEYS.includes(stepKey)) {
-          problems.push(`node ${n.id} (${n.meta}): product-page blocks belong on a step whose key is ${PDP_FUNNEL_STEP_KEYS.join(' or ')} (the store's "Product details" step, or a custom product page) — this step's key is ${stepKey ? `'${stepKey}'` : 'absent'}; the builder does not offer them anywhere else.`);
-        }
-        if (s.metaData?.extra?.pdpV2Section !== true) {
-          problems.push(`node ${n.id} (${n.meta}): a product-page block reads its product from the section flagged extra.pdpV2Section:true — section ${s.id} is not; give the section \`pdp: true\` (or {products: [id]}).`);
-        }
-      }
+      problems.push(...pdpNodeProblems(n, s, opts));
       if (n.type === 'element' && NEEDS_CONTEXT[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): ${NEEDS_CONTEXT[n.meta]}`);
       }

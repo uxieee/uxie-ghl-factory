@@ -177,7 +177,7 @@
       "result": "pass",
       "how": "manual",
       "evidence": [
-        "commit:05972434"
+        "commit:affbf5fa"
       ],
       "location": "…zn6B"
     }
@@ -199,7 +199,7 @@
       "redirectApp": 222
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_funnel_page": "9b1b64b1ffb08e868d3a06823d324b074272e244e0e8063c2db8a93d4f97b562",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_funnel_page": "9a59b1bc5c6aa81ef9b233031fb1b876ecde884f8c3449a2c1c621bc3bc9153b",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
@@ -207,7 +207,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "aace93819a562eb4c84c691a3a50601282afbaeda75c49c253799595154fc1e4",
       "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd",
       "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "c19c100c277b07b73bc836ca387155f4f02004ac7618b07c94232f9deb783ca4",
-      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-pages.mjs": "5ab45a6dfd32e9e4f4b704bdfd5010012f61513cc030d34018a067e39517f44d",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-pages.mjs": "a3957b7e9cc91919203638481a86f3eecb1deccb21865193574df45a0e3957b9",
       "plugins/uxie-ghl-factory/mcp-internal/core/kind-builder-defaults.mjs": "c34d94ba024045ae5b5ea673d830b4587e2c84a15d4581bdb6c930e9a0c7f3a0",
       "plugins/uxie-ghl-factory/mcp-internal/core/kind-defaults.mjs": "6a49473818067e59b11a46130e0bf3b0bc3546a16446c78f149f48f63b6add92",
       "plugins/uxie-ghl-factory/mcp-internal/core/kind-style-defaults.mjs": "16cdda0143ec6756986a9e57a7675939904e2881ee6e7f6d5851633ebbde028b",

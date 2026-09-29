@@ -27,7 +27,8 @@ Autosave answers `201` to all of these:
   Each block finds its product through that section (`extra.pdpV2Section`); on the store's step the product comes from
   the URL (`/<step path>/product/<product id>`). Both rules are refused by name before anything is sent. They render
   with the product's data but UNSTYLED (native buttons and select) until the page is saved once in the builder, which
-  compiles their CSS — the tool compiles none for these kinds yet (console bl-298).
+  compiles their CSS — the tool compiles none for these kinds yet (console bl-298). Every preview and result that writes
+  them lists them under `pdpStyling` with that warning. Edit mode's `append-section` is held to the same two rules.
 - Every declared `extra` property must be present. The renderer reads `extra.<prop>.value` unguarded, so a
   missing one 500s the whole page.
 - `col.extra.bgImage`, `general.general.fontsToLoad` and `colors` must be present.
