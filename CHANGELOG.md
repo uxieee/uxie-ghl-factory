@@ -11,6 +11,32 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.27.0] — 2026-09-30
+
+**Workflows: `fast_forward_contacts` reports what really moved, and the account overview filters trigger counts.
+Executed live on the test account.**
+
+### Added
+- `get_account_workflow_overview` `triggerCountFilter`: one filtered trigger-analysis count (attempted and matched)
+  by workflow, trigger type, contact, or form/survey, over up to 31 days. A form/survey filter on any other trigger
+  type is refused by name.
+
+### Fixed
+- 🔴 `fast_forward_contacts` reported the number of contacts it ASKED GHL to move. On a draft workflow GHL answers
+  success and moves nobody. `moved` now comes from reading the step again, the preview warns on a draft, and a failed
+  re-read says the move is unverified. Live differential: draft moved 0, published moved 1 with its next step read
+  back.
+- A membership grant refused because the offer is still a DRAFT now says so. GHL's own message reads as if the offer
+  did not exist.
+
+### Docs
+- Email steps: a link built from a contact field (`{{contact.website}}`) is not click-tracked, and a From address GHL
+  cannot send from is rewritten onto the location's sending domain.
+- Per-step outcome counts come from `get_workflow_logs`; the builder has no per-step stats route.
+- `raw_request` notes for workflow recipes (the server replaces your name with the recipe's), the template library
+  (creates from an agency template, not run), workflow list views (location-wide), log export (measured) and
+  drawer option paging.
+
 ## [1.26.1] — 2026-09-29
 
 **Fixes: a false warning on Find company in 1.25.0, and first-party trigger filters stored as the builder stores
