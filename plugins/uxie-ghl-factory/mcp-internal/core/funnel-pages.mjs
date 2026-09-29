@@ -22,6 +22,7 @@ import { dirname, resolve } from 'node:path';
 import { KIND_DEFAULT_EXTRA, KIND_PDP_STYLES, fillTextFieldInitials } from './kind-defaults.mjs';
 import { KIND_FACTORY_EXTRA, KIND_FACTORY_STYLES, KIND_FACTORY_WRAPPER } from './kind-factory-defaults.mjs';
 import { nodeLayerCss, storedMap } from './style-layer.mjs';
+import { kindCss, KIND_CSS_KINDS } from './kind-css.mjs';
 import { entranceClass } from './page-animation.mjs';
 import { KIND_BUILDER_EXTRA, KIND_BUILDER_STYLES } from './kind-builder-defaults.mjs';
 
@@ -256,7 +257,7 @@ export function pdpNodeProblems(n, section, opts = {}) {
 // The tool compiles none of their CSS yet, so until someone saves the page once in the builder a visitor sees them
 // differently — unstyled buttons and selects, other heights, hidden or collapsed parts. A kind leaves this set when its
 // builder style function is ported and the same harness shows no difference after a save.
-export const BUILDER_STYLED_KINDS = Object.freeze(new Set([
+const BUILDER_STYLED_ALL = [
   'video', 'divider', 'two-setp-order', 'one-step-order', 'nav-menu', 'nav-menu-v2', 'map', 'progress-bar',
   'image-feature', 'order-confirmation', 'faq', 'blog', 'blog-post', 'category-navigation', 'store-product-list',
   'store-product-detail', 'nav-cart', 'upsell', 'collection-list', 'featured-products', 'social-icons', 'image-slider',
@@ -268,23 +269,35 @@ export const BUILDER_STYLED_KINDS = Object.freeze(new Set([
   'store-pdp-v2-title', 'store-pdp-v2-price', 'store-pdp-v2-images', 'store-pdp-v2-variants', 'store-pdp-v2-quantity',
   'store-pdp-v2-add-to-cart', 'store-pdp-v2-buy-now', 'store-pdp-v2-review-stars', 'store-pdp-v2-description',
   'store-pdp-v2-related-products', 'store-pdp-v2-reviews',
-]));
+];
+// A kind leaves the set when its per-kind rules are compiled here (core/kind-css.mjs): then the page a tool writes and the page
+// the builder saves carry the same CSS for it (measured: knowledge sniffs/funnels-wave30-kind-css-2026-09-29, learn/check.*).
+export const BUILDER_STYLED_KINDS = Object.freeze(new Set(BUILDER_STYLED_ALL.filter((k) => !KIND_CSS_KINDS.includes(k))));
+/** The builder's per-kind CSS for a node of a ported kind ('' when the kind is not ported or the node is outside what was
+ *  measured — `kindCssRefusal` says which). `palette` is the page's palette (general.general.colors). */
+export const kindLayerCss = (node, palette) => { const r = kindCss(node, mergePalette(palette)); return r.css ?? ''; };
+export const kindCssRefusal = (node, palette) => { if (!KIND_CSS_KINDS.includes(node?.meta)) return null; const r = kindCss(node, mergePalette(palette)); return r.refused ?? null; };
 export const BUILDER_STYLING_WARNING = 'these render differently until the page is saved once in the page builder, which compiles their CSS (bl-298); open and save it there before sharing the page';
 // Kept for 1.24.0's consumers: the product-page subset of builderStyling, with its original sentence. Deprecated.
 export const PDP_STYLING_WARNING = 'these blocks render unstyled until the page is opened and saved once in the page builder (bl-298); do that before sharing the page';
-const styledNodes = (pageData, pred, { sectionIds = null, popupIds = null } = {}) => [
+const styledNodes = (pageData, pred, { sectionIds = null, popupIds = null } = {}, describe = (n) => ({ id: n.id, kind: n.meta })) => [
   ...(pageData?.sections ?? []).filter((sec) => !sectionIds || sectionIds.has(sec.id)).flatMap((sec) => sec.elements ?? []),
   ...(pageData?.popupsList ?? []).filter((p) => (sectionIds ? popupIds?.has(p.id) : true)).flatMap((p) => p.elements ?? []),
-].filter((n) => n?.type === 'element' && pred(n.meta)).map((n) => ({ id: n.id, kind: n.meta }));
+].filter((n) => n?.type === 'element' && pred(n)).map(describe).filter(Boolean);
 /** The preview/result entry for builder-styled kinds this call writes (the whole page's, or the appended `sectionIds` /
  *  `popupIds` of an edit), or null. */
 export function builderStylingWarning(pageData, scope) {
-  const nodes = styledNodes(pageData, (m) => BUILDER_STYLED_KINDS.has(m), scope);
+  const palette = pageData?.general?.general?.colors;
+  const nodes = [
+    ...styledNodes(pageData, (n) => BUILDER_STYLED_KINDS.has(n.meta), scope),
+    // a ported kind whose node carries an input the measurements do not cover is compiled by the builder alone
+    ...styledNodes(pageData, (n) => KIND_CSS_KINDS.includes(n.meta), scope, (n) => { const why = kindCssRefusal(n, palette); return why ? { id: n.id, kind: n.meta, reason: why } : null; }),
+  ];
   return nodes.length ? { nodes, warning: BUILDER_STYLING_WARNING } : null;
 }
 /** Deprecated alias (1.24.0): the product-page subset. */
 export function pdpStylingWarning(pageData, scope) {
-  const nodes = styledNodes(pageData, isPdpKind, scope);
+  const nodes = styledNodes(pageData, (n) => isPdpKind(n.meta) && !KIND_CSS_KINDS.includes(n.meta), scope);
   return nodes.length ? { nodes, warning: PDP_STYLING_WARNING } : null;
 }
 
@@ -333,6 +346,9 @@ const envelope = (id, type, meta, tagName, extra, styles, cls, wrapper) => ({
 });
 
 /** Every declared prop, present. Caller values win; anything unspecified gets a shaped empty. */
+// A deep copy in which no object is shared: structuredClone keeps two keys that pointed at ONE object (the builder's registry
+// defaults share a desktop and a tablet font-size object) pointing at one clone, so a write through either key changed both.
+export const unshare = (v) => (Array.isArray(v) ? v.map(unshare) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, unshare(x)])) : v);
 export const completeExtra = (meta, given = {}) => {
   const declared = ELEMENTS[meta]?.extraProps ?? [];
   // Kinds with a required object a heuristic cannot invent (store `customText`, blog show-options)
@@ -488,7 +504,7 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
   }
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
   const routed = routeClickAction(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra);
-  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, fillTextFieldInitials(meta, structuredClone(completeExtra(meta, routed))), withDefaults, cls, TOOL_COMPILED_KINDS.has(meta) ? undefined : KIND_FACTORY_WRAPPER[meta]);
+  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, fillTextFieldInitials(meta, unshare(completeExtra(meta, routed))), withDefaults, cls, TOOL_COMPILED_KINDS.has(meta) ? undefined : KIND_FACTORY_WRAPPER[meta]);
   // The wrapper and per-device maps a caller gave (numbers are px), over the envelope's.
   if (wrapper) node.wrapper = { ...node.wrapper, ...storedMap(wrapper) };
   for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) node[k] = storedMap(v);

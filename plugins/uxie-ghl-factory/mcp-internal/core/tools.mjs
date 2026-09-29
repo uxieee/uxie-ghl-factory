@@ -13,10 +13,11 @@ import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judg
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
 import { nodeLayerCss } from './style-layer.mjs';
+import { KIND_CSS_KINDS } from './kind-css.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
   makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, nodeExtraFromCss, elementSizeCss, buttonColourCss, applyPalette, resetIds, val,
-  NEEDS_STEP_TYPE, videoSourceProblems, isPdpKind, pdpNodeProblems, pdpStylingWarning, builderStylingWarning,
+  NEEDS_STEP_TYPE, videoSourceProblems, isPdpKind, pdpNodeProblems, pdpStylingWarning, builderStylingWarning, kindLayerCss, kindCssRefusal, mergePalette, BUILDER_PALETTE,
   BUILDER_INNER_MAX_WIDTH, SECTION_SPEC_KEYS,
 } from './funnel-pages.mjs';
 import {
@@ -1987,7 +1988,7 @@ function applyTypography(pageData, typo, reg) {
 // The builder's autosave says whether the page carries popups (integrations.popup); ours says the same.
 const withPopupFlag = (env) => ({ ...env, integrations: { ...env.integrations, popup: (env.pageData?.popupsList ?? []).length > 0 } });
 
-async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts } = {}) {
+async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts, paletteRef } = {}) {
   if (!args.stepName) return fail(CODES.VALIDATION_FAILED, 'edit mode needs stepName', 'Pass the exact name of the step that owns pageId — it is the target check that stops a wrong pageId overwriting another page.');
   const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
   const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
@@ -2004,6 +2005,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
       'The page-data read can lag a fresh write; re-run in a few seconds, or compose the page with `sections`.');
   }
 
+  if (paletteRef) paletteRef.colors = mergePalette(current.general?.general?.colors);
   // Appended sections get a salt no earlier build used, so their ids cannot collide with the page's.
   const salt = `E${Date.now().toString(36).toUpperCase()}`;
   // Fonts: the page's own families first (a clash already on the page never blocks an unrelated edit), then its
@@ -2060,7 +2062,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   } catch (e) {
     return fail(CODES.VALIDATION_FAILED, e.message, e.remediation ?? 'Fix the op named in the message.');
   }
-  const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles), compileSizes: elementSizeCss });
+  const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles), compileSizes: elementSizeCss,
+    kindLayer: { handles: (meta) => KIND_CSS_KINDS.includes(meta), css: kindLayerCss, refusal: kindCssRefusal } });
   // Every family this call wrote through a variable is loaded and declared, as the builder would.
   if (fonts && !errors.length) applyTypography(edited, {}, fonts.reg);
   // …and every palette colour (a page this tool composed before 2026-09-29 declared none).
@@ -11716,6 +11719,13 @@ export const TOOLS = [
         return { ...st, fontFamily: typeof ff === 'object' && ff !== null ? { ...ff, value: fonts.reg.ref(ff.value) } : fonts.reg.ref(ff) };
       };
       // One leaf composer for sections and popups alike: node + the compiled rules the public page serves.
+      // The page's palette, for the kinds whose CSS reads it (an order form's button gradient); an edit sets it from the page.
+      // A `colors` entry that reuses a built-in label (Primary, Secondary, Red…) with ANOTHER value does not survive a builder save: the
+      // builder relabels it `color-<id>` and puts the built-in colour back, so every var(--primary) on the page changes
+      // (knowledge sniffs/funnels-wave32-kindcss-live-2026-09-30 PROOF.md). Refused here rather than written as a trap.
+      const clash = (args.colors ?? []).filter((c) => c?.label && BUILDER_PALETTE.some((b) => b.label.toLowerCase() === String(c.label).toLowerCase() && c.value !== undefined && String(c.value).toLowerCase() !== String(b.value).toLowerCase()));
+      if (clash.length) return fail(CODES.VALIDATION_FAILED, `colors: ${clash.map((c) => `"${c.label}"`).join(', ')} ${clash.length > 1 ? 'are' : 'is a'} built-in palette colour${clash.length > 1 ? 's' : ''} given another value; the page builder relabels such an entry and restores the built-in value on the next save, so the page would change when anyone saves it there`, 'Give a custom colour its own single-word label (for example "Brand") and use var(--brand); the built-in colours keep their built-in values. Nothing was written.');
+      const paletteRef = { colors: mergePalette(args.colors) };
       const composeLeaf = (e0, salt) => {
         const keyProblem = elementSpecProblem(e0);
         if (keyProblem) throw Object.assign(new Error(keyProblem), { remediation: 'Text goes in `html`; any other stored prop goes in `extra` as {<prop>: {value}}. Nothing was written.' });
@@ -11753,9 +11763,12 @@ export const TOOLS = [
         // pseudo-states that a flat style map cannot. Otherwise the leaf's `styles` are
         // COMPILED, so styling set through `styles` alone reaches the public renderer instead
         // of living only on the builder canvas. See leafStyleCss for what that used to cost.
-        let css = e.css ? (e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css)) : leafStyleCss(leaf.id, e.styles);
+        // A kind whose per-kind rules are compiled here gets exactly the builder's layers (generic + per-kind): the older flat
+        // compile of `styles` would add a rule on the wrapper class that a builder save drops again.
+        const ported = KIND_CSS_KINDS.includes(e.meta);
+        let css = e.css ? (e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css)) : (ported ? '' : leafStyleCss(leaf.id, e.styles));
         // Sizes and weights: the builder's own rules for this node, so a builder save recompiles the same thing.
-        css += elementSizeCss(leaf);
+        css += ported ? '' : elementSizeCss(leaf);
         if (e.meta === 'button' && !e.css) css += buttonColourCss(leaf);
         // Animations: the builder's own compiled rules, byte for byte (core/page-animation.mjs).
         css += entranceCss(leaf.id, leaf.class) + hoverCss(leaf.id, leaf.class);
@@ -11765,7 +11778,7 @@ export const TOOLS = [
         // every generic rule before the per-kind ones, so a per-kind rule (a heading's weight) wins over a generic one
         // (knowledge sniffs/funnels-wave31-styles-live-2026-09-29 live-render-diff.json: appended last, a heading's generic
         // font-weight overrode its text rule until the builder's save put it back).
-        return { leaf, css: nodeLayerCss(leaf) + css };
+        return { leaf, css: nodeLayerCss(leaf) + kindLayerCss(leaf, paletteRef.colors) + css };
       };
       // One composer for both modes: a section spec → a section node tree with its compiled stylesheet.
       const composeSection = (spec, si, saltBase = 'S') => {
@@ -11797,7 +11810,7 @@ export const TOOLS = [
         if (secCls) built.general.sectionStyles += entranceCss(built.id, built.metaData.class);
         return built;
       };
-      if (args.edits || args.seo) return editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts });
+      if (args.edits || args.seo) return editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts, paletteRef });
       if (!args.sections) return fail(CODES.VALIDATION_FAILED, 'pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)', 'See the tool description for both shapes.');
       let pageData;
       try {

@@ -1,0 +1,7246 @@
+{
+ "source": {
+  "chunk": "pageBuilder index.e1b163ff.js",
+  "note": "builder output as effective declarations only",
+  "generated": "2026-09-29"
+ },
+ "kinds": {
+  "two-setp-order": [
+   {
+    "deltas": [],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#37ca37"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#ffffff"
+     },
+     {
+      "label": "Gray",
+      "value": "#cbd5e0"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#f6ad55"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#757BBD"
+     },
+     {
+      "label": "Purple",
+      "value": "#d6bcfa"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "rgba(0, 0, 0, 0.5)"
+     },
+     {
+      "label": "Blue",
+      "value": "#188bf6"
+     }
+    ],
+    "count": 8,
+    "sha256": "6b2fcd049ca2b6bd2286b066bc0037f98dfb4b61f81ff27cc7dae79a0e3b8bdf",
+    "declarations": [
+     "|.__ID__ .form-btn .main-text|font-size:1rem",
+     "|.__ID__ .form-btn|background-color:var(--secondary)",
+     "|.__ID__ .form-btn|color:var(--white)",
+     "|.__ID__ .form-button-gradient|background-color:#fff",
+     "|.__ID__ .form-button-gradient|background-image:linear-gradient(to bottom, rgba(24,139,246,0.5), rgba(24,139,246,1)) !important",
+     "|.__ID__ .form-input|background-color:#ffffff",
+     "|.__ID__ .form-input|border-radius:5px",
+     "|.__ID__ .form-input|text-align:left"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "styles.textAlign.value",
+      "#123456"
+     ],
+     [
+      "styles.buttonColor.value",
+      null
+     ],
+     [
+      "styles.buttonTextColor.value",
+      ""
+     ],
+     [
+      "styles.buttonSize.value",
+      "zr1"
+     ],
+     [
+      "styles.formBgColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.formRadius.unit",
+      null
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#e8d43b"
+     },
+     {
+      "label": "Secondary",
+      "value": "#808ddb"
+     },
+     {
+      "label": "White",
+      "value": "#14167a"
+     },
+     {
+      "label": "Gray",
+      "value": "#51d633"
+     },
+     {
+      "label": "Black",
+      "value": "#436695"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#f6ad55"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#2d5c9d"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#152e24"
+     },
+     {
+      "label": "Purple",
+      "value": "#d6bcfa"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f05e0f"
+     },
+     {
+      "label": "Overlay",
+      "value": "#5eb9e0"
+     },
+     {
+      "label": "Blue",
+      "value": "#368c1e"
+     }
+    ],
+    "count": 8,
+    "sha256": "6d9becedb1b45220f8e4a6c7559047a6fffe693fd1d31fdbd7bfb166ac500ae8"
+   },
+   {
+    "deltas": [
+     [
+      "styles.textAlign.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.buttonColor.value",
+      "#123456"
+     ],
+     [
+      "styles.buttonSize.value",
+      ""
+     ],
+     [
+      "styles.formBgColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.formRadius.value",
+      ""
+     ],
+     [
+      "styles.formRadius.unit",
+      "var(--zr2)"
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "#fe31fd"
+     },
+     {
+      "label": "Primary",
+      "value": "#37ca37"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#ffffff"
+     },
+     {
+      "label": "Gray",
+      "value": "#b8ad93"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#a6ba43"
+     },
+     {
+      "label": "Orange",
+      "value": "#42dd22"
+     },
+     {
+      "label": "Yellow",
+      "value": "#c2b62f"
+     },
+     {
+      "label": "Green",
+      "value": "#e81eff"
+     },
+     {
+      "label": "Teal",
+      "value": "#38203f"
+     },
+     {
+      "label": "Malibu",
+      "value": "#2c4ab6"
+     },
+     {
+      "label": "Indigo",
+      "value": "#2b4b85"
+     },
+     {
+      "label": "Purple",
+      "value": "#3d266c"
+     },
+     {
+      "label": "Pink",
+      "value": "#6ce52b"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#bbe04b"
+     },
+     {
+      "label": "Smoke",
+      "value": "#e04669"
+     },
+     {
+      "label": "Overlay",
+      "value": "#019136"
+     },
+     {
+      "label": "Blue",
+      "value": "#188bf6"
+     }
+    ],
+    "count": 8,
+    "sha256": "2586e2d161bd0d5d90956c283c9d25d9505d10e9a3859713cec46bbe7fb04ebd"
+   },
+   {
+    "deltas": [
+     [
+      "styles.formBgColor.value",
+      "var(--zr2)"
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#be2b0f"
+     },
+     {
+      "label": "Secondary",
+      "value": "#64b2cf"
+     },
+     {
+      "label": "White",
+      "value": "#dbe08f"
+     },
+     {
+      "label": "Gray",
+      "value": "#314a4d"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#6246d3"
+     },
+     {
+      "label": "Yellow",
+      "value": "#6ffe33"
+     },
+     {
+      "label": "Green",
+      "value": "#1ff493"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#3e1342"
+     },
+     {
+      "label": "Indigo",
+      "value": "#6177bd"
+     },
+     {
+      "label": "Purple",
+      "value": "#2dac30"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#dbc88b"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "rgba(0, 0, 0, 0.5)"
+     },
+     {
+      "label": "Blue",
+      "value": "#dbd9cb"
+     }
+    ],
+    "count": 8,
+    "sha256": "a923532b9be896ffa28ff70286e1e661fb935af394117861c3b66a3b49350959"
+   },
+   {
+    "deltas": [
+     [
+      "styles.formRadius.unit",
+      "var(--zr2)"
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "#272cd6"
+     },
+     {
+      "label": "Primary",
+      "value": "#37ca37"
+     },
+     {
+      "label": "Secondary",
+      "value": "#275d0d"
+     },
+     {
+      "label": "White",
+      "value": "#ffffff"
+     },
+     {
+      "label": "Gray",
+      "value": "#c68983"
+     },
+     {
+      "label": "Black",
+      "value": "#7b5e61"
+     },
+     {
+      "label": "Red",
+      "value": "#c21371"
+     },
+     {
+      "label": "Orange",
+      "value": "#f6ad55"
+     },
+     {
+      "label": "Yellow",
+      "value": "#6e5960"
+     },
+     {
+      "label": "Green",
+      "value": "#91f79d"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#896b55"
+     },
+     {
+      "label": "Indigo",
+      "value": "#757BBD"
+     },
+     {
+      "label": "Purple",
+      "value": "#3eed94"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#7f8b6a"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "#964bb7"
+     },
+     {
+      "label": "Blue",
+      "value": "#6d4db5"
+     }
+    ],
+    "count": 8,
+    "sha256": "e9d6ce08fa0d3e7487c6cba51666e017cb95a09361b9b5bc04682307b43d8f14"
+   },
+   {
+    "deltas": [
+     [
+      "styles.buttonColor.value",
+      "#123456"
+     ],
+     [
+      "styles.buttonTextColor.value",
+      ""
+     ],
+     [
+      "styles.formRadius.unit",
+      null
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "#ed1d19"
+     },
+     {
+      "label": "Primary",
+      "value": "#37ca37"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#48e93a"
+     },
+     {
+      "label": "Gray",
+      "value": "#cbd5e0"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#29b887"
+     },
+     {
+      "label": "Orange",
+      "value": "#6f103e"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#0a0417"
+     },
+     {
+      "label": "Malibu",
+      "value": "#02ae4e"
+     },
+     {
+      "label": "Indigo",
+      "value": "#172ff6"
+     },
+     {
+      "label": "Purple",
+      "value": "#d6bcfa"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#8abe9d"
+     },
+     {
+      "label": "Overlay",
+      "value": "#5aca0b"
+     },
+     {
+      "label": "Blue",
+      "value": "#bd802b"
+     }
+    ],
+    "count": 8,
+    "sha256": "f731c065d06131ca48667b246e46fe7c82c9e2e9e77db5814ebcc16575d73e25"
+   },
+   {
+    "deltas": [
+     [
+      "styles.buttonColor.value",
+      "#123456"
+     ],
+     [
+      "styles.formBgColor.value",
+      "#123456"
+     ],
+     [
+      "styles.formRadius.value",
+      4
+     ],
+     [
+      "styles.formRadius.unit",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#ec4f85"
+     },
+     {
+      "label": "Secondary",
+      "value": "#eca335"
+     },
+     {
+      "label": "White",
+      "value": "#c6d665"
+     },
+     {
+      "label": "Gray",
+      "value": "#cbd5e0"
+     },
+     {
+      "label": "Black",
+      "value": "#2dcebd"
+     },
+     {
+      "label": "Red",
+      "value": "#a4a863"
+     },
+     {
+      "label": "Orange",
+      "value": "#f6ad55"
+     },
+     {
+      "label": "Yellow",
+      "value": "#3fcf53"
+     },
+     {
+      "label": "Green",
+      "value": "#69fab3"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#1f0673"
+     },
+     {
+      "label": "Purple",
+      "value": "#d6bcfa"
+     },
+     {
+      "label": "Pink",
+      "value": "#1636a1"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#be6ce7"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "rgba(0, 0, 0, 0.5)"
+     },
+     {
+      "label": "Blue",
+      "value": "#9a67e7"
+     }
+    ],
+    "count": 8,
+    "sha256": "42cbc59036581c8ba4afa9639ca75ccbd30a106c474bb2ee1f974d98a55545ab"
+   },
+   {
+    "deltas": [
+     [
+      "styles.buttonTextColor.value",
+      null
+     ],
+     [
+      "styles.formRadius.value",
+      "0"
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#c0c321"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#921279"
+     },
+     {
+      "label": "Gray",
+      "value": "#068748"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#86a9bb"
+     },
+     {
+      "label": "Orange",
+      "value": "#1a4559"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#ade69f"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#b670e5"
+     },
+     {
+      "label": "Purple",
+      "value": "#d6bcfa"
+     },
+     {
+      "label": "Pink",
+      "value": "#799c64"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#ede479"
+     },
+     {
+      "label": "Overlay",
+      "value": "#03a948"
+     },
+     {
+      "label": "Blue",
+      "value": "#188bf6"
+     }
+    ],
+    "count": 8,
+    "sha256": "bc2dd325282bb80f6d42483e908e76addac036e0307e092645c1a2a138d18221"
+   },
+   {
+    "deltas": [
+     [
+      "styles.buttonTextColor.value",
+      null
+     ],
+     [
+      "styles.formRadius.unit",
+      "var(--zr2)"
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#b92117"
+     },
+     {
+      "label": "Secondary",
+      "value": "#d29215"
+     },
+     {
+      "label": "White",
+      "value": "#889045"
+     },
+     {
+      "label": "Gray",
+      "value": "#e4d7f3"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#f6ad55"
+     },
+     {
+      "label": "Yellow",
+      "value": "#733499"
+     },
+     {
+      "label": "Green",
+      "value": "#b6a069"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#f424b7"
+     },
+     {
+      "label": "Indigo",
+      "value": "#0728b7"
+     },
+     {
+      "label": "Purple",
+      "value": "#d6bcfa"
+     },
+     {
+      "label": "Pink",
+      "value": "#db56c7"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#cd6d57"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "#da3fd7"
+     },
+     {
+      "label": "Blue",
+      "value": "#67aed5"
+     }
+    ],
+    "count": 8,
+    "sha256": "7a20426baa9da987822d9d833fbadc525f35364df04a7ffa5e5486ca9ae4ed38"
+   },
+   {
+    "deltas": [
+     [
+      "styles.buttonSize.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "#e6cb5b"
+     },
+     {
+      "label": "Primary",
+      "value": "#9429fb"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#ffffff"
+     },
+     {
+      "label": "Gray",
+      "value": "#cbd5e0"
+     },
+     {
+      "label": "Black",
+      "value": "#869beb"
+     },
+     {
+      "label": "Red",
+      "value": "#257b0a"
+     },
+     {
+      "label": "Orange",
+      "value": "#4958c5"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#46d278"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#0c6d77"
+     },
+     {
+      "label": "Purple",
+      "value": "#23a6ad"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#5817a3"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "#107793"
+     },
+     {
+      "label": "Blue",
+      "value": "#188bf6"
+     }
+    ],
+    "count": 8,
+    "sha256": "538e78740013df510b8d16028b979ff2f8a28e84ad060cdcfbe32b3c38f768ca"
+   }
+  ],
+  "one-step-order": [
+   {
+    "deltas": [],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#37ca37"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#ffffff"
+     },
+     {
+      "label": "Gray",
+      "value": "#cbd5e0"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#f6ad55"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#757BBD"
+     },
+     {
+      "label": "Purple",
+      "value": "#d6bcfa"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "rgba(0, 0, 0, 0.5)"
+     },
+     {
+      "label": "Blue",
+      "value": "#188bf6"
+     }
+    ],
+    "count": 8,
+    "sha256": "6b2fcd049ca2b6bd2286b066bc0037f98dfb4b61f81ff27cc7dae79a0e3b8bdf",
+    "declarations": [
+     "|.__ID__ .form-btn .main-text|font-size:1rem",
+     "|.__ID__ .form-btn|background-color:var(--secondary)",
+     "|.__ID__ .form-btn|color:var(--white)",
+     "|.__ID__ .form-button-gradient|background-color:#fff",
+     "|.__ID__ .form-button-gradient|background-image:linear-gradient(to bottom, rgba(24,139,246,0.5), rgba(24,139,246,1)) !important",
+     "|.__ID__ .form-input|background-color:#ffffff",
+     "|.__ID__ .form-input|border-radius:5px",
+     "|.__ID__ .form-input|text-align:left"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "styles.formBgColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#5eed4f"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#ffffff"
+     },
+     {
+      "label": "Gray",
+      "value": "#cbd5e0"
+     },
+     {
+      "label": "Black",
+      "value": "#9ac6ef"
+     },
+     {
+      "label": "Red",
+      "value": "#6561b0"
+     },
+     {
+      "label": "Orange",
+      "value": "#f6ad55"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#952dcd"
+     },
+     {
+      "label": "Indigo",
+      "value": "#757BBD"
+     },
+     {
+      "label": "Purple",
+      "value": "#d6bcfa"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "#1ffbac"
+     },
+     {
+      "label": "Blue",
+      "value": "#ed8f36"
+     }
+    ],
+    "count": 8,
+    "sha256": "423d1753901bc3a1aea4110306b1f568f0971c721326ad62e84358d8561633d7"
+   },
+   {
+    "deltas": [
+     [
+      "styles.textAlign.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.buttonSize.value",
+      "#123456"
+     ],
+     [
+      "styles.formBgColor.value",
+      "#123456"
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#b3656f"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#49d9f5"
+     },
+     {
+      "label": "Gray",
+      "value": "#71cb26"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#7ccd33"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#391554"
+     },
+     {
+      "label": "Purple",
+      "value": "#d6bcfa"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "rgba(0, 0, 0, 0.5)"
+     },
+     {
+      "label": "Blue",
+      "value": "#9f937f"
+     }
+    ],
+    "count": 8,
+    "sha256": "11c8f1e4e8a1ca17984851c7765ef3f1fdb8b1314b16bfe25e613f4432888311"
+   },
+   {
+    "deltas": [
+     [
+      "styles.formBgColor.value",
+      "#123456"
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#37ca37"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#340b97"
+     },
+     {
+      "label": "Gray",
+      "value": "#c2c1cd"
+     },
+     {
+      "label": "Black",
+      "value": "#30d2bd"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#d3fef3"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#99c323"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#de4a39"
+     },
+     {
+      "label": "Indigo",
+      "value": "#52e508"
+     },
+     {
+      "label": "Purple",
+      "value": "#e94597"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#1bb198"
+     },
+     {
+      "label": "Overlay",
+      "value": "#f32502"
+     },
+     {
+      "label": "Blue",
+      "value": "#07b3e8"
+     }
+    ],
+    "count": 8,
+    "sha256": "96a989fa4395ed4011b462fc2f1f9508af9c293eb51cb2b504e75fab9f13bcce"
+   },
+   {
+    "deltas": [
+     [
+      "styles.buttonTextColor.value",
+      "zr1"
+     ],
+     [
+      "styles.formBgColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#325269"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#ffffff"
+     },
+     {
+      "label": "Gray",
+      "value": "#cbd5e0"
+     },
+     {
+      "label": "Black",
+      "value": "#878f4f"
+     },
+     {
+      "label": "Red",
+      "value": "#3b770e"
+     },
+     {
+      "label": "Orange",
+      "value": "#701e68"
+     },
+     {
+      "label": "Yellow",
+      "value": "#170c51"
+     },
+     {
+      "label": "Green",
+      "value": "#b0a4e3"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#757BBD"
+     },
+     {
+      "label": "Purple",
+      "value": "#9689c9"
+     },
+     {
+      "label": "Pink",
+      "value": "#419718"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#c6f815"
+     },
+     {
+      "label": "Smoke",
+      "value": "#226645"
+     },
+     {
+      "label": "Overlay",
+      "value": "rgba(0, 0, 0, 0.5)"
+     },
+     {
+      "label": "Blue",
+      "value": "#612e1c"
+     }
+    ],
+    "count": 8,
+    "sha256": "7951138dc276b79cb1cbc6377b94e2923976d14e3680a4495a0b53235233f0da"
+   },
+   {
+    "deltas": [
+     [
+      "styles.buttonColor.value",
+      "#123456"
+     ],
+     [
+      "styles.buttonSize.value",
+      ""
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "#6091f4"
+     },
+     {
+      "label": "Primary",
+      "value": "#d0a8bc"
+     },
+     {
+      "label": "Secondary",
+      "value": "#42c52f"
+     },
+     {
+      "label": "White",
+      "value": "#ffffff"
+     },
+     {
+      "label": "Gray",
+      "value": "#cbd5e0"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#9ded6f"
+     },
+     {
+      "label": "Yellow",
+      "value": "#d92c2f"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#757BBD"
+     },
+     {
+      "label": "Purple",
+      "value": "#06a44e"
+     },
+     {
+      "label": "Pink",
+      "value": "#61c8c2"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#6cfc3c"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "#db4831"
+     },
+     {
+      "label": "Blue",
+      "value": "#188bf6"
+     }
+    ],
+    "count": 8,
+    "sha256": "8f8dc68782ee0bdcfe4e99b2166206984427ef0fe1266f5c69c93dbc0b63bba5"
+   },
+   {
+    "deltas": [],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "#e768bf"
+     },
+     {
+      "label": "Primary",
+      "value": "#37ca37"
+     },
+     {
+      "label": "Secondary",
+      "value": "#188bf6"
+     },
+     {
+      "label": "White",
+      "value": "#ffffff"
+     },
+     {
+      "label": "Gray",
+      "value": "#47b09f"
+     },
+     {
+      "label": "Black",
+      "value": "#451ae0"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#3d6226"
+     },
+     {
+      "label": "Yellow",
+      "value": "#d5fb40"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#61461b"
+     },
+     {
+      "label": "Indigo",
+      "value": "#2802bb"
+     },
+     {
+      "label": "Purple",
+      "value": "#46c791"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#9ec331"
+     },
+     {
+      "label": "Overlay",
+      "value": "rgba(0, 0, 0, 0.5)"
+     },
+     {
+      "label": "Blue",
+      "value": "#188bf6"
+     }
+    ],
+    "count": 8,
+    "sha256": "6b2fcd049ca2b6bd2286b066bc0037f98dfb4b61f81ff27cc7dae79a0e3b8bdf"
+   },
+   {
+    "deltas": [
+     [
+      "styles.textAlign.value",
+      "#123456"
+     ],
+     [
+      "styles.buttonSize.value",
+      "zr1"
+     ],
+     [
+      "styles.formRadius.value",
+      23
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "#ace38f"
+     },
+     {
+      "label": "Primary",
+      "value": "#4b5f4f"
+     },
+     {
+      "label": "Secondary",
+      "value": "#3da110"
+     },
+     {
+      "label": "White",
+      "value": "#5d34df"
+     },
+     {
+      "label": "Gray",
+      "value": "#26d920"
+     },
+     {
+      "label": "Black",
+      "value": "#5e2bca"
+     },
+     {
+      "label": "Red",
+      "value": "#cb7d82"
+     },
+     {
+      "label": "Orange",
+      "value": "#010068"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#ee788b"
+     },
+     {
+      "label": "Malibu",
+      "value": "#b738a9"
+     },
+     {
+      "label": "Indigo",
+      "value": "#757BBD"
+     },
+     {
+      "label": "Purple",
+      "value": "#8138d1"
+     },
+     {
+      "label": "Pink",
+      "value": "#fbb6ce"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "rgba(0, 0, 0, 0.5)"
+     },
+     {
+      "label": "Blue",
+      "value": "#188bf6"
+     }
+    ],
+    "count": 8,
+    "sha256": "7e4fbc0c0f399e64400aa349bdfcb018c3d9593a6837826b610c211489ca0ced"
+   },
+   {
+    "deltas": [
+     [
+      "styles.buttonColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.buttonSize.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "#5c1b0c"
+     },
+     {
+      "label": "Primary",
+      "value": "#37ca37"
+     },
+     {
+      "label": "Secondary",
+      "value": "#1cd141"
+     },
+     {
+      "label": "White",
+      "value": "#b81888"
+     },
+     {
+      "label": "Gray",
+      "value": "#cbd5e0"
+     },
+     {
+      "label": "Black",
+      "value": "#000000"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#f6ad55"
+     },
+     {
+      "label": "Yellow",
+      "value": "#faf089"
+     },
+     {
+      "label": "Green",
+      "value": "#9ae6b4"
+     },
+     {
+      "label": "Teal",
+      "value": "#331ea4"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#757BBD"
+     },
+     {
+      "label": "Purple",
+      "value": "#d331af"
+     },
+     {
+      "label": "Pink",
+      "value": "#40aa70"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#f5f5f5"
+     },
+     {
+      "label": "Overlay",
+      "value": "#008bef"
+     },
+     {
+      "label": "Blue",
+      "value": "#ef7d9b"
+     }
+    ],
+    "count": 8,
+    "sha256": "0fa2ac20e7e16ef389579ff6231e10b7acd8dd0c73352aa9e2cb5b050c382c53"
+   },
+   {
+    "deltas": [
+     [
+      "styles.buttonTextColor.value",
+      "var(--zr2)"
+     ]
+    ],
+    "palette": [
+     {
+      "label": "Transparent",
+      "value": "transparent"
+     },
+     {
+      "label": "Primary",
+      "value": "#7baff1"
+     },
+     {
+      "label": "Secondary",
+      "value": "#142781"
+     },
+     {
+      "label": "White",
+      "value": "#8cf8c8"
+     },
+     {
+      "label": "Gray",
+      "value": "#440f43"
+     },
+     {
+      "label": "Black",
+      "value": "#7e9424"
+     },
+     {
+      "label": "Red",
+      "value": "#e93d3d"
+     },
+     {
+      "label": "Orange",
+      "value": "#f6ad55"
+     },
+     {
+      "label": "Yellow",
+      "value": "#002812"
+     },
+     {
+      "label": "Green",
+      "value": "#8848c2"
+     },
+     {
+      "label": "Teal",
+      "value": "#81e6d9"
+     },
+     {
+      "label": "Malibu",
+      "value": "#63b3ed"
+     },
+     {
+      "label": "Indigo",
+      "value": "#757BBD"
+     },
+     {
+      "label": "Purple",
+      "value": "#54ccfd"
+     },
+     {
+      "label": "Pink",
+      "value": "#32496e"
+     },
+     {
+      "label": "Cobalt",
+      "value": "#155eef"
+     },
+     {
+      "label": "Smoke",
+      "value": "#91d635"
+     },
+     {
+      "label": "Overlay",
+      "value": "#36c166"
+     },
+     {
+      "label": "Blue",
+      "value": "#ea8c80"
+     }
+    ],
+    "count": 8,
+    "sha256": "383625beaf4945944e76fcc983076c1c0379f45000d942c38a45158cd91e3fb3"
+   }
+  ],
+  "store-pdp-v2-title": [
+   {
+    "deltas": [],
+    "count": 12,
+    "sha256": "1129e26017ebac4dc53d44feb3665cffc1048d5d90aa17112c34f8be24be7857",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-title__name|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-title__name|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-title__name|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-title__name|font-weight:400",
+     "|#__ID__ .pdp-v2-title__name|color:var(--black)",
+     "|#__ID__ .pdp-v2-title__name|font-family:var(--headlinefont)",
+     "|#__ID__ .pdp-v2-title__name|font-size:16px",
+     "|#__ID__ .pdp-v2-title__name|font-weight:400",
+     "|#__ID__ .pdp-v2-title__name|margin:0",
+     "|#__ID__ .pdp-v2-title__name|overflow-wrap:break-word",
+     "|#__ID__ .pdp-v2-title__name|text-align:left",
+     "|#__ID__ .pdp-v2-title__name|white-space:normal"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      0
+     ],
+     [
+      "styles.productNameColor.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 12,
+    "sha256": "3d7b90e5e1effd22dcd27178871d4cec0c90cddbfe7fb438a44e6257c6ba0049"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      null
+     ],
+     [
+      "styles.productNameColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 12,
+    "sha256": "1129e26017ebac4dc53d44feb3665cffc1048d5d90aa17112c34f8be24be7857"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      "0"
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      "#123456"
+     ]
+    ],
+    "count": 12,
+    "sha256": "0cbed70ee2c107772bdbcc6736a8d1bcc7a81a9114d62759d2170063025fd126"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      ""
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      ""
+     ],
+     [
+      "styles.textAlign.value",
+      "#123456"
+     ]
+    ],
+    "count": 12,
+    "sha256": "0ced4c9b4c7ead95374d2a35be24068003a9e3893ec527f1f5f75aa8591c21f5"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      0
+     ],
+     [
+      "styles.fontWeight.mobile",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 12,
+    "sha256": "1129e26017ebac4dc53d44feb3665cffc1048d5d90aa17112c34f8be24be7857"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      ""
+     ],
+     [
+      "extra.featureHeadlineMobileFontSize.value",
+      0
+     ],
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      ""
+     ],
+     [
+      "styles.productNameColor.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      null
+     ],
+     [
+      "styles.textAlign.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 11,
+    "sha256": "ff551e1cab316bb90d3836ea786ec276d1ad9b6269c6f42fed2a16518fa2b438"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.mobile",
+      null
+     ]
+    ],
+    "count": 12,
+    "sha256": "1129e26017ebac4dc53d44feb3665cffc1048d5d90aa17112c34f8be24be7857"
+   },
+   {
+    "deltas": [
+     [
+      "styles.productNameFontFamily.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "#123456"
+     ]
+    ],
+    "count": 12,
+    "sha256": "6641c96c15e768df018420063501bca89c2b04cd9d3cfed9f1fcb9716282ec77"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      4
+     ]
+    ],
+    "count": 12,
+    "sha256": "90ca5d56a48958631b2f7474298e7042dda3b290d0fcf247662f5870da13feff"
+   }
+  ],
+  "store-pdp-v2-price": [
+   {
+    "deltas": [],
+    "count": 37,
+    "sha256": "9a7e83f5360f194ef9aa448dfc7f18f86a04f3472e46f30d8eadbee74c862d26",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-price__amount|font-size:16px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-price__amount|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-price__discount|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-price__discount|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-price__amount|font-size:18px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-price__amount|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-price__discount|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-price__discount|font-weight:400",
+     "|#__ID__ .ec-subscription-pill--pdp|background:#FFF4ED",
+     "|#__ID__ .ec-subscription-pill--pdp|border-radius:9999px",
+     "|#__ID__ .ec-subscription-pill--pdp|color:#E62E05",
+     "|#__ID__ .ec-subscription-pill--pdp|font-size:12px",
+     "|#__ID__ .ec-subscription-pill--pdp|font-weight:500",
+     "|#__ID__ .ec-subscription-pill--pdp|padding:2px 10px",
+     "|#__ID__ .pdp-v2-price__amount|color:var(--black)",
+     "|#__ID__ .pdp-v2-price__amount|font-family:var(--headlinefont)",
+     "|#__ID__ .pdp-v2-price__amount|font-size:18px",
+     "|#__ID__ .pdp-v2-price__amount|font-weight:400",
+     "|#__ID__ .pdp-v2-price__compare|color:inherit",
+     "|#__ID__ .pdp-v2-price__compare|font-size:14px",
+     "|#__ID__ .pdp-v2-price__compare|margin-left:2px",
+     "|#__ID__ .pdp-v2-price__compare|text-decoration:line-through",
+     "|#__ID__ .pdp-v2-price__discount|color:#12B76A",
+     "|#__ID__ .pdp-v2-price__discount|font-family:var(--headlinefont)",
+     "|#__ID__ .pdp-v2-price__discount|font-size:16px",
+     "|#__ID__ .pdp-v2-price__discount|font-weight:400",
+     "|#__ID__ .pdp-v2-price__pills|justify-content:flex-start",
+     "|#__ID__ .pdp-v2-price__row|align-items:baseline",
+     "|#__ID__ .pdp-v2-price__row|display:flex",
+     "|#__ID__ .pdp-v2-price__row|flex-wrap:wrap",
+     "|#__ID__ .pdp-v2-price__row|gap:8px",
+     "|#__ID__ .pdp-v2-price__row|justify-content:flex-start",
+     "|#__ID__ .pdp-v2-price__setup-fee|color:var(--black)",
+     "|#__ID__ .pdp-v2-price__setup-fee|font-family:var(--headlinefont)",
+     "|#__ID__ .pdp-v2-price__setup-fee|font-size:12px",
+     "|#__ID__ .pdp-v2-price__subscription-pills|justify-content:flex-start",
+     "|#__ID__ .pdp-v2-price|text-align:left"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      11
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      "#123456"
+     ],
+     [
+      "styles.textAlign.value",
+      "zr1"
+     ]
+    ],
+    "count": 37,
+    "sha256": "3c099fa596793cfd6e1c1d3fbc80328b39f776001a62f0b79133e1e13fcdcbaa"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      11
+     ],
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      "var(--zr2)"
+     ],
+     [
+      "styles.textAlign.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 37,
+    "sha256": "4d9cc79a1e191bc19ca7d4ee167c0be17afeceb4ba8cd5b189f75b8d7c19de2e"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      "0"
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      0
+     ],
+     [
+      "styles.textAlign.value",
+      "center"
+     ]
+    ],
+    "count": 37,
+    "sha256": "234b813fef0fcb5a0af485759050e2c9192b6c06b6bb29f5012f428c05c8cf6d"
+   },
+   {
+    "deltas": [
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      "0"
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      "0"
+     ],
+     [
+      "styles.productPriceColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "zr1"
+     ],
+     [
+      "styles.priceDiscountFontFamily.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      null
+     ],
+     [
+      "styles.textAlign.value",
+      "#123456"
+     ]
+    ],
+    "count": 37,
+    "sha256": "5ffda2cfafcbdb118cffaf8b1a34d74c83fbc04a321b0a8df0e42409a461cede"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      ""
+     ],
+     [
+      "styles.productPriceColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      "zr1"
+     ]
+    ],
+    "count": 37,
+    "sha256": "65da207b7f718dcf449b233e3fdf516cb86e13eac69bdb36d2f77473a25ea0a6"
+   },
+   {
+    "deltas": [
+     [
+      "extra.tabletFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      ""
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      null
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      null
+     ]
+    ],
+    "count": 37,
+    "sha256": "201a7406a3e54b1c87452e318cf7561bb36db51aeabf2c91b0535a821a170012"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      ""
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 37,
+    "sha256": "3d1637f49d34551bd6d166b43f6160aae2ce504e9012e3e8d6991e976b14c667"
+   },
+   {
+    "deltas": [
+     [
+      "styles.priceDiscountColor.value",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      null
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      null
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.textAlign.value",
+      null
+     ]
+    ],
+    "count": 36,
+    "sha256": "6dc535fbccf6ca193a7254f7857ade10320ae7d2e6a0074f0955001a13792634"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      null
+     ],
+     [
+      "extra.mobileFontSize.value",
+      ""
+     ],
+     [
+      "extra.tabletFontSize.value",
+      ""
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      null
+     ]
+    ],
+    "count": 37,
+    "sha256": "92b2f593d4898d67aebfbf28faafb7b4e3c2c5363dd45cf4115f606776c10190"
+   }
+  ],
+  "store-pdp-v2-images": [
+   {
+    "deltas": [],
+    "count": 30,
+    "sha256": "3e5f23289740388a96cbb7593ba9f0dd8f0b539decad0f3adc2e586bc10b749a",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-images|max-width:360px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-images|max-width:650px",
+     "|#__ID__ .carousel-item__image|border-radius:0px",
+     "|#__ID__ .carousel-item__image|border:0px solid #000000",
+     "|#__ID__ .carousel-item__image|box-shadow:none",
+     "|#__ID__ .ec-wishlist-button|background:var(--white)",
+     "|#__ID__ .hl-product-image-container|height:auto",
+     "|#__ID__ .hl-product-image-container|margin-left:auto",
+     "|#__ID__ .hl-product-image-container|margin-right:auto",
+     "|#__ID__ .hl-product-image-container|max-width:none",
+     "|#__ID__ .hl-product-image-container|position:static",
+     "|#__ID__ .hl-product-image-container|width:100%",
+     "|#__ID__ .hl-product-image|border-radius:0px",
+     "|#__ID__ .hl-product-image|border:0px solid #000000",
+     "|#__ID__ .hl-product-image|box-shadow:none",
+     "|#__ID__ .image-wrapper .hl-product-image|height:100% !important",
+     "|#__ID__ .image-wrapper .hl-product-image|object-fit:contain !important",
+     "|#__ID__ .image-wrapper .hl-product-image|width:100% !important",
+     "|#__ID__ .pdp-v2-images|margin-left:auto",
+     "|#__ID__ .pdp-v2-images|margin-right:auto",
+     "|#__ID__ .pdp-v2-images|max-width:650px",
+     "|#__ID__ .pdp-v2-images|width:100%",
+     "|#__ID__ .product-image-list-active|border-color:rgb(59 130 246)",
+     "|#__ID__ .product-image-list|border-radius:0px",
+     "|#__ID__ .product-image-list|border:0px solid #000000",
+     "|#__ID__ .product-image-list|box-shadow:none",
+     "|#__ID__ .two-column-grid__image|border-radius:0px",
+     "|#__ID__ .two-column-grid__image|border:0px solid #000000",
+     "|#__ID__ .two-column-grid__image|box-shadow:none",
+     "|#__ID__ .wishlist-icon|color:var(--red)"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "styles.textAlign.value",
+      "zr1"
+     ]
+    ],
+    "count": 30,
+    "sha256": "3e5f23289740388a96cbb7593ba9f0dd8f0b539decad0f3adc2e586bc10b749a"
+   },
+   {
+    "deltas": [
+     [
+      "styles.width.value",
+      null
+     ],
+     [
+      "styles.textAlign.value",
+      "right"
+     ]
+    ],
+    "count": 30,
+    "sha256": "67cb220ac745a1da9537871184939768ec3b23db7c6773721330bbb01845c581"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mediaLayout.value",
+      "zr1"
+     ],
+     [
+      "styles.width.value",
+      ""
+     ],
+     [
+      "styles.borderColor.value",
+      "zr1"
+     ],
+     [
+      "styles.borderStyle.value",
+      "#123456"
+     ],
+     [
+      "styles.boxShadow.value",
+      null
+     ]
+    ],
+    "count": 30,
+    "sha256": "45a09365bf28a577c58df47354b2a9fddb786108b1103ba27164f9efa7b8e96c"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mediaLayout.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.borderStyle.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.borderWidth.value",
+      "zr1"
+     ],
+     [
+      "styles.borderRadius.value",
+      null
+     ],
+     [
+      "styles.boxShadow.value",
+      null
+     ]
+    ],
+    "count": 30,
+    "sha256": "9082618891b8efb2d7d7925997b35697f8d710c265e8df93df39e512db5b9d8d"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mediaLayout.value",
+      "two-column"
+     ],
+     [
+      "styles.width.unit",
+      "#123456"
+     ],
+     [
+      "styles.marginLeft.value",
+      11
+     ]
+    ],
+    "count": 32,
+    "sha256": "faffdb6517eade3f68c63773030bb8a2732b9c9f68ccfdf085953ac407695bf2"
+   },
+   {
+    "deltas": [
+     [
+      "styles.wishlistIconColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.wishlistBackgroundColor.value",
+      "#123456"
+     ],
+     [
+      "styles.width.value",
+      ""
+     ],
+     [
+      "styles.textAlign.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.borderColor.value",
+      "#123456"
+     ],
+     [
+      "styles.borderWidth.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.boxShadow.value",
+      "zr1"
+     ]
+    ],
+    "count": 30,
+    "sha256": "b868f9e7e929a0a6cf7b78b5c9e796e9edab8273db1fe469caccda8a456a2bf3"
+   },
+   {
+    "deltas": [
+     [
+      "styles.borderColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.borderStyle.value",
+      ""
+     ],
+     [
+      "styles.borderRadius.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.boxShadow.value",
+      "#123456"
+     ],
+     [
+      "styles.marginLeft.value",
+      11
+     ],
+     [
+      "styles.marginRight.value",
+      11
+     ]
+    ],
+    "count": 30,
+    "sha256": "0031e2564f40d5fef63c0fa302c0b7ffd803728d20b90f05d45ca361079706c1"
+   },
+   {
+    "deltas": [
+     [
+      "styles.width.unit",
+      ""
+     ],
+     [
+      "styles.borderColor.value",
+      "zr1"
+     ],
+     [
+      "styles.borderStyle.value",
+      null
+     ]
+    ],
+    "count": 30,
+    "sha256": "811807ea8b1714bfb88b06cbd382679a7041b7aadb07c1f38c4e6937a5e0681f"
+   },
+   {
+    "deltas": [
+     [
+      "styles.borderColor.value",
+      null
+     ],
+     [
+      "styles.borderStyle.value",
+      null
+     ],
+     [
+      "styles.borderWidth.value",
+      ""
+     ],
+     [
+      "styles.borderRadius.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 30,
+    "sha256": "9dacc0c218a09160b0affa2f73392022d65ae315e7234324d1ff956e63dcf3a9"
+   }
+  ],
+  "store-pdp-v2-variants": [
+   {
+    "deltas": [],
+    "count": 69,
+    "sha256": "a8785ae12e9e0356ddd0220e482124260ad873db5800cc33691ae94f7dff14a6",
+    "declarations": [
+     "@container (max-width: 213px)|#__ID__ .pdp-v2-variants__group|min-width:100%",
+     "@container (max-width: 213px)|#__ID__ .pdp-v2-variants__wrapper|gap:10px",
+     "@container (max-width: 213px)|#__ID__ .pdp-v2-variants__wrapper|grid-template-columns:repeat(1, minmax(0, 1fr))",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-variants__wrapper|max-width:100%",
+     "|#__ID__ .pdp-v2-variants__group|width:100%",
+     "|#__ID__ .pdp-v2-variants__label|color:#344054",
+     "|#__ID__ .pdp-v2-variants__label|font-size:14px",
+     "|#__ID__ .pdp-v2-variants__label|font-weight:700",
+     "|#__ID__ .pdp-v2-variants__label|min-width:50px",
+     "|#__ID__ .pdp-v2-variants__pills-container|display:flex",
+     "|#__ID__ .pdp-v2-variants__pills-container|flex-wrap:wrap",
+     "|#__ID__ .pdp-v2-variants__pills-container|gap:6px",
+     "|#__ID__ .pdp-v2-variants__pills-container|margin-top:6px",
+     "|#__ID__ .pdp-v2-variants__pills-group|margin-bottom:16px",
+     "|#__ID__ .pdp-v2-variants__pills-wrapper|margin-top:0",
+     "|#__ID__ .pdp-v2-variants__select|-moz-appearance:none",
+     "|#__ID__ .pdp-v2-variants__select|-webkit-appearance:none",
+     "|#__ID__ .pdp-v2-variants__select|appearance:none",
+     "|#__ID__ .pdp-v2-variants__select|background-image:url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")",
+     "|#__ID__ .pdp-v2-variants__select|background-position:right 0.5rem center",
+     "|#__ID__ .pdp-v2-variants__select|background-repeat:no-repeat",
+     "|#__ID__ .pdp-v2-variants__select|background-size:1.5em 1.5em",
+     "|#__ID__ .pdp-v2-variants__select|background:white",
+     "|#__ID__ .pdp-v2-variants__select|border-radius:8px",
+     "|#__ID__ .pdp-v2-variants__select|border:1px solid lightgray",
+     "|#__ID__ .pdp-v2-variants__select|box-sizing:border-box",
+     "|#__ID__ .pdp-v2-variants__select|font-size:14px",
+     "|#__ID__ .pdp-v2-variants__select|height:44px",
+     "|#__ID__ .pdp-v2-variants__select|line-height:16px",
+     "|#__ID__ .pdp-v2-variants__select|margin-top:6px",
+     "|#__ID__ .pdp-v2-variants__select|padding:10px 2.5rem 10px 14px",
+     "|#__ID__ .pdp-v2-variants__select|pointer-events:none",
+     "|#__ID__ .pdp-v2-variants__select|width:100%",
+     "|#__ID__ .pdp-v2-variants__wrapper|display:grid",
+     "|#__ID__ .pdp-v2-variants__wrapper|gap:16px",
+     "|#__ID__ .pdp-v2-variants__wrapper|grid-template-columns:repeat(2, minmax(0, 1fr))",
+     "|#__ID__ .pdp-v2-variants__wrapper|margin-top:0",
+     "|#__ID__ .pdp-v2-variants__wrapper|max-width:464px",
+     "|#__ID__ .pdp-v2-variants|width:100%",
+     "|#__ID__ .variant-dropdown option|background-color:#FFFFFF",
+     "|#__ID__ .variant-dropdown option|color:#101828",
+     "|#__ID__ .variant-dropdown|background-color:#FFFFFF",
+     "|#__ID__ .variant-dropdown|border-color:#D0D5DD",
+     "|#__ID__ .variant-dropdown|color:#101828",
+     "|#__ID__ .variant-pill-selected|background-color:#EFF4FF",
+     "|#__ID__ .variant-pill-selected|border-color:#155EEF",
+     "|#__ID__ .variant-pill-selected|color:#155EEF",
+     "|#__ID__ .variant-pill-unselected|background-color:#FFFFFF",
+     "|#__ID__ .variant-pill-unselected|border-color:#D0D5DD",
+     "|#__ID__ .variant-pill-unselected|color:#667085",
+     "|#__ID__ .variant-pill:hover|opacity:0.8",
+     "|#__ID__ .variant-pill|align-items:center",
+     "|#__ID__ .variant-pill|border-radius:16px",
+     "|#__ID__ .variant-pill|border-style:solid",
+     "|#__ID__ .variant-pill|border-width:1px",
+     "|#__ID__ .variant-pill|display:inline-flex",
+     "|#__ID__ .variant-pill|font-size:14px",
+     "|#__ID__ .variant-pill|font-weight:500",
+     "|#__ID__ .variant-pill|justify-content:center",
+     "|#__ID__ .variant-pill|max-width:100%",
+     "|#__ID__ .variant-pill|min-height:32px",
+     "|#__ID__ .variant-pill|padding:4px 12px",
+     "|#__ID__ .variant-pill|pointer-events:none",
+     "|#__ID__ .variant-pill|text-align:center",
+     "|#__ID__ .variant-pill|transition:all 0.2s",
+     "|#__ID__ .variant-pill|user-select:none",
+     "|#__ID__ .variant-pill|white-space:normal",
+     "|#__ID__ .variant-pill|word-break:break-word",
+     "|#__ID__|container-type:inline-size"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.variantsStyling.pillColors.value.selectedBorder",
+      null
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.unselectedText",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.unselectedBorder",
+      null
+     ],
+     [
+      "extra.variantsStyling.dropdownColors.value.background",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.variantsStyling.labelColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 69,
+    "sha256": "a8785ae12e9e0356ddd0220e482124260ad873db5800cc33691ae94f7dff14a6"
+   },
+   {
+    "deltas": [
+     [
+      "extra.variantsStyling.pillColors.value.selectedText",
+      "#123456"
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.selectedBg",
+      "#123456"
+     ],
+     [
+      "extra.variantsStyling.dropdownColors.value.text",
+      null
+     ],
+     [
+      "extra.variantsStyling.dropdownColors.value.border",
+      "zr1"
+     ],
+     [
+      "extra.variantsStyling.labelColor.value",
+      "zr1"
+     ]
+    ],
+    "count": 69,
+    "sha256": "db5754b65b19a2d11acd46c5101f1a0c5d22ad8d036a584bd96bbe3fab87810a"
+   },
+   {
+    "deltas": [
+     [
+      "extra.variantsStyling.pillColors.value.selectedText",
+      "#123456"
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.unselectedBg",
+      null
+     ]
+    ],
+    "count": 69,
+    "sha256": "9b80dc8c5ba802ea55c3edca622c5674bbe976d662c240cd1f2061f10d8dfb84"
+   },
+   {
+    "deltas": [
+     [
+      "extra.variantsStyling.pillColors.value.unselectedText",
+      "zr1"
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.unselectedBg",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 69,
+    "sha256": "752333c496ebc3b64f813c1392891a272e0251fc95b8959a2f102b3f2c825a9b"
+   },
+   {
+    "deltas": [
+     [
+      "extra.variantsStyling.pillColors.value.selectedBg",
+      "var(--zr2)"
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.selectedBorder",
+      "zr1"
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.unselectedBg",
+      "#123456"
+     ]
+    ],
+    "count": 69,
+    "sha256": "e0a1e41baf3171d3181b22aa57b408f729c26afbef58f5bc3fe68d450091ed31"
+   },
+   {
+    "deltas": [
+     [
+      "extra.variantsStyling.pillColors.value.unselectedBg",
+      null
+     ]
+    ],
+    "count": 69,
+    "sha256": "a8785ae12e9e0356ddd0220e482124260ad873db5800cc33691ae94f7dff14a6"
+   },
+   {
+    "deltas": [
+     [
+      "extra.variantsStyling.pillColors.value.unselectedText",
+      "var(--zr2)"
+     ],
+     [
+      "extra.variantsStyling.dropdownColors.value.text",
+      "zr1"
+     ],
+     [
+      "extra.variantsStyling.labelColor.value",
+      "#123456"
+     ]
+    ],
+    "count": 69,
+    "sha256": "1bd9e56f9ad326ce512695ee1d353446b1e4b10a8eba12a4189a840072ce2969"
+   },
+   {
+    "deltas": [
+     [
+      "extra.variantsStyling.pillColors.value.selectedBg",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.selectedBorder",
+      "zr1"
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.unselectedBg",
+      "zr1"
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.unselectedBorder",
+      "#123456"
+     ],
+     [
+      "extra.variantsStyling.dropdownColors.value.border",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.variantsStyling.labelColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 69,
+    "sha256": "e08fd42da13f64f6f0ec832c9cfef3565ec95336d797177e5c64dcba518e6060"
+   },
+   {
+    "deltas": [
+     [
+      "extra.variantsStyling.pillColors.value.selectedBg",
+      null
+     ],
+     [
+      "extra.variantsStyling.pillColors.value.unselectedBg",
+      "zr1"
+     ],
+     [
+      "extra.variantsStyling.dropdownColors.value.background",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.variantsStyling.labelColor.value",
+      null
+     ]
+    ],
+    "count": 69,
+    "sha256": "d507b88473f2dbec980e6a5e2eb0dab265682527cf41a2a0c61a8167f1ec6bdb"
+   }
+  ],
+  "store-pdp-v2-quantity": [
+   {
+    "deltas": [],
+    "count": 54,
+    "sha256": "7d67ebe798fef3f5399a296cf148a81b6afa16bd680d0f4ee403e016b04ddf85",
+    "declarations": [
+     "@container (max-width: 213px)|#__ID__ .pdp-v2-quantity__input-row|max-width:224px",
+     "@container (max-width: 213px)|#__ID__ .pdp-v2-quantity__input-row|width:100%",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-quantity__input-row|max-width:224px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-quantity__input-row|width:50%",
+     "|#__ID__ .pdp-v2-quantity__btn:disabled|cursor:not-allowed",
+     "|#__ID__ .pdp-v2-quantity__btn:disabled|opacity:0.4",
+     "|#__ID__ .pdp-v2-quantity__btn|align-items:center",
+     "|#__ID__ .pdp-v2-quantity__btn|background:transparent",
+     "|#__ID__ .pdp-v2-quantity__btn|border:none",
+     "|#__ID__ .pdp-v2-quantity__btn|color:#101828",
+     "|#__ID__ .pdp-v2-quantity__btn|cursor:pointer",
+     "|#__ID__ .pdp-v2-quantity__btn|display:flex",
+     "|#__ID__ .pdp-v2-quantity__btn|font-size:18px",
+     "|#__ID__ .pdp-v2-quantity__btn|height:100%",
+     "|#__ID__ .pdp-v2-quantity__btn|justify-content:center",
+     "|#__ID__ .pdp-v2-quantity__btn|line-height:1",
+     "|#__ID__ .pdp-v2-quantity__btn|padding:0 12px",
+     "|#__ID__ .pdp-v2-quantity__icon|color:#101828",
+     "|#__ID__ .pdp-v2-quantity__input-row--disabled|cursor:not-allowed",
+     "|#__ID__ .pdp-v2-quantity__input-row--disabled|opacity:0.5",
+     "|#__ID__ .pdp-v2-quantity__input-row|align-items:center",
+     "|#__ID__ .pdp-v2-quantity__input-row|background-color:#FFFFFF",
+     "|#__ID__ .pdp-v2-quantity__input-row|border-radius:8px",
+     "|#__ID__ .pdp-v2-quantity__input-row|border:1px solid #D0D5DD",
+     "|#__ID__ .pdp-v2-quantity__input-row|box-sizing:border-box",
+     "|#__ID__ .pdp-v2-quantity__input-row|display:flex",
+     "|#__ID__ .pdp-v2-quantity__input-row|height:44px",
+     "|#__ID__ .pdp-v2-quantity__input-row|justify-content:space-between",
+     "|#__ID__ .pdp-v2-quantity__input-row|max-width:224px",
+     "|#__ID__ .pdp-v2-quantity__input-row|overflow:hidden",
+     "|#__ID__ .pdp-v2-quantity__input-row|pointer-events:none",
+     "|#__ID__ .pdp-v2-quantity__input-row|width:50%",
+     "|#__ID__ .pdp-v2-quantity__label|color:#101828",
+     "|#__ID__ .pdp-v2-quantity__label|font-size:14px",
+     "|#__ID__ .pdp-v2-quantity__label|font-weight:700",
+     "|#__ID__ .pdp-v2-quantity__label|margin-bottom:5px",
+     "|#__ID__ .pdp-v2-quantity__label|min-width:50px",
+     "|#__ID__ .pdp-v2-quantity__stock-status|font-size:13px",
+     "|#__ID__ .pdp-v2-quantity__stock-status|margin-top:6px",
+     "|#__ID__ .pdp-v2-quantity__value|background-color:transparent",
+     "|#__ID__ .pdp-v2-quantity__value|border:none",
+     "|#__ID__ .pdp-v2-quantity__value|color:#101828",
+     "|#__ID__ .pdp-v2-quantity__value|font-size:14px",
+     "|#__ID__ .pdp-v2-quantity__value|outline:none",
+     "|#__ID__ .pdp-v2-quantity__value|padding:0",
+     "|#__ID__ .pdp-v2-quantity__value|text-align:center",
+     "|#__ID__ .pdp-v2-quantity__value|width:100%",
+     "|#__ID__ .pdp-v2-quantity|width:100%",
+     "|#__ID__|container-type:inline-size",
+     "|#hl-global-cart-drawer .hl-quantity-input-container|background-color:#FFFFFF",
+     "|#hl-global-cart-drawer .hl-quantity-input-container|border-color:#D0D5DD",
+     "|#hl-global-cart-drawer .hl-quantity-input-container|color:#101828",
+     "|#hl-global-cart-drawer .hl-quantity-input|background-color:#FFFFFF",
+     "|#hl-global-cart-drawer .hl-quantity-input|color:#101828"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "styles.quantityLabelColor.value",
+      null
+     ],
+     [
+      "styles.quantityBackgroundColor.value",
+      ""
+     ]
+    ],
+    "count": 52,
+    "sha256": "4f78145ab0693dbaf9a3ad6aa428495298025b168d4eb7da7099112f40527642"
+   },
+   {
+    "deltas": [],
+    "count": 54,
+    "sha256": "7d67ebe798fef3f5399a296cf148a81b6afa16bd680d0f4ee403e016b04ddf85"
+   },
+   {
+    "deltas": [
+     [
+      "styles.quantityLabelColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.quantityBorderColor.value",
+      "zr1"
+     ]
+    ],
+    "count": 54,
+    "sha256": "09c300567764975cbcd33fdb1839f3563be9e6d23060bd2808113ba2a072a459"
+   },
+   {
+    "deltas": [
+     [
+      "styles.quantityLabelColor.value",
+      null
+     ],
+     [
+      "styles.color.value",
+      ""
+     ],
+     [
+      "styles.quantityBorderColor.value",
+      null
+     ]
+    ],
+    "count": 51,
+    "sha256": "0cf7fa51e54945211e602a7f73145fe4d4c7b10b83f1c7d54b3fb2b3cf82b577"
+   },
+   {
+    "deltas": [
+     [
+      "styles.quantityLabelColor.value",
+      null
+     ],
+     [
+      "styles.quantityBorderColor.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 54,
+    "sha256": "7fb1eda1f0e93eb6d68f05ee15d494656ef34b818c7550768aabdbd1dc9d0051"
+   },
+   {
+    "deltas": [],
+    "count": 54,
+    "sha256": "7d67ebe798fef3f5399a296cf148a81b6afa16bd680d0f4ee403e016b04ddf85"
+   },
+   {
+    "deltas": [
+     [
+      "styles.quantityLabelColor.value",
+      "#123456"
+     ]
+    ],
+    "count": 54,
+    "sha256": "75767bc7406820dd8b4d85f9cfdd34eaa456039654c493e04c69a24247a6aa6a"
+   },
+   {
+    "deltas": [
+     [
+      "styles.quantityLabelColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.color.value",
+      null
+     ],
+     [
+      "styles.quantityBackgroundColor.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 52,
+    "sha256": "a79aec9daf13c89524be6cade3e2cb70a7c3e4e7722fc6bef58355c79fe6198c"
+   },
+   {
+    "deltas": [
+     [
+      "styles.quantityBorderColor.value",
+      null
+     ]
+    ],
+    "count": 53,
+    "sha256": "a28adac726e901a39fb91a095292bfe57571a690e828165fb8444c166fe8fc8d"
+   }
+  ],
+  "store-pdp-v2-add-to-cart": [
+   {
+    "deltas": [],
+    "count": 22,
+    "sha256": "9b2502ac10dab400e64dec491b3ced35f272c154ab68f2d66001b45e1341b363",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-add-to-cart__btn|font-size:16px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-add-to-cart__btn|font-weight:500",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-add-to-cart__btn|width:100%",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-add-to-cart__btn|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-add-to-cart__btn|font-weight:500",
+     "|#__ID__ .pdp-v2-add-to-cart__btn:disabled|cursor:not-allowed",
+     "|#__ID__ .pdp-v2-add-to-cart__btn:disabled|opacity:0.5",
+     "|#__ID__ .pdp-v2-add-to-cart__btn:hover|box-shadow:0px 0px 1px 1px var(--secondary)",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|background-color:var(--secondary)",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|border-radius:5px",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|border:1px solid transparent",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|color:var(--white)",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|cursor:pointer",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|font-size:16px",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|font-weight:500",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|letter-spacing:0px",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|padding:12px 0px 12px 0px",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|text-align:center",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|transition:box-shadow 0.1s ease-in-out, transform 0.3s ease-in-out",
+     "|#__ID__ .pdp-v2-add-to-cart__btn|width:100%",
+     "|#hl-global-cart-drawer .cart-header p|font-weight:700",
+     "|#hl-global-cart-drawer .store-product-name|font-weight:400"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      11
+     ],
+     [
+      "styles.color.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.desktop",
+      null
+     ],
+     [
+      "styles.borderRadius.value",
+      "50%"
+     ],
+     [
+      "styles.paddingTop.value",
+      "0"
+     ],
+     [
+      "styles.paddingLeft.value",
+      11
+     ]
+    ],
+    "count": 21,
+    "sha256": "33bfe206e23418e0ac9bcf94d067fe2092d1f482db3acbb4750c51291adc22c0"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      ""
+     ],
+     [
+      "styles.fontFamily.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeight.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.paddingTop.value",
+      "0"
+     ],
+     [
+      "styles.paddingLeft.value",
+      "0"
+     ],
+     [
+      "styles.paddingRight.value",
+      "0"
+     ],
+     [
+      "styles.drawerProductTitleFontWeight.desktop",
+      null
+     ]
+    ],
+    "count": 22,
+    "sha256": "7f2592e0988e3147d4ae28f3f0d41bd91f854bffbadc312ea2ea4ec93562a40c"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      "0"
+     ],
+     [
+      "styles.borderStyle.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.borderRadius.value",
+      "13"
+     ],
+     [
+      "styles.letterSpacing.value",
+      "700"
+     ],
+     [
+      "styles.letterSpacing.unit",
+      null
+     ],
+     [
+      "styles.paddingTop.value",
+      "0"
+     ],
+     [
+      "styles.paddingBottom.value",
+      11
+     ],
+     [
+      "styles.drawerProductTitleFontWeight.desktop",
+      "zr1"
+     ]
+    ],
+    "count": 21,
+    "sha256": "916ecc78f4442d409f0784a63441b9ea4f9ab076333c1551c4325c924e3992be"
+   },
+   {
+    "deltas": [
+     [
+      "styles.fontWeight.mobile",
+      "zr1"
+     ],
+     [
+      "styles.borderStyle.value",
+      ""
+     ],
+     [
+      "styles.paddingTop.value",
+      ""
+     ],
+     [
+      "styles.paddingRight.value",
+      null
+     ]
+    ],
+    "count": 22,
+    "sha256": "b137e8c175e0ba28b13391a4e16d51d2ca391011461dcf3ed86477da6b0f521d"
+   },
+   {
+    "deltas": [
+     [
+      "styles.fontWeight.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.borderColor.value",
+      "zr1"
+     ],
+     [
+      "styles.borderRadius.value",
+      "13"
+     ]
+    ],
+    "count": 22,
+    "sha256": "a30fbef5cea3e5df80ac0cd79214cec510c88edd32bbbc2912234ec6341a2a08"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      null
+     ],
+     [
+      "styles.borderStyle.value",
+      null
+     ],
+     [
+      "styles.letterSpacing.value",
+      "13"
+     ],
+     [
+      "styles.paddingBottom.value",
+      23
+     ],
+     [
+      "styles.paddingLeft.value",
+      null
+     ]
+    ],
+    "count": 22,
+    "sha256": "257a3d9a00073279e5fec3d26254230bb3196141f4ac29a03daab49ca223701f"
+   },
+   {
+    "deltas": [
+     [
+      "styles.fontWeight.desktop",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeight.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.borderStyle.value",
+      ""
+     ],
+     [
+      "styles.drawerHeadlineFontWeight.desktop",
+      null
+     ]
+    ],
+    "count": 21,
+    "sha256": "9b6c2d8e7516579b1739e54fad2cdc516c754af5cbbbd34fbb9b22ac6e63e40a"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.backgroundColor.value",
+      "#123456"
+     ],
+     [
+      "styles.color.value",
+      null
+     ],
+     [
+      "styles.borderStyle.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.letterSpacing.unit",
+      null
+     ],
+     [
+      "styles.paddingTop.value",
+      ""
+     ],
+     [
+      "styles.paddingBottom.value",
+      4
+     ],
+     [
+      "styles.drawerHeadlineFontWeight.desktop",
+      "zr1"
+     ]
+    ],
+    "count": 21,
+    "sha256": "ea90ca97c423d1b2cc88d16c3765db9d8090c69fdf35cd9bf39eadf04d74ba4a"
+   },
+   {
+    "deltas": [
+     [
+      "styles.backgroundColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.color.value",
+      "zr1"
+     ],
+     [
+      "styles.borderColor.value",
+      null
+     ],
+     [
+      "styles.letterSpacing.unit",
+      "var(--zr2)"
+     ],
+     [
+      "styles.paddingLeft.value",
+      null
+     ],
+     [
+      "styles.paddingRight.value",
+      4
+     ],
+     [
+      "styles.drawerHeadlineFontWeight.desktop",
+      null
+     ],
+     [
+      "styles.drawerProductTitleFontWeight.desktop",
+      "700"
+     ]
+    ],
+    "count": 21,
+    "sha256": "63d1447d3a2ac59d9a0aaaf5df01a0c7bab10cdffbacc8b9a6cb3163ce66285d"
+   }
+  ],
+  "store-pdp-v2-buy-now": [
+   {
+    "deltas": [],
+    "count": 20,
+    "sha256": "b774f90c863590351014e0ee005c903f60a0ca4ebfca3c39453be3878f8a59ab",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-buy-now__btn|font-size:16px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-buy-now__btn|font-weight:500",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-buy-now__btn|width:100%",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-buy-now__btn|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-buy-now__btn|font-weight:500",
+     "|#__ID__ .pdp-v2-buy-now__btn:disabled|cursor:not-allowed",
+     "|#__ID__ .pdp-v2-buy-now__btn:disabled|opacity:0.5",
+     "|#__ID__ .pdp-v2-buy-now__btn:hover|box-shadow:0px 0px 1px 1px var(--secondary)",
+     "|#__ID__ .pdp-v2-buy-now__btn|background-color:transparent",
+     "|#__ID__ .pdp-v2-buy-now__btn|border-radius:5px",
+     "|#__ID__ .pdp-v2-buy-now__btn|border:1px solid var(--secondary)",
+     "|#__ID__ .pdp-v2-buy-now__btn|color:var(--secondary)",
+     "|#__ID__ .pdp-v2-buy-now__btn|cursor:pointer",
+     "|#__ID__ .pdp-v2-buy-now__btn|font-size:16px",
+     "|#__ID__ .pdp-v2-buy-now__btn|font-weight:500",
+     "|#__ID__ .pdp-v2-buy-now__btn|letter-spacing:0px",
+     "|#__ID__ .pdp-v2-buy-now__btn|padding:12px 0px 12px 0px",
+     "|#__ID__ .pdp-v2-buy-now__btn|text-align:center",
+     "|#__ID__ .pdp-v2-buy-now__btn|transition:box-shadow 0.1s ease-in-out, transform 0.3s ease-in-out",
+     "|#__ID__ .pdp-v2-buy-now__btn|width:100%"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      "0"
+     ],
+     [
+      "styles.fontWeight.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.borderWidth.value",
+      "37px"
+     ],
+     [
+      "styles.borderStyle.value",
+      "zr1"
+     ],
+     [
+      "styles.paddingLeft.value",
+      23
+     ]
+    ],
+    "count": 20,
+    "sha256": "11dc64984bf985b1b7d136979ba49d5ab8688678bbc1ffdbf81ea61ebbce0fac"
+   },
+   {
+    "deltas": [
+     [
+      "styles.fontWeight.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.borderColor.value",
+      ""
+     ],
+     [
+      "styles.borderWidth.value",
+      "zr1"
+     ],
+     [
+      "styles.borderRadius.value",
+      "0px"
+     ],
+     [
+      "styles.letterSpacing.unit",
+      "#123456"
+     ]
+    ],
+    "count": 19,
+    "sha256": "a781169592fce46573bb88fe2a840a47b0843970d31f28a165b31e2a3b6d5eb2"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      null
+     ],
+     [
+      "styles.borderColor.value",
+      null
+     ],
+     [
+      "styles.borderStyle.value",
+      null
+     ],
+     [
+      "styles.borderRadius.value",
+      null
+     ],
+     [
+      "styles.letterSpacing.value",
+      "0"
+     ],
+     [
+      "styles.paddingTop.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.paddingBottom.value",
+      ""
+     ]
+    ],
+    "count": 20,
+    "sha256": "b774f90c863590351014e0ee005c903f60a0ca4ebfca3c39453be3878f8a59ab"
+   },
+   {
+    "deltas": [
+     [
+      "styles.fontFamily.value",
+      null
+     ],
+     [
+      "styles.borderWidth.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.borderStyle.value",
+      "#123456"
+     ],
+     [
+      "styles.letterSpacing.unit",
+      "var(--zr2)"
+     ],
+     [
+      "styles.paddingBottom.value",
+      23
+     ]
+    ],
+    "count": 20,
+    "sha256": "2240baff412ee20386202e6b60c87b8694239f251321439ad213dfa34d669886"
+   },
+   {
+    "deltas": [
+     [
+      "styles.color.value",
+      "#123456"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.mobile",
+      null
+     ],
+     [
+      "styles.paddingBottom.value",
+      "0"
+     ],
+     [
+      "styles.paddingLeft.value",
+      11
+     ]
+    ],
+    "count": 19,
+    "sha256": "c8affc466a22d486998785f68f929dd92d80715cf94ab1fcf0ce1b74c38f9411"
+   },
+   {
+    "deltas": [
+     [
+      "styles.fontWeight.mobile",
+      null
+     ],
+     [
+      "styles.borderColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.borderWidth.value",
+      "0px"
+     ],
+     [
+      "styles.paddingTop.value",
+      11
+     ]
+    ],
+    "count": 20,
+    "sha256": "cc00a49b5daa99c17cc083950a836754d5792ca33125526e590869eb6dd262f8"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      "0"
+     ],
+     [
+      "styles.backgroundColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "zr1"
+     ],
+     [
+      "styles.fontWeight.mobile",
+      null
+     ],
+     [
+      "styles.borderWidth.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.paddingBottom.value",
+      ""
+     ]
+    ],
+    "count": 20,
+    "sha256": "07ae1b94dca673147d122210bfd21eeb042ddf86ff2c6b303ba5cae93fcd227c"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      11
+     ],
+     [
+      "styles.borderColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.letterSpacing.unit",
+      "#123456"
+     ],
+     [
+      "styles.paddingLeft.value",
+      4
+     ],
+     [
+      "styles.paddingRight.value",
+      ""
+     ]
+    ],
+    "count": 20,
+    "sha256": "3c04e06a68591a9fec22d34967a48b8e6e9669b7d13b1e2d1efc017d06efb6b2"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      ""
+     ],
+     [
+      "extra.mobileFontSize.value",
+      23
+     ],
+     [
+      "styles.backgroundColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.borderColor.value",
+      null
+     ],
+     [
+      "styles.borderWidth.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.borderStyle.value",
+      ""
+     ],
+     [
+      "styles.letterSpacing.value",
+      "700"
+     ],
+     [
+      "styles.letterSpacing.unit",
+      null
+     ],
+     [
+      "styles.paddingTop.value",
+      4
+     ],
+     [
+      "styles.paddingBottom.value",
+      "0"
+     ]
+    ],
+    "count": 20,
+    "sha256": "28469b996f7bf4f273fdcb8be0f2714d88f11d1f07baf2458a7b0c1bc4627768"
+   }
+  ],
+  "store-pdp-v2-review-stars": [
+   {
+    "deltas": [],
+    "count": 19,
+    "sha256": "e54d748cb40e5fd70c6a071db20ea25dd1e4d244574ace2e1733979a43743f34",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ec-review-stars .rating-number|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ec-review-stars .rating-number|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ec-review-stars|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ec-review-stars|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .ec-review-stars .rating-number|font-size:14px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .ec-review-stars .rating-number|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .ec-review-stars|font-size:14px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .ec-review-stars|font-weight:400",
+     "|#__ID__ .ec-full-star|fill:#FDB022",
+     "|#__ID__ .ec-half-star|fill:#FDB022",
+     "|#__ID__ .ec-review-stars .rating-number|font-family:inherit",
+     "|#__ID__ .ec-review-stars .rating-number|font-size:14px",
+     "|#__ID__ .ec-review-stars .rating-number|font-weight:400",
+     "|#__ID__ .ec-review-stars|color:#000",
+     "|#__ID__ .ec-review-stars|font-family:inherit",
+     "|#__ID__ .ec-review-stars|font-size:14px",
+     "|#__ID__ .ec-review-stars|font-weight:400",
+     "|#__ID__ .ec-review-stars|justify-content:flex-start",
+     "|#__ID__ .ec-review-stars|width:100%"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.reviewStarsMobileFontSize.value",
+      0
+     ]
+    ],
+    "count": 19,
+    "sha256": "e54d748cb40e5fd70c6a071db20ea25dd1e4d244574ace2e1733979a43743f34"
+   },
+   {
+    "deltas": [
+     [
+      "extra.reviewStarsMobileFontSize.value",
+      ""
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      null
+     ],
+     [
+      "styles.fontFamily.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.desktop",
+      null
+     ],
+     [
+      "styles.fontWeight.mobile",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 17,
+    "sha256": "2599c38a5986aa16641b6d95b93d45eb033c18743d3dc430e680593712a39c39"
+   },
+   {
+    "deltas": [
+     [
+      "styles.fontWeight.desktop",
+      "#123456"
+     ],
+     [
+      "styles.fontWeight.mobile",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 19,
+    "sha256": "8827065f6cca65f617a394e45ca01623b158012031437348d0e1fe5e626074ee"
+   },
+   {
+    "deltas": [
+     [
+      "extra.reviewStarsTabletFontSize.value",
+      "0"
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      "zr1"
+     ],
+     [
+      "styles.textAlign.value",
+      "zr1"
+     ]
+    ],
+    "count": 19,
+    "sha256": "03cb1bb85fb14ecae725dd7a5009b3820ee4886492c7f67b5441e768e551c6ce"
+   },
+   {
+    "deltas": [
+     [
+      "styles.fontFamily.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 19,
+    "sha256": "e54d748cb40e5fd70c6a071db20ea25dd1e4d244574ace2e1733979a43743f34"
+   },
+   {
+    "deltas": [],
+    "count": 19,
+    "sha256": "e54d748cb40e5fd70c6a071db20ea25dd1e4d244574ace2e1733979a43743f34"
+   },
+   {
+    "deltas": [
+     [
+      "styles.fontWeight.mobile",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 19,
+    "sha256": "94343f82c8f858b45c8b0901bbd39a6cfde727565eecdedda98208a74d19f693"
+   },
+   {
+    "deltas": [
+     [
+      "extra.reviewStarsMobileFontSize.value",
+      11
+     ],
+     [
+      "styles.textAlign.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 19,
+    "sha256": "69ddf138ca61df7c29fea63b67645d801edb2b5c3ac0c47b5e5a9ed913f6868e"
+   },
+   {
+    "deltas": [
+     [
+      "extra.reviewStarsMobileFontSize.value",
+      ""
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "zr1"
+     ],
+     [
+      "styles.textAlign.value",
+      null
+     ]
+    ],
+    "count": 19,
+    "sha256": "1cc0076991137b40ed53c130479b5c17872358e2d355a8e6f7281b6ac370ea41"
+   }
+  ],
+  "store-pdp-v2-description": [
+   {
+    "deltas": [],
+    "count": 39,
+    "sha256": "6da38e5d368d03659bb66cf5339348240ceb016c8b29d3e42b6d11b4f34d5046",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-description *:not(.pdp-v2-description__toggle)|font-size:16px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-description *:not(.pdp-v2-description__toggle)|font-weight:400 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-description|font-size:16px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-description|font-weight:400 !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-description *:not(.pdp-v2-description__toggle)|font-size:16px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-description *:not(.pdp-v2-description__toggle)|font-weight:400 !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-description|font-size:16px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-description|font-weight:400 !important",
+     "|#__ID__ .pdp-v2-description *:not(.pdp-v2-description__toggle)|color:#000000 !important",
+     "|#__ID__ .pdp-v2-description *:not(.pdp-v2-description__toggle)|font-family:var(--contentfont) !important",
+     "|#__ID__ .pdp-v2-description *:not(.pdp-v2-description__toggle)|font-size:16px !important",
+     "|#__ID__ .pdp-v2-description *:not(.pdp-v2-description__toggle)|font-weight:400 !important",
+     "|#__ID__ .pdp-v2-description__content--clamped|-webkit-box-orient:vertical",
+     "|#__ID__ .pdp-v2-description__content--clamped|-webkit-line-clamp:6",
+     "|#__ID__ .pdp-v2-description__content--clamped|display:-webkit-box",
+     "|#__ID__ .pdp-v2-description__content--clamped|max-height:350px",
+     "|#__ID__ .pdp-v2-description__content--clamped|overflow:hidden",
+     "|#__ID__ .pdp-v2-description__toggle:hover|text-decoration:none",
+     "|#__ID__ .pdp-v2-description__toggle|background:none",
+     "|#__ID__ .pdp-v2-description__toggle|border:none",
+     "|#__ID__ .pdp-v2-description__toggle|color:#8f8585ff",
+     "|#__ID__ .pdp-v2-description__toggle|cursor:pointer",
+     "|#__ID__ .pdp-v2-description__toggle|display:inline-block",
+     "|#__ID__ .pdp-v2-description__toggle|font-size:14px",
+     "|#__ID__ .pdp-v2-description__toggle|font-weight:500",
+     "|#__ID__ .pdp-v2-description__toggle|margin-top:8px",
+     "|#__ID__ .pdp-v2-description__toggle|outline:none",
+     "|#__ID__ .pdp-v2-description__toggle|padding:0",
+     "|#__ID__ .pdp-v2-description__toggle|text-decoration:underline",
+     "|#__ID__ .pdp-v2-description|background-color:var(--transparent)",
+     "|#__ID__ .pdp-v2-description|color:#000000 !important",
+     "|#__ID__ .pdp-v2-description|font-family:var(--contentfont) !important",
+     "|#__ID__ .pdp-v2-description|font-size:16px !important",
+     "|#__ID__ .pdp-v2-description|font-weight:400 !important",
+     "|#__ID__ .pdp-v2-description|line-height:1.6",
+     "|#__ID__ .pdp-v2-description|overflow-wrap:break-word",
+     "|#__ID__ .pdp-v2-description|text-align:left",
+     "|#__ID__ .pdp-v2-description|width:100%",
+     "|#__ID__ .pdp-v2-description|word-wrap:break-word"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "styles.descriptionFontColor.value",
+      "#123456"
+     ],
+     [
+      "styles.descriptionBackgroundColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 39,
+    "sha256": "f2181a8c846f585d85b033a84d09eb7f428f5884e77ba64d7d7b5eeb67aa1bb7"
+   },
+   {
+    "deltas": [
+     [
+      "extra.descriptionMobileFontSize.value",
+      null
+     ],
+     [
+      "styles.descriptionFontFamily.value",
+      "#123456"
+     ],
+     [
+      "styles.textAlign.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 39,
+    "sha256": "a38b8e23e01f7d3a92a3e02c6718f7cf15190f58a42ab9241208926e2388bf69"
+   },
+   {
+    "deltas": [
+     [
+      "styles.descriptionBackgroundColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.showMoreButtonColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 39,
+    "sha256": "96d0f8108ba13a6623b9f8b65690bd357be6e2d1fe556749942d4cf0ab9a8cfa"
+   },
+   {
+    "deltas": [
+     [
+      "extra.descriptionDesktopFontSize.value",
+      11
+     ],
+     [
+      "styles.descriptionFontFamily.value",
+      "zr1"
+     ],
+     [
+      "styles.descriptionBackgroundColor.value",
+      null
+     ]
+    ],
+    "count": 39,
+    "sha256": "80bd18e837e32b5515efe5429d5f283e430b09a543a0627bb5f076dcae20352d"
+   },
+   {
+    "deltas": [
+     [
+      "styles.textAlign.value",
+      "#123456"
+     ]
+    ],
+    "count": 39,
+    "sha256": "0e7fb3d7cf1804edc5252d9fcd34ff93361aaff79b193c6acaeb6e16ebce1d46"
+   },
+   {
+    "deltas": [
+     [
+      "extra.descriptionDesktopFontSize.value",
+      4
+     ],
+     [
+      "styles.descriptionFontColor.value",
+      "#123456"
+     ]
+    ],
+    "count": 39,
+    "sha256": "61376622e7e864dfee7cb16db25fcfca5e39c81538381f32a70d61290f28accb"
+   },
+   {
+    "deltas": [
+     [
+      "extra.descriptionDesktopFontSize.value",
+      23
+     ],
+     [
+      "extra.descriptionMobileFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.descriptionFontColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.showMoreButtonColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 39,
+    "sha256": "6dd8013314cc841f5c7a181b51e1870f4c9584615f99fafe42e704dd3e342609"
+   },
+   {
+    "deltas": [],
+    "count": 39,
+    "sha256": "6da38e5d368d03659bb66cf5339348240ceb016c8b29d3e42b6d11b4f34d5046"
+   },
+   {
+    "deltas": [
+     [
+      "extra.descriptionDesktopFontSize.value",
+      11
+     ],
+     [
+      "styles.descriptionFontFamily.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.descriptionFontColor.value",
+      null
+     ],
+     [
+      "styles.descriptionBackgroundColor.value",
+      "zr1"
+     ],
+     [
+      "styles.descriptionFontWeight.desktop",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 39,
+    "sha256": "7289a448cdce9eca806d11e2aff522cf0bdb87026a677dce652d66a8061aebb8"
+   }
+  ],
+  "store-pdp-v2-reviews": [
+   {
+    "deltas": [],
+    "count": 9,
+    "sha256": "6f14097a3fe289da01013e1c9be659a9b2504ae6f794c718b85dc23bf629580a",
+    "declarations": [
+     "|#__ID__ .clear-filter-button|color:#004EEB",
+     "|#__ID__ .ec-full-star|fill:#FDB022",
+     "|#__ID__ .ec-half-star|fill:#FDB022",
+     "|#__ID__ .ec-progress-star|background-color:#FDB022",
+     "|#__ID__ .ec-progress-star|z-index:2",
+     "|#__ID__ .ec-review-stars|color:#000",
+     "|#__ID__ .modal-content|background:#ffffff",
+     "|#__ID__ .write-review-btn|background-color:#EFF4FF",
+     "|#__ID__ .write-review-btn|color:#004EEB"
+    ]
+   },
+   {
+    "deltas": [],
+    "count": 9,
+    "sha256": "6f14097a3fe289da01013e1c9be659a9b2504ae6f794c718b85dc23bf629580a"
+   },
+   {
+    "deltas": [],
+    "count": 9,
+    "sha256": "6f14097a3fe289da01013e1c9be659a9b2504ae6f794c718b85dc23bf629580a"
+   },
+   {
+    "deltas": [],
+    "count": 9,
+    "sha256": "6f14097a3fe289da01013e1c9be659a9b2504ae6f794c718b85dc23bf629580a"
+   },
+   {
+    "deltas": [
+     [
+      "styles.reviewsAndRatingsColor.value",
+      "zr1"
+     ]
+    ],
+    "count": 9,
+    "sha256": "448eb26bf026e12676f68b16862b417c9cef1e303283e440ef08ffd1da5123db"
+   },
+   {
+    "deltas": [
+     [
+      "styles.writeButtonBgColor.value",
+      "#123456"
+     ],
+     [
+      "styles.writeButtonColor.value",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 9,
+    "sha256": "207e034d6a60d4f02760725a4d17f43eecfbda76d6bf63b91ff8a4ae5f9823ff"
+   },
+   {
+    "deltas": [
+     [
+      "styles.backgroundColor.value",
+      "var(--transparent)"
+     ]
+    ],
+    "count": 9,
+    "sha256": "6f14097a3fe289da01013e1c9be659a9b2504ae6f794c718b85dc23bf629580a"
+   },
+   {
+    "deltas": [
+     [
+      "styles.writeButtonColor.value",
+      null
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 9,
+    "sha256": "6f14097a3fe289da01013e1c9be659a9b2504ae6f794c718b85dc23bf629580a"
+   },
+   {
+    "deltas": [],
+    "count": 9,
+    "sha256": "6f14097a3fe289da01013e1c9be659a9b2504ae6f794c718b85dc23bf629580a"
+   },
+   {
+    "deltas": [],
+    "count": 9,
+    "sha256": "6f14097a3fe289da01013e1c9be659a9b2504ae6f794c718b85dc23bf629580a"
+   }
+  ],
+  "store-pdp-v2-related-products": [
+   {
+    "deltas": [],
+    "count": 181,
+    "sha256": "7782ee35c65372ff1713472e7a072096bc126ce05ae1172812693449237352a2",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ec-review-stars .rating-number|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ec-review-stars|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-desktop-container|display:none",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|display:flex",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|flex-direction:column",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|flex-wrap:wrap",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|gap:4px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|display:flex !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|justify-content:flex-start !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ecomm-price-desktop-container|display:none !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ecomm-price-override-container|display:flex !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ecomm-price-override-container|justify-content:flex-start !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-price-discount|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-price-override|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-product-name|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-product-price|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .unavailable|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details|padding-bottom:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details|padding-left:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details|padding-right:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details|padding-top:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-price-discount|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-price-discount|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-price-override|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-image|aspect-ratio:1 / 1",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-image|object-fit:cover",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-image|width:100%",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|color:var(--black)",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|width:100%",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-price|color:var(--black)",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-price|font-size:16px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-price|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|bottom:0 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|display:flex !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|left:0 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|margin:10px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|padding:3px 5px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|position:absolute !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|z-index:10 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|aspect-ratio:1 / 1 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|border-radius:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|height:auto !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|position:relative !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-related-products__heading|font-size:18px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .pdp-v2-related-products__heading|font-weight:500",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .product-list-container|column-gap:12px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .product-list-container|grid-template-columns:repeat(2, minmax(0, 1fr))",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .product-list-container|row-gap:12px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .ec-review-stars .rating-number|font-size:14px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .ec-review-stars .rating-number|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .ec-review-stars|font-size:14px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .ec-review-stars|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-item-details|padding-bottom:0px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-item-details|padding-left:0px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-item-details|padding-right:0px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-item-details|padding-top:0px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-price-discount|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-price-discount|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-name|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-name|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-price|font-size:18px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-price|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-related-products__heading|font-size:24px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .pdp-v2-related-products__heading|font-weight:500",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .product-list-container|column-gap:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .product-list-container|grid-template-columns:repeat(, minmax(0, 1fr))",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .product-list-container|row-gap:16px",
+     "@media screen and (min-width: 901px)|#__ID__ .hl-product-list-item-details .desktop.single-star-rating|display:flex !important",
+     "@media screen and (min-width: 901px)|#__ID__ .hl-product-list-item-details .desktop.single-star-rating|justify-content:flex-start !important",
+     "|#__ID__ .apply-button|background-color:#155eef",
+     "|#__ID__ .apply-button|border:1px solid #155eef",
+     "|#__ID__ .apply-button|color:#FFFFFF",
+     "|#__ID__ .cancel-button|background-color:#FFFFFF",
+     "|#__ID__ .cancel-button|border:1px solid #155eef",
+     "|#__ID__ .cancel-button|color:#155eef",
+     "|#__ID__ .ec-filter-card__headline|color:#000000",
+     "|#__ID__ .ec-filter-card__label|color:#000000",
+     "|#__ID__ .ec-filter-card__selected|color:#101828",
+     "|#__ID__ .ec-filter-headline|color:#000000",
+     "|#__ID__ .ec-filter-inline-chevron|color:#000000",
+     "|#__ID__ .ec-filter-item|color:#000000",
+     "|#__ID__ .ec-filter-pill|background:#F2F4F7",
+     "|#__ID__ .ec-filter-pill|color:#101828",
+     "|#__ID__ .ec-filter-remove-all|color:#475467",
+     "|#__ID__ .ec-filter-reset-button|color:#475467",
+     "|#__ID__ .ec-full-star|fill:#FDB022",
+     "|#__ID__ .ec-mobile-filter-btn svg|color:#000000",
+     "|#__ID__ .ec-mobile-filter-btn|background-color:#FFFFFF",
+     "|#__ID__ .ec-mobile-filter-btn|color:#000000",
+     "|#__ID__ .ec-mobile-sort-btn svg|color:#000000",
+     "|#__ID__ .ec-mobile-sort-btn|background-color:#FFFFFF",
+     "|#__ID__ .ec-mobile-sort-btn|color:#000000",
+     "|#__ID__ .ec-pagination-btn:disabled|opacity:0.5",
+     "|#__ID__ .ec-pagination-container|color:var(--black)",
+     "|#__ID__ .ec-product-count|color:#000000",
+     "|#__ID__ .ec-review-stars .rating-number|font-size:14px",
+     "|#__ID__ .ec-review-stars .rating-number|font-weight:400",
+     "|#__ID__ .ec-review-stars|color:#000",
+     "|#__ID__ .ec-review-stars|font-size:14px",
+     "|#__ID__ .ec-review-stars|font-weight:400",
+     "|#__ID__ .ec-sort-filter-menu|background:#ffffff",
+     "|#__ID__ .ec-sort-inline .ec-filter-inline-chevron|color:#000000",
+     "|#__ID__ .ec-sort-inline .ec-sort-dropdown|color:#000000",
+     "|#__ID__ .ec-sort-inline span|color:#000000",
+     "|#__ID__ .ec-sort-inline|color:#000000",
+     "|#__ID__ .ec-sort-vertical__headline|color:#000000",
+     "|#__ID__ .ec-sort-vertical__item input|accent-color:#155EEF",
+     "|#__ID__ .ec-sort-vertical__item span|color:#101828",
+     "|#__ID__ .ec-subscription-pill|background:#FFF4ED",
+     "|#__ID__ .ec-subscription-pill|border-radius:9999px",
+     "|#__ID__ .ec-subscription-pill|color:#E62E05",
+     "|#__ID__ .ec-subscription-pill|font-size:12px",
+     "|#__ID__ .ec-subscription-pill|font-weight:500",
+     "|#__ID__ .ec-subscription-pill|padding:2px 10px",
+     "|#__ID__ .ec-vertical-checkbox input|accent-color:#155EEF",
+     "|#__ID__ .ec-vertical-checkbox input|background:#FFFFFF",
+     "|#__ID__ .ec-vertical-checkbox input|border-color:#D0D5DD",
+     "|#__ID__ .ec-vertical-checkbox.is-selected input|background:#EFF4FF",
+     "|#__ID__ .ec-vertical-checkbox.is-selected input|border-color:#155EEF",
+     "|#__ID__ .ec-vertical-price-inputs label|color:#101828",
+     "|#__ID__ .ec-wishlist-button|background:#fff",
+     "|#__ID__ .filter-option|color:'#1d2939'",
+     "|#__ID__ .filter-option|font-family:Inter, sans-serif",
+     "|#__ID__ .filter-option|font-weight:500",
+     "|#__ID__ .hl-add-to-cart-btn|background-color:var(--secondary)",
+     "|#__ID__ .hl-add-to-cart-btn|border-color:transparent",
+     "|#__ID__ .hl-add-to-cart-btn|color:var(--white)",
+     "|#__ID__ .hl-choose-options-btn|background-color:transparent",
+     "|#__ID__ .hl-choose-options-btn|border-color:var(--secondary)",
+     "|#__ID__ .hl-choose-options-btn|color:var(--secondary)",
+     "|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|display:flex !important",
+     "|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|justify-content:flex-start !important",
+     "|#__ID__ .hl-product-list-item-details .ecomm-price-desktop-container|justify-content:flex-start !important",
+     "|#__ID__ .hl-product-list-item-details .flex.items-center|justify-content:flex-start !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-price-discount|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-price-override|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-product-name|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-product-price|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .unavailable|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details|padding-bottom:0px !important",
+     "|#__ID__ .hl-product-list-item-details|padding-left:0px !important",
+     "|#__ID__ .hl-product-list-item-details|padding-right:0px !important",
+     "|#__ID__ .hl-product-list-item-details|padding-top:0px !important",
+     "|#__ID__ .hl-product-list-price-discount|color:#12B76A",
+     "|#__ID__ .hl-product-list-price-discount|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-price-discount|font-size:16px",
+     "|#__ID__ .hl-product-list-price-discount|font-weight:400",
+     "|#__ID__ .hl-product-list-price-override|color:var(--black)",
+     "|#__ID__ .hl-product-list-price-override|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-price-override|font-size:16px",
+     "|#__ID__ .hl-product-list-price-override|opacity:50%",
+     "|#__ID__ .hl-product-list-product-image|aspect-ratio:1 / 1",
+     "|#__ID__ .hl-product-list-product-image|object-fit:cover",
+     "|#__ID__ .hl-product-list-product-image|width:100%",
+     "|#__ID__ .hl-product-list-product-name|color:var(--black)",
+     "|#__ID__ .hl-product-list-product-name|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-product-name|font-size:16px",
+     "|#__ID__ .hl-product-list-product-name|font-weight:400",
+     "|#__ID__ .hl-product-list-product-price|color:var(--black)",
+     "|#__ID__ .hl-product-list-product-price|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-product-price|font-size:18px",
+     "|#__ID__ .hl-product-list-product-price|font-weight:400",
+     "|#__ID__ .image-wrapper|aspect-ratio:1 / 1 !important",
+     "|#__ID__ .image-wrapper|border-radius:0px !important",
+     "|#__ID__ .image-wrapper|height:auto !important",
+     "|#__ID__ .pdp-v2-related-products__heading|color:var(--black)",
+     "|#__ID__ .pdp-v2-related-products__heading|font-family:var(--headlinefont)",
+     "|#__ID__ .pdp-v2-related-products__heading|font-size:24px",
+     "|#__ID__ .pdp-v2-related-products__heading|font-weight:500",
+     "|#__ID__ .pdp-v2-related-products__heading|margin-bottom:16px",
+     "|#__ID__ .price-input input:focus|border-color:#155eef",
+     "|#__ID__ .price-input input:focus|box-shadow:0 0 0 1px #155eef",
+     "|#__ID__ .price-input input:focus|outline:none",
+     "|#__ID__ .product-list-container|column-gap:16px",
+     "|#__ID__ .product-list-container|display:grid",
+     "|#__ID__ .product-list-container|grid-template-columns:repeat(3, minmax(0, 1fr))",
+     "|#__ID__ .product-list-container|row-gap:16px",
+     "|.ec-half-star|fill:#FDB022",
+     "|.ec-pagination-btn|color:var(--black)"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.priceDiscountDesktopFontSize.value",
+      11
+     ],
+     [
+      "extra.relatedProductsDesktopFontSize.value",
+      0
+     ],
+     [
+      "extra.tabletColumns.value",
+      null
+     ],
+     [
+      "styles.relatedProductsHeadingFontFamily.value",
+      ""
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.reviewsAndRatingsFontFamily.value",
+      "#123456"
+     ]
+    ],
+    "count": 183,
+    "sha256": "ab7b2c9885ab4c01cd9cf06cc55dab75d8ee8c9fde102b6c87d499ee7f13fb36"
+   },
+   {
+    "deltas": [
+     [
+      "extra.relatedProductsMobileFontSize.value",
+      "0"
+     ],
+     [
+      "extra.relatedProductsTabletFontSize.value",
+      0
+     ],
+     [
+      "styles.relatedProductsHeadingTextColor.value",
+      null
+     ],
+     [
+      "styles.relatedProductsHeadingFontFamily.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsFontFamily.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 183,
+    "sha256": "2ee412eef20297d318b17fd1430c12b858d7459d32d212d9b8ea7d3d11a503ff"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      4
+     ],
+     [
+      "extra.priceDiscountDesktopFontSize.value",
+      4
+     ],
+     [
+      "extra.relatedProductsDesktopFontSize.value",
+      23
+     ],
+     [
+      "extra.tabletFontSize.value",
+      null
+     ],
+     [
+      "styles.relatedProductsHeadingFontFamily.value",
+      ""
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      null
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "#123456"
+     ],
+     [
+      "styles.reviewsAndRatingsFontWeight.desktop",
+      null
+     ]
+    ],
+    "count": 177,
+    "sha256": "85608c3a157d6fc26bf0295b13d00f80694525d662af4a24f7931ec40d853485"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      "0"
+     ],
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      ""
+     ],
+     [
+      "extra.relatedProductsTabletFontSize.value",
+      "0"
+     ],
+     [
+      "styles.relatedProductsHeadingTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productNameColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.backgroundColor.value",
+      "#123456"
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      "#123456"
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      "#123456"
+     ]
+    ],
+    "count": 181,
+    "sha256": "59ebbde578d9e8850f23219f76522cd8181e7710883bee3be7c35f8b914f02c7"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileColumns.value",
+      ""
+     ],
+     [
+      "extra.relatedProductsDesktopFontSize.value",
+      4
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      23
+     ],
+     [
+      "styles.relatedProductsHeadingTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productPriceColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.backgroundColor.value",
+      "#123456"
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "#123456"
+     ],
+     [
+      "styles.fontWeight.mobile",
+      null
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.reviewsAndRatingsFontWeight.desktop",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 177,
+    "sha256": "e118ebc358b064d8693e7307331ec167b7ab9f3f449dca8085b4d6dbc754d6df"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.mobileFontSize.value",
+      "0"
+     ],
+     [
+      "extra.priceDiscountDesktopFontSize.value",
+      null
+     ],
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      "0"
+     ],
+     [
+      "extra.relatedProductsDesktopFontSize.value",
+      4
+     ],
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      ""
+     ],
+     [
+      "styles.productPriceColor.value",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "#123456"
+     ],
+     [
+      "styles.reviewsAndRatingsFontFamily.value",
+      null
+     ]
+    ],
+    "count": 180,
+    "sha256": "712acfc24e533aea5c546844c8c03f0f37e78c85e24229b1d3b30e7c0940a6f7"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.featureHeadlineMobileFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.desktopFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.priceDiscountDesktopFontSize.value",
+      "0"
+     ],
+     [
+      "extra.relatedProductsDesktopFontSize.value",
+      "0"
+     ],
+     [
+      "extra.reviewStarsTabletFontSize.value",
+      23
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      ""
+     ],
+     [
+      "extra.relatedProductsTabletFontSize.value",
+      4
+     ],
+     [
+      "styles.relatedProductsHeadingFontFamily.value",
+      ""
+     ],
+     [
+      "styles.productPriceColor.value",
+      null
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      "zr1"
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.reviewsAndRatingsFontFamily.value",
+      ""
+     ]
+    ],
+    "count": 181,
+    "sha256": "8d039c0c98fe65096e8d7aa804577cfb742901cb44bf685b900c116d8e6f988a"
+   },
+   {
+    "deltas": [
+     [
+      "extra.reviewStarsDesktopFontSize.value",
+      4
+     ],
+     [
+      "extra.desktopColumns.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.featureHeadlineMobileFontSize.value",
+      "0"
+     ],
+     [
+      "extra.relatedProductsMobileFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.tabletFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.relatedProductsTabletFontSize.value",
+      ""
+     ],
+     [
+      "styles.productNameColor.value",
+      null
+     ],
+     [
+      "styles.productPriceColor.value",
+      "#123456"
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      ""
+     ],
+     [
+      "styles.backgroundColor.value",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "#123456"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "#123456"
+     ],
+     [
+      "styles.reviewsAndRatingsFontWeight.desktop",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 180,
+    "sha256": "e9174b6edd9dda899a14b30054dd0c7ea8632f2f6a449c5283ecbbe469f115b7"
+   },
+   {
+    "deltas": [
+     [
+      "extra.reviewStarsDesktopFontSize.value",
+      "0"
+     ],
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      ""
+     ],
+     [
+      "extra.priceDiscountDesktopFontSize.value",
+      23
+     ],
+     [
+      "extra.tabletColumns.value",
+      "var(--zr2)"
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.relatedProductsTabletFontSize.value",
+      11
+     ],
+     [
+      "styles.backgroundColor.value",
+      null
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      null
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.reviewsAndRatingsFontWeight.desktop",
+      "zr1"
+     ]
+    ],
+    "count": 181,
+    "sha256": "4f05cd7b0018ebff730afccc4185238470b0994eb5577b9c54094026613ee12f"
+   }
+  ],
+  "collection-list": [
+   {
+    "deltas": [],
+    "count": 43,
+    "sha256": "0b9932445f8485f54b7c959bda0a5e4a150b06ed5876f959bcd968fd8e086a2a",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .collection-image|aspect-ratio:1 / 1",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .collection-image|object-fit:cover",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .collection-image|width:100%",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .collection-item .hl-collection-list-collection-name-no-image|justify-content:flex-start !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .collection-item .hl-collection-list-collection-name-no-image|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .collection-item .hl-collection-list-collection-name|justify-content:flex-start !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .collection-item .hl-collection-list-collection-name|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .collection-list-container|gap:12px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .collection-list-container|grid-template-columns:repeat(2, minmax(0, 1fr))",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-collection-list-collection-name|font-size:16px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-collection-list-collection-name|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-collection-list-heading|font-size:24px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-collection-list-heading|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-collection-list-heading|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|aspect-ratio:1 / 1 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|border-radius:0px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .collection-list-container|grid-template-columns:repeat(, minmax(0, 1fr))",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-collection-list-collection-name|font-size:18px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-collection-list-collection-name|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-collection-list-heading|font-size:32px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-collection-list-heading|font-weight:400",
+     "|#__ID__ .collection-image|aspect-ratio:1 / 1",
+     "|#__ID__ .collection-image|object-fit:cover",
+     "|#__ID__ .collection-image|width:100%",
+     "|#__ID__ .collection-item .hl-collection-list-collection-name-no-image|justify-content:flex-start !important",
+     "|#__ID__ .collection-item .hl-collection-list-collection-name-no-image|text-align:left !important",
+     "|#__ID__ .collection-item .hl-collection-list-collection-name|justify-content:flex-start !important",
+     "|#__ID__ .collection-item .hl-collection-list-collection-name|text-align:left !important",
+     "|#__ID__ .collection-list-container|display:grid",
+     "|#__ID__ .collection-list-container|gap:16px",
+     "|#__ID__ .collection-list-container|grid-template-columns:repeat(3, minmax(0, 1fr))",
+     "|#__ID__ .hl-collection-list-collection-name|color:#000000",
+     "|#__ID__ .hl-collection-list-collection-name|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-collection-list-collection-name|font-size:18px",
+     "|#__ID__ .hl-collection-list-collection-name|font-weight:400",
+     "|#__ID__ .hl-collection-list-heading|color:var(--black)",
+     "|#__ID__ .hl-collection-list-heading|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-collection-list-heading|font-size:32px",
+     "|#__ID__ .hl-collection-list-heading|font-weight:400",
+     "|#__ID__ .hl-collection-list-heading|margin-bottom:32px",
+     "|#__ID__ .hl-collection-list-heading|text-align:left !important",
+     "|#__ID__ .image-wrapper|aspect-ratio:1 / 1 !important",
+     "|#__ID__ .image-wrapper|border-radius:0px !important"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.featureHeadlineMobileFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.desktopFontSize.value",
+      4
+     ],
+     [
+      "styles.productCardImageRatio.value",
+      "zr1"
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "zr1"
+     ]
+    ],
+    "count": 43,
+    "sha256": "5cd6a2d6dab1dc8cb78e75dc717e0d4b70135beb9f35f5527cb3071550668b6b"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineMobileFontSize.value",
+      4
+     ],
+     [
+      "extra.mobileFontSize.value",
+      null
+     ],
+     [
+      "styles.collectionNameTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      0
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardBorderStyle.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 43,
+    "sha256": "aa9eeda3c90cc7a8344e12fa540426cd6644b4a4076f3a2c3ac30f36b9371e5e"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      ""
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      null
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      4
+     ],
+     [
+      "styles.productCardBorderStyle.value",
+      "#123456"
+     ]
+    ],
+    "count": 43,
+    "sha256": "1c86a27e558d238b48ecc41b2dc8bd15793cd76f7f74f598b152cc2c951b1106"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      ""
+     ],
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      ""
+     ],
+     [
+      "extra.desktopFontSize.value",
+      11
+     ],
+     [
+      "extra.mobileFontSize.value",
+      23
+     ],
+     [
+      "styles.productCardImageRatio.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "#123456"
+     ]
+    ],
+    "count": 65,
+    "sha256": "e1a1ca239af7fcf470d42f9692fe16545eef15d69386d7be5cae6cba67f45bfe"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      4
+     ],
+     [
+      "styles.collectionNameTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.collectionNameFontFamily.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 43,
+    "sha256": "28127ca52c809c5fdb2e533ef2ac7e4beff585a1396fcf021e3e635fb1f9c500"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      ""
+     ],
+     [
+      "extra.desktopFontSize.value",
+      ""
+     ],
+     [
+      "extra.tabletColumns.value",
+      "zr1"
+     ],
+     [
+      "styles.collectionHeadingTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      "#123456"
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      4
+     ],
+     [
+      "styles.productCardBorderStyle.value",
+      ""
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      "right"
+     ],
+     [
+      "styles.fontWeight.mobile",
+      null
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      null
+     ]
+    ],
+    "count": 43,
+    "sha256": "82d066f059ea2c234fa0f4e743b4dd99c7f30885d13f5b5b4dae01580180da19"
+   },
+   {
+    "deltas": [
+     [
+      "styles.collectionNameTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      ""
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      ""
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      "inset"
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      "right"
+     ],
+     [
+      "styles.collectionNameFontFamily.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      null
+     ]
+    ],
+    "count": 63,
+    "sha256": "feac6f68901eb2694ee332785c0c1b4df509dfa778b299a853ef1e2176d19b23"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileFontSize.value",
+      11
+     ],
+     [
+      "styles.productCardImageRatio.value",
+      null
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      null
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      ""
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      "zr1"
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      "right"
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 65,
+    "sha256": "9e22712c0e560c24638cbd5d33f1335632249905909d9bf6f376bf4f009e6052"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.mobileColumns.value",
+      "0"
+     ],
+     [
+      "styles.collectionHeadingTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.collectionNameTextColor.value",
+      "zr1"
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      23
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.collectionHeadingFontFamily.value",
+      "zr1"
+     ],
+     [
+      "styles.collectionNameFontFamily.value",
+      "zr1"
+     ]
+    ],
+    "count": 65,
+    "sha256": "430929cd6a32d86c5372554a0c8eedb3edf2b4520b09d793274d769c91dbf040"
+   }
+  ],
+  "featured-products": [
+   {
+    "deltas": [],
+    "count": 106,
+    "sha256": "7a9b50a3ec932f0014b551d7e56e8a5e1134a5f3e31e0580a36aaa0634547327",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ec-featured-list-heading|font-size:24px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ec-featured-list-heading|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-desktop-container|display:none",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|display:flex",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|flex-direction:column",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|flex-wrap:wrap",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|gap:4px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|display:flex !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|justify-content:flex-start !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ecomm-price-desktop-container|display:none !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ecomm-price-override-container|display:flex !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ecomm-price-override-container|justify-content:flex-start !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-price-discount|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-price-override|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-product-name|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-product-price|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .single-star-rating|display:flex !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .single-star-rating|justify-content:flex-start !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .unavailable|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-price-discount|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-price-discount|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-price-override|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-image|aspect-ratio:1 / 1",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-image|object-fit:cover",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-image|width:100%",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|color:var(--black)",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|width:100%",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-price|color:var(--black)",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-price|font-size:16px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-price|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|border-radius:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .product-list-container|gap:12px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .product-list-container|grid-template-columns:repeat(2, minmax(0, 1fr))",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .ec-featured-list-heading|font-size:32px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-price-discount|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-price-discount|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-name|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-name|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-price|font-size:18px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-price|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .product-list-container|grid-template-columns:repeat(, minmax(0, 1fr))",
+     "@media screen and (min-width: 901px)|#__ID__ .hl-product-list-item-details .desktop.single-star-rating|display:flex !important",
+     "@media screen and (min-width: 901px)|#__ID__ .hl-product-list-item-details .desktop.single-star-rating|justify-content:flex-start !important",
+     "|#__ID__ .ec-featured-list-heading|color:var(--black)",
+     "|#__ID__ .ec-featured-list-heading|font-family:var(--headlinefont)",
+     "|#__ID__ .ec-featured-list-heading|font-size:32px",
+     "|#__ID__ .ec-featured-list-heading|font-weight:600px",
+     "|#__ID__ .ec-featured-list-heading|text-align:left !important",
+     "|#__ID__ .ec-filter-pill|background:#F2F4F7",
+     "|#__ID__ .ec-filter-remove-all|color:#155EEF",
+     "|#__ID__ .ec-full-star|fill:#FDB022",
+     "|#__ID__ .ec-half-star|fill:#FDB022",
+     "|#__ID__ .ec-review-stars|color:#000",
+     "|#__ID__ .ec-sort-filter-input-wrapper|color:#000000",
+     "|#__ID__ .ec-sort-filter-menu|background:#ffffff",
+     "|#__ID__ .ec-subscription-pill|background:#FFF4ED",
+     "|#__ID__ .ec-subscription-pill|border-radius:9999px",
+     "|#__ID__ .ec-subscription-pill|color:#E62E05",
+     "|#__ID__ .ec-subscription-pill|font-size:12px",
+     "|#__ID__ .ec-subscription-pill|font-weight:500",
+     "|#__ID__ .ec-subscription-pill|padding:2px 10px",
+     "|#__ID__ .ec-wishlist-button|background:var(--white)",
+     "|#__ID__ .hl-add-to-cart-btn|background-color:var(--secondary)",
+     "|#__ID__ .hl-add-to-cart-btn|border-color:transparent",
+     "|#__ID__ .hl-add-to-cart-btn|color:var(--white)",
+     "|#__ID__ .hl-choose-options-btn|background-color:transparent",
+     "|#__ID__ .hl-choose-options-btn|border-color:var(--secondary)",
+     "|#__ID__ .hl-choose-options-btn|color:var(--secondary)",
+     "|#__ID__ .hl-pagination-btn:disabled|opacity:0.5",
+     "|#__ID__ .hl-pagination-container|color:var(--black)",
+     "|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|display:flex !important",
+     "|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|justify-content:flex-start !important",
+     "|#__ID__ .hl-product-list-item-details .ecomm-price-desktop-container|justify-content:flex-start !important",
+     "|#__ID__ .hl-product-list-item-details .flex.items-center|justify-content:flex-start !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-price-discount|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-price-override|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-product-name|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-product-price|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .unavailable|text-align:left !important",
+     "|#__ID__ .hl-product-list-price-discount|color:#12B76A",
+     "|#__ID__ .hl-product-list-price-discount|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-price-discount|font-size:16px",
+     "|#__ID__ .hl-product-list-price-discount|font-weight:400",
+     "|#__ID__ .hl-product-list-price-override|color:var(--black)",
+     "|#__ID__ .hl-product-list-price-override|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-price-override|font-size:16px",
+     "|#__ID__ .hl-product-list-price-override|opacity:50%",
+     "|#__ID__ .hl-product-list-product-image|aspect-ratio:1 / 1",
+     "|#__ID__ .hl-product-list-product-image|object-fit:cover",
+     "|#__ID__ .hl-product-list-product-image|width:100%",
+     "|#__ID__ .hl-product-list-product-name|color:var(--black)",
+     "|#__ID__ .hl-product-list-product-name|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-product-name|font-size:16px",
+     "|#__ID__ .hl-product-list-product-name|font-weight:400",
+     "|#__ID__ .hl-product-list-product-price|color:var(--black)",
+     "|#__ID__ .hl-product-list-product-price|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-product-price|font-size:18px",
+     "|#__ID__ .hl-product-list-product-price|font-weight:400",
+     "|#__ID__ .image-wrapper|border-radius:0px !important",
+     "|#__ID__ .product-list-container|display:grid",
+     "|#__ID__ .product-list-container|gap:16px",
+     "|#__ID__ .product-list-container|grid-template-columns:repeat(3, minmax(0, 1fr))",
+     "|.ec-filter-reset-all-button|color:#155EEF",
+     "|.hl-pagination-btn|color:var(--black)"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      0
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      null
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      "#123456"
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      null
+     ],
+     [
+      "styles.fontWeight.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.buttonTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.secondaryButtonTextColor.value",
+      ""
+     ]
+    ],
+    "count": 106,
+    "sha256": "f47ff6523e052735f22fb2a280f5125c0262d9d74b09e9b22b9a1912ca887d41"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      4
+     ],
+     [
+      "extra.productNameDesktopFontSize.value",
+      23
+     ],
+     [
+      "extra.mobileFontSize.value",
+      11
+     ],
+     [
+      "extra.tabletColumns.value",
+      "#123456"
+     ],
+     [
+      "extra.productNameTabletFontSize.value",
+      4
+     ],
+     [
+      "styles.productNameColor.value",
+      null
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      null
+     ],
+     [
+      "styles.featuredProductsHeadingFontFamily.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      "zr1"
+     ],
+     [
+      "styles.buttonBorderColor.value",
+      null
+     ],
+     [
+      "styles.buttonColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.secondaryButtonBorderColor.value",
+      "#123456"
+     ],
+     [
+      "styles.wishlistBackgroundColor.value",
+      null
+     ]
+    ],
+    "count": 106,
+    "sha256": "8947a2ffe04af684d9527c2c1bd96f223d75c36c9c1919dd5cc167c67187f708"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      "0"
+     ],
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      null
+     ],
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      0
+     ],
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      null
+     ],
+     [
+      "styles.productNameColor.value",
+      "zr1"
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      0
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      "inset"
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      "#123456"
+     ],
+     [
+      "styles.priceDiscountFontFamily.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "zr1"
+     ],
+     [
+      "styles.secondaryButtonTextColor.value",
+      ""
+     ]
+    ],
+    "count": 126,
+    "sha256": "437231cbffebf82bea4bfadf2c820fe5ae05f952e008100a7e8eb40b39d2a65e"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.mobileColumns.value",
+      11
+     ],
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      23
+     ],
+     [
+      "extra.mobileFontSize.value",
+      23
+     ],
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      23
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      "#123456"
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      null
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      "0"
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      "zr1"
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      ""
+     ],
+     [
+      "styles.productCardBorderStyle.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      null
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      "zr1"
+     ],
+     [
+      "styles.buttonTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.buttonColor.value",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 105,
+    "sha256": "06c823dc430f22fc426224747a70dd4d42eb55af90d0f557e4a58743a32d560c"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileColumns.value",
+      "0"
+     ],
+     [
+      "extra.productNameDesktopFontSize.value",
+      23
+     ],
+     [
+      "extra.productNameMobileFontSize.value",
+      null
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.featuredProductsHeadingFontFamily.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      null
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "#123456"
+     ],
+     [
+      "styles.priceDiscountFontFamily.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.buttonColor.value",
+      null
+     ]
+    ],
+    "count": 105,
+    "sha256": "2e004e92c45288f2830fa406fc0bd2d83ca802092ed18198cdafb1e05ea6deb5"
+   },
+   {
+    "deltas": [
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      0
+     ],
+     [
+      "extra.mobileFontSize.value",
+      ""
+     ],
+     [
+      "extra.productNameTabletFontSize.value",
+      "0"
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productNameColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.backgroundColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardImageRatio.value",
+      "portrait"
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      11
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardBorderStyle.value",
+      null
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      null
+     ],
+     [
+      "styles.priceDiscountFontFamily.value",
+      null
+     ],
+     [
+      "styles.fontWeight.desktop",
+      null
+     ],
+     [
+      "styles.buttonColor.value",
+      ""
+     ]
+    ],
+    "count": 115,
+    "sha256": "eaf21fcb4a87b1e9ad0f6b36db48bd3b6b89b38ec37501687f33670a1eac23f3"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      11
+     ],
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      23
+     ],
+     [
+      "extra.productNameDesktopFontSize.value",
+      ""
+     ],
+     [
+      "extra.productNameMobileFontSize.value",
+      ""
+     ],
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      23
+     ],
+     [
+      "extra.productNameTabletFontSize.value",
+      ""
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      null
+     ],
+     [
+      "styles.productNameColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.backgroundColor.value",
+      "var(--transparent)"
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      "#123456"
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "#123456"
+     ],
+     [
+      "styles.wishlistBackgroundColor.value",
+      ""
+     ]
+    ],
+    "count": 106,
+    "sha256": "d66a5caa84bdc06643bc08d3b34cc1db136c4de852b758dd2019f9eeb0692521"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      11
+     ],
+     [
+      "extra.productNameMobileFontSize.value",
+      ""
+     ],
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      4
+     ],
+     [
+      "extra.mobileFontSize.value",
+      4
+     ],
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      ""
+     ],
+     [
+      "extra.productNameTabletFontSize.value",
+      23
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      23
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.backgroundColor.value",
+      "var(--transparent)"
+     ],
+     [
+      "styles.productCardImageRatio.value",
+      "portrait"
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      0
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      "zr1"
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      "0"
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      null
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      null
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      null
+     ],
+     [
+      "styles.secondaryColor.value",
+      ""
+     ],
+     [
+      "styles.secondaryButtonBorderColor.value",
+      "#123456"
+     ]
+    ],
+    "count": 110,
+    "sha256": "eee8778183cb0339b6cd97a98c2bc94573aa6ba1598265e0eca06b7b4dd05798"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.desktopFontSize.value",
+      ""
+     ],
+     [
+      "extra.productNameTabletFontSize.value",
+      4
+     ],
+     [
+      "styles.featureHeadlineColor.value",
+      null
+     ],
+     [
+      "styles.productNameColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      4
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      "#123456"
+     ],
+     [
+      "styles.productPriceFontFamily.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeight.mobile",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      null
+     ],
+     [
+      "styles.secondaryColor.value",
+      ""
+     ],
+     [
+      "styles.secondaryButtonTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.secondaryButtonBorderColor.value",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 143,
+    "sha256": "ead370712102fb6ade5ea3a33ad36fd8d2a63cd0c9d6aadcb843c32aca146afc"
+   }
+  ],
+  "store-product-list": [
+   {
+    "deltas": [],
+    "count": 162,
+    "sha256": "105b4dc764544030d89b878debc4e8d88494b4e2254736f426621b3310b269c5",
+    "declarations": [
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-desktop-container|display:none",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|display:flex",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|flex-direction:column",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|flex-wrap:wrap",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .ecomm-price-mobile-container|gap:4px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|display:flex !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|justify-content:flex-start !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ecomm-price-desktop-container|display:none !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ecomm-price-override-container|display:flex !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .ecomm-price-override-container|justify-content:flex-start !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-price-discount|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-price-override|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-product-name|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .hl-product-list-product-price|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details .unavailable|text-align:left !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details|padding-bottom:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details|padding-left:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details|padding-right:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-item-details|padding-top:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-price-discount|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-price-discount|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-price-override|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-image|aspect-ratio:1 / 1",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-image|object-fit:cover",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-image|width:100%",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|color:var(--black)",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|font-size:14px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-name|width:100%",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-price|color:var(--black)",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-price|font-size:16px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .hl-product-list-product-price|font-weight:400",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|bottom:0 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|display:flex !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|left:0 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|margin:10px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|padding:3px 5px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|position:absolute !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper .single-star-rating|z-index:10 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|aspect-ratio:1 / 1 !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|border-radius:0px !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|height:auto !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .image-wrapper|position:relative !important",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .product-list-container|column-gap:12px",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .product-list-container|grid-template-columns:repeat(2, minmax(0, 1fr))",
+     "@media screen and (min-width: 0px) and (max-width: 767px)|#__ID__ .product-list-container|row-gap:12px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-item-details|padding-bottom:0px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-item-details|padding-left:0px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-item-details|padding-right:0px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-item-details|padding-top:0px !important",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-price-discount|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-price-discount|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-name|font-size:16px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-name|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-price|font-size:18px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .hl-product-list-product-price|font-weight:400",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .product-list-container|column-gap:px",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .product-list-container|grid-template-columns:repeat(, minmax(0, 1fr))",
+     "@media screen and (min-width: 768px) and (max-width: 1024px)|#__ID__ .product-list-container|row-gap:px",
+     "@media screen and (min-width: 901px)|#__ID__ .hl-product-list-item-details .desktop.single-star-rating|display:flex !important",
+     "@media screen and (min-width: 901px)|#__ID__ .hl-product-list-item-details .desktop.single-star-rating|justify-content:flex-start !important",
+     "|#__ID__ .apply-button|background-color:#155EEF",
+     "|#__ID__ .apply-button|border:1px solid #155EEF",
+     "|#__ID__ .apply-button|color:#FFFFFF",
+     "|#__ID__ .cancel-button|background-color:#FFFFFF",
+     "|#__ID__ .cancel-button|border:1px solid #155EEF",
+     "|#__ID__ .cancel-button|color:#155EEF",
+     "|#__ID__ .ec-filter-card__headline|color:#000000",
+     "|#__ID__ .ec-filter-card__label|color:#000000",
+     "|#__ID__ .ec-filter-card__selected|color:#101828",
+     "|#__ID__ .ec-filter-headline|color:var(--black)",
+     "|#__ID__ .ec-filter-inline-chevron|color:var(--black)",
+     "|#__ID__ .ec-filter-item|color:var(--black)",
+     "|#__ID__ .ec-filter-pill|background:#F2F4F7",
+     "|#__ID__ .ec-filter-pill|color:#101828",
+     "|#__ID__ .ec-filter-remove-all|color:#155EEF",
+     "|#__ID__ .ec-filter-reset-button|color:#475467",
+     "|#__ID__ .ec-full-star|fill:#FDB022",
+     "|#__ID__ .ec-mobile-filter-btn svg|color:var(--black)",
+     "|#__ID__ .ec-mobile-filter-btn|background-color:#FFFFFF",
+     "|#__ID__ .ec-mobile-filter-btn|color:var(--black)",
+     "|#__ID__ .ec-mobile-sort-btn svg|color:var(--black)",
+     "|#__ID__ .ec-mobile-sort-btn|background-color:#FFFFFF",
+     "|#__ID__ .ec-mobile-sort-btn|color:var(--black)",
+     "|#__ID__ .ec-pagination-btn:disabled|opacity:0.5",
+     "|#__ID__ .ec-pagination-container|color:var(--black)",
+     "|#__ID__ .ec-product-count|color:var(--black)",
+     "|#__ID__ .ec-review-stars|color:#000",
+     "|#__ID__ .ec-sort-filter-menu|background:#ffffff",
+     "|#__ID__ .ec-sort-inline .ec-filter-inline-chevron|color:var(--black)",
+     "|#__ID__ .ec-sort-inline .ec-sort-dropdown|color:var(--black)",
+     "|#__ID__ .ec-sort-inline span|color:var(--black)",
+     "|#__ID__ .ec-sort-inline|color:var(--black)",
+     "|#__ID__ .ec-sort-vertical__headline|color:#000000",
+     "|#__ID__ .ec-sort-vertical__item input|accent-color:#EFF4FF",
+     "|#__ID__ .ec-sort-vertical__item span|color:#101828",
+     "|#__ID__ .ec-subscription-pill|background:#FFF4ED",
+     "|#__ID__ .ec-subscription-pill|border-radius:9999px",
+     "|#__ID__ .ec-subscription-pill|color:#E62E05",
+     "|#__ID__ .ec-subscription-pill|font-size:12px",
+     "|#__ID__ .ec-subscription-pill|font-weight:500",
+     "|#__ID__ .ec-subscription-pill|padding:2px 10px",
+     "|#__ID__ .ec-vertical-checkbox input|accent-color:#EFF4FF",
+     "|#__ID__ .ec-vertical-checkbox input|background:#FFFFFF",
+     "|#__ID__ .ec-vertical-checkbox input|border-color:#D0D5DD",
+     "|#__ID__ .ec-vertical-checkbox.is-selected input|background:#EFF4FF",
+     "|#__ID__ .ec-vertical-checkbox.is-selected input|border-color:#155EEF",
+     "|#__ID__ .ec-vertical-price-inputs label|color:#101828",
+     "|#__ID__ .ec-wishlist-button|background:var(--white)",
+     "|#__ID__ .filter-option|color:'#1d2939'",
+     "|#__ID__ .filter-option|font-family:Inter, sans-serif",
+     "|#__ID__ .filter-option|font-weight:500",
+     "|#__ID__ .hl-add-to-cart-btn|background-color:var(--secondary)",
+     "|#__ID__ .hl-add-to-cart-btn|border-color:transparent",
+     "|#__ID__ .hl-add-to-cart-btn|color:var(--white)",
+     "|#__ID__ .hl-choose-options-btn|background-color:transparent",
+     "|#__ID__ .hl-choose-options-btn|border-color:var(--secondary)",
+     "|#__ID__ .hl-choose-options-btn|color:var(--secondary)",
+     "|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|display:flex !important",
+     "|#__ID__ .hl-product-list-item-details .ec-subscription-pills-container|justify-content:flex-start !important",
+     "|#__ID__ .hl-product-list-item-details .ecomm-price-desktop-container|justify-content:flex-start !important",
+     "|#__ID__ .hl-product-list-item-details .flex.items-center|justify-content:flex-start !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-price-discount|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-price-override|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-product-name|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .hl-product-list-product-price|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details .unavailable|text-align:left !important",
+     "|#__ID__ .hl-product-list-item-details|padding-bottom:0px !important",
+     "|#__ID__ .hl-product-list-item-details|padding-left:0px !important",
+     "|#__ID__ .hl-product-list-item-details|padding-right:0px !important",
+     "|#__ID__ .hl-product-list-item-details|padding-top:0px !important",
+     "|#__ID__ .hl-product-list-price-discount|color:#12B76A",
+     "|#__ID__ .hl-product-list-price-discount|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-price-discount|font-size:16px",
+     "|#__ID__ .hl-product-list-price-discount|font-weight:400",
+     "|#__ID__ .hl-product-list-price-override|color:var(--black)",
+     "|#__ID__ .hl-product-list-price-override|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-price-override|font-size:16px",
+     "|#__ID__ .hl-product-list-price-override|opacity:50%",
+     "|#__ID__ .hl-product-list-product-image|aspect-ratio:1 / 1",
+     "|#__ID__ .hl-product-list-product-image|object-fit:cover",
+     "|#__ID__ .hl-product-list-product-image|width:100%",
+     "|#__ID__ .hl-product-list-product-name|color:var(--black)",
+     "|#__ID__ .hl-product-list-product-name|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-product-name|font-size:16px",
+     "|#__ID__ .hl-product-list-product-name|font-weight:400",
+     "|#__ID__ .hl-product-list-product-price|color:var(--black)",
+     "|#__ID__ .hl-product-list-product-price|font-family:var(--headlinefont)",
+     "|#__ID__ .hl-product-list-product-price|font-size:18px",
+     "|#__ID__ .hl-product-list-product-price|font-weight:400",
+     "|#__ID__ .image-wrapper|aspect-ratio:1 / 1 !important",
+     "|#__ID__ .image-wrapper|border-radius:0px !important",
+     "|#__ID__ .image-wrapper|height:auto !important",
+     "|#__ID__ .price-input input:focus|border-color:#155EEF",
+     "|#__ID__ .price-input input:focus|box-shadow:0 0 0 1px #155EEF",
+     "|#__ID__ .price-input input:focus|outline:none",
+     "|#__ID__ .product-list-container|column-gap:16px",
+     "|#__ID__ .product-list-container|display:grid",
+     "|#__ID__ .product-list-container|grid-template-columns:repeat(4, minmax(0, 1fr))",
+     "|#__ID__ .product-list-container|row-gap:16px",
+     "|.ec-half-star|fill:#FDB022",
+     "|.ec-pagination-btn|color:var(--black)"
+    ]
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopColumns.value",
+      4
+     ],
+     [
+      "extra.desktopColumnGap.value",
+      "0"
+     ],
+     [
+      "extra.mobileColumnGap.value",
+      11
+     ],
+     [
+      "extra.mobileRowGap.unit",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.tabletColumns.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productPriceColor.value",
+      "zr1"
+     ],
+     [
+      "styles.sortFilterPillColor.value",
+      "zr1"
+     ],
+     [
+      "styles.sortFilterBarBgColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.removeAllColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterVerticalHeadlineColor.value",
+      "zr1"
+     ],
+     [
+      "styles.sortFilterVerticalSelectedCheckboxColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterVerticalSelectedCheckboxBorderColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterVerticalRemoveAllColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.sortFilterClearBtnColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterClearBtnTextColor.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      "zr1"
+     ],
+     [
+      "styles.secondaryButtonTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardTabletSidePadding.unit",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardMobileSidePadding.value",
+      23
+     ],
+     [
+      "styles.productCardTabletVerticalPadding.unit",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 162,
+    "sha256": "954a23ee5bae052a6a7f46642c5c5f68d9f586ac8fcc3e39d649741798a0ca34"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineMobileFontSize.value",
+      11
+     ],
+     [
+      "extra.mobileFontSize.value",
+      "0"
+     ],
+     [
+      "extra.priceDiscountDesktopFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.desktopColumns.value",
+      11
+     ],
+     [
+      "extra.mobileColumnGap.value",
+      23
+     ],
+     [
+      "extra.mobileColumnGap.unit",
+      "#123456"
+     ],
+     [
+      "extra.desktopRowGap.unit",
+      "zr1"
+     ],
+     [
+      "extra.mobileRowGap.value",
+      4
+     ],
+     [
+      "extra.mobileRowGap.unit",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.backgroundColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardImageRatio.value",
+      "#123456"
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      ""
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      "center"
+     ],
+     [
+      "styles.sortFilterTextColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterPillColor.value",
+      null
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterVerticalHeadlineColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.sortFilterVerticalUnselectedCheckboxBorderColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.sortFilterApplyBtnColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterApplyBtnBorderColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterClearBtnTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterClearBtnBorderColor.value",
+      null
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      null
+     ],
+     [
+      "styles.priceDiscountFontFamily.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      "zr1"
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      "#123456"
+     ],
+     [
+      "styles.secondaryButtonTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardTabletSidePadding.unit",
+      "#123456"
+     ],
+     [
+      "styles.productCardTabletVerticalPadding.unit",
+      null
+     ]
+    ],
+    "count": 162,
+    "sha256": "df0ca3ae8ff60bb6179ce0b5317aa64c3b08f2f9301f2b91a6f8b92903c06e78"
+   },
+   {
+    "deltas": [
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      null
+     ],
+     [
+      "extra.desktopColumns.value",
+      null
+     ],
+     [
+      "extra.desktopRowGap.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.desktopRowGap.unit",
+      "#123456"
+     ],
+     [
+      "extra.mobileRowGap.value",
+      23
+     ],
+     [
+      "extra.tabletRowGap.value",
+      "#123456"
+     ],
+     [
+      "styles.productNameColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterVerticalSelectedCheckboxColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterVerticalSelectedCheckboxBorderColor.value",
+      "zr1"
+     ],
+     [
+      "styles.sortFilterApplyBtnTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterApplyBtnBorderColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterClearBtnTextColor.value",
+      "#123456"
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      "#123456"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.mobile",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      "#123456"
+     ],
+     [
+      "styles.secondaryColor.value",
+      null
+     ],
+     [
+      "styles.buttonBorderColor.value",
+      "#123456"
+     ],
+     [
+      "styles.buttonColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.secondaryButtonBorderColor.value",
+      null
+     ],
+     [
+      "styles.productCardDesktopVerticalPadding.unit",
+      "#123456"
+     ],
+     [
+      "styles.productCardTabletVerticalPadding.unit",
+      "#123456"
+     ]
+    ],
+    "count": 161,
+    "sha256": "1295900ecd775531bdd62872d7a2199bd02022bc080a6a70e6d533cbb0a3dd19"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileColumnGap.unit",
+      "var(--zr2)"
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      23
+     ],
+     [
+      "extra.tabletColumnGap.value",
+      "#123456"
+     ],
+     [
+      "styles.backgroundColor.value",
+      "#123456"
+     ],
+     [
+      "styles.productCardImageRatio.value",
+      "portrait"
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      "0"
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      ""
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      null
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      "right"
+     ],
+     [
+      "styles.sortFilterVerticalHeadlineColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterVerticalSelectedCheckboxBorderColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterVerticalUnselectedCheckboxColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterClearBtnColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      null
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      null
+     ],
+     [
+      "styles.wishlistBackgroundColor.value",
+      "zr1"
+     ],
+     [
+      "styles.productCardTabletSidePadding.value",
+      ""
+     ],
+     [
+      "styles.productCardDesktopVerticalPadding.unit",
+      "#123456"
+     ],
+     [
+      "styles.productCardDesktopVerticalPadding.value",
+      "0"
+     ],
+     [
+      "styles.productCardTabletVerticalPadding.unit",
+      "var(--zr2)"
+     ]
+    ],
+    "count": 162,
+    "sha256": "ee1578753d17bba52fe14dfc653ec7d13bd24cf4798c0657e10ca9bb671f5843"
+   },
+   {
+    "deltas": [
+     [
+      "extra.mobileColumnGap.value",
+      11
+     ],
+     [
+      "extra.mobileColumnGap.unit",
+      "#123456"
+     ],
+     [
+      "extra.mobileRowGap.unit",
+      "var(--zr2)"
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      null
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      0
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      null
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      ""
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      null
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterVerticalLabelColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterVerticalUnselectedCheckboxColor.value",
+      "zr1"
+     ],
+     [
+      "styles.sortFilterVerticalUnselectedCheckboxBorderColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterVerticalRemoveAllColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterApplyBtnTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.sortFilterClearBtnColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.sortFilterClearBtnTextColor.value",
+      null
+     ],
+     [
+      "styles.priceDiscountFontFamily.value",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      null
+     ],
+     [
+      "styles.buttonBorderColor.value",
+      ""
+     ],
+     [
+      "styles.secondaryButtonTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardTabletSidePadding.unit",
+      "zr1"
+     ],
+     [
+      "styles.productCardTabletVerticalPadding.unit",
+      "#123456"
+     ],
+     [
+      "styles.productCardMobileVerticalPadding.unit",
+      {
+       "$absent": true
+      }
+     ]
+    ],
+    "count": 162,
+    "sha256": "09276185f0b8a9b8e9463ee1af68020b3c53039f413bc2ea4ce3d0f39b31e308"
+   },
+   {
+    "deltas": [
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.mobileColumns.value",
+      4
+     ],
+     [
+      "extra.desktopColumnGap.unit",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.mobileColumnGap.value",
+      4
+     ],
+     [
+      "extra.mobileRowGap.unit",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.tabletColumns.value",
+      "zr1"
+     ],
+     [
+      "extra.tabletRowGap.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productNameColor.value",
+      null
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      "#123456"
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      23
+     ],
+     [
+      "styles.productCardBorderStyle.value",
+      "#123456"
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      ""
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      null
+     ],
+     [
+      "styles.sortFilterTextColor.value",
+      "zr1"
+     ],
+     [
+      "styles.sortFilterPillColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterPillTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterVerticalLabelColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.sortFilterVerticalSelectedCheckboxColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterVerticalSelectedCheckboxBorderColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.sortFilterVerticalUnselectedCheckboxColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterApplyBtnColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterClearBtnColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterClearBtnTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "#123456"
+     ],
+     [
+      "styles.fontWeight.mobile",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightExtra.desktop",
+      "zr1"
+     ],
+     [
+      "styles.reviewsAndRatingsStarColor.value",
+      "zr1"
+     ],
+     [
+      "styles.secondaryColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.buttonTextColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.secondaryButtonTextColor.value",
+      ""
+     ],
+     [
+      "styles.secondaryButtonBorderColor.value",
+      "zr1"
+     ],
+     [
+      "styles.productCardDesktopSidePadding.unit",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardTabletSidePadding.unit",
+      null
+     ],
+     [
+      "styles.productCardMobileSidePadding.unit",
+      null
+     ],
+     [
+      "styles.productCardDesktopVerticalPadding.value",
+      ""
+     ]
+    ],
+    "count": 162,
+    "sha256": "be36ad36848ada36cb1b43f7ee28820bf8d67fe9b86f8491f8d1335fb670986f"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineDesktopFontSize.value",
+      ""
+     ],
+     [
+      "extra.featureHeadlineMobileFontSize.value",
+      "0"
+     ],
+     [
+      "extra.desktopFontSize.value",
+      null
+     ],
+     [
+      "extra.priceDiscountDesktopFontSize.value",
+      0
+     ],
+     [
+      "extra.desktopColumnGap.unit",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.mobileColumnGap.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.desktopRowGap.unit",
+      null
+     ],
+     [
+      "extra.mobileRowGap.value",
+      23
+     ],
+     [
+      "extra.tabletColumnGap.value",
+      "zr1"
+     ],
+     [
+      "styles.productNameColor.value",
+      "zr1"
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      null
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      11
+     ],
+     [
+      "styles.productCardCornerRadius.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardBoxShadow.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardInfoAlignment.value",
+      "zr1"
+     ],
+     [
+      "styles.sortFilterPillColor.value",
+      null
+     ],
+     [
+      "styles.subscriptionPillBackgroundColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.sortFilterVerticalUnselectedCheckboxColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.sortFilterVerticalRemoveAllColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterApplyBtnColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterClearBtnColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterClearBtnBorderColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productNameFontFamily.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      null
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.secondaryButtonTextColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardTabletSidePadding.value",
+      "0"
+     ],
+     [
+      "styles.productCardMobileSidePadding.unit",
+      "zr1"
+     ],
+     [
+      "styles.productCardTabletVerticalPadding.value",
+      "0"
+     ]
+    ],
+    "count": 166,
+    "sha256": "1d96ebed48fcd05a237cfaaf60d72f1772a7c8df24734df506ab0c376c6b4119"
+   },
+   {
+    "deltas": [
+     [
+      "extra.desktopFontSize.value",
+      4
+     ],
+     [
+      "extra.mobileColumns.value",
+      23
+     ],
+     [
+      "extra.mobileColumnGap.unit",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.featureHeadlineTabletFontSize.value",
+      4
+     ],
+     [
+      "extra.tabletColumns.value",
+      null
+     ],
+     [
+      "extra.tabletRowGap.value",
+      "zr1"
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      null
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      ""
+     ],
+     [
+      "styles.sortFilterBarBgColor.value",
+      "zr1"
+     ],
+     [
+      "styles.sortFilterVerticalRemoveAllColor.value",
+      "#123456"
+     ],
+     [
+      "styles.sortFilterClearBtnBorderColor.value",
+      null
+     ],
+     [
+      "styles.priceDiscountFontFamily.value",
+      "#123456"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "var(--zr2)"
+     ],
+     [
+      "styles.fontWeightSub.desktop",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "#123456"
+     ],
+     [
+      "styles.reviewsAndRatingsColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.secondaryColor.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.secondaryButtonBorderColor.value",
+      "#123456"
+     ],
+     [
+      "styles.wishlistBackgroundColor.value",
+      ""
+     ],
+     [
+      "styles.productCardTabletSidePadding.unit",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardDesktopVerticalPadding.unit",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardTabletVerticalPadding.unit",
+      "var(--zr2)"
+     ],
+     [
+      "styles.productCardTabletVerticalPadding.value",
+      ""
+     ]
+    ],
+    "count": 161,
+    "sha256": "fb3d12c5221baf703fc8e62a0bfdf46e48ae497ae49bb62828592193c99d73b7"
+   },
+   {
+    "deltas": [
+     [
+      "extra.featureHeadlineMobileFontSize.value",
+      4
+     ],
+     [
+      "extra.desktopFontSize.value",
+      23
+     ],
+     [
+      "extra.mobileFontSize.value",
+      23
+     ],
+     [
+      "extra.priceDiscountDesktopFontSize.value",
+      null
+     ],
+     [
+      "extra.priceDiscountMobileFontSize.value",
+      23
+     ],
+     [
+      "extra.desktopColumns.value",
+      23
+     ],
+     [
+      "extra.desktopColumnGap.unit",
+      "var(--zr2)"
+     ],
+     [
+      "extra.desktopRowGap.unit",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.priceDiscountTabletFontSize.value",
+      "0"
+     ],
+     [
+      "extra.tabletColumns.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "extra.tabletRowGap.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.priceDiscountColor.value",
+      "zr1"
+     ],
+     [
+      "styles.productCardBorderWidth.value",
+      "0"
+     ],
+     [
+      "styles.productCardBorderColor.value",
+      ""
+     ],
+     [
+      "styles.sortFilterBarBgColor.value",
+      "var(--zr2)"
+     ],
+     [
+      "styles.subscriptionPillTextColor.value",
+      null
+     ],
+     [
+      "styles.sortFilterVerticalRemoveAllColor.value",
+      "zr1"
+     ],
+     [
+      "styles.fontWeight.desktop",
+      "#123456"
+     ],
+     [
+      "styles.fontWeightSub.mobile",
+      null
+     ],
+     [
+      "styles.fontWeightExtra.mobile",
+      "#123456"
+     ],
+     [
+      "styles.secondaryButtonTextColor.value",
+      "zr1"
+     ],
+     [
+      "styles.wishlistBackgroundColor.value",
+      "#123456"
+     ],
+     [
+      "styles.productCardDesktopSidePadding.unit",
+      ""
+     ],
+     [
+      "styles.productCardTabletSidePadding.value",
+      null
+     ],
+     [
+      "styles.productCardMobileSidePadding.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardDesktopVerticalPadding.value",
+      {
+       "$absent": true
+      }
+     ],
+     [
+      "styles.productCardTabletVerticalPadding.value",
+      "0"
+     ]
+    ],
+    "count": 162,
+    "sha256": "52ad14983a2aba71055b7ed356e6b204a1e66e08c7c9bb3c4ff7625a164e440c"
+   }
+  ]
+ }
+}
