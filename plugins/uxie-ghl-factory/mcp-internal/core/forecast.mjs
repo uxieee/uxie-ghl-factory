@@ -30,7 +30,12 @@ export function forecastBody(view, a) {
   const withFilters = (b) => (filters.length ? { ...b, filters } : b);
   switch (view) {
     case 'summary': {
+      // The app scopes the summary with a TOP-LEVEL pipelineId (opportunitiesApp 2614, chunk 2593 @71055). As a
+      // pipeline_id filters row the totals are the same, but groupBy:"stage" drops every stage with no deals
+      // (measured 2026-09-29: 2 of 4 stages missing); top-level returns them all, zeros included.
       const b = { locationId: a.locationId, groupBy: a.groupBy ?? 'status' };
+      if (a.pipelineId) b.pipelineId = a.pipelineId;
+      const own = [...(a.filters ?? [])];
       if (b.groupBy === 'close_date') {
         if (a.closeDateBucket) b.closeDateBucket = a.closeDateBucket;
         if (a.closeDateMode) b.closeDateMode = a.closeDateMode;
@@ -38,7 +43,7 @@ export function forecastBody(view, a) {
       } else if (a.closeDateBucket || a.closeDateMode) {
         return { error: 'closeDateBucket and closeDateMode apply only with groupBy:"close_date"' };
       }
-      return { body: withFilters(b) };
+      return { body: own.length ? { ...b, filters: own } : b };
     }
     case 'timeline': {
       const b = { locationId: a.locationId };

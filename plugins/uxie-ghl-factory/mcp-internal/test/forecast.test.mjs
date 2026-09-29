@@ -7,9 +7,14 @@ const maps = nameMaps(
   [{ id: 'u1', name: 'Ann Owner' }, { id: 'u2', firstName: 'Bo', lastName: 'Lee' }],
 );
 
-test('summary sends locationId in the BODY and the pipeline as a pipeline_id filter', () => {
+test('summary sends locationId in the BODY and the pipeline TOP-LEVEL, as the app does (a filters row drops empty stages)', () => {
   const { body } = forecastBody('summary', { locationId: 'L', groupBy: 'stage', pipelineId: 'P' });
-  assert.deepEqual(body, { locationId: 'L', groupBy: 'stage', filters: [{ field: 'pipeline_id', operator: 'eq', value: ['P'] }] });
+  assert.deepEqual(body, { locationId: 'L', groupBy: 'stage', pipelineId: 'P' });
+  // Caller filters still ride as filters, beside the top-level pipeline.
+  assert.deepEqual(forecastBody('summary', { locationId: 'L', pipelineId: 'P', filters: [{ field: 'status', operator: 'eq', value: ['open'] }] }).body,
+    { locationId: 'L', groupBy: 'status', pipelineId: 'P', filters: [{ field: 'status', operator: 'eq', value: ['open'] }] });
+  // CONTROL: timeline keeps the pipeline as a filters row (the app's timeline does).
+  assert.deepEqual(forecastBody('timeline', { locationId: 'L', pipelineId: 'P' }).body.filters, [{ field: 'pipeline_id', operator: 'eq', value: ['P'] }]);
   // CONTROL: no pipeline, no filters key at all.
   assert.deepEqual(forecastBody('summary', { locationId: 'L' }).body, { locationId: 'L', groupBy: 'status' });
 });

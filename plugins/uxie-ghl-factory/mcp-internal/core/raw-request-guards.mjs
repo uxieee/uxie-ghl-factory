@@ -79,6 +79,19 @@ const RULES = [
     message: 'PATCH /opportunities/pipelines/{pipelineId}/position with no integer `targetPosition` is accepted (200) and MOVES the pipeline: an empty body minted a new board position. The endpoint validates nothing.',
     hint: 'Send the board\'s reorder body {prevPipelineId, nextPipelineId, initialPosition, targetPosition}; positions are 1-based. Read the pipeline list back to verify the order.',
   },
+  {
+    // Measured 2026-09-25 on the sandbox (knowledge pipelines.md, "One stage missing stageWinProbability silently
+    // rewrites them ALL"): with every stage carrying stageWinProbability the values are stored verbatim; with ANY
+    // stage missing it, every supplied value is discarded and the whole array is recomputed as (i+1)/(n+1)*100.
+    // The app always sends all of them, so a stages array with a gap has no legitimate version.
+    rule: 'pipeline-stages-need-every-probability',
+    method: 'PUT',
+    path: /^\/opportunities\/pipelines\/[^/]+$/,
+    refuses: (wire) => isPlainObject(wire) && Array.isArray(wire.stages) && wire.stages.length > 0
+      && wire.stages.some((st) => !isPlainObject(st) || typeof st.stageWinProbability !== 'number'),
+    message: 'PUT /opportunities/pipelines/{pipelineId} with a stage that has no numeric `stageWinProbability` is accepted (200), and GHL then REWRITES EVERY stage\'s probability to an even ramp ((i+1)/(n+1)×100), discarding the values you did send.',
+    hint: 'Use edit_pipeline, which carries every stage\'s probability for you. For a raw call, give every stage its stageWinProbability (read the current values with an edit_pipeline preview) and read the pipeline back.',
+  },
 ];
 
 /** The refusal for this call, or null. `method` upper-case; `body` already JSON-parsed. */
