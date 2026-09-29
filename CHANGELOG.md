@@ -11,6 +11,21 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.24.0] — 2026-09-29
+
+**Pages: `build_funnel_page` composes every element the page builder has. Executed live on the test account.**
+
+- New: the Instagram feed, and the 11 product-page blocks (`store-pdp-v2-*`). Product-page blocks go in a section
+  with `pdp: true` (or `pdp: {products: [id]}`) on the store's product-detail step.
+- A product-page block outside such a section, or on another step, is refused by name before anything is sent. This
+  applies to compose and to edit mode's `append-section`.
+- ⚠️ Product-page blocks render with the product's data but UNSTYLED until the page is opened and saved once in the
+  page builder. The preview and the result say so under `pdpStyling`. The styling fix is next.
+- The blocks' styles come from the builder's own element factories, so the builder can save the page. Without them,
+  the builder's save failed ("Error while saving page"): found and fixed before release.
+
+Catalogue: +13 routes (associations, workflow maps, invoice update).
+
 ## [1.23.0] — 2026-09-29
 
 **Forms show every field, AI agent and Google Sheets steps stop being refused, and a full AI agents docs pass.
