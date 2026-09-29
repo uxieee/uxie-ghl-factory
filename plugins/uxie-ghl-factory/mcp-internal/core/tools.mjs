@@ -119,6 +119,7 @@ import { executeAgentPlan, executeAgentUpdate, serverMessage } from '../../engin
 import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from '../../engines/ai/voiceai-update.mjs';
 import { compileDeploymentIntent, executeDeployment, DEPLOY_PATH, CHANNELS } from '../../engines/ai/deployment.mjs';
 import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
+import { submitActionWarning } from './submit-action.mjs';
 import { renderableFields, blankSubmitWarning } from './form-fields.mjs';
 import { StudioApi, queryProjectHistory, filterRoutes, classifySite, nameWarning,
          sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor } from './ai-studio.mjs';
@@ -2004,6 +2005,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, expectPage, ...r }) => r), ...(seo ? { seo: { from: seo.before, to: seo.write } } : {}), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
     ...(problems.length ? { preexistingProblems: problems } : {}),
     ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
+    ...(submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {}),
     willPublish: args.publish === true,
     note: args.publish === true
       ? 'Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes.'
@@ -11018,7 +11020,8 @@ export const TOOLS = [
       + 'record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified '
       + 'by value on a separate read. 🔴 Visitors see only the PUBLISHED version: pass publish:true for content and '
       + 'SEO. 🔴 After someone edits the page in the builder, re-read its buttons: the first builder save adds an '
-      + 'empty popup and can rewrite an empty action to openPopup. Fonts: typography {headlineFont, contentFont} + an '
+      + 'empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is '
+      + 'flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an '
       + 'element\'s font \'headline\'|\'content\'; families are written as var(--name) so a builder save keeps loading '
       + 'them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column '
       + 'layout knobs, saved and global sections, font upload. Element keys per kind, animations, popups, fonts and '
@@ -11230,6 +11233,7 @@ export const TOOLS = [
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === 'element').map((e) => e.meta)))],
         audit: 'clean',
         ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
+        ...(submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {}),
         note: args.publish === true
           ? 'This writes a draft AND PUBLISHES it — the page becomes visible to the public at its mapped path. It does not map a path that does not already exist.'
           : 'This writes a DRAFT. It does not publish, and it does not map a public path.',

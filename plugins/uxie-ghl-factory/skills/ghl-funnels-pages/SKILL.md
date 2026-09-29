@@ -230,6 +230,13 @@ What the builder does that a 2xx will not tell you (all measured live):
   state). The submission carries a Cloudflare Turnstile token: from an automated browser the order `POST`
   answered `429` and a "Verify you are human" box appeared. Nothing was created. An embedded form's
   `POST /forms/submit` is gated the same way. A test order or form submission needs a person in a real browser.
+- 🔴 **An embedded form, survey or calendar with no on-submit action looks broken to the visitor.**
+  Submissions are stored, but nothing on the page changes, and people submit again. A form given only a
+  `formId` is written with `extra.action: ""`. The builder's own value for a fresh embed is `"none"` ("Please
+  select an action"). `build_funnel_page` flags both under `submitAction` in the preview and the result and
+  leaves the action as written. Set `extra.action` to `go-to-next-funnel-step`, onto a step that confirms the
+  submit and not one showing the same form (that also reads as a failed submit), or to `url` with
+  `extra.visitWebsite`.
 
 - 🔴 **The builder's first save of an API-composed page adds an EMPTY popup**, and merely opening the
   General tab of a button whose action is empty rewrites it to `openPopup` pointing at that popup — a
