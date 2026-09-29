@@ -6,7 +6,7 @@
 
 **386 step types / 204 trigger types.** This index — not your recall of "what GHL supports" — is the capability truth. NEVER tell the user a step or trigger "isn't supported", and never substitute a webhook/custom-code workaround for a native action, without searching here first.
 
-**Native switch-off (actions):** set IR `disabled: true` to emit top-level `advanceCanvasMeta.isDisabled: true`, the same flag as GHL's ⏸ button. It keeps the step config, and at runtime the action is skipped (log status `skipped`, "This Action is disabled."). 🔴 **A disabled WAIT still waits**: GHL stores the flag and ignores it. The builder refuses to disable wait, goto, drip, goal, condition roots and multi-path containers. To take a wait out, delete it.
+**Native switch-off (actions):** set IR `disabled: true` to emit top-level `advanceCanvasMeta.isDisabled: true`, the same flag as GHL's ⏸ button. It keeps the step config, and at runtime the action is skipped (log status `skipped`, "This Action is disabled."). 🔴 **A disabled WAIT still waits**: GHL stores the flag and ignores it. The ⏸ button is not offered on wait, goto, drip, goal, loop, condition roots and multi-path containers, but the advanced canvas's ⇧D DOES disable a goto and a single-path wait (live 2026-09-29; ⇧E is the re-enable key). To take a wait out, delete it.
 
 Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-derived · ▫ live-schema (marketplace) · ⚑ recon-fields (field structure captured; not yet commit-verified).
 
