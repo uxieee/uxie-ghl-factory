@@ -20,7 +20,9 @@ public. The tool emits the nodes AND the compiled stylesheet together.
 
 Autosave answers `201` to all of these:
 
-- `meta` must be one of the closed set of 60 kinds.
+- `meta` must be one of the 60 kinds in the tool's element catalogue. The page builder now has 72: the 12 added since
+  (`instagram-feed` and 11 `store-pdp-v2-*` blocks) are refused by compose, and can only be changed in place (edit `set`)
+  on a node the builder inserted.
 - Every declared `extra` property must be present. The renderer reads `extra.<prop>.value` unguarded, so a
   missing one 500s the whole page.
 - `col.extra.bgImage`, `general.general.fontsToLoad` and `colors` must be present.
