@@ -5,7 +5,7 @@ One line per step and trigger type. For the full card (fields, allowed values, v
 gotchas) run `node scripts/types.mjs <type-key>`, or `describe_step_type` if the
 uxie-ghl-factory plugin is installed — same data.
 
-526 types: 147 native, 379 marketplace. Status is each card's floor: 
+527 types: 147 native, 380 marketplace. Status is each card's floor: 
 `proven-live` > `source-derived` > `inferred`; `deprecated` means do not build on it.
 
 ## Triggers (native) (59)
@@ -272,7 +272,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `user_group_gamification_level_changed` | user_group_gamification_level_changed (Marketplace) | source-derived |
 | `whatsapp_referral` | whatsapp_referral (Marketplace) | source-derived |
 
-## Steps (marketplace apps) (277)
+## Steps (marketplace apps) (278)
 
 | type | title | status |
 |---|---|---|
@@ -311,6 +311,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `asana_ia_find_task_in_project` | Find Task In Project | source-derived |
 | `assign_to_user_tool` | Assign To User | proven-live |
 | `associate_records` | Associate Records | source-derived |
+| `associate_records` | Associate Records | proven-live |
 | `associations` | Marketplace — Associations | source-derived |
 | `basecamp` | Marketplace — BaseCamp | source-derived |
 | `basecamp_create_campfire_message` | Create Campfire Message | source-derived |

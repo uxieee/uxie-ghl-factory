@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 527,
+ "count": 528,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -244,8 +244,7 @@
    "title": "Add associated records to workflow",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
-   "summary": "(attributes) => { const associatedObject = attributes?.inputs?.associatedObject?.value; const associatedObj...",
+   "lastVerified": "2026-09-29",
    "fields": [
     {
      "name": "associatedObject",
@@ -3774,8 +3773,7 @@
    "title": "Associate Records",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
-   "summary": "(attributes)=>`Create an association between the ${attributes?.customObjectLabel?.singular} object and reco...",
+   "lastVerified": "2026-09-29",
    "fields": [
     {
      "name": "DYNAMIC",
@@ -3788,11 +3786,25 @@
    "page": "corpus/workflows/30-types/steps-marketplace/associations.md"
   },
   {
+   "type": "associate_records",
+   "family": "steps-marketplace",
+   "app": "associations",
+   "title": "Associate Records",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-29",
+   "summary": "Offered in a company workflow (it is no longer hidden: `isReadyToPromote: true`, labs key `location.workflows.associate-records`). The builder saves:",
+   "proven": [
+    "The contact's relations then listed the company [proven-live 2026-09-29 — builder shape `live-R7-1-builder-company-capture.json`,"
+   ],
+   "page": "corpus/workflows/30-types/steps-marketplace/associations.md"
+  },
+  {
    "type": "associations",
    "family": "steps-marketplace",
    "title": "Marketplace — Associations",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-29",
    "summary": "`appName: \"Associations\"` exposes **4 actions** in `sniffs/02-assets.json::actions[37].actions[]`. `executionConfig.type` set: `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `Associations`. 2 hidden in `additionalConfig`.",
    "fields": [
     {
@@ -6531,7 +6543,7 @@
    "title": "Clear Associated Company Fields",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-29",
    "summary": "Clear selected fields of the primary company associated with the contact.",
    "proven": [
     "- 🔴 **On a contact with NO company, it FAILS** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ2-r7-contact-company.json]`. The log shows `status: failed`, \"Contact does not have a business\", in the same run where `update_associated_company` only skipped. A failed step triggers GHL's workflow error notification, which by default emails every agency and location admin (see [`../../50-runtime/error-notifications.md`](../../50-runtime/error-notifications.md)). **Guard it with an If/Else on the contact having a company**, or run it only where every contact has one.",
@@ -8623,7 +8635,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — Company",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-29",
    "summary": "`appName: \"Company\"` exposes **3 actions** in `sniffs/02-assets.json::actions[25].actions[]`. `executionConfig.type` set: `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `Company`.",
    "appActions": [
     {
@@ -10416,7 +10428,7 @@
    "title": "Create And Associate Company",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-29",
    "summary": "Create a new company record and automatically associate it with the contact in this workflow.",
    "proven": [
     "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ2-r7-contact-company.json]` Built with `build_workflow` and stored exactly as sent. A contact with no company ran it and logged `success`, with \"created Company : <id>\". The effect was read back on separate requests:",
@@ -10797,7 +10809,6 @@
    "status": "source-derived",
    "source": "asset",
    "lastVerified": "2026-08-22",
-   "summary": "`workflowsActionType: INTERNAL` · `executionConfig.type: INTERNAL_REQUEST` · `saveResponse: true`",
    "fields": [
     {
      "name": "userId",
@@ -24310,7 +24321,6 @@
    "status": "source-derived",
    "source": "asset",
    "lastVerified": "2026-08-22",
-   "summary": "`workflowsActionType: INTERNAL` · `executionConfig.type: INTERNAL_REQUEST` · `saveResponse: true`",
    "fields": [
     {
      "name": "userId",
@@ -25087,7 +25097,7 @@
    "title": "Remove Associated Record",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-29",
    "summary": "This action removes the relationship between records. No records will be deleted.",
    "fields": [
     {
@@ -25107,8 +25117,7 @@
    "title": "Remove Associated Records From Workflow",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
-   "summary": "(attributes) => { const associatedObject = attributes?.inputs?.associatedObject?.value; const associatedObj...",
+   "lastVerified": "2026-09-29",
    "fields": [
     {
      "name": "associatedObject",
@@ -27216,7 +27225,6 @@
    "status": "source-derived",
    "source": "asset",
    "lastVerified": "2026-08-22",
-   "summary": "`workflowsActionType: INTERNAL` · `executionConfig.type: CODE`",
    "fields": [
     {
      "name": "field_str",
@@ -28194,7 +28202,7 @@
    "title": "Update Associated Company",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-29",
    "summary": "Updates the details of the primary company associated with the contact.",
    "proven": [
     "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ2-r7-contact-company.json, live-3BZ2-reread-company.json]` On a contact with a company, a `business.description` row logged `success`, and the company read back with the new description (direct `GET /objects/business/records/{id}`, `lastUpdatedBy.sourceId` = the workflow)."

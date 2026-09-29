@@ -124099,6 +124099,9 @@ var catalog_data_default = {
       lc_todoist_create_task: [
         "lc_todoist_new_task"
       ],
+      create_company_or_associated_contact: [
+        "business_created"
+      ],
       lc_browse_ai_bulk_run_tasks: [
         "lc_browse_ai_new_task"
       ],
@@ -124140,6 +124143,9 @@ var catalog_data_default = {
       ],
       lc_jira_update_issue: [
         "lc_jira_issue_update"
+      ],
+      lc_jotform_create_submission: [
+        "lc_jotform_new_submission"
       ],
       lc_klaviyo_add_profile_to_list: [
         "lc_klaviyo_profile_added_to_list"
@@ -124194,9 +124200,18 @@ var catalog_data_default = {
       "tiktok-dm": [
         "customer_reply"
       ],
+      co_find_company_record: [
+        "inbound_webhook"
+      ],
+      find_object_record: [
+        "inbound_webhook"
+      ],
       send_messenger_optin: [
         "facebook_comment_on_post",
         "customer_reply"
+      ],
+      workflow_ai_email_parser: [
+        "inbound_trigger"
       ]
     },
     rules: [
@@ -130174,8 +130189,8 @@ var catalog_data_default = {
     scheduler_interval_required: "Scheduler interval is required",
     ivr_phone_number_required: "At least one phone number is required for IVR"
   },
-  stepCount: 386,
-  triggerCount: 204,
+  stepCount: 400,
+  triggerCount: 216,
   stepCapabilities: {
     isDisabled: {
       appliesTo: "actions \u2014 the builder refuses wait, goto, drip, workflow_goal, condition roots and multi-path containers",
@@ -132308,7 +132323,7 @@ var catalog_data_default = {
       ],
       example: "catalog/step-examples/ai_agent.json",
       section: "workflow_ai",
-      beta: true,
+      beta: false,
       display_name: "ai_agent",
       requiredFields: [],
       enforcement: {
@@ -147064,6 +147079,11 @@ var catalog_data_default = {
             fieldType: "select"
           }
         ],
+        workflowTypes: [
+          "company",
+          "custom_object",
+          "contacts"
+        ],
         dynamicFields: 1,
         fieldsIncomplete: true
       }
@@ -147269,7 +147289,7 @@ var catalog_data_default = {
       isMultipathContainer: false,
       usesCustomInputs: true,
       section: "Agent Studio",
-      display_name: "Invoke Agent in Agent Studio",
+      display_name: "Invoke Flow Agents",
       requiredFields: [
         "agent_id"
       ],
@@ -147285,8 +147305,8 @@ var catalog_data_default = {
       schema: {
         app: "Agent Studio",
         section: "Agent Studio",
-        displayName: "Invoke Agent in Agent Studio",
-        description: "Invokes an Agent Studio agent (trigger type: Workflow) that\u2019s been promoted to Production.",
+        displayName: "Invoke Flow Agents",
+        description: "Invokes an Agent Studio Flow agent (trigger type: Workflow) that\u2019s been promoted to Production.",
         requiredFields: [
           "agent_id"
         ],
@@ -147305,7 +147325,7 @@ var catalog_data_default = {
           },
           {
             field: "attachment",
-            title: "attachments",
+            title: "Attachments",
             required: false,
             fieldType: "attachment"
           }
@@ -149572,10 +149592,13 @@ Rules to Follow:
         description: "(attributes)=>`Create an association between the ${attributes?.customObjectLabel?.singular} object and records from a different object.`",
         requiredFields: [],
         fields: [],
+        workflowTypes: [
+          "contacts",
+          "custom_object",
+          "company"
+        ],
         dynamicFields: 1,
-        fieldsIncomplete: true,
-        disabled: true,
-        disabledMessage: "This feature is not enabled for your location."
+        fieldsIncomplete: true
       }
     },
     basecamp_create_campfire_message: {
@@ -152084,7 +152107,10 @@ Rules to Follow:
         displayName: "Clear Associated Company Fields",
         description: "Clear selected fields of the primary company associated with the contact. If no company is associated, this action will be skipped.",
         requiredFields: [],
-        fields: []
+        fields: [],
+        workflowTypes: [
+          "contacts"
+        ]
       }
     },
     clickup_add_comment: {
@@ -153704,7 +153730,10 @@ Rules to Follow:
         displayName: "Create And Associate Company",
         description: "Create a new company record and automatically associate it with the contact in this workflow.",
         requiredFields: [],
-        fields: []
+        fields: [],
+        workflowTypes: [
+          "contacts"
+        ]
       }
     },
     create_basecamp_project: {
@@ -154294,6 +154323,9 @@ Rules to Follow:
             fieldType: "attachment"
           }
         ],
+        workflowTypes: [
+          "contacts"
+        ],
         isPremium: true,
         outputs: [
           {
@@ -154360,6 +154392,9 @@ Rules to Follow:
             required: true,
             fieldType: "select"
           }
+        ],
+        workflowTypes: [
+          "contacts"
         ]
       }
     },
@@ -154622,6 +154657,11 @@ Rules to Follow:
             required: true,
             fieldType: "select"
           }
+        ],
+        workflowTypes: [
+          "contacts",
+          "custom_object",
+          "company"
         ],
         dynamicFields: 1,
         fieldsIncomplete: true,
@@ -155637,6 +155677,9 @@ Rules to Follow:
             required: true,
             fieldType: "numerical"
           }
+        ],
+        workflowTypes: [
+          "contacts"
         ]
       }
     },
@@ -155678,6 +155721,9 @@ Rules to Follow:
             required: true,
             fieldType: "select"
           }
+        ],
+        workflowTypes: [
+          "contacts"
         ]
       }
     },
@@ -155727,6 +155773,9 @@ Rules to Follow:
             fieldType: "hidden",
             default: "action"
           }
+        ],
+        workflowTypes: [
+          "contacts"
         ],
         dynamicFields: 1,
         fieldsIncomplete: true
@@ -156917,7 +156966,7 @@ Rules to Follow:
       isMultipathContainer: true,
       usesCustomInputs: false,
       section: "Asana",
-      display_name: "Find Project",
+      display_name: "Find Project by Id",
       requiredFields: [
         "workspace_id",
         "project_id"
@@ -156931,7 +156980,7 @@ Rules to Follow:
       schema: {
         app: "Asana",
         section: "Asana",
-        displayName: "Find Project",
+        displayName: "Find Project by Id",
         description: "Retrieve details of specific asana project and its ID",
         requiredFields: [
           "workspace_id",
@@ -163517,6 +163566,11 @@ Rules to Follow:
         description: "This action removes the relationship between records. No records will be deleted.",
         requiredFields: [],
         fields: [],
+        workflowTypes: [
+          "contacts",
+          "custom_object",
+          "company"
+        ],
         dynamicFields: 1,
         fieldsIncomplete: true,
         isHidden: true
@@ -163560,6 +163614,11 @@ Rules to Follow:
             required: true,
             fieldType: "select"
           }
+        ],
+        workflowTypes: [
+          "company",
+          "contacts",
+          "custom_object"
         ],
         dynamicFields: 1,
         fieldsIncomplete: true
@@ -163644,6 +163703,9 @@ Rules to Follow:
             required: true,
             fieldType: "select"
           }
+        ],
+        workflowTypes: [
+          "contacts"
         ]
       }
     },
@@ -163693,6 +163755,9 @@ Rules to Follow:
             fieldType: "hidden",
             default: "action"
           }
+        ],
+        workflowTypes: [
+          "contacts"
         ],
         dynamicFields: 1,
         fieldsIncomplete: true
@@ -164344,7 +164409,16 @@ Rules to Follow:
         "field_select1",
         "field_area",
         "field_multiselect",
-        "field_radio"
+        "field_radio",
+        "template_id",
+        "field_1",
+        "field_2",
+        "field_3",
+        "field_4",
+        "field_5",
+        "field_6",
+        "field_7",
+        "field_8"
       ],
       attrKeys: [
         "field_str",
@@ -164353,6 +164427,15 @@ Rules to Follow:
         "field_rich",
         "field_multiselect",
         "field_radio",
+        "template_id",
+        "field_1",
+        "field_2",
+        "field_3",
+        "field_4",
+        "field_5",
+        "field_6",
+        "field_7",
+        "field_8",
         "type",
         "__customInputs__"
       ],
@@ -164367,7 +164450,16 @@ Rules to Follow:
           "field_select1",
           "field_area",
           "field_multiselect",
-          "field_radio"
+          "field_radio",
+          "template_id",
+          "field_1",
+          "field_2",
+          "field_3",
+          "field_4",
+          "field_5",
+          "field_6",
+          "field_7",
+          "field_8"
         ],
         fields: [
           {
@@ -164405,6 +164497,60 @@ Rules to Follow:
             title: "field_radio",
             required: true,
             fieldType: "radio"
+          },
+          {
+            field: "template_id",
+            title: "Dynamic Source Test",
+            required: true,
+            fieldType: "select"
+          },
+          {
+            field: "field_1",
+            title: "field1",
+            required: true,
+            fieldType: "string"
+          },
+          {
+            field: "field_2",
+            title: "field2",
+            required: true,
+            fieldType: "string"
+          },
+          {
+            field: "field_3",
+            title: "field3",
+            required: true,
+            fieldType: "string"
+          },
+          {
+            field: "field_4",
+            title: "field4",
+            required: true,
+            fieldType: "string"
+          },
+          {
+            field: "field_5",
+            title: "field5",
+            required: true,
+            fieldType: "string"
+          },
+          {
+            field: "field_6",
+            title: "field6",
+            required: true,
+            fieldType: "string"
+          },
+          {
+            field: "field_7",
+            title: "field7",
+            required: true,
+            fieldType: "string"
+          },
+          {
+            field: "field_8",
+            title: "field8",
+            required: true,
+            fieldType: "string"
           }
         ]
       }
@@ -164705,7 +164851,10 @@ Rules to Follow:
         displayName: "Update Associated Company",
         description: "Updates the details of the primary company associated with the contact. If no company is associated, this action will be skipped.",
         requiredFields: [],
-        fields: []
+        fields: [],
+        workflowTypes: [
+          "contacts"
+        ]
       }
     },
     voice_ai_outbound_call: {
@@ -165185,6 +165334,366 @@ Rules to Follow:
         ]
       }
     },
+    clear_fields_of_company_or_associated_contact: {
+      type: "clear_fields_of_company_or_associated_contact",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: true,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "Company",
+      display_name: "Clear Fields of Company or Associated Contact",
+      requiredFields: [
+        "associationId"
+      ],
+      attrKeys: [
+        "associationId",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "Company",
+        section: "Company",
+        displayName: "Clear Fields of Company or Associated Contact",
+        description: " Clear the fields of the company record or an associated contact.",
+        requiredFields: [
+          "associationId"
+        ],
+        fields: [
+          {
+            field: "associationId",
+            title: "Clear a Field from the Object Record *",
+            required: true,
+            fieldType: "select",
+            default: "COMPANY"
+          }
+        ],
+        workflowTypes: [
+          "company"
+        ],
+        dynamicFields: 1,
+        fieldsIncomplete: true
+      }
+    },
+    co_find_company_record: {
+      type: "co_find_company_record",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: true,
+      isMultipathContainer: true,
+      usesCustomInputs: true,
+      section: "Company",
+      display_name: "Find Company",
+      requiredFields: [
+        "filter_on"
+      ],
+      attrKeys: [
+        "filter_on",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "Company",
+        section: "Company",
+        displayName: "Find Company",
+        description: "(attributes)=>`Search for a (${attributes?.customObjectLabel?.singular}) using inbound webhook data. This step is skipped if the workflow already started with a ( company / custom object ) trigger.`",
+        requiredFields: [
+          "filter_on"
+        ],
+        fields: [
+          {
+            field: "filter_on",
+            title: "Filter On",
+            required: true,
+            fieldType: "select",
+            default: "earliest"
+          }
+        ],
+        requiredTriggers: [
+          "inbound_webhook"
+        ],
+        workflowTypes: [
+          "company"
+        ],
+        branches: {
+          count: 2,
+          names: [
+            "Company Found",
+            "Company Not Found"
+          ]
+        },
+        outputs: [
+          {
+            reference: "id",
+            name: "Record ID",
+            fieldType: "string"
+          }
+        ]
+      }
+    },
+    create_company_or_associated_contact: {
+      type: "create_company_or_associated_contact",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: true,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "Company",
+      display_name: "Create Company Or Associated Contact",
+      requiredFields: [
+        "associationId"
+      ],
+      attrKeys: [
+        "associationId",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "Company",
+        section: "Company",
+        displayName: "Create Company Or Associated Contact",
+        description: "Create a new company record or an associated contact.",
+        requiredFields: [
+          "associationId"
+        ],
+        fields: [
+          {
+            field: "associationId",
+            title: "Object Record To Create ",
+            required: true,
+            fieldType: "select",
+            default: "COMPANY"
+          }
+        ],
+        restrictedTriggers: [
+          "business_created"
+        ],
+        workflowTypes: [
+          "company"
+        ],
+        dynamicFields: 1,
+        fieldsIncomplete: true
+      }
+    },
+    find_object_record: {
+      type: "find_object_record",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: true,
+      isMultipathContainer: true,
+      usesCustomInputs: true,
+      section: "customObjects",
+      display_name: "Find Object Record",
+      requiredFields: [
+        "filter_on"
+      ],
+      attrKeys: [
+        "filter_on",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "customObjects",
+        section: "customObjects",
+        displayName: "Find Object Record",
+        description: "(attributes)=>`Search for a ${attributes?.customObjectLabel?.singular} using inbound webhook data. This step is skipped if the workflow already started with a (${attributes?.customObjectLabel?.singular}) trigger.`",
+        requiredFields: [
+          "filter_on"
+        ],
+        fields: [
+          {
+            field: "filter_on",
+            title: "Filter On",
+            required: true,
+            fieldType: "select",
+            default: "earliest"
+          }
+        ],
+        requiredTriggers: [
+          "inbound_webhook"
+        ],
+        workflowTypes: [
+          "custom_object"
+        ],
+        branches: {
+          count: 2,
+          names: [
+            "Record Found",
+            "Record Not Found"
+          ]
+        }
+      }
+    },
+    internal_comment_action: {
+      type: "internal_comment_action",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: true,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "communication",
+      display_name: "Add Internal Comments",
+      requiredFields: [
+        "message_rich_text"
+      ],
+      attrKeys: [
+        "message_rich_text",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "communication",
+        section: "communication",
+        displayName: "Add Internal Comments",
+        description: "Add an internal comment to the conversation. This comment is not sent to the contact. Mentioned users are added to the contact as followers.",
+        requiredFields: [
+          "message_rich_text"
+        ],
+        fields: [
+          {
+            field: "message_rich_text",
+            title: "Message",
+            required: true,
+            fieldType: "rich-text"
+          }
+        ]
+      }
+    },
+    invoke_managed_agents: {
+      type: "invoke_managed_agents",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: true,
+      beta: false,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "Agent Studio",
+      display_name: "Invoke Managed Agents",
+      requiredFields: [
+        "agent_id"
+      ],
+      attrKeys: [
+        "agent_id",
+        "message",
+        "attachment",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "Agent Studio",
+        section: "Agent Studio",
+        displayName: "Invoke Managed Agents",
+        description: "Invokes a Managed Agent that has a workflow trigger attached.",
+        requiredFields: [
+          "agent_id"
+        ],
+        fields: [
+          {
+            field: "agent_id",
+            title: "Select Agent",
+            required: true,
+            fieldType: "select"
+          },
+          {
+            field: "message",
+            title: "Message",
+            required: false,
+            fieldType: "string"
+          },
+          {
+            field: "attachment",
+            title: "Attachments",
+            required: false,
+            fieldType: "attachment"
+          }
+        ],
+        dynamicFields: 1,
+        fieldsIncomplete: true,
+        outputs: [
+          {
+            reference: "response",
+            name: "Response",
+            fieldType: "string"
+          }
+        ]
+      }
+    },
+    issue_badge_workflow: {
+      type: "issue_badge_workflow",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: false,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "certificates",
+      display_name: "Issue badge",
+      requiredFields: [
+        "templateId"
+      ],
+      attrKeys: [
+        "templateId",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "certificates",
+        section: "certificates",
+        displayName: "Issue badge",
+        description: "Choose a badge to send. The selected badge template will be sent out as email. (* Some custom values may go blank. Please recheck the template before sending.)",
+        requiredFields: [
+          "templateId"
+        ],
+        fields: [
+          {
+            field: "templateId",
+            title: "Templates",
+            required: true,
+            fieldType: "select"
+          }
+        ]
+      }
+    },
     kb_search: {
       type: "kb_search",
       kind: "step",
@@ -165623,7 +166132,7 @@ Rules to Follow:
       isMultipathContainer: false,
       usesCustomInputs: false,
       section: "Asana",
-      display_name: "Find Project 43r3f",
+      display_name: "Find Projects by Name",
       requiredFields: [
         "workspace_id",
         "project_name"
@@ -165637,7 +166146,7 @@ Rules to Follow:
       schema: {
         app: "Asana",
         section: "Asana",
-        displayName: "Find Project 43r3f",
+        displayName: "Find Projects by Name",
         description: "Search for projects in an Asana workspace by name (partial match).",
         requiredFields: [
           "workspace_id",
@@ -165730,8 +166239,7 @@ Rules to Follow:
       display_name: "Book Meeting for Invitee",
       requiredFields: [
         "start_time",
-        "email",
-        "timezone"
+        "email"
       ],
       attrKeys: [
         "start_time",
@@ -165741,8 +166249,7 @@ Rules to Follow:
         "invitee_last_name",
         "timezone",
         "event_guests",
-        "text_reminder_number",
-        "location_kind"
+        "text_reminder_number"
       ],
       marketplace: true,
       source: "rulebook",
@@ -165750,11 +166257,10 @@ Rules to Follow:
         app: "Calendly",
         section: "Calendly",
         displayName: "Book Meeting for Invitee",
-        description: "Add an invitee to an existing scheduled Calendly event.",
+        description: "Book a new Calendly meeting on an invitee\u2019s behalf, on a chosen event type and start time.",
         requiredFields: [
           "start_time",
-          "email",
-          "timezone"
+          "email"
         ],
         fields: [
           {
@@ -165790,8 +166296,8 @@ Rules to Follow:
           {
             field: "timezone",
             title: "Invitee Timezone",
-            required: true,
-            fieldType: "string"
+            required: false,
+            fieldType: "select"
           },
           {
             field: "event_guests",
@@ -165804,12 +166310,6 @@ Rules to Follow:
             title: "Text Reminder Phone Number",
             required: false,
             fieldType: "string"
-          },
-          {
-            field: "location_kind",
-            title: "Location Type",
-            required: false,
-            fieldType: "select"
           }
         ],
         restrictedTriggers: [
@@ -166109,21 +166609,16 @@ Rules to Follow:
       display_name: "Create One-Off Meeting",
       requiredFields: [
         "name",
-        "host",
         "duration",
         "start_date",
         "end_date"
       ],
       attrKeys: [
         "name",
-        "host",
         "duration",
         "timezone",
         "start_date",
-        "end_date",
-        "location_kind",
-        "location_location",
-        "location_additional_info"
+        "end_date"
       ],
       marketplace: true,
       source: "rulebook",
@@ -166134,7 +166629,6 @@ Rules to Follow:
         description: "Create a one-off Calendly event type with a specified host, duration, and availability window.",
         requiredFields: [
           "name",
-          "host",
           "duration",
           "start_date",
           "end_date"
@@ -166147,12 +166641,6 @@ Rules to Follow:
             fieldType: "string"
           },
           {
-            field: "host",
-            title: "Host User",
-            required: true,
-            fieldType: "select"
-          },
-          {
             field: "duration",
             title: "Duration (Minutes)",
             required: true,
@@ -166162,7 +166650,7 @@ Rules to Follow:
             field: "timezone",
             title: "Timezone",
             required: false,
-            fieldType: "string"
+            fieldType: "select"
           },
           {
             field: "start_date",
@@ -166174,24 +166662,6 @@ Rules to Follow:
             field: "end_date",
             title: "End Date",
             required: true,
-            fieldType: "string"
-          },
-          {
-            field: "location_kind",
-            title: "Location Kind",
-            required: false,
-            fieldType: "select"
-          },
-          {
-            field: "location_location",
-            title: "Location",
-            required: false,
-            fieldType: "string"
-          },
-          {
-            field: "location_additional_info",
-            title: "Additional Location Info",
-            required: false,
             fieldType: "string"
           }
         ],
@@ -166346,7 +166816,6 @@ Rules to Follow:
       section: "Calendly",
       display_name: "Mark Invitee as No Show",
       requiredFields: [
-        "eventId",
         "inviteeId"
       ],
       attrKeys: [
@@ -166361,14 +166830,13 @@ Rules to Follow:
         displayName: "Mark Invitee as No Show",
         description: "Mark a specific invitee of a scheduled Calendly event as a no-show.",
         requiredFields: [
-          "eventId",
           "inviteeId"
         ],
         fields: [
           {
             field: "eventId",
             title: "Event ID",
-            required: true,
+            required: false,
             fieldType: "string"
           },
           {
@@ -166461,7 +166929,7 @@ Rules to Follow:
             field: "timezone",
             title: "Timezone",
             required: false,
-            fieldType: "string"
+            fieldType: "select"
           },
           {
             field: "job_title",
@@ -168880,6 +169348,81 @@ Rules to Follow:
         ]
       }
     },
+    lc_jotform_create_submission: {
+      type: "lc_jotform_create_submission",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [],
+      premium: true,
+      beta: true,
+      isMultipathContainer: false,
+      usesCustomInputs: false,
+      section: "Jotform",
+      display_name: "Create Submission",
+      requiredFields: [
+        "form_id"
+      ],
+      attrKeys: [
+        "form_id"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "Jotform",
+        section: "Jotform",
+        displayName: "Create Submission",
+        description: "Create a new submission for a specific form in Jotform. Fields that don\u2019t accept submission data or require advanced mapping may not be available.",
+        requiredFields: [
+          "form_id"
+        ],
+        fields: [
+          {
+            field: "form_id",
+            title: "Form",
+            required: true,
+            fieldType: "select"
+          }
+        ],
+        restrictedTriggers: [
+          "lc_jotform_new_submission"
+        ],
+        dynamicFields: 1,
+        fieldsIncomplete: true,
+        isPremium: true,
+        outputs: [
+          {
+            reference: "submissionID",
+            name: "Submission ID",
+            fieldType: "string"
+          },
+          {
+            reference: "form_id",
+            name: "Form ID",
+            fieldType: "string"
+          },
+          {
+            reference: "created_at",
+            name: "Submission Time",
+            fieldType: "date"
+          },
+          {
+            reference: "status",
+            name: "Status",
+            fieldType: "string"
+          },
+          {
+            reference: "answers",
+            name: "Answers",
+            fieldType: "array"
+          },
+          {
+            reference: "simplified",
+            name: "Simplified Output",
+            fieldType: "string"
+          }
+        ]
+      }
+    },
     lc_klaviyo_add_profile_to_list: {
       type: "lc_klaviyo_add_profile_to_list",
       kind: "step",
@@ -169867,6 +170410,92 @@ Rules to Follow:
         isPremium: true
       }
     },
+    membership_course_grant_access: {
+      type: "membership_course_grant_access",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: false,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "membership",
+      display_name: "Grant course access",
+      requiredFields: [
+        "membership_default_courses"
+      ],
+      attrKeys: [
+        "membership_default_courses",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "membership",
+        section: "membership",
+        displayName: "Grant course access",
+        description: "Give a contact access to a course",
+        requiredFields: [
+          "membership_default_courses"
+        ],
+        fields: [
+          {
+            field: "membership_default_courses",
+            title: "Course",
+            required: true,
+            fieldType: "select"
+          }
+        ],
+        disabled: true,
+        disabledMessage: "This feature is not enabled for your location."
+      }
+    },
+    membership_default_course_revoke: {
+      type: "membership_default_course_revoke",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: false,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "membership",
+      display_name: "Revoke course access",
+      requiredFields: [
+        "membership_default_course"
+      ],
+      attrKeys: [
+        "membership_default_course",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "membership",
+        section: "membership",
+        displayName: "Revoke course access",
+        description: "Remove a contact's access to a course",
+        requiredFields: [
+          "membership_default_course"
+        ],
+        fields: [
+          {
+            field: "membership_default_course",
+            title: "Course",
+            required: true,
+            fieldType: "select"
+          }
+        ],
+        disabled: true,
+        disabledMessage: "This feature is not enabled for your location."
+      }
+    },
     rcs_interactive_message: {
       type: "rcs_interactive_message",
       kind: "step",
@@ -170075,6 +170704,281 @@ Rules to Follow:
         isHidden: true,
         disabled: true,
         disabledMessage: "This feature is not enabled for your location."
+      }
+    },
+    update_company_or_associated_contact: {
+      type: "update_company_or_associated_contact",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: true,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "Company",
+      display_name: "Update Company Or Associated Contact",
+      requiredFields: [
+        "associationId"
+      ],
+      attrKeys: [
+        "associationId",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "Company",
+        section: "Company",
+        displayName: "Update Company Or Associated Contact",
+        description: "Update the details of the company associated with the contact entering this workflow.",
+        requiredFields: [
+          "associationId"
+        ],
+        fields: [
+          {
+            field: "associationId",
+            title: "Object Record To Update *",
+            required: true,
+            fieldType: "select",
+            default: "COMPANY"
+          }
+        ],
+        workflowTypes: [
+          "company"
+        ],
+        dynamicFields: 1,
+        fieldsIncomplete: true
+      }
+    },
+    update_inventory: {
+      type: "update_inventory",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      beta: false,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "payment",
+      display_name: "Update Inventory",
+      requiredFields: [
+        "product",
+        "update_type",
+        "value"
+      ],
+      attrKeys: [
+        "product",
+        "update_type",
+        "value",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "payment",
+        section: "payment",
+        displayName: "Update Inventory",
+        requiredFields: [
+          "product",
+          "update_type",
+          "value"
+        ],
+        fields: [
+          {
+            field: "product",
+            title: "Product",
+            required: true,
+            fieldType: "select"
+          },
+          {
+            field: "update_type",
+            title: "Update Type",
+            required: true,
+            fieldType: "select"
+          },
+          {
+            field: "value",
+            title: "Value",
+            required: true,
+            fieldType: "numerical"
+          }
+        ]
+      }
+    },
+    workflow_ai_analyze_image: {
+      type: "workflow_ai_analyze_image",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: true,
+      beta: false,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "AI Actions",
+      display_name: "AI Analyze Image",
+      requiredFields: [
+        "model",
+        "image",
+        "prompt",
+        "detailLevel"
+      ],
+      attrKeys: [
+        "model",
+        "image",
+        "prompt",
+        "detailLevel",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "AI Actions",
+        section: "AI Actions",
+        displayName: "AI Analyze Image",
+        description: "Analyze images with AI vision. Great for extracting text from images, generating descriptions, and more.",
+        requiredFields: [
+          "model",
+          "image",
+          "prompt",
+          "detailLevel"
+        ],
+        fields: [
+          {
+            field: "model",
+            title: "Model",
+            required: true,
+            fieldType: "select",
+            default: "gpt-5.6-luna"
+          },
+          {
+            field: "image",
+            title: "Image",
+            required: true,
+            fieldType: "string"
+          },
+          {
+            field: "prompt",
+            title: "Analysis Prompt",
+            required: true,
+            fieldType: "textarea"
+          },
+          {
+            field: "detailLevel",
+            title: "Detail Level",
+            required: true,
+            fieldType: "select",
+            default: "auto"
+          }
+        ],
+        isPremium: true,
+        outputs: [
+          {
+            reference: "response",
+            name: "Response",
+            fieldType: "string"
+          }
+        ]
+      }
+    },
+    workflow_ai_email_parser: {
+      type: "workflow_ai_email_parser",
+      kind: "step",
+      confidence: "live-schema",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: true,
+      beta: true,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      section: "AI Actions",
+      display_name: "AI Email Parser",
+      requiredFields: [
+        "emailData",
+        "sourceData"
+      ],
+      attrKeys: [
+        "emailData",
+        "sourceData",
+        "information",
+        "templates",
+        "__customInputFields__",
+        "type",
+        "__customInputs__"
+      ],
+      marketplace: true,
+      source: "rulebook",
+      schema: {
+        app: "AI Actions",
+        section: "AI Actions",
+        displayName: "AI Email Parser",
+        description: "Turn incoming emails into structured fields using AI",
+        requiredFields: [
+          "emailData",
+          "sourceData"
+        ],
+        fields: [
+          {
+            field: "emailData",
+            title: "Email content",
+            required: true,
+            fieldType: "select",
+            default: "body"
+          },
+          {
+            field: "sourceData",
+            title: "Source data",
+            required: true,
+            fieldType: "hidden",
+            default: "Email subject:\n{{inboundEmail.subject}}\n\nEmail body:\n{{inboundEmail.bodyPlain}}"
+          },
+          {
+            field: "information",
+            title: "About this email",
+            required: false,
+            fieldType: "textarea"
+          },
+          {
+            field: "templates",
+            title: "Templates",
+            required: false,
+            fieldType: "select"
+          },
+          {
+            field: "__customInputFields__",
+            title: "__customInputFields__",
+            required: false,
+            fieldType: "hidden",
+            default: [
+              {
+                fieldName: "title",
+                dataType: "text",
+                description: ""
+              }
+            ]
+          }
+        ],
+        requiredTriggers: [
+          "inbound_trigger"
+        ],
+        dynamicFields: 1,
+        fieldsIncomplete: true,
+        isPremium: true,
+        outputs: [
+          {
+            name: "output",
+            fieldType: "dynamic"
+          }
+        ]
       }
     },
     workflow_ai_extract_data: {
@@ -175886,38 +176790,6 @@ Rules to Follow:
       },
       loadMigration: "(triggerMain: TriggerMain) => UserCommentsOnPostFilter.migrateMessageBody(triggerMain, 'ig')"
     },
-    user_log_in: {
-      type: "user_log_in",
-      kind: "trigger",
-      masterType: "highlevel",
-      category: "courses",
-      premium: false,
-      confidence: "bundle-derived",
-      filterClass: "MembershipUserLogin",
-      filterRows: [],
-      filterRowsSource: "may-one-off",
-      filterChecks: {
-        validator: "membershipCourseValidator",
-        assetChecks: [],
-        customFieldSweeps: [
-          {
-            resource: "custom_field",
-            prefix: "contact.",
-            excludeStandard: true,
-            exclude: [
-              "product.id",
-              "category.id",
-              "lesson.id",
-              "offer.id",
-              "contact.tags"
-            ],
-            severity: "warning",
-            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
-          }
-        ],
-        shapeRules: []
-      }
-    },
     conv_ai_trigger: {
       type: "conv_ai_trigger",
       kind: "trigger",
@@ -176171,7 +177043,8 @@ Rules to Follow:
         {
           field: "cartValue",
           title: "Cart Value",
-          fieldType: "numerical"
+          fieldType: "numerical",
+          showOperator: true
         },
         {
           field: "orderSource",
@@ -176225,6 +177098,12 @@ Rules to Follow:
           title: "Store Name",
           fieldType: "multiselect",
           showOperator: true
+        },
+        {
+          field: "availableQuantity",
+          title: "Available Quantity",
+          fieldType: "numerical",
+          showOperator: true
         }
       ],
       schemaConditions: [
@@ -176259,6 +177138,26 @@ Rules to Follow:
           reference: "cartLink",
           name: "Cart Link",
           fieldType: "string"
+        },
+        {
+          reference: "globalProductIds",
+          name: "Global Products",
+          fieldType: "array"
+        },
+        {
+          reference: "productName",
+          name: "Product",
+          fieldType: "string"
+        },
+        {
+          reference: "priceName",
+          name: "Price",
+          fieldType: "string"
+        },
+        {
+          reference: "availableQuantity",
+          name: "Available Quantity",
+          fieldType: "numerical"
         }
       ],
       source: "rulebook"
@@ -176438,6 +177337,83 @@ Rules to Follow:
       ],
       source: "rulebook"
     },
+    ai_studio_form_submitted: {
+      type: "ai_studio_form_submitted",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "events",
+      display_name: "AI Studio Form Submitted",
+      description: "Runs when a form is submitted on an AI Studio (Vibe) site",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaConditions: [
+        {
+          reference: "formId",
+          name: "Form ID",
+          fieldType: "string"
+        },
+        {
+          reference: "formName",
+          name: "Form Name",
+          fieldType: "string"
+        },
+        {
+          reference: "formIdentifier",
+          name: "Form Key",
+          fieldType: "string"
+        },
+        {
+          reference: "projectId",
+          name: "Project ID",
+          fieldType: "string"
+        },
+        {
+          reference: "pageUrl",
+          name: "Page URL",
+          fieldType: "string"
+        },
+        {
+          reference: "domain",
+          name: "Domain",
+          fieldType: "string"
+        }
+      ],
+      customVars: [
+        {
+          reference: "formId",
+          name: "Form ID",
+          fieldType: "string"
+        },
+        {
+          reference: "formName",
+          name: "Form Name",
+          fieldType: "string"
+        },
+        {
+          reference: "formIdentifier",
+          name: "Form Key",
+          fieldType: "string"
+        },
+        {
+          reference: "projectId",
+          name: "Project ID",
+          fieldType: "string"
+        },
+        {
+          reference: "pageUrl",
+          name: "Page URL",
+          fieldType: "string"
+        },
+        {
+          reference: "domain",
+          name: "Domain",
+          fieldType: "string"
+        }
+      ],
+      source: "rulebook"
+    },
     airtable_new_record_created: {
       type: "airtable_new_record_created",
       kind: "trigger",
@@ -176446,7 +177422,7 @@ Rules to Follow:
       display_name: "New Record Created",
       description: "Triggers when a new record is created in Airtable.",
       premium: true,
-      beta: false,
+      beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
       masterType: "internal",
       schemaFilters: [
@@ -176454,13 +177430,26 @@ Rules to Follow:
           field: "base_id",
           title: "Base",
           required: true,
-          fieldType: "select"
+          fieldType: "select_with_pagination"
         },
         {
           field: "table_id",
           title: "Table",
           required: true,
           fieldType: "select"
+        },
+        {
+          field: "created_field",
+          title: "Created Time Field",
+          required: true,
+          fieldType: "select"
+        }
+      ],
+      customVars: [
+        {
+          reference: "id",
+          name: "Id",
+          fieldType: "string"
         }
       ],
       appId: "6889b16469bcd26213ce4b40",
@@ -176492,93 +177481,6 @@ Rules to Follow:
         }
       ],
       appId: "6889b16469bcd26213ce4b40",
-      source: "rulebook"
-    },
-    ankit_test_invitee_created: {
-      type: "ankit_test_invitee_created",
-      kind: "trigger",
-      confidence: "live-schema",
-      category: "Calendly",
-      display_name: "Ankit Test Invitee Create [Company Scoped]",
-      description: "Triggered when a new invitee is created in Calendly.",
-      premium: true,
-      beta: true,
-      workflowsTriggerType: "INTEGRATION_AI",
-      masterType: "internal",
-      schemaFilters: [
-        {
-          field: "scope",
-          title: "Webhook Subscription Scope",
-          required: true,
-          fieldType: "select",
-          defaultOperator: "==",
-          options: [
-            {
-              label: "User",
-              value: "user"
-            },
-            {
-              label: "Organization",
-              value: "organization"
-            }
-          ]
-        }
-      ],
-      schemaConditions: [
-        {
-          reference: "id",
-          name: "Invitee ID",
-          fieldType: "string"
-        },
-        {
-          reference: "email",
-          name: "Invitee Email",
-          fieldType: "string"
-        },
-        {
-          reference: "name",
-          name: "Invitee Name",
-          fieldType: "string"
-        },
-        {
-          reference: "scheduled_at",
-          name: "Scheduled At",
-          fieldType: "date-time"
-        },
-        {
-          reference: "event_type",
-          name: "Event Type",
-          fieldType: "string"
-        }
-      ],
-      customVars: [
-        {
-          reference: "id",
-          name: "Invitee ID",
-          fieldType: "string"
-        },
-        {
-          reference: "email",
-          name: "Invitee Email",
-          fieldType: "string"
-        },
-        {
-          reference: "name",
-          name: "Invitee Name",
-          fieldType: "string"
-        },
-        {
-          reference: "scheduled_at",
-          name: "Scheduled At",
-          fieldType: "date-time"
-        },
-        {
-          reference: "event_type",
-          name: "Event Type",
-          fieldType: "string"
-        }
-      ],
-      appId: "6a2661fc1d5fcb7cb4123e04",
       source: "rulebook"
     },
     apify_actor_run_finished: {
@@ -177161,6 +178063,27 @@ Rules to Follow:
         }
       ],
       appId: "68e370a6356537ea99fd4771",
+      source: "rulebook"
+    },
+    badges_issued_workflow: {
+      type: "badges_issued_workflow",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "certificates",
+      display_name: "Badges Issued",
+      description: "Runs when a badge is issued.",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "templateId",
+          title: "Templates",
+          fieldType: "select",
+          showOperator: true
+        }
+      ],
       source: "rulebook"
     },
     basecamp_new_activity: {
@@ -178563,6 +179486,156 @@ Rules to Follow:
       appId: "68d273d63aa2d69b6ccd95b7",
       source: "rulebook"
     },
+    business_changed: {
+      type: "business_changed",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Company",
+      display_name: "Company Changed",
+      description: "Trigger the workflow when a company record is updated. Add optional filters to target specific updates.",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "name",
+          title: "Company Name",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "phone",
+          title: "Phone",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "email",
+          title: "Email",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "website",
+          title: "Website",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "address",
+          title: "Address",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "state",
+          title: "State",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "city",
+          title: "City",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "description",
+          title: "Description",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "postalcode",
+          title: "Postal Code",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "country",
+          title: "Country",
+          fieldType: "select",
+          mappedTo: "COUNTRIES"
+        }
+      ],
+      source: "rulebook"
+    },
+    business_created: {
+      type: "business_created",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Company",
+      display_name: "Company Created",
+      description: "Trigger the workflow when a company record is created. Add optional filters to target specific updates.",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "phone",
+          title: "Phone Number",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "country",
+          title: "Country",
+          fieldType: "select",
+          mappedTo: "COUNTRIES"
+        },
+        {
+          field: "name",
+          title: "Company Name",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "email",
+          title: "Email",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "website",
+          title: "Website",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "address",
+          title: "Address",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "state",
+          title: "State",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "city",
+          title: "City",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "description",
+          title: "Description",
+          fieldType: "string",
+          showOperator: true
+        },
+        {
+          field: "postalcode",
+          title: "Pincode",
+          fieldType: "string",
+          showOperator: true
+        }
+      ],
+      source: "rulebook"
+    },
     calendly_event_cancelled: {
       type: "calendly_event_cancelled",
       kind: "trigger",
@@ -178602,7 +179675,7 @@ Rules to Follow:
         {
           reference: "canceled_at",
           name: "Cancelled At",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "organizer_name",
@@ -178612,12 +179685,12 @@ Rules to Follow:
         {
           reference: "event_start_time",
           name: "Event Start Time",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "event_end_time",
           name: "Event End Time",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "event_uri",
@@ -178674,7 +179747,7 @@ Rules to Follow:
         {
           reference: "canceled_at",
           name: "Cancelled At",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "organizer_name",
@@ -178684,12 +179757,12 @@ Rules to Follow:
         {
           reference: "event_start_time",
           name: "Event Start Time",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "event_end_time",
           name: "Event End Time",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "event_uri",
@@ -178777,7 +179850,17 @@ Rules to Follow:
           title: "Webhook Subscription Scope",
           required: true,
           fieldType: "select",
-          defaultOperator: "=="
+          defaultOperator: "==",
+          options: [
+            {
+              label: "User",
+              value: "User"
+            },
+            {
+              label: "Organization",
+              value: "Organization"
+            }
+          ]
         }
       ],
       schemaConditions: [
@@ -178804,7 +179887,7 @@ Rules to Follow:
         {
           reference: "canceled_at",
           name: "Canceled At",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "cancellation_reason",
@@ -178829,7 +179912,7 @@ Rules to Follow:
         {
           reference: "event_start_time",
           name: "Event Start Time",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "host_email",
@@ -178891,7 +179974,7 @@ Rules to Follow:
         {
           reference: "canceled_at",
           name: "Canceled At",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "cancellation_reason",
@@ -178921,12 +180004,12 @@ Rules to Follow:
         {
           reference: "event_start_time",
           name: "Event Start Time",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "event_end_time",
           name: "Event End Time",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "event_uri",
@@ -179001,7 +180084,7 @@ Rules to Follow:
         {
           reference: "scheduled_at",
           name: "Scheduled At",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "event_type",
@@ -179028,7 +180111,7 @@ Rules to Follow:
         {
           reference: "scheduled_at",
           name: "Scheduled At",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "event_type",
@@ -179093,7 +180176,7 @@ Rules to Follow:
         {
           reference: "created_at",
           name: "Created At",
-          fieldType: "date-time"
+          fieldType: "date"
         }
       ],
       customVars: [
@@ -179130,7 +180213,7 @@ Rules to Follow:
         {
           reference: "created_at",
           name: "Created At",
-          fieldType: "date-time"
+          fieldType: "date"
         }
       ],
       appId: "6a2661fc1d5fcb7cb4123e04",
@@ -179151,7 +180234,8 @@ Rules to Follow:
         {
           field: "templateId",
           title: "Templates",
-          fieldType: "select"
+          fieldType: "select",
+          showOperator: true
         }
       ],
       source: "rulebook"
@@ -179842,7 +180926,7 @@ Rules to Follow:
       type: "client_portal_file_uploaded",
       kind: "trigger",
       confidence: "live-schema",
-      category: "membership",
+      category: "Client Portal",
       display_name: "Client Portal File Uploaded",
       description: "Triggers a workflow whenever any contact uploads a file to the Client Portal Shared Files section.",
       premium: false,
@@ -180554,6 +181638,12 @@ Rules to Follow:
               value: "shopify"
             }
           ]
+        },
+        {
+          field: "availableQuantity",
+          title: "Available Quantity",
+          fieldType: "numerical",
+          showOperator: true
         }
       ],
       schemaConditions: [
@@ -180598,6 +181688,26 @@ Rules to Follow:
           reference: "shippingCarrier",
           name: "Shipping Carrier",
           fieldType: "string"
+        },
+        {
+          reference: "globalProductIds",
+          name: "Fulfilled Products",
+          fieldType: "array"
+        },
+        {
+          reference: "productName",
+          name: "Product",
+          fieldType: "string"
+        },
+        {
+          reference: "priceName",
+          name: "Price",
+          fieldType: "string"
+        },
+        {
+          reference: "availableQuantity",
+          name: "Available Quantity",
+          fieldType: "numerical"
         }
       ],
       source: "rulebook"
@@ -180719,6 +181829,122 @@ Rules to Follow:
           reference: "customer.phone",
           name: "Customer Phone Number",
           fieldType: "string"
+        }
+      ],
+      source: "rulebook"
+    },
+    event_check_in: {
+      type: "event_check_in",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Events Management",
+      display_name: "Event Checked In",
+      description: "Triggers when an attendee is checked in to an event.",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "eventId",
+          title: "In Event",
+          fieldType: "select"
+        },
+        {
+          field: "checkIn.method",
+          title: "Check-in Method",
+          fieldType: "select",
+          options: [
+            {
+              label: "QR",
+              value: "qr"
+            },
+            {
+              label: "Manual",
+              value: "manual"
+            }
+          ]
+        },
+        {
+          field: "checkIn.checkedInBy",
+          title: "Checked In By User",
+          fieldType: "multiselect",
+          mappedTo: "USERS"
+        }
+      ],
+      source: "rulebook"
+    },
+    event_registration: {
+      type: "event_registration",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Events Management",
+      display_name: "Event Registration",
+      description: "Fires when a contact registers/checks out for an event. One message per attendee (primary + one per guest).",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "eventId",
+          title: "In Event",
+          fieldType: "select"
+        },
+        {
+          field: "event.type",
+          title: "Type",
+          fieldType: "select",
+          showOperator: true,
+          options: [
+            {
+              label: "RSVP",
+              value: "rsvp"
+            },
+            {
+              label: "Ticketed",
+              value: "ticketed"
+            }
+          ]
+        },
+        {
+          field: "registration.registrationStatus",
+          title: "Registration Status",
+          required: true,
+          fieldType: "select",
+          options: [
+            {
+              label: "Succeeded",
+              value: "succeeded"
+            },
+            {
+              label: "Processing",
+              value: "processing"
+            },
+            {
+              label: "Pending",
+              value: "pending"
+            },
+            {
+              label: "Cancelled",
+              value: "cancelled"
+            }
+          ]
+        },
+        {
+          field: "registration.bookedBy.type",
+          title: "Booked By",
+          fieldType: "select",
+          options: [
+            {
+              label: "Account User",
+              value: "user"
+            },
+            {
+              label: "Customer",
+              value: "customer"
+            }
+          ]
         }
       ],
       source: "rulebook"
@@ -181024,12 +182250,12 @@ Rules to Follow:
         },
         {
           reference: "groupName",
-          name: "Group",
+          name: "Group Name",
           fieldType: "string"
         },
         {
           reference: "channelName",
-          name: "Channel",
+          name: "Channel Name",
           fieldType: "string"
         }
       ],
@@ -181051,12 +182277,12 @@ Rules to Follow:
         },
         {
           reference: "groupName",
-          name: "Group",
+          name: "Group Name",
           fieldType: "string"
         },
         {
           reference: "channelName",
-          name: "Channel",
+          name: "Channel Name",
           fieldType: "string"
         }
       ],
@@ -181112,7 +182338,7 @@ Rules to Follow:
         },
         {
           reference: "groupName",
-          name: "Group",
+          name: "Group Name",
           fieldType: "string"
         }
       ],
@@ -181124,7 +182350,7 @@ Rules to Follow:
         },
         {
           reference: "groupName",
-          name: "Group",
+          name: "Group Name",
           fieldType: "string"
         }
       ],
@@ -181163,14 +182389,14 @@ Rules to Follow:
       schemaConditions: [
         {
           reference: "groupName",
-          name: "Group",
+          name: "Group Name",
           fieldType: "string"
         }
       ],
       customVars: [
         {
           reference: "groupName",
-          name: "Group",
+          name: "Group Name",
           fieldType: "string"
         }
       ],
@@ -181243,12 +182469,12 @@ Rules to Follow:
         },
         {
           reference: "groupName",
-          name: "Group",
+          name: "Group Name",
           fieldType: "string"
         },
         {
           reference: "channelName",
-          name: "Channel",
+          name: "Channel Name",
           fieldType: "string"
         }
       ],
@@ -181265,12 +182491,12 @@ Rules to Follow:
         },
         {
           reference: "groupName",
-          name: "Group",
+          name: "Group Name",
           fieldType: "string"
         },
         {
           reference: "channelName",
-          name: "Channel",
+          name: "Channel Name",
           fieldType: "string"
         }
       ],
@@ -181281,7 +182507,7 @@ Rules to Follow:
       kind: "trigger",
       confidence: "live-schema",
       category: "communication",
-      display_name: "Instagram New Follower",
+      display_name: "Instagram New Follower [Internal Only]",
       description: "To auto DM new followers, add the Instagram DM or Interactive Messenger Action to this workflow trigger and publish it.",
       premium: false,
       beta: true,
@@ -181691,6 +182917,14 @@ Rules to Follow:
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
       masterType: "internal",
+      schemaFilters: [
+        {
+          field: "routing_form_uri",
+          title: "Routing Form",
+          fieldType: "select",
+          defaultOperator: "=="
+        }
+      ],
       customVars: [
         {
           reference: "submissionUri",
@@ -181705,7 +182939,7 @@ Rules to Follow:
         {
           reference: "submittedAt",
           name: "Submitted At",
-          fieldType: "date-time"
+          fieldType: "date"
         },
         {
           reference: "questionsAndAnswers",
@@ -181721,11 +182955,6 @@ Rules to Follow:
           reference: "submitterType",
           name: "Submitter Type",
           fieldType: "string"
-        },
-        {
-          reference: "tracking",
-          name: "Tracking",
-          fieldType: "object"
         }
       ],
       appId: "6a2661fc1d5fcb7cb4123e04",
@@ -182693,6 +183922,139 @@ Rules to Follow:
         }
       ],
       appId: "6952c365192c41a112062591",
+      source: "rulebook"
+    },
+    lc_jotform_new_signed_document: {
+      type: "lc_jotform_new_signed_document",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Jotform",
+      display_name: "New Signed Document",
+      description: "Triggers when a new signed document is available in Jotform.",
+      premium: true,
+      beta: true,
+      workflowsTriggerType: "INTEGRATION_AI",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "document_id",
+          title: "Document",
+          required: true,
+          fieldType: "select_with_pagination",
+          defaultOperator: "=="
+        }
+      ],
+      schemaConditions: [
+        {
+          reference: "document_id",
+          name: "Document ID",
+          fieldType: "string"
+        },
+        {
+          reference: "submission_id",
+          name: "Submission ID",
+          fieldType: "string"
+        },
+        {
+          reference: "document_name",
+          name: "Document Name",
+          fieldType: "string"
+        },
+        {
+          reference: "status",
+          name: "Status",
+          fieldType: "string"
+        },
+        {
+          reference: "submission_time",
+          name: "Submission Time",
+          fieldType: "date"
+        }
+      ],
+      customVars: [
+        {
+          reference: "document_id",
+          name: "Document ID",
+          fieldType: "string"
+        },
+        {
+          reference: "submission_id",
+          name: "Submission ID",
+          fieldType: "string"
+        },
+        {
+          reference: "document_name",
+          name: "Document Name",
+          fieldType: "string"
+        },
+        {
+          reference: "status",
+          name: "Status",
+          fieldType: "string"
+        },
+        {
+          reference: "submission_time",
+          name: "Submission Time",
+          fieldType: "date"
+        }
+      ],
+      appId: "6a86b3ca2b834c129bca3af8",
+      source: "rulebook"
+    },
+    lc_jotform_new_submission: {
+      type: "lc_jotform_new_submission",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Jotform",
+      display_name: "New Submission",
+      description: "Triggers when a new submission is received on a Jotform form.",
+      premium: true,
+      beta: true,
+      workflowsTriggerType: "INTEGRATION_AI",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "form_id",
+          title: "Form",
+          required: true,
+          fieldType: "select_with_pagination"
+        }
+      ],
+      schemaConditions: [
+        {
+          reference: "submission_id",
+          name: "Submission ID",
+          fieldType: "string"
+        },
+        {
+          reference: "form_id",
+          name: "Form ID",
+          fieldType: "string"
+        },
+        {
+          reference: "submission_time",
+          name: "Submission Time",
+          fieldType: "date"
+        }
+      ],
+      customVars: [
+        {
+          reference: "submission_id",
+          name: "Submission ID",
+          fieldType: "string"
+        },
+        {
+          reference: "form_id",
+          name: "Form ID",
+          fieldType: "string"
+        },
+        {
+          reference: "submission_time",
+          name: "Submission Time",
+          fieldType: "date"
+        }
+      ],
+      appId: "6a86b3ca2b834c129bca3af8",
       source: "rulebook"
     },
     lc_klaviyo_new_event: {
@@ -183720,6 +185082,251 @@ Rules to Follow:
       appId: "69fc563aafd75c9fa09b2993",
       source: "rulebook"
     },
+    leadgen_ecommerce_add_to_cart: {
+      type: "leadgen_ecommerce_add_to_cart",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Ecommerce Stores",
+      display_name: "Add Products to Cart",
+      description: "Trigger when product is added to cart",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "duration",
+          title: "Duration (in Mins)",
+          required: true,
+          fieldType: "numerical"
+        },
+        {
+          field: "globalProductIds",
+          title: "Global Products",
+          fieldType: "multiselect",
+          mappedTo: "GLOBAL_PRODUCTS",
+          showOperator: true
+        },
+        {
+          field: "orderSource",
+          title: "Order Source",
+          fieldType: "select",
+          showOperator: true,
+          options: [
+            {
+              label: "External",
+              value: "external"
+            },
+            {
+              label: "Store",
+              value: "store"
+            }
+          ]
+        },
+        {
+          field: "subSource",
+          title: "Sub Source",
+          fieldType: "select",
+          showOperator: true,
+          options: [
+            {
+              label: "Shopify",
+              value: "shopify"
+            }
+          ]
+        },
+        {
+          field: "checkoutCompleted",
+          title: "Checkout Completed",
+          fieldType: "select",
+          showOperator: true,
+          options: [
+            {
+              label: "True",
+              value: "true"
+            },
+            {
+              label: "False",
+              value: "false"
+            }
+          ]
+        },
+        {
+          field: "storeId",
+          title: "Store Name",
+          fieldType: "multiselect",
+          showOperator: true
+        },
+        {
+          field: "cartValue",
+          title: "Cart Value",
+          fieldType: "numerical",
+          showOperator: true
+        }
+      ],
+      schemaConditions: [
+        {
+          reference: "orderSource",
+          name: "Order Source",
+          fieldType: "select"
+        },
+        {
+          reference: "subSource",
+          name: "Sub Source",
+          fieldType: "select"
+        },
+        {
+          reference: "cartValue",
+          name: "Cart Value",
+          fieldType: "numerical"
+        },
+        {
+          reference: "checkoutCompleted",
+          name: "Checkout Completed",
+          fieldType: "select"
+        }
+      ],
+      customVars: [
+        {
+          reference: "cartItems",
+          name: "Cart Items",
+          fieldType: "string"
+        },
+        {
+          reference: "cartUpdated",
+          name: "Cart Updated",
+          fieldType: "numerical"
+        },
+        {
+          reference: "cartValue",
+          name: "Cart Value",
+          fieldType: "numerical"
+        },
+        {
+          reference: "cartQuantity",
+          name: "Cart Quantity",
+          fieldType: "numerical"
+        },
+        {
+          reference: "productName",
+          name: "Product Name",
+          fieldType: "string"
+        },
+        {
+          reference: "price",
+          name: "Price",
+          fieldType: "numerical"
+        }
+      ],
+      source: "rulebook"
+    },
+    leadgen_ecommerce_product_viewed: {
+      type: "leadgen_ecommerce_product_viewed",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Ecommerce Stores",
+      display_name: "Product Viewed",
+      description: "Trigger when product is viewed",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "duration",
+          title: "Duration (in mins)",
+          required: true,
+          fieldType: "numerical"
+        },
+        {
+          field: "globalProductIds",
+          title: "Global Products",
+          fieldType: "multiselect",
+          mappedTo: "GLOBAL_PRODUCTS",
+          showOperator: true
+        },
+        {
+          field: "orderSource",
+          title: "Order Source",
+          fieldType: "select",
+          showOperator: true,
+          options: [
+            {
+              label: "External",
+              value: "external"
+            },
+            {
+              label: "Store",
+              value: "store"
+            }
+          ]
+        },
+        {
+          field: "subSource",
+          title: "Sub Source",
+          fieldType: "select",
+          showOperator: true,
+          options: [
+            {
+              label: "Shopify",
+              value: "shopify"
+            }
+          ]
+        },
+        {
+          field: "checkoutCompleted",
+          title: "Checkout Completed",
+          fieldType: "select",
+          showOperator: true,
+          options: [
+            {
+              label: "True",
+              value: "true"
+            },
+            {
+              label: "False",
+              value: "false"
+            }
+          ]
+        },
+        {
+          field: "storeId",
+          title: "Store Name",
+          fieldType: "multiselect",
+          showOperator: true
+        }
+      ],
+      schemaConditions: [
+        {
+          reference: "orderSource",
+          name: "Order Source",
+          fieldType: "select"
+        },
+        {
+          reference: "subSource",
+          name: "Sub Source",
+          fieldType: "select"
+        }
+      ],
+      customVars: [
+        {
+          reference: "productName",
+          name: "Product Name",
+          fieldType: "string"
+        },
+        {
+          reference: "price",
+          name: "Price",
+          fieldType: "numerical"
+        },
+        {
+          reference: "viewCount",
+          name: "View Count",
+          fieldType: "numerical"
+        }
+      ],
+      source: "rulebook"
+    },
     leadgen_ecommerce_review_submitted: {
       type: "leadgen_ecommerce_review_submitted",
       kind: "trigger",
@@ -184588,7 +186195,7 @@ Rules to Follow:
       confidence: "live-schema",
       category: "events",
       display_name: "New Review Received",
-      description: "This trigger allows you to create automated actions when new reviews come in from Facebook or Google. You can filter these reviews based on various criteria to customise your workflow. This trigger is contactless, meaning the reviews are not linked to any specific contact.",
+      description: "This trigger allows you to create automated actions when new reviews come in from  any of your connected review platforms (Google, Facebook, Yelp, TripAdvisor, and more). You can filter these reviews based on various criteria to customise your workflow. This trigger is contactless, meaning the reviews are not linked to any specific contact.",
       premium: false,
       beta: false,
       workflowsTriggerType: "INTERNAL",
@@ -184618,16 +186225,7 @@ Rules to Follow:
           field: "review.source",
           title: "Review Source",
           fieldType: "select",
-          options: [
-            {
-              label: "Google",
-              value: "google"
-            },
-            {
-              label: "Facebook",
-              value: "facebook"
-            }
-          ]
+          showOperator: true
         }
       ],
       schemaConditions: [
@@ -184671,6 +186269,140 @@ Rules to Follow:
         {
           reference: "review.isSpam",
           name: "Is Review Spam",
+          fieldType: "string"
+        }
+      ],
+      source: "rulebook"
+    },
+    reputation_video_testimonials_received: {
+      type: "reputation_video_testimonials_received",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "events",
+      display_name: "Video testimonial received",
+      description: "Trigger automated actions when a new video testimonial is received. Use filters to run the workflow only for testimonials that match specific criteria.",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "videoTestimonial.marketingConsent",
+          title: "Marketing Consent",
+          fieldType: "select",
+          options: [
+            {
+              label: "Granted",
+              value: "granted"
+            },
+            {
+              label: "Not Granted",
+              value: "not-granted"
+            }
+          ]
+        },
+        {
+          field: "videoTestimonial.collectorId",
+          title: "Video Collector",
+          fieldType: "select"
+        }
+      ],
+      schemaConditions: [
+        {
+          reference: "videoTestimonial.marketingConsent",
+          name: "Marketing Consent",
+          fieldType: "select"
+        },
+        {
+          reference: "videoTestimonial.collectorId",
+          name: "Video Collector",
+          fieldType: "select"
+        }
+      ],
+      customVars: [
+        {
+          reference: "videoTestimonial.name",
+          name: "Reviewer Name",
+          fieldType: "string"
+        },
+        {
+          reference: "videoTestimonial.email",
+          name: "Reviewer Email",
+          fieldType: "string"
+        },
+        {
+          reference: "videoTestimonial.phone",
+          name: "Reviewer Phone",
+          fieldType: "string"
+        },
+        {
+          reference: "videoTestimonial.marketingConsent",
+          name: "Marketing Consent",
+          fieldType: "string"
+        },
+        {
+          reference: "videoTestimonial.submittedAt",
+          name: "Submitted At",
+          fieldType: "date"
+        },
+        {
+          reference: "videoTestimonial.collectorName",
+          name: "Collector Name",
+          fieldType: "string"
+        },
+        {
+          reference: "videoTestimonial.videoUrl",
+          name: "Video Link",
+          fieldType: "string"
+        }
+      ],
+      source: "rulebook"
+    },
+    requested_to_join_group: {
+      type: "requested_to_join_group",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "communities",
+      display_name: "Requested to join group",
+      description: "Trigger is fired when a user requests to join a group.",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "groupId",
+          title: "Group",
+          required: true,
+          fieldType: "select",
+          showOperator: true,
+          customOperators: [
+            {
+              value: "==",
+              label: "Is"
+            }
+          ]
+        }
+      ],
+      schemaConditions: [
+        {
+          name: "Questions",
+          fieldType: "dynamic"
+        },
+        {
+          reference: "groupName",
+          name: "Group Name",
+          fieldType: "string"
+        }
+      ],
+      customVars: [
+        {
+          name: "Questions",
+          fieldType: "dynamic"
+        },
+        {
+          reference: "groupName",
+          name: "Group Name",
           fieldType: "string"
         }
       ],
@@ -184841,6 +186573,277 @@ Rules to Follow:
           reference: "booked_services",
           name: "Services",
           fieldType: "array"
+        },
+        {
+          reference: "meeting_location_name",
+          name: "Meeting Location Name",
+          fieldType: "string"
+        },
+        {
+          reference: "total_price",
+          name: "Total Price",
+          fieldType: "string"
+        }
+      ],
+      source: "rulebook"
+    },
+    social_planner_post_trigger_event: {
+      type: "social_planner_post_trigger_event",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Social Planner",
+      display_name: "socialPlannerPosts.triggerName",
+      description: "socialPlannerPosts.note",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
+      schemaFilters: [
+        {
+          field: "social_accounts",
+          title: "socialPlannerPosts.filters.socialAccounts",
+          fieldType: "multiselect",
+          defaultOperator: "is-any-of"
+        },
+        {
+          field: "platform",
+          title: "socialPlannerPosts.filters.platform",
+          fieldType: "multiselect",
+          defaultOperator: "is-any-of",
+          options: [
+            {
+              label: "Facebook",
+              value: "facebook"
+            },
+            {
+              label: "Instagram",
+              value: "instagram"
+            },
+            {
+              label: "LinkedIn",
+              value: "linkedin"
+            },
+            {
+              label: "TikTok",
+              value: "tiktok"
+            },
+            {
+              label: "YouTube",
+              value: "youtube"
+            },
+            {
+              label: "Pinterest",
+              value: "pinterest"
+            },
+            {
+              label: "Google Business",
+              value: "google"
+            },
+            {
+              label: "Bluesky",
+              value: "bluesky"
+            },
+            {
+              label: "Threads",
+              value: "threads"
+            }
+          ]
+        },
+        {
+          field: "post_type",
+          title: "socialPlannerPosts.filters.postType",
+          fieldType: "multiselect",
+          defaultOperator: "is-any-of",
+          options: [
+            {
+              label: "Post",
+              value: "post"
+            },
+            {
+              label: "Story",
+              value: "story"
+            },
+            {
+              label: "Reel",
+              value: "reel"
+            },
+            {
+              label: "Short",
+              value: "short"
+            },
+            {
+              label: "Carousel",
+              value: "carousel"
+            }
+          ]
+        },
+        {
+          field: "event",
+          title: "socialPlannerPosts.filters.postStatus",
+          fieldType: "multiselect",
+          defaultOperator: "is-any-of",
+          options: [
+            {
+              label: "Scheduled",
+              value: "scheduled"
+            },
+            {
+              label: "Published",
+              value: "published"
+            },
+            {
+              label: "Failed",
+              value: "failed"
+            },
+            {
+              label: "Approval Requested",
+              value: "approval_requested"
+            },
+            {
+              label: "Approved",
+              value: "approval_approved"
+            },
+            {
+              label: "Approval Rejected",
+              value: "approval_rejected"
+            }
+          ]
+        },
+        {
+          field: "category",
+          title: "socialPlannerPosts.filters.category",
+          fieldType: "multiselect",
+          defaultOperator: "is-any-of"
+        },
+        {
+          field: "tags",
+          title: "socialPlannerPosts.filters.tags",
+          fieldType: "multiselect",
+          defaultOperator: "contains-any"
+        }
+      ],
+      schemaConditions: [
+        {
+          reference: "event",
+          name: "Post Event",
+          fieldType: "string"
+        },
+        {
+          reference: "social_accounts",
+          name: "Social Account",
+          fieldType: "string"
+        },
+        {
+          reference: "social_account_name",
+          name: "Social Account Name",
+          fieldType: "string"
+        },
+        {
+          reference: "platform",
+          name: "Platform",
+          fieldType: "string"
+        },
+        {
+          reference: "post_type",
+          name: "Post Type",
+          fieldType: "string"
+        },
+        {
+          reference: "category",
+          name: "Category",
+          fieldType: "string"
+        },
+        {
+          reference: "tags",
+          name: "Tags",
+          fieldType: "string"
+        },
+        {
+          reference: "postId",
+          name: "Post ID",
+          fieldType: "string"
+        },
+        {
+          reference: "postUrl",
+          name: "Post URL",
+          fieldType: "string"
+        },
+        {
+          reference: "status",
+          name: "Status",
+          fieldType: "string"
+        },
+        {
+          reference: "publishedAt",
+          name: "Published At",
+          fieldType: "string"
+        },
+        {
+          reference: "scheduledAt",
+          name: "Scheduled At",
+          fieldType: "string"
+        }
+      ],
+      customVars: [
+        {
+          reference: "event",
+          name: "Post Event",
+          fieldType: "string"
+        },
+        {
+          reference: "social_accounts",
+          name: "Social Account",
+          fieldType: "string"
+        },
+        {
+          reference: "social_account_name",
+          name: "Social Account Name",
+          fieldType: "string"
+        },
+        {
+          reference: "platform",
+          name: "Platform",
+          fieldType: "string"
+        },
+        {
+          reference: "post_type",
+          name: "Post Type",
+          fieldType: "string"
+        },
+        {
+          reference: "category",
+          name: "Category",
+          fieldType: "string"
+        },
+        {
+          reference: "tags",
+          name: "Tags",
+          fieldType: "string"
+        },
+        {
+          reference: "postId",
+          name: "Post ID",
+          fieldType: "string"
+        },
+        {
+          reference: "postUrl",
+          name: "Post URL",
+          fieldType: "string"
+        },
+        {
+          reference: "status",
+          name: "Status",
+          fieldType: "string"
+        },
+        {
+          reference: "publishedAt",
+          name: "Published At",
+          fieldType: "string"
+        },
+        {
+          reference: "scheduledAt",
+          name: "Scheduled At",
+          fieldType: "string"
         }
       ],
       source: "rulebook"
@@ -185382,6 +187385,19 @@ Rules to Follow:
           ]
         }
       ],
+      source: "rulebook"
+    },
+    user_log_in: {
+      type: "user_log_in",
+      kind: "trigger",
+      confidence: "live-schema",
+      category: "Client Portal",
+      display_name: "user_login",
+      description: "triggers_on_each_successful_portal_login",
+      premium: false,
+      beta: false,
+      workflowsTriggerType: "INTERNAL",
+      masterType: "internal",
       source: "rulebook"
     },
     user_replied: {

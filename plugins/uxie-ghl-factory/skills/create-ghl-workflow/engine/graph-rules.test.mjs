@@ -168,7 +168,11 @@ test('catalog carries every action\'s required triggers, from GHL\'s own action 
   const m = R().requiredTriggersByAction ?? {};
   assert.deepEqual([...(m.conversationai_custom_message ?? [])].sort(), ['conv_ai_autonomous_trigger', 'conv_ai_trigger']);
   assert.deepEqual(m['tiktok-dm'], ['customer_reply']);
-  assert.equal(Object.keys(m).length, 11, Object.keys(m).join(', '));
+  // 14 since the 2026-09-29 rulebook refresh (bl-310): the company / custom-object assets add
+  // co_find_company_record + find_object_record → inbound_webhook, and workflow_ai_email_parser → inbound_trigger.
+  assert.deepEqual(m.co_find_company_record, ['inbound_webhook']);
+  assert.deepEqual(m.find_object_record, ['inbound_webhook']);
+  assert.equal(Object.keys(m).length, 14, Object.keys(m).join(', '));
 });
 
 test('validateRequiredTriggersForActions: publishing an AI step with no trigger is refused', () => {
