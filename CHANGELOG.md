@@ -11,6 +11,30 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.24.1] — 2026-09-29
+
+**Fix: removing a pipeline stage no longer reports success while GHL silently moves a just-created deal. Executed live
+on the test account.**
+
+### Fixed
+- 🔴 `edit_pipeline`: removing a stage that a just-created card had reached reported success. GHL's search index lags
+  by seconds, and GHL moved that card to the first stage without a word. Proven by a differential on throwaway
+  pipelines. The edit now stops before writing, or fails with the card named if one slips through.
+- `get_pipeline_forecast`: the summary by stage no longer drops stages that have no deals. It scopes the pipeline the
+  way the app does.
+
+### Changed
+- ⚠️ `raw_request` refuses a pipeline PUT whose stages are missing a numeric win probability, because GHL would
+  rewrite every stage's probability.
+
+### Docs — ghl-pipeline-specialist
+- Deleted pipelines ARE restorable, and their deals come back with them.
+- A contact delete cascades to its deals, and restoring a deal restores the contact.
+- The opportunity form writes the contact's email, phone and business name.
+- Contacts can be put into a pipeline in one bulk job, which is an upsert.
+- Also: object label rename, Forecast timeline drag, own association types, invoice merge tags, and reading current
+  stage settings with an `edit_pipeline` preview.
+
 ## [1.24.0] — 2026-09-29
 
 **Pages: `build_funnel_page` composes every element the page builder has. Executed live on the test account.**
