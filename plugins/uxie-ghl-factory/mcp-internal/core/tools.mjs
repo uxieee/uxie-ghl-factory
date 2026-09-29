@@ -98,11 +98,14 @@ import {
   TIME_RANGES as AGENT_LOG_TIME_RANGES,
   PRODUCTS as AGENT_LOG_PRODUCTS,
   MAX_OFFSET as AGENT_LOG_MAX_OFFSET,
+  FILTER_FIELDS as AGENT_LOG_FILTER_FIELDS,
   sessionBody as agentLogSessionBody,
   sessionRow as agentLogSessionRow,
   walkSessions as walkAgentSessions,
   sortNote as agentLogSortNote,
 } from './agent-logs.mjs';
+import { VOICE_ACTION_TYPES, VOICE_SORT_FIELDS, VOICE_PAGE_SIZE_MAX, PENDING_STATUSES, CAI_PRESET_PERIODS, CAI_LIMIT_MAX,
+  toEpochMs, voiceCallLogsQuery, voiceCallRow, voicePendingQuery, caiConversationLogsQuery, caiLogRow, caiSummaryRow } from './ai-call-logs.mjs';
 import { runLints } from '../../skills/create-ghl-workflow/engine/lints/runner.mjs';
 import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/doctrine.mjs';
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
@@ -4391,7 +4394,7 @@ export const TOOLS = [
     name: 'list_agent_sessions',
     description: describe(
       'list_agent_sessions',
-      'The AI Agents → Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, tokens, latency and duration. Read-only despite being a POST — this endpoint reads, so it does not take the raw-write confirmation gate. Traps (live 2026-09-28): sortBy:"durationMs" is NOT a true sort on GHL\'s side (the result carries a note; re-sort yourself); agentName is a substring match; Conversation AI Test-panel chats are never logged (a trial chat has no session row), while a Voice AI Test Audio web call is.',
+      'The AI Agents → Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, message count, tokens, latency and duration. products: agent_studio, voice_ai, conversation_ai, superagents, ask_ai, agent_logs_assistant, ai_studio (the AI Studio site builder). For the exact agentName / channel spellings use get_agent_log_filter_values. Read-only despite being a POST — this endpoint reads, so it does not take the raw-write confirmation gate. Traps (live 2026-09-28): sortBy:"durationMs" is NOT a true sort on GHL\'s side (the result carries a note; re-sort yourself); agentName is a substring match; Conversation AI Test-panel chats are never logged (a trial chat has no session row), while a Voice AI Test Audio web call is.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -4490,7 +4493,7 @@ export const TOOLS = [
     name: 'get_agent_session',
     description: describe(
       'get_agent_session',
-      'One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries the traceId that get_agent_message_trace expands.',
+      'One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries userQueries[] and aiResponses[] — every message of the turn, as the Conversation view shows them (the singular userQuery / aiResponse can hold only one, and is "" on a voice call\'s greeting turn) — and the traceId that get_agent_message_trace expands.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -4533,6 +4536,9 @@ export const TOOLS = [
             traceId: i.traceId ?? null, timestamp: i.timestamp ?? null, lastSpanName: i.lastSpanName ?? null,
             contactId: i.contactId ?? null, contactName: i.contactName ?? null,
             userQuery: i.userQuery ?? null, aiResponse: i.aiResponse ?? null,
+            // The Conversation view renders these arrays, not the singular fields: a turn can carry several messages each
+            // way, and a voice session's first turn has userQuery "" with the greeting in aiResponses[0] (live 2026-09-29).
+            userQueries: Array.isArray(i.userQueries) ? i.userQueries : [], aiResponses: Array.isArray(i.aiResponses) ? i.aiResponses : [],
             attachments: i.allAttachments ?? [], metrics: i.metrics ?? null,
           });
         }
@@ -4564,6 +4570,165 @@ export const TOOLS = [
       }
       out.note = 'Each interaction is one inbound message; its traceId IS that message\'s CRM id. Expand it with get_agent_message_trace.';
       return ok(out);
+    }, args),
+  },
+  {
+    // t23 (2026-09-29). The Agent Logs filter dropdowns' own lookup. A POST that only reads, cleared as a read below.
+    name: 'get_agent_log_filter_values',
+    description: describe('get_agent_log_filter_values',
+      'The values Agent Logs can filter on, as its filter dropdowns list them: every agentName, contactName, channel or voiceName '
+      + 'that has a logged session on the location (POST /agent-logs/filter-values). search narrows it (a substring match). Use it to '
+      + 'find the exact agentName / channel spelling before list_agent_sessions or get_agent_metrics filter on it. Returns the '
+      + 'names only — no ids or counts. Read-only despite being a POST.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      field: z.enum(AGENT_LOG_FILTER_FIELDS),
+      search: z.string().optional(),
+      limit: z.number().int().positive().max(100).default(100),
+    }),
+    capabilities: [{ method: 'POST', path: '/agent-logs/filter-values' }],
+    // Verified 2026-09-29: one POST that returns a list of names; the Agent Logs filter dropdowns issue it on open and on
+    // every keystroke. It writes nothing.
+    readOnly: true,
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const r = await gw.call('POST', '/agent-logs/filter-values', { locationId: args.locationId, field: args.field, search: args.search ?? '', limit: args.limit ?? 100 });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const values = Array.isArray(r.json?.data) ? r.json.data : [];
+      return ok({ field: args.field, values, count: values.length,
+        ...(values.length >= (args.limit ?? 100) ? { note: `The list may be cut at limit ${args.limit ?? 100}; narrow it with search.` } : {}) });
+    }, args),
+  },
+  {
+    // t23 (2026-09-29). Voice AI → Dashboard → Call Logs, one call's detail, and the outbound queue. One read family.
+    name: 'get_voice_call_logs',
+    description: describe('get_voice_call_logs',
+      'Voice AI call logs, the Voice AI dashboard\'s own table. view "calls" (default): the calls, newest first, filtered by agentId, '
+      + 'contactIds, startDate/endDate (YYYY-MM-DD or ISO; sent as epoch ms), actionTypes, callType LIVE|TRIAL (real vs test calls; '
+      + 'omit for both), direction INBOUND|OUTBOUND, sortBy createdAt|duration + sortOrder; page + pageSize (≤50, the server cap). '
+      + 'Each row: callId, when, duration, agent, contact, type, direction, status, the actions that ran, summary, extracted data; '
+      + 'includeTranscript adds the transcript. view "call": one call by callId (a calls row\'s callId) with its agentId — transcript '
+      + 'with tool calls, telephony data, status. view "pending": the outbound queue (calls not yet placed): status '
+      + 'queued|scheduled|rejected, agentId, one contactId, dates, limit, cursor `after`. GHL has no text search on call logs. '
+      + 'For Agent Logs sessions (all products, spans and traces) use list_agent_sessions / get_agent_session; for Conversation '
+      + 'AI use get_convai_conversation_logs. Read-only.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      view: z.enum(['calls', 'call', 'pending']).default('calls'),
+      callId: z.string().optional(),
+      agentId: z.string().optional(),
+      contactIds: z.array(z.string()).optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+      actionTypes: z.array(z.enum(VOICE_ACTION_TYPES)).optional(),
+      callType: z.enum(['LIVE', 'TRIAL']).optional(),
+      direction: z.enum(['INBOUND', 'OUTBOUND']).optional(),
+      sortBy: z.enum(VOICE_SORT_FIELDS).optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      page: z.number().int().positive().max(10000).default(1),
+      pageSize: z.number().int().positive().max(VOICE_PAGE_SIZE_MAX).default(20),
+      timezone: z.string().optional(),
+      includeTranscript: z.boolean().default(false),
+      status: z.enum(PENDING_STATUSES).optional(),
+      after: z.string().optional(),
+      limit: z.number().int().positive().max(100).default(20),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/voice-ai/dashboard/call-logs' },
+      { method: 'GET', path: '/voice-ai/call/{callId}' },
+      { method: 'GET', path: '/voice-ai/dashboard/pending-call-logs' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const view = args.view ?? 'calls';
+      for (const k of ['startDate', 'endDate']) {
+        if (args[k] !== undefined && toEpochMs(args[k]) === null) return fail(CODES.VALIDATION_FAILED, `${k} ${JSON.stringify(args[k])} is not a date (use YYYY-MM-DD or an ISO date-time).`);
+      }
+      if (view === 'call') {
+        if (!args.callId || !args.agentId) {
+          return fail(CODES.VALIDATION_FAILED, 'view "call" needs callId AND agentId — take both from a view "calls" row (the route requires the agent; a provider call id answers 403).');
+        }
+        const q = new URLSearchParams({ locationId: args.locationId, agentId: args.agentId });
+        const r = await gw.call('GET', `/voice-ai/call/${encodeURIComponent(args.callId)}?${q}`, undefined, { base: AI_BASE });
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const c = r.json ?? {};
+        return ok({ callId: c._id ?? args.callId, callStatus: c.callStatus ?? null, provider: c.provider ?? null, createdAt: c.createdAt ?? null,
+          summary: c.summary ?? null, transcript: c.transcript ?? null, transcriptWithToolCalls: c.transcriptWithToolCalls ?? null,
+          telephonyData: c.telephonyData ?? null });
+      }
+      if (view === 'pending') {
+        if ((args.contactIds?.length ?? 0) > 1) return fail(CODES.VALIDATION_FAILED, 'view "pending" filters on ONE contactId (the queue route takes a single contact).');
+        const r = await gw.call('GET', `/voice-ai/dashboard/pending-call-logs?${voicePendingQuery(args)}`, undefined, { base: AI_BASE });
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const rows = Array.isArray(r.json?.pendingCalls) ? r.json.pendingCalls : [];
+        return ok({ view, pendingCalls: rows, count: rows.length, total: r.json?.total ?? rows.length,
+          hasMore: Boolean(r.json?.hasMore), after: r.json?.nextCursor ?? null,
+          ...(r.json?.hasMore ? { note: 'Pass after (the returned cursor) for the next page.' } : {}) });
+      }
+      const r = await gw.call('GET', `/voice-ai/dashboard/call-logs?${voiceCallLogsQuery(args)}`, undefined, { base: AI_BASE });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = (Array.isArray(r.json?.callLogs) ? r.json.callLogs : []).map((x) => voiceCallRow(x, { includeTranscript: args.includeTranscript === true }));
+      const total = Number(r.json?.totalRecords ?? rows.length);
+      const page = args.page ?? 1; const pageSize = args.pageSize ?? 20;
+      return ok({ view, calls: rows, count: rows.length, totalRecords: total, page, pageSize,
+        hasMore: page * pageSize < total,
+        ...(page * pageSize < total ? { note: `Page ${page} of ${Math.ceil(total / pageSize)}; pass page ${page + 1} for more.` } : {}) });
+    }, args),
+  },
+  {
+    // t23 (2026-09-29). Conversation AI → Dashboard → Conversation Logs, and its View Transcript / Summary drawer.
+    name: 'get_convai_conversation_logs',
+    description: describe('get_convai_conversation_logs',
+      'Conversation AI conversation logs, the Conversation AI dashboard\'s table: one row per conversation an agent answered '
+      + '(channel, agent, contact, last message, when). view "logs" (default) needs a scope — presetPeriod (today, this-week, '
+      + 'prev-week, this-month [default], prev-month, this-year, prev-year) or both from and to (ISO) — and filters by agentId, '
+      + 'contactId, channel (the exact channel name: SMS, Live_Chat, WebChat…; a wrong one returns 0 rows, not an error); '
+      + 'sortOrder, page, limit ≤100. view "summaries": what the table\'s View Transcript / Summary shows for one contactId — '
+      + 'each conversation summary the agent wrote (summary text, what triggered it, the transcript it summarised), optionally '
+      + 'one channel. A contact has summaries only where the agent\'s conversation summary is on. For every AI product\'s '
+      + 'sessions with spans use list_agent_sessions; for Voice AI calls use get_voice_call_logs. Read-only.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      view: z.enum(['logs', 'summaries']).default('logs'),
+      presetPeriod: z.enum(CAI_PRESET_PERIODS).optional(),
+      from: z.string().optional(),
+      to: z.string().optional(),
+      agentId: z.string().optional(),
+      contactId: z.string().optional(),
+      channel: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).default('desc'),
+      page: z.number().int().positive().default(1),
+      limit: z.number().int().positive().max(CAI_LIMIT_MAX).default(20),
+      includeTranscript: z.boolean().default(true),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/ai-employees/employees/{locationId}/conversation-logs' },
+      { method: 'GET', path: '/ai-employees/summary/{locationId}/contact/{contactId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      if ((args.view ?? 'logs') === 'summaries') {
+        if (!args.contactId) return fail(CODES.VALIDATION_FAILED, 'view "summaries" needs contactId (a logs row\'s contactId).');
+        const q = new URLSearchParams({ page: String(args.page ?? 1), limit: String(args.limit ?? 20) });
+        if (args.channel) q.set('channelName', args.channel);
+        const r = await gw.call('GET', `/ai-employees/summary/${loc}/contact/${encodeURIComponent(args.contactId)}?${q}`, undefined, { base: AI_BASE });
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const items = (Array.isArray(r.json?.items) ? r.json.items : []).map((x) => caiSummaryRow(x, { includeTranscript: args.includeTranscript !== false }));
+        return ok({ view: 'summaries', contactId: args.contactId, summaries: items, count: items.length, totalCount: r.json?.totalCount ?? items.length,
+          ...(items.length ? {} : { note: 'No summaries: they exist only where the agent\'s conversation summary setting is on (and, with channel, only on that channel).' }) });
+      }
+      if ((args.from && !args.to) || (!args.from && args.to)) return fail(CODES.VALIDATION_FAILED, 'from and to go together (ISO date-times); or use presetPeriod.');
+      if (args.from && args.presetPeriod) return fail(CODES.VALIDATION_FAILED, 'pass presetPeriod OR from + to, not both.');
+      for (const k of ['from', 'to']) if (args[k] && !Number.isFinite(Date.parse(args[k]))) return fail(CODES.VALIDATION_FAILED, `${k} must be an ISO 8601 date-time.`);
+      const r = await gw.call('GET', `/ai-employees/employees/${loc}/conversation-logs?${caiConversationLogsQuery(args)}`, undefined, { base: AI_BASE });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = (Array.isArray(r.json?.items) ? r.json.items : []).map(caiLogRow);
+      const p = r.json?.pagination ?? {};
+      const total = Number(p.totalItems ?? rows.length); const page = Number(p.page ?? args.page ?? 1); const limit = Number(p.limit ?? args.limit ?? 20);
+      return ok({ view: 'logs', scope: args.from ? { from: args.from, to: args.to } : { presetPeriod: args.presetPeriod ?? 'this-month' },
+        conversations: rows, count: rows.length, totalItems: total, page, limit, hasMore: page * limit < total,
+        ...(page * limit < total ? { note: `Page ${page} of ${Math.ceil(total / limit)}; pass page ${page + 1} for more.` } : {}) });
     }, args),
   },
   {
