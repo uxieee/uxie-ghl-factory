@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1571,
+      count: 1576,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -14102,7 +14102,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/google-connections-service.ts:59",
-            "workflows/30-types/steps/google_sheets.md:105"
+            "workflows/30-types/steps/google_sheets.md:128"
           ]
         },
         {
@@ -14260,7 +14260,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:517"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:522"
           ]
         },
         {
@@ -16639,7 +16639,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:509",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:514",
             "ai-agents/20-api/agent-templates.md:25",
             "ai-agents/20-api/agent-templates.md:33"
           ]
@@ -16672,7 +16672,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:521"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:526"
           ]
         },
         {
@@ -18882,7 +18882,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:522",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:527",
             "ai-agents/20-api/agent-templates.md:53",
             "workflows/70-research/ENDPOINTS.md:243"
           ]
@@ -41224,7 +41224,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/30-types/voice-ai-actions.md:87"
+            "ai-agents/30-types/voice-ai-actions.md:87",
+            "ai-agents/30-types/voice-ai-actions.md:94"
           ]
         },
         {
@@ -43606,7 +43607,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:232",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:235",
             "ai-agents/20-api/12-ai-agents-api.md:101",
             "ai-agents/20-api/12-ai-agents-api.md:105",
             "ai-agents/20-api/12-ai-agents-api.md:132",
@@ -43933,10 +43934,80 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:64",
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:125",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:231",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:234",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:95",
             "ai-agents/20-api/12-ai-agents-api.md:105"
+          ]
+        },
+        {
+          id: "ai-agents--employees-working-hours-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}/working-hours",
+          path: "/ai-employees/employees/{agentId}/working-hours",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:132"
+          ]
+        },
+        {
+          id: "ai-agents--employees-working-hours-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}/working-hours",
+          path: "/ai-employees/employees/{agentId}/working-hours",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:133"
           ]
         },
         {
@@ -43974,7 +44045,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:131",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
             "ai-agents/00-overview/index.md:86"
           ]
         },
@@ -44022,7 +44093,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:100",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:237",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:240",
             "ai-agents/20-api/agent-deployment-routing.md:73"
           ]
         },
@@ -44114,7 +44185,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:96",
             "ai-agents/20-api/12-ai-agents-api.md:128",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:235",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:238",
             "ai-agents/20-api/12-ai-agents-api.md:386",
             "ai-agents/40-rules/builder-vs-server.md:24"
           ]
@@ -44255,7 +44326,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:154"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:157"
           ]
         },
         {
@@ -44359,7 +44430,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:150"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:153"
           ]
         },
         {
@@ -44390,7 +44461,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:149"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:152"
           ]
         },
         {
@@ -44432,7 +44503,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:153"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:156"
           ]
         },
         {
@@ -44474,7 +44545,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:151"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:154"
           ]
         },
         {
@@ -44613,7 +44684,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:152"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:155"
           ]
         },
         {
@@ -47777,7 +47848,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:530"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:535"
           ]
         },
         {
@@ -47838,7 +47909,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:532",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:537",
             "ai-agents/20-api/agent-deployment-routing.md:186",
             "ai-agents/20-api/agent-deployment-routing.md:411"
           ]
@@ -48546,7 +48617,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:188",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:191",
             "ai-agents/20-api/conversation-ai-boundary.md:96"
           ]
         },
@@ -66242,7 +66313,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/30-types/voice-ai-actions.md:151"
+            "ai-agents/30-types/voice-ai-actions.md:163"
           ]
         },
         {
@@ -66305,7 +66376,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:233"
+            "ai-agents/20-api/logs-deployment-email.md:234"
           ]
         },
         {
@@ -66336,7 +66407,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:231"
+            "ai-agents/20-api/logs-deployment-email.md:232"
           ]
         },
         {
@@ -66367,7 +66438,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:236"
+            "ai-agents/20-api/logs-deployment-email.md:237"
           ]
         },
         {
@@ -66398,7 +66469,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:238"
+            "ai-agents/20-api/logs-deployment-email.md:239"
           ]
         },
         {
@@ -66429,7 +66500,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:234"
+            "ai-agents/20-api/logs-deployment-email.md:235"
           ]
         },
         {
@@ -66460,7 +66531,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/30-types/voice-ai-actions.md:85"
+            "ai-agents/30-types/voice-ai-actions.md:85",
+            "ai-agents/30-types/voice-ai-actions.md:93"
           ]
         },
         {
@@ -66491,8 +66563,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:242",
-            "ai-agents/30-types/voice-ai-actions.md:84"
+            "ai-agents/20-api/logs-deployment-email.md:243",
+            "ai-agents/30-types/voice-ai-actions.md:84",
+            "ai-agents/30-types/voice-ai-actions.md:92"
           ]
         },
         {
@@ -67054,7 +67127,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:534",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:539",
             "ai-agents/20-api/logs-deployment-email.md:166"
           ]
         },
@@ -67100,7 +67173,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:533"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:538"
           ]
         },
         {
@@ -67457,7 +67530,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:443",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:473",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:478",
             "ai-agents/20-api/logs-deployment-email.md:23",
             "ai-agents/20-api/logs-deployment-email.md:62"
           ]
@@ -67679,7 +67752,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:445",
             "ai-agents/20-api/logs-deployment-email.md:27",
             "ai-agents/20-api/voice-ai-boundary.md:71",
-            "ai-agents/30-types/voice-ai-actions.md:133"
+            "ai-agents/30-types/voice-ai-actions.md:145"
           ]
         },
         {
@@ -68075,7 +68148,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:173",
             "ai-agents/20-api/logs-deployment-email.md:150",
             "ai-agents/20-api/voice-ai-boundary.md:73",
-            "ai-agents/30-types/voice-ai-actions.md:103"
+            "ai-agents/30-types/voice-ai-actions.md:115"
           ]
         },
         {
@@ -68535,7 +68608,70 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/30-types/voice-ai-actions.md:91"
+            "ai-agents/30-types/voice-ai-actions.md:97",
+            "ai-agents/30-types/voice-ai-actions.md:103"
+          ]
+        },
+        {
+          id: "ai-agents--mcp-server-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/mcp/server",
+          path: "/voice-ai/mcp/server",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/voice-ai-actions.md:95"
+          ]
+        },
+        {
+          id: "ai-agents--mcp-server-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/voice-ai/mcp/server",
+          path: "/voice-ai/mcp/server",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/voice-ai-actions.md:96"
           ]
         },
         {
@@ -68579,7 +68715,38 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:540"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:545"
+          ]
+        },
+        {
+          id: "ai-agents--mcp-tools-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/mcp/tools",
+          path: "/voice-ai/mcp/tools",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/voice-ai-actions.md:98"
           ]
         },
         {
@@ -68610,7 +68777,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/30-types/voice-ai-actions.md:92"
+            "ai-agents/30-types/voice-ai-actions.md:99",
+            "ai-agents/30-types/voice-ai-actions.md:104"
           ]
         },
         {
@@ -68676,7 +68844,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:240"
+            "ai-agents/20-api/logs-deployment-email.md:241"
           ]
         },
         {
@@ -68707,7 +68875,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:241"
+            "ai-agents/20-api/logs-deployment-email.md:242"
           ]
         },
         {
@@ -68738,7 +68906,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:467"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:469",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:472"
           ]
         },
         {
@@ -68769,7 +68938,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:243"
+            "ai-agents/20-api/logs-deployment-email.md:244"
           ]
         },
         {
@@ -120901,6 +121070,8 @@ var KNOWN_NODE_KEYS = /* @__PURE__ */ new Set([
   // ai_intent
   "target",
   // goto
+  "integrationAccountId",
+  // INTEGRATION_AI marketplace step: the connected account (compiler checks the publisher)
   ...SCOPE_KEYS
 ]);
 var SCOPE_OWNERS = {
@@ -120927,6 +121098,10 @@ var KIND_BY_TYPE = {
   ai_intent: "ai_intent",
   workflow_ai_intent_detection: "ai_intent",
   goto: "goto"
+};
+var NOT_AUTHORED = {
+  router: { code: "ROUTER_NOT_AUTHORED", message: (n) => `node '${n.ref ?? n.name ?? "router"}': the engine does not author a Router. GHL stores one as a condition-node root (attributes.branches, next = its lane ids) plus one template per lane (type router, nodeType branch-yes, parentKey = the router) (utils/router.ts:616-760); the engine has no router kind, and what it used to write was a single step that cannot branch. The builder offers Router only on allowlisted locations (IS_ROUTER_ACTION_SHIPPED is false; utils/router-flag.ts). Use if_else (one path per condition), or add the Router in the builder where it is offered.` },
+  loop: { code: "LOOP_NOT_AUTHORED", message: (n) => `node '${n.ref ?? n.name ?? "loop"}': the engine does not author a Loop. GHL stores the body as separate steps tagged parentContainerId = the loop, running from the loop's next up to attributes.exitNext (utils/loop.helper.ts:571-648); the engine has no body scope. The builder offers Loop only on allowlisted locations (isLoopActionEnabled: GHL-internal companies or 41 listed location ids, loop.helper.ts:37-85). Add the loop in the builder where it is offered.` }
 };
 var AI_INTENT_BRANCHES = ["positive", "negative", "none"];
 var NODE_KINDS = /* @__PURE__ */ new Set(["action", "wait", "if_else", "split", "ai_decision", "ai_intent", "goto", "raw"]);
@@ -121090,7 +121265,8 @@ var KNOWN_TRIGGER_KEYS = /* @__PURE__ */ new Set([
   "masterType",
   "target",
   "targetActionId",
-  "convTriggerBotId"
+  "convTriggerBotId",
+  "integrationAccountId"
 ]);
 var TYPE_TRIGGER_KEYS = { custom_date_reminder: /* @__PURE__ */ new Set(["config"]) };
 function checkTriggerKeys(triggers) {
@@ -121127,6 +121303,7 @@ function parseIR(ir, { externalRefs } = {}) {
       n.kind = KIND_BY_TYPE[n.type];
     }
     if (n.kind !== "raw" && WIRE_TYPE_ALIASES[n.type]) n.type = WIRE_TYPE_ALIASES[n.type];
+    if (n.kind !== "raw" && NOT_AUTHORED[n.type]) throw new IRError(NOT_AUTHORED[n.type].code, NOT_AUTHORED[n.type].message(n));
     if (n.kind !== void 0 && !NODE_KINDS.has(n.kind)) {
       const fromCatalogue = n.kind === "step" || n.kind === "trigger";
       throw new IRError(
@@ -121610,9 +121787,33 @@ var STEP_OUTPUTS = Object.freeze({
   array_functions: { ns: "array_functions", fields: ["result"], kind: "per-instance", from: "per action; object paths come from the snapshotted referenceObject; primitives \u2192 [N]" },
   // live 2026-09-28: all three rendered in a later field write (knowledge live-3Q-generate-image.json)
   workflow_ai_generate_image: { ns: "workflow_ai_generate_image", fields: ["image_url", "image_file.path", "image_file.name"], kind: "fixed" },
-  "task-notification": { ns: "[task-notification]", fields: ["id", "title", "body", "bodyRawText", "dueDate", "assignedTo"], kind: "fixed", note: "bracketed namespace" }
+  "task-notification": { ns: "[task-notification]", fields: ["id", "title", "body", "bodyRawText", "dueDate", "assignedTo"], kind: "fixed", note: "bracketed namespace" },
+  // Two namespaces, and WHICH action produces each matters (utils/premium-actions-helpers/google_sheets_helpers.ts:66-137):
+  // lookup_row #N → {{sheet.N.<column letter>}} (one per sheetHeaders entry, A, B, … AA) and {{sheet.N.rowNumber}};
+  // lookup_multiple_rows #N → {{sheet.N.rowCount}} and {{sheetLookupResult.N.result}}. Other Sheets actions produce nothing.
+  google_sheets: {
+    ns: "sheet",
+    alsoNs: ["sheetLookupResult"],
+    fields: ["<column letter>", "rowNumber", "rowCount"],
+    kind: "per-instance",
+    from: "lookup_row: column letters + rowNumber; lookup_multiple_rows: rowCount + sheetLookupResult.N.result"
+  }
 });
-var NS_TO_TYPE = Object.freeze(Object.fromEntries(Object.entries(STEP_OUTPUTS).map(([ty, v]) => [v.ns.replace(/^\[|\]$/g, ""), ty])));
+var NS_TO_TYPE = Object.freeze(Object.fromEntries(Object.entries(STEP_OUTPUTS).flatMap(([ty, v]) => [v.ns, ...v.alsoNs ?? []].map((ns) => [ns.replace(/^\[|\]$/g, "").toLowerCase(), ty]))));
+var columnIndex = (letters) => [...letters.toUpperCase()].reduce((n, ch) => n * 26 + (ch.charCodeAt(0) - 64), 0) - 1;
+function sheetsRefMismatch(ref, step) {
+  const action = step.attributes?.action?.id;
+  const ns = ref.ns.toLowerCase();
+  if (ns === "sheetlookupresult") return action === "lookup_multiple_rows" && ref.field === "result" ? null : `only a lookup_multiple_rows step produces {{sheetLookupResult.N.result}} (step #${ref.n} is ${action || "no action"})`;
+  if (ref.field === "rowCount") return action === "lookup_multiple_rows" ? null : `rowCount comes only from lookup_multiple_rows (step #${ref.n} is ${action || "no action"})`;
+  if (action !== "lookup_row") return `{{sheet.N.${ref.field}}} comes only from lookup_row (step #${ref.n} is ${action || "no action"})`;
+  if (ref.field === "rowNumber") return null;
+  if (!/^[A-Z]+$/i.test(ref.field)) return `'${ref.field}' is not a column letter or rowNumber`;
+  const headers = step.attributes?.sheetHeaders;
+  if (Array.isArray(headers) && headers.length && columnIndex(ref.field) >= headers.length)
+    return `column ${ref.field} is past the step's ${headers.length} sheetHeaders`;
+  return null;
+}
 var REF_RE2 = /\{\{\s*\[?([a-z_][a-z0-9_-]*)\]?\.(\d+)\.([^}\s]+)\s*\}\}/gi;
 function findOutputRefs(text) {
   if (typeof text !== "string") return [];
@@ -121649,6 +121850,13 @@ function checkStepOutputRefs(templates, ctx = {}) {
         findings.push(ref);
         warn(`step output ${ref.raw} on '${t.name ?? t.id}': no ${ref.type} step answers to ${ref.n} in this workflow \u2014 the reference renders literally/empty at runtime. N is the producer's stored stepIndex; a producer with no stepIndex answers to its occurrence position (see references/step-outputs).`);
         continue;
+      }
+      if (ref.type === "google_sheets") {
+        const why = sheetsRefMismatch(ref, hit.step);
+        if (why) {
+          findings.push(ref);
+          warn(`step output ${ref.raw} on '${t.name ?? t.id}': ${why} \u2014 it renders empty at runtime.`);
+        }
       }
       if (ref.type === "custom_webhook" && hit.step.attributes?.saveResponse !== true) {
         findings.push(ref);
@@ -184293,6 +184501,64 @@ var CATALOG_CORRECTIONS = {
       "__customInputs__"
     ],
     docNote: '\u{1F534} **`proceedIfNotMet` means the OPPOSITE of its name.** It is bound directly to the checkbox "Don\'t Proceed to Next Objective If Criteria not Met.", so `true` = the objective BLOCKS and keeps asking; `false` = carry on to the next objective. For "carry on even if unmet", write `false`. Setting `true` makes `closingMessage` REQUIRED (what the bot says when it gives up) and reveals an optional `tags`; the engine refuses a blocking objective without one.'
+  },
+  // The verified-live example predates four keys the drawer writes, so the ATTR_KEY guard and the
+  // document gate called them invented and refused every agent a person had given a template, an MCP
+  // server, a Skill or the output-guard switch (publish_workflow and in-scope edits blocked).
+  // attrKeys REPLACES the generated list: the seven example keys carried verbatim, four appended.
+  ai_agent: {
+    reason: "the drawer writes templateId (applyTemplate, models/actions/AIAgent.ts:94), disableToolOutputGuards (:136), mcpConnections [{connectionId,name,serverUrl,selectedTools}] (:143-195) and skills [{id,name}] (ai-agent-components/hooks/use-agent-skill-attachment.ts:10-60) \u2014 bundle-2026-09-29-2; the 7-key example had none of them, so the ATTR_KEY guard and the gate refused builder-made agents",
+    attrKeys: [
+      "prompt",
+      "structuredResponse",
+      "model",
+      "tools",
+      "outputFormat",
+      "outputDescription",
+      "memoryEnabled",
+      "skills",
+      "mcpConnections",
+      "templateId",
+      "disableToolOutputGuards"
+    ],
+    docNote: "`skills: [{id, name}]` attaches Skills: at most 10 per step, a budget separate from tools. `id` is `builtin:<key>` or a skill document id (list them read-only with GET /workflow/agent/{loc}/skills); `name` is display-only. Until 2026-10-25 the builder hides the Skills section on most accounts (a date gate, `isLevelUp2026Enabled`), so an attached skill is stored but a person cannot see it in the drawer, and on the test sub-account the skills service answered 404 to list and resolve (2026-09-29) \u2014 a skill may not resolve at runtime before release. `templateId` (an applied agent template), `mcpConnections` (MCP servers, counted with tools against the drawer's 10-tool cap) and `disableToolOutputGuards` are written by the drawer; the engine keeps them on edit and passes them through verbatim, but does not author templates or MCP connections \u2014 attach those in the builder."
+  },
+  // The example is a create/update row, so the lookup, from-lookup and format_row keys were "invented" to the
+  // ATTR_KEY guard and the gate — every builder-made lookup blocked publish and edits. And the generated
+  // requiredFields ['oAuthId'] named a key the builder never writes (oAuthId is only the validator's WARNING
+  // field name, utils/validators/integration-validators.ts:12-46), so it checked nothing: a step with no account
+  // compiled clean. The real save rules are GoogleSheetsApi.hasErrors, enforced by checkGoogleSheetsAttrs.
+  google_sheets: {
+    reason: "lookupColumns / lookupStep / formatting are IGoogleSheetsApi keys (models/actions/premium-actions/GoogleSheetsApi.ts:12-55, bundle-2026-09-29-2) absent from the create-row example; requiredFields oAuthId is not a stored key \u2014 the account is attributes.account.id",
+    attrKeys: [
+      "type",
+      "action",
+      "account",
+      "drive",
+      "spreadsheet",
+      "sheet",
+      "columnRange",
+      "values",
+      "sheetHeaders",
+      "options",
+      "targetRow",
+      "rowCount",
+      "lookupColumns",
+      "lookupStep",
+      "formatting"
+    ],
+    requiredFields: [],
+    docNote: "GHL refuses to save (hasErrors) unless `action.id`, `account.id` (the Google connection: its altId or id from GET /integrations/google/connections), `drive.id`, `spreadsheet.id` and `sheet.id` are all set; the engine refuses the same. Per action: create/update rows (and createOnEmptyLookup) need `columnRange` [from, to] and at least one non-empty `values`; update/delete/format/remove need `targetRow` (format_row and remove_row take a row spec `2, 4-6`, which must include a data row above 1); lookup_multiple_rows needs `rowCount`; lookup_row / lookup_multiple_rows need `lookupColumns.main {column, value}` (an `extra` pair must name a different column); format_row needs `formatting` with at least one of backgroundColor / textColor (hex, merge tag or theme token) / bold / italic / strikethrough / fontSize (whole number 1-400). `*_from_lookup` actions take `lookupStep` {label, value, id, stepIndex} naming an earlier lookup_row and copy its account/drive/spreadsheet/sheet. Outputs: `{{sheet.N.<column letter>}}` and `{{sheet.N.rowNumber}}` from lookup_row #N; `{{sheet.N.rowCount}}` and `{{sheetLookupResult.N.result}}` from lookup_multiple_rows #N. The Google account must be connected in the sub-account first; the engine cannot connect one."
+  },
+  // Listed in the index as buildable (◐) though the engine authored neither: a router compiled lane-less, a loop
+  // without a body. parseIR now refuses both by name (ir.mjs NOT_AUTHORED); the index says so.
+  router: {
+    reason: "the engine has no router kind; an authored router compiled into one lane-less step (sweep 2026-09-29 \xA74 #23)",
+    docNote: "\u26D4 **NOT authored** \u2014 refused with ROUTER_NOT_AUTHORED. GHL stores a router as a condition-node root plus one template per lane, and offers it only on allowlisted locations (IS_ROUTER_ACTION_SHIPPED false). Use `if_else`, or add the Router in the builder where it is offered; edits carry an existing router as stored."
+  },
+  loop: {
+    reason: "the engine has no loop-body scope; an authored loop compiled as a straight line (sweep 2026-09-29 \xA74 #22)",
+    docNote: "\u26D4 **NOT authored** \u2014 refused with LOOP_NOT_AUTHORED. GHL stores the body as steps tagged parentContainerId, from the loop's next to attributes.exitNext, and offers Loop only on allowlisted locations (isLoopActionEnabled). Add the loop in the builder where it is offered; edits carry an existing loop as stored."
   }
 };
 var suppliedPresence = (attrs, key) => key in attrs && attrs[key] !== void 0;
@@ -185412,7 +185678,10 @@ var NAMESPACE_POLICY = Object.freeze({
     "cancellation_link",
     "reschedule_link",
     "task-notification",
-    "workflow_ai_generate_image"
+    "workflow_ai_generate_image",
+    // Sheets lookup outputs: the picker lists them per lookup step (google_sheets_helpers.ts:88-137), step-outputs.mjs checks them
+    "sheet",
+    "sheetLookupResult"
   ]),
   ignore: /* @__PURE__ */ new Set(["else", "this", "if", "unless", "each", "with"]),
   // Corpus-attested tags the picker does not list. Add nothing here without live proof.
@@ -186272,7 +186541,130 @@ function normalizeAttrs(node, attrs, ctx) {
     out.type = node.type === "internal_notification" ? ["sms", "email", "notification", "whatsapp"].find((c) => c in out) ?? node.type : INNER_ATTRIBUTE_TYPE[node.type] ?? node.type;
   }
   checkAttrKeys(node, out, meta3);
+  if (node.type === "ai_agent") checkAiAgentAttrs(node, out, ctx);
+  if (node.type === "google_sheets") checkGoogleSheetsAttrs(node, out);
   return out;
+}
+function integrationAccountFor(node, publisher, kind, ctx) {
+  const id = node.integrationAccountId;
+  const where = `${kind} '${node.ref ?? node.name ?? node.type}' (${node.type})`;
+  if (id === void 0 || id === null || id === "") {
+    if (publisher === "INTEGRATION_AI" && kind === "step")
+      ctx?.warn?.(`${where}: Choose a connected account before publishing \u2014 an INTEGRATION_AI app step with no integrationAccountId is saved with an error by GHL's builder and cannot be published until someone picks the account in the step. Pass integrationAccountId (the connected account id) to set it here.`);
+    return {};
+  }
+  if (publisher !== "INTEGRATION_AI")
+    throw new IRError("INTEGRATION_ACCOUNT_NOT_APPLICABLE", `${where}: integrationAccountId applies only to INTEGRATION_AI app ${kind}s; this one is ${publisher ? `labelled ${publisher}` : node.marketplace === true ? "an unlabelled third-party app" : "not a marketplace " + kind}, and GHL never stores an account on it.`);
+  if (typeof id !== "string" || !id.trim())
+    throw new IRError("INTEGRATION_ACCOUNT_NOT_APPLICABLE", `${where}: integrationAccountId must be the connected account's id string.`);
+  return { integrationAccountId: id };
+}
+var SHEETS_TARGET_ROW_ACTIONS = /* @__PURE__ */ new Set(["update_row", "update_multiple_rows", "delete_row", "format_row", "remove_row"]);
+var SHEETS_ROW_SPEC_ACTIONS = /* @__PURE__ */ new Set(["format_row", "remove_row"]);
+var SHEETS_COLUMN_RANGE_ACTIONS = /* @__PURE__ */ new Set(["create_row", "create_multiple_rows", "update_row", "update_multiple_rows", "update_row_from_lookup"]);
+var SHEETS_LOOKUP_ACTIONS = /* @__PURE__ */ new Set(["lookup_row", "lookup_multiple_rows"]);
+var SHEETS_THEME_COLORS = /* @__PURE__ */ new Set(["TEXT", "BACKGROUND", "ACCENT1", "ACCENT2", "ACCENT3", "ACCENT4", "ACCENT5", "ACCENT6", "LINK"]);
+var sheetsNumeric = (v) => {
+  if (!v && v !== 0) return false;
+  if (typeof v === "string") return v.includes("{{") || /^\d{1,}(\.\d{1,})?$/.test(v);
+  return true;
+};
+var sheetsRowSpec = (v) => {
+  if (!v && v !== 0) return false;
+  const spec = String(v).trim();
+  if (!spec) return false;
+  if (spec.includes("{{")) return true;
+  const tokens = spec.split(",").map((x) => x.trim()).filter(Boolean);
+  if (!tokens.length) return false;
+  let dataRow = false;
+  for (const tok of tokens) {
+    if (/^\d+$/.test(tok)) {
+      const r = Number(tok);
+      if (r < 1) return false;
+      if (r > 1) dataRow = true;
+      continue;
+    }
+    const m = tok.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (!m) return false;
+    const [a, b] = [Number(m[1]), Number(m[2])];
+    if (a < 1 || a > b) return false;
+    if (b > 1) dataRow = true;
+  }
+  return dataRow;
+};
+var sheetsColor = (v) => !v || v.includes("{{") || SHEETS_THEME_COLORS.has(v.trim().toUpperCase()) || /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v.trim());
+function checkGoogleSheetsAttrs(node, a) {
+  const where = `google_sheets '${node.ref ?? node.name ?? node.id}'`;
+  const bad = [];
+  const action = a.action?.id;
+  for (const k of ["action", "account", "drive", "spreadsheet", "sheet"])
+    if (!a[k]?.id) bad.push(`${k}.id is empty${k === "account" ? " (the connected Google account: connect one in the sub-account, then use its id from GET /integrations/google/connections)" : ""}`);
+  const hasColumnRange = SHEETS_COLUMN_RANGE_ACTIONS.has(action) || a.options?.createOnEmptyLookup === true;
+  if (hasColumnRange) {
+    const cr = a.columnRange;
+    if (!Array.isArray(cr) || cr.length !== 2 || cr.some((x) => !x)) bad.push("columnRange must be [from, to], both set");
+    const vals = a.values;
+    const empty2 = !vals || (Array.isArray(vals) ? !vals.length || vals.every((x) => !x) : typeof vals === "object" && !Object.keys(vals).length);
+    if (empty2) bad.push("values needs at least one non-empty cell");
+  }
+  if (SHEETS_TARGET_ROW_ACTIONS.has(action)) {
+    const ok2 = SHEETS_ROW_SPEC_ACTIONS.has(action) ? sheetsRowSpec(a.targetRow) : sheetsNumeric(a.targetRow);
+    if (!ok2) bad.push(SHEETS_ROW_SPEC_ACTIONS.has(action) ? `targetRow '${a.targetRow ?? ""}' is not a row spec (5, 2, 4-6) that includes a data row above 1` : `targetRow '${a.targetRow ?? ""}' is not a row number`);
+  }
+  if (action === "lookup_multiple_rows" && !sheetsNumeric(a.rowCount)) bad.push("rowCount is required for lookup_multiple_rows");
+  if (SHEETS_LOOKUP_ACTIONS.has(action)) {
+    const lc = a.lookupColumns;
+    if (!lc?.main?.column) bad.push("Lookup Column is missing (lookupColumns.main.column)");
+    if (!lc?.main?.value) bad.push("Lookup Value is missing (lookupColumns.main.value)");
+    if (lc?.extra) {
+      if (!lc.extra.column) bad.push("Extra Lookup Column is missing");
+      else if (lc.extra.column === lc.main?.column) bad.push("Extra Lookup Column cannot be the same as the Lookup Column");
+      if (!lc.extra.value) bad.push("Extra Lookup Value is missing");
+    }
+  }
+  if (action === "format_row") {
+    const f = a.formatting ?? {};
+    const size = f.fontSize;
+    if (!(f.backgroundColor || f.textColor || f.bold != null || f.italic != null || f.strikethrough != null || size != null && String(size).trim() !== ""))
+      bad.push("formatting needs at least one option (backgroundColor, textColor, bold, italic, strikethrough, fontSize)");
+    if (size != null && String(size).trim() !== "" && (!/^\d+$/.test(String(size).trim()) || Number(size) < 1 || Number(size) > 400))
+      bad.push(`formatting.fontSize ${JSON.stringify(size)} must be a whole number 1-400`);
+    if (!sheetsColor(f.backgroundColor) || !sheetsColor(f.textColor))
+      bad.push("formatting colours are #RGB / #RRGGBB, a merge tag or a theme token (TEXT, BACKGROUND, ACCENT1-6, LINK)");
+  }
+  if (bad.length)
+    throw new IRError("SHEETS_INCOMPLETE", `${where} (${action || "no action"}): ${bad.join("; ")}. GHL's builder saves this step with an error badge and refuses to publish it (GoogleSheetsApi.hasErrors).`);
+}
+var AI_AGENT_MAX_SKILLS = 10;
+var AI_AGENT_MAX_TOOLS = 10;
+var AI_AGENT_SKILLS_PUBLIC_AT = Date.parse("2026-10-25T00:00:00.000Z");
+function checkAiAgentAttrs(node, a, ctx, now = ctx?.now ?? Date.now()) {
+  const where = `ai_agent '${node.ref ?? node.name ?? node.id}'`;
+  if (a.skills !== void 0) {
+    if (!Array.isArray(a.skills))
+      throw new IRError("AGENT_SKILLS", `${where}: skills must be an array of {id, name}, not ${typeof a.skills}.`);
+    if (a.skills.length > AI_AGENT_MAX_SKILLS)
+      throw new IRError("AGENT_SKILLS", `${where}: ${a.skills.length} skills \u2014 the builder attaches at most ${AI_AGENT_MAX_SKILLS} per step (MAX_SKILLS_PER_ACTION).`);
+    const seen = /* @__PURE__ */ new Set();
+    for (const s of a.skills) {
+      const keys = s && typeof s === "object" && !Array.isArray(s) ? Object.keys(s) : null;
+      if (!keys || typeof s.id !== "string" || !s.id.trim() || typeof s.name !== "string" || keys.some((k) => k !== "id" && k !== "name"))
+        throw new IRError("AGENT_SKILLS", `${where}: each skill is exactly {id, name} with a non-empty string id (builtin:<key> or a skill document id from GET /workflow/agent/{loc}/skills); got ${JSON.stringify(s)}.`);
+      if (seen.has(s.id)) throw new IRError("AGENT_SKILLS", `${where}: skill '${s.id}' is attached twice.`);
+      seen.add(s.id);
+    }
+    if (a.skills.length && now < AI_AGENT_SKILLS_PUBLIC_AT)
+      ctx?.warn?.(`${where}: ${a.skills.length} skill(s) attached. Until 2026-10-25 GHL's builder hides the Skills section on most accounts (a date gate), so the skills are stored but a person opening this step will not see them \u2014 and on the test sub-account the skills service itself answered 404 to list and resolve (2026-09-29), so a skill may not resolve when the agent runs before then. Check GET /workflow/agent/{loc}/skills on the target account.`);
+  }
+  if (a.mcpConnections !== void 0 && (!Array.isArray(a.mcpConnections) || a.mcpConnections.some((c) => !c || typeof c !== "object" || typeof c.connectionId !== "string" || !c.connectionId)))
+    throw new IRError("AGENT_MCP", `${where}: mcpConnections is the drawer's [{connectionId, name, serverUrl, selectedTools}] list; the engine passes it through but does not author it \u2014 connect MCP servers in the builder.`);
+  if (a.templateId !== void 0 && a.templateId !== null && typeof a.templateId !== "string")
+    throw new IRError("AGENT_TEMPLATE", `${where}: templateId is the id string of an applied agent template (set by the builder).`);
+  if (a.disableToolOutputGuards !== void 0 && typeof a.disableToolOutputGuards !== "boolean")
+    throw new IRError("AGENT_GUARDS", `${where}: disableToolOutputGuards is a boolean switch.`);
+  const toolCount = (Array.isArray(a.tools) ? a.tools.length : 0) + (Array.isArray(a.mcpConnections) ? a.mcpConnections.length : 0);
+  if (toolCount > AI_AGENT_MAX_TOOLS)
+    ctx?.warn?.(`${where}: ${toolCount} tools + MCP connections \u2014 the builder's picker stops at ${AI_AGENT_MAX_TOOLS} (AIAgent.MAX_TOOLS).`);
 }
 var ENGINE_ATTR_KEYS = /* @__PURE__ */ new Set([
   "type",
@@ -187550,7 +187942,8 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         tmpl.workflowsActionType = asset.publisher;
         if (asset.showStepIndex) tmpl.stepIndex = null;
       } else tmpl.isMarketplaceAction = true;
-    }
+      Object.assign(tmpl, integrationAccountFor(n, asset.publisher, "step", ctx));
+    } else if (n.integrationAccountId !== void 0) integrationAccountFor(n, null, "step", ctx);
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl, ctx));
   });
@@ -187894,10 +188287,12 @@ function buildTrigger(t, ctx, wid, refMap) {
   }
   let marketplaceFields = {};
   let marketplaceMasterType = "marketplace";
+  if (t.marketplace !== true && t.integrationAccountId !== void 0) integrationAccountFor(t, null, "trigger", ctx);
   if (t.marketplace === true) {
     const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, "trigger");
     marketplaceFields = { version: entry.version, templateId: entry.templateId };
     marketplaceMasterType = entry.publisher ? "internal" : "marketplace";
+    Object.assign(marketplaceFields, integrationAccountFor(t, entry.publisher, "trigger", ctx));
     const table = ctx?.catalog?.marketplaceFilterOperators ?? null;
     conditions = conditions.map((c) => {
       const model = table ? marketplaceOperatorModel(entry, c.field, table) : null;
@@ -188211,7 +188606,7 @@ function compile(ir, ctx) {
   if (loops.length) {
     throw new IRError(
       "GOTO_LOOP",
-      `GOTO_LOOP: ${loops.length} goto step(s) jump BACKWARD to a step that can reach them again: ` + loops.map((l) => `'${l.name ?? l.id}' -> '${l.targetName ?? l.target}'`).join("; ") + '. GHL detects the cycle server-side, marks the node "Loop Locked", stamps the workflow loopIdentified and forces its status to draft \u2014 a published workflow silently stops. Loops are not a legal flow shape here: restructure so the goto points forward, or use the dedicated `loop` step type, which is a supported container with its own body.'
+      `GOTO_LOOP: ${loops.length} goto step(s) jump BACKWARD to a step that can reach them again: ` + loops.map((l) => `'${l.name ?? l.id}' -> '${l.targetName ?? l.target}'`).join("; ") + '. GHL detects the cycle server-side, marks the node "Loop Locked", stamps the workflow loopIdentified and forces its status to draft \u2014 a published workflow silently stops. Loops are not a legal flow shape here: restructure so the goto points forward. GHL\'s dedicated `loop` step repeats steps properly, but the engine does not author it (the builder offers Loop only on allowlisted locations) \u2014 add it in the builder where it is offered.'
     );
   }
   if (typeof ctx?.warn === "function") {

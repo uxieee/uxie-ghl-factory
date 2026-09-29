@@ -1051,7 +1051,7 @@
    "family": "steps",
    "title": "ai_agent",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-29",
    "summary": "LLM agent step that runs a prompt against a model and (optionally) emits structured output or invokes tools.",
    "meta": {
     "Section": "`workflow_ai` (per `sniffs/bundle/registry-parsed.json::entries[0]`)",
@@ -14054,7 +14054,7 @@
    "family": "steps",
    "title": "google_sheets",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-29",
    "summary": "Write a row to a connected Google Sheet. Routes through the location's OAuth integration with Google.",
    "meta": {
     "Section": "`send_data`",
@@ -14133,11 +14133,46 @@
      "type": "object",
      "required": false,
      "default": "{}",
-     "notes": "Mode-specific options. Always `{}` in corpus. 100%."
+     "notes": "`{createOnEmptyLookup?, lookupSearchMethod? ('top_to_bottom' | 'bottom_to_top'), lookupCaseSensitive?}` — lookup options; `createOnEmptyLookup: true` also requires `columnRange` + `values` [source-derived 2026-09-29 — GoogleSheetsApi.ts:12-55,217-235]. Always `{}` in corpus."
+    },
+    {
+     "name": "targetRow",
+     "type": "string",
+     "required": false,
+     "default": "—",
+     "notes": "update_row / update_multiple_rows / delete_row: a row number (or merge tag). format_row / remove_row: a row spec — `5`, `2, 4, 6`, `2-6`, `2, 4-6` — that must include a data row above 1 [source-derived 2026-09-29 — GoogleSheetsApi.ts:193-277; utils/validation.ts:84-150]."
+    },
+    {
+     "name": "rowCount",
+     "type": "string",
+     "required": false,
+     "default": "—",
+     "notes": "How many rows to return; a number or merge tag."
+    },
+    {
+     "name": "lookupColumns",
+     "type": "object",
+     "required": false,
+     "default": "—",
+     "notes": "`{main: {column, value}, extra?: {column, value}}`; `extra` must name a different column [source-derived 2026-09-29 — GoogleSheetsApi.ts:337-363]."
+    },
+    {
+     "name": "lookupStep",
+     "type": "object",
+     "required": false,
+     "default": "—",
+     "notes": "`{label, value, id, stepIndex}` naming an earlier lookup_row; choosing it copies that step's account/drive/spreadsheet/sheet/sheetHeaders [source-derived 2026-09-29 — GoogleSheetsApi.ts:635-651]."
+    },
+    {
+     "name": "formatting",
+     "type": "object",
+     "required": false,
+     "default": "—",
+     "notes": "`{backgroundColor?, textColor?, bold?, italic?, strikethrough?, fontSize?}`: at least one; colours are `#RGB`/`#RRGGBB`, a merge tag or a theme token (TEXT, BACKGROUND, ACCENT1-6, LINK); `fontSize` a whole number 1-400 [source-derived 2026-09-29 — GoogleSheetsApi.ts:279-331; constants/google-sheets-colors.ts:28-97]."
     }
    ],
    "validator": "`googleSheetsIntegrationValidator` (length 549, result level `warning`). Per `sniffs/bundle/validators.json::googleSheetsIntegrationValidator`:\n\n```\nconst account = attributes.account\nif (!account?.id) push { field: \"oAuthId\", message: \"select_google_account\" }\nelse {\n  return [{\n    url:  `${integrationsURL}/google/connections?locationId=${extras.locationId}`,\n    method: \"GET\",\n    absoluteUrl: true,\n    headers: googleConnectionsHeaders(),\n    transformResponse: (data) => {\n      const connections = mapGoogleConnections(data.data)\n      return connections.some(c => (c.altId ?? c.id) === account.id)\n        ? []\n        : { field: \"oAuthId\", message: \"google_integration_not_valid\" }\n    }\n  }]\n}\n```\n\nTwo distinct enforcements:\n\n1. **`account.id` must be set** — otherwise emit `\"select_google_account\"`.\n2. **The account id must exist in the location's connected Google integrations**, verified via a side `GET` to `/google/connections`. If not connected, emit `\"google_integration_not_valid\"`.\n\n`fields_referenced: [\"oAuthId\"]` (a virtual field — the validator pushes the field name `oAuthId` even though the data lives under `attributes.account.id`).",
-   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Google Sheets account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O2-blocked-drafts.json`), with the fields the builder/GHL require: `action`. Whether it runs, what it sends and what it skips is not known.\n- **The validator does a live integration lookup.** Publishing this step calls `GET /integrations/google/connections?locationId=...` to verify the `account.id` is currently connected. A disconnected account fails publish even if the workflow was previously valid.\n- **`account.idType: \"altId\"`** means the `account.id` is the Google profile's alt-id (the value seen in `altId` on the connection response). Some accounts may use the raw `id` instead — the validator's `transformResponse` checks both.\n- **`columnRange` defines the slice the `values` write into.** The row goes into the next empty row across columns `[\"A\", \"J\"]`. `values.length` should match `columnRange[1] - columnRange[0] + 1`.\n- **`sheetHeaders` is a UI cache** — not consumed at runtime. Don't depend on it staying in sync with the actual sheet.\n- **`values` accepts Handlebars in each element.** Resolved at execution.\n- **11 actions exist; only `create_row` is in the corpus.** The others (`create_multiple_rows`, `lookup_row`, `lookup_multiple_rows`, `update_row`, `update_multiple_rows`, `update_row_from_lookup`, `delete_row`, `delete_row_from_lookup`, `format_row`, `remove_row`) have no captured example; their per-action fields have not been written up here. Note `delete_row` **clears** a row and `remove_row` **deletes** it [source-derived 2026-09-26 — models/actions/premium-actions/GoogleSheetsApi.ts:99-155; i18n `clear_specific_spreadsheet_row`, `remove_specific_spreadsheet_row_description`].\n- **Premium gate.** `isPremiumAction: true`.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Google Sheets account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O2-blocked-drafts.json`), with the fields the builder/GHL require: `action`. Whether it runs, what it sends and what it skips is not known.\n- **The validator does a live integration lookup.** Publishing this step calls `GET /integrations/google/connections?locationId=...` to verify the `account.id` is currently connected. A disconnected account fails publish even if the workflow was previously valid.\n- **`account.idType: \"altId\"`** means the `account.id` is the Google profile's alt-id (the value seen in `altId` on the connection response). Some accounts may use the raw `id` instead — the validator's `transformResponse` checks both.\n- **`columnRange` defines the slice the `values` write into.** The row goes into the next empty row across columns `[\"A\", \"J\"]`. `values.length` should match `columnRange[1] - columnRange[0] + 1`.\n- **`sheetHeaders` is a UI cache** — it names the column-letter outputs the picker offers after a lookup_row; whether the runtime reads it is not known. Don't depend on it staying in sync with the actual sheet.\n- **`values` accepts Handlebars in each element.** Resolved at execution.\n- **11 actions exist; only `create_row` is in the corpus.** The per-action fields and save rules are in the attributes table above. Note `delete_row` **clears** a row and `remove_row` **deletes** it [source-derived 2026-09-26 — models/actions/premium-actions/GoogleSheetsApi.ts:99-155; i18n `clear_specific_spreadsheet_row`, `remove_specific_spreadsheet_row_description`].\n- **Premium gate.** `isPremiumAction: true`.",
    "hasCanonicalExample": true
   },
   {
@@ -25690,7 +25725,7 @@
    "family": "steps",
    "title": "router",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-29",
    "summary": "Multi-branch step that sends the contact down **every** branch whose conditions match, one branch after another, left to right. Unlike `if_else` it does not stop at the first match. Beta: hidden from the action picker unless the session is on staging / internal GHL or an allowlisted agency or locati",
    "meta": {
     "Section": "`internal` (`cat: 'conditions'`, `isHidden: true`) [source-derived 2026-09-26 — utils/workflows.ts:626-637]",
@@ -25724,7 +25759,7 @@
     }
    ],
    "validator": "The same rules gate the drawer's Save and publish (`validateRouterBranches`, checked in this order) [source-derived 2026-09-26 — models/conditions/router-rules.ts:23,81-86,120-157,172-176,223-230; utils/WorkflowValidator.ts:859-887; utils/router.ts:249,407-415]:\n\n1. `routerName` empty → \"Action name cannot be empty!\"; too long → length error (drawer only).\n2. More than 10 branches → `tooManyBranches`.\n3. More than one `fallback` → `fallbackExists`; any `always_run` together with a `fallback` → `alwaysRunFallbackConflict` (\"the fallback path will never be run\").\n4. A branch with no complete condition (custom) → `branchError` naming the branch.\n5. Two branches with the same conditions → `duplicateBranchError` (\"{name} has the same conditions as {other}\").\n6. Publish only: a router nested under more than 10 router roots → \"Cannot nest more than 10 routers\".\n7. Publish only: a `workflow_goal` or `goto` step anywhere inside a router branch → \"{stepName} cannot be added inside a router branch\".",
-   "notes": "- **Not an if/else.** Every matching branch runs, left to right (\"Send the contact down every branch whose conditions match. Branches run one after another, Left to right\") [source-derived 2026-09-26 — i18n `workflow.asideSection.description.router`; models/conditions/router-rules.ts:167-170]. That is why duplicate conditions are refused.\n- **`always_run` and `fallback` cannot coexist**; at most one `fallback`.\n- **No Goal or Go To inside a branch**, and no more than 10 nested routers.\n- **Stamp `nodeType: 'condition-node'` on the root.** Routers added through the builder's generic path were saved without it; the builder repairs that on load (`normalizeRouterTemplates`), and an unstamped router is read as one of its own lanes [source-derived 2026-09-26 — utils/router.ts:642-663].\n- **Beta-gated.** On an account outside the allowlist the picker hides Router; whether GHL's server accepts a router written by API on such an account is untested.\n- Allowed in object-based (Company / Custom Object) workflows [source-derived 2026-09-26 — utils/workflows.ts:1684-1686].",
+   "notes": "- **Not an if/else.** Every matching branch runs, left to right (\"Send the contact down every branch whose conditions match. Branches run one after another, Left to right\") [source-derived 2026-09-26 — i18n `workflow.asideSection.description.router`; models/conditions/router-rules.ts:167-170]. That is why duplicate conditions are refused.\n- **`always_run` and `fallback` cannot coexist**; at most one `fallback`.\n- **No Goal or Go To inside a branch**, and no more than 10 nested routers.\n- **Stamp `nodeType: 'condition-node'` on the root.** Routers added through the builder's generic path were saved without it; the builder repairs that on load (`normalizeRouterTemplates`), and an unstamped router is read as one of its own lanes [source-derived 2026-09-26 — utils/router.ts:642-663].\n- **Beta-gated.** On an account outside the allowlist the picker hides Router; whether GHL's server accepts a router written by API on such an account is untested. The designated test sub-account is on neither the router nor the loop allowlist (0 hits for its id across the recovered source, the index bundle and every lazy chunk of `bundle-2026-09-29-2`), so router authoring cannot be proven there.\n- **The plugin does not author a router.** Its engine refuses one by name (`ROUTER_NOT_AUTHORED`) before anything is written: before 2026-09-29 it compiled an authored router into ONE step with a scalar `next` and no lanes, which saved and validated clean and could not branch [proven-live 2026-09-29 — refusal returned, nothing written: `sniffs/workflows-wave1-2026-09-25/W23-LIVE-PROOFS.md` row 3]. Use `if_else`, or add the Router in the builder where it is offered; an edit leaves an existing router as stored.\n- Allowed in object-based (Company / Custom Object) workflows [source-derived 2026-09-26 — utils/workflows.ts:1684-1686].",
    "hasCanonicalExample": true
   },
   {
