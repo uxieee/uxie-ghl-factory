@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-29",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1390,
+  "count": 1537,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1525,6 +1525,68 @@
       "sources": [
         "funnels/20-api/funnels-api.md:68",
         "funnels/20-api/funnels-api.md:71"
+      ]
+    },
+    {
+      "id": "funnels--site-create",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/blogs/site/create",
+      "path": "/blogs/site/create",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:26"
+      ]
+    },
+    {
+      "id": "funnels--site-delete",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/blogs/site/delete",
+      "path": "/blogs/site/delete",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:27"
       ]
     },
     {
@@ -4371,6 +4433,37 @@
       ]
     },
     {
+      "id": "funnels--countdown-timer",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/countdown-timer",
+      "path": "/countdown-timer",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:29"
+      ]
+    },
+    {
       "id": "funnels--countdown-timer-fetch",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/countdown-timer/fetch/",
@@ -4399,6 +4492,44 @@
       },
       "sources": [
         "funnels/30-types/native-elements.md:127"
+      ]
+    },
+    {
+      "id": "funnels--countdown-timer-fetch-get",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/countdown-timer/fetch/{id}/{id2}",
+      "path": "/countdown-timer/fetch/{id}/{id2}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:28"
       ]
     },
     {
@@ -4761,6 +4892,37 @@
       ]
     },
     {
+      "id": "funnels--custom-widgets-details",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/custom-widgets/details",
+      "path": "/custom-widgets/details",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:30"
+      ]
+    },
+    {
       "id": "domain-connect--get-a-cname-record",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/domain-connect/a-cname-record",
@@ -4954,6 +5116,37 @@
       ]
     },
     {
+      "id": "funnels--domains-domain",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/domains/domain",
+      "path": "/domains/domain",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:32"
+      ]
+    },
+    {
       "id": "domains--post-domain-record",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/domains/domain/{domainId}/record",
@@ -5026,6 +5219,47 @@
       },
       "sources": [
         "ai-studio/_data/endpoints.json"
+      ]
+    },
+    {
+      "id": "funnels--domain-record",
+      "aka": [
+        "/domains/domain/{id}/record/{id2}"
+      ],
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/domains/domain/{domainId}/record/{recordId}",
+      "path": "/domains/domain/{domainId}/record/{recordId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "domainId"
+        },
+        {
+          "name": "recordId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:31"
       ]
     },
     {
@@ -7350,6 +7584,72 @@
       ]
     },
     {
+      "id": "funnels--categories-get-categories",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/forms/categories/get-categories",
+      "path": "/forms/categories/get-categories",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:33"
+      ]
+    },
+    {
+      "id": "funnels--categories-get-themes",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/forms/categories/get-themes/{id}",
+      "path": "/forms/categories/get-themes/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:34"
+      ]
+    },
+    {
       "id": "forms--forms-data",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/forms/data/{id}",
@@ -7622,6 +7922,44 @@
       ]
     },
     {
+      "id": "funnels--copilot-messages-event-id2",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot-messages/{id}/event{id2}",
+      "path": "/funnel-ai-v2/copilot-messages/{id}/event{id2}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:35"
+      ]
+    },
+    {
       "id": "funnels--copilot-messages-status",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot-messages/{messageId}/status",
@@ -7882,10 +8220,10 @@
       ]
     },
     {
-      "id": "funnels--page-generate",
+      "id": "funnels--copilot-feedback",
       "method": "POST",
-      "url": "https://backend.leadconnectorhq.com/funnel-ai/page/generate",
-      "path": "/funnel-ai/page/generate",
+      "url": "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/feedback",
+      "path": "/funnel-ai-v2/copilot/feedback",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
@@ -7909,18 +8247,14 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:11",
-        "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:26"
+        "funnels/70-research/2026-09-29-route-census.md:36"
       ]
     },
     {
-      "id": "funnels--funnel-ai-tracker",
-      "aka": [
-        "/funnel-ai/tracker/{id}"
-      ],
+      "id": "funnels--copilot-page-data",
       "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/funnel-ai/tracker/{trackerId}",
-      "path": "/funnel-ai/tracker/{trackerId}",
+      "url": "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/page-data/{id}",
+      "path": "/funnel-ai-v2/copilot/page-data/{id}",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
@@ -7935,17 +8269,10 @@
       "tree": "documented",
       "pathParams": [
         {
-          "name": "trackerId"
+          "name": "id"
         }
       ],
-      "query": [
-        {
-          "name": "locationId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
+      "query": [],
       "body": null,
       "returns": null,
       "confidence": {
@@ -7955,8 +8282,73 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:11",
-        "funnels/70-research/2026-09-09-funnel-ai-v1-generator.md:50"
+        "funnels/70-research/2026-09-29-route-census.md:37"
+      ]
+    },
+    {
+      "id": "funnels--copilot-screenshot-result",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnel-ai-v2/copilot/screenshot-result",
+      "path": "/funnel-ai-v2/copilot/screenshot-result",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:38"
+      ]
+    },
+    {
+      "id": "funnels--pages-active",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnel-ai/sessions/pages/{id}/active",
+      "path": "/funnel-ai/sessions/pages/{id}/active",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:39"
       ]
     },
     {
@@ -8065,6 +8457,165 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:303"
+      ]
+    },
+    {
+      "id": "funnels--builder-element-template",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/element-template",
+      "path": "/funnels/builder/element-template",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:42"
+      ]
+    },
+    {
+      "id": "funnels--builder-element-template-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/element-template",
+      "path": "/funnels/builder/element-template",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:43"
+      ]
+    },
+    {
+      "id": "funnels--builder-element-template-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/element-template",
+      "path": "/funnels/builder/element-template",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:44"
+      ]
+    },
+    {
+      "id": "funnels--builder-element-template-delete",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/element-template/{id}",
+      "path": "/funnels/builder/element-template/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:40"
+      ]
+    },
+    {
+      "id": "funnels--sync-changes-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/element-template/sync/changes",
+      "path": "/funnels/builder/element-template/sync/changes",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:41"
       ]
     },
     {
@@ -8612,6 +9163,120 @@
       ]
     },
     {
+      "id": "funnels--prebuilt-section-template-delete",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{id}/template/{id2}",
+      "path": "/funnels/builder/prebuilt-section/{id}/template/{id2}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:45"
+      ]
+    },
+    {
+      "id": "funnels--prebuilt-section-template-get",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{id}/template/{id2}",
+      "path": "/funnels/builder/prebuilt-section/{id}/template/{id2}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:46"
+      ]
+    },
+    {
+      "id": "funnels--prebuilt-section-template-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{id}/template/{id2}",
+      "path": "/funnels/builder/prebuilt-section/{id}/template/{id2}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:47"
+      ]
+    },
+    {
       "id": "funnels--hero-hero",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/hero/template/hero/hero",
@@ -8754,6 +9419,41 @@
       ]
     },
     {
+      "id": "funnels--builder-redis-key-data",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/redis-key-data/{id}",
+      "path": "/funnels/builder/redis-key-data/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:48"
+      ]
+    },
+    {
       "id": "funnels--builder-restore-version",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/funnels/builder/restore-version",
@@ -8786,6 +9486,107 @@
       ]
     },
     {
+      "id": "funnels--builder-section-data",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/section-data/{id}",
+      "path": "/funnels/builder/section-data/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:49"
+      ]
+    },
+    {
+      "id": "funnels--builder-section-template",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/section-template",
+      "path": "/funnels/builder/section-template",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:52"
+      ]
+    },
+    {
+      "id": "funnels--builder-section-template-delete",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/section-template/{id}",
+      "path": "/funnels/builder/section-template/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:50"
+      ]
+    },
+    {
       "id": "funnels--section-template-insert",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/funnels/builder/section-template/insert",
@@ -8814,6 +9615,37 @@
       },
       "sources": [
         "funnels/10-anatomy/styling-and-saved-assets.md:109"
+      ]
+    },
+    {
+      "id": "funnels--section-template-update",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/builder/section-template/update",
+      "path": "/funnels/builder/section-template/update",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:51"
       ]
     },
     {
@@ -8891,6 +9723,41 @@
       },
       "sources": [
         "funnels/10-anatomy/styling-and-saved-assets.md:98"
+      ]
+    },
+    {
+      "id": "funnels--funnels-custom-fonts-delete",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/funnels/custom-fonts/{id}",
+      "path": "/funnels/custom-fonts/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:53"
       ]
     },
     {
@@ -9059,6 +9926,68 @@
       ]
     },
     {
+      "id": "funnels--domain-attach-domain",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/domain/attach-domain",
+      "path": "/funnels/domain/attach-domain",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:54"
+      ]
+    },
+    {
+      "id": "funnels--domain-funnel-unique-domain",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/domain/funnel-unique-domain",
+      "path": "/funnels/domain/funnel-unique-domain",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:55"
+      ]
+    },
+    {
       "id": "funnels--domain-invalidate-cache",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/funnels/domain/invalidate-cache",
@@ -9091,6 +10020,37 @@
       ]
     },
     {
+      "id": "funnels--domain-list",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/domain/list",
+      "path": "/funnels/domain/list",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:56"
+      ]
+    },
+    {
       "id": "funnels--domain-validate",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/funnels/domain/validate",
@@ -9119,6 +10079,37 @@
       },
       "sources": [
         "funnels/20-api/url-redirects.md:139"
+      ]
+    },
+    {
+      "id": "funnels--domain-xml-sitemap",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/domain/xml-sitemap",
+      "path": "/funnels/domain/xml-sitemap",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:57"
       ]
     },
     {
@@ -9186,6 +10177,76 @@
       ]
     },
     {
+      "id": "funnels--funnels-event-delete",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/funnels/event/{id}",
+      "path": "/funnels/event/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:58"
+      ]
+    },
+    {
+      "id": "funnels--funnels-event-patch",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/funnels/event/{id}",
+      "path": "/funnels/event/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:59"
+      ]
+    },
+    {
       "id": "funnels--funnels-funnel",
       "method": "DELETE",
       "url": "https://backend.leadconnectorhq.com/funnels/funnel/{id}",
@@ -9218,6 +10279,44 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:111"
+      ]
+    },
+    {
+      "id": "funnels--funnel-step-get",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/{id}/step/{id2}",
+      "path": "/funnels/funnel/{id}/step/{id2}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:60"
       ]
     },
     {
@@ -9607,6 +10706,68 @@
       ]
     },
     {
+      "id": "funnels--funnel-create-store",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/create-store",
+      "path": "/funnels/funnel/create-store",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:61"
+      ]
+    },
+    {
+      "id": "funnels--funnel-create-webinar",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/create-webinar",
+      "path": "/funnels/funnel/create-webinar",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:62"
+      ]
+    },
+    {
       "id": "funnels--funnel-delete",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/funnels/funnel/delete",
@@ -9674,6 +10835,37 @@
       ]
     },
     {
+      "id": "funnels--funnel-delete-store",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/delete-store",
+      "path": "/funnels/funnel/delete-store",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:63"
+      ]
+    },
+    {
       "id": "funnels-service--get-funnel-by-id",
       "aka": [
         "/funnels/funnel/fetch/{id}"
@@ -9732,6 +10924,161 @@
         "funnels/20-api/webinars.md:47",
         "funnels/40-rules/silent-failures.md:1044",
         "funnels/60-recipes/build-a-multi-step-funnel.md:50"
+      ]
+    },
+    {
+      "id": "funnels--folder-create",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/folder/create",
+      "path": "/funnels/funnel/folder/create",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:64"
+      ]
+    },
+    {
+      "id": "funnels--folder-delete",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/folder/delete",
+      "path": "/funnels/funnel/folder/delete",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:65"
+      ]
+    },
+    {
+      "id": "funnels--folder-entities",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/folder/entities",
+      "path": "/funnels/funnel/folder/entities",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:66"
+      ]
+    },
+    {
+      "id": "funnels--folder-list",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/folder/list",
+      "path": "/funnels/funnel/folder/list",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:67"
+      ]
+    },
+    {
+      "id": "funnels--folder-rename",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/folder/rename",
+      "path": "/funnels/funnel/folder/rename",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:68"
       ]
     },
     {
@@ -9812,6 +11159,37 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:319"
+      ]
+    },
+    {
+      "id": "funnels--funnel-funnel-url",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/funnel-url",
+      "path": "/funnels/funnel/funnel-url",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:69"
       ]
     },
     {
@@ -9912,6 +11290,68 @@
       ]
     },
     {
+      "id": "funnels--funnel-headers-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/headers",
+      "path": "/funnels/funnel/headers",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:71"
+      ]
+    },
+    {
+      "id": "funnels--headers-delete",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/headers/delete",
+      "path": "/funnels/funnel/headers/delete",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:70"
+      ]
+    },
+    {
       "id": "funnels-service--get-funnels",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/funnels/funnel/list",
@@ -9998,6 +11438,68 @@
       ]
     },
     {
+      "id": "funnels--list-by-location-and-domain",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/list/by-location-and-domain",
+      "path": "/funnels/funnel/list/by-location-and-domain",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:72"
+      ]
+    },
+    {
+      "id": "funnels--funnel-move",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/move",
+      "path": "/funnels/funnel/move",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:73"
+      ]
+    },
+    {
       "id": "funnels--funnel-step",
       "method": "PUT",
       "url": "https://backend.leadconnectorhq.com/funnels/funnel/step/{funnelId}",
@@ -10037,6 +11539,37 @@
         "funnels/40-rules/silent-failures.md:123",
         "funnels/40-rules/silent-failures.md:245",
         "funnels/40-rules/silent-failures.md:531"
+      ]
+    },
+    {
+      "id": "funnels--funnel-stop-all-split-tests-and-reset",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/stop-all-split-tests-and-reset",
+      "path": "/funnels/funnel/stop-all-split-tests-and-reset",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:74"
       ]
     },
     {
@@ -10211,6 +11744,37 @@
       ]
     },
     {
+      "id": "funnels--upgrade-rollback",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/upgrade/rollback",
+      "path": "/funnels/funnel/upgrade/rollback",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:75"
+      ]
+    },
+    {
       "id": "funnels--funnel-webinar",
       "method": "PATCH",
       "url": "https://backend.leadconnectorhq.com/funnels/funnel/webinar/{funnelId}",
@@ -10278,6 +11842,72 @@
       },
       "sources": [
         "funnels/20-api/webinars.md:87"
+      ]
+    },
+    {
+      "id": "funnels--webinar-template-folder",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/webinar/{id}/template-folder",
+      "path": "/funnels/funnel/webinar/{id}/template-folder",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:76"
+      ]
+    },
+    {
+      "id": "funnels--webinar-max-end-date",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/webinar/max-end-date",
+      "path": "/funnels/funnel/webinar/max-end-date",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:77"
       ]
     },
     {
@@ -10407,6 +12037,44 @@
       ]
     },
     {
+      "id": "funnels--funnels-lookup-delete",
+      "aka": [
+        "/funnels/lookup/{id}"
+      ],
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/{lookupId}",
+      "path": "/funnels/lookup/{lookupId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "lookupId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:78"
+      ]
+    },
+    {
       "id": "funnels--funnels-lookup-put",
       "method": "PUT",
       "url": "https://backend.leadconnectorhq.com/funnels/lookup/{lookupId}",
@@ -10479,6 +12147,37 @@
         "funnels/10-anatomy/domains-and-public-urls.md:117",
         "funnels/10-anatomy/domains-and-public-urls.md:163",
         "funnels/40-rules/silent-failures.md:239"
+      ]
+    },
+    {
+      "id": "funnels--lookup-domain-and-path",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/domain-and-path",
+      "path": "/funnels/lookup/domain-and-path",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:79"
       ]
     },
     {
@@ -10565,6 +12264,37 @@
         "funnels/40-rules/silent-failures.md:618",
         "funnels/40-rules/silent-failures.md:650",
         "funnels/40-rules/silent-failures.md:940"
+      ]
+    },
+    {
+      "id": "funnels--lookup-multiple-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/multiple",
+      "path": "/funnels/lookup/multiple",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:80"
       ]
     },
     {
@@ -10663,6 +12393,37 @@
       "sources": [
         "funnels/20-api/url-redirects.md:77",
         "funnels/20-api/url-redirects.md:119"
+      ]
+    },
+    {
+      "id": "funnels--lookup-redirect-exists-for-domain",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/redirect-exists-for-domain",
+      "path": "/funnels/lookup/redirect-exists-for-domain",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:81"
       ]
     },
     {
@@ -10809,6 +12570,37 @@
       ]
     },
     {
+      "id": "funnels--redirect-regex",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/redirect/regex",
+      "path": "/funnels/lookup/redirect/regex",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:82"
+      ]
+    },
+    {
       "id": "funnels--regex-bulk",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/funnels/lookup/redirect/regex/bulk",
@@ -10893,6 +12685,72 @@
         "funnels/20-api/funnels-api.md:308",
         "funnels/10-anatomy/routing-and-publishing.md:61",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
+      ]
+    },
+    {
+      "id": "funnels--funnels-order",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/order",
+      "path": "/funnels/order",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:86"
+      ]
+    },
+    {
+      "id": "funnels--funnels-products",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/order-form/funnels/{id}/products",
+      "path": "/funnels/order-form/funnels/{id}/products",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:83"
       ]
     },
     {
@@ -11082,6 +12940,72 @@
       },
       "sources": [
         "funnels/20-api/step-products-and-orders.md:49"
+      ]
+    },
+    {
+      "id": "funnels--order-form-products-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/funnels/order-form/products/{id}",
+      "path": "/funnels/order-form/products/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:84"
+      ]
+    },
+    {
+      "id": "funnels--public-products",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/order-form/public/products",
+      "path": "/funnels/order-form/public/products",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:85"
       ]
     },
     {
@@ -11322,6 +13246,41 @@
       ]
     },
     {
+      "id": "funnels--page-page-domain",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/page/page-domain/{id}",
+      "path": "/funnels/page/page-domain/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:87"
+      ]
+    },
+    {
       "id": "funnels-service--get-products-by-funnel-id",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/funnels/page/product",
@@ -11459,6 +13418,72 @@
       "sources": [
         "funnels/20-api/funnel-object-operations.md:120",
         "funnels/40-rules/silent-failures.md:1237"
+      ]
+    },
+    {
+      "id": "funnels--ig-feed-connected-accounts",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/v1/ig-feed/connected-accounts",
+      "path": "/funnels/v1/ig-feed/connected-accounts",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:89"
+      ]
+    },
+    {
+      "id": "funnels--ig-feed-connected-accounts-get",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/v1/ig-feed/connected-accounts/{id}",
+      "path": "/funnels/v1/ig-feed/connected-accounts/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:88"
       ]
     },
     {
@@ -18407,6 +20432,37 @@
       ]
     },
     {
+      "id": "funnels--payments-transactions",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payments/transactions",
+      "path": "/payments/transactions",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:90"
+      ]
+    },
+    {
       "id": "platform--phone-system-call-dispositions",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/phone-system/call-dispositions",
@@ -19342,6 +21398,68 @@
       },
       "sources": [
         "memberships-courses/20-api/endpoints.md:114"
+      ]
+    },
+    {
+      "id": "funnels--products-public",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/products/public",
+      "path": "/products/public",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:91"
+      ]
+    },
+    {
+      "id": "funnels--products-stripe-plans",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/products/stripe-plans",
+      "path": "/products/stripe-plans",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:92"
       ]
     },
     {
@@ -21625,6 +23743,37 @@
       ]
     },
     {
+      "id": "funnels--stats-filter-values",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/stats/filter-values",
+      "path": "/stats/filter-values",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:93"
+      ]
+    },
+    {
       "id": "funnels--graph-data",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/stats/graph/data",
@@ -21921,6 +24070,68 @@
       },
       "sources": [
         "funnels/20-api/webinars.md:88"
+      ]
+    },
+    {
+      "id": "funnels--setup-progress",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/store/setup/progress",
+      "path": "/store/setup/progress",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:94"
+      ]
+    },
+    {
+      "id": "funnels--setup-progress-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/store/setup/progress",
+      "path": "/store/setup/progress",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:95"
       ]
     },
     {
@@ -41797,6 +44008,626 @@
       ]
     },
     {
+      "id": "funnels--blogs-site-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/blogs/site/{id}/{id2}",
+      "path": "/blogs/site/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:101"
+      ]
+    },
+    {
+      "id": "funnels--site-blog-default",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/blog-default",
+      "path": "/blogs/site/blog-default",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:102"
+      ]
+    },
+    {
+      "id": "funnels--site-check-sitemap",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/check-sitemap",
+      "path": "/blogs/site/check-sitemap",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:103"
+      ]
+    },
+    {
+      "id": "funnels--site-create-import",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/blogs/site/create-import",
+      "path": "/blogs/site/create-import",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:104"
+      ]
+    },
+    {
+      "id": "funnels--create-import",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/blogs/site/create/import/{id}",
+      "path": "/blogs/site/create/import/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:105"
+      ]
+    },
+    {
+      "id": "funnels--site-domain-list-rss",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/domain-list-rss",
+      "path": "/blogs/site/domain-list-rss",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:106"
+      ]
+    },
+    {
+      "id": "funnels--site-fetch",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/fetch",
+      "path": "/blogs/site/fetch",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:108"
+      ]
+    },
+    {
+      "id": "funnels--site-fetch-blog-page",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/blogs/site/fetch-blog-page",
+      "path": "/blogs/site/fetch-blog-page",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:107"
+      ]
+    },
+    {
+      "id": "funnels--site-import-csv",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/blogs/site/import-csv",
+      "path": "/blogs/site/import-csv",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:109"
+      ]
+    },
+    {
+      "id": "funnels--site-import-rss",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/blogs/site/import-rss",
+      "path": "/blogs/site/import-rss",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:110"
+      ]
+    },
+    {
+      "id": "funnels--site-import",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/blogs/site/import/{id}",
+      "path": "/blogs/site/import/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:111"
+      ]
+    },
+    {
+      "id": "funnels--site-import-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/import/{id}",
+      "path": "/blogs/site/import/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:112"
+      ]
+    },
+    {
+      "id": "funnels--site-import-put",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/blogs/site/import/{id}",
+      "path": "/blogs/site/import/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:113"
+      ]
+    },
+    {
+      "id": "funnels--import-csv",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/blogs/site/import/csv/{id}",
+      "path": "/blogs/site/import/csv/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:114"
+      ]
+    },
+    {
+      "id": "funnels--import-link",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/blogs/site/import/link/{id}",
+      "path": "/blogs/site/import/link/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:115"
+      ]
+    },
+    {
+      "id": "funnels--site-imports",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/imports",
+      "path": "/blogs/site/imports",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:117"
+      ]
+    },
+    {
+      "id": "funnels--imports-all",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/imports/all",
+      "path": "/blogs/site/imports/all",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:116"
+      ]
+    },
+    {
+      "id": "funnels--site-list",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/list",
+      "path": "/blogs/site/list",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:118"
+      ]
+    },
+    {
+      "id": "funnels--site-migrate-blog-post",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/blogs/site/migrate-blog-post",
+      "path": "/blogs/site/migrate-blog-post",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:119"
+      ]
+    },
+    {
       "id": "funnels--site-migration-status",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/blogs/site/migration-status",
@@ -41835,6 +44666,297 @@
       },
       "sources": [
         "funnels/10-anatomy/websites-and-global-sections.md:239"
+      ]
+    },
+    {
+      "id": "funnels--refresh-import",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/blogs/site/refresh/import/{id}",
+      "path": "/blogs/site/refresh/import/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:120"
+      ]
+    },
+    {
+      "id": "funnels--site-rss",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/rss",
+      "path": "/blogs/site/rss",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:125"
+      ]
+    },
+    {
+      "id": "funnels--site-rss-post",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/blogs/site/rss",
+      "path": "/blogs/site/rss",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:126"
+      ]
+    },
+    {
+      "id": "funnels--site-rss-migration",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/rss-migration",
+      "path": "/blogs/site/rss-migration",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:121"
+      ]
+    },
+    {
+      "id": "funnels--site-rss-migration-post",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/blogs/site/rss-migration",
+      "path": "/blogs/site/rss-migration",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:122"
+      ]
+    },
+    {
+      "id": "funnels--site-rss-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/blogs/site/rss/{id}",
+      "path": "/blogs/site/rss/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:123"
+      ]
+    },
+    {
+      "id": "funnels--site-rss-put",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/blogs/site/rss/{id}",
+      "path": "/blogs/site/rss/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:124"
+      ]
+    },
+    {
+      "id": "funnels--site-unique-funnel-domain",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/unique-funnel-domain",
+      "path": "/blogs/site/unique-funnel-domain",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:127"
+      ]
+    },
+    {
+      "id": "funnels--site-validate-rss",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/blogs/site/validate-rss",
+      "path": "/blogs/site/validate-rss",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:128"
       ]
     },
     {
@@ -45827,6 +48949,37 @@
       ]
     },
     {
+      "id": "funnels--graph-data-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/forms/graph/data",
+      "path": "/forms/graph/data",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:129"
+      ]
+    },
+    {
       "id": "forms--post-forms-image",
       "method": "POST",
       "url": "https://services.leadconnectorhq.com/forms/image",
@@ -46009,6 +49162,68 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/20-api/forms.md:43"
+      ]
+    },
+    {
+      "id": "funnels--stats-count-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/forms/stats/count",
+      "path": "/forms/stats/count",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:130"
+      ]
+    },
+    {
+      "id": "funnels--stats-list",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/forms/stats/list",
+      "path": "/forms/stats/list",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:131"
       ]
     },
     {
@@ -46225,6 +49440,103 @@
       ]
     },
     {
+      "id": "funnels--domain-paths",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/funnel-backend/domain/paths",
+      "path": "/funnel-backend/domain/paths",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:132"
+      ]
+    },
+    {
+      "id": "funnels--builder-save-page-data",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/funnels/builder/save-page-data/{id}",
+      "path": "/funnels/builder/save-page-data/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:133"
+      ]
+    },
+    {
+      "id": "funnels--domain-generate-sitemap-blog",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/funnels/domain/generate-sitemap-blog",
+      "path": "/funnels/domain/generate-sitemap-blog",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:134"
+      ]
+    },
+    {
       "id": "funnels--blog-list-get",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/funnels/funnel/blog/list/",
@@ -46283,6 +49595,165 @@
       },
       "sources": [
         "funnels/10-anatomy/websites-and-global-sections.md:238"
+      ]
+    },
+    {
+      "id": "funnels--funnel-create-blog",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/funnels/funnel/create-blog",
+      "path": "/funnels/funnel/create-blog",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:135"
+      ]
+    },
+    {
+      "id": "funnels--funnel-fetch-funnel-domain",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/funnels/funnel/fetch-funnel-domain/{id}",
+      "path": "/funnels/funnel/fetch-funnel-domain/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:136"
+      ]
+    },
+    {
+      "id": "funnels--funnel-pages-with-blog",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/funnels/funnel/pages-with-blog",
+      "path": "/funnels/funnel/pages-with-blog",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:137"
+      ]
+    },
+    {
+      "id": "funnels--lookup-funnel-unique-url",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/funnels/lookup/funnel-unique-url",
+      "path": "/funnels/lookup/funnel-unique-url",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:138"
+      ]
+    },
+    {
+      "id": "funnels--lookup-funnel-with-domain",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/funnels/lookup/funnel-with-domain",
+      "path": "/funnels/lookup/funnel-with-domain",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:139"
       ]
     },
     {
@@ -59170,6 +62641,144 @@
       ]
     },
     {
+      "id": "funnels--templates-bulk-update",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/templates/bulk-update",
+      "path": "/templates/bulk-update",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:140"
+      ]
+    },
+    {
+      "id": "funnels--templates-category",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/templates/category/{id}/{id2}",
+      "path": "/templates/category/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:141"
+      ]
+    },
+    {
+      "id": "funnels--templates-category-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/category/{id}/{id2}",
+      "path": "/templates/category/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:142"
+      ]
+    },
+    {
+      "id": "funnels--category-create",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/category/create",
+      "path": "/templates/category/create",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:143"
+      ]
+    },
+    {
       "id": "funnels--category-list",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/templates/category/list",
@@ -59228,6 +62837,106 @@
       "sources": [
         "funnels/20-api/template-library.md:22",
         "funnels/20-api/template-library.md:182"
+      ]
+    },
+    {
+      "id": "funnels--category-update",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/category/update",
+      "path": "/templates/category/update",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:144"
+      ]
+    },
+    {
+      "id": "funnels--templates-create-media-urls",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/create-media-urls/{id}/{id2}",
+      "path": "/templates/create-media-urls/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:145"
+      ]
+    },
+    {
+      "id": "funnels--templates-fetch-preview-url",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/fetch-preview-url",
+      "path": "/templates/fetch-preview-url",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:146"
       ]
     },
     {
@@ -59298,6 +63007,542 @@
       ]
     },
     {
+      "id": "funnels--templates-location-settings",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/location-settings/{id}",
+      "path": "/templates/location-settings/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:148"
+      ]
+    },
+    {
+      "id": "funnels--templates-location-settings-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/location-settings/{id}/{id2}",
+      "path": "/templates/location-settings/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:147"
+      ]
+    },
+    {
+      "id": "funnels--location-settings-update",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/location-settings/update",
+      "path": "/templates/location-settings/update",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:149"
+      ]
+    },
+    {
+      "id": "funnels--locations-search",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/locations/search",
+      "path": "/templates/locations/search",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:150"
+      ]
+    },
+    {
+      "id": "funnels--templates-marketplace",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/templates/marketplace/{id}/{id2}",
+      "path": "/templates/marketplace/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:151"
+      ]
+    },
+    {
+      "id": "funnels--marketplace-share",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/marketplace/share/{id}/{id2}",
+      "path": "/templates/marketplace/share/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:152"
+      ]
+    },
+    {
+      "id": "funnels--admin-link",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/public/admin/link/{id}",
+      "path": "/templates/public/admin/link/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:153"
+      ]
+    },
+    {
+      "id": "funnels--admin-link-put",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/templates/public/admin/link/{id}",
+      "path": "/templates/public/admin/link/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:154"
+      ]
+    },
+    {
+      "id": "funnels--link-create",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/public/admin/link/create",
+      "path": "/templates/public/admin/link/create",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:155"
+      ]
+    },
+    {
+      "id": "funnels--snapshots-list",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/snapshots/list",
+      "path": "/templates/snapshots/list",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:156"
+      ]
+    },
+    {
+      "id": "funnels--templates-tag",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/templates/tag/{id}/{id2}",
+      "path": "/templates/tag/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:157"
+      ]
+    },
+    {
+      "id": "funnels--tags-create",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/tags/create",
+      "path": "/templates/tags/create",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:158"
+      ]
+    },
+    {
+      "id": "funnels--tags-list",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/tags/list",
+      "path": "/templates/tags/list",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:159"
+      ]
+    },
+    {
+      "id": "funnels--tags-update",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/tags/update",
+      "path": "/templates/tags/update",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:160"
+      ]
+    },
+    {
+      "id": "funnels--template-search-autocomplete",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/template-search/autocomplete",
+      "path": "/templates/template-search/autocomplete",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:161"
+      ]
+    },
+    {
+      "id": "funnels--template-search-colors",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/template-search/colors",
+      "path": "/templates/template-search/colors",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:162"
+      ]
+    },
+    {
       "id": "funnels--template-search-facets",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/templates/template-search/facets",
@@ -59356,6 +63601,37 @@
       "sources": [
         "funnels/20-api/template-library.md:19",
         "funnels/20-api/template-library.md:172"
+      ]
+    },
+    {
+      "id": "funnels--template-search-recent-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/templates/template-search/recent",
+      "path": "/templates/template-search/recent",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:163"
       ]
     },
     {
@@ -59521,6 +63797,357 @@
       ]
     },
     {
+      "id": "funnels--template-settings-hide-template",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/templates/template-settings/hide-template",
+      "path": "/templates/template-settings/hide-template",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:164"
+      ]
+    },
+    {
+      "id": "funnels--template-settings-unhide-template",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/templates/template-settings/unhide-template",
+      "path": "/templates/template-settings/unhide-template",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:165"
+      ]
+    },
+    {
+      "id": "funnels--template-settings-update",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/template-settings/update",
+      "path": "/templates/template-settings/update",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:166"
+      ]
+    },
+    {
+      "id": "funnels--templates-template-share-details",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/template-share-details/{id}/{id2}",
+      "path": "/templates/template-share-details/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:167"
+      ]
+    },
+    {
+      "id": "funnels--templates-template-share-url",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/template-share-url",
+      "path": "/templates/template-share-url",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:168"
+      ]
+    },
+    {
+      "id": "funnels--templates-template",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/templates/template/{id}/{id2}",
+      "path": "/templates/template/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:171"
+      ]
+    },
+    {
+      "id": "funnels--templates-template-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/template/{id}/{id2}/{id3}",
+      "path": "/templates/template/{id}/{id2}/{id3}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        },
+        {
+          "name": "id3"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:170"
+      ]
+    },
+    {
+      "id": "funnels--template-publish-status",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/template/{id}/{id2}/{id3}/publish-status",
+      "path": "/templates/template/{id}/{id2}/{id3}/publish-status",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        },
+        {
+          "name": "id3"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:169"
+      ]
+    },
+    {
+      "id": "funnels--template-clone",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/template/clone/{id}/{id2}",
+      "path": "/templates/template/clone/{id}/{id2}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:172"
+      ]
+    },
+    {
+      "id": "funnels--template-create",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/template/create",
+      "path": "/templates/template/create",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:173"
+      ]
+    },
+    {
       "id": "template-library-service--load-workflow-via-template-id",
       "method": "POST",
       "url": "https://services.leadconnectorhq.com/templates/template/load",
@@ -59556,6 +64183,202 @@
         "funnels/20-api/template-library.md:77",
         "funnels/20-api/template-library.md:192",
         "funnels/30-types/synthesis-contract.md:158"
+      ]
+    },
+    {
+      "id": "funnels--template-publish",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/template/publish",
+      "path": "/templates/template/publish",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:174"
+      ]
+    },
+    {
+      "id": "funnels--template-refresh",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/template/refresh",
+      "path": "/templates/template/refresh",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:175"
+      ]
+    },
+    {
+      "id": "funnels--template-unpublish",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/template/unpublish",
+      "path": "/templates/template/unpublish",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:176"
+      ]
+    },
+    {
+      "id": "funnels--template-update",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/template/update",
+      "path": "/templates/template/update",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:177"
+      ]
+    },
+    {
+      "id": "funnels--user-settings-update",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/templates/user-settings/update",
+      "path": "/templates/user-settings/update",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:178"
+      ]
+    },
+    {
+      "id": "funnels--templates-visibility",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/templates/visibility/{id}/{id2}/{id3}",
+      "path": "/templates/visibility/{id}/{id2}/{id3}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "id2"
+        },
+        {
+          "name": "id3"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/70-research/2026-09-29-route-census.md:179"
       ]
     },
     {
