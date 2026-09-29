@@ -157,3 +157,10 @@ test('the remediation hint is keyed on ruleId, so other findings are untouched',
   assert.equal(remediationFor({ ruleId: null }), '');
   assert.equal(remediationFor(undefined), '');
 });
+
+test('a membership_offer not-found names the DRAFT cause (live 2026-09-29); other asset types get no such hint', () => {
+  const offer = { message: 'Referenced Membership Offer does not exist or does not belong to this location.', assetType: 'membership_offer', assetId: 'o1', stepName: 'Course grant offer' };
+  assert.match(remediationFor(offer), /still a DRAFT/);
+  assert.match(describeFinding(offer), /Course grant offer: .*\(membership_offer o1\) — NOTE: .*PUBLISHED offer/);
+  assert.equal(remediationFor({ ...offer, assetType: 'form' }), '');
+});
