@@ -11,6 +11,19 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.18.0] — 2026-09-29
+
+**Added: `build_funnel_page` warns about a form, survey or calendar with no on-submit action. Executed live on the
+test account.**
+
+- A visitor who submits such an embed sees nothing change, although the submission is stored, and tends to submit
+  again. We confirmed this with a real visitor on a page this tool built.
+- The preview and the result now list every form, survey or calendar element whose action is empty or `"none"` under
+  `submitAction`, with how to fix it: `go-to-next-funnel-step` onto a step that confirms the submit (not one that
+  carries the same form), or `url` with `visitWebsite`.
+- Nothing is refused, and the action is written as given.
+- Funnels pages skill: the trap row.
+
 ## [1.17.1] — 2026-09-29
 
 **Fix: `create_form` saved form fields that the public form never shows. Executed live on the test account.**
