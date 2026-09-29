@@ -68,6 +68,7 @@ import {
   opsUseMarketplace,
   partitionOps,
   planTriggerOps,
+  planWorkflowNoteOps,
 } from '../../skills/create-ghl-workflow/engine/edit-driver.mjs';
 import { planStickyNoteOp } from '../../skills/create-ghl-workflow/engine/sticky-notes.mjs';
 import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engine/contact-field-shapes.mjs';
@@ -5694,7 +5695,7 @@ export const TOOLS = [
       + 'disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteBranch {containerId, branch} (an author-defined branch and everything under it), deleteContainer, repairParentKeys, addStepNote, '
       + 'duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, '
       + 'modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} — a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; deleteTrigger, duplicateTrigger; '
-      + 'settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. '
+      + 'settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote, setWorkflowNote {content} ("" clears; bumps the version). '
       + 'Names in steps and triggers resolve to ids (ignoreUnresolved to bypass). '
       + 'Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, '
       + "GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on "
@@ -5782,6 +5783,8 @@ export const TOOLS = [
       // Sticky notes (addStickyNote / updateStickyNote ops) — a separate resource, not the document.
       { method: 'POST', path: '/workflows/sticky-note' },
       { method: 'PATCH', path: '/workflows/sticky-note' },
+      // setWorkflowNote: the workflow's own note (bumps the version)
+      { method: 'PUT', path: '/workflow/{loc}/update-workflow-note/{wid}' },
       // The build path's pre-write validators, ported to edit. Asset preflight is stateless
       // (payload in, verdict out — nothing written); the sandbox runs code without touching the
       // account; the readiness reads run ONLY when a touched step's channel needs them.
@@ -5976,7 +5979,7 @@ export const TOOLS = [
         }
         for (const u of resolved.unresolved) warnings.push(`UNRESOLVED (ignored): ${u.where} '${u.name}'`);
       }
-      const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
+      const { stepOps, triggerOps, settingsOps, stickyOps, noteOps } = partitionOps(editOps);
       // THE CLONE TRAP (backlog 29, D-86). Field ids — STANDARD fields included — differ per
       // account: `contact.last_name` is one id on account A and another on account B, and both
       // resolve through GET /locations/{loc}/customFields/{id} (dataType STANDARD_FIELD). A
@@ -6008,6 +6011,7 @@ export const TOOLS = [
       // Sticky notes — a SEPARATE resource (POST/PATCH /workflows/sticky-note); planned now so a bad
       // note fails the preview, written after the step commit and trigger writes.
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
+      const notePlan = planWorkflowNoteOps(noteOps, { loc: args.locationId, wid: args.workflowId });
       const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen, stepIndexCounter: fresh?.meta?.stepIndexCounter });
       // PARKED CONTACTS ON A DELETED STEP ARE EJECTED (backlog 23, D-83): the run ends with
       // `step_was_deleted_by_user`, and an autonomous trigger does not re-fire for them in that
@@ -6183,7 +6187,7 @@ export const TOOLS = [
       // draft that carried an unrelated rule violation, which the builder never does (2026-09-23).
       const writesDocument = stepOps.length > 0 || Boolean(settingsPatch) || triggerOps.length > 0;
       const validation = !writesDocument
-        ? { refusal: null, report: { skipped: 'sticky-note-only edit: nothing in the workflow document or its triggers is written' } }
+        ? { refusal: null, report: { skipped: 'note-only edit (sticky notes / workflow note): nothing in the workflow document or its triggers is written' } }
         : await workflowValidationGate({
         // No `templates` here on purpose: the gate must judge the DOCUMENT, whose templates the commit
         // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
@@ -6218,6 +6222,7 @@ export const TOOLS = [
           .map((k) => [k, k === 'statsView' ? (commitBody.meta?.statsView ?? false) : commitBody[k]]));
       }
       if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
+      if (notePlan) preview.workflowNote = { method: notePlan.method, path: notePlan.path, chars: notePlan.body.content.length, clears: notePlan.body.content === '', bumpsVersion: true };
       if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
       // The ported build-path pre-flight verdicts, visible while the edit can still be changed.
       if (assetPreflight) preview.assetPreflight = assetPreflight;
@@ -6482,6 +6487,24 @@ export const TOOLS = [
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
       partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
+      // setWorkflowNote — written LAST, after the document round trip, because it bumps the workflow version (measured
+      // 2 → 3); read back on its own GET.
+      let workflowNote = null;
+      if (notePlan) {
+        const noteCall = await attemptWrite('workflow_note_write', () => gw.call(notePlan.method, notePlan.path, notePlan.body));
+        if (noteCall.threw || !noteCall.value.ok) {
+          return partialFailure(
+            noteCall.threw ? noteCall.failure : fromHttp(noteCall.value.status, noteCall.value.json),
+            'workflow_note_write',
+            'Every other write in this edit is committed; only the workflow note failed. Re-run setWorkflowNote alone.',
+          );
+        }
+        const back = await getWorkflow(gw, args.locationId, args.workflowId);
+        const note = back.ok ? (back.json?.workflowNote ?? null) : null;
+        workflowNote = { applied: back.ok && (note?.content ?? '') === notePlan.body.content, content: note?.content ?? null,
+          updatedByName: note?.updatedByName ?? null, updatedAt: note?.updatedAt ?? null, versionAfter: back.ok ? (back.json?.version ?? null) : null };
+        if (!workflowNote.applied) warnings.push('WORKFLOW_NOTE_NOT_APPLIED: the note write answered OK but the read-back does not carry the text sent.');
+      }
       const requiresPublish = triggerPlan.some((request) => triggerRequiresPublish(request, fresh.status));
       const data = {
         workflowId: args.workflowId,
@@ -6494,6 +6517,7 @@ export const TOOLS = [
         triggerChangesApplied: partialProgress.triggerWrites.applied,
         stickyNotesApplied: partialProgress.stickyNotes.applied,
         stickyNoteIds: partialProgress.stickyNotes.ids,
+        ...(workflowNote ? { workflowNote } : {}),
         requiresPublish,
         publishInstruction: triggerPublishInstruction(triggerPlan, fresh.status, { committed: true }),
         verify,

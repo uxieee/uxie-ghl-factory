@@ -1171,6 +1171,11 @@
   },
   {
     "tool": "edit_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/update-workflow-note/{wid}"
+  },
+  {
+    "tool": "edit_workflow",
     "method": "POST",
     "path": "/workflow/{loc}/validate-assets"
   },

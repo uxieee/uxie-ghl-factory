@@ -29,6 +29,8 @@ export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigge
 // workflowData.templates — so they are neither step ops nor trigger ops. partitionOps() lifts
 // them out; the commit merges them over the stored values (editCommitBody opts.settingsPatch).
 export const SETTINGS_OPS = new Set(['updateSettings']);
+// The workflow's own note (Workflow Maps "workflow note"): its own scoped route, not the document PUT.
+export const NOTE_OPS = new Set(['setWorkflowNote']);
 
 // The LIVE document as a reference universe for a one-node compile: every step id, and every
 // step name that is UNIQUE (a duplicated name maps to null so it can never be guessed). `opRefs`
@@ -136,21 +138,37 @@ export function replaceFieldIdInTriggerConditions(conditions, oldId, newId) {
 }
 
 export function partitionOps(ops) {
-  const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
+  const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [], noteOps = [];
   for (const raw of ops ?? []) {
     const op = { ...raw, op: canonicalOpName(raw?.op) };
     // The ONE choke point every caller (the MCP tool and the edit CLI) passes through, so a
     // wrong key on ANY op — step, trigger, settings, sticky — refuses the whole call before a
     // single write. applyOp re-checks step ops; that is harmless and keeps the bare function safe.
     checkOpShape(op);
-    (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
+    (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : NOTE_OPS.has(op.op) ? noteOps : stepOps).push(op);
     // Find & Replace (tag mode) spans BOTH documents like the UI's "Replace All": the step op
     // rewrites templates; a derived trigger op rewrites every trigger condition carrying the tag.
     if (op.op === 'replaceTag' && op.triggers !== false) triggerOps.push({ op: 'replaceTagInTriggers', oldTag: op.oldTag, newTag: op.newTag });
     // A field id lives in BOTH documents, like a tag — derive the trigger half the same way.
     if (op.op === 'replaceFieldId' && op.triggers !== false) triggerOps.push({ op: 'replaceFieldIdInTriggers', oldId: op.oldId, newId: op.newId });
   }
-  return { stepOps, triggerOps, settingsOps, stickyOps };
+  return { stepOps, triggerOps, settingsOps, stickyOps, noteOps };
+}
+
+// setWorkflowNote → the one scoped write: PUT /workflow/{loc}/update-workflow-note/{wid} {content, updatedByName}.
+// Measured 2026-09-29 (knowledge sniffs/workflows-wave1-2026-09-25/live-W24-maps-api.json): the steps are untouched,
+// the server stamps createdBy/updatedBy, `content: ""` clears the text, and the write BUMPS the workflow version.
+// One per edit; the text is stored as sent.
+export function planWorkflowNoteOps(noteOps, { loc, wid } = {}) {
+  if (!noteOps?.length) return null;
+  if (noteOps.length > 1) throw new Error(`setWorkflowNote: one per edit (got ${noteOps.length}); the note is a single field`);
+  const op = noteOps[0];
+  if (typeof op.content !== 'string') throw new Error(`setWorkflowNote needs 'content' (a string; "" clears the note)`);
+  if (op.updatedByName !== undefined && (typeof op.updatedByName !== 'string' || !op.updatedByName.trim()))
+    throw new Error(`setWorkflowNote: 'updatedByName' is the author name shown beside the note — a non-empty string`);
+  return { op: 'setWorkflowNote', method: 'PUT',
+    path: `/workflow/${encodeURIComponent(loc)}/update-workflow-note/${encodeURIComponent(wid)}`,
+    body: { content: op.content, updatedByName: op.updatedByName ?? 'uxie-ghl-factory' } };
 }
 
 // Fold `{ op:'updateSettings', settings:{…} }` ops (in order) into ONE patch of Settings-tab keys.
@@ -559,6 +577,7 @@ const OP_REQUIRED_ARGS = {
   replaceFieldId: ['oldId', 'newId'],
   replaceInAttributes: ['path', 'find', 'replace'],
   repairParentKeys: [],
+  setWorkflowNote: ['content'],
 };
 
 // EVERY key an op may carry. A key outside this list is refused BY NAME with the accepted list —
@@ -599,6 +618,7 @@ const OP_ACCEPTED_ARGS = {
   updateSettings: ['settings'],
   addStickyNote: ['note'],
   updateStickyNote: ['noteId', 'note'],
+  setWorkflowNote: ['content', 'updatedByName'],
 };
 
 // Keys people reach for that mean something else here. `node` is by far the common one:
@@ -878,12 +898,14 @@ export function applyOp(templates, op, { ctx, idGen }) {
         throw new Error(`'${op.op}' is a TRIGGER op — it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);
       if (SETTINGS_OPS.has(op.op))
         throw new Error(`'${op.op}' is a SETTINGS op — it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() → editCommitBody({ settingsPatch }).`);
+      if (NOTE_OPS.has(op.op))
+        throw new Error(`'${op.op}' is a WORKFLOW-NOTE op — the note has its own route (update-workflow-note), not workflowData.templates. Route it through partitionOps()/planWorkflowNoteOps().`);
       if (STICKY_OPS.has(op.op))
         throw new Error(`'${op.op}' is a STICKY-NOTE op — sticky notes are a separate resource (/workflows/sticky-note), not workflowData.templates. Route it through partitionOps()/planStickyNoteOp().`);
       {
         // Name the whole vocabulary AND the nearest match. "unknown edit op" on its own sent
         // callers to the hand-rolled PUT rather than to the op they actually wanted.
-        const all = [...STEP_OP_NAMES, ...TRIGGER_OPS, ...SETTINGS_OPS, ...STICKY_OPS];
+        const all = [...STEP_OP_NAMES, ...TRIGGER_OPS, ...SETTINGS_OPS, ...STICKY_OPS, ...NOTE_OPS];
         // Match against the ALIASES too, and suggest what they canonicalise to: a typo is far more
         // likely to be one character off the name the caller reached for ('updateStepp') than off
         // the canonical one ('modifyStep').
@@ -894,7 +916,7 @@ export function applyOp(templates, op, { ctx, idGen }) {
         throw new Error(
           `unknown edit op ${JSON.stringify(op.op)}${near && near[0] <= 4 ? ` — did you mean '${near[1]}'?` : ''}. `
           + `Step ops: ${STEP_OP_NAMES.join(', ')}. Trigger ops: ${[...TRIGGER_OPS].join(', ')}. `
-          + `Settings: ${[...SETTINGS_OPS].join(', ')}. Sticky notes: ${[...STICKY_OPS].join(', ')}.`);
+          + `Settings: ${[...SETTINGS_OPS].join(', ')}. Sticky notes: ${[...STICKY_OPS].join(', ')}. Workflow note: ${[...NOTE_OPS].join(', ')}.`);
       }
   }
 }
