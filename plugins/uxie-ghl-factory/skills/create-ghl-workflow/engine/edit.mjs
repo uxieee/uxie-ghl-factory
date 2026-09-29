@@ -7,7 +7,7 @@
 // GHL's incremental save only touches steps named in the diff arrays — sending the
 // full templates[] with correct createdSteps/modifiedSteps/deletedSteps is what makes
 // an edit apply cleanly without disturbing untouched steps.
-import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY, lintConditionShape } from './ir.mjs';
+import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY, lintConditionShape, requiresStepIndex } from './ir.mjs';
 import { normalizeStoredAttributes } from './template-normalize.mjs';
 import { lintEntryStep } from './lints/entry-step.mjs';
 import { normalizeSettings, KNOWN_SETTINGS_KEYS } from './settings.mjs';
@@ -227,6 +227,8 @@ export function modifyStep(templates, stepId, attrPatch, stepPatch, ctx) {
 // graph churn — no delete-and-reinsert, no rewiring, no re-parenting. Anything that
 // walked into this workflow before the edit walks the identical path after it.
 export const RETYPE_PRESERVED_FIELDS = ['id', 'order', 'next', 'parent', 'parentKey'];
+export const RETYPE_CARRIED_FIELDS = ['parentContainerId', 'comments'];
+export const RETYPE_SAME_TYPE_FIELDS = ['stepIndex', 'integrationAccountId'];
 
 // Retype an existing step IN PLACE: swap its `type` and its ENTIRE `attributes` object,
 // keeping the five graph fields above untouched.
@@ -264,6 +266,17 @@ export function retypeStep(templates, stepId, compiledEntry) {
     if (k in old) next[k] = old[k]; else delete next[k];
   }
   if (old.advanceCanvasMeta !== undefined) next.advanceCanvasMeta = old.advanceCanvasMeta;
+  // Type-agnostic step facts carry over too: loop membership (`parentContainerId`, which the runtime reads), the
+  // step's notes, and a `cat` the new type does not set. Type-SCOPED facts carry only when the type is unchanged:
+  // `stepIndex` numbers the step among its own type (a changed type is numbered afresh by the edit driver), and an
+  // `integrationAccountId` belongs to the old type's app. (Completeness sweep 2026-09-29 §3 #2.)
+  for (const k of RETYPE_CARRIED_FIELDS) if (old[k] !== undefined) next[k] = old[k];
+  if (old.cat !== undefined && next.cat === undefined) next.cat = old.cat;
+  const sameType = old.type === next.type;
+  for (const k of RETYPE_SAME_TYPE_FIELDS) {
+    if (sameType && old[k] !== undefined) next[k] = old[k];
+    else if (!sameType && k === 'stepIndex') delete next.stepIndex;
+  }
   // Fail CLOSED on the invariant rather than merely intending it. This is the check the
   // hand-rolled migration script ran before it would commit, kept here so the engine can
   // never quietly acquire a code path that moves a step while claiming to retype it.
@@ -294,29 +307,44 @@ export function marketplaceStepIndexCounter(templates) {
   return counter;
 }
 
-// Renumber every marketplace step's `stepIndex` as a PER-ACTION-KEY, 1-based occurrence
-// counter in templates order — the same rule compiler.mjs applies on the build path (see
-// its marketplaceStepIndexCounter comment for why this is deliberately NOT the global
-// premium stepIndex). The build path can count as it emits; an edit cannot, because a
-// step spliced into an existing workflow has to be numbered against the steps ALREADY
-// there — a standalone compile always hands back `stepIndex: 1`, which would collide with
-// the first stored step of the same key.
+// Number the steps an edit CREATED (and a retype that changed a step's type), never the ones already there.
 //
-// Returns the ids whose stepIndex actually moved so the caller can mark them modified: a
-// step whose number changed but which never appears in modifiedSteps is a change the
-// server is never asked to persist.
-export function assignMarketplaceStepIndexes(templates) {
+// The builder numbers a step once, when it is placed: a new step takes `meta.stepIndexCounter[type] + 1`
+// (utils/step_index.ts:33-46, states/app.ts:964) and a pasted one the highest stored index of its type + 1
+// (use-copy-paste-listener.ts:315-324). It never renumbers. A `{{<key>.N.field}}` merge tag names step N of its
+// type, so renumbering untouched steps silently repoints every such tag. This used to renumber EVERY marketplace
+// step by array order whenever an edit touched one (completeness sweep 2026-09-29 §3 #1).
+//
+// Base per type = max(stored counter, highest index on a step NOT being numbered); each numbered step takes base+1,
+// base+2, … in templates order. Returns the ids whose stepIndex changed so the caller marks them modified.
+export function numberNewSteps(templates, numberIds, storedCounter = {}) {
+  const high = new Map();
+  for (const t of templates ?? []) {
+    if (!requiresStepIndex(t) || numberIds.has(t.id) || !Number.isFinite(Number(t.stepIndex)) || t.stepIndex === null) continue;
+    high.set(t.type, Math.max(high.get(t.type) ?? 0, Number(t.stepIndex)));
+  }
   const running = new Map();
   const changed = [];
   const out = (templates ?? []).map((t) => {
-    if (t?.isMarketplaceAction !== true || !t.type) return t;
-    const n = (running.get(t.type) ?? 0) + 1;
+    if (!numberIds.has(t.id) || !requiresStepIndex(t)) return t;
+    const base = running.get(t.type) ?? Math.max(Number(storedCounter?.[t.type]) || 0, high.get(t.type) ?? 0);
+    const n = base + 1;
     running.set(t.type, n);
     if (t.stepIndex === n) return t;
     changed.push(t.id);
     return { ...t, stepIndex: n };
   });
   return { templates: out, changed, counter: running };
+}
+
+// The per-type HIGH-WATER mark over every numbered step (marketplace and native), for meta.stepIndexCounter.
+export function stepIndexHighWater(templates) {
+  const counter = new Map();
+  for (const t of templates ?? []) {
+    if (!requiresStepIndex(t) || !t.type || !Number.isFinite(Number(t.stepIndex)) || t.stepIndex === null) continue;
+    counter.set(t.type, Math.max(counter.get(t.type) ?? 0, Number(t.stepIndex)));
+  }
+  return counter;
 }
 
 // Rename a step. The name is what every downstream reader — the canvas, an export, the
@@ -1137,10 +1165,14 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   // deleted keeps its stored entry, which is what the builder does too. And it is set to
   // the HIGH-WATER MARK read back off the templates, never accumulated onto the stored
   // number: see marketplaceStepIndexCounter.
-  const counter = marketplaceStepIndexCounter(newTemplates);
+  // Only the types this edit NUMBERED are written, each as max(stored, high-water): a type whose steps the edit
+  // deleted keeps its stored entry, exactly as the builder's counter does.
   const touched = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
-  const editTouchedMarketplace = newTemplates
-    .some((t) => t.isMarketplaceAction === true && touched.has(t.id));
+  const numberedTypes = new Set(newTemplates.filter((t) => requiresStepIndex(t) && touched.has(t.id)).map((t) => t.type));
+  const hw = stepIndexHighWater(newTemplates);
+  const counter = new Map([...numberedTypes].filter((k) => hw.has(k))
+    .map((k) => [k, Math.max(Number(fresh.meta?.stepIndexCounter?.[k]) || 0, hw.get(k))]));
+  const editTouchedMarketplace = counter.size > 0;
   // WORKFLOW-LEVEL SETTINGS (the Settings tab) — `updateSettings` ops arrive as opts.settingsPatch.
   // Stored values ⊕ patch go through the same contract the build path uses (settings.mjs): an
   // unknown key or impossible value REFUSES; the result is the exact key set the UI's own Save

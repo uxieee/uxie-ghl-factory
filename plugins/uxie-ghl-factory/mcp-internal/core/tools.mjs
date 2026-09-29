@@ -5665,7 +5665,7 @@ export const TOOLS = [
       // Sticky notes — a SEPARATE resource (POST/PATCH /workflows/sticky-note); planned now so a bad
       // note fails the preview, written after the step commit and trigger writes.
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
-      const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen, stepIndexCounter: fresh?.meta?.stepIndexCounter });
       // PARKED CONTACTS ON A DELETED STEP ARE EJECTED (backlog 23, D-83): the run ends with
       // `step_was_deleted_by_user`, and an autonomous trigger does not re-fire for them in that
       // session. Counted BEFORE the confirm gate on a PUBLISHED workflow only (a draft has no

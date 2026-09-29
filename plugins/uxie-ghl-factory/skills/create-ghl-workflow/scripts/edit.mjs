@@ -247,7 +247,7 @@ const listTriggers = async () => {
   return Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || []);
 };
 
-const { templates, diff } = applyOps(fresh.workflowData.templates ?? [], stepOps, { ctx, idGen: makeUuidV4 });
+const { templates, diff } = applyOps(fresh.workflowData.templates ?? [], stepOps, { ctx, idGen: makeUuidV4, stepIndexCounter: fresh.meta?.stepIndexCounter });
 // same as the MCP tool: trigger `target` resolves against the POST-EDIT step roster
 ctx.externalRefs = externalRefsOf(templates);
 const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, allowDanglingParentKeys, deadBranchAcknowledged, catalog: ctx.catalog, warn: ctx.warn, settingsPatch, skipSettingsCheck: process.argv.includes('--skip-settings-check') });
