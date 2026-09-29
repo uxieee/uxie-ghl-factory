@@ -3404,7 +3404,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "_shared/conformance/three-tiers-of-write-verification.md:46",
-            "workflows/30-types/triggers/contact_changed.md:98"
+            "workflows/30-types/triggers/contact_changed.md:122"
           ]
         },
         {
@@ -3560,7 +3560,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/triggers/contact_tag.md:87"
+            "workflows/30-types/triggers/contact_tag.md:95"
           ]
         },
         {
@@ -5563,7 +5563,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:131"
+            "funnels/20-api/url-redirects.md:158"
           ]
         },
         {
@@ -5613,7 +5613,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:136"
+            "funnels/20-api/url-redirects.md:163"
           ]
         },
         {
@@ -8601,7 +8601,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/40-rules/silent-failures.md:578",
             "funnels/20-api/funnel-ai.md:58",
             "funnels/20-api/funnels-api.md:245",
-            "funnels/20-api/publish-routing-and-site-settings.md:43",
+            "funnels/20-api/publish-routing-and-site-settings.md:44",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
             "funnels/40-rules/silent-failures.md:1074"
@@ -9661,7 +9661,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:302",
-            "funnels/20-api/publish-routing-and-site-settings.md:56"
+            "funnels/20-api/publish-routing-and-site-settings.md:57"
           ]
         },
         {
@@ -9978,7 +9978,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:128"
+            "funnels/20-api/url-redirects.md:155"
           ]
         },
         {
@@ -10066,7 +10066,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:129"
+            "funnels/20-api/url-redirects.md:156"
           ]
         },
         {
@@ -10101,7 +10101,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:142"
+            "funnels/20-api/publish-routing-and-site-settings.md:160"
           ]
         },
         {
@@ -10175,7 +10175,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -10194,8 +10196,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:99",
-            "funnels/20-api/publish-routing-and-site-settings.md:107"
+            "funnels/20-api/publish-routing-and-site-settings.md:108",
+            "funnels/20-api/publish-routing-and-site-settings.md:116"
           ]
         },
         {
@@ -10257,7 +10259,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:139"
+            "funnels/20-api/url-redirects.md:166"
           ]
         },
         {
@@ -10301,6 +10303,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "source-only",
           coveredBy: [
+            "edit_funnel",
             "get_funnel"
           ],
           rawCallable: true,
@@ -10321,7 +10324,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:97"
+            "funnels/20-api/publish-routing-and-site-settings.md:104"
           ]
         },
         {
@@ -10333,7 +10336,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -10352,7 +10357,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:98"
+            "funnels/20-api/publish-routing-and-site-settings.md:105"
           ]
         },
         {
@@ -10364,7 +10369,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "destructive",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -10387,6 +10394,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:107",
+            "funnels/20-api/publish-routing-and-site-settings.md:121",
             "funnels/70-research/2026-09-29-route-census.md:58"
           ]
         },
@@ -10399,7 +10408,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -10422,6 +10433,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:106",
+            "funnels/20-api/publish-routing-and-site-settings.md:119",
             "funnels/70-research/2026-09-29-route-census.md:59"
           ]
         },
@@ -10566,8 +10579,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:143",
-            "funnels/20-api/publish-routing-and-site-settings.md:152"
+            "funnels/20-api/publish-routing-and-site-settings.md:161",
+            "funnels/20-api/publish-routing-and-site-settings.md:170"
           ]
         },
         {
@@ -10679,7 +10692,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnel-object-operations.md:100",
-            "funnels/20-api/publish-routing-and-site-settings.md:71"
+            "funnels/20-api/publish-routing-and-site-settings.md:72"
           ]
         },
         {
@@ -10745,7 +10758,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:114"
+            "funnels/20-api/publish-routing-and-site-settings.md:132"
           ]
         },
         {
@@ -10776,7 +10789,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:115"
+            "funnels/20-api/publish-routing-and-site-settings.md:133"
           ]
         },
         {
@@ -11010,7 +11023,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:72"
+            "funnels/20-api/publish-routing-and-site-settings.md:73"
           ]
         },
         {
@@ -11400,7 +11413,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:132"
+            "funnels/20-api/publish-routing-and-site-settings.md:150"
           ]
         },
         {
@@ -11433,7 +11446,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:85"
+            "funnels/20-api/publish-routing-and-site-settings.md:86"
           ]
         },
         {
@@ -11466,7 +11479,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:86"
+            "funnels/20-api/publish-routing-and-site-settings.md:87"
           ]
         },
         {
@@ -11478,7 +11491,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -11497,6 +11512,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:88",
             "funnels/70-research/2026-09-29-route-census.md:71"
           ]
         },
@@ -11509,7 +11525,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -11528,6 +11546,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/publish-routing-and-site-settings.md:89",
             "funnels/70-research/2026-09-29-route-census.md:70"
           ]
         },
@@ -11889,7 +11908,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:70"
+            "funnels/20-api/publish-routing-and-site-settings.md:71"
           ]
         },
         {
@@ -12393,7 +12412,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:101",
-            "funnels/20-api/url-redirects.md:65"
+            "funnels/20-api/url-redirects.md:66"
           ]
         },
         {
@@ -12572,8 +12591,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:77",
-            "funnels/20-api/url-redirects.md:119"
+            "funnels/20-api/url-redirects.md:78",
+            "funnels/20-api/url-redirects.md:102",
+            "funnels/20-api/url-redirects.md:146"
           ]
         },
         {
@@ -12648,7 +12668,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:79"
+            "funnels/20-api/url-redirects.md:80"
           ]
         },
         {
@@ -12685,7 +12705,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:78"
+            "funnels/20-api/url-redirects.md:79"
           ]
         },
         {
@@ -12825,7 +12845,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:352",
-            "funnels/20-api/url-redirects.md:47"
+            "funnels/20-api/url-redirects.md:48"
           ]
         },
         {
@@ -14953,7 +14973,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "pipelines-opportunities/20-api/smart-views.md:39",
             "platform/20-api/smart-lists.md:292",
-            "workflows/20-api/smart-lists.md:95",
+            "workflows/20-api/smart-lists.md:107",
             "workflows/70-research/ENDPOINTS.md:81"
           ]
         },
@@ -15003,7 +15023,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:294",
             "platform/20-api/smart-lists.md:332",
             "pipelines-opportunities/20-api/smart-views.md:37",
-            "workflows/20-api/smart-lists.md:92",
+            "workflows/20-api/smart-lists.md:104",
             "workflows/70-research/ENDPOINTS.md:78"
           ]
         },
@@ -15047,7 +15067,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "pipelines-opportunities/20-api/smart-views.md:38",
-            "workflows/20-api/smart-lists.md:94",
+            "workflows/20-api/smart-lists.md:106",
             "workflows/70-research/ENDPOINTS.md:80"
           ]
         },
@@ -15163,7 +15183,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:278",
             "platform/20-api/smart-lists.md:322",
             "workflows/20-api/03-endpoints.md:355",
-            "workflows/20-api/smart-lists.md:91",
+            "workflows/20-api/smart-lists.md:103",
             "workflows/70-research/ENDPOINTS.md:77"
           ]
         },
@@ -15204,7 +15224,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/20-api/smart-lists.md:59",
-            "workflows/20-api/smart-lists.md:93",
+            "workflows/20-api/smart-lists.md:105",
             "workflows/70-research/ENDPOINTS.md:79"
           ]
         },
@@ -24239,7 +24259,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:104"
+            "funnels/20-api/url-redirects.md:125"
           ]
         },
         {
@@ -24884,7 +24904,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/fetch-users.ts:55",
-            "workflows/50-runtime/log-export.md:45",
+            "workflows/50-runtime/log-export.md:50",
             "workflows/70-research/ENDPOINTS.md:129"
           ]
         },
@@ -38980,8 +39000,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/marketplaceServices/WorkflowMarketplaceService.ts:138",
             "workflows/20-api/smart-lists.md:13",
             "workflows/20-api/smart-lists.md:28",
-            "workflows/20-api/smart-lists.md:97",
-            "workflows/20-api/smart-lists.md:107",
+            "workflows/20-api/smart-lists.md:109",
+            "workflows/20-api/smart-lists.md:119",
             "workflows/70-research/ENDPOINTS.md:76"
           ]
         },
@@ -39026,7 +39046,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/log-export-service.ts:48",
-            "workflows/20-api/log-export.md:23",
+            "workflows/20-api/log-export.md:26",
             "workflows/50-runtime/log-export.md:17"
           ]
         },
@@ -39090,7 +39110,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/log-export-service.ts:32",
-            "workflows/20-api/log-export.md:22",
+            "workflows/20-api/log-export.md:25",
             "workflows/50-runtime/log-export.md:16"
           ]
         },
@@ -39150,7 +39170,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/log-export-service.ts:62",
-            "workflows/20-api/log-export.md:24",
+            "workflows/20-api/log-export.md:27",
             "workflows/50-runtime/log-export.md:18"
           ]
         },
@@ -130571,7 +130591,13 @@ function planPublishState({ funnel, lookups, pageId, publish, redirect, user }) 
     const u = String(redirect.url ?? "");
     if (!/^https?:\/\//i.test(u)) return { refuse: "redirect.url must be an absolute http(s) URL" };
     fields2 = () => ({ target: u, action: "url", publishStatus: "unpublished", type: "redirect" });
-  } else return { refuse: `redirect.type ${JSON.stringify(redirect.type)} is not supported (404 | url). Redirect-to-step is not proven.` };
+  } else if (redirect.type === "step") {
+    const to = (funnel.steps ?? []).find((x) => x.id === redirect.stepId);
+    if (!to) return { refuse: `redirect.stepId ${redirect.stepId} is not a step of this funnel` };
+    if (to.id === step.id) return { refuse: "a page cannot redirect to its own step" };
+    if (!lookups.some((r) => r.type === "step" && r.typeId === to.id && r.domain)) return { refuse: `step "${to.name}" has no domain attached (GHL refuses a redirect to it) \u2014 publish it on a domain first` };
+    fields2 = () => ({ target: to.id, action: "funnel", publishStatus: "unpublished", type: "redirect" });
+  } else return { refuse: `redirect.type ${JSON.stringify(redirect.type)} is not supported (404 | url | step).` };
   return {
     method: "PUT",
     path: "/funnels/lookup/multiple",
@@ -130585,6 +130611,72 @@ function planAddHeader({ funnel, locationId, key, value }) {
   const existing = (funnel.securityHeaders ?? []).find((h) => String(h.key).toLowerCase() === String(key).toLowerCase());
   if (existing) return { refuse: `header ${existing.key} already exists on this funnel; editing/removing is not proven here` };
   return { method: "POST", path: "/funnels/funnel/headers", body: { locationId, funnelId: funnel._id ?? funnel.id, key, value: String(value ?? "") } };
+}
+function planEditHeader({ funnel, locationId, key, value }) {
+  const cur = (funnel.securityHeaders ?? []).find((h) => String(h.key).toLowerCase() === String(key ?? "").toLowerCase());
+  if (!cur) return { refuse: `no header ${key} on this funnel (${(funnel.securityHeaders ?? []).map((h) => h.key).join(", ") || "it has none"}); add-header creates one` };
+  if (typeof value !== "string") return { refuse: "edit-header needs the new value (a string)" };
+  if (cur.value === value) return { refuse: `header ${cur.key} already has this value` };
+  return { method: "PUT", path: "/funnels/funnel/headers", body: { locationId, funnelId: funnel._id ?? funnel.id, key: cur.key, value }, target: { key: cur.key, from: cur.value, to: value } };
+}
+function planDeleteHeader({ funnel, locationId, key, expectValue }) {
+  const cur = (funnel.securityHeaders ?? []).find((h) => h.key === key);
+  if (!cur) return { refuse: `no header with the exact key ${JSON.stringify(key)} on this funnel (${(funnel.securityHeaders ?? []).map((h) => h.key).join(", ") || "it has none"})` };
+  if (typeof expectValue !== "string" || cur.value !== expectValue) return { refuse: `target check failed: header ${cur.key} has value ${JSON.stringify(cur.value)}, not ${JSON.stringify(expectValue)}. Nothing was deleted.` };
+  return { method: "POST", path: "/funnels/funnel/headers/delete", body: { locationId, funnelId: funnel._id ?? funnel.id, key: cur.key }, target: { key: cur.key, value: cur.value } };
+}
+var META_EVENTS = Object.freeze(["page_view", "view_content", "initiate_checkout", "add_payment_info", "purchase"]);
+var eventProblems = (funnel, e) => {
+  if (funnel.type === "website") return "meta events were captured on a funnel only; a website's Events screen is not measured";
+  if (!/^\d{6,20}$/.test(String(e.pixelId ?? ""))) return "pixelId must be the Meta pixel id (digits only)";
+  if (!Array.isArray(e.events) || !e.events.length || e.events.some((x) => !META_EVENTS.includes(x))) return `events must be a non-empty list from ${META_EVENTS.join(", ")}`;
+  if (new Set(e.events).size !== e.events.length) return "events lists an event twice";
+  if (e.level !== "funnel" && e.level !== "page") return 'level must be "funnel" or "page"';
+  if (e.level === "page") {
+    const onFunnel = new Set((funnel.steps ?? []).flatMap((st) => st.pages ?? []));
+    if (!Array.isArray(e.pageIds) || !e.pageIds.length) return 'level "page" needs pageIds';
+    const off = e.pageIds.filter((id) => !onFunnel.has(id));
+    if (off.length) return `pageIds ${off.join(", ")} are not pages of this funnel`;
+  } else if (e.pageIds?.length) return 'level "funnel" takes no pageIds';
+  return null;
+};
+function planAddEvent({ funnel, locationId, event, existing = [] }) {
+  const bad = eventProblems(funnel, event ?? {});
+  if (bad) return { refuse: bad };
+  if (existing.some((r) => r.pixelId === event.pixelId && r.level === event.level && (event.level === "funnel" || JSON.stringify(r.pageIds) === JSON.stringify(event.pageIds)))) return { refuse: `pixel ${event.pixelId} already has a ${event.level}-level event on this funnel; edit-event changes it` };
+  if (event.conversionApi !== void 0) return { refuse: "the Conversions API needs an access token, which is a credential and is never passed through this tool: add the event with the API off and turn it on in the Events screen" };
+  return { method: "POST", path: "/funnels/event", body: { funnelId: funnel._id ?? funnel.id, type: "funnel", locationId, conversionEnabled: false, level: event.level, pixelId: event.pixelId, events: event.events, provider: "facebook", ...event.level === "page" ? { pageIds: event.pageIds } : {} } };
+}
+var rowOf = (rows, eventId, expectPixelId) => {
+  const r = rows.filter((x) => (x._id ?? x.id) === eventId);
+  if (r.length !== 1) return { refuse: `no single meta event ${eventId} on this funnel (${r.length} found)` };
+  if (r[0].pixelId !== expectPixelId) return { refuse: `target check failed: event ${eventId} is pixel ${r[0].pixelId}, not ${expectPixelId}. Nothing was sent.` };
+  return { row: r[0] };
+};
+function planEditEvent({ funnel, locationId, rows, eventId, expectPixelId, event }) {
+  const t = rowOf(rows, eventId, expectPixelId);
+  if (t.refuse) return t;
+  const cur = t.row;
+  const next = { pixelId: event?.pixelId ?? cur.pixelId, level: event?.level ?? cur.level, pageIds: event?.pageIds ?? (event?.level === "funnel" ? [] : cur.pageIds ?? []), events: event?.events ?? cur.events };
+  const bad = eventProblems(funnel, { ...next, pageIds: next.level === "funnel" ? [] : next.pageIds });
+  if (bad) return { refuse: bad };
+  if (event?.conversionApi !== void 0 && event.conversionApi !== false) return { refuse: "conversionApi can only be false here: the access token is a credential and is never passed through this tool" };
+  if (cur.conversionEnabled === true && event?.conversionApi !== false) return { refuse: "this event sends via the Conversions API; its token is not readable and an edit would clear it. Edit it on the Events screen, or pass conversionApi:false to turn the API off" };
+  return {
+    method: "PATCH",
+    path: `/funnels/event/${encodeURIComponent(eventId)}`,
+    body: { conversionEnabled: false, type: "funnel", accessToken: "", level: next.level, pageIds: next.level === "page" ? next.pageIds : [], pixelId: next.pixelId, events: next.events },
+    target: { eventId, pixelId: cur.pixelId, level: cur.level, events: cur.events }
+  };
+}
+function planDeleteEvent({ rows, eventId, expectPixelId }) {
+  const t = rowOf(rows, eventId, expectPixelId);
+  if (t.refuse) return t;
+  return { method: "DELETE", path: `/funnels/event/${encodeURIComponent(eventId)}`, target: { eventId, pixelId: t.row.pixelId, level: t.row.level, events: t.row.events } };
+}
+async function readEvents(gw, locationId, funnelId) {
+  const r = await gw.call("GET", `/funnels/event?funnelId=${enc(funnelId)}&locationId=${enc(locationId)}&page=1&limit=20`);
+  return { res: r, rows: Array.isArray(r.json?.events) ? r.json.events : [] };
 }
 var SERVING = (r) => (r.type === "step" || r.type === "page") && r.publishStatus !== "unpublished";
 function planDeleteFunnel({ funnel, lookups, expectName, locationId, userId }) {
@@ -227252,7 +227344,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_funnel",
-    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true) \xB7 add-header (exact-case path only) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (this location; no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId} (returns stepProductId, what a sell-product button stores). Not offered: sharing (opening Share creates a link anyone can import, not removable below the $497 plan \u2014 read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true; redirect 404 | url | step) \xB7 add-header / edit-header / delete-header (exact-case path only; delete needs the current value) \xB7 add-event / edit-event / delete-event (Meta pixel) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (this location; no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId} (returns stepProductId, what a sell-product button stores). Not offered: sharing (opening Share creates a link anyone can import, not removable below the $497 plan \u2014 read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -227266,6 +227358,11 @@ var TOOLS2 = [
         "publish-page",
         "unpublish-page",
         "add-header",
+        "edit-header",
+        "delete-header",
+        "add-event",
+        "edit-event",
+        "delete-event",
         "split-test",
         "delete-funnel",
         "clone-funnel",
@@ -227290,8 +227387,17 @@ var TOOLS2 = [
       expectName: external_exports.string().optional(),
       order: external_exports.array(external_exports.string()).optional(),
       pageId: external_exports.string().optional(),
-      redirect: external_exports.object({ type: external_exports.enum(["404", "url"]), url: external_exports.string().optional() }).optional(),
-      header: external_exports.object({ key: external_exports.string(), value: external_exports.string() }).optional(),
+      redirect: external_exports.object({ type: external_exports.enum(["404", "url", "step"]), url: external_exports.string().optional(), stepId: external_exports.string().optional() }).optional(),
+      header: external_exports.object({ key: external_exports.string(), value: external_exports.string().optional(), expectValue: external_exports.string().optional() }).optional().describe("add-header / edit-header: key + value; delete-header: key + expectValue (its current value \u2014 headers have no id, so the target check is key AND value)"),
+      event: external_exports.object({
+        eventId: external_exports.string().optional(),
+        expectPixelId: external_exports.string().optional(),
+        pixelId: external_exports.string().optional(),
+        level: external_exports.enum(["funnel", "page"]).optional(),
+        pageIds: external_exports.array(external_exports.string()).optional(),
+        events: external_exports.array(external_exports.enum(["page_view", "view_content", "initiate_checkout", "add_payment_info", "purchase"])).optional(),
+        conversionApi: external_exports.literal(false).optional()
+      }).optional().describe("add-event: pixelId, level, events (+ pageIds for level page); the Conversions API stays off (its token is a credential \u2014 set it on the Events screen). edit-event / delete-event: eventId + expectPixelId (the target check); edit changes the rest; conversionApi:false turns the API off"),
       productId: external_exports.string().optional(),
       priceId: external_exports.string().optional(),
       displayText: external_exports.string().optional(),
@@ -227315,6 +227421,13 @@ var TOOLS2 = [
       { method: "POST", path: "/funnels/funnel/delete-step" },
       { method: "PUT", path: "/funnels/lookup/multiple" },
       { method: "POST", path: "/funnels/funnel/headers" },
+      { method: "PUT", path: "/funnels/funnel/headers" },
+      { method: "POST", path: "/funnels/funnel/headers/delete" },
+      { method: "GET", path: "/funnels/event" },
+      { method: "POST", path: "/funnels/domain/invalidate-cache" },
+      { method: "POST", path: "/funnels/event" },
+      { method: "PATCH", path: "/funnels/event/{id}" },
+      { method: "DELETE", path: "/funnels/event/{id}" },
       { method: "POST", path: "/funnels/funnel/funnel-page/{pageId}" },
       { method: "POST", path: "/funnels/funnel/delete" },
       { method: "POST", path: "/funnels/funnel/clone-control-page/" },
@@ -227433,6 +227546,27 @@ var TOOLS2 = [
           case "add-header":
             plan = need("header") ? { refuse: need("header") } : planAddHeader({ funnel, locationId: args.locationId, key: args.header.key, value: args.header.value });
             break;
+          case "edit-header":
+            plan = need("header") ? { refuse: need("header") } : planEditHeader({ funnel, locationId: args.locationId, key: args.header.key, value: args.header.value });
+            break;
+          case "delete-header":
+            plan = need("header") ? { refuse: need("header") } : planDeleteHeader({ funnel, locationId: args.locationId, key: args.header.key, expectValue: args.header.expectValue });
+            break;
+          case "add-event":
+          case "edit-event":
+          case "delete-event": {
+            if (need("event")) {
+              plan = { refuse: need("event") };
+              break;
+            }
+            const ev = await readEvents(gw, args.locationId, args.funnelId);
+            if (!ev.res.ok) return fromHttp(ev.res.status, ev.res.json);
+            if (args.op === "add-event") plan = planAddEvent({ funnel, locationId: args.locationId, event: args.event, existing: ev.rows });
+            else if (!args.event.eventId) plan = { refuse: `${args.op} needs event.eventId and event.expectPixelId (read them with get_funnel view events)` };
+            else if (args.op === "edit-event") plan = planEditEvent({ funnel, locationId: args.locationId, rows: ev.rows, eventId: args.event.eventId, expectPixelId: args.event.expectPixelId, event: args.event });
+            else plan = planDeleteEvent({ rows: ev.rows, eventId: args.event.eventId, expectPixelId: args.event.expectPixelId });
+            break;
+          }
           case "delete-funnel": {
             const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);
             if (!lr.ok) return fromHttp(lr.status, lr.json);
@@ -227552,7 +227686,7 @@ var TOOLS2 = [
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, "Nothing was sent. Read the funnel with get_funnel and adjust the arguments.");
         const preview = {
           op: args.op,
-          ...plan.steps ? { requests: plan.steps } : { request: { method: plan.method, path: plan.path, body: plan.body } },
+          ...plan.steps ? { requests: plan.steps } : { request: { method: plan.method, path: plan.path, ...plan.body ? { body: plan.body } : {} } },
           ...plan.target ? { target: plan.target } : {},
           ...plan.rows ? { lookupRows: plan.rows } : {},
           ...plan.then ? { then: plan.then } : {},
@@ -227678,6 +227812,49 @@ var TOOLS2 = [
             const headers = r.json?.securityHeaders ?? [];
             const out = { op: "add-header", headers, note: `${EXACT_CASE_NOTE} The builder does not invalidate the cache on this save; the header can take minutes to appear on the exact path.` };
             if (!headers.some((h) => h.key === args.header.key && h.value === args.header.value)) return withFailureData(fail(CODES.VERIFY_FAILED, "the header did not read back", "Re-read with get_funnel view security."), out);
+            return ok(out);
+          }
+          case "edit-header":
+          case "delete-header": {
+            const r = await gw.call("GET", `/funnels/funnel/headers?locationId=${encodeURIComponent(args.locationId)}&funnelId=${encodeURIComponent(fid)}`);
+            const headers = r.json?.securityHeaders ?? [];
+            const out = { op: args.op, target: plan.target, headers, note: `${EXACT_CASE_NOTE} The builder does not invalidate the cache on this save; a change can take minutes to show on the exact path.` };
+            const okRead = args.op === "edit-header" ? headers.some((h) => h.key === plan.target.key && h.value === plan.target.to) : !headers.some((h) => h.key === plan.target.key);
+            if (!okRead) return withFailureData(fail(CODES.VERIFY_FAILED, `the header ${args.op === "edit-header" ? "edit" : "delete"} did not read back`, "Re-read with get_funnel view security."), out);
+            return ok(out);
+          }
+          case "add-event":
+          case "edit-event":
+          case "delete-event": {
+            let cache = { called: false };
+            if (funnel.domainId) {
+              const dl = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              const dom = (dl.json?.domains ?? dl.json?.data ?? []).find((x) => (x.id ?? x._id) === funnel.domainId);
+              if (dom?.url) {
+                const ic = await gw.call("POST", "/funnels/domain/invalidate-cache", { event: "funnel_settings", domains: [dom.url], locationId: args.locationId });
+                cache = { called: true, domain: dom.url, status: ic.status, ok: ic.ok };
+              }
+            }
+            const back = await reread(async () => (await readEvents(gw, args.locationId, fid)).rows, (rows2) => {
+              if (args.op === "delete-event") return !rows2.some((r2) => (r2._id ?? r2.id) === plan.target.eventId);
+              const b = plan.body;
+              const id2 = args.op === "edit-event" ? plan.target.eventId : plan.response?._id;
+              const r = rows2.find((x) => (x._id ?? x.id) === id2);
+              return !!r && r.pixelId === b.pixelId && r.level === b.level && r.conversionEnabled === b.conversionEnabled && JSON.stringify([...r.events].sort()) === JSON.stringify([...b.events].sort()) && JSON.stringify(r.pageIds ?? []) === JSON.stringify(b.pageIds ?? []);
+            }, deps.rereadOptions ?? {});
+            const rows = back.value ?? [];
+            const id = args.op === "add-event" ? plan.response?._id : plan.target.eventId;
+            const row = rows.find((x) => (x._id ?? x.id) === id) ?? null;
+            const out = {
+              op: args.op,
+              ...plan.target ? { target: plan.target } : {},
+              event: row ? { eventId: row._id ?? row.id, pixelId: row.pixelId, level: row.level, pageIds: row.pageIds, events: row.events, conversionApi: row.conversionEnabled } : null,
+              cache,
+              note: "The cache is invalidated the way the Events screen does it; the public page can still take a moment to show the change."
+            };
+            const good = args.op === "delete-event" ? !row : !!row && back.attempts > 0;
+            const changed = args.op === "delete-event" ? !row : row && row.pixelId === plan.body.pixelId && JSON.stringify([...row.events].sort()) === JSON.stringify([...plan.body.events].sort()) && row.level === plan.body.level && row.conversionEnabled === plan.body.conversionEnabled;
+            if (!good || !changed) return withFailureData(fail(CODES.VERIFY_FAILED, `the event ${args.op.split("-")[0]} did not read back`, "Re-read with get_funnel view events before retrying \u2014 do not add twice."), out);
             return ok(out);
           }
           case "delete-funnel": {

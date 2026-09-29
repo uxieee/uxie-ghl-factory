@@ -3227,7 +3227,7 @@
       },
       "sources": [
         "_shared/conformance/three-tiers-of-write-verification.md:46",
-        "workflows/30-types/triggers/contact_changed.md:98"
+        "workflows/30-types/triggers/contact_changed.md:122"
       ]
     },
     {
@@ -3383,7 +3383,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/30-types/triggers/contact_tag.md:87"
+        "workflows/30-types/triggers/contact_tag.md:95"
       ]
     },
     {
@@ -5386,7 +5386,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:131"
+        "funnels/20-api/url-redirects.md:158"
       ]
     },
     {
@@ -5436,7 +5436,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:136"
+        "funnels/20-api/url-redirects.md:163"
       ]
     },
     {
@@ -8424,7 +8424,7 @@
         "funnels/40-rules/silent-failures.md:578",
         "funnels/20-api/funnel-ai.md:58",
         "funnels/20-api/funnels-api.md:245",
-        "funnels/20-api/publish-routing-and-site-settings.md:43",
+        "funnels/20-api/publish-routing-and-site-settings.md:44",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
         "funnels/40-rules/silent-failures.md:1074"
@@ -9484,7 +9484,7 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:302",
-        "funnels/20-api/publish-routing-and-site-settings.md:56"
+        "funnels/20-api/publish-routing-and-site-settings.md:57"
       ]
     },
     {
@@ -9801,7 +9801,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:128"
+        "funnels/20-api/url-redirects.md:155"
       ]
     },
     {
@@ -9889,7 +9889,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:129"
+        "funnels/20-api/url-redirects.md:156"
       ]
     },
     {
@@ -9924,7 +9924,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:142"
+        "funnels/20-api/publish-routing-and-site-settings.md:160"
       ]
     },
     {
@@ -9998,7 +9998,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -10017,8 +10019,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:99",
-        "funnels/20-api/publish-routing-and-site-settings.md:107"
+        "funnels/20-api/publish-routing-and-site-settings.md:108",
+        "funnels/20-api/publish-routing-and-site-settings.md:116"
       ]
     },
     {
@@ -10080,7 +10082,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:139"
+        "funnels/20-api/url-redirects.md:166"
       ]
     },
     {
@@ -10124,6 +10126,7 @@
       "kind": "read",
       "reach": "source-only",
       "coveredBy": [
+        "edit_funnel",
         "get_funnel"
       ],
       "rawCallable": true,
@@ -10144,7 +10147,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:97"
+        "funnels/20-api/publish-routing-and-site-settings.md:104"
       ]
     },
     {
@@ -10156,7 +10159,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -10175,7 +10180,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:98"
+        "funnels/20-api/publish-routing-and-site-settings.md:105"
       ]
     },
     {
@@ -10187,7 +10192,9 @@
       "rail": "workflow",
       "kind": "destructive",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -10210,6 +10217,8 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:107",
+        "funnels/20-api/publish-routing-and-site-settings.md:121",
         "funnels/70-research/2026-09-29-route-census.md:58"
       ]
     },
@@ -10222,7 +10231,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -10245,6 +10256,8 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:106",
+        "funnels/20-api/publish-routing-and-site-settings.md:119",
         "funnels/70-research/2026-09-29-route-census.md:59"
       ]
     },
@@ -10389,8 +10402,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:143",
-        "funnels/20-api/publish-routing-and-site-settings.md:152"
+        "funnels/20-api/publish-routing-and-site-settings.md:161",
+        "funnels/20-api/publish-routing-and-site-settings.md:170"
       ]
     },
     {
@@ -10502,7 +10515,7 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:100",
-        "funnels/20-api/publish-routing-and-site-settings.md:71"
+        "funnels/20-api/publish-routing-and-site-settings.md:72"
       ]
     },
     {
@@ -10568,7 +10581,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:114"
+        "funnels/20-api/publish-routing-and-site-settings.md:132"
       ]
     },
     {
@@ -10599,7 +10612,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:115"
+        "funnels/20-api/publish-routing-and-site-settings.md:133"
       ]
     },
     {
@@ -10833,7 +10846,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:72"
+        "funnels/20-api/publish-routing-and-site-settings.md:73"
       ]
     },
     {
@@ -11223,7 +11236,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:132"
+        "funnels/20-api/publish-routing-and-site-settings.md:150"
       ]
     },
     {
@@ -11256,7 +11269,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:85"
+        "funnels/20-api/publish-routing-and-site-settings.md:86"
       ]
     },
     {
@@ -11289,7 +11302,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:86"
+        "funnels/20-api/publish-routing-and-site-settings.md:87"
       ]
     },
     {
@@ -11301,7 +11314,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -11320,6 +11335,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:88",
         "funnels/70-research/2026-09-29-route-census.md:71"
       ]
     },
@@ -11332,7 +11348,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -11351,6 +11369,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/publish-routing-and-site-settings.md:89",
         "funnels/70-research/2026-09-29-route-census.md:70"
       ]
     },
@@ -11712,7 +11731,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/publish-routing-and-site-settings.md:70"
+        "funnels/20-api/publish-routing-and-site-settings.md:71"
       ]
     },
     {
@@ -12216,7 +12235,7 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:101",
-        "funnels/20-api/url-redirects.md:65"
+        "funnels/20-api/url-redirects.md:66"
       ]
     },
     {
@@ -12395,8 +12414,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:77",
-        "funnels/20-api/url-redirects.md:119"
+        "funnels/20-api/url-redirects.md:78",
+        "funnels/20-api/url-redirects.md:102",
+        "funnels/20-api/url-redirects.md:146"
       ]
     },
     {
@@ -12471,7 +12491,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:79"
+        "funnels/20-api/url-redirects.md:80"
       ]
     },
     {
@@ -12508,7 +12528,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:78"
+        "funnels/20-api/url-redirects.md:79"
       ]
     },
     {
@@ -12648,7 +12668,7 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:352",
-        "funnels/20-api/url-redirects.md:47"
+        "funnels/20-api/url-redirects.md:48"
       ]
     },
     {
@@ -14776,7 +14796,7 @@
       "sources": [
         "pipelines-opportunities/20-api/smart-views.md:39",
         "platform/20-api/smart-lists.md:292",
-        "workflows/20-api/smart-lists.md:95",
+        "workflows/20-api/smart-lists.md:107",
         "workflows/70-research/ENDPOINTS.md:81"
       ]
     },
@@ -14826,7 +14846,7 @@
         "platform/20-api/smart-lists.md:294",
         "platform/20-api/smart-lists.md:332",
         "pipelines-opportunities/20-api/smart-views.md:37",
-        "workflows/20-api/smart-lists.md:92",
+        "workflows/20-api/smart-lists.md:104",
         "workflows/70-research/ENDPOINTS.md:78"
       ]
     },
@@ -14870,7 +14890,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/smart-views.md:38",
-        "workflows/20-api/smart-lists.md:94",
+        "workflows/20-api/smart-lists.md:106",
         "workflows/70-research/ENDPOINTS.md:80"
       ]
     },
@@ -14986,7 +15006,7 @@
         "platform/20-api/smart-lists.md:278",
         "platform/20-api/smart-lists.md:322",
         "workflows/20-api/03-endpoints.md:355",
-        "workflows/20-api/smart-lists.md:91",
+        "workflows/20-api/smart-lists.md:103",
         "workflows/70-research/ENDPOINTS.md:77"
       ]
     },
@@ -15027,7 +15047,7 @@
       },
       "sources": [
         "workflows/20-api/smart-lists.md:59",
-        "workflows/20-api/smart-lists.md:93",
+        "workflows/20-api/smart-lists.md:105",
         "workflows/70-research/ENDPOINTS.md:79"
       ]
     },
@@ -24062,7 +24082,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:104"
+        "funnels/20-api/url-redirects.md:125"
       ]
     },
     {
@@ -24707,7 +24727,7 @@
       },
       "sources": [
         "services/api/fetch-users.ts:55",
-        "workflows/50-runtime/log-export.md:45",
+        "workflows/50-runtime/log-export.md:50",
         "workflows/70-research/ENDPOINTS.md:129"
       ]
     },
@@ -38793,8 +38813,8 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:138",
         "workflows/20-api/smart-lists.md:13",
         "workflows/20-api/smart-lists.md:28",
-        "workflows/20-api/smart-lists.md:97",
-        "workflows/20-api/smart-lists.md:107",
+        "workflows/20-api/smart-lists.md:109",
+        "workflows/20-api/smart-lists.md:119",
         "workflows/70-research/ENDPOINTS.md:76"
       ]
     },
@@ -38839,7 +38859,7 @@
       },
       "sources": [
         "services/api/log-export-service.ts:48",
-        "workflows/20-api/log-export.md:23",
+        "workflows/20-api/log-export.md:26",
         "workflows/50-runtime/log-export.md:17"
       ]
     },
@@ -38902,7 +38922,7 @@
       },
       "sources": [
         "services/api/log-export-service.ts:32",
-        "workflows/20-api/log-export.md:22",
+        "workflows/20-api/log-export.md:25",
         "workflows/50-runtime/log-export.md:16"
       ]
     },
@@ -38962,7 +38982,7 @@
       },
       "sources": [
         "services/api/log-export-service.ts:62",
-        "workflows/20-api/log-export.md:24",
+        "workflows/20-api/log-export.md:27",
         "workflows/50-runtime/log-export.md:18"
       ]
     },
