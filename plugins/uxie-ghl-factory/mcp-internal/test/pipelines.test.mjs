@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { planPipelineEdit, verifyPipeline, strayArrivals } from '../core/pipelines.mjs';
+import { planPipelineEdit, verifyPipeline, strayArrivals, cardsInRemovedStages } from '../core/pipelines.mjs';
 
 // The GET row shape, trimmed to what matters (sandbox capture 2026-09-28).
 const row = () => ({
@@ -118,4 +118,11 @@ test('strayArrivals: a card the pre-write snapshot never saw, already existing a
   assert.deepEqual(strayArrivals({ snapshotIds: ['old', 'lag'], landingCards: landing.slice(0, 2), writeStartedAt }), []);
   // No timestamp at all → reported (fail loud, not silent).
   assert.equal(strayArrivals({ snapshotIds: [], landingCards: [{ id: 'x', name: 'no date' }], writeStartedAt }).length, 1);
+});
+
+test('cardsInRemovedStages: the last snapshot stops the edit when a card reached a stage being removed (live miss 2026-09-29)', () => {
+  const rows = [{ id: 'a', pipelineStageId: 'L1' }, { id: 'late', pipelineStageId: 'L2' }];
+  assert.deepEqual(cardsInRemovedStages(rows, new Set(['L2'])).map((c) => c.id), ['late']);
+  // CONTROL: no card in a removed stage.
+  assert.deepEqual(cardsInRemovedStages(rows, ['L3']), []);
 });

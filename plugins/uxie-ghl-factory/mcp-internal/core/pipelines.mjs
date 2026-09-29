@@ -171,3 +171,9 @@ export function strayArrivals({ snapshotIds, landingCards, writeStartedAt }) {
     return !Number.isFinite(added) || !Number.isFinite(t0) || added <= t0;
   }).map((c) => ({ id: c.id, name: c.name, dateAdded: c.dateAdded ?? c.createdAt ?? null }));
 }
+
+/** Cards of a pipeline snapshot that sit in a stage being removed — GHL would move them to the first stage (T12). */
+export function cardsInRemovedStages(rows, removedStageIds) {
+  const gone = new Set(removedStageIds);
+  return (rows ?? []).filter((c) => c && gone.has(c.pipelineStageId));
+}

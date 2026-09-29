@@ -89,7 +89,7 @@ import {
   isGroup,
   leaves as filterLeaves,
 } from './smart-lists.mjs';
-import { planPipelineEdit, verifyPipeline, COLOR_RENDER_MODES, strayArrivals } from './pipelines.mjs';
+import { planPipelineEdit, verifyPipeline, COLOR_RENDER_MODES, strayArrivals, cardsInRemovedStages } from './pipelines.mjs';
 import { CLOSE_DATE_BUCKETS, DRILLDOWN_BY, FORECAST_VIEWS, GROUP_BY, PATHS as FORECAST_PATHS, forecastBody, nameMaps, shapeForecast } from './forecast.mjs';
 import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId } from './snapshots.mjs';
 import {
@@ -10855,21 +10855,21 @@ export const TOOLS = [
       const pipelineIds = [];
       if (removing) {
         await new Promise((r) => setTimeout(r, 3000));
-        for (const a of affected) {
-          const res = await search([pipeFilter, stageFilter(a.id)], 100);
-          if (!res.ok) return fromHttp(res.status, res.json);
-          const late = res.json?.opportunities ?? [];
-          if (late.length) {
-            return withFailureData(fail(CODES.VERIFY_FAILED, `stage "${a.name}" gained ${late.length} card(s) after the count: ${late.map((c) => `"${c.name}" (${c.id})`).join(', ')}; the pipeline was NOT changed`,
-              'Re-run the edit so they are counted (and moved with moveCardsTo).'), { moved, late: late.map((c) => ({ id: c.id, name: c.name })) });
-          }
-        }
+        // One snapshot of every card in the pipeline, WITH its stage, taken as late as possible: it is both the last
+        // re-count (a card now sitting in a stage being removed stops the edit) and the baseline for the check after.
+        const removedIds = new Set(affected.map((a) => a.id));
+        const late = [];
         for (let page = 1; page <= 20; page++) {
           const res = await search([pipeFilter], 100, page);
           if (!res.ok) return fromHttp(res.status, res.json);
           const rows = res.json?.opportunities ?? [];
           pipelineIds.push(...rows.map((c) => c.id));
+          late.push(...cardsInRemovedStages(rows, removedIds));
           if (rows.length < 100) break;
+        }
+        if (late.length) {
+          return withFailureData(fail(CODES.VERIFY_FAILED, `${late.length} card(s) reached a stage being removed after the count: ${late.map((c) => `"${c.name}" (${c.id}) in "${stageName(c.pipelineStageId)}"`).join(', ')}; the pipeline was NOT changed`,
+            'Re-run the edit so they are counted (and moved with moveCardsTo).'), { moved, late: late.map((c) => ({ id: c.id, name: c.name, stage: stageName(c.pipelineStageId) })) });
         }
       }
       // 4. Write the whole pipeline, then read it back.
