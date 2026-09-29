@@ -2415,6 +2415,12 @@ export const DEPENDENT_TRIGGER_ROWS = {
   pipeline_stage_updated: [PIPELINE_STAGE_ROW],
   opportunity_status_changed: [PIPELINE_STAGE_ROW],
   opportunity_changed: [PIPELINE_STAGE_ROW],
+  // scheduler_trigger, Daily: the drawer's "At what time" row is `scheduler.daily.times` (15-minute HH:MM grid, a list). The catalogue models
+  // the weekly one and not the daily one, so a Daily interval written with a time went out with no operator, title or type — the drawer then
+  // shows the Interval and NO time row (live-W30-f-render-scheduler_trigger*.json; corpus scheduler_trigger.md).
+  scheduler_trigger: [
+    { field: 'scheduler.daily.times', title: 'At what time', type: 'multiselect', operator: '==', operators: ['=='], requires: 'scheduler.interval', requiresValue: 'daily' },
+  ],
   payment_received: [
     paymentRow('payment.funnel.sub_source', 'Sub-Source', 'funnel'),
     paymentRow('payment.website.sub_source', 'Sub-Source', 'website'),
@@ -2780,6 +2786,20 @@ export function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
     // quote the builder's own wording when the catalog carries it (i18n, from the compiled chunk)
     const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` — GHL: "${ctx.catalog.i18n[r.i18n]}"` : '';
     if (empty) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) — GHL requires filter '${r.field}'${r.beDedupeAssetType ? ' (the SERVER blocks the save without it)' : ''}${ghlText}`);
+  }
+  // OBJECT-BASED WORKFLOW (custom_object_created / custom_object_changed): a row's field is the object's FULL field key,
+  // `custom_objects.<object>.<field>`. Authored as the bare label ("Name") it is stored as-is and the drawer shows the row as "Select"
+  // with no field (read on an own object-mode draft, live-W31-g-custom_object-render-*.json); the full key renders. A bare name is
+  // prefixed with the workflow's object key: lower-case, spaces to underscores — the shape GHL gives a field key — and SAID, because a
+  // field whose key was edited away from its label would not match.
+  if (typeof objectKey === 'string' && objectKey.startsWith('custom_objects.')) {
+    conditions = conditions.map((c) => {
+      if (!c || typeof c.field !== 'string' || c.field.startsWith('custom_objects.') || /^(contact|opportunity|business)\./.test(c.field)) return c;
+      const slug = c.field.trim().toLowerCase().replace(/[\s-]+/g, '_');
+      ctx?.warn?.(`TRIGGER_FILTER_OBJECT_FIELD: filter '${c.field}' on '${t.type}' is not a full field key — the drawer shows such a row as "Select" with no field. `
+        + `Written as '${objectKey}.${slug}' (assumed from the label; author the full key '${objectKey}.<fieldKey>' if the field's key differs).`);
+      return { ...c, field: `${objectKey}.${slug}` };
+    });
   }
   // VALUE-LESS ROWS. The API stores a filter row with no value and reports success, but the builder refuses to SAVE a trigger
   // carrying one (TriggerMain.hasErrors -> checkForEmptyFilter, TriggerMain.ts:306-334): the Save trigger button stays blocked
