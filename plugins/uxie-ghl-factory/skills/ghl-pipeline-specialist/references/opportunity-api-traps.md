@@ -111,3 +111,28 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
 - A bulk delete can be undone there (Restore) or per card. A bulk edit cannot be undone.
 - A CSV import is a background job (`bulk-import-v2`) that can sit at "processing 0/N" for minutes before
   it runs. A `Source` column is written to both the contact and the opportunity.
+
+## Contacts into a pipeline in one job (`bulk-ops-v2`)
+
+This is the job behind Contacts › select › **Manage opportunities**. Call it with `raw_request`, host `ai`, `confirm:true`:
+
+```
+POST /bulk-actions/request
+{"bulkActionType":"bulk-ops-v2","title":"<name>","locationId":"{loc}","documentSource":"search","scheduleType":"NOW",
+ "documentIds":["{contactId}", "…"],
+ "opSpecs":{"opType":"bulk-ops-v2","note":"<name>","pipelineId":"{pipelineId}","pipelineStageId":"{stageId}",
+            "description":"Pipeline: <name> | Stage: <name>","name":"…","monetaryValue":0,"status":"open","customFields":[]}}
+```
+
+- `documentIds` are **contact** ids. List them explicitly and show the user the count first. The app sends a
+  filter (`documentSourceQuery`) for "select all", and that runs against whatever matches when the job starts.
+- 🔴 **It is an upsert.** A contact that already has a card in that pipeline has that card updated; it does
+  not get a second card. Say so before running it on contacts that already have cards.
+- Other fields go in `opSpecs` by their own key: assignedTo, followers, source, lostReasonId. Custom fields
+  go in `customFields:[{id, field_value}]`.
+- It answers `201 {bulkRequest:{id, status:"processing"}}`. Poll `GET /bulk-actions/request/{id}` until
+  `bulkRequest.status` is `complete`, then check that `stats.processed` equals the number of ids. Read the cards
+  back with the public opportunity search.
+- Undo is not proven for this job type (Restore is offered on delete jobs). Treat it as irreversible.
+- Every card it creates or moves can fire that pipeline's opportunity triggers. Check them first (see
+  reference-pipelines.md, "Before any bulk card move").
