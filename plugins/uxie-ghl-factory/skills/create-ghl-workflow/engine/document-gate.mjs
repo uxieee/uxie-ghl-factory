@@ -125,6 +125,14 @@ const finding = (check, severity, t, message) => ({
  *   as warnings: a pre-existing defect on a step nobody touched must not block an unrelated edit.
  * @returns {errors, warnings, checked}
  */
+// A branching wait's transition rows store `wait_<wait type>` (Wait.ts:512,536) for each type GHL lets a wait branch on
+// (WorkflowValidator.ts:927, extracted into workflowRules.vocab.multipathSupportedWaitTypes), plus `wait_timeout` for the
+// timeout leg. Derived, not listed: the census had seen only three of them and refused builder-made
+// user_replied / link_clicked / email_event branches.
+export function transitionInnerTypes(catalog) {
+  return [...(catalog?.workflowRules?.vocab?.multipathSupportedWaitTypes ?? []).map((w) => `wait_${w}`), 'wait_timeout'];
+}
+
 export function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null } = {}) {
   const out = [];
   for (const t of templates) {
@@ -157,7 +165,8 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
     const innerAllowed = INNER_ATTRIBUTE_TYPE[t.type]
       ? new Set([INNER_ATTRIBUTE_TYPE[t.type]])
       : (OBSERVED_INNER_TYPES[t.type]
-        ? new Set([...OBSERVED_INNER_TYPES[t.type], ...((card.modelFields?.fields ?? []).find((f) => f?.name === 'type')?.members ?? [])])
+        ? new Set([...OBSERVED_INNER_TYPES[t.type], ...((card.modelFields?.fields ?? []).find((f) => f?.name === 'type')?.members ?? []),
+          ...(t.type === 'transition' ? transitionInnerTypes(catalog) : [])])
         : null);
     if (innerAllowed && 'type' in attrs && !innerAllowed.has(attrs.type)) out.push(finding('INNER_TYPE', 'error', t,
       `attributes.type is ${JSON.stringify(attrs.type)}; '${t.type}' stores ${[...innerAllowed].map((v) => `'${v}'`).join(' or ')}. `

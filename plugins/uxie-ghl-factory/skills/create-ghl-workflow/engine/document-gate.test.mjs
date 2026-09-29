@@ -120,3 +120,21 @@ test('MULTIPATH_SHAPE refuses a linear find_opportunity and passes a wired one',
   // outside the write's scope it is reported, not blocking
   assert.equal(gateDocument(linear, { scope: new Set(['h']) }).errors.filter((e) => e.check === 'MULTIPATH_SHAPE').length, 0);
 });
+
+// wave22: a branching wait's transition rows carry attributes.type `wait_<wait type>` (Wait.ts:512,536) for every type
+// GHL lets a wait branch on (WorkflowValidator.ts:927, carried in workflowRules.vocab.multipathSupportedWaitTypes), plus
+// `wait_timeout` for the timeout leg. The census had seen only wait_condition / wait_reply / wait_timeout, so the gate
+// refused a builder-authored user_replied / link_clicked / email_event branch.
+const transition = (id, type) => ({ id, name: type, type: 'transition', parentKey: 'w', parent: 'w', order: 0, cat: 'transition',
+  attributes: { type, description: '' } });
+test('transition inner types are derived from the branching-wait vocabulary: every wait_<type> + wait_timeout passes', () => {
+  const vocab = catalog.workflowRules.vocab.multipathSupportedWaitTypes;
+  assert.ok(vocab.includes('user_replied') && vocab.includes('link_clicked') && vocab.includes('email_event'), JSON.stringify(vocab));
+  const rows = [...vocab.map((v, i) => transition(`t${i}`, `wait_${v}`)), transition('tt', 'wait_timeout')];
+  const r = gateDocument(rows, { catalog, marketplaceTypes: new Set() });
+  assert.deepEqual(r.errors.filter((f) => f.check === 'INNER_TYPE'), [], JSON.stringify(r.errors));
+});
+test('CONTROL: a transition named for a wait that cannot branch, or for no wait at all, is still refused', () => {
+  const r = gateDocument([transition('a', 'wait_time'), transition('b', 'wait_specific_date'), transition('c', 'wait_nonsense')], { catalog, marketplaceTypes: new Set() });
+  assert.deepEqual(r.errors.filter((f) => f.check === 'INNER_TYPE').map((f) => f.stepId).sort(), ['a', 'b', 'c']);
+});

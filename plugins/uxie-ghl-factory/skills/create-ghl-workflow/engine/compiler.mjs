@@ -1612,11 +1612,22 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       } else {
         subtype = { ...(n.attributes ?? {}) };
       }
+      // The timeout IS the branch: the builder offers "Enable branching" only under a switched-on Timeout and refuses to
+      // save a timeout of 0 ("missed out on some fields"). The author's `timeout` wins over an attributes.startAfter — a
+      // user_replied wait carries the drawer's seed {minutes, 0} (Wait.ts:583-586), which used to replace it and left
+      // the builder showing Timeout OFF on a wait that branches (live 2026-09-29).
+      const effective = startAfter ?? subtype.startAfter;
+      if (!(Number(effective?.value) > 0)) {
+        throw new IRError('WAIT_TIMEOUT',
+          `branching wait '${n.ref}' needs a timeout greater than 0 (timeout: { unit, value }). Its second branch IS the `
+          + 'timeout; the builder only branches a wait whose Timeout is on, refuses to save a timeout of 0, and shows a '
+          + 'wait stored with none as not branching.');
+      }
       const mkTrans = (tid, name, cond, primary, desc) => ({ id: tid, name, condition: cond, conditionType: 'user-defined', isPrimaryBranch: primary, description: '', attributes: { type: primary ? `wait_${wt}` : 'wait_timeout', description: desc } });
       const container = {
         id, type: 'wait', name: n.name, order: i, parentKey, next: [t1, t2], cat: 'multi-path',
         attributes: {
-          type: wt, ...(startAfter ? { startAfter } : {}), ...subtype, name: n.name, cat: 'multi-path',
+          type: wt, ...subtype, startAfter: effective, name: n.name, cat: 'multi-path',
           timePeriodInputMode: 'standard', unitInputMode: 'standard',
           isHybridAction: true, hybridActionType: 'wait', convertToMultipath: true,
           transitions: [mkTrans(t1, 'wait', 'primary', true, eventDesc), mkTrans(t2, 'timeout', 'timeout', false, timeoutDesc)],

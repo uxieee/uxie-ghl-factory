@@ -854,3 +854,30 @@ test('an email with a REAL template_id still compiles to the template shape', ()
   assert.equal(step.attributes.template_id, '6a2632febba50b0bbd1031d2');
   assert.equal(step.attributes.templatesource, 'email-builder');
 });
+
+// wave22: a branching wait's timeout is the author's `timeout`. A user_replied wait's attributes carry the drawer's seed
+// startAfter {minutes, 0} (Wait.ts:583-586); spread after the timeout it silently replaced it, and the builder then shows
+// Timeout OFF on a wait that branches (live 2026-09-29, knowledge sniffs/workflows-wave1-2026-09-25/ui/walk-w22-render-eed39b62.json).
+const urWait = (over = {}) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'w', kind: 'wait', waitType: 'user_replied', name: 'Wait for staff',
+    attributes: { type: 'user_replied', channel: ['any_channel'], repliedBy: ['any_user'], startAfter: { type: 'minutes', value: 0, when: 'after' } },
+    timeout: { unit: 'days', value: 1 }, onEvent: [{ ref: 'y', kind: 'action', type: 'add_contact_tag', name: 'Y', attributes: { tags: ['y'] } }],
+    onTimeout: [{ ref: 'n', kind: 'action', type: 'add_contact_tag', name: 'N', attributes: { tags: ['n'] } }], ...over }] });
+test('branching wait: the author\'s timeout wins over an attributes.startAfter seed', () => {
+  const c = compile(urWait(), ctx()).autoSaveBody.workflowData.templates.find((s) => s.type === 'wait');
+  assert.deepEqual(c.attributes.startAfter, { type: 'days', value: 1, when: 'after' });
+});
+test('branching wait: a timeout of 0 is refused (the drawer refuses to save it and shows the toggle off)', () => {
+  assert.throws(() => compile(urWait({ timeout: { unit: 'minutes', value: 0 } }), ctx()), /WAIT_TIMEOUT|timeout/i);
+  const noTimeout = urWait(); delete noTimeout.graph[0].timeout;
+  assert.throws(() => compile(noTimeout, ctx()), /WAIT_TIMEOUT|timeout/i);
+});
+test('CONTROL: a branching reply wait with a positive timeout compiles unchanged', () => {
+  const ir = { name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+    { ref: 'sms', kind: 'action', type: 'sms', name: 'Ask', attributes: { body: 'Reply YES' } },
+    { ref: 'w', kind: 'wait', waitType: 'reply', name: 'Wait for reply', reply: { steps: ['sms'], labels: ['Ask'] }, timeout: { unit: 'hours', value: 2 },
+      onEvent: [{ ref: 'y', kind: 'action', type: 'add_contact_tag', name: 'Y', attributes: { tags: ['y'] } }],
+      onTimeout: [{ ref: 'n', kind: 'action', type: 'add_contact_tag', name: 'N', attributes: { tags: ['n'] } }] }] };
+  const c = compile(ir, ctx()).autoSaveBody.workflowData.templates.find((s) => s.type === 'wait');
+  assert.deepEqual(c.attributes.startAfter, { type: 'hours', value: 2, when: 'after' });
+});
