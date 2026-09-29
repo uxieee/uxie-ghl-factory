@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 528,
+ "count": 531,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -6069,6 +6069,268 @@
    "hasCanonicalExample": false
   },
   {
+   "type": "business_changed",
+   "family": "triggers-marketplace",
+   "title": "Company Changed (business_changed)",
+   "status": "source-derived",
+   "lastVerified": "2026-09-29",
+   "summary": "The company-workflow trigger that starts a run when a company record is updated. GHL's own description: \"Trigger the workflow when a company record is updated. Add optional filters to target specific updates.\"",
+   "meta": {
+    "App / section": "Company",
+    "workflowsTriggerType": "`INTERNAL` → `masterType: \"internal\"`",
+    "customVarPrefix": "`business_changed`",
+    "Premium / billable": "no",
+    "Version": "`1.0`"
+   },
+   "fields": [
+    {
+     "name": "name",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "phone",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "email",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "website",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "address",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "state",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "city",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "description",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "postalcode",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "country",
+     "type": "select",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "name",
+     "fieldType": "string",
+     "required": false,
+     "title": "Company Name"
+    },
+    {
+     "field": "phone",
+     "fieldType": "string",
+     "required": false,
+     "title": "Phone"
+    },
+    {
+     "field": "email",
+     "fieldType": "string",
+     "required": false,
+     "title": "Email"
+    },
+    {
+     "field": "website",
+     "fieldType": "string",
+     "required": false,
+     "title": "Website"
+    },
+    {
+     "field": "address",
+     "fieldType": "string",
+     "required": false,
+     "title": "Address"
+    },
+    {
+     "field": "state",
+     "fieldType": "string",
+     "required": false,
+     "title": "State"
+    },
+    {
+     "field": "city",
+     "fieldType": "string",
+     "required": false,
+     "title": "City"
+    },
+    {
+     "field": "description",
+     "fieldType": "string",
+     "required": false,
+     "title": "Description"
+    },
+    {
+     "field": "postalcode",
+     "fieldType": "string",
+     "required": false,
+     "title": "Postal Code"
+    },
+    {
+     "field": "country",
+     "fieldType": "select",
+     "required": false,
+     "title": "Country"
+    }
+   ],
+   "notes": "- 🔴 **Unfiltered, it fires for EVERY company updated on the location.** Filter on Company Name (or another field) to scope it [source-derived — every filter row is optional in the asset].\n- A trigger built by the plugin's engine omits `workflowsTriggerType`. It still fired\n  [proven-live 2026-09-29 — `live-R7-2-company-runtime.json`; the engine's stored trigger has `masterType: \"internal\"` only].\n- 🔴 A company workflow that updates its own company re-fires this trigger. An update step inside a workflow started by this trigger loops unless a filter or `allowMultiple: false` stops it [inferred — a step's update fired this trigger in another workflow; the self-loop was not run, deliberately].\n- Find company (`co_find_company_record`) is skipped in a run started by this trigger (asset description) [source-derived].",
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "business_created",
+   "family": "triggers-marketplace",
+   "title": "Company Created (business_created)",
+   "status": "source-derived",
+   "lastVerified": "2026-09-29",
+   "summary": "The company-workflow trigger that starts a run when a company record is created. GHL's own description: \"Trigger the workflow when a company record is created. Add optional filters to target specific updates.\"",
+   "meta": {
+    "App / section": "Company",
+    "workflowsTriggerType": "`INTERNAL` → `masterType: \"internal\"`",
+    "customVarPrefix": "`business_created`",
+    "Premium / billable": "no",
+    "Version": "`1.0`"
+   },
+   "fields": [
+    {
+     "name": "phone",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "country",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "name",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "email",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "website",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "address",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "state",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "city",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "description",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "postalcode",
+     "type": "string",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "phone",
+     "fieldType": "string",
+     "required": false,
+     "title": "Phone Number"
+    },
+    {
+     "field": "country",
+     "fieldType": "select",
+     "required": false,
+     "title": "Country"
+    },
+    {
+     "field": "name",
+     "fieldType": "string",
+     "required": false,
+     "title": "Company Name"
+    },
+    {
+     "field": "email",
+     "fieldType": "string",
+     "required": false,
+     "title": "Email"
+    },
+    {
+     "field": "website",
+     "fieldType": "string",
+     "required": false,
+     "title": "Website"
+    },
+    {
+     "field": "address",
+     "fieldType": "string",
+     "required": false,
+     "title": "Address"
+    },
+    {
+     "field": "state",
+     "fieldType": "string",
+     "required": false,
+     "title": "State"
+    },
+    {
+     "field": "city",
+     "fieldType": "string",
+     "required": false,
+     "title": "City"
+    },
+    {
+     "field": "description",
+     "fieldType": "string",
+     "required": false,
+     "title": "Description"
+    },
+    {
+     "field": "postalcode",
+     "fieldType": "string",
+     "required": false,
+     "title": "Pincode"
+    }
+   ],
+   "notes": "- 🔴 **Unfiltered, it fires for EVERY company created on the location.** Filter on Company Name (or another field) to scope it [source-derived — every filter row is optional in the asset].\n- A trigger built by the plugin's engine omits `workflowsTriggerType`. It still fired\n  [proven-live 2026-09-29 — `live-R7-2-company-runtime.json`; the engine's stored trigger has `masterType: \"internal\"` only].\n- A company created by a step of a company workflow is itself \"created\": such a step inside a workflow started by this trigger can re-start it. A workflow that both creates companies and listens for created companies needs a filter that the new company does not match [inferred — a company created by a step fired this trigger; the self-restart itself was not run].\n- Find company (`co_find_company_record`) is skipped in a run started by this trigger (asset description) [source-derived].",
+   "hasCanonicalExample": false
+  },
+  {
    "type": "cal-com",
    "family": "steps-marketplace",
    "title": "Marketplace — Cal.com",
@@ -11235,7 +11497,7 @@
    "family": "triggers",
    "title": "custom_object_created",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-29",
    "summary": "Fires when a custom-object record is created.",
    "meta": {
     "Trigger value": "`custom_object_created`",
@@ -11272,7 +11534,7 @@
    "family": "steps",
    "title": "custom_webhook",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-29",
    "summary": "Premium HTTP request action — POST/GET/PUT/DELETE to an external URL with JSON or form-encoded body, headers, query parameters, and an event-classification tag. Distinct from the simpler `webhook` action by supporting authorization, parameters, response capture, and event metadata.",
    "meta": {
     "Section": "`send_data`",
@@ -11365,7 +11627,7 @@
      "type": "object",
      "required": true,
      "default": "—",
-     "notes": "Captured-response shape: `{ selectedContact, recordType, loading, isSampleRequested, data, status, headers }`. Set by the UI's \"test\" run. 100%."
+     "notes": "Captured-response shape: `{ selectedContact"
     },
     {
      "name": "saveResponse",
@@ -11376,7 +11638,7 @@
     }
    ],
    "validator": "`customWebhookValidator` (length 2518, result level `warning`). Per `sniffs/bundle/validators.json::customWebhookValidator`:\n\n1. `url` non-empty (after `.trim()`).\n2. `method` set.\n3. `event` set.\n4. If `body.contentType === \"application/json\"`:\n   - `body.rawData` non-empty.\n   - ~~`body.rawData` is parsable JSON (`JSON.parse` in try-catch).~~ **REMOVED by GHL in the 2026-09-14\n     builder bundle**, which deletes the branch and says why in its own source: *\"rawData is compiled at\n     execution time; merge fields make static JSON.parse invalid on save.\"* `[proven-live]` 2026-09-23:\n     GHL's server validator (`POST …/validate-workflows`) called VALID a body containing a merge tag, a\n     body of **malformed** JSON (`{\"a\": }`), and a body of valid JSON, identically — with a control on the\n     same call path (the step's attributes stripped) refused at the action layer, so the VALIDs were real\n     verdicts. So a syntax error in a JSON body is **no longer caught anywhere on GHL's save path**; it\n     surfaces only when the webhook fires. The plugin's engine keeps a narrowed warning of its own\n     (malformed JSON with no merge tag in it), deliberately stricter than GHL there and silent on merge tags.\n5. Authorization, by type [source-derived 2026-09-26 — utils/validators/webhook-validators.ts:151-210]:\n   - `BEARER_TOKEN`: `authorization.data.token` set (`bearer_token_required`).\n   - `API_KEY`: `authorization.data.key` and `.value` set (`api_key_and_value_required`).\n   - `OAUTH2`: `authorization.data.tokenId` set (`oauth2_token_required`).\n   - `BASIC_AUTH` is not checked at publish; only the drawer checks `username`/`password` (models/actions/premium-actions/CustomWebhook.ts:720-737).\n6. If `saveResponse` is true: `webhookResponse.isSampleRequested` must be true and `webhookResponse.status` below 400 (`valid_sample_response_required`, field `webhookResponse`) [source-derived 2026-09-26 — utils/validators/webhook-validators.ts:213-222].\n\n`fields_referenced` (11): `authorization.data`, `authorization.data.token`, `authorization.data.tokenId`, `body.keyValueData`, `body.rawData`, `event`, `headers`, `method`, `parameters`, `url`, `webhookResponse`.",
-   "notes": "- **POSTs and the receiver fires** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3J-webhook-chain.json`, `live-3J-webhook-chain-logs-late.json`: `event: CUSTOM`, `method: POST`, JSON `rawData` with a merge tag, sent to an inbound-webhook trigger URL on the same location — each run enrolled the receiving workflow once. Omit `authorization` when it is `NONE`: our tools refuse any argument KEY named `authorization` as a credential, even `{type:\"NONE\", data:null}`; the compiler fills that default itself.\n- 🔴 **Index a response array with a DOT, never brackets.** `{{custom_webhook.N.response.<path>.numbers.0.phoneNumber}}` renders. `…numbers[0].phoneNumber` fails to compile, and the WHOLE field write is skipped (`missing-data`, \"can't be compiled\"), including every other tag in the same value. GHL's validator does not catch it. A whole array or object renders `[object Object]`. To pick items out of a list, pass the array into a Custom Code step, where it arrives as a real array. See \"Reading an array out of the response\" `[proven-live 2026-09-25]`.\n- 🔴 **A 5xx holds the run on this step and retries**: 5 attempts over about 50 min, then `failed_retry_limit_reached` and the run carries on with `.status` = 500. **A 4xx fails, and the run carries on at once.** A 200 with an error in its body is a success. Branch on `{{custom_webhook.N.status}}` or `.response.<path>`. See \"What a failed call does to the run\" `[proven-live 2026-09-25]`.\n\n- **`body.rawData` is a JSON-encoded string, not an object.** When you build the body programmatically, `JSON.stringify` your payload and assign the result to `rawData`. Embedded Handlebars (`{{contact.first_name}}`) remain literal strings in the JSON until the runtime resolves them at execution.\n- **Nothing on GHL's save path parses `rawData` as JSON** (see the Validator section). Handlebars in the JSON must still produce valid JSON when expanded at execution. If a Handlebars value can be empty/null and you reference it without quotes (`\"phone\": {{contact.phone}}`), the JSON becomes invalid at runtime — wrap in quotes.\n- **`webhookResponse` is a UI-test artifact.** It captures whatever the \"test webhook\" button produced; the runtime doesn't read it. The minimal stub `{ \"isSampleRequested\": false, \"selectedContact\": \"\" }` is safe **only with `saveResponse: false`**. With `saveResponse: true`, the drawer refuses Save and the publish validator warns (`valid_sample_response_required`) until a test has run (`isSampleRequested: true`) with a status below 400 [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:808-816,942; utils/validators/webhook-validators.ts:213-222]. The test is `POST /{locationId}/run-single-action` with `{type: \"custom_webhook\", contactId or recordId, recordType, contactLess, locationId, attributes}` [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:762-782; services/CustomWebhookService.ts:6-14,42-44].\n- **`saveResponse: true` makes response data available downstream** as `{{custom_webhook.<order>.response.<key>}}`. If `false`, downstream references resolve to empty strings.\n- **`event: \"CUSTOM\"` is the only observed value** in the corpus. The field appears to support classification but the runtime accepts any string.\n- **Premium gate**. `isPremiumAction: true`.\n- For a simpler POST without body validation or auth, use [`webhook`](./webhook.md).",
+   "notes": "- **POSTs and the receiver fires** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3J-webhook-chain.json`, `live-3J-webhook-chain-logs-late.json`: `event: CUSTOM`, `method: POST`, JSON `rawData` with a merge tag, sent to an inbound-webhook trigger URL on the same location — each run enrolled the receiving workflow once. Omit `authorization` when it is `NONE`: our tools refuse any argument KEY named `authorization` as a credential, even `{type:\"NONE\", data:null}`; the compiler fills that default itself.\n- 🔴 **Index a response array with a DOT, never brackets.** `{{custom_webhook.N.response.<path>.numbers.0.phoneNumber}}` renders. `…numbers[0].phoneNumber` fails to compile, and the WHOLE field write is skipped (`missing-data`, \"can't be compiled\"), including every other tag in the same value. GHL's validator does not catch it. A whole array or object renders `[object Object]`. To pick items out of a list, pass the array into a Custom Code step, where it arrives as a real array. See \"Reading an array out of the response\" `[proven-live 2026-09-25]`.\n- 🔴 **A 5xx holds the run on this step and retries**: 5 attempts over about 50 min, then `failed_retry_limit_reached` and the run carries on with `.status` = 500. **A 4xx fails, and the run carries on at once.** A 200 with an error in its body is a success. Branch on `{{custom_webhook.N.status}}` or `.response.<path>`. See \"What a failed call does to the run\" `[proven-live 2026-09-25]`.\n\n- **`body.rawData` is a JSON-encoded string, not an object.** When you build the body programmatically, `JSON.stringify` your payload and assign the result to `rawData`. Embedded Handlebars (`{{contact.first_name}}`) remain literal strings in the JSON until the runtime resolves them at execution.\n- **Nothing on GHL's save path parses `rawData` as JSON** (see the Validator section). Handlebars in the JSON must still produce valid JSON when expanded at execution. If a Handlebars value can be empty/null and you reference it without quotes (`\"phone\": {{contact.phone}}`), the JSON becomes invalid at runtime — wrap in quotes.\n- **`webhookResponse` is a UI-test artifact.** It captures whatever the \"test webhook\" button produced; the runtime doesn't read it. The minimal stub `{ \"isSampleRequested\": false, \"selectedContact\": \"\" }` is safe **only with `saveResponse: false`**. With `saveResponse: true`, the drawer refuses Save and the publish validator warns (`valid_sample_response_required`) until a test has run (`isSampleRequested: true`) with a status below 400 [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:808-816,942; utils/validators/webhook-validators.ts:213-222]. The test is `POST /workflow/{locationId}/run-single-action` with `{type: \"custom_webhook\", contactId or recordId, recordType, contactLess, locationId, attributes}` [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:762-782; services/CustomWebhookService.ts:6-14,42-44].\n- **The test follows the workflow's object** [proven-live 2026-09-29 — `sniffs/workflows-wave1-2026-09-25/live-R7-9-webhook-test-body.json`, `live-R7-9b-webhook-test-live.json`]:\n  - In a company workflow the drawer asks for \"SELECT A SINGLE COMPANY TO TEST\", and its search is `POST /objects/business/records/search`.\n  - The test sends `{contactLess: true, recordId: <company id>, recordType: \"business\"}`. The record type is the workflow's object key: `business` for a company workflow, `custom_objects.<key>` for a custom-object one; a contact workflow sends `contactId` instead (`getWorkflowObjectKey`, utils/workflows.ts:1635-1639).\n  - One real test to an own inbound hook answered 200 \"Success: test request received\", and the hook recorded the request (read back separately).\n  - The saved step keeps `webhookResponse: {recordId, recordType: \"business\", isSampleRequested: true, status: 200, data, headers}`.\n  - The test is a premium action execution.\n- **`saveResponse: true` makes response data available downstream** as `{{custom_webhook.<order>.response.<key>}}`. If `false`, downstream references resolve to empty strings.\n- **`event: \"CUSTOM\"` is the only observed value** in the corpus. The field appears to support classification but the runtime accepts any string.\n- **Premium gate**. `isPremiumAction: true`.\n- For a simpler POST without body validation or auth, use [`webhook`](./webhook.md).",
    "hasCanonicalExample": true
   },
   {
@@ -12013,37 +12275,29 @@
   },
   {
    "type": "edit_conversation",
-   "family": "steps-marketplace",
-   "app": "contact",
-   "title": "Edit Conversation",
-   "status": "source-derived",
-   "source": "asset",
+   "family": "steps",
+   "title": "edit_conversation",
+   "status": "proven-live",
    "lastVerified": "2026-09-28",
-   "summary": "workflow.asideSection.description.editConversation",
+   "summary": "\"Edit Conversation\": marks the enrolled contact's conversation as read or unread, and archives it or moves it back to the Recents tab.",
    "fields": [
     {
      "name": "read",
-     "type": "select",
+     "type": "boolean (drawer offers strings)",
      "required": false,
-     "default": "`true`/`false`",
-     "notes": "alters DYNAMIC"
+     "default": "\"true\"",
+     "notes": "drawer \"Mark as Read or Unread\""
     },
     {
      "name": "archive",
-     "type": "select",
+     "type": "boolean (drawer offers strings)",
      "required": false,
-     "default": "`none`/`true`/`false`",
-     "notes": "alters DYNAMIC"
-    },
-    {
-     "name": "DYNAMIC",
-     "type": "DYNAMIC",
-     "required": false,
-     "default": "—",
-     "notes": "dynamic (custom generator)"
+     "default": "empty",
+     "notes": "drawer \"Archive or Unarchive\""
     }
    ],
-   "page": "corpus/workflows/30-types/steps-marketplace/contact.md"
+   "notes": "- **Strings are refused.** GHL's workflow validator refuses `read: \"false\"` / `archive: \"true\"` with `Read: Expected boolean, received string` (and the same for Archive); nothing is written [proven-live 2026-09-28 — live-3S-edit-conversation-draft-run2-ghl-strings-refused.json]. An API author must send booleans, or let the plugin compile the drawer strings (it mirrors the asset's transform).\n- **`read`**: `false` sets the conversation's `unreadCount` to 1, `true` sets it to 0 [proven-live 2026-09-28 — live-3S-edit-conversation.json].\n- **`archive`**: `true` sets `inbox: false` and the conversation leaves the `recents` search; `false` sets `inbox: true` and it returns [proven-live 2026-09-28 — live-3S2-edit-conversation-archive.json]. On a conversation that had never been in the inbox (`inbox` absent, created by API with no message), `archive: true` left `inbox` absent [proven-live 2026-09-28 — live-3S-edit-conversation.json].\n- **The run log's `data.conversation` is not the resulting state.** In one run it reported `unreadCount: 1` while the read-back on a separate request showed 0. Read the conversation back instead [proven-live 2026-09-28 — live-3S2-edit-conversation-archive.json].\n- **It needs a conversation.** Every run in the proof acted on an existing conversation; a contact with none was not tested.",
+   "hasCanonicalExample": false
   },
   {
    "type": "edit_document_page",
@@ -21979,6 +22233,46 @@
     }
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/communication.md"
+  },
+  {
+   "type": "loop",
+   "family": "steps",
+   "title": "loop",
+   "status": "source-derived",
+   "lastVerified": "2026-09-29",
+   "summary": "A container step that runs the steps inside its body once per item of a list, one item after another.",
+   "fields": [
+    {
+     "name": "name",
+     "type": "string",
+     "required": true,
+     "default": "Loop",
+     "notes": "drawer \"Action name\"; the step's own `name`, not an attribute"
+    },
+    {
+     "name": "items",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "drawer \"Items\""
+    },
+    {
+     "name": "limit",
+     "type": "number | null",
+     "required": false,
+     "default": "null",
+     "notes": "drawer \"Limit\""
+    },
+    {
+     "name": "mode",
+     "type": "string",
+     "required": false,
+     "default": "sequential",
+     "notes": "drawer \"Mode\""
+    }
+   ],
+   "notes": "- 🔴 **`items` must be one expression.** The backend's structural validator (`loop-items-single-expression`) accepts exactly\n  one `{{ … }}`; anything concatenated compiles to a string, which **iterates zero times** [source-derived — Loop.ts:5-9].\n- **Not allowed inside a body:** `loop` (no nesting in V1), `workflow_goal`, `goto`, `remove_from_workflow`,\n  `remove_from_all_workflows` (they end the execution, so the loop's barrier stalls until a watchdog releases it), and\n  event/condition waits (`appointment`, `service_booking`, `rental_booking`, `overdue`, `reply`, `user_replied`,\n  `link_clicked`, `email_event`, `condition`); time waits are allowed [source-derived — loop.helper.ts:95-140].\n- **A loop with no body is refused** (`checkLoopHasBody`).\n- **The plugin does not author a loop.** Its engine refuses one by name (`LOOP_NOT_AUTHORED`) before anything is written;\n  before 2026-09-29 it compiled an authored loop as a straight line [proven-live 2026-09-29 — refusal returned, nothing\n  written: `sniffs/workflows-wave1-2026-09-25/W23-LIVE-PROOFS.md` row 3]. Add the loop in the builder where it is offered; an\n  edit leaves an existing loop and its body as stored.\n- On the advanced canvas the body is drawn as a container box around the tagged steps.",
+   "hasCanonicalExample": false
   },
   {
    "type": "mailgun_email_event",

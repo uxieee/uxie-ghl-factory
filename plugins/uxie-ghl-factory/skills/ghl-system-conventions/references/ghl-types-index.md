@@ -5,7 +5,7 @@ One line per step and trigger type. For the full card (fields, allowed values, v
 gotchas) run `node scripts/types.mjs <type-key>`, or `describe_step_type` if the
 uxie-ghl-factory plugin is installed — same data.
 
-527 types: 147 native, 380 marketplace. Status is each card's floor: 
+530 types: 149 native, 381 marketplace. Status is each card's floor: 
 `proven-live` > `source-derived` > `inferred`; `deprecated` means do not build on it.
 
 ## Triggers (native) (59)
@@ -72,7 +72,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `validation_error` | source-derived | Fires when a Twilio validation error is raised (a system / failure trigger). |
 | `video_event` | source-derived | Fires on a video-watch event in a funnel video at a configured percentage watched. |
 
-## Steps (native) (88)
+## Steps (native) (90)
 
 | type | status | summary |
 |---|---|---|
@@ -107,6 +107,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `datetime_formatter` | source-derived | "Date/Time Formatter": reformat a date, reformat a date-and-time, or count the days between two dates, and hand the result to later steps as a merge tag. |
 | `dnd_contact` | source-derived | Toggle the contact's "Do Not Disturb" flag globally, per-channel, or per-direction. |
 | `drip` | source-derived | Throttle downstream execution into batches with an inter-batch delay. The `drip` step itself is a control wrapper — downstream actions execute under the batch schedule it defines. |
+| `edit_conversation` | proven-live | "Edit Conversation": marks the enrolled contact's conversation as read or unread, and archives it or moves it back to the Recents tab. |
 | `email` | source-derived | Send a transactional/marketing email to the contact, with either an inline HTML body or a referenced template. |
 | `event_start_date` | source-derived | Set or reference the workflow's "event start date" anchor — used as a base for subsequent date-based waits or scheduling. |
 | `facebook_add_to_custom_audience` | source-derived | Add the contact to a Facebook (Meta) custom audience for ad targeting. |
@@ -131,6 +132,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `ivr_gather` | source-derived | IVR widget: gather DTMF (keypad) input from the caller, branching on the digit pressed. |
 | `ivr_hangup` | source-derived | IVR widget: terminate the call. |
 | `ivr_say` | source-derived | IVR widget: speak a TTS message to the caller, or play a pre-recorded audio file. |
+| `loop` | source-derived | A container step that runs the steps inside its body once per item of a list, one item after another. |
 | `manual-call` | source-derived | Create a queued call task for a user — they manually initiate the call. Differs from `call` (auto-dial). |
 | `manual-sms` | source-derived | Queue an SMS draft for a user to manually review and send. Differs from `sms` (automatic send). |
 | `math_operation` | source-derived | Apply arithmetic to a numeric field and (optionally) write the result to another field. This is NOT `number_formatter` — that is a separate current step type (text↔number, phone, currency, random; see [`number_formatter`](./number_formatter.md)) `[source-derived 2026-09-25: both are members of Workf |
@@ -165,7 +167,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `workflow_goal` | source-derived | A goal is a jump target. When a contact anywhere in the workflow meets any of the goal's conditions, they jump straight to the goal step and continue from it. `action` only governs a contact who reaches the goal step by walking the path without having met it. |
 | `workflow_split` | source-derived | Multi-path randomizer / A/B-test splitter. Routes incoming contacts across N paths via weight-distributed random selection. |
 
-## Triggers (marketplace apps) (102)
+## Triggers (marketplace apps) (104)
 
 | type | title | status |
 |---|---|---|
@@ -193,6 +195,8 @@ uxie-ghl-factory plugin is installed — same data.
 | `basecamp_new_todo_created` | basecamp_new_todo_created (Marketplace) | source-derived |
 | `basecamp_new_todo_list` | basecamp_new_todo_list (Marketplace) | source-derived |
 | `basecamp_project_created` | basecamp_project_created (Marketplace) | source-derived |
+| `business_changed` | Company Changed (business_changed) | source-derived |
+| `business_created` | Company Created (business_created) | source-derived |
 | `certificates_issued_workflow` | certificates_issued_workflow (Marketplace) | source-derived |
 | `clickup_comment_created` | clickup_comment_created (Marketplace) | source-derived |
 | `clickup_new_folder` | clickup_new_folder (Marketplace) | source-derived |
@@ -272,7 +276,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `user_group_gamification_level_changed` | user_group_gamification_level_changed (Marketplace) | source-derived |
 | `whatsapp_referral` | whatsapp_referral (Marketplace) | source-derived |
 
-## Steps (marketplace apps) (278)
+## Steps (marketplace apps) (277)
 
 | type | title | status |
 |---|---|---|
@@ -362,7 +366,6 @@ uxie-ghl-factory plugin is installed — same data.
 | `create_task_attachment` | Post Attachment | source-derived |
 | `custom-push-notification` | Smart Push Notification | source-derived |
 | `customobjects` | Marketplace — customObjects | source-derived |
-| `edit_conversation` | Edit Conversation | source-derived |
 | `edit_document_page` | Edit Document Page | source-derived |
 | `eliza` | Marketplace — eliza | source-derived |
 | `fathom` | Marketplace — Fathom | source-derived |
