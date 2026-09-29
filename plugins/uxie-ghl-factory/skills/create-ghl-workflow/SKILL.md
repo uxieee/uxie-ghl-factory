@@ -203,6 +203,11 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
 - **A `from_email` on a domain the location cannot send from is rewritten, not dropped.** It goes
   out as `local+domain@<the location's sending subdomain>`, with the From NAME kept. The step's log
   shows the address as authored; read the conversation message to see what was sent (live 2026-09-29).
+- **A trigger row that names a tag must hold it in lower case.** GHL stores every tag lower case, and a trigger row with a
+  capital letter NEVER FIRES (live 2026-09-30: two published `contact_tag` workflows, same tag, only the lower-case row enrolled the
+  contact). The engine lower-cases the row it writes; a workflow built earlier, by hand or by API can still carry one. `check_workflow`
+  reports `TRIGGER_TAG_CASE`, `find_workflows_using {problems:"mixed-case-tag-rows"}` lists them account-wide (one index call; NOT
+  covered: if/else tag conditions and step tag values), and `edit_workflow {op:"replaceTag", oldTag, newTag, allowNoop:true}` fixes one.
 - **`workflow_ai_extract_data` output is `{{workflow_ai_extract_data.N.<fieldName>}}`.**
   `{{workflow_ai_extract_data.N.output.<fieldName>}}` builds clean and renders EMPTY (live
   2026-09-28).

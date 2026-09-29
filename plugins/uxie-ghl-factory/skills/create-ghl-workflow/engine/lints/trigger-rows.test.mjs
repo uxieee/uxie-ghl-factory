@@ -40,3 +40,18 @@ test('a field that appears as several rows unions their operators — index-of-f
   assert.deepEqual(codes(off), ['TRIGGER_ROW_OPERATOR']);
   assert.match(off[0].msg, /\[index-of-true, index-of-false\]/);
 });
+
+// wave30 (2026-09-30): a tag row with a capital letter never fires — measured live (published pair + control contact).
+test('TRIGGER_TAG_CASE: a mixed-case tag row is an error naming the fix; lower case, merge tags and other fields are clean', () => {
+  const f = lintTriggerRows(trg('contact_tag', [{ field: 'tagsAdded', operator: 'index-of-true', value: 'VIP Lead', type: 'select' }]), catalog);
+  const hit = f.filter((x) => x.code === 'TRIGGER_TAG_CASE');
+  assert.equal(hit.length, 1); assert.equal(hit[0].severity, 'error');
+  assert.match(hit[0].msg, /replaceTag.*oldTag: 'VIP Lead'.*newTag: 'vip lead'/);
+  for (const [field, value] of [['tagsRemoved', 'Cold'], ['contact.tags', 'New']])
+    assert.equal(lintTriggerRows(trg('contact_changed', [{ field, operator: 'add-index-of-true', value }]), catalog).filter((x) => x.code === 'TRIGGER_TAG_CASE').length, 1, field);
+  assert.equal(lintTriggerRows(trg('contact_tag', [{ field: 'contact.tags', operator: 'index-of-true', value: ['A', 'b', 'C'] }]), catalog).filter((x) => x.code === 'TRIGGER_TAG_CASE').length, 2, 'one finding per offending value');
+  // controls
+  assert.deepEqual(lintTriggerRows(trg('contact_tag', [{ field: 'tagsAdded', operator: 'index-of-true', value: 'vip', type: 'select' }]), catalog).filter((x) => x.code === 'TRIGGER_TAG_CASE'), []);
+  assert.deepEqual(lintTriggerRows(trg('contact_tag', [{ field: 'tagsAdded', operator: 'index-of-true', value: '{{Custom.Tag}}' }]), catalog).filter((x) => x.code === 'TRIGGER_TAG_CASE'), []);
+  assert.deepEqual(lintTriggerRows(trg('contact_changed', [{ field: 'contact.email', operator: 'has-changed', value: 'Some Value' }]), catalog).filter((x) => x.code === 'TRIGGER_TAG_CASE'), []);
+});

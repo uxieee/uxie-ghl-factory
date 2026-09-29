@@ -1360,3 +1360,34 @@ test('postOpTriggers: a PUT replaces its stored trigger, a DELETE removes it, a 
   assert.deepEqual(out.map((t) => t.id).sort(), ['NEW', 'T1', 'T3']);
   assert.deepEqual(out.find((t) => t.id === 'T1').conditions, ['real'], 'the stored ghost reference is no longer judged');
 });
+
+// 2026-09-30 (live-W30-tag-fix-verifier.json): replaceTag on a TRIGGER row wrote the row and read back changed, yet edit_workflow answered
+// ENGINE_ABORT "acknowledged trigger writes did not persist" — the round-trip only located a stored trigger for modifyTrigger (by id) and for
+// adds, so replaceTagInTriggers / replaceFieldIdInTriggers never found their trigger and were ALWAYS reported as failed.
+const tagTrigger = (value) => ({
+  id: 'tr-tag', _id: 'tr-tag', workflow_id: 'WID', type: 'contact_tag', name: 'Tagged', active: false, date_updated: '2026-09-30T00:00:00.000Z',
+  conditions: [{ field: 'tagsAdded', operator: 'index-of-true', value, title: 'Tag added', type: 'select', id: 'tag-added' }],
+});
+const tagFix = { op: 'replaceTag', oldTag: 'VIP Lead', newTag: 'vip lead', allowNoop: true };
+
+test('replaceTag that changes only a TRIGGER row is verified as persisted (it used to abort on a write that had landed)', async () => {
+  const { gw, currentTriggers } = editGateway({
+    initial: workflow({ templates: [{ id: 's1', type: 'wait', name: 'Hold', next: null, parentKey: null, order: 0, attributes: { type: 'time', startAfter: { type: 'minutes', value: 1, when: 'after' } } }] }),
+    existingTags: ['vip lead'], triggers: [tagTrigger('VIP Lead')],
+  });
+  const result = await editTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true, ops: [tagFix] }, deps(gw));
+  assert.equal(currentTriggers()[0].conditions[0].value, 'vip lead', 'the store holds the lower-case row');
+  assert.equal(result.ok, true, JSON.stringify(result.detail));
+  const v = result.data.partialProgress?.verification?.triggers ?? result.data.verify?.triggers;
+  if (v) { assert.equal(v.roundTrip, true); assert.equal(v.checks[0].persisted, true); assert.equal(v.checks[0].matchSource, 'triggerId'); }
+});
+
+test('CONTROL: a replaceTag PUT the server acknowledges but does not apply is still reported as failed', async () => {
+  const { gw } = editGateway({
+    initial: workflow({ templates: [{ id: 's1', type: 'wait', name: 'Hold', next: null, parentKey: null, order: 0, attributes: { type: 'time', startAfter: { type: 'minutes', value: 1, when: 'after' } } }] }),
+    existingTags: ['vip lead'], triggers: [tagTrigger('VIP Lead')], ignoredTriggerWrites: ['PUT'],
+  });
+  const result = await editTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true, ops: [tagFix] }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'ENGINE_ABORT');
+});

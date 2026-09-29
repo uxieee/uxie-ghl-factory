@@ -48,6 +48,7 @@ import {
 } from './audit-configuration.mjs';
 import { fetchEntities, fetchMarketplace, missingRequiredFields, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 import { buildResolvers } from '../../skills/create-ghl-workflow/engine/resolve.mjs';
+import { mixedCaseTagRows, tagCaseFix, TAG_CASE_NOT_COVERED } from '../../skills/create-ghl-workflow/engine/lints/tag-case.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
 import { stripNullNext, fillInputTriggerParams } from '../../skills/create-ghl-workflow/engine/terminals.mjs';
 import { checkWorkflowRules, rulesNeedTriggers, fromEmailNeedsDomain } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
@@ -1418,7 +1419,10 @@ function verifyTriggerRoundTrip(expectations, actualTriggers, beforeTriggers = [
     const expected = triggerSemanticExpectation(request.body, { verifyActive });
     let actual;
     let matchSource = null;
-    if (request.op === 'modifyTrigger') {
+    // An op that PUTs an EXISTING trigger is matched by its id: modifyTrigger, and the two fan-outs from replaceTag / replaceFieldId
+    // (replaceTagInTriggers, replaceFieldIdInTriggers). Those two were not listed here, found no stored trigger, and so were ALWAYS
+    // reported as "did not persist" — an ENGINE_ABORT on a write that had landed (live 2026-09-30, live-W30-tag-fix-verifier.json).
+    if (request.op === 'modifyTrigger' || request.op === 'replaceTagInTriggers' || request.op === 'replaceFieldIdInTriggers') {
       actual = actualById.get(request.triggerId);
       matchSource = actual ? 'triggerId' : null;
     } else if (returnedId) {
@@ -2344,6 +2348,68 @@ async function createWorkflowFromVersion(args, deps, gw, wf) {
 // rather than filtering anything — kept as a named constant so the schema comment, the handler
 // check and the description cannot drift into three different opinions about what is legal.
 const DIGEST_INCLUDE_VALUES = Object.freeze(['raw']);
+
+// find_workflows_using problems:"mixed-case-tag-rows" — every trigger row that names a tag with a capital letter (such a row never
+// fires: lints/tag-case.mjs). Trigger docs in the es/search index carry their stored `conditions`, so no per-workflow read is needed
+// to FIND rows; the workflow name and status are read for each HIT only.
+//
+// 🔴 PAGING, measured 2026-09-30 on the sandbox's 258 trigger docs: a `searchAfter` key in the request body is IGNORED (it returns page 1
+// again, forever), and `offset` paging is unstable (see the tool description). The complete read is ONE call with `pageLimit` above the
+// index `count`: pageLimit 300, 1000, 5000 and 10000 all returned 258 rows, 258 unique. So: one call at 1000; if `count` is larger,
+// ONE retry at count+100 (cap 10000); a still-short read is reported complete:false, never as a whole list.
+async function auditMixedCaseTagRows(args, deps) {
+  const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+  const read = async (pageLimit) => gw.call('POST', '/workflows/es/search', {
+    locationId: args.locationId, pageLimit, offset: 0, filters: [{ field: 'docType', operator: 'eq', value: 'trigger' }], sort: [],
+  });
+  let requests = 1;
+  let r = await read(Math.max(args.limit ?? 0, 1000));
+  if (!r.ok) return fromHttp(r.status, r.json);
+  let rows = r.json?.workflows ?? [];
+  const count = r.json?.count ?? null;
+  if (typeof count === 'number' && rows.length < count && count < 10000) {
+    requests += 1;
+    r = await read(count + 100);
+    if (!r.ok) return fromHttp(r.status, r.json);
+    rows = r.json?.workflows ?? rows;
+  }
+  const complete = typeof count === 'number' && rows.length >= count;
+  const hits = [];
+  for (const d of rows) {
+    const found = mixedCaseTagRows(d.meta?.conditions);
+    if (!found.length) continue;
+    const all = new Set((d.meta?.conditions ?? []).flatMap((c) => [].concat(c?.value ?? [])).filter((v) => typeof v === 'string'));
+    for (const row of found) for (const value of row.values) {
+      hits.push({
+        workflowId: d.meta?.workflowId ?? d.workflowJoinField?.parent ?? null, triggerId: d.meta?.id ?? null,
+        triggerName: d.meta?.name ?? null, triggerType: d.docKey ?? d.meta?.type ?? null,
+        field: row.field, operator: row.operator, value, lowercaseTwinInSameTrigger: all.has(value.toLowerCase()), fix: tagCaseFix(value),
+      });
+    }
+  }
+  const HIT_READ_CAP = 100;
+  const wfIds = [...new Set(hits.map((h) => h.workflowId).filter(Boolean))];
+  const info = new Map();
+  for (const id of wfIds.slice(0, HIT_READ_CAP)) {
+    requests += 1;
+    const g = await gw.call('GET', `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(id)}`);
+    info.set(id, g.ok ? { name: g.json?.name ?? null, status: g.json?.status ?? null } : { name: null, status: null });
+  }
+  for (const h of hits) { const i = info.get(h.workflowId); h.workflowName = i?.name ?? null; h.workflowStatus = i?.status ?? null; }
+  return ok({
+    problem: 'mixed-case-tag-rows',
+    triggerDocsScanned: rows.length, indexCount: count, complete, requests,
+    workflowsWithHits: wfIds.length,
+    publishedWithHits: [...info.values()].filter((i) => i.status === 'published').length,
+    statusNotRead: Math.max(0, wfIds.length - HIT_READ_CAP),
+    hits: complete ? hits : null,
+    partialHits: complete ? null : hits,
+    warnings: complete ? [] : [{ code: CODES.ES_SEARCH_RECONCILIATION_SHORT,
+      detail: `es/search returned ${rows.length} trigger doc(s) against its own count:${count} — the sweep is INCOMPLETE. Re-run; walking offset or searchAfter does not help (measured).` }],
+    note: 'A trigger row naming a tag with a capital letter never fires: GHL stores tags in lower case. Rows made in the builder are lower case (its picker lists lower-case tags), so a hit was written by an API/engine call. '
+      + `Fix one with the fix string (edit_workflow, then read the trigger back). ${TAG_CASE_NOT_COVERED}`,
+  });
+}
 
 export const TOOLS = [
   {
@@ -7761,38 +7827,34 @@ export const TOOLS = [
   {
     name: 'find_workflows_using',
     description: `${describe('find_workflows_using', 'Find which workflows contain a step or trigger type — risk: read')}. `
-      + 'Pass one or more step/trigger TYPE names (as `describe_step_type` spells them, e.g. `wait`, '
-      + '`internal_create_opportunity`, `appointment`). '
-      + 'returns:"workflows" (default) lists the workflows containing any of them; returns:"steps" lists the '
-      + 'matching step documents themselves, each with its workflowId and its stored attributes. '
-      + '🔴 The two modes count DIFFERENT THINGS and the response says which: `wait` matches 438 step '
-      + 'documents across 61 workflows. Never report one as the other. '
-      + '🔴 OFFSET PAGING IS UNSTABLE (measured live 2026-09-21): `POST /workflows/es/search` has no stable '
-      + 'ordering under `offset`, so a paged walk reshuffles and drops rows — one account\'s 326-row `wait` '
-      + 'search, walked at limit:100 across offset 0/100/200/300, returned 326 rows but only 300 UNIQUE, '
-      + 'silently losing 26 real documents. The SAME query in ONE call at limit:400 offset:0 returned '
-      + '326/326 unique — complete. The complete read is one call with `limit` set above the expected '
-      + '`count`, not a paged walk. This tool reconciles the ROWS RETURNED against GHL\'s own `count` '
-      + '(measured 2026-09-21: `count` counts INDEX DOCUMENTS, and the index can hold more than one '
-      + 'document for the same step — 545 rows, 542 distinct steps — so the rows are also deduped and '
-      + '`duplicatesDropped` reports it); a short result comes back `complete:false` with a coded warning naming this '
-      + 'same remedy, never as a partial list dressed as a whole one. '
-      + '🔴 It CANNOT filter on attribute VALUES — "which workflows reference pipeline X" is not answerable '
-      + 'here (GHL exposes no working operator for the attributes sub-document); that still needs an export.',
+      + 'Pass step/trigger TYPE names (as `describe_step_type` spells them, e.g. `wait`, `appointment`). '
+      + 'returns:"workflows" (default) lists workflows containing any; returns:"steps" lists the matching step documents with '
+      + 'workflowId and stored attributes. 🔴 The modes count DIFFERENT THINGS (`wait`: 438 step documents in 61 workflows) — '
+      + 'never report one as the other. '
+      + '🔴 OFFSET PAGING IS UNSTABLE (measured 2026-09-21: 326 rows walked at limit 100 gave 300 unique) and `searchAfter` in the '
+      + 'body is IGNORED (page 1 again). The complete read is ONE call with `limit` above `count`; rows are reconciled against '
+      + 'GHL\'s `count` and deduped, and a short result is `complete:false` with a coded warning. '
+      + '🔴 It CANNOT filter on attribute VALUES (no working operator for the attributes sub-document); that needs an export. '
+      + 'problems:"mixed-case-tag-rows" (no types) is the exception: trigger docs carry their stored conditions, so it lists every '
+      + 'trigger row naming a tag with a CAPITAL letter — such a row NEVER FIRES (GHL stores tags lower case; measured live '
+      + '2026-09-30) — with workflow, trigger, value, twin flag and the edit_workflow replaceTag fix. One index call, one GET per '
+      + 'hit. NOT covered (says so): if/else tag conditions and step tag values.',
     inputSchema: schema({
       locationId: z.string(),
-      types: z.array(z.string()).min(1),
+      types: z.array(z.string()).min(1).optional(),
+      problems: z.enum(['mixed-case-tag-rows']).optional(),
       returns: z.enum(['workflows', 'steps']).default('workflows'),
       kind: z.enum(['action', 'trigger', 'any']).default('any'),
       limit: z.number().default(100),
       offset: z.number().default(0),
     }),
-    capabilities: [{ method: 'POST', path: '/workflows/es/search' }],
+    capabilities: [{ method: 'POST', path: '/workflows/es/search' }, { method: 'GET', path: '/workflow/{loc}/{wid}' }],
     // Verified 2026-09-21: this is an Elasticsearch query — a search, over POST because that is
     // how GHL's own es/search endpoint takes a query body. classifyCall would otherwise refuse
     // this on an unbound registration.
     readOnly: true,
     handler: async (args, deps) => guard(async () => {
+      if (args.problems === 'mixed-case-tag-rows') return auditMixedCaseTagRows(args, deps);
       const types = (args.types ?? []).filter((t) => typeof t === 'string' && t.trim());
       if (!types.length) {
         return fail(CODES.VALIDATION_FAILED, 'types must hold at least one step or trigger type name',

@@ -6,6 +6,8 @@
 // trigger. Catalog-gated: when the row model knows this field's operator (or its operatorMenu), a
 // stored operator outside that set is warned. Rows the catalog does not model are SKIPPED — this
 // lint states only what is known and never guesses.
+import { mixedCaseTagRows, tagCaseFix } from './tag-case.mjs';
+
 export function lintTriggerRows(triggers, catalog) {
   const out = [];
   for (const t of triggers ?? []) {
@@ -17,6 +19,13 @@ export function lintTriggerRows(triggers, catalog) {
     // have tag" (index-of-false), two catalogue rows with one `value`. Reading only the first
     // flagged the UI's own "Doesn't have tag" as off-menu on every customer_reply trigger (R-74).
     const rowsFor = (field) => rows.filter((r) => r.value === field || r.field === field || r.id === field);
+    // A tag row with a capital letter never fires (measured on contact_tag tagsAdded, live 2026-09-30; see tag-case.mjs).
+    for (const r of mixedCaseTagRows(t.conditions)) for (const v of r.values) {
+      out.push({ triggerId: t.id ?? t._id, name: t.name ?? t.type, type: t.type, code: 'TRIGGER_TAG_CASE', severity: 'error',
+        msg: `trigger row '${r.field}' holds the tag '${v}' — GHL stores tags in lower case and a row with a capital letter did not fire in the live test `
+          + `(contact_tag tagsAdded; other tag rows compare the same stored name but were not fired). The builder drawer shows it as "Select a tag". `
+          + `Fix: ${tagCaseFix(v)}` });
+    }
     for (const c of t.conditions ?? []) {
       if (!c || typeof c !== 'object') continue;
       const push = (code, severity, msg) => out.push({
