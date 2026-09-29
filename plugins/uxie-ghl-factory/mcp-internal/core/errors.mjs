@@ -293,8 +293,19 @@ export function containsSecrets(value, key = '', depth = 0) {
 // The pair rule reads the pair's NAME (its `key` or `name`) and redacts the paired `value`. The list is WORDS, not the bare
 // substring "key": Idempotency-Key or contentKey are opaque identifiers, and redacting them would make a workflow
 // unrepairable through an export round trip (repair_workflow refuses a <redacted> write-back).
-const SECRET_PAIR_NAME = /secret|token|passw(?:or)?d|passphrase|bearer|signature|credential|cookie|api[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|authorization|authentication|\bx-?auth\b|auth[-_ ](?:key|token|secret|code|header)/i;
-const isSecretPairName = (name) => typeof name === 'string' && SECRET_PAIR_NAME.test(name);
+const SECRET_PAIR_NAME = /secret|hmac|token|passw(?:or)?d|passphrase|bearer|signature|credential|cookie|api[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|authorization|authentication|\bx-?auth\b|auth[-_ ](?:key|token|secret|code|header)/i;
+// Short names that are secrets only as the WHOLE name (a leading x- is ignored): Google's `key=AIza…` query parameter, `auth`, `sid`,
+// `pass`. Whole-name matching cannot hit Idempotency-Key, contentKey or "Keyword".
+const SECRET_PAIR_EXACT = new Set(['key', 'auth', 'pwd', 'pass', 'jwt', 'hmac', 'sig', 'session', 'sessionid', 'sid', 'apikey']);
+const isSecretPairName = (name) => typeof name === 'string'
+  && (SECRET_PAIR_NAME.test(name) || SECRET_PAIR_EXACT.has(name.trim().toLowerCase().replace(/^x-/, '')));
+// A second net, independent of the NAME: a pair value (or a header-map scalar) that LOOKS like a credential. A header called
+// "X-Anything" carrying "Bearer abc…" is redacted. Anchored and length-bounded so "Bearer" alone or a short word stays.
+const SECRET_VALUE_SHAPE = [
+  /^Bearer\s+\S{16,}/i, /^Basic\s+[A-Za-z0-9+/=]{12,}/i, /^eyJ[\w-]+\.[\w-]+\./, /^(sk|rk|pk)_(live|test)_/,
+  /^pit-[0-9a-f-]{20,}/i, /^AIza[0-9A-Za-z_-]{30,}/, /^gh[pousr]_[A-Za-z0-9]{30,}/, /^xox[abpr]-/,
+];
+const isSecretShapedValue = (v) => typeof v === 'string' && SECRET_VALUE_SHAPE.some((re) => re.test(v.trim()));
 // The same names as PROPERTIES of a header-like map: headers: { 'X-Hook-Secret': '…' }.
 const PAIR_MAP_PARENTS = new Set(['headers', 'header', 'parameters', 'params', 'queryparams', 'querystring', 'customdata', 'keyvaluedata', 'cookies']);
 // An empty value and one we already redacted carry no credential (same reasoning as the key-name rule's exemptions).
@@ -311,12 +322,13 @@ export function scrubSecrets(value, parentKey = '') {
     // also returns rich rows such as a custom value {id, name:'Email Signature', value, fieldKey, …}, which are data, not headers.
     const lean = Object.keys(value).every((k) => ['name', 'value', 'type', 'enabled', 'description'].includes(k));
     const pairName = typeof value.key === 'string' ? value.key : (lean && typeof value.name === 'string' ? value.name : null);
-    const isSecretPair = 'value' in value && isSecretPairName(pairName);
-    const isPairMap = PAIR_MAP_PARENTS.has(String(parentKey).replace(/[-_\s]/g, '').toLowerCase());
+    const isPair = 'value' in value && pairName !== null;
+    const isSecretPair = isPair && (isSecretPairName(pairName) || isSecretShapedValue(value.value));
+    const isPairMap = !isPair && PAIR_MAP_PARENTS.has(String(parentKey).replace(/[-_\s]/g, '').toLowerCase());
     return Object.fromEntries(Object.entries(value).map(([key, item]) => [
       scrub(key),
       // A secret-named pair's value, or a secret-named property of a header-like map (scalar values only).
-      (isSecretPair && key === 'value') || (isPairMap && isSecretPairName(key) && (item === null || typeof item !== 'object'))
+      (isSecretPair && key === 'value') || (isPairMap && (item === null || typeof item !== 'object') && (isSecretPairName(key) || isSecretShapedValue(item)))
         ? redactPairValue(item)
         :
       // Deliberately scrubs the WHOLE subtree under a secret-named key, not just
