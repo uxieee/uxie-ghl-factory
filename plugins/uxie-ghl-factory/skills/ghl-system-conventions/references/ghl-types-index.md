@@ -332,7 +332,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `basecamp_upload_file` | Upload File | source-derived |
 | `blooio` | Marketplace — Blooio | source-derived |
 | `cal-com` | Marketplace — Cal.com | source-derived |
-| `calendars_create_appointment_note` | Create Appointment / Booking Note | source-derived |
+| `calendars_create_appointment_note` | Create Appointment / Booking Note | proven-live |
 | `calendars_generate_one_time_booking_link` | Generate One Time Booking Link | source-derived |
 | `certificates` | Marketplace — certificates | source-derived |
 | `clear_associated_company_fields` | Clear Associated Company Fields | proven-live |
@@ -488,7 +488,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `lc_vapi_update_call` | Update Call Name | source-derived |
 | `lc_vapi_upload_file` | Upload File | source-derived |
 | `linear` | Marketplace — Linear | source-derived |
-| `live_chat_response` | Send Live Chat Message | source-derived |
+| `live_chat_response` | Send Live Chat Message | proven-live |
 | `log-external-call` | Log External Call | source-derived |
 | `manus-ai` | Marketplace — Manus AI | source-derived |
 | `marketing` | Marketplace — marketing | source-derived |

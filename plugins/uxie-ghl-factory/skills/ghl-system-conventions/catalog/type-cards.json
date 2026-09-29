@@ -6116,10 +6116,10 @@
    "family": "steps-marketplace",
    "app": "appointments",
    "title": "Create Appointment / Booking Note",
-   "status": "source-derived",
-   "source": "asset",
+   "status": "proven-live",
+   "source": "measured",
    "lastVerified": "2026-08-22",
-   "summary": "Create note for a calendar appointment, service booking or rental booking",
+   "summary": "`[proven-live 2026-09-29]` Stored as `{appointmentId, body, type, __customInputs__:{}}` and read back by export on a never-published draft (`sniffs/workflows-wave1-2026-09-25/live-3CL-draft-bc.json`); the builder drawer renders APPOINTMENT ID as the `Appointment.ID` merge chip and NOTE with its merg",
    "fields": [
     {
      "name": "appointmentId",
@@ -6135,6 +6135,9 @@
      "default": "—",
      "notes": "Note"
     }
+   ],
+   "proven": [
+    "`[proven-live 2026-09-29]` Stored as `{appointmentId, body, type, __customInputs__:{}}` and read back by export on a never-published draft (`sniffs/workflows-wave1-2026-09-25/live-3CL-draft-bc.json`); the builder drawer renders APPOINTMENT ID as the `Appointment.ID` merge chip and NOTE with its merge tag (`sniffs/workflows-wave1-2026-09-25/ui/UI-WALK-3CL.md`). Runtime is not measured here: every booking on the test location is caught by another team's appointment workflows."
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/appointments.md"
   },
@@ -21858,10 +21861,10 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "Send Live Chat Message",
-   "status": "source-derived",
-   "source": "asset",
+   "status": "proven-live",
+   "source": "measured",
    "lastVerified": "2026-08-22",
-   "summary": "Automatically send response message to the live chat",
+   "summary": "`[proven-live 2026-09-29]` Stored as `{liveChatResponse:<html>, type, __customInputs__:{}}` and read back by export on a never-published draft (`sniffs/workflows-wave1-2026-09-25/live-3CL-draft-bc.json`); the drawer renders the rich-text MESSAGE with its merge tag (`sniffs/workflows-wave1-2026-09-25",
    "fields": [
     {
      "name": "liveChatResponse",
@@ -21870,6 +21873,9 @@
      "default": "—",
      "notes": "Message"
     }
+   ],
+   "proven": [
+    "`[proven-live 2026-09-29]` Stored as `{liveChatResponse:<html>, type, __customInputs__:{}}` and read back by export on a never-published draft (`sniffs/workflows-wave1-2026-09-25/live-3CL-draft-bc.json`); the drawer renders the rich-text MESSAGE with its merge tag (`sniffs/workflows-wave1-2026-09-25/ui/UI-WALK-3CL.md`). Runtime needs an inbound live-chat conversation, which the test location's chat widget routes elsewhere."
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/communication.md"
   },
