@@ -152,7 +152,10 @@ export function transitionInnerTypes(catalog) {
   return [...(catalog?.workflowRules?.vocab?.multipathSupportedWaitTypes ?? []).map((w) => `wait_${w}`), 'wait_timeout'];
 }
 
-export function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null } = {}) {
+// unknownStepSeverity: a step type found in neither the native catalogue nor the account's asset list is an ERROR when
+// the list was read (a build or an edit is about to write it), unless the caller says otherwise. publish and repair say
+// 'warning': the document is already stored, and a type the catalogue lacks is no reason to refuse to publish it (bl-309).
+export function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null, unknownStepSeverity = null } = {}) {
   const out = [];
   for (const t of templates) {
     if (!t || typeof t !== 'object') continue;
@@ -171,7 +174,7 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
         out.push(finding('MARKETPLACE_FLAG', 'warning', t,
           `'${t.type}' is a marketplace action stored without isMarketplaceAction:true — the rail's complete step shape carries it`));
       } else {
-        out.push(finding('STEP_TYPE', marketplaceTypes ? 'error' : 'warning', t,
+        out.push(finding('STEP_TYPE', unknownStepSeverity ?? (marketplaceTypes ? 'error' : 'warning'), t,
           `'${t.type}' is not a known step type${marketplaceTypes ? ', native or marketplace' : ' (marketplace types were not available to rule it out)'}. `
           + 'GHL does NOT catch this on an agent flow.'));
       }

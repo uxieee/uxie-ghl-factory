@@ -1361,6 +1361,11 @@
   },
   {
     "tool": "publish_workflow",
+    "method": "GET",
+    "path": "/workflows-marketplace/location/{loc}/assets"
+  },
+  {
+    "tool": "publish_workflow",
     "method": "PUT",
     "path": "/workflow/{loc}/{wid}"
   },

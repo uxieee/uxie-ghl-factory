@@ -70,7 +70,7 @@ const findingKey = (f) => `${f.ruleId ?? ''}|${f.where ?? ''}|${f.message ?? ''}
 export function validateDocument({
   intent = 'edit', templates = [], triggers = [], settings = null, status = null, senderDomain,
   webhookReference, creationSource, baselineDocument = null,
-  catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null,
+  catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null, unknownStepSeverity = null,
   skipWorkflowRules = false, allow = false,
 } = {}) {
   const publishing = publishingFor(intent, status);
@@ -105,7 +105,7 @@ export function validateDocument({
   const canvasErrors = canvasAll.filter((f) => !outOfScope(f));
   const canvasWarnings = canvasAll.filter(outOfScope);
 
-  const engine = gateDocument(templates, { catalog, marketplaceTypes, scope, waive });
+  const engine = gateDocument(templates, { catalog, marketplaceTypes, scope, waive, unknownStepSeverity });
 
   const blockedLayers = [];
   if (ruleFindings.length) blockedLayers.push('workflow_rules');

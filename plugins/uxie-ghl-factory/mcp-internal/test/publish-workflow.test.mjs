@@ -51,6 +51,8 @@ function publishGateway({
   // the workflow's triggers, and what GET /hooks/inbound-webhook-request/reference/{tid} answers per trigger
   initialTriggers = [{ id: 'tr1', name: 'Trigger', active: false }],
   webhookReferences = {},
+  // GET /workflows-marketplace/location/{loc}/assets — the catalogue; null answers 404 (a failed read)
+  assets = null,
 } = {}) {
   const calls = [];
   let current = structuredClone(initial);
@@ -76,6 +78,9 @@ function publishGateway({
       if (method === 'GET' && path.startsWith('/hooks/inbound-webhook-request/reference/')) {
         const tid = decodeURIComponent(path.split('/').pop().split('?')[0]);
         return structuredClone(webhookReferences[tid] ?? { status: 404, ok: false, json: { statusCode: 404, message: `${tid} was not found` } });
+      }
+      if (method === 'GET' && path.startsWith('/workflows-marketplace/location/LOC/assets')) {
+        return assets ? { status: 200, ok: true, json: structuredClone(assets) } : { status: 404, ok: false, json: { message: 'assets unavailable' } };
       }
       if (method === 'GET' && path === '/workflow/LOC/trigger?workflowId=WID') {
         return { status: 200, ok: true, json: { triggers: structuredClone(triggers) } };
@@ -502,4 +507,48 @@ test('CONTROL: an ordinary draft, and one whose pause has ended (fields null), g
     const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
     assert.equal((result.data.preview.warnings ?? []).some((w) => w.startsWith('SCHEDULED_PAUSE_ACTIVE')), false);
   }
+});
+
+// bl-309 (2026-09-29): publish validated with assets:null, so a correct first-party step with no native card drew
+// "not a known step type" (measured on an own company workflow, R7-3b). The builder saves such a step with
+// workflowsActionType instead of isMarketplaceAction.
+const companyDoc = (steps) => ({ ...workflow(), workflowType: 'business', workflowData: { templates: steps } });
+const FIND = { id: 'f1', type: 'co_find_company_record', name: 'Find company', workflowsActionType: 'INTERNAL', parentKey: null, next: null,
+  attributes: { type: 'co_find_company_record', filter_on: 'earliest', __customInputFields__: [] } };
+const COMPANY_ASSETS = { actions: [{ appName: 'Company', actions: [{ key: 'co_find_company_record', workflowsActionType: 'INTERNAL', inputs: [] }] }], triggers: [] };
+const stepTypeWarnings = (result) => (result.data?.preview?.warnings ?? []).filter((w) => /STEP_TYPE/.test(w));
+
+test('bl-309: publish reads the catalogue for the workflow\'s OWN type, and a first-party step no longer draws STEP_TYPE', async () => {
+  const { gw, calls } = publishGateway({ initial: companyDoc([FIND]), assets: COMPANY_ASSETS });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.deepEqual(stepTypeWarnings(result), []);
+  const read = calls.find(({ method, path }) => method === 'GET' && path.startsWith('/workflows-marketplace/'));
+  assert.ok(read, 'the catalogue is read');
+  assert.match(read.path, /workflowTypes=default,company$/);
+});
+
+test('bl-309 CONTROL: when the catalogue read fails the old warning comes back (the test can see it)', async () => {
+  const { gw } = publishGateway({ initial: companyDoc([FIND]), assets: null });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.equal(stepTypeWarnings(result).length, 1);
+  assert.match(stepTypeWarnings(result)[0], /marketplace types were not available/);
+});
+
+test('bl-309: a genuinely unknown step type still WARNS on publish — it is not turned into a refusal', async () => {
+  const ghost = { id: 'g1', type: 'zz_not_a_step', name: 'Ghost', parentKey: null, next: null, attributes: {} };
+  const { gw } = publishGateway({ initial: companyDoc([FIND, ghost]), assets: COMPANY_ASSETS });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+  assert.equal(result.code, 'CONFIRM_REQUIRED', 'still a preview, not a validation refusal');
+  const w = stepTypeWarnings(result);
+  assert.equal(w.length, 1);
+  assert.match(w[0], /zz_not_a_step/);
+  assert.match(w[0], /native or marketplace/);
+});
+
+test('bl-309: a native-only document makes no catalogue read (network-identical to before)', async () => {
+  const { gw, calls } = publishGateway({ assets: COMPANY_ASSETS });
+  await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+  assert.equal(calls.some(({ path }) => path.startsWith('/workflows-marketplace/')), false);
 });

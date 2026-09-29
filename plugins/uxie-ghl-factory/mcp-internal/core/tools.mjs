@@ -1155,10 +1155,25 @@ async function webhookReferenceFor(gw, loc, triggers) {
   return { triggerId: tid, payload: r.json?.payload ?? null };
 }
 
+/**
+ * The asset catalogue a publish or repair gate needs, for the workflow's OWN type (bl-309). Both paths
+ * used to pass `assets: null`, so the document gate could not tell a first-party step from a typo: every
+ * step with no native card (a company step, Find company, …) drew "not a known step type (marketplace
+ * types were not available to rule it out)" although it was correct and had just run live (R7-3b,
+ * 2026-09-29). Read only when some step would reach that check — a native-only document stays
+ * network-identical — and scoped like the builder's own read (assetsPath: company, custom-object and
+ * contact workflows each get their own catalogue). A failed read returns null: the old warning, not a refusal.
+ */
+async function gateAssetsFor(gw, loc, doc, templates, catalog) {
+  const needs = (templates ?? []).some((t) => typeof t?.type === 'string' && t.isMarketplaceAction !== true && !catalog?.step?.(t.type));
+  if (!needs) return null;
+  try { const r = await gw.call('GET', assetsPath(loc, doc)); return r?.ok ? r.json : null; } catch { return null; }
+}
+
 async function workflowValidationGate({
   gw, loc, wid, fresh, document, templates, triggers, scope, catalog, assets, allow, warnings, waive = null,
   intent = 'edit', status = null, settings = null, senderDomain, webhookReference, skipWorkflowRules = false,
-  baselineTriggers,
+  baselineTriggers, unknownStepSeverity = null,
 }) {
   let marketplaceTypes = null;
   try { marketplaceTypes = assets ? new Set(parseActionSchema(assets).keys()) : null; } catch { marketplaceTypes = null; }
@@ -1172,7 +1187,7 @@ async function workflowValidationGate({
   } : null;
   const v = await validateForWrite({
     call, loc, wid, document, templates, triggers, catalog, marketplaceTypes, scope, waive, baseline, allow,
-    intent, status, settings, senderDomain, webhookReference, skipWorkflowRules, baselineDocument,
+    intent, status, settings, senderDomain, webhookReference, skipWorkflowRules, baselineDocument, unknownStepSeverity,
   });
   for (const f of v.engine.warnings) warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
   for (const f of v.canvas.warnings) warnings.push(`VALIDATION CANVAS: '${f.stepName ?? f.stepId}': ${f.message} (outside this write's scope)`);
@@ -6641,7 +6656,8 @@ export const TOOLS = [
         ? await senderDomainFor(gw, args.locationId, args.workflowId, repairFromEmail, catalog) : undefined;
       const validation = await workflowValidationGate({
         gw, loc: args.locationId, wid: args.workflowId, fresh, document: commitBody, triggers: gateTriggers,
-        scope: touchedIds, catalog, assets: null, allow: args.allowValidationFailure === true, warnings,
+        scope: touchedIds, catalog, assets: await gateAssetsFor(gw, args.locationId, fresh, args.templates, catalog), unknownStepSeverity: 'warning',
+        allow: args.allowValidationFailure === true, warnings,
         intent: 'repair', status: fresh.status, skipWorkflowRules: args.skipWorkflowRules,
         settings: { senderAddress: fresh.senderAddress },
         senderDomain: repairSenderDomain,
@@ -6856,6 +6872,8 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/{loc}/email/domain-selection' },
       // inboundWebhookTriggerValidator needs the webhook's mapped sample — read only when there is one.
       { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
+      // bl-309: the catalogue for the workflow's own type, read only when a step has no native card.
+      { method: 'GET', path: '/workflows-marketplace/location/{loc}/assets' },
       { method: 'PUT', path: '/workflow/{loc}/{wid}' },
       // REPAIR (added 2026-08-28): one per-trigger status write for any trigger still
       // inactive after the document PUT's own cascade — see the handler's measurement note.
@@ -6889,7 +6907,9 @@ export const TOOLS = [
       const validation = await workflowValidationGate({
         gw, loc: args.locationId, wid: args.workflowId, fresh: null, document: current,
         triggers: listed.triggers,
-        scope: null, catalog: publishCatalog, assets: null, allow: args.allowValidationFailure === true, warnings: publishWarnings,
+        scope: null, catalog: publishCatalog,
+        assets: await gateAssetsFor(gw, args.locationId, current, current?.workflowData?.templates, publishCatalog), unknownStepSeverity: 'warning',
+        allow: args.allowValidationFailure === true, warnings: publishWarnings,
         // intent 'publish' is what turns on the publish-only rules (an empty workflow, a goto with
         // no target) and the canvas's stored error flag — the two layers this path never ran.
         intent: 'publish', status: current?.status ?? null, skipWorkflowRules: args.skipWorkflowRules,
