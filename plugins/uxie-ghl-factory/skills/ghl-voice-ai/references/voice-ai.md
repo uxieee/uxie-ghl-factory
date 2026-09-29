@@ -8,14 +8,11 @@
 > writes it from the chosen `llmModel`; the enum also has `SYNTHFLOW`, `BOLNA`, `VAPI`, and old agents upgrade via
 > `switch-provider` (2026-09-25 bundle, build 701). This engine does not set it.
 
-**Status (updated 2026-07-21): the engine's CREATE is live-proven; its full-replace UPDATE is
-proven BROKEN.** On GROM AU via the `uxie-ghl-internal-mcp` AI rail, `voiceai-compiler.mjs`
-created a real agent (`6a5e76ed…`, deleted after). `POST /voice-ai/agents` takes only
-`{locationId}` and returns an id; the follow-up
-`PUT /voice-ai/agents/{id}?publishAgent=true&mode=update` returned **422**, so the agent kept
-GHL's default name ("My Agent 916"). A failed create call therefore leaves a **real,
-unnamed agent** behind — clean up after failures. Evidence: `mcp-internal/README.md`
-§"Live proof ledger — AI agent tools".
+**Status (2026-09-29): create and update are live-proven through the tools** (below). `POST /voice-ai/agents` takes
+`{locationId, folderId?}` and returns the id of a server-default agent ("My Agent NNN"); the follow-up
+`PUT /voice-ai/agents/{id}?publishAgent=true&mode=update` applies the config. If that PUT fails, the default agent is
+left behind under GHL's name — `create_voiceai_agent` names the agent id in its failure; clean it up. (A July run's 422
+on that PUT came from empty `businessName` / `welcomeMessage` / `timezone`, which the compiler now omits.)
 
 ⚠️ **Read the distinction below before claiming anything is proven — it is the whole point.**
 
@@ -25,7 +22,7 @@ unnamed agent** behind — clean up after failures. Evidence: `mcp-internal/READ
 `sendPostCallNotificationTo`), and the voices catalog read.
 
 **THE ENGINE: live-proven through the tools (2026-09-28, designated test sub-account).**
-- `create_voiceai_agent` built three test agents end to end: `POST /voice-ai/agents` → the full-replace PUT → actions.
+- `create_voiceai_agent` built three test agents end to end: `POST /voice-ai/agents` → the builder-save PUT → actions.
   One run attached `WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`, `APPOINTMENT_BOOKING` and `AGENT_TRANSFER_CHILD`, all
   201 and all read back.
 - `update_voiceai_agent` changed every settings group live, each change verified with no collateral.
@@ -462,19 +459,20 @@ other unlisted `actionType`.
 ## Driving `voiceai-compiler.mjs`
 
 ```js
-import { compileVoiceAiAgent, compileVoiceAiUpdate, compileVoiceAiAction } from './engine/voiceai-compiler.mjs';
+import { compileVoiceAiAgent, compileVoiceAiUpdate, compileVoiceAiS2sFollowUp, compileVoiceAiAction } from './engine/voiceai-compiler.mjs';
 
-// Step 1: create — body is effectively just {locationId}; server returns a default agent.
+// Step 1: create — body {locationId, folderId?}; the server returns a default agent. The full IR is validated up
+// front, and any key it cannot apply is refused (SPEC_KEY_UNAPPLIED).
 const { create, actions } = compileVoiceAiAgent({
-  agentName: 'Front Desk', agentPrompt: '...', // full IR still validated up front
+  agentName: 'Front Desk', agentPrompt: '...',
 }, { locationId });
 
-// Step 2 (executor, outside this compiler): POST create.request, then GET the new agent.
-
-// Step 3: reconcile the desired IR into the GETted document, then compile the full-replace PUT.
-const upd = compileVoiceAiUpdate(fullReconciledIr, { agentId, locationId });
+// Step 2: the builder-save PUT for the NEW agent (every omitted field gets the compiler's default — right for a fresh
+// agent, wrong for an existing one: use update_voiceai_agent / compileVoiceAiPartialUpdate there).
+const upd = compileVoiceAiUpdate(ir, { agentId, locationId });
+// Step 3, speech-to-speech only: s2sBehaviour in a second PUT, once the first has switched the provider to "lc".
+const s2s = compileVoiceAiS2sFollowUp(ir, { agentId, locationId }); // null when the IR has none
 ```
 
-`compileVoiceAiAgent` and `compileVoiceAiUpdate` both call `parseVoiceAiIR` for full
-validation — there is no partial-IR counterpart (unlike Conversation AI), because the update
-is always a full replace.
+The Voice AI PUT merges a partial body at the top level (measured 2026-09-28); the create uses the builder's full
+field list because it is configuring a fresh default agent, and `update_voiceai_agent` sends only the keys asked for.

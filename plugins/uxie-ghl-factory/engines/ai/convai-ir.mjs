@@ -195,6 +195,46 @@ function checkFlowFields(ir) {
     throw new IRError('SCHEMA', 'isObjectiveBuilderEnabled must be a boolean');
   if (ir.objectiveBuilderWorkflowId !== undefined && typeof ir.objectiveBuilderWorkflowId !== 'string')
     throw new IRError('SCHEMA', 'objectiveBuilderWorkflowId must be a string');
+  for (const k of ['cancelEnabled', 'rescheduleEnabled']) {
+    if (ir[k] !== undefined && typeof ir[k] !== 'boolean') throw new IRError('SCHEMA', `${k} must be a boolean`);
+  }
+}
+
+// fullPrompt — the current builder's single prompt document ("## Personality … ## Goal … ## Instructions …").
+function checkFullPrompt(v) {
+  if (v === undefined) return;
+  if (typeof v !== 'string' || !v.trim()) {
+    throw new IRError('SCHEMA', 'fullPrompt must be a non-empty string: the whole prompt, as the builder stores it');
+  }
+}
+
+// Knowledge-base triggers: [{ id?, mode: custom|all, knowledgeBaseIds, triggerCondition? }]. The builder renumbers
+// priority 1..n on every save, and the SERVER caps priority at 4 (a fifth trigger → 422 "knowledgeBaseTriggers.4.priority
+// must not be greater than 4", live 2026-09-26), so at most four.
+export const KB_TRIGGER_MODES = ['custom', 'all'];
+export const KB_TRIGGER_MAX = 4;
+function checkKnowledgeBaseTriggers(list) {
+  if (list === undefined) return;
+  if (!Array.isArray(list)) throw new IRError('SCHEMA', 'knowledgeBaseTriggers must be an array');
+  if (list.length > KB_TRIGGER_MAX) {
+    throw new IRError('SCHEMA', `knowledgeBaseTriggers holds at most ${KB_TRIGGER_MAX} (server rule: priority must not be greater than 4)`);
+  }
+  for (const [i, t] of list.entries()) {
+    if (!t || typeof t !== 'object' || Array.isArray(t)) throw new IRError('SCHEMA', `knowledgeBaseTriggers[${i}] must be an object`);
+    if (!KB_TRIGGER_MODES.includes(t.mode)) {
+      throw new IRError('SCHEMA', `knowledgeBaseTriggers[${i}].mode must be one of ${KB_TRIGGER_MODES.join(', ')}, got ${JSON.stringify(t.mode)}`);
+    }
+    if (t.knowledgeBaseIds !== undefined && (!Array.isArray(t.knowledgeBaseIds) || t.knowledgeBaseIds.some((x) => typeof x !== 'string' || !x))) {
+      throw new IRError('SCHEMA', `knowledgeBaseTriggers[${i}].knowledgeBaseIds must be an array of knowledge base ids`);
+    }
+    if (t.mode === 'custom' && !(t.knowledgeBaseIds ?? []).length) {
+      throw new IRError('SCHEMA', `knowledgeBaseTriggers[${i}] is mode custom and names no knowledgeBaseIds`);
+    }
+    if (t.triggerCondition !== undefined && typeof t.triggerCondition !== 'string') {
+      throw new IRError('SCHEMA', `knowledgeBaseTriggers[${i}].triggerCondition must be a string`);
+    }
+    if (t.id !== undefined && (typeof t.id !== 'string' || !t.id)) throw new IRError('SCHEMA', `knowledgeBaseTriggers[${i}].id must be a string`);
+  }
 }
 
 // Full validation — used when compiling a create (POST /ai-employees/employees). Required:
@@ -216,6 +256,9 @@ export function parseConvaiIR(ir) {
   checkResponseStyle(ir);
   checkLlm(ir.llm);
   checkBusinessName(ir.businessName);
+  checkFullPrompt(ir.fullPrompt);
+  checkKnowledgeBaseTriggers(ir.knowledgeBaseTriggers);
+  if (ir.isPrimary !== undefined && typeof ir.isPrimary !== 'boolean') throw new IRError('SCHEMA', 'isPrimary must be a boolean');
   return { ...ir, mode: normalizeMode(ir.mode) };
 }
 
@@ -238,5 +281,6 @@ export function parseConvaiPartialIR(ir) {
   checkResponseStyle(ir);
   checkLlm(ir.llm);
   checkBusinessName(ir.businessName);
+  checkKnowledgeBaseTriggers(ir.knowledgeBaseTriggers);
   return ir.mode !== undefined ? { ...ir, mode: normalizeMode(ir.mode) } : { ...ir };
 }

@@ -8,35 +8,23 @@
 // attaches credentials itself.
 //
 // ============================================================================
-// Merge semantics: FULL REPLACE (differs from Conversation AI's PUT, which merges)
+// Create = POST, then ONE builder-save PUT
 // ============================================================================
-// Every Save in the Voice AI builder issues the SAME PUT
-// `/voice-ai/agents/:id?publishAgent=true&mode=update` with the COMPLETE agent
-// object — untouched fields are re-sent unchanged, there is no partial-patch. That
-// shapes this module's two entrypoints:
-//
-//   - compileVoiceAiAgent(ir, opts) -> POST /voice-ai/agents. Per voiceai-create.json,
-//     this call accepts almost nothing — just `{ locationId }`. The backend
-//     auto-generates a default agent (name, prompt, welcome message, agentSettings)
-//     server-side and returns its id; the IR's rich fields CANNOT be sent here
-//     because the create endpoint doesn't accept them. This function still
-//     validates the full IR up front (so a bad IR fails before any request is
-//     issued) and compiles any ir.actions[] (agentId left null — see
-//     compileVoiceAiAction below).
-//   - compileVoiceAiUpdate(fullIr, opts) -> PUT
-//     /voice-ai/agents/:agentId?publishAgent=true&mode=update. Because the backend
-//     does a full replace, the real-world workflow is: create -> GET the returned
-//     default agent -> reconcile the desired config into it -> PUT the WHOLE
-//     document back. This compiler has no network access, so it cannot perform that
-//     GET step itself: it takes a FULL Voice AI IR (not a partial) and emits the
-//     complete replacement body the PUT expects, filling any field the IR omits
-//     with the stable literal default observed across BOTH update captures. It is
-//     the caller's/executor's responsibility to have already reconciled the IR with
-//     the server's current document (e.g. by seeding IR fields from a prior GET)
-//     before calling this function — passing a partial IR here will silently
-//     overwrite live fields with these defaults, which is exactly the footgun a
-//     full-replace update endpoint creates.
-import { parseVoiceAiIR, IRError } from './voiceai-ir.mjs';
+//   - compileVoiceAiAgent(ir, opts) -> POST /voice-ai/agents with `{ locationId, folderId? }` — the builder's own
+//     create body (voiceAiApp 17b8476b@1230975). The server mints a default agent ("My Agent NNN", its own prompt and
+//     settings) and returns its id; nothing else is accepted here. The full IR is validated up front, so a bad spec
+//     fails before any request, and ir.actions[] are compiled (agentId filled in after the create).
+//   - compileVoiceAiUpdate(fullIr, opts) -> PUT /voice-ai/agents/:agentId?publishAgent=true&mode=update, the builder's
+//     Save rail, carrying the builder's flat field list. That PUT MERGES at the top level (measured 2026-09-28: a partial
+//     body changes only the keys sent) and validates each nested object WHOLE, so every nested object here is sent
+//     complete. Fields the IR omits get the defaults below, which on a fresh agent replace GHL's own defaults — the
+//     create tool's preview names the ones that matter (post-call note + admin emails).
+//   - Writes are FLAT and reads are NESTED (most settings come back under agentSettings; see driver.mjs normalizeRead).
+//   - `provider` is never sent: GHL derives it from llmModel (a speech-to-speech model switches it RETELL → "lc",
+//     live 2026-09-28). s2sBehaviour is only valid once the provider is "lc", so it goes in a second PUT after the
+//     first one has switched the model (compileVoiceAiS2sFollowUp).
+import { parseVoiceAiIR, IRError, isS2sModel, USER_FIRST_SILENCE_DEFAULT_MS } from './voiceai-ir.mjs';
+import { mergeSessionVariables, compilePrompts, compileS2sBehaviour } from './voiceai-update.mjs';
 
 export const AUTH_HEADER = 'ai';
 
@@ -69,12 +57,11 @@ const DEFAULTS = {
   llmModel: 'gpt-4.1',
   knowledgeBaseIds: null,
   knowledgeBasePrompt: 'Use this knowledge base if the user asks any questions about the business, services, products, contact details, or other relevant information that requires accessing the business wiki to provide accurate and up-to-date information.',
-  provider: 'RETELL', // Retell is the only backing voice provider observed; not IR-settable.
   translation: { enabled: false, language: null },
   beginMessageDelayMs: 0,
   welcomeMessageMode: 'ai_custom',
   responsiveness: 1,
-  endCallAfterSilenceMs: 15000,
+  endCallAfterSilenceMs: 15000, // a speech-to-speech agent's default is 60000 (the builder's per-provider default)
   ringDurationSeconds: 5,
   sttMode: 'accurate',
   customSttConfig: null,
@@ -124,6 +111,36 @@ export function disclaimerFor(businessName) {
 // UI rather than a required part of the wire body, and is intentionally NOT emitted
 // by buildUpdateBody below.
 
+// A speech-to-speech agent's end-after-silence default (the builder's per-provider default: lc 60 s, Retell 15 s).
+const S2S_END_CALL_AFTER_SILENCE_MS = 60000;
+
+// Whole-list replace, as the builder sends it; an empty list is refused (the builder never sends one).
+function compileDisabledPrompts(v) {
+  if (!Array.isArray(v) || !v.length || v.some((x) => typeof x !== 'string' || !x.trim())) {
+    throw new IRError('SCHEMA', 'disabledPrompts must be a non-empty array of section names (build 707 sends ["personality"]: the Personality section is retired)');
+  }
+  return [...v];
+}
+
+// The hangup prompt + in-call spam rule, sent whole and trimmed the way the builder saves it (2cd393ea@121118).
+function compileEndCallConfig(v) {
+  const text = (x) => (typeof x === 'string' && x.trim() ? x.trim() : null);
+  return { instruction: text(v.instruction), spamDetectionEnabled: v.spamDetectionEnabled === true, spamDetectionInstruction: text(v.spamDetectionInstruction) };
+}
+
+// After-call spam blocking, normalised as the builder saves it (2cd393ea@121361): notifyModes default [admin], the
+// block threshold default 5, and notifyEmails only when "custom" is among the modes.
+function compileSpamConfig(v) {
+  const p = v.postCallAnalysis ?? {};
+  const notifyModes = [...new Set(p.notifyModes ?? ['admin'])];
+  return { postCallAnalysis: {
+    enabled: p.enabled === true,
+    blockThreshold: p.blockThreshold ?? 5,
+    notifyModes,
+    notifyEmails: notifyModes.includes('custom') ? (p.notifyEmails ?? []).map((e) => e.trim()) : [],
+  } };
+}
+
 // Build the full PUT body for /voice-ai/agents/:agentId?publishAgent=true&mode=update.
 // Field names/nesting trace 1:1 to the flat top-level keys shared by BOTH update
 // captures. `ir` must already be normalized (parseVoiceAiIR).
@@ -137,6 +154,7 @@ function buildUpdateBody(ir, { locationId } = {}) {
   const kb = ir.knowledgeBase ?? {};
   const translation = ir.translation ?? {};
   const noResponseConfig = ir.noResponseConfig ?? {};
+  const s2s = isS2sModel(ir.llmModel);
 
   const enableBackchannel = behavior.enableBackchannel ?? DEFAULTS.enableBackchannel;
   // backchannelFrequency has no UI slider: per voiceai-update-behavior-
@@ -151,12 +169,15 @@ function buildUpdateBody(ir, { locationId } = {}) {
     welcomeMessage: ir.welcomeMessage ?? DEFAULTS.welcomeMessage,
     voiceId: voice.voiceId ?? DEFAULTS.voiceId,
     voiceModel: voice.voiceModel ?? DEFAULTS.voiceModel,
-    language: callSettings.language ?? DEFAULTS.language,
+    language: callSettings.language ?? callSettings.languages?.[0] ?? DEFAULTS.language,
+    // the builder's multi-select; sent beside `language` as it sends it (2cd393ea@118300)
+    ...(callSettings.languages !== undefined ? { languages: [...callSettings.languages] } : {}),
     locationId,
     businessName: ir.businessName ?? DEFAULTS.businessName,
-    inboundPhoneNumber: outbound.inboundPhoneNumber ?? DEFAULTS.inboundPhoneNumber,
-    inboundNumbers: outbound.inboundNumbers ?? DEFAULTS.inboundNumbers,
-    numberPoolId: outbound.numberPoolId ?? DEFAULTS.numberPoolId,
+    // numbers are the deploy screen's (location-wide): never assigned here, sent empty as the builder sends an unassigned agent
+    inboundPhoneNumber: DEFAULTS.inboundPhoneNumber,
+    inboundNumbers: DEFAULTS.inboundNumbers,
+    numberPoolId: DEFAULTS.numberPoolId,
     agentPrompt: ir.agentPrompt,
     callEndWorkflowIds: postCall.callEndWorkflowIds ?? DEFAULTS.callEndWorkflowIds,
     advancedSettingsEnabled: ir.advancedSettingsEnabled ?? DEFAULTS.advancedSettingsEnabled,
@@ -179,15 +200,19 @@ function buildUpdateBody(ir, { locationId } = {}) {
     llmModel: ir.llmModel ?? DEFAULTS.llmModel,
     knowledgeBaseIds: kb.knowledgeBaseIds ?? DEFAULTS.knowledgeBaseIds,
     knowledgeBasePrompt: kb.knowledgeBasePrompt ?? DEFAULTS.knowledgeBasePrompt,
-    provider: DEFAULTS.provider,
     translation: {
       enabled: translation.enabled ?? DEFAULTS.translation.enabled,
       language: translation.language ?? DEFAULTS.translation.language,
     },
     beginMessageDelayMs: ir.beginMessageDelayMs ?? DEFAULTS.beginMessageDelayMs,
     welcomeMessageMode: ir.welcomeMessageMode ?? DEFAULTS.welcomeMessageMode,
+    // user_first: the builder always adds these two (2cd393ea@120431)
+    ...(ir.welcomeMessageMode === 'user_first' ? {
+      userFirstFallback: { enabled: ir.userFirstFallback?.enabled ?? true },
+      beginAfterUserSilenceMs: ir.beginAfterUserSilenceMs ?? USER_FIRST_SILENCE_DEFAULT_MS,
+    } : {}),
     responsiveness: behavior.responsiveness ?? DEFAULTS.responsiveness,
-    endCallAfterSilenceMs: callSettings.endCallAfterSilenceMs ?? DEFAULTS.endCallAfterSilenceMs,
+    endCallAfterSilenceMs: callSettings.endCallAfterSilenceMs ?? (s2s ? S2S_END_CALL_AFTER_SILENCE_MS : DEFAULTS.endCallAfterSilenceMs),
     ringDurationSeconds: callSettings.ringDurationSeconds ?? DEFAULTS.ringDurationSeconds,
     sttMode: transcription.sttMode ?? DEFAULTS.sttMode,
     customSttConfig: transcription.customSttConfig ?? DEFAULTS.customSttConfig,
@@ -208,11 +233,16 @@ function buildUpdateBody(ir, { locationId } = {}) {
       ...DEFAULTS.aiDisclaimerConfiguration,
       outboundDisclaimerMessage: disclaimerFor(ir.businessName ?? DEFAULTS.businessName),
     },
-    prompts: ir.prompts ?? DEFAULTS.prompts,
-    noResponseConfig: {
+    prompts: ir.prompts !== undefined ? compilePrompts(ir.prompts) : DEFAULTS.prompts,
+    ...(ir.disabledPrompts !== undefined ? { disabledPrompts: compileDisabledPrompts(ir.disabledPrompts) } : {}),
+    // the builder sends noResponseConfig only for a Retell (text-model) agent
+    ...(s2s ? {} : { noResponseConfig: {
       enabled: noResponseConfig.enabled ?? DEFAULTS.noResponseConfig.enabled,
       keywords: noResponseConfig.keywords ?? DEFAULTS.noResponseConfig.keywords,
-    },
+    } }),
+    ...(ir.sessionVariables !== undefined ? { sessionVariables: mergeSessionVariables([], ir.sessionVariables) } : {}),
+    ...(ir.endCallConfig !== undefined ? { endCallConfig: compileEndCallConfig(ir.endCallConfig) } : {}),
+    ...(ir.spamConfig !== undefined ? { spamConfig: compileSpamConfig(ir.spamConfig) } : {}),
   };
 }
 
@@ -429,26 +459,32 @@ export function compileVoiceAiAction(action, { agentId = null, locationId } = {}
   return { method: 'POST', path: '/voice-ai/actions', body };
 }
 
-// POST /voice-ai/agents — create. Per voiceai-create.json the body is JUST
-// `{ locationId }`; the backend auto-generates the default agent doc and returns
-// its id. Returns the create descriptor plus the (agentId-less) action descriptors
-// for anything in ir.actions[] — the caller must patch in the real agentId (from
-// the create response) before POSTing each action, then follow up with
-// compileVoiceAiUpdate to push the rest of the IR's configuration via full-replace.
+// POST /voice-ai/agents — create, with the builder's body `{ locationId, folderId? }` (voiceAiApp 17b8476b@1230975).
+// Returns the create descriptor plus the (agentId-less) action descriptors for ir.actions[]; the caller patches in the
+// real agentId from the create response, then sends compileVoiceAiUpdate (and compileVoiceAiS2sFollowUp, when given).
 export function compileVoiceAiAgent(ir, { locationId } = {}) {
   const norm = parseVoiceAiIR(ir);
-  const create = { method: 'POST', path: '/voice-ai/agents', body: { locationId } };
+  const create = { method: 'POST', path: '/voice-ai/agents', body: { locationId, ...(norm.folderId ? { folderId: norm.folderId } : {}) } };
   const actions = (norm.actions ?? []).map((a) => compileVoiceAiAction(a, { agentId: null, locationId }));
   return { create, actions, authHeader: AUTH_HEADER };
 }
 
-// PUT /voice-ai/agents/:agentId?publishAgent=true&mode=update — FULL REPLACE (see
-// the module header). `fullIr` must be a complete Voice AI IR, not a partial one:
-// any field it omits is filled with the stable default from DEFAULTS above, which
-// will silently clobber a differing live value. Reconciling the IR with the
-// server's current document (via a prior GET) is the caller's responsibility.
+// The second PUT for a speech-to-speech create: s2sBehaviour { responseDepth, vadEagerness, languages } is refused on an
+// agent whose provider is not "lc" yet, and the provider switches only when the first PUT stores the s2s llmModel. It
+// goes on the partial rail (PUT /voice-ai/agents/:id), which MERGES it into agentSettings.s2sBehaviour (2026-09-28).
+// Returns null when the IR carries none.
+export function compileVoiceAiS2sFollowUp(ir, { agentId, locationId } = {}) {
+  const norm = parseVoiceAiIR(ir);
+  if (norm.s2sBehaviour === undefined) return null;
+  const s2sBehaviour = compileS2sBehaviour({ provider: 'lc' }, norm.s2sBehaviour);
+  return { method: 'PUT', path: `/voice-ai/agents/${agentId}`, body: { locationId, s2sBehaviour }, authHeader: AUTH_HEADER };
+}
+
+// PUT /voice-ai/agents/:agentId?publishAgent=true&mode=update — the builder's Save (see the module header). Every
+// field the IR omits is filled with the default from DEFAULTS above; that is right for a fresh agent and would
+// overwrite a stored value on an existing one — update_voiceai_agent is the tool for existing agents.
 // Fields the API rejects as EMPTY STRINGS but accepts as ABSENT.
-// LIVE-CAUGHT 2026-07-21 (GROM AU): the full-replace PUT returned 422 with
+// LIVE-CAUGHT 2026-07-21: the builder-save PUT returned 422 with
 //   "Business name must be at least 1 characters long"
 //   "Welcome message must be at least 1 characters long" / "cannot be empty"
 //   "Timezone must be a valid timezone from the available timezones"

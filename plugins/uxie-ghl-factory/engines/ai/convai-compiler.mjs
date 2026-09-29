@@ -44,6 +44,7 @@ function buildCreateBody(ir, { locationId }) {
     businessName: ir.businessName ?? '',
     mode: ir.mode,
     channels: ir.channels,
+    // Always false: a true is refused in compileConvaiAgent (the primary agent is location-wide).
     isPrimary: false,
     waitTime: wait.value ?? DEFAULT_WAIT.value,
     waitTimeUnit: wait.unit ?? DEFAULT_WAIT.unit,
@@ -60,10 +61,17 @@ function buildCreateBody(ir, { locationId }) {
     personality: ir.personality ?? '',
     goal: ir.goal ?? '',
     instructions: ir.instructions ?? '',
+    // The current builder's create: the whole prompt in fullPrompt, the three fields "" (agentBuilderApp
+    // useConversationAIBuilder, AB/853927@544724). Only when authored; compileConvaiAgent refuses it beside the three.
+    ...(ir.fullPrompt !== undefined ? { fullPrompt: ir.fullPrompt } : {}),
     tones: ir.tones ?? [],
     botType: ir.botType ?? 'PROMPT_BASED_BOT',
     knowledgeBaseIds: ir.knowledgeBaseIds ?? [],
-    knowledgeBaseTriggers: [],
+    knowledgeBaseTriggers: normalizeKbTriggers(ir.knowledgeBaseTriggers),
+    // Flow-bot agent-level booking switches (the builder deletes them for every other bot type; applyBotTypeCleanup
+    // does the same). Only when authored.
+    ...(ir.cancelEnabled !== undefined ? { cancelEnabled: ir.cancelEnabled } : {}),
+    ...(ir.rescheduleEnabled !== undefined ? { rescheduleEnabled: ir.rescheduleEnabled } : {}),
     summary: mergeSummary(defaultSummary(), ir.summary),
     respondToImages: ir.respondToImages ?? false,
     respondToAudio: ir.respondToAudio ?? false,
@@ -76,9 +84,59 @@ function buildCreateBody(ir, { locationId }) {
     isObjectiveBuilderEnabled: ir.isObjectiveBuilderEnabled ?? false,
     aiResponseLengthEnabled: style.aiResponseLengthEnabled ?? false,
     responseLength: style.responseLength ?? 'balanced',
-    // Only when authored: applyBotTypeCleanup drops an empty llm, and the server picks its default.
-    ...(ir.llm ? { llm: { ...ir.llm } } : {}),
+    // Only when authored: applyBotTypeCleanup drops an empty llm, and the server picks its default. A fullPrompt create
+    // follows the builder, which defaults and REQUIRES llm.primary "gpt-4.1" (AB/853927@542453, validator @572046).
+    ...(ir.llm ? { llm: { ...ir.llm } } : ir.fullPrompt !== undefined ? { llm: { primary: BUILDER_DEFAULT_LLM } } : {}),
   };
+}
+
+export const BUILDER_DEFAULT_LLM = 'gpt-4.1';
+
+// The builder renumbers priority 1..n on every save (AB/853927@544724) and mints each trigger's id client-side
+// (`kbt_<ms>_<7 chars>`, as stored). A caller's id is kept.
+function normalizeKbTriggers(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map((t, i) => ({
+    id: t.id ?? `kbt_${Date.now()}_${Math.random().toString(36).slice(2, 9).padEnd(7, '0')}`,
+    mode: t.mode,
+    knowledgeBaseIds: t.knowledgeBaseIds ?? [],
+    triggerCondition: t.triggerCondition ?? '',
+    priority: i + 1,
+  }));
+}
+
+// Every spec key create_convai_agent applies. Anything else is refused before a request is sent: a key the compiler
+// does not know used to be dropped silently, and the create reported success without it.
+export const CREATE_KEYS = new Set(['name', 'businessName', 'mode', 'channels', 'wait', 'sleep', 'autoPilotMaxMessages',
+  'actions', 'personality', 'goal', 'instructions', 'fullPrompt', 'tones', 'botType', 'knowledgeBaseIds',
+  'knowledgeBaseTriggers', 'summary', 'respondToImages', 'respondToAudio', 'objectiveBuilderWorkflowId',
+  'isObjectiveBuilderEnabled', 'responseLength', 'aiResponseLengthEnabled', 'llm', 'isPrimary', 'cancelEnabled',
+  'rescheduleEnabled']);
+// Keys a caller plausibly reaches for, and where each one is written instead.
+const CREATE_ELSEWHERE = {
+  employeeName: 'the agent name is spec.name',
+  flow: "a flow bot's logic is a workflow: create the agent with botType FLOW_BUILDER_BOT, build the workflow with "
+    + 'build_workflow (a conv_ai_trigger bound to the agent), then link it with update_convai_agent '
+    + '{isObjectiveBuilderEnabled:true, objectiveBuilderWorkflowId}',
+  emailSettings: 'Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record',
+  emailWaitTime: 'Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record',
+  emailWaitTimeUnit: 'Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record',
+  workingHours: 'working hours are their own resource: raw_request POST /ai-employees/employees/{id}/working-hours',
+  folderId: 'folders are set after create: raw_request on the /ai-employees/employees/folders routes',
+  brandId: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
+  steps: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
+  botInitialMessage: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
+  skipIfAlreadyFilled: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
+  notificationSettings: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
+};
+
+export function refuseUnappliedCreateKeys(spec) {
+  const unapplied = Object.keys(spec ?? {}).filter((k) => !CREATE_KEYS.has(k));
+  if (!unapplied.length) return;
+  const where = unapplied.filter((k) => k in CREATE_ELSEWHERE).map((k) => `${k}: ${CREATE_ELSEWHERE[k]}`);
+  throw new IRError('SPEC_KEY_UNAPPLIED',
+    `create_convai_agent cannot apply spec key(s) [${unapplied.join(', ')}], and refuses rather than creating an agent `
+    + `without them. ${where.length ? `${where.join('; ')}. ` : ''}Nothing was sent. Applicable keys: ${[...CREATE_KEYS].sort().join(', ')}.`);
 }
 
 // A response style is inert unless its switch is on, so a caller who names a style without the
@@ -185,14 +243,61 @@ const APPOINTMENT_BOOKING_DETAIL_DEFAULTS = {
   rescheduleEnabled: false,
 };
 
+// Calendar modes, as the booking modal saves them (aiEmployeesApp d510c8@216557):
+//   single    calendarId
+//   multiple  calendarIds [{id, triggerCondition}] (1–50) + aiDescription (required) + fallbackCalendar / fallbackCalendarId
+// The modal's third mode, "service" (calendarIds of service ids from GET /calendars/services), is REFUSED: the designated
+// test sub-account has no calendar service, so it has never been executed live (coordinator ruling 2026-09-29).
+export const CALENDAR_ACTION_TYPES = ['single', 'multiple'];
+const MULTI_CALENDAR_MAX = 50;
+
 function buildAppointmentBookingDetails(details) {
-  if (typeof details.calendarId !== 'string' || details.calendarId.length === 0) {
-    throw new IRError(
-      'SCHEMA',
-      `appointmentBooking action.details.calendarId is required (gates the calendar-selection step; convai-actions-all.json), got: ${JSON.stringify(details.calendarId)}`,
-    );
+  const type = details.calendarActionType ?? 'single';
+  if (type === 'service') {
+    throw new IRError('SPEC_KEY_UNAPPLIED', 'appointmentBooking calendarActionType "service" is not written by this tool (never executed '
+      + 'live: no calendar service to test against). The modal saves calendarIds [{id: <service id from GET /calendars/services>, '
+      + 'triggerCondition: ""}] plus aiDescription: send it with raw_request POST /ai-employees/actions and read the action back. Nothing was sent.');
   }
-  return { ...APPOINTMENT_BOOKING_DETAIL_DEFAULTS, ...details };
+  if (!CALENDAR_ACTION_TYPES.includes(type)) {
+    throw new IRError('SCHEMA', `appointmentBooking details.calendarActionType must be one of ${CALENDAR_ACTION_TYPES.join(', ')}, got ${JSON.stringify(type)}`);
+  }
+  if (type === 'single') {
+    if (typeof details.calendarId !== 'string' || details.calendarId.length === 0) {
+      throw new IRError(
+        'SCHEMA',
+        `appointmentBooking action.details.calendarId is required (gates the calendar-selection step; convai-actions-all.json), got: ${JSON.stringify(details.calendarId)}`,
+      );
+    }
+    for (const k of ['calendarIds', 'aiDescription', 'fallbackCalendar', 'fallbackCalendarId']) {
+      if (details[k] !== undefined) throw new IRError('SCHEMA', `appointmentBooking details.${k} belongs to calendarActionType multiple; this action is single`);
+    }
+    return { ...APPOINTMENT_BOOKING_DETAIL_DEFAULTS, ...details };
+  }
+  if (details.calendarId !== undefined) {
+    throw new IRError('SCHEMA', `appointmentBooking details.calendarId is the single-calendar field; a ${type} action lists calendarIds`);
+  }
+  const ids = details.calendarIds;
+  if (!Array.isArray(ids) || !ids.length || ids.length > MULTI_CALENDAR_MAX) {
+    throw new IRError('SCHEMA', `appointmentBooking (${type}) details.calendarIds must list 1–${MULTI_CALENDAR_MAX} calendar ids`);
+  }
+  const calendarIds = ids.map((x, i) => {
+    const entry = typeof x === 'string' ? { id: x } : x;
+    if (!entry || typeof entry.id !== 'string' || !entry.id) throw new IRError('SCHEMA', `appointmentBooking details.calendarIds[${i}] needs an id`);
+    if (entry.triggerCondition !== undefined && typeof entry.triggerCondition !== 'string') {
+      throw new IRError('SCHEMA', `appointmentBooking details.calendarIds[${i}].triggerCondition must be a string`);
+    }
+    return { id: entry.id, triggerCondition: entry.triggerCondition ?? '' };
+  });
+  if (typeof details.aiDescription !== 'string' || !details.aiDescription.trim()) {
+    throw new IRError('SCHEMA', `appointmentBooking (${type}) details.aiDescription is required: it tells the bot how to choose (the modal will not proceed without it)`);
+  }
+  const out = { ...APPOINTMENT_BOOKING_DETAIL_DEFAULTS, ...details, calendarActionType: type, calendarIds };
+  out.fallbackCalendar = details.fallbackCalendar === true;
+  if (out.fallbackCalendar && (typeof details.fallbackCalendarId !== 'string' || !details.fallbackCalendarId)) {
+    throw new IRError('SCHEMA', 'appointmentBooking details.fallbackCalendar:true needs fallbackCalendarId');
+  }
+  out.fallbackCalendarId = out.fallbackCalendar ? details.fallbackCalendarId : null;
+  return out;
 }
 
 // triggerWorkflow: workflowIds + triggerCondition are both marked required-with-asterisk
@@ -364,7 +469,9 @@ export function uiSaveViolations(body, botType) {
   const v = [];
   const push = (field, rule, msg) => v.push({ field, rule, msg });
   if (!Array.isArray(body.channels) || !body.channels.length) push('channels', 'selectChannel', 'Please select at least one channel');
-  for (const f of ['personality', 'goal', 'instructions']) {
+  // The current builder validates the ONE prompt (fullPrompt, "promptRequired", AB/853927@572046); the three-field rule
+  // belongs to the legacy editor and would flag every fullPrompt agent.
+  for (const f of nonEmpty(body.fullPrompt) ? [] : ['personality', 'goal', 'instructions']) {
     if (typeof body[f] !== 'string' || !body[f].trim()) {
       push(f, 'notEmpty', 'Personality, Instructions, and Goal should not be empty.');
     }
@@ -387,7 +494,38 @@ export function uiSaveViolations(body, botType) {
 const FATAL_FOR_FLOW_BOT = new Set(['toneEmpty', 'errorMaxTones', 'selectChannel']);
 
 export function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
+  refuseUnappliedCreateKeys(ir);
   const norm = parseConvaiIR(ir);
+  // THE PRIMARY AGENT IS LOCATION-WIDE. The builder's "Set as Primary" hands the location's inbound messages to this
+  // agent and moves the old primary's contacts to it, and it is hidden when channelManagement is on. It is never
+  // written by this tool (coordinator ruling 2026-09-29: not provable on the sandbox without moving another team's agent).
+  if (norm.isPrimary === true) {
+    throw new IRError('SPEC_KEY_UNAPPLIED',
+      'isPrimary:true is refused: the primary agent is location-wide; setting it can unseat the current primary. Set it in '
+      + 'the Conversation AI UI (Settings → primary agent). Nothing was sent.');
+  }
+  const botType = norm.botType ?? 'PROMPT_BASED_BOT';
+  if (norm.fullPrompt !== undefined) {
+    if (botType !== 'PROMPT_BASED_BOT') {
+      throw new IRError('SPEC_KEY_UNAPPLIED', `fullPrompt is the prompt bot's builder field; this spec is ${botType}. Nothing was sent.`);
+    }
+    const alsoFields = PROMPT_KEYS.filter((k) => norm[k] !== undefined);
+    if (alsoFields.length) {
+      throw new IRError('FULLPROMPT_OWNS_PROMPT',
+        `the spec sets fullPrompt AND [${alsoFields.join(', ')}], which is ambiguous: the bot answers from fullPrompt once it is `
+        + 'stored and the three fields are then frozen (live 2026-09-29). Nothing was sent. Pass the whole prompt as fullPrompt '
+        + '(the builder writes "## Personality … ## Goal … ## Instructions …"), or the three fields without it.');
+    }
+  }
+  // bl-181: on a prompt bot the booking switches live on the appointmentBooking ACTION (the builder strips the agent-level
+  // pair for every bot type but the flow bot).
+  const bookingSwitches = ['cancelEnabled', 'rescheduleEnabled'].filter((k) => norm[k] !== undefined);
+  if (bookingSwitches.length && botType !== 'FLOW_BUILDER_BOT') {
+    throw new IRError('SPEC_KEY_UNAPPLIED',
+      `[${bookingSwitches.join(', ')}] are agent-level only on a FLOW_BUILDER_BOT; this spec is ${botType}. On a prompt bot set `
+      + 'details.cancelEnabled / details.rescheduleEnabled on the appointmentBooking action in actions[] (a bot with the action '
+      + 'flag on reschedules, live 2026-09-25). Nothing was sent.');
+  }
   // THE SAME BOT-TYPE CLEANUP THE UPDATE PATH RUNS. It existed here only on update, so the CREATE
   // sent `tones` for a PROMPT_BASED_BOT and the server refused the whole call:
   // `422 "tones is only allowed when bot type is FLOW_BUILDER_BOT"` — every prompt-bot creation
@@ -407,10 +545,12 @@ export function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } =
   // land anyway (name and channels changed under a 500). Any ONE of the three is enough (live,
   // designated test sub-account 2026-09-25: goal-only, personality-only and instructions-only
   // agents all updated clean; the agent with none refused every update).
-  if (body.botType !== 'FLOW_BUILDER_BOT' && !PROMPT_KEYS.some((k) => nonEmpty(body[k]))) {
+  // A fullPrompt counts: the builder itself creates prompt bots with the three fields "" and the prompt in fullPrompt.
+  if (body.botType !== 'FLOW_BUILDER_BOT' && !nonEmpty(body.fullPrompt) && !PROMPT_KEYS.some((k) => nonEmpty(body[k]))) {
     throw new IRError('MISSING_FIELD',
-      'a prompt-based agent needs at least one of goal, personality or instructions. Created without all '
-      + 'three, GHL answers 500 to every later update of the agent, and some of that update still lands.');
+      'a prompt-based agent needs a prompt: fullPrompt (the current builder\'s single prompt), or at least one of goal, '
+      + 'personality or instructions. Created with none, GHL answers 500 to every later update of the agent, and some of '
+      + 'that update still lands.');
   }
   const violations = uiSaveViolations(body, body.botType);
   const fatal = body.botType === 'FLOW_BUILDER_BOT' ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
@@ -589,6 +729,11 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
   for (const [k, v] of Object.entries(responseStyleFields(norm))) { body[k] = v; setKeys.add(k); }
   if (norm.name !== undefined) { body.employeeName = norm.name; setKeys.add('employeeName'); }
   if (norm.fullPrompt !== undefined) { body.fullPrompt = norm.fullPrompt; setKeys.add('fullPrompt'); }
+  // A flow bot's agent-level booking switches (the builder keeps them only for FLOW_BUILDER_BOT). On any other bot type
+  // they stay unapplied and are refused below with the pointer to the action-level pair.
+  const flowBot = (norm.botType ?? current.botType) === 'FLOW_BUILDER_BOT';
+  const flowSwitches = flowBot ? ['cancelEnabled', 'rescheduleEnabled'] : [];
+  for (const k of flowSwitches) if (norm[k] !== undefined) { body[k] = norm[k]; setKeys.add(k); }
   // `wait` and `sleep` are NOT in UPDATE_FIELD_MAP because they fan out to several wire keys.
   // compileConvaiUpdate (the pre-0.64.0 partial-PUT compiler) handled them here and this
   // read-merge-write replacement did not, so from 0.64.0 until 2026-09-10 a spec carrying either
@@ -614,7 +759,7 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
   // what it knows and never looks at what it was handed. A caller who misspells a key, or reaches
   // for one this rail does not carry, otherwise gets a clean success and no change — the same
   // silent-discard class as an unrecognised node kind.
-  const applicable = new Set([...Object.keys(UPDATE_FIELD_MAP), 'wait', 'sleep', 'fullPrompt']);
+  const applicable = new Set([...Object.keys(UPDATE_FIELD_MAP), 'wait', 'sleep', 'fullPrompt', ...flowSwitches]);
   const unapplied = Object.keys(partialIr ?? {}).filter((k) => !applicable.has(k));
   if (unapplied.length) {
     const actionsAsked = unapplied.includes('actions');

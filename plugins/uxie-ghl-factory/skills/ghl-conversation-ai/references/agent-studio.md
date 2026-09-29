@@ -154,14 +154,24 @@ changed in the UI." There is no partial-update path — `studio-compiler.mjs` ha
 `POST /agent-studio/super-agents/build` takes `{message, locationId, context: {companyId}, mode: "fast"}` (the
 bundle also sends optional `existingAgentId`, `sessionId`, `answeredQuestions`, `skippedQuestionIds`, `folderId`).
 The server streams `config_partial`/`config_update` events while generating the config (18 event types in the
-bundle), auto-persists a draft, then emits `agent_saved`/`done` with the new agent id. The product's own Save also
+bundle), auto-persists a draft, then emits `agent_saved`/`done` with the new agent id.
+
+🔴 **The build can stop and ask** (live 2026-09-29). With `conversation_started.inlineQuestionsEnabled: true` (it was on
+the test account) the builder may stream `build_question {id, prompt, options[{value,label}], allowMultiple, …}` and
+`awaiting_input {count, sessionId}`, and the stream ENDS there — no `agent_saved`, no `done`, no agent saved. The UI
+answers by re-POSTing the build with `sessionId`, `answeredQuestions`, `skippedQuestionIds`. The same kind of prompt
+paused once and completed once. `create_studio_agent` treats `awaiting_input` as the end of the stream and fails with
+`STUDIO_BUILD_AWAITING_INPUT`, naming each question and its options, sending nothing further: put the answers in
+`buildPrompt` and create again. (A client that waits only for `agent_saved`/`done` sees an "incomplete stream" and
+loses the questions.) Any spec key the tool cannot apply (`folderId`, `templateId`, `customApiEnabled`…) is refused
+before the build. The product's own Save also
 creates with a full `config` (`POST /agent-studio/super-agent/agents`, table above); this engine does not use that
 path yet, and whether it works without a builder session is unproven.
 
 To land a fully-specified Super Agent, the real flow is:
 
 1. `POST /agent-studio/super-agents/build` with a descriptive `buildPrompt`.
-2. Parse the SSE stream for the `done`/`agent_saved` event → get the new `agentId`.
+2. Parse the SSE stream for the `done`/`agent_saved` event → get the new `agentId` (or `awaiting_input` → stop and ask the user).
 3. `compileSuperAgentUpdate(fullIr, {agentId, locationId})` → `PUT` the precise desired
    `systemPrompt`/`tools`/`triggers`/`knowledgeBaseIds`/`starterPrompts` as a full-replace.
 

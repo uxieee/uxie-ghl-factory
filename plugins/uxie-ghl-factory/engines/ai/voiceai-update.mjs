@@ -81,7 +81,35 @@ export const WRITABLE = new Set([
   'saveCallSummaryAsNote', 'sendUserIdleReminders', 'sttMode', 'timezone', 'vocabSpecialization', 'voiceId', 'voiceModel',
   'voiceSpeed', 'voiceTemperature', 'voiceVolume', 'voicemailOption', 'welcomeMessage', 'welcomeMessageMode',
   ...NESTED_WHOLE, 'sessionVariables', 's2sBehaviour', 'prompts', 'disabledPrompts',
+  // the builder's save sends these too (voiceAiApp 2cd393ea@118300–121361)
+  'languages', 'beginAfterUserSilenceMs', 'spamConfig',
 ]);
+
+// spamConfig { postCallAnalysis { enabled, blockThreshold, notifyModes admin|custom, notifyEmails } } — the after-call
+// spam block. Two levels deep, so postCallAnalysis is laid over the stored one and sent whole.
+const SPAM_KEYS = ['enabled', 'blockThreshold', 'notifyModes', 'notifyEmails'];
+export function compileSpamConfigUpdate(current, v) {
+  if (!isObj(v) || Object.keys(v).some((k) => k !== 'postCallAnalysis') || !isObj(v.postCallAnalysis)) {
+    throw new IRError('SCHEMA', 'spamConfig must be { postCallAnalysis: { enabled?, blockThreshold?, notifyModes?, notifyEmails? } }');
+  }
+  const other = Object.keys(v.postCallAnalysis).filter((k) => !SPAM_KEYS.includes(k));
+  if (other.length) throw new IRError('SPEC_KEY_UNAPPLIED', `spamConfig.postCallAnalysis.${other.join(', ')} is not a field (it takes ${SPAM_KEYS.join(', ')}). Nothing was sent.`);
+  const stored = readFlat(current, 'spamConfig')?.postCallAnalysis;
+  const p = { enabled: false, blockThreshold: 5, notifyModes: ['admin'], notifyEmails: [], ...(isObj(stored) ? stored : {}), ...v.postCallAnalysis };
+  if (typeof p.enabled !== 'boolean') throw new IRError('SCHEMA', 'spamConfig.postCallAnalysis.enabled must be a boolean');
+  if (typeof p.blockThreshold !== 'number') throw new IRError('SCHEMA', 'spamConfig.postCallAnalysis.blockThreshold must be a number');
+  if (!Array.isArray(p.notifyModes) || !p.notifyModes.length || p.notifyModes.some((m) => m !== 'admin' && m !== 'custom')) {
+    throw new IRError('SCHEMA', 'spamConfig.postCallAnalysis.notifyModes must be a non-empty array of admin, custom');
+  }
+  if (!Array.isArray(p.notifyEmails) || p.notifyEmails.some((e) => typeof e !== 'string' || !e.trim())) {
+    throw new IRError('SCHEMA', 'spamConfig.postCallAnalysis.notifyEmails must be an array of email addresses');
+  }
+  // as the builder saves it: its four keys only (the read adds notifyMode / notifyEnabled, which the builder never sends),
+  // emails only with the custom mode
+  const notifyModes = [...new Set(p.notifyModes)];
+  return { postCallAnalysis: { enabled: p.enabled, blockThreshold: p.blockThreshold, notifyModes,
+    notifyEmails: notifyModes.includes('custom') ? p.notifyEmails.map((e) => e.trim()) : [] } };
+}
 
 // Separate resources, or keys whose write lives elsewhere.
 const ELSEWHERE = {
@@ -94,6 +122,9 @@ const ELSEWHERE = {
   inboundNumber: 'numbers are assigned on the deploy screen (location-wide)', inboundNumbers: 'numbers are assigned on the deploy screen (location-wide)',
   inboundPhoneNumber: 'numbers are assigned on the deploy screen (location-wide)', numberPoolId: 'numbers are assigned on the deploy screen (location-wide)',
   provider: 'the provider changes only through the upgrade (switch-provider) path',
+  // Measured 2026-09-29 on a test agent: the builder save still sends patienceLevel, GHL answers 200 and stores it nowhere
+  // (absent from every read, create PUT and partial PUT alike). A write that changes nothing is refused.
+  patienceLevel: 'GHL accepts patienceLevel and stores nothing (a legacy control, measured 2026-09-29); tune responsiveness / interruptionSensitivity instead',
 };
 
 // Bounds the VOICE PROVIDER enforces after GHL has already stored the value (see the header). Refused here so the
@@ -238,6 +269,20 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
       body[k] = compileS2sBehaviour(current, v);
     } else if (k === 'sessionVariables') {
       body[k] = mergeSessionVariables(current.sessionVariables, v);
+    } else if (k === 'spamConfig') {
+      body[k] = compileSpamConfigUpdate(current, v);
+    } else if (k === 'languages') {
+      if (!Array.isArray(v) || !v.length || v.some((x) => typeof x !== 'string' || !x.trim())) {
+        throw new IRError('SCHEMA', 'languages must be a non-empty array of language codes (the builder\'s multi-select; it replaces the stored list)');
+      }
+      body[k] = [...v];
+    } else if (k === 'beginAfterUserSilenceMs') {
+      const mode = spec.welcomeMessageMode ?? readFlat(current, 'welcomeMessageMode');
+      if (mode !== 'user_first') {
+        throw new IRError('SPEC_KEY_UNAPPLIED', `beginAfterUserSilenceMs applies only with welcomeMessageMode "user_first" (the agent's is ${JSON.stringify(mode)}); send welcomeMessageMode with it. Nothing was sent.`);
+      }
+      if (typeof v !== 'number' || v < 0) throw new IRError('SCHEMA', 'beginAfterUserSilenceMs must be a non-negative number of milliseconds');
+      body[k] = v;
     } else {
       body[k] = v;
     }
@@ -334,6 +379,8 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
   const pick = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
   const got = (k) => {
     if (k === 's2sBehaviour') return pick(readFlat(after, k), Object.keys(plan.expected[k]));
+    // the read adds notifyMode / notifyEnabled beside the four keys sent: verify the four
+    if (k === 'spamConfig') return { postCallAnalysis: pick(readFlat(after, k)?.postCallAnalysis, Object.keys(plan.expected[k].postCallAnalysis)) };
     // a section sent as null is verified by its ABSENCE from the stored overrides
     if (k === 'prompts') return Object.fromEntries(Object.keys(plan.expected.prompts).map((s) => [s, after?.prompts?.[s] ?? null]));
     return readSet(after, k);

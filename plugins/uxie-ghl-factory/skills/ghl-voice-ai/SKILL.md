@@ -34,7 +34,7 @@ blueprint → approval → execute → verify). Recon = read the existing agents
 
 ## Knowledge
 
-- `references/voice-ai.md` — endpoints, the full-replace update, action payloads, the
+- `references/voice-ai.md` — endpoints, the create and update rails, action payloads, the
   compiler. **The proven subset, with the semantics.**
 - `search_endpoints` on the internal MCP — every `/voice-ai/*` route the corpus records,
   including ones this skill never exercises; `describe_endpoint` gives the exact `raw_request`.
@@ -117,7 +117,7 @@ Full set: `ai-agents/40-rules/constraints.md`.
 
 | Surface | Status |
 |---|---|
-| create → full-replace update → verify | **live-proven end-to-end.** `POST /voice-ai/agents` takes only `{locationId}` and returns an id; the follow-up `PUT …?publishAgent=true&mode=update` applies the config and the re-read confirms it |
+| create → builder-save PUT → verify | **live-proven end-to-end.** `POST /voice-ai/agents` takes `{locationId, folderId?}` and returns an id; the follow-up `PUT …?publishAgent=true&mode=update` applies the config and the re-read confirms it. Proven at create (2026-09-29): folder, `user_first` (+ fallback, silence ms), all three denoising modes, `languages[]`, session variables, `endCallConfig`, `spamConfig`, `disabledPrompts`; a speech-to-speech model switches the provider to `lc` and `s2sBehaviour` goes in a second PUT. `patienceLevel` is accepted by GHL and stored nowhere, so both tools refuse it. Unknown spec keys are refused before anything is sent |
 | `CALL_TRANSFER`, `DATA_EXTRACTION` | **live-fired** |
 | `WORKFLOW_TRIGGER` | **ran on a live call** (2026-09-28 web call: the tool fired mid-call and spoke its static `triggerMessage`) |
 | `SMS`, `APPOINTMENT_BOOKING`, `AGENT_TRANSFER_CHILD` | **created live by `create_voiceai_agent`** and read back (booking mints `GET_SLOTS` / `BOOK_SLOT`, the transfer mints its `AGENT_TRANSFER` root); not run on a call |

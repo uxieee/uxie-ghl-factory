@@ -50,8 +50,8 @@ test('bad voice.denoisingMode rejected', () => {
   assert.throws(() => parseVoiceAiIR(ir), (e) => e instanceof IRError && e.code === 'BAD_DENOISING_MODE');
 });
 
-test('denoisingMode enum matches captured values', () => {
-  assert.deepEqual(DENOISING_MODES, ['noise-cancellation']);
+test('denoisingMode enum is the server three (422 enum, 2026-09-28)', () => {
+  assert.deepEqual(DENOISING_MODES, ['no-denoise', 'noise-cancellation', 'noise-and-background-speech-cancellation']);
 });
 
 test('bad transcription.sttMode rejected', () => {
@@ -68,8 +68,8 @@ test('bad welcomeMessageMode rejected', () => {
   assert.throws(() => parseVoiceAiIR(ir), (e) => e instanceof IRError && e.code === 'BAD_WELCOME_MESSAGE_MODE');
 });
 
-test('welcomeMessageMode enum matches captured values', () => {
-  assert.deepEqual(WELCOME_MESSAGE_MODES, ['ai_custom']);
+test('welcomeMessageMode enum is the server two (422 enum, 2026-09-28)', () => {
+  assert.deepEqual(WELCOME_MESSAGE_MODES, ['ai_custom', 'user_first']);
 });
 
 test('verified action types cover all 7 captured voice-ai action types', () => {

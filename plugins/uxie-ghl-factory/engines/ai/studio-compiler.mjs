@@ -6,32 +6,23 @@
 // rail (Bearer JWT plus Firebase token-id); the caller owns no credential value.
 //
 // ============================================================================
-// Two entrypoints, because CREATE and UPDATE are fundamentally different shapes
+// Create = SSE build, then a config PUT
 // ============================================================================
-//   - compileSuperAgentCreate(...) -> POST /agent-studio/super-agents/build. Per
-//     studio-create.json, creation is an SSE natural-language "build" flow: the
-//     client sends a free-text prompt (`message`) and the server streams back
-//     `config_partial`/`config_update` events while an LLM (the "anton" builder
-//     runtime) generates the agent's config, then auto-persists it as a draft and
-//     emits `agent_saved`/`done` with the new agent id. There is NO way to POST a
-//     fully-specified config at create time — the request body only carries the
-//     prompt text, not systemPrompt/tools/triggers/etc. This compiler can therefore
-//     only build the create REQUEST (the SSE response is out of scope for a
-//     request-descriptor compiler, and the streaming protocol itself is undocumented
-//     per agent-studio-internal.md's "Open items" #3). To land a fully-specified
-//     agent, the caller must: issue this create request -> parse the SSE stream for
-//     the `done`/`agent_saved` event to learn the new agentId -> then call
-//     compileSuperAgentUpdate with the FULL desired IR against that agentId (the
-//     follow-up full-replace PUT is what actually sets systemPrompt, tools,
-//     triggers, knowledgeBaseIds, starterPrompts, etc. precisely).
-//   - compileSuperAgentUpdate(ir, opts) -> PUT
-//     /agent-studio/super-agent/agents/:agentId. FULL REPLACE (like Voice AI; unlike
-//     Conversation AI's merge) — "every request body observed contains the complete
-//     config... even when only ONE field changed in the UI" (agent-studio-internal.md).
-//     This compiler takes a FULL Super Agent IR and emits the complete `config`
-//     object every Save sends. There is no partial-update path (no parseSuperAgent
-//     PartialIR counterpart) — same reasoning as voiceai-compiler.mjs.
-import { parseSuperAgentIR, IRError } from './studio-ir.mjs';
+//   - compileSuperAgentCreate(...) -> POST /agent-studio/super-agents/build (SSE). The builder's full body is
+//     { message, locationId, context:{companyId}, mode:"fast", existingAgentId?, sessionId?, answeredQuestions?,
+//     skippedQuestionIds?, folderId?, folderName? } (superagentsApp 3b22@47053); this compiler sends the first four.
+//     The stream carries conversation_started {inlineQuestionsEnabled}, generating, config events, agent_saved {id},
+//     done — and, when the builder wants answers, build_question {id, prompt, options[{value,label}], allowMultiple}
+//     and awaiting_input {count, sessionId}, after which the build waits for a re-POST carrying answeredQuestions /
+//     skippedQuestionIds (316f@4990, 3b22@51800). driver.mjs stops on awaiting_input and names the questions; this
+//     tool does not answer them.
+//   - There are other create doors this tool does not use: a direct save POST /agent-studio/super-agent/agents
+//     {locationId, agencyId, builderSessionId, config, folderId?} (316f@6534) and POST
+//     /agent-studio/super-agent/agents/from-template {templateId, locationId, folderId?, folderName?} (316f@10170).
+//   - compileSuperAgentUpdate(ir, opts) -> PUT /agent-studio/super-agent/agents/:agentId with { locationId, config }.
+//     The builder sends the WHOLE config on every save, so this compiler emits the complete config from a full IR;
+//     the build's own generated config is replaced by it.
+import { parseSuperAgentIR, refuseUnappliedStudioKeys, IRError } from './studio-ir.mjs';
 
 export const AUTH_HEADER = 'ai';
 
@@ -58,7 +49,7 @@ const DEFAULTS = {
 };
 
 // The IR's singular `trigger` or its `triggers` array, mapped whole onto the wire's `triggers[]` (the
-// config is a full replace, so the caller supplies every trigger it wants on every call).
+// config is sent whole, so the caller supplies every trigger it wants on every call).
 function buildTriggers(norm) {
   const list = norm.trigger ? [norm.trigger] : Array.isArray(norm.triggers) ? norm.triggers : [];
   return list.map((t) => ({
@@ -106,11 +97,8 @@ function buildConfig(norm) {
   };
 }
 
-// PUT /agent-studio/super-agent/agents/:agentId — FULL REPLACE (see module header).
-// `ir` must be a complete Super Agent IR, not a partial one: this compiler has no
-// network access, so it cannot GET-then-merge — the caller is responsible for having
-// reconciled the IR with the server's current document before calling this (same
-// caveat as compileVoiceAiUpdate).
+// PUT /agent-studio/super-agent/agents/:agentId — the whole config, as the builder saves it (see module header).
+// `ir` must be a complete Super Agent IR: every config field it omits gets the default below.
 //
 // NOTE on body shape: studio-update.json's captured request_body is
 // `{ locationId, config }` — the agent id appears ONLY in the URL path, never
@@ -129,9 +117,8 @@ export function compileSuperAgentUpdate(ir, { agentId, locationId } = {}) {
 }
 
 // POST /agent-studio/super-agents/build — create via NL-prompt SSE (see module
-// header). Per studio-create.json, the body is JUST `{ message, locationId, context:
-// {companyId}, mode }`; there is no way to pass systemPrompt/tools/triggers/etc.
-// here. `buildPrompt` is the free-text instruction describing the agent to generate;
+// header). The build body carries no config: systemPrompt, tools, triggers etc. land in
+// the config PUT that follows. `buildPrompt` is the free-text instruction describing the agent to generate;
 // `name` (optional) is prefixed onto the message, mirroring the captured
 // "TEST-CAP-STUDIO: a test agent for..." pattern where the agent's intended name was
 // embedded in the NL prompt text itself, not sent as a separate field (there is no

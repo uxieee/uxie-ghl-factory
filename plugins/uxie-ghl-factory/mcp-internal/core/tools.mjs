@@ -113,8 +113,10 @@ import { makeFF } from '../../skills/ghl-workflow-fast-forward/engine/ff.mjs';
 import { GhlMembershipsApi } from '../../skills/ghl-memberships/engine/api.mjs';
 import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/engine/course-builder.mjs';
 import { compileConvaiAgent } from '../../engines/ai/convai-compiler.mjs';
-import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../engines/ai/voiceai-compiler.mjs';
+import { compileVoiceAiAgent, compileVoiceAiUpdate, compileVoiceAiS2sFollowUp } from '../../engines/ai/voiceai-compiler.mjs';
 import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/ai/studio-compiler.mjs';
+import { refuseUnappliedStudioKeys } from '../../engines/ai/studio-ir.mjs';
+import { IRError } from '../../engines/ai/convai-ir.mjs';
 import { executeAgentPlan, executeAgentUpdate, serverMessage } from '../../engines/ai/driver.mjs';
 import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from '../../engines/ai/voiceai-update.mjs';
 import { compileDeploymentIntent, executeDeployment, DEPLOY_PATH, CHANNELS } from '../../engines/ai/deployment.mjs';
@@ -570,6 +572,16 @@ function readProjectLintPack(state, locationId) {
   } catch { return null; }
 }
 
+// A spec the compiler refuses is reported the way the update tools report it: ENGINE_ABORT naming the IR code
+// (SPEC_KEY_UNAPPLIED, FULLPROMPT_OWNS_PROMPT, MISSING_FIELD, …), before anything is sent.
+function aiPlanOrRefusal(kind, args) {
+  try { return { plan: compileAiAgentPlan(kind, args) }; } catch (error) {
+    if (!(error instanceof IRError)) throw error;
+    return { refusal: withFailureData(fail(CODES.ENGINE_ABORT, `create rejected (${error.code}): ${error.message}`,
+      'The spec was rejected before any request was sent — nothing was created.'), { irCode: error.code }) };
+  }
+}
+
 export function compileAiAgentPlan(kind, args) {
   if (kind === 'convai') {
     const compiled = compileConvaiAgent(args.spec, { locationId: args.locationId });
@@ -580,13 +592,18 @@ export function compileAiAgentPlan(kind, args) {
   if (kind === 'voiceai') {
     const compiled = compileVoiceAiAgent(args.spec, { locationId: args.locationId });
     const update = compileVoiceAiUpdate(args.spec, { agentId: '{agentId}', locationId: args.locationId });
-    return { ...compiled, followUps: [update], verifyExpected: update.body };
+    // A speech-to-speech create sends s2sBehaviour in a second PUT, once the first has switched the provider to "lc".
+    const s2s = compileVoiceAiS2sFollowUp(args.spec, { agentId: '{agentId}', locationId: args.locationId });
+    const verifyExpected = { ...update.body, ...(s2s ? { s2sBehaviour: s2s.body.s2sBehaviour } : {}),
+      ...(compiled.create.body.folderId ? { folderId: compiled.create.body.folderId } : {}) };
+    return { ...compiled, followUps: s2s ? [update, s2s] : [update], verifyExpected };
   }
   // Two genuinely distinct roles: `buildPrompt` is the free-text instruction the AI
   // builds the agent from (SSE); `systemPrompt` is the exact prompt the follow-up PUT
   // overwrites with. But requiring BOTH — with an error naming whichever you omitted —
   // read as contradictory (live-caught 2026-07-21). Accept EITHER and derive the missing
   // one, so a single field just works; supplying both keeps their distinct roles.
+  refuseUnappliedStudioKeys(args.spec);
   const studioSpec = {
     ...args.spec,
     buildPrompt: args.spec?.buildPrompt ?? args.spec?.systemPrompt,
@@ -2246,7 +2263,19 @@ export const TOOLS = [
   },
   {
     name: 'create_convai_agent',
-    description: `${describe('create_convai_agent', 'Create Conversation AI agent')}. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_convai_agent', 'Create Conversation AI agent')}. POST the agent, then each action, then a verified re-read. `
+      + 'spec: name, mode (off|suggestive|auto-pilot), channels, and a prompt: fullPrompt (the current builder\'s one prompt, '
+      + '"## Personality … ## Goal … ## Instructions …"; the three fields go as "" and llm.primary defaults to gpt-4.1, as the builder '
+      + 'creates) OR goal/personality/instructions, never both. Also botType (PROMPT_BASED_BOT | FLOW_BUILDER_BOT), businessName, wait, '
+      + 'sleep, autoPilotMaxMessages, tones (flow), knowledgeBaseIds, knowledgeBaseTriggers [{mode custom|all, knowledgeBaseIds, '
+      + 'triggerCondition}] (≤4, priority renumbered), summary, respondToImages/Audio, responseLength, llm, cancelEnabled/rescheduleEnabled '
+      + '(FLOW bots only; on a prompt bot they belong on the appointmentBooking action), actions[] (humanHandOver, appointmentBooking '
+      + 'single|multiple (service: raw_request), triggerWorkflow, updateContactField, stopBot, transferBot, advancedFollowup). Refused before anything is '
+      + 'sent: any other spec key (SPEC_KEY_UNAPPLIED names where it lives: email settings, working hours, folders and form bots are '
+      + 'raw_request), isPrimary:true (the primary agent is location-wide; set it in the Conversation AI UI), a prompt bot with no prompt. '
+      + 'A flow bot is the agent shell only: build its workflow with build_workflow, then link it with update_convai_agent. Does not '
+      + 'deploy to a channel (set_agent_deployment). To change an existing agent use update_convai_agent. '
+      + 'Confirmation-gated: preview compiles a no-write plan.',
     inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'POST', path: '/ai-employees/employees' },
@@ -2254,7 +2283,8 @@ export const TOOLS = [
       { method: 'GET', path: '/ai-employees/employees/{agentId}' },
     ],
     handler: async (args, deps) => guard(async () => {
-      const plan = compileAiAgentPlan('convai', args);
+      const { plan, refusal } = aiPlanOrRefusal('convai', args);
+      if (refusal) return refusal;
       const preview = aiPlanPreview(plan);
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
@@ -2294,6 +2324,7 @@ export const TOOLS = [
       + 'personality/goal/instructions (live 2026-09-29). Pass spec.fullPrompt (the whole text; it switches the '
       + 'agent to fullPrompt for good). The three fields on such an agent, or with fullPrompt, refuse with '
       + 'FULLPROMPT_OWNS_PROMPT before any write, returning currentFullPrompt. The result names promptOwner. '
+      + 'cancelEnabled/rescheduleEnabled apply to a FLOW bot; on a prompt bot they are refused (set them on the appointmentBooking action). '
       + 'Previews by default; confirm:true writes.'),
     inputSchema: schema({
       locationId: z.string(),
@@ -2354,7 +2385,7 @@ export const TOOLS = [
   },
   {
     name: 'create_voiceai_agent',
-    description: `${describe('create_voiceai_agent', 'Create Voice AI agent')}. Live-proven end-to-end (create → full-replace update → verified). 🔴 Post-call defaults: unless spec.postCall says otherwise, every call summary is saved as a NOTE on the caller's contact (GHL default) and ALL admins get an email after every call — set postCall.saveCallSummaryAsNote:false and postCall.sendPostCallNotificationTo to change them; the preview names what applies. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_voiceai_agent', 'Create Voice AI agent')}. POST {locationId, folderId?}, then the builder's save PUT, then a verified re-read. spec (sections): agentName, agentPrompt, businessName, timezone, llmModel (a speech-to-speech model — gpt-realtime-2, gpt-realtime-2.1, gpt-live-1, gemini-3.1-flash-live-preview — makes GHL switch the provider to lc, and s2sBehaviour then goes in a second PUT), welcomeMessage, welcomeMessageMode ai_custom|user_first (+ userFirstFallback, beginAfterUserSilenceMs), folderId, voice{… denoisingMode no-denoise|noise-cancellation|noise-and-background-speech-cancellation}, behavior{}, transcription{}, callSettings{language, languages[], …}, postCall{}, outbound{voicemailOption, ivrOption, aiDisclaimerConfiguration}, knowledgeBase{}, translation{}, noResponseConfig{} (text models), prompts, disabledPrompts, sessionVariables, endCallConfig, spamConfig{postCallAnalysis}, actions[]. Any other key — flat names such as voiceId included, and phone numbers (the deploy screen's, location-wide) — is refused before anything is sent. To change an existing agent use update_voiceai_agent. 🔴 Post-call defaults: unless spec.postCall says otherwise, every call summary is saved as a NOTE on the caller's contact (GHL default) and ALL admins get an email after every call — set postCall.saveCallSummaryAsNote:false and postCall.sendPostCallNotificationTo to change them; the preview names what applies. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'POST', path: '/voice-ai/agents' },
@@ -2363,7 +2394,8 @@ export const TOOLS = [
       { method: 'GET', path: '/voice-ai/agents/{agentId}' },
     ],
     handler: async (args, deps) => guard(async () => {
-      const plan = compileAiAgentPlan('voiceai', args);
+      const { plan, refusal } = aiPlanOrRefusal('voiceai', args);
+      if (refusal) return refusal;
       const preview = { ...aiPlanPreview(plan), defaults: voiceDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
@@ -2391,6 +2423,8 @@ export const TOOLS = [
       + 'prompts {section: text|null} MERGES by section (null resets it to Default); GHL stores only personality, '
       + 'appointmentBooking, dateAndTimeAwareness, numericAndEmailHandling, emailConfirmationProcess (the hangup/spam '
       + 'prompts are endCallConfig). disabledPrompts replaces the list; an empty list is refused (clearing is unmeasured). '
+      + 'languages[] (the multi-select) is written flat; patienceLevel is refused (GHL stores nothing); spamConfig {postCallAnalysis} is merged over the stored one; '
+      + 'beginAfterUserSilenceMs only with welcomeMessageMode user_first. '
       + 'Refuses action arrays, numbers and unknown keys. '
       + 'A rename makes GHL rewrite the old name inside agentPrompt: reported as collateral.retemplated, not a failure. '
       + '🔴 A Test Audio call binds to the SIGNED-IN USER\'s own contact: on an agent that updates contact fields, saves '
@@ -2497,7 +2531,7 @@ export const TOOLS = [
   },
   {
     name: 'create_studio_agent',
-    description: `${describe('create_studio_agent', 'Create Agent Studio agent')}. Creates a Managed Agent (the UI's AI Agents → Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt — either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). 🔴 Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none — the preview names what applies. 🔴 A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. The agent is created as a draft (never published). Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_studio_agent', 'Create Agent Studio agent')}. Creates a Managed Agent (the UI's AI Agents → Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt — either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). 🔴 Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none — the preview names what applies. 🔴 A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. The agent is created as a draft (never published). Any other spec key (folderId, templateId, customApiEnabled…) is refused before the build, naming where it lives. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), companyId: z.string().optional(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'SSE', path: '/agent-studio/super-agents/build' },
@@ -2505,7 +2539,8 @@ export const TOOLS = [
       { method: 'GET', path: '/agent-studio/super-agent/agents/{agentId}' },
     ],
     handler: async (args, deps) => guard(async () => {
-      const plan = compileAiAgentPlan('studio', args);
+      const { plan, refusal } = aiPlanOrRefusal('studio', args);
+      if (refusal) return refusal;
       const preview = { ...aiPlanPreview(plan), defaults: studioDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
@@ -2527,6 +2562,17 @@ export const TOOLS = [
       }
       const report = await executeAgentPlan({ plan, gw });
       const data = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
+      if (report.awaitingInput) {
+        const q = report.awaitingInput.questions;
+        data.awaitingInput = report.awaitingInput;
+        return withFailureData(fail(report.code,
+          `The Managed Agent builder stopped to ask ${q.length} question(s) and is waiting for answers: `
+          + q.map((x) => `"${x.prompt}"${x.options.length ? ` (options: ${x.options.map((o) => o.label).join(' / ')}${x.moreOptions ? ' / …' : ''})` : ''}`).join('; ')
+          + '. Nothing after the build was sent: no config PUT, no verification.',
+          'This tool does not answer build questions. Put the answers in buildPrompt (name the calendar, form, pipeline… the '
+          + 'questions ask about) and create again'
+          + (report.agentId ? `; agent ${report.agentId} was already saved by the builder — inspect it before creating another.` : '; no agent was saved.')), data);
+      }
       return report.ok ? ok(data) : withFailureData(fail(report.code, 'Agent Studio creation did not complete and verify.',
         'This unproven SSE path may have partially created a canary. Inspect data.created and clean it up before retrying.'), data);
     }, args),

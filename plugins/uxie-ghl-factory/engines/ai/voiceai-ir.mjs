@@ -12,17 +12,27 @@
 import { IRError } from './convai-ir.mjs';
 export { IRError };
 
-// Only value ever observed live (voiceai-update-identity.json and
-// voiceai-update-behavior-transcription-voice.json both send this same string).
-// Not proven to be the only value the server accepts, but it's the only one this
-// engine can vouch for — same epistemic stance as convai-ir.mjs's MODES/CHANNELS.
-export const DENOISING_MODES = ['noise-cancellation'];
+// The server's enum, quoted from its 422 on the designated test sub-account (2026-09-28, nothing written on refusal):
+// no-denoise | noise-cancellation | noise-and-background-speech-cancellation. The builder offers the same three
+// (voiceAiApp a90e8b1f: NO_DENOISE / NOISE_CANCELLATION / NOISE_AND_BACKGROUND_SPEECH_CANCELLATION).
+export const DENOISING_MODES = ['no-denoise', 'noise-cancellation', 'noise-and-background-speech-cancellation'];
 
 // voice-ai-internal.md: "sttMode (`accurate`/`fast`/custom)".
 export const STT_MODES = ['accurate', 'fast', 'custom'];
 
-// Only value ever observed live, on both update captures.
-export const WELCOME_MESSAGE_MODES = ['ai_custom'];
+// The server's enum (422 "welcomeMessageMode must be one of: ai_custom | user_first", 2026-09-28). user_first waits for
+// the caller to speak; the builder then also sends userFirstFallback {enabled} and beginAfterUserSilenceMs (default 200)
+// (voiceAiApp 2cd393ea@120431).
+export const WELCOME_MESSAGE_MODES = ['ai_custom', 'user_first'];
+export const USER_FIRST_SILENCE_DEFAULT_MS = 200;
+
+// Speech-to-speech models: the builder's own set (voiceAiApp 2cd393ea, module 2835). Choosing one makes GHL switch the
+// agent's provider RETELL → "lc" (live 2026-09-28), and only such an agent carries s2sBehaviour.
+export const S2S_MODELS = ['gpt-realtime-2', 'gpt-realtime-2.1', 'gemini-3.1-flash-live-preview', 'gpt-live-1'];
+export const isS2sModel = (m) => typeof m === 'string' && S2S_MODELS.includes(m);
+
+// After-call spam blocking (spamConfig.postCallAnalysis), as the builder normalises it on save (2cd393ea@121361).
+export const SPAM_NOTIFY_MODES = ['admin', 'custom'];
 
 // CALL_TRANSFER was the first live-verified type (voiceai-action.json's captured POST
 // /voice-ai/actions call). The other 6 captured builder menu items — Trigger a workflow
@@ -109,6 +119,10 @@ function checkCallSettings(cs) {
   assertObject(cs, 'callSettings');
   assertNumberIfPresent(cs.maxCallDuration, 'callSettings.maxCallDuration');
   assertStringIfPresent(cs.language, 'callSettings.language');
+  if (cs.languages !== undefined && (!Array.isArray(cs.languages) || !cs.languages.length
+    || cs.languages.some((x) => typeof x !== 'string' || !x.trim()))) {
+    throw new IRError('SCHEMA', 'callSettings.languages must be a non-empty array of language codes (the builder\'s multi-select)');
+  }
   assertBooleanIfPresent(cs.sendUserIdleReminders, 'callSettings.sendUserIdleReminders');
   assertNumberIfPresent(cs.reminderAfterIdleTimeSeconds, 'callSettings.reminderAfterIdleTimeSeconds');
   assertNumberIfPresent(cs.reminderFrequency, 'callSettings.reminderFrequency');
@@ -128,7 +142,6 @@ function checkOutbound(ob) {
   if (ob === undefined) return;
   assertObject(ob, 'outbound');
   if (ob.aiDisclaimerConfiguration !== undefined) assertObject(ob.aiDisclaimerConfiguration, 'outbound.aiDisclaimerConfiguration');
-  assertArrayIfPresent(ob.inboundNumbers, 'outbound.inboundNumbers');
 }
 
 function checkKnowledgeBase(kb) {
@@ -169,23 +182,125 @@ function checkActions(actions) {
   }
 }
 
-// Full validation — required: agentName, agentPrompt (non-empty strings). Unlike
-// Conversation AI, Voice AI has NO partial-IR path: the PUT is full-replace (see
-// voice-ai-internal.md's "Merge semantics: FULL REPLACE" section), so both compiler
-// entrypoints (create and update) validate this same full shape — there is no
-// parseVoiceAiPartialIR counterpart to convai-ir.mjs's parseConvaiPartialIR.
+// THE KEYS create_voiceai_agent APPLIES, per section. Anything else is refused before a request is sent: the compiler
+// used to copy only the keys it knew, so a misspelt or unsupported key was dropped and the create still reported success.
+export const SECTION_KEYS = {
+  voice: ['voiceId', 'voiceModel', 'voiceSpeed', 'voiceVolume', 'voiceTemperature', 'normalizeForSpeech', 'ambientSoundVolume',
+    'enableDynamicVoiceSpeed', 'denoisingMode', 'backgroundSound'],
+  behavior: ['responsiveness', 'interruptionSensitivity', 'modelTemperature', 'enableBackchannel', 'backchannelFrequency',
+    'backchannelWords', 'enableDynamicResponsiveness'],
+  transcription: ['sttMode', 'customSttConfig', 'vocabSpecialization', 'boostedKeywords', 'pronunciationDictionary'],
+  callSettings: ['maxCallDuration', 'language', 'languages', 'sendUserIdleReminders', 'reminderAfterIdleTimeSeconds',
+    'reminderFrequency', 'endCallAfterSilenceMs', 'ringDurationSeconds'],
+  postCall: ['callEndWorkflowIds', 'sendPostCallNotificationTo', 'saveCallSummaryAsNote'],
+  outbound: ['voicemailOption', 'ivrOption', 'aiDisclaimerConfiguration'],
+  knowledgeBase: ['knowledgeBaseIds', 'knowledgeBasePrompt'],
+  translation: ['enabled', 'language'],
+  noResponseConfig: ['enabled', 'keywords'],
+};
+export const TOP_KEYS = ['agentName', 'agentPrompt', 'businessName', 'timezone', 'llmModel', 'welcomeMessage', 'welcomeMessageMode',
+  'userFirstFallback', 'beginAfterUserSilenceMs', 'beginMessageDelayMs', 'agentWorkingHours', ...Object.keys(SECTION_KEYS),
+  'advancedSettingsEnabled', 'isAgentAsBackupDisabled', 'actions', 'prompts', 'disabledPrompts', 'sessionVariables',
+  's2sBehaviour', 'endCallConfig', 'spamConfig', 'folderId'];
+const NUMBERS = 'numbers are assigned on the Voice AI deploy screen, which is location-wide; this tool does not assign them';
+const ELSEWHERE = {
+  provider: 'the provider follows llmModel (a speech-to-speech model makes GHL switch it to "lc")',
+  inboundPhoneNumber: NUMBERS, inboundNumbers: NUMBERS, numberPoolId: NUMBERS,
+  mcpServers: 'MCP servers are their own resource (/voice-ai/mcp/*)',
+  patienceLevel: 'GHL accepts patienceLevel and stores nothing (a legacy control the builder still sends; measured 2026-09-29)',
+};
+const WHERE = Object.fromEntries(Object.entries(SECTION_KEYS).flatMap(([sec, keys]) => keys.map((k) => [k, sec])));
+
+function refuseUnapplied(ir) {
+  const problems = [];
+  for (const k of Object.keys(ir)) {
+    if (TOP_KEYS.includes(k)) continue;
+    if (k in ELSEWHERE) problems.push(`${k}: ${ELSEWHERE[k]}`);
+    else if (k in WHERE) problems.push(`${k}: in create_voiceai_agent it is ${WHERE[k]}.${k}`);
+    else problems.push(`${k}: not a field this tool writes`);
+  }
+  for (const [sec, keys] of Object.entries(SECTION_KEYS)) {
+    const v = ir[sec];
+    if (!v || typeof v !== 'object' || Array.isArray(v)) continue;
+    for (const k of Object.keys(v)) {
+      if (keys.includes(k)) continue;
+      if (k in ELSEWHERE) problems.push(`${sec}.${k}: ${ELSEWHERE[k]}`);
+      else problems.push(`${sec}.${k}: not a field this tool writes (${sec} takes ${keys.join(', ')})`);
+    }
+  }
+  if (problems.length) {
+    throw new IRError('SPEC_KEY_UNAPPLIED', `create_voiceai_agent refuses spec key(s) it cannot apply, rather than creating an agent `
+      + `without them: ${problems.join('; ')}. Nothing was sent.`);
+  }
+}
+
+function checkWelcome(ir) {
+  if (ir.welcomeMessageMode !== undefined && !WELCOME_MESSAGE_MODES.includes(ir.welcomeMessageMode))
+    throw new IRError('BAD_WELCOME_MESSAGE_MODE', `welcomeMessageMode must be one of ${WELCOME_MESSAGE_MODES.join(', ')}, got: ${JSON.stringify(ir.welcomeMessageMode)}`);
+  const userFirst = ir.welcomeMessageMode === 'user_first';
+  for (const k of ['userFirstFallback', 'beginAfterUserSilenceMs']) {
+    if (ir[k] !== undefined && !userFirst) throw new IRError('SCHEMA', `${k} applies only with welcomeMessageMode "user_first" (the builder sends it only then)`);
+  }
+  if (ir.userFirstFallback !== undefined) {
+    assertObject(ir.userFirstFallback, 'userFirstFallback');
+    if (Object.keys(ir.userFirstFallback).some((k) => k !== 'enabled') || typeof ir.userFirstFallback.enabled !== 'boolean') {
+      throw new IRError('SCHEMA', 'userFirstFallback must be { enabled: boolean }');
+    }
+  }
+  if (ir.beginAfterUserSilenceMs !== undefined && (typeof ir.beginAfterUserSilenceMs !== 'number' || ir.beginAfterUserSilenceMs < 0)) {
+    throw new IRError('SCHEMA', 'beginAfterUserSilenceMs must be a non-negative number of milliseconds');
+  }
+}
+
+function checkEndCallConfig(v) {
+  if (v === undefined) return;
+  assertObject(v, 'endCallConfig');
+  const keys = ['instruction', 'spamDetectionEnabled', 'spamDetectionInstruction'];
+  const other = Object.keys(v).filter((k) => !keys.includes(k));
+  if (other.length) throw new IRError('SPEC_KEY_UNAPPLIED', `endCallConfig.${other.join(', ')} is not a field (endCallConfig takes ${keys.join(', ')})`);
+  assertStringIfPresent(v.instruction, 'endCallConfig.instruction');
+  assertBooleanIfPresent(v.spamDetectionEnabled, 'endCallConfig.spamDetectionEnabled');
+  assertStringIfPresent(v.spamDetectionInstruction, 'endCallConfig.spamDetectionInstruction');
+}
+
+function checkSpamConfig(v) {
+  if (v === undefined) return;
+  assertObject(v, 'spamConfig');
+  if (Object.keys(v).some((k) => k !== 'postCallAnalysis')) throw new IRError('SPEC_KEY_UNAPPLIED', 'spamConfig takes only postCallAnalysis');
+  const p = v.postCallAnalysis;
+  assertObject(p, 'spamConfig.postCallAnalysis');
+  const keys = ['enabled', 'blockThreshold', 'notifyModes', 'notifyEmails'];
+  const other = Object.keys(p).filter((k) => !keys.includes(k));
+  if (other.length) throw new IRError('SPEC_KEY_UNAPPLIED', `spamConfig.postCallAnalysis.${other.join(', ')} is not a field (it takes ${keys.join(', ')})`);
+  assertBooleanIfPresent(p.enabled, 'spamConfig.postCallAnalysis.enabled');
+  assertNumberIfPresent(p.blockThreshold, 'spamConfig.postCallAnalysis.blockThreshold');
+  if (p.notifyModes !== undefined && (!Array.isArray(p.notifyModes) || !p.notifyModes.length || p.notifyModes.some((m) => !SPAM_NOTIFY_MODES.includes(m)))) {
+    throw new IRError('SCHEMA', `spamConfig.postCallAnalysis.notifyModes must be a non-empty array of ${SPAM_NOTIFY_MODES.join(', ')}`);
+  }
+  if (p.notifyEmails !== undefined && (!Array.isArray(p.notifyEmails) || p.notifyEmails.some((e) => typeof e !== 'string' || !e.trim()))) {
+    throw new IRError('SCHEMA', 'spamConfig.postCallAnalysis.notifyEmails must be an array of email addresses');
+  }
+  if ((p.notifyEmails ?? []).length && !(p.notifyModes ?? []).includes('custom')) {
+    throw new IRError('SCHEMA', 'spamConfig.postCallAnalysis.notifyEmails needs notifyModes to include "custom" (the builder drops them otherwise)');
+  }
+}
+
+// Full validation — required: agentName, agentPrompt (non-empty strings). This is the create tool's IR; the create
+// sends it as one builder-save PUT after the POST. (The Voice AI PUT MERGES a partial body at the top level —
+// measured 2026-09-28 — and update_voiceai_agent uses that with its own flat spec, engines/ai/voiceai-update.mjs.)
 export function parseVoiceAiIR(ir) {
   if (!ir || typeof ir !== 'object') throw new IRError('SCHEMA', 'IR must be an object');
+  refuseUnapplied(ir);
   assertNonEmptyString(ir.agentName, 'agentName');
   assertNonEmptyString(ir.agentPrompt, 'agentPrompt');
   assertStringIfPresent(ir.businessName, 'businessName');
   assertStringIfPresent(ir.timezone, 'timezone');
   assertStringIfPresent(ir.llmModel, 'llmModel');
   assertStringIfPresent(ir.welcomeMessage, 'welcomeMessage');
-  if (ir.welcomeMessageMode !== undefined && !WELCOME_MESSAGE_MODES.includes(ir.welcomeMessageMode))
-    throw new IRError('BAD_WELCOME_MESSAGE_MODE', `welcomeMessageMode must be one of ${WELCOME_MESSAGE_MODES.join(', ')}, got: ${JSON.stringify(ir.welcomeMessageMode)}`);
+  checkWelcome(ir);
   assertNumberIfPresent(ir.beginMessageDelayMs, 'beginMessageDelayMs');
   assertArrayIfPresent(ir.agentWorkingHours, 'agentWorkingHours');
+  if (ir.folderId !== undefined && (typeof ir.folderId !== 'string' || !ir.folderId)) throw new IRError('SCHEMA', 'folderId must be a Voice AI folder id');
   checkVoice(ir.voice);
   checkBehavior(ir.behavior);
   checkTranscription(ir.transcription);
@@ -195,8 +310,18 @@ export function parseVoiceAiIR(ir) {
   checkKnowledgeBase(ir.knowledgeBase);
   checkTranslation(ir.translation);
   checkNoResponseConfig(ir.noResponseConfig);
+  checkEndCallConfig(ir.endCallConfig);
+  checkSpamConfig(ir.spamConfig);
   assertBooleanIfPresent(ir.advancedSettingsEnabled, 'advancedSettingsEnabled');
   assertBooleanIfPresent(ir.isAgentAsBackupDisabled, 'isAgentAsBackupDisabled');
+  const s2s = isS2sModel(ir.llmModel);
+  if (ir.s2sBehaviour !== undefined && !s2s) {
+    throw new IRError('SPEC_KEY_UNAPPLIED', `s2sBehaviour applies only to a speech-to-speech agent: llmModel must be one of `
+      + `${S2S_MODELS.join(', ')} (got ${JSON.stringify(ir.llmModel)}). Nothing was sent.`);
+  }
+  if (ir.noResponseConfig !== undefined && s2s) {
+    throw new IRError('SPEC_KEY_UNAPPLIED', 'noResponseConfig belongs to a Retell (text-model) agent; the builder never sends it for a speech-to-speech model. Nothing was sent.');
+  }
   checkActions(ir.actions);
   return { ...ir };
 }

@@ -309,9 +309,9 @@
     ]
   },
   "create_convai_agent": {
-    "description": "Create Conversation AI agent — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Create Conversation AI agent — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-convai-agent-create"
@@ -426,9 +426,9 @@
     ]
   },
   "create_studio_agent": {
-    "description": "Create Agent Studio agent — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Create Agent Studio agent — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-studio-agent-build"
@@ -462,9 +462,9 @@
     ]
   },
   "create_voiceai_agent": {
-    "description": "Create Voice AI agent — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Create Voice AI agent — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-voiceai-agent-create"
@@ -1897,9 +1897,9 @@
     ]
   },
   "update_convai_agent": {
-    "description": "Update a Conversation AI agent by read-merge-write — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Update a Conversation AI agent by read-merge-write — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "aiemployee-service--get-employee-by-id",
@@ -2122,9 +2122,9 @@
     ]
   },
   "update_voiceai_agent": {
-    "description": "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "ai-agents--voice-ai-agents-get",
