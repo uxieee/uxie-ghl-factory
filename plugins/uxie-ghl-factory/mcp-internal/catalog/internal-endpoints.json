@@ -27410,6 +27410,7 @@
         "duplicate_workflow",
         "edit_workflow",
         "export_workflow",
+        "find_workflows_using",
         "get_agent_message_trace",
         "get_contact_workflow_history",
         "get_workflow",
