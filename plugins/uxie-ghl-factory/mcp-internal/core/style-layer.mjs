@@ -7,6 +7,8 @@
 //
 // Pinned to the builder build it was measured on (STYLE_LAYER_SOURCE); test/style-layer.test.mjs fails when the captured
 // bundle moves past it.
+import { normalizeStyleValue } from './style-values.mjs';
+
 export const STYLE_LAYER_SOURCE = Object.freeze({ chunk: 'pageBuilder index.e1b163ff.js', measured: '2026-09-29' });
 
 export const PAGE_SCOPE = 'hl_page-preview--content';
@@ -108,7 +110,8 @@ export function nodeLayerCss(node, scope = PAGE_SCOPE) {
 export function storedMap(map) {
   if (map === undefined) return undefined;
   if (!map || typeof map !== 'object' || Array.isArray(map)) throw new Error('a style / wrapper map must be an object of {prop: number | string | {value, unit}}');
-  return Object.fromEntries(Object.entries(map).map(([k, v]) => [k, typeof v === 'number' ? { value: v, unit: 'px' } : typeof v === 'string' ? { value: v } : v]));
+  // a number is px (margins, paddings); a string with a unit is split ("16px" → {value:16, unit:"px"}), any other string is stored whole
+  return Object.fromEntries(Object.entries(map).map(([k, v]) => [k, typeof v === 'number' ? { value: v, unit: 'px' } : typeof v === 'string' ? normalizeStyleValue(k, v, 'wrapper / device map') : v]));
 }
 /** The per-device and wrapper maps a spec may carry (element or section), in the builder's node keys. */
 export const LAYER_SPEC_KEYS = Object.freeze(['wrapper', 'tabletStyles', 'mobileStyles', 'tabletWrapper', 'mobileWrapper']);

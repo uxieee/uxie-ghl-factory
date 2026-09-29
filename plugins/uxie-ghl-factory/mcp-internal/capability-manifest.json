@@ -1677,6 +1677,11 @@
   {
     "tool": "edit_redirects",
     "method": "GET",
+    "path": "/funnels/funnel/fetch/{id}"
+  },
+  {
+    "tool": "edit_redirects",
+    "method": "GET",
     "path": "/funnels/lookup/redirect/list"
   },
   {

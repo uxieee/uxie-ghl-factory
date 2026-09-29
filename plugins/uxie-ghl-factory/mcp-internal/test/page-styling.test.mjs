@@ -29,7 +29,7 @@ test('compose: a section takes styles, per-device maps, visibility, custom class
   const s = makeSection({ columns: [{ col, leaves: [leaf], widthPct: 100 }], salt: 'a', styles: { borderRadius: '12px' }, mobileStyles: { paddingTop: 10 },
     visibility: { hideTablet: true }, customClass: ['hero'], bgImage: { url: 'https://example.com/bg.png', options: 'bgContain' } });
   const m = s.metaData;
-  assert.deepEqual(m.styles.borderRadius, { value: '12px' });
+  assert.deepEqual(m.styles.borderRadius, { value: 12, unit: 'px' });
   assert.deepEqual(m.extra.visibility.value, { hideDesktop: false, hideTablet: true, hideMobile: false });
   assert.deepEqual(m.extra.customClass.value, ['hero']);
   assert.equal(m.extra.bgImage.value.url, 'https://example.com/bg.png');

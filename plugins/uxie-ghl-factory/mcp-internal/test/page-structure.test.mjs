@@ -89,7 +89,7 @@ test('set on a section writes its knobs, the classStr width and the inner rule; 
   const styled = applyPageEdits(pd, [{ op: 'set', nodeId: 'section-A', styles: { borderRadius: '8px' }, mobileStyles: { paddingTop: 10 }, visibility: { hideMobile: true } }]);
   assert.equal(styled.errors.length, 0);
   const sm = styled.pageData.sections[0].metaData;
-  assert.deepEqual([sm.styles.borderRadius, sm.mobileStyles.paddingTop, sm.extra.visibility.value.hideMobile], [{ value: '8px' }, { value: 10, unit: 'px' }, true]);
+  assert.deepEqual([sm.styles.borderRadius, sm.mobileStyles.paddingTop, sm.extra.visibility.value.hideMobile], [{ value: 8, unit: 'px' }, { value: 10, unit: 'px' }, true]);
   assert.match(styled.pageData.sections[0].general.sectionStyles, /\.section-A\{[^}]*border-radius:8px/);
   assert.match(styled.pageData.sections[0].general.sectionStyles, /@media screen and \(min-width:0px\) and \(max-width:767px\)\{\.hl_page-preview--content \.section-A\{padding-top:10px\}\}/);
   assert.ok(verifyEdits(styled.pageData, styled.report).every((v) => v.applied));
