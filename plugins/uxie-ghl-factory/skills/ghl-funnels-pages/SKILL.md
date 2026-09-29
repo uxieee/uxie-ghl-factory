@@ -63,7 +63,7 @@ winner archived; restorable).
 **`edit_funnel`** — one `op` per call, preview first, `confirm:true` writes and reads back:
 `settings` · `create-step` · `update-step` (rename / move path) · `reorder-steps` · `clone-step` ·
 `delete-step` (target check: id **and** current name) · `publish-page` / `unpublish-page` ·
-`add-header` · `split-test` (`add-variation` on a path you name and it pre-checks → `start`
+`add-header` / `edit-header` / `delete-header` · `add-event` / `edit-event` / `delete-event` (Meta pixel) · `split-test` (`add-variation` on a path you name and it pre-checks → `start`
 `{controlTraffic}` → `declare-winner` `{winnerPageId}`, which archives the other page) ·
 `delete-funnel` (target check: id **and** `expectName`; refused while any page still serves in public —
 unpublish first; the edge keeps serving a deleted page ~70 s). `update-step` also renames the step's

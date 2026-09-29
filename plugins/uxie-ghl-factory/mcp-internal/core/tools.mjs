@@ -23,7 +23,7 @@ import {
 import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
   needsLocationForSettings, domainChangeGuard, regexRedirectOn, settingsSideEffects,
-  planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader,
+  planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader, planEditHeader, planDeleteHeader, planAddEvent, planEditEvent, planDeleteEvent, readEvents,
   planDeleteFunnel, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
   readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS, planAddStepProduct, STEP_PRODUCT_NOTE, readStepProducts, stepProductView,
   CLONE_FUNNEL_NOTE, IMPORT_PAGE_NOTE, BILLING_FIELDS_NOTE, BILLING_ON_SAVE_NOTE, billingCheckouts,
@@ -12391,8 +12391,8 @@ export const TOOLS = [
       + 'checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) · create-step (refused without a '
       + 'domain) · update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, '
       + 'never retried) · reorder-steps (full permutation) · clone-step · delete-step (id AND name) · publish-page / '
-      + 'unpublish-page (routing only; content publishes via build_funnel_page publish:true) · add-header (exact-case '
-      + 'path only) · split-test add-variation | start | declare-winner · delete-funnel (id AND expectName; refused '
+      + 'unpublish-page (routing only; content publishes via build_funnel_page publish:true; redirect 404 | url | step) · add-header / '
+      + 'edit-header / delete-header (exact-case path only; delete needs the current value) · add-event / edit-event / delete-event (Meta pixel) · split-test add-variation | start | declare-winner · delete-funnel (id AND expectName; refused '
       + 'while a page serves) · clone-funnel {name} (this location; no domain, no paths) · archive-page / '
       + 'restore-page (restore mints a NEW path) · import-page · add-store (🔴 a builder save of the checkout creates '
       + '7 location-wide billing fields) · add-step-product {stepId, expectName, productId, priceId} (returns '
@@ -12404,7 +12404,7 @@ export const TOOLS = [
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
-      op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header', 'split-test', 'delete-funnel',
+      op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header', 'edit-header', 'delete-header', 'add-event', 'edit-event', 'delete-event', 'split-test', 'delete-funnel',
         'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store', 'add-step-product']),
       action: z.enum(['add-variation', 'start', 'declare-winner']).optional(),
       sourceFunnelId: z.string().optional(),
@@ -12421,8 +12421,11 @@ export const TOOLS = [
       expectName: z.string().optional(),
       order: z.array(z.string()).optional(),
       pageId: z.string().optional(),
-      redirect: z.object({ type: z.enum(['404', 'url']), url: z.string().optional() }).optional(),
-      header: z.object({ key: z.string(), value: z.string() }).optional(),
+      redirect: z.object({ type: z.enum(['404', 'url', 'step']), url: z.string().optional(), stepId: z.string().optional() }).optional(),
+      header: z.object({ key: z.string(), value: z.string().optional(), expectValue: z.string().optional() }).optional().describe('add-header / edit-header: key + value; delete-header: key + expectValue (its current value — headers have no id, so the target check is key AND value)'),
+      event: z.object({ eventId: z.string().optional(), expectPixelId: z.string().optional(), pixelId: z.string().optional(), level: z.enum(['funnel', 'page']).optional(), pageIds: z.array(z.string()).optional(),
+        events: z.array(z.enum(['page_view', 'view_content', 'initiate_checkout', 'add_payment_info', 'purchase'])).optional(), conversionApi: z.literal(false).optional() }).optional()
+        .describe('add-event: pixelId, level, events (+ pageIds for level page); the Conversions API stays off (its token is a credential — set it on the Events screen). edit-event / delete-event: eventId + expectPixelId (the target check); edit changes the rest; conversionApi:false turns the API off'),
       productId: z.string().optional(),
       priceId: z.string().optional(),
       displayText: z.string().optional(),
@@ -12446,6 +12449,13 @@ export const TOOLS = [
       { method: 'POST', path: '/funnels/funnel/delete-step' },
       { method: 'PUT', path: '/funnels/lookup/multiple' },
       { method: 'POST', path: '/funnels/funnel/headers' },
+      { method: 'PUT', path: '/funnels/funnel/headers' },
+      { method: 'POST', path: '/funnels/funnel/headers/delete' },
+      { method: 'GET', path: '/funnels/event' },
+      { method: 'POST', path: '/funnels/domain/invalidate-cache' },
+      { method: 'POST', path: '/funnels/event' },
+      { method: 'PATCH', path: '/funnels/event/{id}' },
+      { method: 'DELETE', path: '/funnels/event/{id}' },
       { method: 'POST', path: '/funnels/funnel/funnel-page/{pageId}' },
       { method: 'POST', path: '/funnels/funnel/delete' },
       { method: 'POST', path: '/funnels/funnel/clone-control-page/' },
@@ -12539,6 +12549,18 @@ export const TOOLS = [
             break;
           }
           case 'add-header': plan = need('header') ? { refuse: need('header') } : planAddHeader({ funnel, locationId: args.locationId, key: args.header.key, value: args.header.value }); break;
+          case 'edit-header': plan = need('header') ? { refuse: need('header') } : planEditHeader({ funnel, locationId: args.locationId, key: args.header.key, value: args.header.value }); break;
+          case 'delete-header': plan = need('header') ? { refuse: need('header') } : planDeleteHeader({ funnel, locationId: args.locationId, key: args.header.key, expectValue: args.header.expectValue }); break;
+          case 'add-event': case 'edit-event': case 'delete-event': {
+            if (need('event')) { plan = { refuse: need('event') }; break; }
+            const ev = await readEvents(gw, args.locationId, args.funnelId);
+            if (!ev.res.ok) return fromHttp(ev.res.status, ev.res.json);
+            if (args.op === 'add-event') plan = planAddEvent({ funnel, locationId: args.locationId, event: args.event, existing: ev.rows });
+            else if (!args.event.eventId) plan = { refuse: `${args.op} needs event.eventId and event.expectPixelId (read them with get_funnel view events)` };
+            else if (args.op === 'edit-event') plan = planEditEvent({ funnel, locationId: args.locationId, rows: ev.rows, eventId: args.event.eventId, expectPixelId: args.event.expectPixelId, event: args.event });
+            else plan = planDeleteEvent({ rows: ev.rows, eventId: args.event.eventId, expectPixelId: args.event.expectPixelId });
+            break;
+          }
           case 'delete-funnel': {
             const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);
             if (!lr.ok) return fromHttp(lr.status, lr.json);
@@ -12627,7 +12649,7 @@ export const TOOLS = [
         }
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was sent. Read the funnel with get_funnel and adjust the arguments.');
 
-        const preview = { op: args.op, ...(plan.steps ? { requests: plan.steps } : { request: { method: plan.method, path: plan.path, body: plan.body } }),
+        const preview = { op: args.op, ...(plan.steps ? { requests: plan.steps } : { request: { method: plan.method, path: plan.path, ...(plan.body ? { body: plan.body } : {}) } }),
           ...(plan.target ? { target: plan.target } : {}), ...(plan.rows ? { lookupRows: plan.rows } : {}), ...(plan.then ? { then: plan.then } : {}),
           ...(plan.notes ? { notes: plan.notes } : args.op === 'clone-funnel' ? { notes: [CLONE_FUNNEL_NOTE] } : args.op === 'import-page' ? { notes: [IMPORT_PAGE_NOTE] }
             : args.op === 'archive-page' ? { notes: ['GHL\'s modal calls this a permanent delete; the page is ARCHIVED and restore-page brings it back (on a new path).'] } : {}) };
@@ -12753,6 +12775,43 @@ export const TOOLS = [
             const headers = r.json?.securityHeaders ?? [];
             const out = { op: 'add-header', headers, note: `${EXACT_CASE_NOTE} The builder does not invalidate the cache on this save; the header can take minutes to appear on the exact path.` };
             if (!headers.some((h) => h.key === args.header.key && h.value === args.header.value)) return withFailureData(fail(CODES.VERIFY_FAILED, 'the header did not read back', 'Re-read with get_funnel view security.'), out);
+            return ok(out);
+          }
+          case 'edit-header':
+          case 'delete-header': {
+            const r = await gw.call('GET', `/funnels/funnel/headers?locationId=${encodeURIComponent(args.locationId)}&funnelId=${encodeURIComponent(fid)}`);
+            const headers = r.json?.securityHeaders ?? [];
+            const out = { op: args.op, target: plan.target, headers, note: `${EXACT_CASE_NOTE} The builder does not invalidate the cache on this save; a change can take minutes to show on the exact path.` };
+            const okRead = args.op === 'edit-header' ? headers.some((h) => h.key === plan.target.key && h.value === plan.target.to) : !headers.some((h) => h.key === plan.target.key);
+            if (!okRead) return withFailureData(fail(CODES.VERIFY_FAILED, `the header ${args.op === 'edit-header' ? 'edit' : 'delete'} did not read back`, 'Re-read with get_funnel view security.'), out);
+            return ok(out);
+          }
+          case 'add-event':
+          case 'edit-event':
+          case 'delete-event': {
+            // The Events screen calls POST /funnels/domain/invalidate-cache {event:"funnel_settings", domains, locationId} right after a save (wave1 capture);
+            // without it the public page kept serving the old pixel for 5+ minutes (measured 2026-09-30, wave38).
+            let cache = { called: false };
+            if (funnel.domainId) {
+              const dl = await gw.call('GET', `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              const dom = (dl.json?.domains ?? dl.json?.data ?? []).find((x) => (x.id ?? x._id) === funnel.domainId);
+              if (dom?.url) { const ic = await gw.call('POST', '/funnels/domain/invalidate-cache', { event: 'funnel_settings', domains: [dom.url], locationId: args.locationId }); cache = { called: true, domain: dom.url, status: ic.status, ok: ic.ok }; }
+            }
+            const back = await reread(async () => (await readEvents(gw, args.locationId, fid)).rows, (rows) => {
+              if (args.op === 'delete-event') return !rows.some((r) => (r._id ?? r.id) === plan.target.eventId);
+              const b = plan.body;
+              const id = args.op === 'edit-event' ? plan.target.eventId : plan.response?._id;
+              const r = rows.find((x) => (x._id ?? x.id) === id);
+              return !!r && r.pixelId === b.pixelId && r.level === b.level && r.conversionEnabled === b.conversionEnabled && JSON.stringify([...r.events].sort()) === JSON.stringify([...b.events].sort()) && JSON.stringify(r.pageIds ?? []) === JSON.stringify(b.pageIds ?? []);
+            }, deps.rereadOptions ?? {});
+            const rows = back.value ?? [];
+            const id = args.op === 'add-event' ? plan.response?._id : plan.target.eventId;
+            const row = rows.find((x) => (x._id ?? x.id) === id) ?? null;
+            const out = { op: args.op, ...(plan.target ? { target: plan.target } : {}), event: row ? { eventId: row._id ?? row.id, pixelId: row.pixelId, level: row.level, pageIds: row.pageIds, events: row.events, conversionApi: row.conversionEnabled } : null,
+              cache, note: 'The cache is invalidated the way the Events screen does it; the public page can still take a moment to show the change.' };
+            const good = args.op === 'delete-event' ? !row : !!row && back.attempts > 0;
+            const changed = args.op === 'delete-event' ? !row : (row && row.pixelId === plan.body.pixelId && JSON.stringify([...row.events].sort()) === JSON.stringify([...plan.body.events].sort()) && row.level === plan.body.level && row.conversionEnabled === plan.body.conversionEnabled);
+            if (!good || !changed) return withFailureData(fail(CODES.VERIFY_FAILED, `the event ${args.op.split('-')[0]} did not read back`, 'Re-read with get_funnel view events before retrying — do not add twice.'), out);
             return ok(out);
           }
           case 'delete-funnel': {
