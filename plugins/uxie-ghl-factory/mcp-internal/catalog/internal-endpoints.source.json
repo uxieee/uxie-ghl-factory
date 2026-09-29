@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-29T03:19:50.523Z",
+      "capturedAt": "2026-09-29T03:40:00.670Z",
       "hash": "corpus",
-      "fileCount": 1270,
-      "endpoints": 1270
+      "fileCount": 1273,
+      "endpoints": 1273
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1766,
+  "discoveredCallSites": 1769,
   "skippedCallSites": 714,
-  "count": 1542,
+  "count": 1543,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -36943,8 +36943,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:88",
-        "pipelines-opportunities/20-api/bulk-actions.md:94"
+        "pipelines-opportunities/20-api/bulk-actions.md:122",
+        "pipelines-opportunities/20-api/bulk-actions.md:128"
       ],
       "serviceBasis": "declared"
     },
@@ -36970,7 +36970,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:99"
+        "pipelines-opportunities/20-api/bulk-actions.md:133"
       ],
       "serviceBasis": "declared"
     },
@@ -36996,7 +36996,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:57"
+        "pipelines-opportunities/20-api/bulk-actions.md:91"
       ],
       "serviceBasis": "declared"
     },
@@ -37048,9 +37048,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:56"
+        "pipelines-opportunities/20-api/bulk-actions.md:90",
+        "pipelines-opportunities/20-api/bulk-actions.md:74"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "declared",
+      "aka": [
+        "/bulk-actions/request/{id}"
+      ]
     },
     {
       "id": "pipelines-opportunities--request-fetch",
@@ -37074,7 +37078,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:55"
+        "pipelines-opportunities/20-api/bulk-actions.md:89"
       ],
       "serviceBasis": "declared"
     },
@@ -37100,7 +37104,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:68"
+        "pipelines-opportunities/20-api/bulk-actions.md:102"
       ],
       "serviceBasis": "declared"
     },
@@ -47796,7 +47800,44 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/settings.md:81"
+        "pipelines-opportunities/20-api/settings.md:81",
+        "pipelines-opportunities/20-api/settings.md:102"
+      ],
+      "serviceBasis": "declared",
+      "aka": [
+        "/objects/{schemaId}"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--objects-opportunity",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/objects/opportunity",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/settings.md:101"
       ],
       "serviceBasis": "declared"
     },
@@ -47928,6 +47969,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "pipelines-opportunities/20-api/forecast.md:115",
         "pipelines-opportunities/20-api/opportunities.md:132",
         "pipelines-opportunities/20-api/opportunities.md:154",
         "pipelines-opportunities/20-api/opportunities.md:316"
@@ -48008,7 +48050,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:77",
+        "pipelines-opportunities/20-api/bulk-actions.md:111",
         "pipelines-opportunities/20-api/opportunities.md:234"
       ],
       "serviceBasis": "declared"
@@ -48190,7 +48232,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:156",
+        "pipelines-opportunities/20-api/forecast.md:168",
         "pipelines-opportunities/20-api/pipelines.md:42"
       ],
       "serviceBasis": "declared"
@@ -48217,7 +48259,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:168",
+        "pipelines-opportunities/20-api/forecast.md:180",
         "pipelines-opportunities/20-api/pipelines.md:43",
         "pipelines-opportunities/20-api/pipelines.md:169"
       ],
@@ -48252,8 +48294,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:164",
-        "pipelines-opportunities/20-api/forecast.md:178"
+        "pipelines-opportunities/20-api/forecast.md:176",
+        "pipelines-opportunities/20-api/forecast.md:190"
       ],
       "serviceBasis": "declared"
     },
@@ -48286,7 +48328,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:157"
+        "pipelines-opportunities/20-api/forecast.md:169"
       ],
       "serviceBasis": "declared"
     },
@@ -48312,7 +48354,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:177"
+        "pipelines-opportunities/20-api/forecast.md:189"
       ],
       "serviceBasis": "declared"
     },
@@ -48636,7 +48678,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:158",
+        "pipelines-opportunities/20-api/forecast.md:170",
         "pipelines-opportunities/20-api/pipelines.md:39"
       ],
       "serviceBasis": "declared"
@@ -48664,7 +48706,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/forecast.md:15",
-        "pipelines-opportunities/20-api/forecast.md:122",
+        "pipelines-opportunities/20-api/forecast.md:134",
         "pipelines-opportunities/20-api/opportunities.md:32"
       ],
       "serviceBasis": "declared"

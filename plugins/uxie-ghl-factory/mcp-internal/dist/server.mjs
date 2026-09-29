@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1551,
+      count: 1552,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -46669,8 +46669,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:88",
-            "pipelines-opportunities/20-api/bulk-actions.md:94"
+            "pipelines-opportunities/20-api/bulk-actions.md:122",
+            "pipelines-opportunities/20-api/bulk-actions.md:128"
           ]
         },
         {
@@ -46701,7 +46701,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:99"
+            "pipelines-opportunities/20-api/bulk-actions.md:133"
           ]
         },
         {
@@ -46732,7 +46732,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:57"
+            "pipelines-opportunities/20-api/bulk-actions.md:91"
           ]
         },
         {
@@ -46768,6 +46768,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "pipelines-opportunities--bulk-actions-request-get",
+          aka: [
+            "/bulk-actions/request/{id}"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/bulk-actions/request/{bulkRequestId}",
           path: "/bulk-actions/request/{bulkRequestId}",
@@ -46798,7 +46801,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:56"
+            "pipelines-opportunities/20-api/bulk-actions.md:90",
+            "pipelines-opportunities/20-api/bulk-actions.md:74"
           ]
         },
         {
@@ -46829,7 +46833,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:55"
+            "pipelines-opportunities/20-api/bulk-actions.md:89"
           ]
         },
         {
@@ -46864,7 +46868,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:68"
+            "pipelines-opportunities/20-api/bulk-actions.md:102"
           ]
         },
         {
@@ -60353,6 +60357,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "pipelines-opportunities--objects",
+          aka: [
+            "/objects/{schemaId}"
+          ],
           method: "PUT",
           url: "https://services.leadconnectorhq.com/objects/{objectKey}",
           path: "/objects/{objectKey}",
@@ -60383,7 +60390,46 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/settings.md:81"
+            "pipelines-opportunities/20-api/settings.md:81",
+            "pipelines-opportunities/20-api/settings.md:102"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--objects-opportunity",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/objects/opportunity",
+          path: "/objects/opportunity",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/settings.md:101"
           ]
         },
         {
@@ -60568,6 +60614,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "pipelines-opportunities/20-api/forecast.md:115",
             "pipelines-opportunities/20-api/opportunities.md:132",
             "pipelines-opportunities/20-api/opportunities.md:154",
             "pipelines-opportunities/20-api/opportunities.md:316"
@@ -60679,7 +60726,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:77",
+            "pipelines-opportunities/20-api/bulk-actions.md:111",
             "pipelines-opportunities/20-api/opportunities.md:234"
           ]
         },
@@ -60911,7 +60958,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:156",
+            "pipelines-opportunities/20-api/forecast.md:168",
             "pipelines-opportunities/20-api/pipelines.md:42"
           ]
         },
@@ -60947,7 +60994,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:168",
+            "pipelines-opportunities/20-api/forecast.md:180",
             "pipelines-opportunities/20-api/pipelines.md:43",
             "pipelines-opportunities/20-api/pipelines.md:169"
           ]
@@ -60991,8 +61038,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:164",
-            "pipelines-opportunities/20-api/forecast.md:178"
+            "pipelines-opportunities/20-api/forecast.md:176",
+            "pipelines-opportunities/20-api/forecast.md:190"
           ]
         },
         {
@@ -61038,7 +61085,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:157"
+            "pipelines-opportunities/20-api/forecast.md:169"
           ]
         },
         {
@@ -61073,7 +61120,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:177"
+            "pipelines-opportunities/20-api/forecast.md:189"
           ]
         },
         {
@@ -61523,7 +61570,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:158",
+            "pipelines-opportunities/20-api/forecast.md:170",
             "pipelines-opportunities/20-api/pipelines.md:39"
           ]
         },
@@ -61563,7 +61610,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/forecast.md:15",
-            "pipelines-opportunities/20-api/forecast.md:122",
+            "pipelines-opportunities/20-api/forecast.md:134",
             "pipelines-opportunities/20-api/opportunities.md:32"
           ]
         },
@@ -109898,6 +109945,4109 @@ var KIND_DEFAULT_EXTRA = Object.freeze({
   }
 });
 
+// core/kind-builder-defaults.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var KIND_BUILDER_EXTRA = Object.freeze({
+  "heading": {
+    "mobileFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "sub-heading": {
+    "mobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "paragraph": {
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "rich-text": {
+    "itemSpacing": {
+      "value": 0,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "bulletList": {
+    "itemSpacing": {
+      "value": 0,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "icon": {
+      "value": {
+        "unicode": "f058",
+        "name": "check-circle",
+        "fontFamily": "Font Awesome 5 Free"
+      }
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "button": {
+    "subText": {
+      "value": ""
+    },
+    "mobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "iconStart": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    },
+    "iconEnd": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "productId": {
+      "value": ""
+    },
+    "storeProductId": {
+      "value": ""
+    },
+    "storeProductPriceId": {
+      "value": "all"
+    },
+    "storeCollectionId": {
+      "value": ""
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "popupId": {
+      "value": ""
+    }
+  },
+  "form": {
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    }
+  },
+  "survey": {
+    "surveyId": {
+      "value": ""
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    }
+  },
+  "calendar": {
+    "calendarId": {
+      "value": ""
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    }
+  },
+  "video": {
+    "playBackControls": {
+      "autoplay": true,
+      "allowPlayPause": false,
+      "playBackSpeed": false,
+      "showPendingTime": false,
+      "showProgressBar": true,
+      "showFullScreenToggle": true,
+      "loop": false
+    },
+    "leadVideoOptions": {
+      "isLeadGenVideo": false,
+      "isVideoPlayAllowed": false,
+      "timeStamp": 0,
+      "formElement": null
+    },
+    "checkStep": {
+      "checkStep": false,
+      "step": {}
+    }
+  },
+  "image": {
+    "imageActions": {
+      "value": "none"
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "popupId": {
+      "value": ""
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "custom-code": {
+    "customCode": {
+      "value": ""
+    }
+  },
+  "divider": {
+    "dividerProperties": {
+      "value": {
+        "width": "100%",
+        "height": "1px",
+        "borderStyle": "solid",
+        "align": "center",
+        "color": "var(--gray)"
+      }
+    }
+  },
+  "countdown": {
+    "useWebinarSettings": {
+      "value": false
+    },
+    "timerType": {
+      "value": "countdown",
+      "disabled": true
+    },
+    "startTime": {
+      "value": "00:00"
+    },
+    "timerLoop": {
+      "value": 0
+    },
+    "timerDuration": {
+      "value": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    "timerTrigger": {
+      "value": "",
+      "disabled": true
+    },
+    "endTime": {
+      "value": "00:00"
+    },
+    "translate": {
+      "value": "English"
+    },
+    "expireAction": {
+      "value": "url"
+    },
+    "webinarExpireAction": {
+      "value": "url"
+    },
+    "redirectUrl": {
+      "value": "#"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "timezone": {
+      "value": "America/New_York"
+    },
+    "countdownTimerId": {
+      "value": ""
+    },
+    "mobileFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    }
+  },
+  "marketing-countdown": {
+    "timerType": {
+      "value": "countdown",
+      "disabled": true
+    },
+    "startTime": {
+      "value": "00:00"
+    },
+    "timerLoop": {
+      "value": 0
+    },
+    "timerDuration": {
+      "value": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    "timerTrigger": {
+      "value": "",
+      "disabled": true
+    },
+    "endTime": {
+      "value": "00:00"
+    },
+    "expireAction": {
+      "value": "url"
+    },
+    "redirectUrl": {
+      "value": "#"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "timezone": {
+      "value": "America/New_York"
+    },
+    "countdownTimerId": {
+      "value": ""
+    }
+  },
+  "minute-timer": {
+    "hours": {
+      "value": 0
+    },
+    "minutes": {
+      "value": 45
+    },
+    "seconds": {
+      "value": 0
+    },
+    "translate": {
+      "value": "English"
+    },
+    "expireAction": {
+      "value": "url"
+    },
+    "redirectUrl": {
+      "value": "#"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "timezone": {
+      "value": "America/New_York"
+    },
+    "revisitAction": {
+      "value": "auto-expire-x-day"
+    },
+    "showElementsOnRevisit": {
+      "value": []
+    },
+    "cookieDate": {
+      "value": "30"
+    },
+    "mobileFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    }
+  },
+  "day-timer": {
+    "endTime": {
+      "value": "00:00"
+    },
+    "expireAction": {
+      "value": "url"
+    },
+    "redirectUrl": {
+      "value": "#"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "timezone": {
+      "value": "America/New_York"
+    },
+    "mobileFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    }
+  },
+  "two-setp-order": {
+    "activeMode": {
+      "value": "step1"
+    },
+    "step1": {
+      "value": {
+        "shippingHeadline": "Shipping",
+        "headline": "Shipping",
+        "subHeadline": "Where Should We Ship It?",
+        "fullName": "Full Name...",
+        "companyName": "Company Name..",
+        "email": "Email Address...",
+        "phone": "Phone Number...",
+        "searchAddress": "Search",
+        "address": "Street Address...",
+        "city": "City Name...",
+        "state": "State / Province...",
+        "zipCode": "Zip Code...",
+        "btnText": "Go To Step #2",
+        "btnSubText": "",
+        "footerText": "We Respect Your Privacy & Information.",
+        "showPhone": true,
+        "showShipping": true,
+        "showCompanyName": "mandatory",
+        "enableCountryPicker": false,
+        "fullNameValidation": true,
+        "enableAutoCompleteAddress": true
+      }
+    },
+    "step2": {
+      "value": {
+        "headline": "Your info",
+        "subHeadline": "Upgrade Your Order & Save!",
+        "itemText": "Item",
+        "priceText": "Price",
+        "summaryItemText": "Item",
+        "summaryPriceText": "amount",
+        "btnText": "Complete Order",
+        "btnSubText": "",
+        "footerText": "* 100% Secure & Safe Payments *",
+        "linkText": "Edit Shipping Details",
+        "enableMultiProductSelect": true,
+        "enableMainProductDescription": false,
+        "enableProductDescription": true,
+        "showOrderBump": true,
+        "enableCouponCodes": true,
+        "btnIcon": "fas fa-shopping-cart",
+        "stripeLayout": "classic",
+        "enablePostalCode": false
+      }
+    },
+    "enableMultiProductSelect": {
+      "value": true
+    },
+    "enableMainProductDescription": {
+      "value": false
+    },
+    "enableProductDescription": {
+      "value": true
+    },
+    "showOrderBump": {
+      "value": false
+    },
+    "enableCouponCodes": {
+      "value": true
+    },
+    "stickyContact": {
+      "value": false
+    },
+    "forceContactCreate": {
+      "value": false
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    },
+    "validateEmail": {
+      "value": false
+    }
+  },
+  "one-step-order": {
+    "step1": {
+      "value": {
+        "shippingHeadline": "Shipping",
+        "paymentHeadline": "Payment",
+        "headline": "Shipping & Your Info",
+        "subHeadline": "Upgrade Your Order & Save!",
+        "fullName": "Full Name...",
+        "companyName": "Company Name..",
+        "email": "Email Address...",
+        "phone": "Phone Number...",
+        "searchAddress": "Search",
+        "address": "Street Address...",
+        "city": "City Name...",
+        "state": "State / Province...",
+        "zipCode": "Zip Code...",
+        "showPhone": true,
+        "fullNameValidation": true,
+        "showShipping": true,
+        "showCompanyName": "mandatory",
+        "itemText": "Item",
+        "priceText": "Price",
+        "summaryItemText": "Item",
+        "summaryPriceText": "amount",
+        "btnText": "Complete Order",
+        "btnSubText": "",
+        "footerText": "* 100% Secure & Safe Payments *",
+        "linkText": "Edit Shipping Details",
+        "enableMultiProductSelect": true,
+        "enableMainProductDescription": false,
+        "enableProductDescription": true,
+        "showOrderBump": true,
+        "enableCouponCodes": true,
+        "btnIcon": "fas fa-shopping-cart",
+        "stripeLayout": "classic",
+        "enablePostalCode": false,
+        "enableCountryPicker": false,
+        "enableAutoCompleteAddress": true
+      }
+    },
+    "enableMultiProductSelect": {
+      "value": true
+    },
+    "enableMainProductDescription": {
+      "value": false
+    },
+    "enableProductDescription": {
+      "value": true
+    },
+    "showOrderBump": {
+      "value": false
+    },
+    "enableCouponCodes": {
+      "value": true
+    },
+    "stickyContact": {
+      "value": false
+    },
+    "forceContactCreate": {
+      "value": false
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    },
+    "validateEmail": {
+      "value": false
+    }
+  },
+  "nav-menu": {
+    "showCartIcon": {
+      "value": true
+    },
+    "showSearchbar": {
+      "value": false
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "bars",
+        "unicode": "f0c9",
+        "fontFamily": "Font Awesome 5 Free",
+        "color": "var(--black)"
+      }
+    },
+    "includeLogoInMenu": {
+      "value": true
+    },
+    "imageActions": {
+      "value": "none"
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    },
+    "includeHeadlineInMenu": {
+      "value": true
+    },
+    "menuLayout": {
+      "value": "default"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    }
+  },
+  "nav-menu-v2": {
+    "enableCustomerLogin": {
+      "value": false
+    },
+    "imageActions": {
+      "value": "none"
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    },
+    "popupId": {
+      "value": ""
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "elementVersion": {
+      "value": 2
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "includeLogoInMenu": {
+      "value": true
+    },
+    "includeHeadlineInMenu": {
+      "value": true
+    },
+    "menuLayout": {
+      "value": "default"
+    },
+    "menuWrap": {
+      "value": "nowrap"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "bars",
+        "unicode": "f0c9",
+        "fontFamily": "Font Awesome 5 Free",
+        "color": "var(--black)"
+      }
+    },
+    "iconEnd": {
+      "value": {
+        "name": "chevron-down",
+        "unicode": "f078",
+        "fontFamily": "Font Awesome 5 Free",
+        "color": "var(--black)"
+      }
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "showCartIcon": {
+      "value": true
+    },
+    "showSearchbar": {
+      "value": false
+    }
+  },
+  "map": {
+    "mapScale": {
+      "value": true
+    },
+    "mapMarkerColor": {
+      "value": "var(--red)"
+    },
+    "mapType": {
+      "value": "roadmap"
+    },
+    "mapWidth": {
+      "value": 550
+    },
+    "mapHeight": {
+      "value": 300
+    },
+    "newTab": {
+      "value": false
+    }
+  },
+  "svg": {
+    "svgImageActions": {
+      "value": "none"
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    },
+    "popupId": {
+      "value": ""
+    }
+  },
+  "image-feature": {
+    "inlineTypographies": {
+      "value": []
+    },
+    "imageActions": {
+      "value": "none"
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "featureImageShadow": {
+      "value": "img-shadow-none"
+    },
+    "featureImageEffects": {
+      "value": "img-effects-none"
+    },
+    "icon": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "popupId": {
+      "value": ""
+    }
+  },
+  "order-confirmation": {
+    "desktopFontSize": {
+      "value": 20,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 20,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 15,
+      "unit": "px"
+    }
+  },
+  "faq": {
+    "faqType": {
+      "value": "separated"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "faqCustomOptions": {
+      "value": {
+        "openIcon": {
+          "color": "var(--black)",
+          "fontFamily": "Font Awesome 5 Free",
+          "name": "chevron-down",
+          "unicode": "f078"
+        },
+        "closeIcon": {
+          "color": "var(--black)",
+          "fontFamily": "Font Awesome 5 Free",
+          "name": "chevron-up",
+          "unicode": "f077"
+        },
+        "iconPosition": "right",
+        "lineHeight": "1.5",
+        "showImagePopup": true,
+        "expandAllToggle": false,
+        "expandAll": true,
+        "firstItemOpen": false
+      }
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "blog": {
+    "blogType": {
+      "value": "standard",
+      "column": 2,
+      "layoutStyle": "classic",
+      "postsPerPage": 12,
+      "sortBy": "recent-post",
+      "useSampleData": false
+    },
+    "blogFilter": {
+      "filter": null,
+      "blogId": null,
+      "isDefaultBlog": false,
+      "blogsData": null
+    },
+    "blogCategories": {
+      "value": []
+    },
+    "blogAuthor": {
+      "value": []
+    },
+    "buttonText": {
+      "value": "More stories"
+    },
+    "paginationOverride": {
+      "value": 6,
+      "min": 0
+    },
+    "compression": {
+      "value": true
+    }
+  },
+  "blog-post": {
+    "blogType": {
+      "value": "standard",
+      "column": 2,
+      "layoutStyle": "classic",
+      "postsPerPage": 12,
+      "sortBy": "recent-post",
+      "useSampleData": false
+    },
+    "blogCategories": {
+      "value": []
+    },
+    "blogAuthor": {
+      "value": []
+    },
+    "blogShowOption": {
+      "value": [
+        "image",
+        "author",
+        "tags",
+        "title",
+        "publishDate",
+        "description"
+      ]
+    },
+    "compression": {
+      "value": true
+    }
+  },
+  "blog-content": {
+    "blogAuthorLayout": {
+      "value": "classic"
+    },
+    "blogContentShowOption": {
+      "value": [
+        "photo",
+        "social",
+        "name",
+        "role",
+        "description"
+      ]
+    },
+    "blogShowTagLinks": {
+      "value": true
+    }
+  },
+  "category-navigation": {
+    "includeSearchBar": {
+      "placeholder": "Search",
+      "value": true
+    },
+    "blogShowHome": {
+      "value": true
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "store-product-list": {
+    "itemsPerPage": {
+      "value": 6
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "enableSorting": {
+      "value": false
+    },
+    "enableFiltering": {
+      "value": false
+    },
+    "sortFilterLayout": {
+      "value": "horizontal"
+    },
+    "addToCart": {
+      "value": false
+    },
+    "filterByAvailability": {
+      "value": true
+    },
+    "filterByPrice": {
+      "value": true
+    },
+    "defaultSortingOption": {
+      "value": "id_desc",
+      "label": ""
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "customText": {
+      "value": {
+        "sortAndFilterSection": {
+          "filterHeadline": "Filter: ",
+          "availabilityFilterText": "Availability",
+          "selectedCountText": "selected",
+          "inStockOptionText": "In Stock",
+          "outOfStockOptionText": "Out of Stock",
+          "resetText": "Reset",
+          "removeAllText": "Remove all",
+          "priceFilterText": "Price",
+          "fromPriceText": "From",
+          "toPriceText": "To",
+          "sortHeadline": "Sort",
+          "featured": "Featured",
+          "dateOldToNew": "Date, Old to New",
+          "dateNewToOld": "Date, New to Old",
+          "alphabeticalAscending": "Alphabetical, A-Z",
+          "alphabeticalDescending": "Alphabetical, Z-A",
+          "priceLowToHigh": "Price, Low to High",
+          "priceHighToLow": "Price, High to Low",
+          "productsCountText": "products",
+          "applyFiltersText": "Apply",
+          "clearFiltersText": "Clear Filters",
+          "horizontal": {
+            "filterHeadline": "Filter: ",
+            "availabilityFilterText": "Availability",
+            "selectedCountText": "selected",
+            "inStockOptionText": "In Stock",
+            "outOfStockOptionText": "Out of Stock",
+            "resetText": "Reset",
+            "removeAllText": "Remove all",
+            "priceFilterText": "Price",
+            "fromPriceText": "From",
+            "toPriceText": "To",
+            "sortHeadline": "Sort",
+            "featured": "Featured",
+            "dateNewToOld": "Date, New to Old",
+            "dateOldToNew": "Date, Old to New",
+            "alphabeticalAscending": "Alphabetical, A-Z",
+            "alphabeticalDescending": "Alphabetical, Z-A",
+            "priceLowToHigh": "Price, Low to High",
+            "priceHighToLow": "Price, High to Low"
+          },
+          "vertical": {
+            "filterAndSortHeadline": "Filter & sort",
+            "availabilityFilterText": "Availability",
+            "selectedCountText": "selected",
+            "inStockOptionText": "In Stock",
+            "outOfStockOptionText": "Out of Stock",
+            "removeAllText": "Remove all",
+            "priceFilterText": "Price",
+            "fromPriceText": "From",
+            "toPriceText": "To",
+            "sortLabelVertical": "Sort by",
+            "featured": "Featured",
+            "dateNewToOld": "Date, New to Old",
+            "dateOldToNew": "Date, Old to New",
+            "alphabeticalAscending": "Alphabetical, A-Z",
+            "alphabeticalDescending": "Alphabetical, Z-A",
+            "priceLowToHigh": "Price, Low to High",
+            "priceHighToLow": "Price, High to Low"
+          }
+        },
+        "productListSection": {
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page",
+          "searchResultsEmptyHeadline": "No results found",
+          "searchResultsEmptySubHeadline": "could not be found. Check the spelling or use a different word or phrase."
+        },
+        "productVariantModal": {
+          "addToCartButtonText": "Add to cart",
+          "chooseOptionsButtonText": "Choose options",
+          "soldOutButtonText": "Sold out"
+        }
+      }
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "desktopColumnGap": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileColumnGap": {
+      "value": 12,
+      "unit": "px"
+    },
+    "desktopRowGap": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileRowGap": {
+      "value": 12,
+      "unit": "px"
+    },
+    "enableWishlisting": {
+      "value": false
+    },
+    "productCardShowSecondImageOnHover": {
+      "value": false
+    },
+    "productCardZoomImageOnHover": {
+      "value": true
+    },
+    "productCardPriceConfiguration": {
+      "value": "minm"
+    },
+    "productCardStartingAtText": {
+      "value": ""
+    }
+  },
+  "store-product-detail": {
+    "selectedProducts": {
+      "value": []
+    },
+    "desktopMediaWidth": {
+      "value": "medium"
+    },
+    "alignImage": {
+      "value": "left"
+    },
+    "mediaLayout": {
+      "value": "stack-gallery"
+    },
+    "showAddToCartButton": {
+      "value": true
+    },
+    "showBuyNowButton": {
+      "value": false
+    },
+    "showDescription": {
+      "value": true
+    },
+    "showRelatedProducts": {
+      "value": false
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "itemsPerPage": {
+      "value": 6
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "imageZoom": {
+      "value": "noZoom"
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "relatedProductsDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "overrideDescriptionStyles": {
+      "value": false
+    },
+    "descriptionDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "descriptionMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "productDetailSection": {
+          "addToCartButtonText": "Add to cart",
+          "buyNowButtonText": "Buy now",
+          "quantityLabelText": "Quantity",
+          "descriptionShowMoreText": "Show more",
+          "descriptionShowLessText": "Show less",
+          "viewDetailsModalButtonText": "View full details",
+          "relatedProductsHeading": "You may also like"
+        },
+        "reviewsAndRatingsSection": {
+          "oneReviewCountText": "review",
+          "multipleReviewsCountText": "reviews",
+          "reviewsRatingsHeadline": "Customer reviews",
+          "averageRatingText": "Average ratings",
+          "reviewButtonText": "Write a review",
+          "noReviewsText": "Be the first one to review this product",
+          "noReviewsMatchText": "Sorry, no reviews match your current selections.",
+          "tryClearingFiltersText": "Try clearing or changing some filters.",
+          "clearFiltersButtonText": "Clear filters",
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page"
+        },
+        "sortAndFilterSectionReviews": {
+          "dateNewToOld": "Date, New to Old",
+          "dateOldToNew": "Date, Old to New",
+          "ratingLowToHigh": "Rating, Low to High",
+          "ratingHighToLow": "Rating, High to Low",
+          "allStars": "All Stars",
+          "multipleStarsText": "stars",
+          "oneStarText": "star"
+        },
+        "reviewSubmissionSection": {
+          "headline": "Write a review",
+          "overallRatingText": "Overall Rating",
+          "name": "Name",
+          "email": "Email",
+          "contactNumber": "Contact Number",
+          "addAHeadline": "Add a headline",
+          "addADetailedReview": "Add a detailed review",
+          "cancelButtonText": "Cancel",
+          "submitButtonText": "Submit",
+          "reviewSuccessHeadline": "Review submitted successfully!",
+          "reviewSuccessSubHeadline": "Thank you for submitting your review. Your review will be published soon after we approve it.",
+          "closeButtonText": "Close"
+        },
+        "cartDetailsDrawer": {
+          "itemsAddedHeadline": "item(s) added",
+          "viewCartButtonText": "View Cart",
+          "continueShopping": "Continue Shopping",
+          "cartEmptyHeadline": "Your Cart is empty",
+          "cartEmptySubHeadline": "Add items to your cart to continue shopping",
+          "outOfStockText": "Out of Stock"
+        }
+      }
+    },
+    "enableWishlisting": {
+      "value": false
+    }
+  },
+  "store-cart": {
+    "featureHeadlineDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 32,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "headline": "My cart",
+        "subtotalColumnHeading": "Subtotal",
+        "totalColumnHeading": "Total",
+        "checkoutButtonText": "Checkout",
+        "emptyCartText": "Your Cart is empty",
+        "continueShopping": "Continue Shopping"
+      }
+    }
+  },
+  "upsell": {
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "enableShipping": {
+      "value": true
+    },
+    "saleAction": {
+      "value": "go-to-next-funnel-step"
+    },
+    "customText": {
+      "value": {
+        "priceColumnHeading": "Price",
+        "quantityColumnHeading": "Quantity",
+        "shippingHeading": "Shipping",
+        "totalColumnHeading": "Total",
+        "subtotalColumnHeading": "Subtotal",
+        "pickupChargesHeading": "Pickup charges",
+        "pickupTaxesHeading": "Pickup taxes",
+        "buyNowButtonText": "Buy now"
+      }
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "visitWebsite": {
+      "value": {
+        "url": "",
+        "newTab": false
+      }
+    }
+  },
+  "collection-list": {
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 32,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "productCardShowSecondImageOnHover": {
+      "value": false
+    },
+    "productCardZoomImageOnHover": {
+      "value": true
+    },
+    "productCardPriceConfiguration": {
+      "value": "minm"
+    },
+    "productCardStartingAtText": {
+      "value": ""
+    }
+  },
+  "featured-products": {
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 32,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "productNameDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "enableWishlisting": {
+      "value": false
+    },
+    "productCardShowSecondImageOnHover": {
+      "value": false
+    },
+    "productCardZoomImageOnHover": {
+      "value": true
+    },
+    "productCardPriceConfiguration": {
+      "value": "minm"
+    },
+    "productCardStartingAtText": {
+      "value": ""
+    },
+    "addToCart": {
+      "value": false
+    },
+    "customText": {
+      "value": {
+        "productVariantModal": {
+          "addToCartButtonText": "Add to cart",
+          "chooseOptionsButtonText": "Choose options",
+          "soldOutButtonText": "Sold out"
+        }
+      }
+    }
+  },
+  "store-checkout": {
+    "manageShipping": {
+      "value": ""
+    },
+    "step1": {
+      "value": {
+        "checkoutLayout": "oneStep",
+        "showShipping": true,
+        "btnIcon": "fas fa-shopping-cart",
+        "enablePostalCode": false,
+        "enableCountryPicker": false,
+        "enableCouponCodes": true,
+        "enableBillingAddress": true,
+        "enableNote": true,
+        "shipToCountries": "all",
+        "countryList": [],
+        "defaultLocation": "none",
+        "fieldOptions": {
+          "phoneNumber": "mandatory",
+          "address": "mandatory",
+          "country": "mandatory",
+          "stateProvince": "mandatory",
+          "city": "mandatory",
+          "zipPostalCode": "mandatory"
+        },
+        "enableAutoCompleteAddress": false
+      }
+    },
+    "enableCouponCodes": {
+      "value": true
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "stickyContact": {
+      "value": false
+    },
+    "forceContactCreate": {
+      "value": false
+    },
+    "validateEmail": {
+      "value": false
+    },
+    "saleAction": {
+      "value": "go-to-next-funnel-step"
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "visitWebsite": {
+      "value": ""
+    },
+    "customText": {
+      "value": {
+        "breadcrumbSection": {
+          "step1Label": "Contact & shipping",
+          "step2Label": "Payment",
+          "continueToPaymentText": "Continue to payment",
+          "returnToContactShippingText": "Return to contact & shipping"
+        },
+        "contactDetailsSection": {
+          "headline": "Contact",
+          "email": "Email Address"
+        },
+        "shippingDetailsSection": {
+          "headline": "Shipping Details",
+          "fullName": "Full Name",
+          "phoneNumber": "Phone Number",
+          "searchBoxPlaceholder": "Search your address",
+          "fullAddress": "Full Address",
+          "country": "Country",
+          "state": "State / Province",
+          "cityName": "City Name",
+          "zipCode": "Zip Code",
+          "notesHeadingLabelText": "Add notes to your order",
+          "notesTextBoxPlaceholder": "Add notes about your order or special notes for delivery",
+          "shippingMethodsHeadline": "Shipping methods",
+          "freeShippingLabelText": "FREE",
+          "shipToHeadline": "Ship to",
+          "useDifferentAddressLink": "Use a different address",
+          "enterNewAddressLink": "Enter a new address"
+        },
+        "billingDetailsSection": {
+          "headline": "Billing Details",
+          "checkboxText": "Billing address same as shipping address",
+          "billToHeadline": "Bill to"
+        },
+        "savedAddressCard": {
+          "defaultPillText": "Default",
+          "useSavedAddressInsteadLink": "Use a saved address instead",
+          "saveAddressCheckboxLabel": "Save this address to my account",
+          "setAsDefaultLinkLabel": "Set as default",
+          "signInNudgeLabel": "Log in to use your saved addresses",
+          "savedAddressDropdownPlaceholder": "Select a saved address",
+          "editAddressMenuItem": "Edit",
+          "unavailableAddressNote": "Not available for this store",
+          "noShippableAddressesNote": "This store does not ship to any of your saved addresses. Enter a new address to continue."
+        },
+        "paymentSection": {
+          "headline": "Payment",
+          "checkoutButtonText": "Continue",
+          "footerText": " * 100% Secure & Safe Payments *"
+        },
+        "deliverySection": {
+          "headline": "Delivery",
+          "shipOption": "Ship",
+          "pickupOption": "Pickup in store",
+          "storeLocationsHeadline": "Store locations",
+          "storeLocationsSubtext": "store(s) with stock close to your location",
+          "showMoreLocationsText": "Show more locations",
+          "hideLocationsText": "Hide locations"
+        },
+        "cartSummarySection": {
+          "headline": "Cart Summary",
+          "editCartButtonText": "Edit Cart",
+          "quantityColumnHeading": "Qty",
+          "couponHeadline": "Coupon",
+          "couponCodePlaceholder": "Enter Coupon Code",
+          "applyCouponButtonText": "Apply",
+          "subtotalColumnHeading": "Subtotal",
+          "discountHeading": "Discount (coupon)",
+          "removeCouponButtonText": "Remove",
+          "shippingHeading": "Shipping",
+          "taxesHeading": "Taxes",
+          "pickupChargesHeading": "Pickup charges",
+          "pickupTaxesHeading": "Pickup taxes",
+          "totalColumnHeading": "Total",
+          "shippingTaxHeading": "Shipping tax"
+        }
+      }
+    }
+  },
+  "store-thank-you": {
+    "downloadDigitalProducts": {
+      "value": true
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 26,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "thankYouSection": {
+          "headline": "Thank you",
+          "subHeadline": "You'll receive a confirmation email for your order",
+          "shippingAddressHeadline": "Shipping address",
+          "billingAddressHeadline": "Billing address",
+          "pickupAddressHeadline": "Pickup details",
+          "continueShopping": "Continue Shopping"
+        },
+        "summaryTableSection": {
+          "itemColumnHeading": "Item",
+          "priceColumnHeading": "Price",
+          "quantityColumnHeading": "Qty",
+          "subtotalColumnHeading": "Subtotal",
+          "discountHeading": "Discount (coupon)",
+          "shippingHeading": "Shipping",
+          "pickupChargesText": "Pickup charges (including taxes)",
+          "freeShippingLabelText": "FREE",
+          "totalColumnHeading": "Total"
+        },
+        "downloadButton": {
+          "buttonName": "Download",
+          "accessURL": "Access URL"
+        }
+      }
+    }
+  },
+  "social-icons": {
+    "displayType": {
+      "value": "icon"
+    },
+    "theme": {
+      "value": "square"
+    },
+    "align": {
+      "value": "center"
+    },
+    "iconSize": {
+      "value": {
+        "height": 40,
+        "width": 40
+      }
+    }
+  },
+  "image-slider": {
+    "sliderSize": {
+      "value": {
+        "height": 600
+      }
+    },
+    "sliderPagination": {
+      "value": {
+        "enable": true,
+        "style": "circle",
+        "activeColor": "#FFFFFF",
+        "inActiveColor": "#000000",
+        "size": 10
+      }
+    },
+    "sliderArrow": {
+      "value": {
+        "enable": true,
+        "color": "#FFFFFF",
+        "animationEffect": "none"
+      }
+    },
+    "sliderAnimation": {
+      "value": {
+        "animationEffect": "slide",
+        "autoAnimationEnable": true,
+        "interval": 5,
+        "infiniteLoop": true,
+        "pauseOnHover": true
+      }
+    }
+  },
+  "searchbar": {
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 32,
+      "unit": "px"
+    }
+  },
+  "photo-video-gallery": {
+    "galleryHeading": {
+      "value": {
+        "headingText": "",
+        "activeColor": "#000",
+        "fontSize": 40
+      }
+    },
+    "galleryInfo": {
+      "value": {
+        "overlayColor": "#ffffff00",
+        "textColor": "#000000",
+        "toggleTitle": false,
+        "toggleDescription": false,
+        "titleFontsize": 20,
+        "descriptionFontsize": 16
+      }
+    },
+    "galleryLayout": {
+      "value": {
+        "layout": "grid",
+        "columns": 4,
+        "spacing": 0
+      }
+    },
+    "gallerySettings": {
+      "value": {
+        "clickAction": "nothing",
+        "showTitle": false,
+        "showDescription": false
+      }
+    },
+    "galleryWatermark": {
+      "value": {
+        "type": "logo",
+        "text": "",
+        "position": "Top Left",
+        "fontSize": 10
+      }
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "web-widget": {
+    "webWidgetState": {
+      "show": false
+    }
+  },
+  "social-share-blog": {
+    "socialShareOption": {
+      "value": [
+        "mail",
+        "facebook",
+        "linkedin",
+        "twitter",
+        "pinterest"
+      ]
+    }
+  },
+  "blog-pined-post": {
+    "blogPinedPost": {
+      "value": null
+    },
+    "blogPinedLayout": {
+      "value": "imageOnLeft"
+    },
+    "blogPinedOption": {
+      "value": [
+        "image",
+        "author",
+        "tags",
+        "title",
+        "publishDate",
+        "description",
+        "button"
+      ]
+    }
+  },
+  "blog-subscribe-form": {
+    "blogSubscribeLayout": {
+      "value": "iconOnRight"
+    },
+    "blogSubscribeOption": {
+      "value": [
+        "icon",
+        "title",
+        "description"
+      ],
+      "backgroundColor": "#344054"
+    }
+  },
+  "store-custom-product-detail": {
+    "selectedProducts": {
+      "value": []
+    },
+    "desktopMediaWidth": {
+      "value": "medium"
+    },
+    "alignImage": {
+      "value": "left"
+    },
+    "mediaLayout": {
+      "value": "stack-gallery"
+    },
+    "showAddToCartButton": {
+      "value": true
+    },
+    "showBuyNowButton": {
+      "value": false
+    },
+    "showDescription": {
+      "value": true
+    },
+    "showRelatedProducts": {
+      "value": false
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "itemsPerPage": {
+      "value": 6
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "imageZoom": {
+      "value": "noZoom"
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "relatedProductsDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "overrideDescriptionStyles": {
+      "value": false
+    },
+    "descriptionDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "descriptionMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "productDetailSection": {
+          "addToCartButtonText": "Add to cart",
+          "buyNowButtonText": "Buy now",
+          "quantityLabelText": "Quantity",
+          "descriptionShowMoreText": "Show more",
+          "descriptionShowLessText": "Show less",
+          "viewDetailsModalButtonText": "View full details",
+          "relatedProductsHeading": "You may also like"
+        },
+        "reviewsAndRatingsSection": {
+          "oneReviewCountText": "review",
+          "multipleReviewsCountText": "reviews",
+          "reviewsRatingsHeadline": "Customer reviews",
+          "averageRatingText": "Average ratings",
+          "reviewButtonText": "Write a review",
+          "noReviewsText": "Be the first one to review this product",
+          "noReviewsMatchText": "Sorry, no reviews match your current selections.",
+          "tryClearingFiltersText": "Try clearing or changing some filters.",
+          "clearFiltersButtonText": "Clear filters",
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page"
+        },
+        "sortAndFilterSectionReviews": {
+          "dateNewToOld": "Date, New to Old",
+          "dateOldToNew": "Date, Old to New",
+          "ratingLowToHigh": "Rating, Low to High",
+          "ratingHighToLow": "Rating, High to Low",
+          "allStars": "All Stars",
+          "multipleStarsText": "stars",
+          "oneStarText": "star"
+        },
+        "reviewSubmissionSection": {
+          "headline": "Write a review",
+          "overallRatingText": "Overall Rating",
+          "name": "Name",
+          "email": "Email",
+          "contactNumber": "Contact Number",
+          "addAHeadline": "Add a headline",
+          "addADetailedReview": "Add a detailed review",
+          "cancelButtonText": "Cancel",
+          "submitButtonText": "Submit",
+          "reviewSuccessHeadline": "Review submitted successfully!",
+          "reviewSuccessSubHeadline": "Thank you for submitting your review. Your review will be published soon after we approve it.",
+          "closeButtonText": "Close"
+        },
+        "cartDetailsDrawer": {
+          "itemsAddedHeadline": "item(s) added",
+          "viewCartButtonText": "View Cart",
+          "continueShopping": "Continue Shopping",
+          "cartEmptyHeadline": "Your Cart is empty",
+          "cartEmptySubHeadline": "Add items to your cart to continue shopping",
+          "outOfStockText": "Out of Stock"
+        }
+      }
+    },
+    "enableWishlisting": {
+      "value": false
+    }
+  },
+  "number-counter": {
+    "counterColumnGap": {
+      "value": 32,
+      "unit": "px"
+    },
+    "counterMobileColumnGap": {
+      "value": 24,
+      "unit": "px"
+    },
+    "counterDesktopColumns": {
+      "value": 1
+    },
+    "counterMobileColumns": {
+      "value": 1
+    },
+    "counterImageDesktopSize": {
+      "value": 32,
+      "unit": "px"
+    },
+    "counterImageMobileSize": {
+      "value": 28,
+      "unit": "px"
+    },
+    "counterDuration": {
+      "value": 2e3
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "counterShowAnimationOnce": {
+      "value": false
+    }
+  },
+  "logo-showcase": {
+    "logoShowcaseMode": {
+      "value": "ticker"
+    },
+    "imagesPerSlide": {
+      "value": 3
+    },
+    "sliderPagination": {
+      "value": {
+        "enable": true,
+        "style": "circle",
+        "activeColor": "#9CA3AF",
+        "inActiveColor": "#E5E7EB",
+        "size": 10
+      }
+    },
+    "sliderArrow": {
+      "value": {
+        "enable": true,
+        "color": "#000000",
+        "animationEffect": "none"
+      }
+    },
+    "sliderAnimation": {
+      "value": {
+        "animationEffect": "slide",
+        "autoAnimationEnable": true,
+        "interval": 5,
+        "infiniteLoop": true,
+        "pauseOnHover": true
+      }
+    },
+    "tickerSpeed": {
+      "value": 3
+    },
+    "pauseOnHover": {
+      "value": true
+    },
+    "logoSpacing": {
+      "value": 77,
+      "unit": "px"
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "qr-code": {
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "pricing-table": {
+    "pricingTableLayout": {
+      "value": "grid"
+    },
+    "pricingTableGap": {
+      "value": 20,
+      "unit": "px"
+    },
+    "pricingTableNumberOfColumns": {
+      "value": 3
+    },
+    "pricingTableImageDesktopSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "pricingTableImageMobileSize": {
+      "value": 40,
+      "unit": "px"
+    },
+    "pricingTableTitleDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "pricingTableTitleCaptionDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "pricingTableHighlightLabelDesktopFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "pricingTableButtonTextDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "pricingTableButtonCaptionDesktopFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "pricingTableFeaturesDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "pricingTablePriceDesktopFontSize": {
+      "value": 40,
+      "unit": "px"
+    },
+    "pricingTableDiscountDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "pricingTableStrikeOffDesktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "sliderPagination": {
+      "value": {
+        "enable": true,
+        "style": "circle",
+        "activeColor": "#8d38ff",
+        "inActiveColor": "#E5E7EB",
+        "size": 10
+      }
+    },
+    "sliderArrow": {
+      "value": {
+        "enable": true,
+        "color": "#8d38ff",
+        "animationEffect": "none"
+      }
+    },
+    "sliderAnimation": {
+      "value": {
+        "animationEffect": "slide",
+        "autoAnimationEnable": true,
+        "interval": 5,
+        "infiniteLoop": true,
+        "pauseOnHover": true
+      }
+    },
+    "showHeadColumnTitle": {
+      "value": true
+    },
+    "showHeadColumnSubtitle": {
+      "value": true
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "testimonial": {
+    "testimonialSettings": {
+      "value": {
+        "showProfilePic": true,
+        "showStarRating": true,
+        "showName": true,
+        "showDate": false,
+        "showCaption": true,
+        "showLogo": true
+      }
+    },
+    "testimonialLayout": {
+      "value": {
+        "layout": "carousel",
+        "columns": 3,
+        "spacing": 10
+      }
+    },
+    "testimonialCardStyle": {
+      "value": {
+        "style": "default",
+        "cornerRadius": {
+          "value": 8,
+          "unit": "px"
+        },
+        "ratingSize": {
+          "value": 16,
+          "unit": "px"
+        },
+        "contentFontSize": {
+          "value": 16,
+          "unit": "px"
+        },
+        "authorFontSize": {
+          "value": 14,
+          "unit": "px"
+        },
+        "contentFontStyle": "italic",
+        "contentFontFamily": "var(--contentfont)",
+        "authorFontFamily": "var(--contentfont)"
+      }
+    },
+    "sliderAnimation": {
+      "value": {
+        "animationEffect": "slide",
+        "autoAnimationEnable": true,
+        "interval": 3,
+        "infiniteLoop": true,
+        "pauseOnHover": true
+      }
+    },
+    "sliderArrow": {
+      "value": {
+        "enable": true,
+        "color": "#000000",
+        "animationEffect": "none"
+      }
+    },
+    "sliderPagination": {
+      "value": {
+        "enable": true,
+        "style": "circle",
+        "activeColor": "#9CA3AF",
+        "inActiveColor": "#E5E7EB",
+        "size": 10
+      }
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "instagram-feed": {
+    "igGeneralSource": {
+      "value": true
+    },
+    "igGeneralLayout": {
+      "value": true
+    },
+    "igPostStyleGroup": {
+      "value": true
+    },
+    "igPostElements": {
+      "value": true
+    },
+    "igPostAdvanced": {
+      "value": true
+    },
+    "igStyleColorScheme": {
+      "value": true
+    },
+    "igStyleCustomize": {
+      "value": true
+    },
+    "elementVersion": {
+      "value": 2
+    }
+  },
+  "store-pdp-v2-title": {
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-price": {
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 32,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-images": {
+    "mediaLayout": {
+      "value": "stack-gallery"
+    },
+    "imageZoom": {
+      "value": "noZoom"
+    },
+    "enableWishlisting": {
+      "value": false
+    }
+  },
+  "store-pdp-v2-quantity": {
+    "quantityLabelText": {
+      "value": "Quantity"
+    }
+  },
+  "store-pdp-v2-add-to-cart": {
+    "itemsAddedHeadline": {},
+    "viewCartButtonText": {},
+    "continueShopping": {},
+    "cartEmptyHeadline": {},
+    "cartEmptySubHeadline": {},
+    "outOfStockText": {},
+    "viewDetailsModalButtonText": {
+      "value": "View full details"
+    },
+    "viewCartButtonColor": {
+      "value": "var(--secondary)"
+    },
+    "viewCartButtonTextColor": {
+      "value": "var(--white)"
+    },
+    "continueShoppingTextColor": {
+      "value": "#188bf6"
+    },
+    "drawerHeadlineColor": {
+      "value": "#101828"
+    },
+    "drawerProductTitleColor": {
+      "value": "#188bf6"
+    },
+    "drawerItemTextColor": {
+      "value": "#101828"
+    },
+    "drawerPriceColor": {
+      "value": "#101828"
+    },
+    "drawerHeadlineFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "drawerHeadlineFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "drawerProductTitleFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "drawerProductTitleFontFamily": {
+      "value": "var(--contentfont)"
+    }
+  },
+  "store-pdp-v2-review-stars": {
+    "showRatingsCount": {
+      "value": true
+    },
+    "reviewStarsDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsTabletFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "singleReviewCountText": {
+      "value": "review"
+    },
+    "multipleReviewCountText": {
+      "value": "reviews"
+    }
+  },
+  "store-pdp-v2-description": {
+    "descriptionDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "descriptionMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "descriptionShowMoreText": {},
+    "descriptionShowLessText": {}
+  },
+  "store-pdp-v2-related-products": {
+    "relatedProductsHeadingText": {
+      "value": "productDetailPage.relatedProductsHeading"
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "reviewStarsDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsTabletFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "itemsPerPage": {
+      "value": 6
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 32,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "relatedProductsDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-reviews": {
+    "customText": {
+      "value": {
+        "reviewsAndRatingsSection": [
+          {
+            "src": {},
+            "des": {}
+          }
+        ],
+        "sortAndFilterSectionReviews": {
+          "dateNewToOld": "Date, New to Old",
+          "dateOldToNew": "Date, Old to New",
+          "ratingLowToHigh": "Rating, Low to High",
+          "ratingHighToLow": "Rating, High to Low",
+          "allStars": "All Stars",
+          "multipleStarsText": "stars",
+          "oneStarText": "star"
+        },
+        "reviewSubmissionSection": {
+          "headline": "Write a review",
+          "overallRatingText": "Overall Rating",
+          "name": "Name",
+          "email": "Email",
+          "contactNumber": "Contact Number",
+          "addAHeadline": "Add a headline",
+          "addADetailedReview": "Add a detailed review",
+          "cancelButtonText": "Cancel",
+          "submitButtonText": "Submit",
+          "reviewSuccessHeadline": "Review submitted successfully!",
+          "reviewSuccessSubHeadline": "Thank you for submitting your review. Your review will be published soon after we approve it.",
+          "closeButtonText": "Close"
+        }
+      }
+    }
+  }
+});
+var KIND_BUILDER_STYLES = Object.freeze({
+  "heading": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "iconColor": {
+      "value": "var(--text-color)"
+    },
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "700"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "sub-heading": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "iconColor": {
+      "value": "var(--text-color)"
+    },
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "paragraph": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "iconColor": {
+      "value": "var(--text-color)"
+    },
+    "fontWeight": {
+      "value": "medium",
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "rich-text": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "fontWeight": {
+      "value": "medium",
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "bulletList": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "iconColor": {
+      "value": "var(--cobalt)"
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "button": {
+    "backgroundColor": {
+      "value": "var(--cobalt)"
+    },
+    "secondaryColor": {
+      "value": "var(--white)"
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "500"
+    },
+    "fontWeightSub": {
+      "value": "",
+      "desktop": "400"
+    },
+    "borderColor": {
+      "value": "var(--white)"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "iconColor": {
+      "value": "var(--white)"
+    }
+  },
+  "video": {
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "videoPlayerAccentColor": {
+      "value": "#FFFFFF"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "image": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "countdown": {
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "fontWeight": {
+      "desktop": "700"
+    },
+    "fontWeightSub": {
+      "desktop": "300"
+    }
+  },
+  "minute-timer": {
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "fontWeight": {
+      "desktop": "700"
+    },
+    "fontWeightSub": {
+      "desktop": "300"
+    }
+  },
+  "day-timer": {
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "fontWeight": {
+      "desktop": "700"
+    },
+    "fontWeightSub": {
+      "desktop": "300"
+    }
+  },
+  "two-setp-order": {
+    "buttonColor": {
+      "value": "var(--cobalt)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "formBgColor": {
+      "value": "#ffffff"
+    }
+  },
+  "one-step-order": {
+    "buttonColor": {
+      "value": "var(--cobalt)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "formBgColor": {
+      "value": "#ffffff"
+    }
+  },
+  "nav-menu": {
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "mobileBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "cartIconColor": {
+      "value": "#000000"
+    },
+    "cartIconActiveColor": {
+      "value": "#155EEF"
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "iconColor": {
+      "value": "var(--text-color)"
+    },
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "navMenuItemHoverBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "dropdownTextColor": {
+      "value": "var(--black)"
+    },
+    "dropdownHoverColor": {
+      "value": "var(--black)"
+    },
+    "fontWeight": {
+      "desktop": "700"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "nav-menu-v2": {
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "400"
+    },
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "mobileBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "popupBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "mobilePopupBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "hoverBackgroundColor": {
+      "value": "var(--cobalt)"
+    },
+    "hoverTextColor": {
+      "value": "var(--white)"
+    },
+    "boldTextColor": {
+      "value": "var(--black)"
+    },
+    "italicTextColor": {
+      "value": "var(--black)"
+    },
+    "underlineTextColor": {
+      "value": "var(--black)"
+    },
+    "iconColor": {
+      "value": "var(--black)"
+    },
+    "cartIconColor": {
+      "value": "var(--black)"
+    },
+    "userIconColor": {
+      "value": "var(--black)"
+    },
+    "cartIconActiveColor": {
+      "value": "var(--black)"
+    },
+    "submenuBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "submenuMobileBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "submenuHoverBackgroundColor": {
+      "value": "var(--black)"
+    },
+    "submenuHoverTextColor": {
+      "value": "var(--white)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "itemBorderColor": {
+      "value": "#000000"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "progress-bar": {
+    "backgroundColor": {
+      "value": "var(--cobalt)"
+    },
+    "borderColor": {
+      "value": "var(--white)"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "image-feature": {
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "700"
+    },
+    "featureHeadlineColor": {
+      "value": "var(--black)"
+    },
+    "featureTextColor": {
+      "value": "var(--black)"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "order-confirmation": {
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "featureHeadlineColor": {
+      "value": "var(--black)"
+    },
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "boldTextColor": {
+      "value": "var(--black)"
+    },
+    "featureTextColor": {
+      "value": "var(--black)"
+    },
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    }
+  },
+  "faq": {
+    "faqOpenTitleTextColor": {
+      "value": "var(--black)"
+    },
+    "faqOpenTitleBackgroundColor": {
+      "value": "var(--smoke)"
+    },
+    "faqDividerColor": {
+      "value": "var(--smoke)"
+    },
+    "faqContentTextColor": {
+      "value": "var(--black)"
+    },
+    "faqOpenBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "faqClosedTitleTextColor": {
+      "value": "var(--black)"
+    },
+    "faqClosedTitleBackgroundColor": {
+      "value": "var(--smoke)"
+    },
+    "faqExpandAllButtonTextColor": {
+      "value": "var(--cobalt)"
+    },
+    "faqExpandAllButtonBorderColor": {
+      "value": "var(--cobalt)"
+    },
+    "faqExpandAllButtonBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "linkTextColor": {
+      "value": "var(--cobalt)"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "fontWeight": {
+      "desktop": "500"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "blog": {
+    "buttonColor": {
+      "value": "var(--cobalt)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "buttonBorderColor": {
+      "value": "var(--white)"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "blog-post": {
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "blog-content": {
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "category-navigation": {
+    "secondaryColor": {
+      "value": "var(--blue)"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "store-product-list": {
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "productCardBorderColor": {
+      "value": "#000000"
+    },
+    "sortFilterTextColor": {
+      "value": "var(--black)"
+    },
+    "sortFilterPillColor": {
+      "value": "#F2F4F7"
+    },
+    "sortFilterPillTextColor": {
+      "value": "#101828"
+    },
+    "sortFilterBarBgColor": {
+      "value": "#FFFFFF"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "removeAllColor": {
+      "value": "#475467"
+    },
+    "sortFilterVerticalHeadlineColor": {
+      "value": "#000000"
+    },
+    "sortFilterVerticalLabelColor": {
+      "value": "#101828"
+    },
+    "sortFilterVerticalSelectedCheckboxColor": {
+      "value": "#EFF4FF"
+    },
+    "sortFilterVerticalSelectedCheckboxBorderColor": {
+      "value": "#155EEF"
+    },
+    "sortFilterVerticalUnselectedCheckboxColor": {
+      "value": "#FFFFFF"
+    },
+    "sortFilterVerticalUnselectedCheckboxBorderColor": {
+      "value": "#D0D5DD"
+    },
+    "sortFilterVerticalRemoveAllColor": {
+      "value": "#475467"
+    },
+    "sortFilterApplyBtnColor": {
+      "value": "#155EEF"
+    },
+    "sortFilterApplyBtnTextColor": {
+      "value": "#FFFFFF"
+    },
+    "sortFilterApplyBtnBorderColor": {
+      "value": "#155EEF"
+    },
+    "sortFilterClearBtnColor": {
+      "value": "#FFFFFF"
+    },
+    "sortFilterClearBtnTextColor": {
+      "value": "#155EEF"
+    },
+    "sortFilterClearBtnBorderColor": {
+      "value": "#155EEF"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "buttonColor": {
+      "value": "transparent"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--secondary)"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "var(--secondary)"
+    },
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "store-product-detail": {
+    "relatedProductsHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonColor": {
+      "value": "transparent"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--secondary)"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "descriptionFontColor": {
+      "value": "#000000"
+    },
+    "descriptionBackgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "selectorsTextColor": {
+      "value": "#000000"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "writeButtonBgColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "#004EEB"
+    },
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "showMoreButtonColor": {
+      "value": "#8f8585ff"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "store-cart": {
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "nav-cart": {
+    "cartIconColor": {
+      "value": "#000000"
+    },
+    "cartIconActiveColor": {
+      "value": "#155EEF"
+    }
+  },
+  "upsell": {
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "buttonColor": {
+      "value": "#155EEF"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "buttonTextColor": {
+      "value": "white"
+    },
+    "borderColor": {
+      "value": "#D0D5DD"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "blockShippingErrorBgColor": {
+      "value": "#FFFBFA"
+    },
+    "blockShippingErrorBorderColor": {
+      "value": "#FDA29B"
+    },
+    "blockShippingErrorTextColor": {
+      "value": "#B42318"
+    }
+  },
+  "collection-list": {
+    "collectionHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "collectionNameTextColor": {
+      "value": "#000000"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "productCardBorderColor": {
+      "value": "#000000"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "featured-products": {
+    "featureHeadlineColor": {
+      "value": "var(--black)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "productCardBorderColor": {
+      "value": "#000000"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "buttonColor": {
+      "value": "transparent"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--secondary)"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "var(--secondary)"
+    },
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "store-checkout": {
+    "checkoutHeadlineTextColor": {
+      "value": "var(--black)"
+    },
+    "breadcrumbActiveTextColor": {
+      "value": "#004EEB"
+    },
+    "breadcrumbIdleTextColor": {
+      "value": "#475467"
+    },
+    "savedAddressCardBgColor": {
+      "value": "#ffffff"
+    },
+    "savedAddressBorderColor": {
+      "value": "#d1d5db"
+    },
+    "savedAddressTextColor": {
+      "value": "#111315"
+    },
+    "savedAddressPillBgColor": {
+      "value": "#eff4ff"
+    },
+    "savedAddressAccentColor": {
+      "value": "#1860f0"
+    },
+    "cartSummaryTextColor": {
+      "value": "var(--black)"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "boxShadow": {
+      "value": ""
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "blockShippingErrorBgColor": {
+      "value": "#FFFBFA"
+    },
+    "blockShippingErrorBorderColor": {
+      "value": "#FDA29B"
+    },
+    "blockShippingErrorTextColor": {
+      "value": "#B42318"
+    },
+    "blockShippingErrorCtaColor": {
+      "value": "#B42318"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "store-thank-you": {
+    "checkoutHeadlineTextColor": {
+      "value": "var(--black)"
+    },
+    "shippingTextColor": {
+      "value": "var(--black)"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "var(--white)"
+    },
+    "writeButtonBgColor": {
+      "value": "#155EEF"
+    },
+    "buttonTextColor": {
+      "value": "#004EEB"
+    },
+    "boxShadow": {
+      "value": ""
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "social-icons": {
+    "fontWeight": {
+      "value": 500
+    }
+  },
+  "image-slider": {
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "searchbar": {
+    "formBgColor": {
+      "value": "#00ffff00"
+    },
+    "buttonColor": {
+      "value": "#00ffff00"
+    },
+    "dropdownTextColor": {
+      "value": "#000000"
+    },
+    "iconColor": {
+      "value": "#667085"
+    },
+    "inputBorderColor": {
+      "value": "#cacaca"
+    },
+    "dropdownBorderColor": {
+      "value": "#cacaca"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    }
+  },
+  "photo-video-gallery": {
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "social-share-blog": {
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "blog-pined-post": {
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "blog-subscribe-form": {
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "featured-product": {
+    "relatedProductsHeadingTextColor": {
+      "value": "#000000"
+    }
+  },
+  "store-custom-product-detail": {
+    "relatedProductsHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonColor": {
+      "value": "transparent"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--secondary)"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "descriptionFontColor": {
+      "value": "#000000"
+    },
+    "descriptionBackgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "selectorsTextColor": {
+      "value": "#000000"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "writeButtonBgColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "#004EEB"
+    },
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "showMoreButtonColor": {
+      "value": "#8f8585ff"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "number-counter": {
+    "counterNumberColor": {
+      "value": "var(--cobalt)"
+    },
+    "counterCaptionColor": {
+      "value": "#000000"
+    },
+    "counterBackgroundColor": {
+      "value": "#FFFFFF"
+    },
+    "backgroundColor": {
+      "value": "#FFFFFF"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "logo-showcase": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "qr-code": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "pricing-table": {
+    "backgroundColor": {
+      "value": "transparent"
+    },
+    "counterBackgroundColor": {
+      "value": "#ffffff"
+    },
+    "buttonColor": {
+      "value": "var(--cobalt)"
+    },
+    "formBgColor": {
+      "value": "#f8fafc"
+    },
+    "featureHeadlineColor": {
+      "value": "#111827"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "#6b7280"
+    },
+    "featureTextColor": {
+      "value": "#374151"
+    },
+    "productPriceColor": {
+      "value": "#111827"
+    },
+    "priceDiscountColor": {
+      "value": "#059669"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--black)"
+    },
+    "checkoutHeadlineTextColor": {
+      "value": "#111827"
+    },
+    "cartSummaryTextColor": {
+      "value": "#64748b"
+    },
+    "shippingTextColor": {
+      "value": "#374151"
+    },
+    "buttonTextColor": {
+      "value": "#ffffff"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "secondaryColor": {
+      "value": "var(--cobalt)"
+    },
+    "borderColor": {
+      "value": "#304E62FF"
+    },
+    "itemBorderColor": {
+      "value": "#E4E4E4FF"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "testimonial": {
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "cardBackgroundColor": {
+      "value": "#fff"
+    },
+    "nameColor": {
+      "value": "#1f2937"
+    },
+    "captionColor": {
+      "value": "#6b7280"
+    },
+    "contentColor": {
+      "value": "#4b5563"
+    },
+    "ratingColor": {
+      "value": "#fbbf24"
+    },
+    "dateColor": {
+      "value": "#9ca3af"
+    },
+    "readMoreColor": {
+      "value": "#4b5563"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-title": {
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-price": {
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-images": {
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "borderColor": {
+      "value": "#000000"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-variants": {
+    "borderColor": {
+      "value": "transparent"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-quantity": {
+    "quantityLabelColor": {
+      "value": "#101828"
+    },
+    "quantityBackgroundColor": {
+      "value": "#FFFFFF"
+    },
+    "quantityBorderColor": {
+      "value": "#D0D5DD"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-review-stars": {
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-description": {
+    "descriptionFontColor": {
+      "value": "#000000"
+    },
+    "descriptionBackgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "showMoreButtonColor": {
+      "value": "#8f8585ff"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-related-products": {
+    "relatedProductsHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-reviews": {
+    "writeButtonBgColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "#004EEB"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  }
+});
+
 // core/kind-style-defaults.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -111584,6 +115734,94 @@ var ACTION_VALUES = Object.freeze([
   "logout",
   "go-to-membership"
 ]);
+var IMAGE_ACTION_VALUES = Object.freeze([
+  "none",
+  "openPopup",
+  "url",
+  "download-file",
+  "show-hide-element",
+  "scroll-to-element",
+  "go-to-funnel-step",
+  "go-to-next-funnel-step",
+  "click-to-call",
+  "click-to-sms",
+  "click-to-mail"
+]);
+var CLICK_ACTION_PROPS = Object.freeze({
+  image: { props: ["imageActions"], values: IMAGE_ACTION_VALUES },
+  "image-feature": { props: ["imageActions"], values: IMAGE_ACTION_VALUES },
+  svg: { props: ["svgImageActions", "imageActions"], values: Object.freeze(["none", "openPopup", "url", "download-file"]) }
+});
+function routeClickAction(meta3, extra = {}) {
+  const spec = CLICK_ACTION_PROPS[meta3];
+  if (!spec || !extra || !Object.prototype.hasOwnProperty.call(extra, "action")) return extra;
+  const { action, ...rest } = extra;
+  const v = action?.value ?? action;
+  if (v !== "" && !spec.values.includes(v)) {
+    throw Object.assign(
+      new Error(`${meta3}: click action '${v}' is not one the builder offers on this kind (${spec.values.join(", ")})`),
+      { remediation: `Use one of ${spec.values.join(", ")}.` }
+    );
+  }
+  const out = { ...rest };
+  for (const p2 of spec.props) out[p2] = { value: v === "" ? "none" : v };
+  return out;
+}
+var clickActionOf = (n) => {
+  const spec = CLICK_ACTION_PROPS[n?.meta];
+  return spec ? n?.extra?.[spec.props[0]]?.value : n?.extra?.action?.value;
+};
+var TEXT_SIZE_KINDS = Object.freeze(/* @__PURE__ */ new Set(["heading", "sub-heading", "paragraph", "rich-text", "bulletList"]));
+var TABLET_MQ = "screen and (min-width:768px) and (max-width:1024px)";
+var MOBILE_MQ = "screen and (min-width:0px) and (max-width:767px)";
+var DESKTOP_MQ = "screen and (min-width:768px) and (max-width:10000px)";
+var sizeOf = (a) => a ? `${a.value}${a.unit}` : null;
+var spacing = (x) => x?.itemSpacing ? `${x.itemSpacing.value}${x.itemSpacing.unit || ""}` : null;
+function builderTextSizeCss(node) {
+  const { id, extra = {}, styles = {} } = node;
+  const fw = styles.fontWeight;
+  const d = sizeOf(extra.desktopFontSize) ?? "16px";
+  const m = sizeOf(extra.mobileFontSize) ?? d;
+  const t = sizeOf(extra.tabletFontSize);
+  const tSp = spacing(node.tabletExtra);
+  const tW = fw?.tablet ?? null;
+  const mW = fw?.mobile ?? fw?.desktop;
+  const heads = ["h1", "h2", "h3", "h4", "h5", "h6"];
+  if (node.meta === "rich-text") {
+    const all2 = `.${id}.text-output,.${id} ul li,.${id}`;
+    const hs = heads.map((h) => `.${id}.text-output ${h}`).join(",");
+    const mSp2 = spacing(node.mobileExtra);
+    let tablet2 = "";
+    if (t || tSp || tW) {
+      tablet2 = `@media ${TABLET_MQ}{${t ? `${all2}{font-size:${t}!important}` : ""}${tW ? `${all2}{font-weight:${tW}}${hs}{font-weight:${tW}!important}` : ""}${tSp ? `.${id}.text-output li:not(:last-child){margin-bottom:${tSp}!important}` : ""}}`;
+    }
+    return `@media ${MOBILE_MQ}{${all2}{font-size:${m}!important;font-weight:${mW}}${hs}{font-weight:${mW}!important}.${id}.text-output li:not(:last-child){margin-bottom:${mSp2 ? `${mSp2}!important` : "0px"}}}@media ${DESKTOP_MQ}{${all2}{font-size:${d}!important;font-weight:${fw?.desktop}}${hs}{font-weight:${fw?.desktop}!important}}${tablet2}`;
+  }
+  const all = [`.${id}.text-output`, `.${id} ul li`, ...heads.map((h) => `.${id} ${h}`)].join(",");
+  const mSp = spacing(node.mobileExtra);
+  const bullet = node.meta === "bulletList";
+  let tablet = "";
+  if (t || tW || bullet && tSp) {
+    tablet = `@media ${TABLET_MQ}{${t ? `${all}{font-size:${t}!important}` : ""}${tW ? `${all}{font-weight:${tW}}` : ""}${bullet && tSp ? `.${id}.text-output li:not(:last-child){margin-bottom:${tSp}!important}` : ""}}`;
+  }
+  return `@media ${MOBILE_MQ}{${all}{font-size:${m}!important;font-weight:${mW}}${bullet ? `.${id}.text-output li:not(:last-child){margin-bottom:${mSp ? `${mSp}!important` : "0px"}}` : ""}}@media ${DESKTOP_MQ}{${all}{font-size:${d}!important;font-weight:${fw?.desktop}}}${tablet}`;
+}
+function builderButtonSizeCss(node) {
+  const { id, extra = {}, styles = {} } = node;
+  const fw = styles.fontWeight;
+  const fs = styles.fontWeightSub;
+  const d = sizeOf(extra.desktopFontSize) ?? "20px";
+  const m = sizeOf(extra.mobileFontSize) ?? d;
+  const t = sizeOf(extra.tabletFontSize) ?? d;
+  const sd = sizeOf(extra.subTextDesktopFontSize) ?? "15px";
+  const sm = sizeOf(extra.subTextMobileFontSize) ?? String(extra.subTextDesktopFontSize);
+  const st = sizeOf(extra.subTextTabletFontSize) ?? sd;
+  const color = styles.secondaryColor ? styles.secondaryColor.value : styles.color?.value;
+  const main = (size, w) => `.${id} .main-heading-button,.${id} .button-icon-start,.${id} .button-icon-end{font-size:${size};font-weight:${w}}.${id} .button-icon-start{margin-right:5px}.${id} .button-icon-end{margin-left:5px}`;
+  const sub = (size, w) => `.${id} .sub-heading-button{font-size:${size};color:${color};font-weight:${w}}`;
+  return `@media ${DESKTOP_MQ}{${main(d, fw?.desktop)}${sub(sd, fs?.desktop)}}@media ${TABLET_MQ}{${main(t, fw?.tablet ?? fw?.desktop)}${sub(st, fs?.tablet ?? fs?.desktop)}}@media ${MOBILE_MQ}{${main(m, fw?.mobile ? fw.mobile : fw?.desktop)}${sub(sm, fs?.mobile)}}`;
+}
+var elementSizeCss = (node) => TEXT_SIZE_KINDS.has(node?.meta) ? builderTextSizeCss(node) : node?.meta === "button" ? builderButtonSizeCss(node) : "";
 var SHAPE_BY_KIND = Object.freeze({
   "nav-menu": "arrays",
   "nav-menu-v2": "arrays",
@@ -111647,18 +115885,29 @@ var envelope = (id, type, meta3, tagName, extra, styles, cls, wrapper) => ({
 var completeExtra = (meta3, given = {}) => {
   const declared = ELEMENTS[meta3]?.extraProps ?? [];
   const known = { ...KIND_CONFIG_EXTRA[meta3] ?? {}, ...KIND_DEFAULT_EXTRA[meta3] ?? {} };
+  const builder = KIND_BUILDER_EXTRA[meta3] ?? {};
   const out = {};
   for (const prop of declared) {
     if ((prop === "visibility" || prop === "customClass") && !Object.prototype.hasOwnProperty.call(given, prop)) continue;
-    out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : Object.prototype.hasOwnProperty.call(known, prop) ? known[prop] : emptyFor(prop, meta3);
+    out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : Object.prototype.hasOwnProperty.call(known, prop) ? known[prop] : Object.prototype.hasOwnProperty.call(builder, prop) ? builder[prop] : emptyFor(prop, meta3);
   }
   for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
+  for (const [prop, v] of Object.entries(out)) {
+    if (!/FontSize$/.test(prop) || Object.prototype.hasOwnProperty.call(given, prop) || isSize(v)) continue;
+    const sib = prop.replace(/(Tablet|Mobile)FontSize$/, "DesktopFontSize").replace(/^(tablet|mobile)FontSize$/, "desktopFontSize");
+    out[prop] = isSize(out[sib]) ? out[sib] : SIZE_ELSEWHERE[prop] ?? SIZE_ELSEWHERE[sib] ?? px(16);
+  }
   return { ...out, ...given };
 };
+var isSize = (v) => !!v && typeof v === "object" && typeof v.value === "number" && !!v.unit;
+var SIZE_ELSEWHERE = Object.freeze(Object.values(KIND_BUILDER_EXTRA).reduce((acc, o) => {
+  for (const [k, v] of Object.entries(o)) if (/FontSize$/.test(k) && isSize(v) && !(k in acc)) acc[k] = v;
+  return acc;
+}, {}));
 var BUTTON_STYLE_DEFAULTS = {
   color: { value: "var(--white)" },
   secondaryColor: { value: "var(--white)" },
-  backgroundColor: { value: "var(--blue)" }
+  backgroundColor: { value: "var(--cobalt)" }
 };
 var ORDER_FORM_STYLE_DEFAULTS = {
   textAlign: { value: "left" },
@@ -111713,9 +115962,17 @@ function videoSourceProblems(pageData, onlyIds = null) {
 var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt }) => {
   if (!ELEMENTS[meta3]) throw new Error(`unknown element meta '${meta3}' \u2014 the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta3, salt);
-  const base = { ...KIND_DEFAULT_STYLES[meta3] ?? {}, ...STYLE_DEFAULTS[meta3] ?? {} };
+  const builderStyles = KIND_BUILDER_STYLES[meta3] ?? {};
+  const weights = Object.fromEntries(Object.entries(builderStyles).filter(([k]) => /^fontWeight|^boxShadow$/.test(k)));
+  const base = { ...weights, ...KIND_DEFAULT_STYLES[meta3] ?? {}, ...STYLE_DEFAULTS[meta3] ?? {} };
+  for (const [k, w] of Object.entries(base)) if (/^fontWeight/.test(k) && w && typeof w === "object" && w.desktop !== void 0 && w.mobile === void 0) base[k] = { ...w, mobile: w.desktop };
+  for (const [k, v] of Object.entries(base)) if (/var\(--color-/.test(JSON.stringify(v)) && builderStyles[k]) base[k] = builderStyles[k];
+  for (const [k, v] of Object.entries(base)) {
+    if (/FontFamily$/.test(k) && typeof v?.value === "string" && /^var\(--(?!headlinefont\)|contentfont\))/.test(v.value)) base[k] = { ...v, value: "var(--contentfont)" };
+  }
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
-  const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, completeExtra(meta3, meta3 === "video" ? normalizeVideoExtra(extra) : extra), withDefaults, cls);
+  const routed = routeClickAction(meta3, meta3 === "video" ? normalizeVideoExtra(extra) : extra);
+  const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, completeExtra(meta3, routed), withDefaults, cls);
   node.tag = tag || (TAG_IS_TAGNAME.has(meta3) ? ELEMENTS[meta3].tagName : "");
   return node;
 };
@@ -111815,6 +116072,7 @@ var makeSection = ({ columns, background = "transparent", padY = 60, maxWidth = 
     general: { colors: [], fontsForPreview: [], rootVars: {}, sectionStyles: scaffold + elementCss, customFonts: [] }
   };
 };
+var weightObj = (w) => ({ value: "", desktop: String(w), mobile: String(w) });
 var nodeStylesFromCss = (meta3, o = {}) => {
   const out = {};
   const put = (k, v) => {
@@ -111824,23 +116082,34 @@ var nodeStylesFromCss = (meta3, o = {}) => {
     put("backgroundColor", o.background);
     put("color", o.color);
     put("secondaryColor", o.color);
+    out.fontWeight = weightObj(o.weight ?? 600);
   } else {
     put("color", o.color);
     put("fontFamily", o.font);
-    put("fontWeight", o.weight);
     put("textAlign", o.align);
     put("lineHeight", o.lineHeight);
+    if (o.weight !== void 0 && o.weight !== null && o.weight !== "") out.fontWeight = weightObj(o.weight);
+  }
+  return out;
+};
+var nodeExtraFromCss = (meta3, o = {}) => {
+  const out = {};
+  if (meta3 === "button") {
+    const d = o.size ?? 16;
+    out.desktopFontSize = px(d);
+    out.mobileFontSize = px(o.mobileSize ?? d);
+    if (o.font) out.typography = { value: o.font };
+  } else if (TEXT_SIZE_KINDS.has(meta3) && o.size !== void 0 && o.size !== null && o.size !== "") {
+    out.desktopFontSize = px(o.size);
+    out.mobileFontSize = px(o.mobileSize ?? Math.round(o.size * 0.8));
   }
   return out;
 };
 var textCss = (id, o) => {
-  const sel = `.${id} h1,.${id} h2,.${id} h3,.${id} h4,.${id} h5,.${id} h6,.${id} ul li,.${id}.text-output`;
   const weight = o.weight ?? 400;
   return [
     `${PREFIX} #${id}{margin:0}`,
-    `${PREFIX} .c${id}{font-family:${o.font};color:${o.color};font-weight:${weight};padding:0;opacity:1;line-height:${o.lineHeight ?? "1.35em"};letter-spacing:${o.letterSpacing ?? 0}px;text-align:${o.align ?? "center"};background-color:transparent}`,
-    `@media screen and (min-width:481px) and (max-width:10000px){${sel}{font-size:${o.size}px!important;font-weight:${weight}}}`,
-    `@media screen and (min-width:0px) and (max-width:480px){${sel}{font-size:${o.mobileSize ?? Math.round(o.size * 0.8)}px!important;font-weight:${weight}}}`
+    `${PREFIX} .c${id}{font-family:${o.font};color:${o.color};font-weight:${weight};padding:0;opacity:1;line-height:${o.lineHeight ?? "1.35em"};letter-spacing:${o.letterSpacing ?? 0}px;text-align:${o.align ?? "center"};background-color:transparent}`
   ].join("");
 };
 var KEBAB = (k) => k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
@@ -111856,15 +116125,20 @@ var declValue = (v) => {
 };
 var leafStyleCss = (id, styles) => {
   const decls = Object.entries(styles ?? {}).map(([k, v]) => {
+    if (/^fontWeight/.test(k)) return null;
     const out = declValue(v);
-    return out === null ? null : `${KEBAB(k)}:${out}`;
+    return out === null || out === "" ? null : `${KEBAB(k)}:${out}`;
   }).filter(Boolean);
   return decls.length ? `${PREFIX} .${id}{${decls.join(";")}}` : "";
 };
+var buttonColourCss = (node) => {
+  const st = node.styles ?? {};
+  const d = [["color", st.color], ["background-color", st.backgroundColor]].filter(([, v]) => typeof v?.value === "string" && v.value).map(([k, v]) => `${k}:${v.value}`);
+  return d.length ? `${PREFIX} .c${node.id}{${d.join(";")}}` : "";
+};
 var buttonCss = (id, o) => [
   `${PREFIX} .${id}{margin:0;text-align:${o.align ?? "center"}}`,
-  `${PREFIX} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;letter-spacing:.3px;width:auto;display:inline-block}`,
-  `.${id} .main-heading-button{font-size:${o.size ?? 16}px;font-weight:600}`
+  `${PREFIX} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;letter-spacing:.3px;width:auto;display:inline-block}`
 ].join("");
 var builderSettings = (pageBackground = "var(--white)") => ({
   background: { bgImage: { value: { url: "", options: "bgCover" } }, backgroundColor: { value: pageBackground } },
@@ -111887,6 +116161,58 @@ var withElement = (n) => {
   const element = n.type === "section" ? { ...pick3([...base, "_id"]), _id: n._id ?? n.id } : n.type === "col" ? { ...pick3(base), noOfColumns: n.noOfColumns ?? 1 } : n.type === "row" ? pick3(base) : pick3([...base, "customCss", "tag"]);
   return { ...n, ...n.type === "col" ? { noOfColumns: n.noOfColumns ?? 1 } : {}, element };
 };
+var BUILDER_PALETTE = Object.freeze([
+  { label: "Transparent", value: "transparent" },
+  { label: "Primary", value: "#37ca37" },
+  { label: "Secondary", value: "#188bf6" },
+  { label: "White", value: "#ffffff" },
+  { label: "Gray", value: "#cbd5e0" },
+  { label: "Black", value: "#000000" },
+  { label: "Red", value: "#e93d3d" },
+  { label: "Orange", value: "#f6ad55" },
+  { label: "Yellow", value: "#faf089" },
+  { label: "Green", value: "#9ae6b4" },
+  { label: "Teal", value: "#81e6d9" },
+  { label: "Malibu", value: "#63b3ed" },
+  { label: "Indigo", value: "#757BBD" },
+  { label: "Purple", value: "#d6bcfa" },
+  { label: "Pink", value: "#fbb6ce" },
+  { label: "Cobalt", value: "#155eef" },
+  { label: "Smoke", value: "#f5f5f5" },
+  { label: "Overlay", value: "rgba(0, 0, 0, 0.5)" },
+  // Not in the builder's 18: `var(--blue)` is what its own default link colour is labelled (convertToColorObject({label:
+  // "Blue", value:"#188bf6"})) and what GHL's template nodes write (image-feature linkTextColor, a store kind's
+  // secondaryColor — kind-style-defaults.mjs). Listed here, --blue is declared on the page and the builder's rootVars
+  // (every general.colors label) keep declaring it after a save.
+  { label: "Blue", value: "#188bf6" }
+].map(Object.freeze));
+var varName = (label2) => `--${String(label2).toLowerCase()}`;
+var mergePalette = (colors = []) => {
+  const out = BUILDER_PALETTE.map((c) => ({ ...c }));
+  for (const c of colors ?? []) {
+    if (!c?.label) continue;
+    const at = out.findIndex((x) => x.label.toLowerCase() === String(c.label).toLowerCase());
+    if (at >= 0) out[at] = { ...out[at], ...c };
+    else out.push({ ...c });
+  }
+  return out;
+};
+var addMissingRootVars = (css, vars) => {
+  const cur = css ?? "";
+  const missing = Object.entries(vars).filter(([n]) => !new RegExp(`${n.replace(/[-]/g, "\\-")}\\s*:`).test(cur));
+  return missing.length ? `:root{${missing.map(([n, v]) => `${n}:${v}`).join(";")}}${cur}` : cur;
+};
+function applyPalette(pageData) {
+  const g = pageData.general?.general;
+  if (!g) return pageData;
+  g.colors = mergePalette(g.colors);
+  const typo = pageData.settings?.settings?.typography?.colors ?? {};
+  const vars = Object.fromEntries(g.colors.map((c) => [varName(c.label), c.value]));
+  vars["--text-color"] = typo.textColor?.value?.value || "#000000";
+  vars["--link-color"] = typo.linkColor?.value?.value || "#188bf6";
+  pageData.pageStyles = addMissingRootVars(pageData.pageStyles, vars);
+  return pageData;
+}
 var buildPageData = ({ pageId, stepId, funnelId, locationId, sections, pageStyles = "", fonts = ["Arial", "Georgia", "Roboto"], colors = [], pageBackground = "var(--white)" }) => ({
   funnelId,
   locationId,
@@ -111980,6 +116306,14 @@ var auditPageData = (pageData, { stepType } = {}) => {
       const action = n.extra?.action?.value;
       if (action !== void 0 && action !== "" && !ACTION_VALUES.includes(action)) {
         problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action \u2014 use one of ${ACTION_VALUES.join(", ")}. autosave stores an unknown value with a 201 and the control silently does nothing.`);
+      }
+      const spec = CLICK_ACTION_PROPS[n.meta];
+      if (spec) {
+        if (action !== void 0) problems.push(`node ${n.id} (${n.meta}): extra.action is not read on this kind \u2014 its click action is extra.${spec.props[0]} (the public renderer reads imageActions); set that instead`);
+        for (const p2 of spec.props) {
+          const v = n.extra?.[p2]?.value;
+          if (v !== void 0 && !spec.values.includes(v)) problems.push(`node ${n.id} (${n.meta}): extra.${p2}.value ${JSON.stringify(v)} is not one of ${spec.values.join(", ")} \u2014 the click does nothing`);
+        }
       }
       for (const prop of REFERENCE_EXTRA_PROPS) {
         const v = n.extra?.[prop];
@@ -112630,18 +116964,18 @@ var isCustomFont = (f) => typeof f === "object" && f !== null && f.custom === tr
 var customFamily = (f) => `customhl-${f.id}-${f.name}`;
 var customTypographyValue = (f) => ({ text: f.name, value: `'${customFamily(f)}'` });
 function typographySlot(which, font, currentText) {
-  const [, varName, label2] = TYPOGRAPHY_SLOTS[which];
+  const [, varName2, label2] = TYPOGRAPHY_SLOTS[which];
   if (isCustomFont(font)) {
     const fam = customFamily(font);
     return {
-      slot: { id: varName, text: currentText ?? label2, value: customTypographyValue(font), isCustom: true },
-      vars: { [`--${varName}`]: `'${fam}'`, [fontSlug(fam)]: `'${fam}'` },
+      slot: { id: varName2, text: currentText ?? label2, value: customTypographyValue(font), isCustom: true },
+      vars: { [`--${varName2}`]: `'${fam}'`, [fontSlug(fam)]: `'${fam}'` },
       family: null
     };
   }
   return {
-    slot: { id: varName, text: currentText ?? label2, value: typographyValue(font), isCustom: false },
-    vars: { [`--${varName}`]: `'${font}'`, [fontSlug(font)]: `'${font}'` },
+    slot: { id: varName2, text: currentText ?? label2, value: typographyValue(font), isCustom: false },
+    vars: { [`--${varName2}`]: `'${font}'`, [fontSlug(font)]: `'${font}'` },
     family: font
   };
 }
@@ -112921,7 +117255,7 @@ var mergeInto = (node, key, patch) => {
   node[key] = { ...node[key] ?? {}, ...patch };
   if (node.element && typeof node.element === "object") node.element[key] = { ...node.element[key] ?? {}, ...patch };
 };
-function applyPageEdits(pageData, ops, { compileStyles = () => "" } = {}) {
+function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes = () => "" } = {}) {
   const next = structuredClone(pageData);
   const report = [];
   for (const [i, o] of ops.entries()) {
@@ -113010,6 +117344,14 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "" } = {}) {
         if (!given.type) next2.type = given.selfHostedVideo?.id ? "selfHosted" : given.url ? videoTypeOf(given.url) ?? cur.type : cur.type;
         o.extra = { ...o.extra, videoProperties: { value: next2 } };
       }
+      if (o.extra) {
+        try {
+          o.extra = routeClickAction(hit.node.meta, o.extra);
+        } catch (e) {
+          report.push({ i, op: "set", nodeId: o.nodeId, error: e.message });
+          continue;
+        }
+      }
       if (o.extra && Object.keys(o.extra).length) {
         mergeInto(hit.node, "extra", o.extra);
         changed.push(...Object.keys(o.extra).map((k) => `extra.${k}`));
@@ -113022,6 +117364,12 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "" } = {}) {
           hit.section.general = { ...hit.section.general ?? {}, sectionStyles: `${hit.section.general?.sectionStyles ?? ""}${rule}` };
           changed.push("section.general.sectionStyles");
         }
+      }
+      const sized = Object.keys(o.extra ?? {}).some((k) => /FontSize$/.test(k)) || Object.keys(o.styles ?? {}).some((k) => /^fontWeight/.test(k));
+      const sizeRule = sized ? compileSizes(hit.node) : "";
+      if (sizeRule) {
+        hit.section.general = { ...hit.section.general ?? {}, sectionStyles: `${hit.section.general?.sectionStyles ?? ""}${sizeRule}` };
+        changed.push("section.general.sectionStyles");
       }
       hit.node.updated = true;
       report.push({ i, op: "set", nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch } });
@@ -113149,17 +117497,17 @@ function verifyEdits(stored, report) {
       if (e.background?.color !== void 0 && bg?.backgroundColor?.value !== e.background.color) wrong.push("background.color");
       for (const [which, family] of [["headline", e.typography?.headlineFont], ["content", e.typography?.contentFont]]) {
         if (!family) continue;
-        const [key, varName] = TYPOGRAPHY_SLOTS[which];
+        const [key, varName2] = TYPOGRAPHY_SLOTS[which];
         if (isCustomFont(family)) {
           const slot = stored.settings?.settings?.typography?.fonts?.[key];
           if (slot?.value?.value !== `'${customFamily(family)}'` || slot?.isCustom !== true) wrong.push(`typography.${key}`);
           if (!(stored.general?.general?.customFonts ?? []).some((f) => f.id === family.id && f.url === family.url)) wrong.push(`customFonts.${family.id}`);
-          if (!(stored.pageStyles ?? "").includes(`--${varName}: '${customFamily(family)}'`) && !(stored.pageStyles ?? "").includes(`--${varName}:'${customFamily(family)}'`)) wrong.push(`pageStyles.--${varName}`);
+          if (!(stored.pageStyles ?? "").includes(`--${varName2}: '${customFamily(family)}'`) && !(stored.pageStyles ?? "").includes(`--${varName2}:'${customFamily(family)}'`)) wrong.push(`pageStyles.--${varName2}`);
           continue;
         }
         if (stored.settings?.settings?.typography?.fonts?.[key]?.value?.text !== family) wrong.push(`typography.${key}`);
         if (!(stored.general?.general?.fontsToLoad ?? []).includes(family)) wrong.push(`fontsToLoad.${family}`);
-        if (!new RegExp(`--${varName}\\s*:\\s*'${family.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}'`).test(stored.pageStyles ?? "")) wrong.push(`pageStyles.--${varName}`);
+        if (!new RegExp(`--${varName2}\\s*:\\s*'${family.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}'`).test(stored.pageStyles ?? "")) wrong.push(`pageStyles.--${varName2}`);
       }
       out.push({ page: true, applied: wrong.length === 0, ...wrong.length ? { notApplied: wrong } : {} });
     }
@@ -113356,7 +117704,7 @@ function popupRefProblems(pageData, onlyIds = null) {
   const problems = [];
   const nodes = [...(pageData.sections ?? []).flatMap((s) => s.elements ?? []), ...(pageData.popupsList ?? []).flatMap((p2) => p2.elements ?? [])];
   for (const n of nodes) {
-    if (n?.extra?.action?.value !== "openPopup" || onlyIds && !onlyIds.has(n.id)) continue;
+    if (clickActionOf(n) !== "openPopup" || onlyIds && !onlyIds.has(n.id)) continue;
     const pid = n.extra?.popupId?.value;
     if (!pid || !ids.has(pid)) problems.push(`${n.id}: action openPopup names popup "${pid ?? ""}", which is not on this page (${[...ids].join(", ") || "it has no popups"})`);
   }
@@ -196435,8 +200783,9 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   } catch (e) {
     return fail(CODES.VALIDATION_FAILED, e.message, e.remediation ?? "Fix the op named in the message.");
   }
-  const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles) });
+  const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles), compileSizes: elementSizeCss });
   if (fonts && !errors.length) applyTypography(edited, {}, fonts.reg);
+  if (!errors.length) applyPalette(edited);
   if (errors.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${errors.length} edit(s) could not be applied; nothing was written`, "data.report names each refused op."), { report });
   const touched = /* @__PURE__ */ new Set([
     ...report.filter((r) => r.op === "set").map((r) => r.nodeId),
@@ -204971,7 +209320,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, popups?, typography?): writes the nodes AND the compiled stylesheet \u2014 the builder canvas reads node styles, the public page the compiled CSS; both are needed. Refuses what autosave accepts with 201 and then breaks: a meta outside the 60 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (refused by name: text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, remove-node, page (trackingCode, customCss, background, typography), append-popup; seo writes the page record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Element keys per kind, animations, popups, fonts and every trap: ghl-funnels-pages SKILL \u2192 references/build-funnel-page.md. Siblings: edit_funnel (steps, settings, publish state), get_funnel (read), create_funnel (the document).`,
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, popups?, typography?): writes the nodes AND the compiled stylesheet \u2014 the builder canvas reads node styles, the public page the compiled CSS; both are needed. Sizes, weights, click actions and builder defaults sit on the nodes, so a builder save keeps them. Refuses what autosave accepts with 201 and then breaks: a meta outside the 60 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (refused by name: text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, remove-node, page (trackingCode, customCss, background, typography), append-popup; seo writes the page record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Element keys per kind, animations, popups, fonts and every trap: ghl-funnels-pages SKILL \u2192 references/build-funnel-page.md. Siblings: edit_funnel (steps, settings, publish state), get_funnel (read), create_funnel (the document).`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -205076,7 +209425,8 @@ var TOOLS2 = [
         }
         const leaf = makeLeaf({
           meta: e.meta,
-          extra,
+          // A `css` size goes on the NODE, where the builder reads it on every save; an authored extra key wins.
+          extra: e.css ? { ...nodeExtraFromCss(e.meta, e.css), ...extra } : extra,
           // A `css` block also yields the node styles it implies, so the builder canvas and the
           // public render agree (bl-120); an authored `styles` key always wins.
           styles: { ...e.css ? nodeStylesFromCss(e.meta, e.css) : {}, ...e.styles ?? {} },
@@ -205085,6 +209435,8 @@ var TOOLS2 = [
           salt
         });
         let css = e.css ? e.meta === "button" ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css) : leafStyleCss(leaf.id, e.styles);
+        css += elementSizeCss(leaf);
+        if (e.meta === "button" && !e.css) css += buttonColourCss(leaf);
         css += entranceCss(leaf.id, leaf.class) + hoverCss(leaf.id, leaf.class);
         if (e.font) css += typographyRule(leaf.id, e.font);
         return { leaf, css };
@@ -205145,6 +209497,7 @@ var TOOLS2 = [
         });
         pageData.popupsList = popups.map((p2) => p2.entry);
         applyTypography(pageData, typo, fonts.reg);
+        applyPalette(pageData);
         const refs = popupRefProblems(pageData);
         if (refs.length) throw Object.assign(new Error(refs.join("; ")), { remediation: 'A button whose action is openPopup must name a popup on this page \u2014 use `openPopup: "<popup name>"` on the element.' });
         const vids = videoSourceProblems(pageData);

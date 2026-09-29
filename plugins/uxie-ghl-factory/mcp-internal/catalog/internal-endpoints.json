@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-29",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1551,
+  "count": 1552,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -46480,8 +46480,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:88",
-        "pipelines-opportunities/20-api/bulk-actions.md:94"
+        "pipelines-opportunities/20-api/bulk-actions.md:122",
+        "pipelines-opportunities/20-api/bulk-actions.md:128"
       ]
     },
     {
@@ -46512,7 +46512,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:99"
+        "pipelines-opportunities/20-api/bulk-actions.md:133"
       ]
     },
     {
@@ -46543,7 +46543,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:57"
+        "pipelines-opportunities/20-api/bulk-actions.md:91"
       ]
     },
     {
@@ -46579,6 +46579,9 @@
     },
     {
       "id": "pipelines-opportunities--bulk-actions-request-get",
+      "aka": [
+        "/bulk-actions/request/{id}"
+      ],
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/bulk-actions/request/{bulkRequestId}",
       "path": "/bulk-actions/request/{bulkRequestId}",
@@ -46609,7 +46612,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:56"
+        "pipelines-opportunities/20-api/bulk-actions.md:90",
+        "pipelines-opportunities/20-api/bulk-actions.md:74"
       ]
     },
     {
@@ -46640,7 +46644,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:55"
+        "pipelines-opportunities/20-api/bulk-actions.md:89"
       ]
     },
     {
@@ -46675,7 +46679,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:68"
+        "pipelines-opportunities/20-api/bulk-actions.md:102"
       ]
     },
     {
@@ -60164,6 +60168,9 @@
     },
     {
       "id": "pipelines-opportunities--objects",
+      "aka": [
+        "/objects/{schemaId}"
+      ],
       "method": "PUT",
       "url": "https://services.leadconnectorhq.com/objects/{objectKey}",
       "path": "/objects/{objectKey}",
@@ -60194,7 +60201,46 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/settings.md:81"
+        "pipelines-opportunities/20-api/settings.md:81",
+        "pipelines-opportunities/20-api/settings.md:102"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--objects-opportunity",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/objects/opportunity",
+      "path": "/objects/opportunity",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/settings.md:101"
       ]
     },
     {
@@ -60379,6 +60425,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "pipelines-opportunities/20-api/forecast.md:115",
         "pipelines-opportunities/20-api/opportunities.md:132",
         "pipelines-opportunities/20-api/opportunities.md:154",
         "pipelines-opportunities/20-api/opportunities.md:316"
@@ -60490,7 +60537,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/bulk-actions.md:77",
+        "pipelines-opportunities/20-api/bulk-actions.md:111",
         "pipelines-opportunities/20-api/opportunities.md:234"
       ]
     },
@@ -60722,7 +60769,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:156",
+        "pipelines-opportunities/20-api/forecast.md:168",
         "pipelines-opportunities/20-api/pipelines.md:42"
       ]
     },
@@ -60758,7 +60805,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:168",
+        "pipelines-opportunities/20-api/forecast.md:180",
         "pipelines-opportunities/20-api/pipelines.md:43",
         "pipelines-opportunities/20-api/pipelines.md:169"
       ]
@@ -60802,8 +60849,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:164",
-        "pipelines-opportunities/20-api/forecast.md:178"
+        "pipelines-opportunities/20-api/forecast.md:176",
+        "pipelines-opportunities/20-api/forecast.md:190"
       ]
     },
     {
@@ -60849,7 +60896,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:157"
+        "pipelines-opportunities/20-api/forecast.md:169"
       ]
     },
     {
@@ -60884,7 +60931,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:177"
+        "pipelines-opportunities/20-api/forecast.md:189"
       ]
     },
     {
@@ -61334,7 +61381,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:158",
+        "pipelines-opportunities/20-api/forecast.md:170",
         "pipelines-opportunities/20-api/pipelines.md:39"
       ]
     },
@@ -61374,7 +61421,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/forecast.md:15",
-        "pipelines-opportunities/20-api/forecast.md:122",
+        "pipelines-opportunities/20-api/forecast.md:134",
         "pipelines-opportunities/20-api/opportunities.md:32"
       ]
     },
