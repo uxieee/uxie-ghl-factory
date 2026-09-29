@@ -18,7 +18,8 @@ export function findNode(pageData, nodeId) {
   return null;
 }
 
-import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch } from './funnel-pages.mjs';
+import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch, withElement } from './funnel-pages.mjs';
+import { randomId, allIds, subtreeIds, parentOf, positionIn, movedIndex, cloneSubtree, copyRulesUnderNewIds, stripRulesNaming, findPopup, popupRoot } from './page-structure.mjs';
 import { nodeLayerCss, storedMap, LAYER_SPEC_KEYS } from './style-layer.mjs';
 import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, customFamily } from './page-fonts.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
@@ -28,6 +29,156 @@ const mergeInto = (node, key, patch) => {
   // The builder also reads a canonical copy from node.element (see withElement); keep them equal.
   if (node.element && typeof node.element === 'object') node.element[key] = { ...(node.element[key] ?? {}), ...patch };
 };
+
+
+const inPopup = (pageData, nodeId) => (pageData.popupsList ?? []).some((p) => (p.elements ?? []).some((e) => e.id === nodeId));
+
+/** The column an inserted element goes into, and its position: parentId (+ index | after | before among its children) or a sibling (after | before). */
+function insertTarget(pageData, o) {
+  let hit; let col;
+  if (o.parentId) {
+    hit = findNode(pageData, o.parentId);
+    if (!hit || hit.isSection) throw new Error(`insert: no column with id ${o.parentId} on the page`);
+    col = hit.node;
+  } else {
+    const sib = o.after ?? o.before;
+    if (!sib) throw new Error('insert needs parentId (a column) or after / before (a sibling element)');
+    hit = findNode(pageData, sib);
+    if (!hit || hit.isSection) throw new Error(`insert: no element with id ${sib} on the page`);
+    col = parentOf(hit.section, sib)?.parent;
+    if (!col) throw new Error(`insert: ${sib} has no parent column`);
+  }
+  if (col.meta !== 'col') throw new Error(`insert: ${col.id} is a ${col.meta}, an element goes into a column (name a column, or a sibling of the element position)`);
+  const where = o.parentId ? { index: o.index, after: o.after, before: o.before } : { after: o.after, before: o.before };
+  return { section: hit.section, col, at: positionIn(col.child ?? [], where, 'insert') };
+}
+
+/** Reorder: a section among the sections; a row, column or element among its siblings; an element into another column of the same section. */
+function moveNode(pageData, o) {
+  const hit = findNode(pageData, o.nodeId);
+  if (!hit) return { error: 'no node with this id on the page' };
+  try {
+    if (hit.isSection) {
+      const ids = pageData.sections.map((x) => x.id); const from = ids.indexOf(o.nodeId);
+      const at = movedIndex(ids, from, o);
+      const [moving] = pageData.sections.splice(from, 1);
+      pageData.sections.splice(at, 0, moving);
+      pageData.sections = pageData.sections.map((x, k) => ({ ...x, sequence: k }));
+      return { moved: 'section', from, to: at, order: pageData.sections.map((x) => x.id) };
+    }
+    const cur = parentOf(hit.section, o.nodeId);
+    if (!cur) return { error: 'this node has no parent' };
+    let dest = cur.parent;
+    if (o.parentId && o.parentId !== cur.parent.id) {
+      const d = findNode(pageData, o.parentId);
+      if (!d || d.isSection || d.section !== hit.section) return { error: `parentId ${o.parentId}: a node moves between the columns of ITS section only` };
+      if (hit.node.type !== 'element' && hit.node.meta !== undefined && ['row', 'col', 'section'].includes(hit.node.meta)) return { error: `a ${hit.node.meta} keeps its parent; only elements move between columns` };
+      if (d.node.meta !== 'col') return { error: `parentId ${o.parentId} is a ${d.node.meta}; an element goes into a column` };
+      dest = d.node;
+    }
+    if (dest === cur.parent) {
+      const at = movedIndex(dest.child, cur.index, o);
+      const child = dest.child.filter((c) => c !== o.nodeId); child.splice(at, 0, o.nodeId);
+      dest.child = child; if (dest.element && typeof dest.element === 'object') dest.element.child = [...child];
+      return { moved: hit.node.meta, parentId: dest.id, from: cur.index, to: at, siblings: [...child] };
+    }
+    if (o.direction !== undefined) return { error: 'a move into another column names a position (index, after, before), not a direction' };
+    cur.parent.child = cur.parent.child.filter((c) => c !== o.nodeId);
+    const at = positionIn(dest.child ?? [], o, 'move');
+    dest.child = [...(dest.child ?? []).slice(0, at), o.nodeId, ...(dest.child ?? []).slice(at)];
+    for (const p of [cur.parent, dest]) if (p.element && typeof p.element === 'object') p.element.child = [...p.child];
+    return { moved: hit.node.meta, parentId: dest.id, fromParent: cur.parent.id, to: at, siblings: [...dest.child] };
+  } catch (e) { return { error: e.message }; }
+}
+
+/** A copy of a section, row, column or element — every id new, put right after the original — with its rules under the new ids. */
+function cloneNode(pageData, o) {
+  const hit = findNode(pageData, o.nodeId);
+  if (!hit) return { error: 'no node with this id on the page' };
+  const taken = allIds(pageData);
+  const rnd = o.rnd ?? Math.random;
+  if (hit.isSection) {
+    const { ids, nodes } = cloneSubtree(hit.section, o.nodeId, taken, rnd);
+    const [meta, ...elements] = nodes;
+    // the builder's own clone of a section carries `styles.background = none` (and no _id): measured in its saves, wave34 capture 3 and wave35
+    meta.styles = { ...(meta.styles ?? {}), background: { value: 'none' } };
+    const newId = ids.get(o.nodeId);
+    const { metaData: _m, elements: _e, general, ...rest } = hit.section;
+    const copy = { ...rest, id: newId, metaData: meta, elements, general: { ...(general ?? {}), sectionStyles: copyRulesUnderNewIds(general?.sectionStyles ?? '', ids) } };
+    const secs = pageData.sections;
+    pageData.sections = [...secs.slice(0, hit.sectionIndex + 1), copy, ...secs.slice(hit.sectionIndex + 1)].map((x, k) => ({ ...x, sequence: k }));
+    return { cloneId: newId, cloned: 'section', at: hit.sectionIndex + 1, ids: Object.fromEntries(ids) };
+  }
+  const cur = parentOf(hit.section, o.nodeId);
+  if (!cur) return { error: 'this node has no parent' };
+  const { ids, nodes } = cloneSubtree(hit.section, o.nodeId, taken, rnd);
+  hit.section.elements = [...hit.section.elements, ...nodes];
+  cur.parent.child = [...cur.parent.child.slice(0, cur.index + 1), ids.get(o.nodeId), ...cur.parent.child.slice(cur.index + 1)];
+  if (cur.parent.element && typeof cur.parent.element === 'object') cur.parent.element.child = [...cur.parent.child];
+  const rules = copyRulesUnderNewIds(hit.section.general?.sectionStyles ?? '', ids);
+  if (rules) hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: `${hit.section.general?.sectionStyles ?? ''}${rules}` };
+  return { cloneId: ids.get(o.nodeId), cloned: hit.node.meta, parentId: cur.parent.id, at: cur.index + 1, siblings: [...cur.parent.child], nodes: nodes.length, ids: Object.fromEntries(ids) };
+}
+
+const POPUP_KNOBS = { disabled: 'popupDisabled', closeOnOutsideClick: 'popupHide' };
+
+/** A popup's own flags: disabled (popupDisabled) and closeOnOutsideClick (popupHide) on its root node; showOn ('exit' | 'none' | {delay}) — showPopupOnMouseOut. */
+function setPopup(pageData, o) {
+  const hit = findPopup(pageData, o.popupId);
+  if (!hit) return { error: `no popup ${o.popupId} on this page (${(pageData.popupsList ?? []).map((p) => popupRoot(p)?.title ?? p.id).join(', ') || 'it has none'})` };
+  if (hit.ambiguous) return { error: `${o.popupId} names several popups (${hit.ambiguous.join(', ')}); use the popup id` };
+  const root = popupRoot(hit.popup);
+  if (!root) return { error: 'this popup has no root node' };
+  const changed = [];
+  for (const [k, field] of Object.entries(POPUP_KNOBS)) if (o[k] !== undefined) {
+    if (typeof o[k] !== 'boolean') return { error: `${k} must be true or false` };
+    root.extra = { ...(root.extra ?? {}), [field]: { value: o[k] } }; changed.push(`extra.${field}`);
+  }
+  if (o.showOn !== undefined) {
+    const s = o.showOn;
+    const trig = s === 'exit' ? { value: 'exit', delay: 1 } : s === 'none' ? { value: 'none', delay: 1 }
+      : (s && Number.isFinite(Number(s.delay)) && Number(s.delay) >= 0) ? { value: 'delay', delay: Number(s.delay) } : null;
+    if (!trig) return { error: "showOn must be 'exit', 'none' or {delay: seconds}" };
+    root.extra = { ...(root.extra ?? {}), showPopupOnMouseOut: trig }; changed.push('extra.showPopupOnMouseOut');
+  }
+  if (!changed.length) return { error: 'set-popup needs disabled, closeOnOutsideClick or showOn' };
+  if (root.element && typeof root.element === 'object') root.element.extra = { ...root.extra };
+  return { popupId: hit.popup.id, changed, expect: Object.fromEntries(changed.map((c) => [c, root.extra[c.slice(6)]])) };
+}
+
+/** Take a popup out of popupsList, and its page-level rules (every rule naming the popup or one of its nodes). Refused while a button opens it. */
+function removePopup(pageData, o) {
+  const hit = findPopup(pageData, o.popupId);
+  if (!hit) return { error: `no popup ${o.popupId} on this page (${(pageData.popupsList ?? []).map((p) => popupRoot(p)?.title ?? p.id).join(', ') || 'it has none'})` };
+  if (hit.ambiguous) return { error: `${o.popupId} names several popups (${hit.ambiguous.join(', ')}); use the popup id` };
+  const id = hit.popup.id;
+  const openers = [];
+  for (const sec of pageData.sections ?? []) for (const e of sec.elements ?? []) if (e.extra?.popupId?.value === id || Object.values(e.extra ?? {}).some((v) => v?.value?.popupId === id)) openers.push(e.id);
+  if (openers.length) return { error: `${openers.join(', ')} open this popup; point them elsewhere (set) or remove them first` };
+  const ids = (hit.popup.elements ?? []).map((e) => e.id);
+  const before = pageData.pageStyles ?? '';
+  const keep = stripRulesNaming(before, ids);
+  pageData.popupsList = pageData.popupsList.filter((p) => p.id !== id);
+  pageData.pageStyles = keep;
+  return { popupId: id, removedNodes: ids.length, pageStylesChanged: keep !== before, remaining: pageData.popupsList.map((p) => p.id) };
+}
+
+/** popupsList in the given order (ids or names); popups not listed keep their relative order after the listed ones. */
+function orderPopups(pageData, o) {
+  const list = pageData.popupsList ?? [];
+  if (!Array.isArray(o.order) || !o.order.length) return { error: 'order-popups needs `order`: the popup ids or names, first = highest priority' };
+  const picked = [];
+  for (const ref of o.order) {
+    const hit = findPopup(pageData, ref);
+    if (!hit) return { error: `no popup ${ref} on this page` };
+    if (hit.ambiguous) return { error: `${ref} names several popups (${hit.ambiguous.join(', ')}); use the popup id` };
+    if (picked.includes(hit.popup.id)) return { error: `${ref} is listed twice` };
+    picked.push(hit.popup.id);
+  }
+  const next = [...picked.map((id) => list.find((p) => p.id === id)), ...list.filter((p) => !picked.includes(p.id))];
+  pageData.popupsList = next;
+  return { order: next.map((p) => p.id), names: next.map((p) => popupRoot(p)?.title ?? p.id) };
+}
 
 /**
  * ops:
@@ -46,7 +197,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
   for (const [i, o] of ops.entries()) {
     if (o.op === 'set') {
       const hit = findNode(next, o.nodeId);
-      if (!hit) { report.push({ i, op: 'set', nodeId: o.nodeId, error: 'no node with this id on the page' }); continue; }
+      if (!hit) { report.push({ i, op: 'set', nodeId: o.nodeId, error: inPopup(next, o.nodeId) ? 'this node is inside a popup: a popup\'s own settings go through set-popup; its content is rebuilt with remove-popup + append-popup (content edits inside a popup are not supported)' : 'no node with this id on the page' }); continue; }
       const beforeNode = !hit.isSection && kindLayer ? structuredClone(hit.node) : null;
       if (hit.isSection) {
         // A section takes its General-tab knobs and its styling (styles, wrapper, tablet / mobile maps, visibility, custom
@@ -179,8 +330,39 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       hit.node.updated = true;
       report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...layerPatch } });
     } else if (o.op === 'append-section') {
-      next.sections = [...(next.sections ?? []), { ...o.section, sequence: (next.sections ?? []).length }];
-      report.push({ i, op: 'append-section', sectionId: o.section.id, nodes: (o.section.elements ?? []).length });
+      // At the end, or at a position among the sections (index | after | before — a section id).
+      const secs = next.sections ?? [];
+      let at;
+      try { at = positionIn(secs.map((x) => x.id), o, 'append-section'); } catch (e) { report.push({ i, op: 'append-section', error: e.message }); continue; }
+      next.sections = [...secs.slice(0, at), o.section, ...secs.slice(at)].map((x, k) => ({ ...x, sequence: k }));
+      report.push({ i, op: 'append-section', sectionId: o.section.id, nodes: (o.section.elements ?? []).length, ...(['index', 'after', 'before'].some((k) => o[k] !== undefined) ? { at } : {}) });
+    } else if (o.op === 'insert') {
+      // A new element into an existing column at a position: the node joins the section's element bag, its id goes into the column's
+      // child[] (builder Quick Add: right after the selected element), its rules into the section's sheet.
+      let target;
+      try { target = insertTarget(next, o); } catch (e) { report.push({ i, op: 'insert', error: e.message }); continue; }
+      const { section, col, at } = target;
+      const leaf = withElement(o.leaf);
+      section.elements = [...section.elements, leaf];
+      col.child = [...(col.child ?? []).slice(0, at), leaf.id, ...(col.child ?? []).slice(at)];
+      if (col.element && typeof col.element === 'object') col.element.child = [...col.child];
+      if (o.css) section.general = { ...(section.general ?? {}), sectionStyles: `${section.general?.sectionStyles ?? ''}${o.css}` };
+      report.push({ i, op: 'insert', nodeId: leaf.id, meta: leaf.meta, sectionId: section.id, parentId: col.id, at, siblings: [...col.child] });
+    } else if (o.op === 'move') {
+      const r = moveNode(next, o);
+      report.push({ i, op: 'move', nodeId: o.nodeId, ...r });
+    } else if (o.op === 'clone') {
+      const r = cloneNode(next, o);
+      report.push({ i, op: 'clone', nodeId: o.nodeId, ...r });
+    } else if (o.op === 'set-popup') {
+      const r = setPopup(next, o);
+      report.push({ i, op: 'set-popup', popup: o.popupId, ...r });
+    } else if (o.op === 'remove-popup') {
+      const r = removePopup(next, o);
+      report.push({ i, op: 'remove-popup', popup: o.popupId, ...r });
+    } else if (o.op === 'order-popups') {
+      const r = orderPopups(next, o);
+      report.push({ i, op: 'order-popups', ...r });
     } else if (o.op === 'append-popup') {
       next.popupsList = [...(next.popupsList ?? []), o.popup.entry];
       // The popup's box and its content's rules are PAGE-level CSS, where the builder keeps them.
@@ -254,7 +436,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       if (!changed.length) { report.push({ i, op: 'page', error: 'page op needs trackingCode, customCss, background or typography (SEO goes in `seo`)' }); continue; }
       report.push({ i, op: 'page', changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background, typography: o.typography } });
     } else {
-      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | append-popup | remove-node | page)` });
+      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | insert | move | clone | append-popup | set-popup | remove-popup | order-popups | remove-node | page)` });
     }
   }
   return { pageData: next, report, errors: report.filter((r) => r.error) };
@@ -263,7 +445,14 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
 // What a read-back must show for each op, on a separate request.
 export function verifyEdits(stored, report) {
   const out = [];
-  for (const r of report) {
+  // A child[] snapshot in the report is that op's result; a LATER op on the same parent changes the final list, so only the last op
+  // touching a parent is compared exactly (the earlier ones are checked to have left their node in the parent).
+  const lastOnParent = new Map(); report.forEach((r, k) => { if (!r.error && r.parentId && r.siblings) lastOnParent.set(r.parentId, k); });
+  // …and the same for the SECTION order (move / clone of a section / append-section at a position).
+  const secOrder = (r) => r.moved === 'section' || r.cloned === 'section' || (r.op === 'append-section' && r.at !== undefined);
+  let lastSection = -1; report.forEach((r, k) => { if (!r.error && secOrder(r)) lastSection = k; });
+  const orderOk = (final, snap, exact, id) => (exact ? JSON.stringify(final) === JSON.stringify(snap) : (final ?? []).includes(id));
+  for (const [k, r] of report.entries()) {
     if (r.error) continue;
     if (r.op === 'set') {
       // Compare VALUES, not presence: a set that landed as the old value is the failure to catch.
@@ -276,7 +465,31 @@ export function verifyEdits(stored, report) {
       }
       out.push({ nodeId: r.nodeId, present: !!hit, applied: !!hit && wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}) });
     } else if (r.op === 'append-section') {
-      out.push({ sectionId: r.sectionId, present: (stored.sections ?? []).some((s) => s.id === r.sectionId) });
+      const at = (stored.sections ?? []).findIndex((s) => s.id === r.sectionId);
+      out.push({ sectionId: r.sectionId, present: at >= 0, ...(r.at !== undefined ? { at, applied: k === lastSection ? at === r.at : at >= 0 } : {}) });
+    } else if (r.op === 'insert' || r.op === 'clone') {
+      // The new node is stored, and its parent's child[] is exactly what the tool wrote (position included).
+      const id = r.nodeId && r.op === 'insert' ? r.nodeId : r.cloneId;
+      const hit = findNode(stored, id);
+      const parent = hit && !hit.isSection ? parentOf(hit.section, id)?.parent : null;
+      const secOk = r.cloned === 'section' ? (k === lastSection ? (stored.sections ?? []).findIndex((s) => s.id === id) === r.at : (stored.sections ?? []).some((s) => s.id === id)) : null;
+      const sibOk = r.siblings ? orderOk(parent?.child, r.siblings, lastOnParent.get(r.parentId) === k, id) : (r.cloned === 'section' ? null : parent?.child?.indexOf(id) === r.at);
+      const subtree = hit ? subtreeIds(hit.section, id).length : 0;
+      out.push({ nodeId: id, present: !!hit, ...(r.op === 'clone' ? { nodes: subtree } : {}), applied: !!hit && sibOk !== false && secOk !== false && (r.op !== 'clone' || r.cloned === 'section' || subtree === r.nodes) });
+    } else if (r.op === 'move') {
+      let ok;
+      if (r.moved === 'section') { const now = (stored.sections ?? []).map((x) => x.id); ok = k === lastSection ? JSON.stringify(now) === JSON.stringify(r.order) : JSON.stringify(now.filter((x) => r.order.includes(x))) === JSON.stringify(r.order); }
+      else { const hit = findNode(stored, r.nodeId); ok = !!hit && orderOk(parentOf(hit.section, r.nodeId)?.parent?.child, r.siblings, lastOnParent.get(r.parentId) === k, r.nodeId); }
+      out.push({ nodeId: r.nodeId, applied: ok });
+    } else if (r.op === 'set-popup') {
+      const p = (stored.popupsList ?? []).find((x) => x.id === r.popupId);
+      const root = p && popupRoot(p);
+      const wrong = Object.entries(r.expect ?? {}).filter(([c, v]) => JSON.stringify(root?.extra?.[c.slice(6)]) !== JSON.stringify(v)).map(([c]) => c);
+      out.push({ popupId: r.popupId, present: !!p, applied: !!p && wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}) });
+    } else if (r.op === 'remove-popup') {
+      out.push({ popupId: r.popupId, absent: !(stored.popupsList ?? []).some((x) => x.id === r.popupId), applied: JSON.stringify((stored.popupsList ?? []).map((x) => x.id)) === JSON.stringify(r.remaining) });
+    } else if (r.op === 'order-popups') {
+      out.push({ order: (stored.popupsList ?? []).map((x) => x.id), applied: JSON.stringify((stored.popupsList ?? []).map((x) => x.id)) === JSON.stringify(r.order) });
     } else if (r.op === 'append-popup') {
       const p = (stored.popupsList ?? []).find((x) => x.id === r.popupId);
       out.push({ popupId: r.popupId, present: !!p, nodes: p?.elements?.length ?? 0, applied: !!p && p.elements.length === r.nodes });

@@ -2053,8 +2053,22 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
       }
       if (e.op === 'append-section') {
         if (!e.section) throw new Error(`edits[${i}]: append-section needs \`section\` (the same shape as sections[i])`);
-        return { op: 'append-section', section: composeSection(e.section, i, salt) };
+        return { op: 'append-section', section: composeSection(e.section, i, salt), index: e.index, after: e.after, before: e.before };
       }
+      if (e.op === 'insert') {
+        if (!e.element) throw new Error(`edits[${i}]: insert needs \`element\` (the same shape as an element of a column) and parentId (a column) or after / before (a sibling)`);
+        const { leaf, css } = composeLeaf(e.element, `${salt}I${i}`);
+        return { op: 'insert', leaf, css, parentId: e.parentId, after: e.after, before: e.before, index: e.index };
+      }
+      if (e.op === 'move' || e.op === 'clone') {
+        if (!e.nodeId) throw new Error(`edits[${i}]: ${e.op} needs nodeId`);
+        return e;
+      }
+      if (e.op === 'set-popup' || e.op === 'remove-popup') {
+        if (!e.popupId) throw new Error(`edits[${i}]: ${e.op} needs popupId (the popup's id or its name)`);
+        return e;
+      }
+      if (e.op === 'order-popups') return e;
       if (e.op === 'page') return e;
       if (!e.nodeId) throw new Error(`edits[${i}]: ${e.op} needs nodeId`);
       return e;
@@ -2070,7 +2084,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   if (!errors.length) applyPalette(edited);
   if (errors.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${errors.length} edit(s) could not be applied; nothing was written`, 'data.report names each refused op.'), { report });
   // An openPopup this call wrote must name a popup the page has (a dangling one does nothing on click).
-  const touched = new Set([...report.filter((r) => r.op === 'set').map((r) => r.nodeId),
+  const touched = new Set([...report.filter((r) => r.op === 'set' || r.op === 'insert').map((r) => r.nodeId),
     ...edited.sections.filter((sec) => report.some((r) => r.op === 'append-section' && r.sectionId === sec.id)).flatMap((sec) => sec.elements.map((n) => n.id)),
     ...(edited.popupsList ?? []).filter((p) => report.some((r) => r.op === 'append-popup' && r.popupId === p.id)).flatMap((p) => p.elements.map((n) => n.id))]);
   const refs = popupRefProblems(edited, touched);
@@ -2102,7 +2116,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   // the audit below only lists what the page already carries.
   const appendedIds = new Set(report.filter((r) => r.op === 'append-section').map((r) => r.sectionId));
   const stepKey = (funnel?.steps ?? []).find((st) => st.id === args.stepId)?.key;
-  const pdpBad = pageData.sections.filter((sec) => appendedIds.has(sec.id)).flatMap((sec) => sec.elements.flatMap((n) => pdpNodeProblems(n, sec, { stepKey })));
+  const insertedIds = new Set(report.filter((r) => r.op === 'insert').map((r) => r.nodeId));
+  const pdpBad = pageData.sections.flatMap((sec) => sec.elements.filter((n) => appendedIds.has(sec.id) || insertedIds.has(n.id)).flatMap((n) => pdpNodeProblems(n, sec, { stepKey })));
   if (pdpBad.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${pdpBad.length} product-page block(s) this call appends are misplaced; nothing was written`, 'Append them in a section with pdp:true, on the store\'s product-detail step (or a custom product page).'), { problems: pdpBad, report });
   const appendedScope = { sectionIds: appendedIds, popupIds: new Set(report.filter((r) => r.op === 'append-popup').map((r) => r.popupId)) };
   const problems = auditPageData(pageData);
@@ -11615,12 +11630,12 @@ export const TOOLS = [
     description: `${describe('build_funnel_page', 'Compose a funnel page from native elements and write it')}. `
       + 'Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, '
       + 'popups?, typography?): writes the nodes AND the compiled stylesheet. '
-      + 'Sizes, margins, tablet/mobile styles and defaults sit on the nodes and compile as the builder compiles them; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a '
+      + 'Sizes, margins, tablet/mobile styles and defaults sit on the nodes and compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a '
       + 'meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does '
-      + 'not take (refused by name: text → html), an empty popup, an openPopup naming no popup, a video with no '
-      + 'source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, '
-      + 'remove-node, page (trackingCode, customCss, background, typography), append-popup; seo writes the page '
-      + 'record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified '
+      + 'not take (text → html), an empty popup, an openPopup naming no popup, a video with no '
+      + 'source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, insert, move, clone, '
+      + 'remove-node, page (trackingCode, customCss, background, typography), append-popup, set-popup, remove-popup, order-popups; seo writes the page '
+      + 'record AND the version. Target checked first (pageId on stepId, stepName exact); every op verified '
       + 'by value on a separate read. 🔴 Visitors see only the PUBLISHED version: pass publish:true for content and '
       + 'SEO. 🔴 After someone edits the page in the builder, re-read its buttons: the first builder save adds an '
       + 'empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is '
@@ -11638,7 +11653,18 @@ export const TOOLS = [
       popups: z.array(z.record(z.any())).optional(),
       typography: z.object({ headlineFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional(), contentFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional() }).optional(),
       edits: z.array(z.object({
-        op: z.enum(['set', 'append-section', 'append-popup', 'remove-node', 'page']),
+        op: z.enum(['set', 'append-section', 'insert', 'move', 'clone', 'append-popup', 'set-popup', 'remove-popup', 'order-popups', 'remove-node', 'page']),
+        element: z.record(z.any()).optional().describe('insert: the new element, the same shape as an element of a column'),
+        parentId: z.string().optional().describe('insert: the column to insert into; move: the column of the same section to move an element into'),
+        after: z.string().optional().describe('a position: put it right after this sibling (insert / move: an element, row or column; append-section: a section id)'),
+        before: z.string().optional().describe('a position: put it right before this sibling'),
+        index: z.number().int().min(0).optional().describe('a position: the 0-based place among the siblings'),
+        direction: z.enum(['up', 'down', 'top', 'bottom']).optional().describe('move: one step up / down, or to the top / bottom of its siblings (instead of a position)'),
+        popupId: z.string().optional().describe('set-popup / remove-popup: the popup id or its name'),
+        order: z.array(z.string()).optional().describe('order-popups: popup ids or names, first = highest priority; unlisted popups follow'),
+        disabled: z.boolean().optional().describe('set-popup: the popup\'s Disable Popup switch'),
+        closeOnOutsideClick: z.boolean().optional().describe('set-popup: close on clicking outside'),
+        showOn: z.union([z.enum(['exit', 'none']), z.object({ delay: z.number().min(0) })]).optional().describe("set-popup: 'exit' | 'none' | {delay: seconds}"),
         nodeId: z.string().optional(),
         extra: z.record(z.any()).optional(),
         styles: z.record(z.any()).optional(),

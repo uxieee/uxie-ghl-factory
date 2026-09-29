@@ -198,6 +198,15 @@
         "commit:15f6180d"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:9d9f54da"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -217,14 +226,14 @@
       "redirectApp": 222
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_funnel_page": "c4ea08ef904e3e8eeb9d779203d5b23516da4e4ac645d63c111154c845277e33",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_funnel_page": "78bd3d6f4818b393ac618812143ca2f13a7a3f49a698e98b38339c9b5ebccbca",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/element-spec.mjs": "5dfb6c20d9184ab74a8f9dc379b96220d15063bd6aefbb61585c9df9c52c2010",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "4d51e727fa5e24e85a1e4ab4b91bba8ed9ad58e312e1b80992a439043e68006b",
       "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd",
-      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "c19c100c277b07b73bc836ca387155f4f02004ac7618b07c94232f9deb783ca4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "0cdfe862ea875275fed8e1cdc5e7a843de77c2c19eb0d67ccc52f1a54f821212",
       "plugins/uxie-ghl-factory/mcp-internal/core/funnel-pages.mjs": "e13565bce30f53be9a139cecb153fe732d3d5155cb27ace1ae4f9291fe82baa2",
       "plugins/uxie-ghl-factory/mcp-internal/core/kind-builder-defaults.mjs": "c34d94ba024045ae5b5ea673d830b4587e2c84a15d4581bdb6c930e9a0c7f3a0",
       "plugins/uxie-ghl-factory/mcp-internal/core/kind-css-spec.mjs": "3eb729b583a1fcffef552d1d61d496f856a39b576f092f263fb487a6d81e56c9",
@@ -233,10 +242,11 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/kind-factory-defaults.mjs": "afbe2b115298376418545f9eb10771bec9afb42a9b4df521845ab857cd4ed6af",
       "plugins/uxie-ghl-factory/mcp-internal/core/kind-style-defaults.mjs": "16cdda0143ec6756986a9e57a7675939904e2881ee6e7f6d5851633ebbde028b",
       "plugins/uxie-ghl-factory/mcp-internal/core/page-animation.mjs": "0225d669aa512b3bc4d38ff4e3071d0a9a044b8ec6c1b8cd83f17fcd409442c1",
-      "plugins/uxie-ghl-factory/mcp-internal/core/page-edit.mjs": "d382cbb77470b68ea5ae61aec793a407e8f408dbf6cc4acd590b9bbb8607f026",
+      "plugins/uxie-ghl-factory/mcp-internal/core/page-edit.mjs": "94fe817078168c1ac73f4dcf665d7ae4a07640f3b5fd20f10f31f7510c419577",
       "plugins/uxie-ghl-factory/mcp-internal/core/page-fonts.mjs": "2b0104db3262c439e313965dcd8350c50cd96de38dd67f8bc0720557779632a8",
-      "plugins/uxie-ghl-factory/mcp-internal/core/page-popup.mjs": "74b47ed12b574f5861efd9af674fde65016163bf711b459065ffe127ce330c3d",
+      "plugins/uxie-ghl-factory/mcp-internal/core/page-popup.mjs": "e6c7c753913fc1ad0f9da6aa011cde9a9d6c40a025a7581aa61316fcef674518",
       "plugins/uxie-ghl-factory/mcp-internal/core/page-seo.mjs": "941509a667bdfe0e805e23b3071e75c2937067246a38796e74d8aa0e0ffae37e",
+      "plugins/uxie-ghl-factory/mcp-internal/core/page-structure.mjs": "b8b2d440cf8e9b4a9394c28f1fb82326afeacbd103203268673f1c7bf1231661",
       "plugins/uxie-ghl-factory/mcp-internal/core/style-layer.mjs": "dde82f54bff61c020764f14fd406eb745918aadaf7310d408a4903b57376d185",
       "plugins/uxie-ghl-factory/mcp-internal/core/submit-action.mjs": "ab780f5566b5ab8681dc1aa7b35ab2d33e6c4ccc965b62d9663c1f1d5585b505"
     }
