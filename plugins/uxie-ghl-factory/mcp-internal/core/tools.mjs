@@ -119,8 +119,8 @@ import { GhlMembershipsApi } from '../../skills/ghl-memberships/engine/api.mjs';
 import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/engine/course-builder.mjs';
 import { compileConvaiAgent } from '../../engines/ai/convai-compiler.mjs';
 import { compileVoiceAiAgent, compileVoiceAiUpdate, compileVoiceAiS2sFollowUp } from '../../engines/ai/voiceai-compiler.mjs';
-import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/ai/studio-compiler.mjs';
-import { refuseUnappliedStudioKeys } from '../../engines/ai/studio-ir.mjs';
+import { compileSuperAgentCreate, compileSuperAgentUpdate, compileSuperAgentFromTemplate, templateOverrides, disablesTriggers } from '../../engines/ai/studio-compiler.mjs';
+import { refuseUnappliedStudioKeys, parseSuperAgentTemplateIR, STUDIO_TEMPLATE_IDS } from '../../engines/ai/studio-ir.mjs';
 import { IRError } from '../../engines/ai/convai-ir.mjs';
 import { executeAgentPlan, executeAgentUpdate, serverMessage } from '../../engines/ai/driver.mjs';
 import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from '../../engines/ai/voiceai-update.mjs';
@@ -609,6 +609,18 @@ export function compileAiAgentPlan(kind, args) {
   // read as contradictory (live-caught 2026-07-21). Accept EITHER and derive the missing
   // one, so a single field just works; supplying both keeps their distinct roles.
   refuseUnappliedStudioKeys(args.spec);
+  // THE TEMPLATE DOOR: from-template (no AI build), then a PUT of the template's own config with the spec's keys on top.
+  if (args.spec?.templateId !== undefined) {
+    const ir = parseSuperAgentTemplateIR(args.spec);
+    const overrides = templateOverrides(ir);
+    const disableTriggers = disablesTriggers(ir);
+    const create = compileSuperAgentFromTemplate(ir, { locationId: args.locationId });
+    const update = { method: 'PUT', path: '/agent-studio/super-agent/agents/{agentId}', body: { locationId: args.locationId },
+      mergeCreatedConfig: { overrides, disableTriggers } };
+    const verifyMergedKeys = [...Object.keys(overrides), ...(disableTriggers ? ['triggers'] : [])];
+    return { create, actions: [], followUps: [update], verifyMergedKeys, verifyExpected: { config: overrides },
+      folder: ir.folderId ? { folderId: ir.folderId, folderName: ir.folderName ?? null } : null, template: ir.templateId };
+  }
   const studioSpec = {
     ...args.spec,
     buildPrompt: args.spec?.buildPrompt ?? args.spec?.systemPrompt,
@@ -626,15 +638,26 @@ export function compileAiAgentPlan(kind, args) {
   // pretend to verify what we did not author.
   // When the caller DID author plugins or triggers, those are ours to verify too — a least-privilege
   // plugins:[] that did not land would leave the agent with every CRM skill.
-  const { name, systemPrompt, plugins, triggers } = update.body.config ?? {};
+  const { name, systemPrompt, plugins, triggers, customApiEnabled } = update.body.config ?? {};
   const verified = { name, systemPrompt };
   if (args.spec?.plugins !== undefined) verified.plugins = plugins;
   if (args.spec?.trigger !== undefined || args.spec?.triggers !== undefined) verified.triggers = triggers;
-  return { create, actions: [], followUps: [update], verifyExpected: { config: verified } };
+  if (args.spec?.customApiEnabled !== undefined) verified.customApiEnabled = customApiEnabled;
+  return { create, actions: [], followUps: [update], verifyExpected: { config: verified },
+    folder: args.spec?.folderId ? { folderId: args.spec.folderId, folderName: args.spec.folderName ?? null } : null };
 }
 
 // What a Managed Agent create applies that the caller did not write, stated in every preview.
 function studioDefaultsNote(spec = {}) {
+  if (spec.templateId !== undefined) {
+    return {
+      plugins: spec.plugins === undefined ? 'NOT SET — the TEMPLATE\'s own plugins stay (knowledge-base-assistant: the Default plugin with ALL CRM skills). Pass plugins:[] for no apps.'
+        : (spec.plugins.length ? `as given: ${spec.plugins.map((p) => p.slug).join(', ')}` : 'none (plugins: [])'),
+      triggers: disablesTriggers(spec) ? 'triggers:[] — every template trigger is sent back DISABLED (a PUT cannot remove one)'
+        : (spec.triggers?.length || spec.trigger) ? 'as given (replacing the template\'s)' : 'NOT SET — the template\'s trigger(s) stay ENABLED (they arm on publish)',
+      folder: spec.folderId ? `filed in ${spec.folderId} at create` : 'unfiled',
+      publish: 'never — the agent stays a draft' };
+  }
   const plugins = spec.plugins === undefined
     ? 'NOT SET — GHL default applies: the Default plugin with ALL built-in CRM skills (can send SMS/email and write contacts and opportunities). Pass plugins:[] for no apps.'
     : (spec.plugins.length ? `as given: ${spec.plugins.map((p) => p.slug).join(', ')}` : 'none (plugins: [])');
@@ -2273,10 +2296,12 @@ export const TOOLS = [
       + '"## Personality … ## Goal … ## Instructions …"; the three fields go as "" and llm.primary defaults to gpt-4.1, as the builder '
       + 'creates) OR goal/personality/instructions, never both. Also botType (PROMPT_BASED_BOT | FLOW_BUILDER_BOT), businessName, wait, '
       + 'sleep, autoPilotMaxMessages, tones (flow), knowledgeBaseIds, knowledgeBaseTriggers [{mode custom|all, knowledgeBaseIds, '
-      + 'triggerCondition}] (≤4, priority renumbered), summary, respondToImages/Audio, responseLength, llm, cancelEnabled/rescheduleEnabled '
+      + 'triggerCondition}] (≤4, priority renumbered), summary, respondToImages/Audio, responseLength, llm, emailWaitTime + emailWaitTimeUnit '
+      + '+ emailSettings {senderDetails, replyBehavior, emailFormat plain_text|design_editor, signature, templateId} (only with "Email" in '
+      + 'channels; the editor\'s wait ranges), cancelEnabled/rescheduleEnabled '
       + '(FLOW bots only; on a prompt bot they belong on the appointmentBooking action), actions[] (humanHandOver, appointmentBooking '
       + 'single|multiple (service: raw_request), triggerWorkflow, updateContactField, stopBot, transferBot, advancedFollowup). Refused before anything is '
-      + 'sent: any other spec key (SPEC_KEY_UNAPPLIED names where it lives: email settings, working hours, folders and form bots are '
+      + 'sent: any other spec key (SPEC_KEY_UNAPPLIED names where it lives: working hours, folders and form bots are '
       + 'raw_request), isPrimary:true (the primary agent is location-wide; set it in the Conversation AI UI), a prompt bot with no prompt. '
       + 'A flow bot is the agent shell only: build its workflow with build_workflow, then link it with update_convai_agent. Does not '
       + 'deploy to a channel (set_agent_deployment). To change an existing agent use update_convai_agent. '
@@ -2536,12 +2561,14 @@ export const TOOLS = [
   },
   {
     name: 'create_studio_agent',
-    description: `${describe('create_studio_agent', 'Create Agent Studio agent')}. Creates a Managed Agent (the UI's AI Agents → Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt — either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). 🔴 Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none — the preview names what applies. 🔴 A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. The agent is created as a draft (never published). Any other spec key (folderId, templateId, customApiEnabled…) is refused before the build, naming where it lives. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_studio_agent', 'Create Agent Studio agent')}. Creates a Managed Agent (the UI's AI Agents → Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt — either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). 🔴 Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none — the preview names what applies. 🔴 A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. templateId (one of the 12 "Start from a use case" ids) creates from a template instead: no build, the template's own config kept and only what spec authors (name required) applied over it; 🔴 a template may carry an ENABLED trigger and the Default plugin — pass triggers:[] (it DISABLES every trigger: a PUT cannot remove one) and plugins:[]. folderId (+ folderName) files the agent at create, checked in the folder list; customApiEnabled flips the Custom API switch. The agent is created as a draft (never published). Any other spec key is refused before anything is sent. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), companyId: z.string().optional(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'SSE', path: '/agent-studio/super-agents/build' },
+      { method: 'POST', path: '/agent-studio/super-agent/agents/from-template' },
       { method: 'PUT', path: '/agent-studio/super-agent/agents/{agentId}' },
       { method: 'GET', path: '/agent-studio/super-agent/agents/{agentId}' },
+      { method: 'GET', path: '/agent-studio/super-agent/agents' },
     ],
     handler: async (args, deps) => guard(async () => {
       const { plan, refusal } = aiPlanOrRefusal('studio', args);
@@ -2577,6 +2604,23 @@ export const TOOLS = [
           'This tool does not answer build questions. Put the answers in buildPrompt (name the calendar, form, pipeline… the '
           + 'questions ask about) and create again'
           + (report.agentId ? `; agent ${report.agentId} was already saved by the builder — inspect it before creating another.` : '; no agent was saved.')), data);
+      }
+      if (plan.template) {
+        // What the template brought, named: its triggers ARM on publish (this tool never publishes).
+        const triggersNow = report.mergedConfig?.triggers ?? report.templateConfig?.triggers ?? [];
+        data.template = { templateId: plan.template, triggers: triggersNow.map((t) => ({ type: t.type, name: t.name, enabled: t.enabled })),
+          note: triggersNow.some((t) => t.enabled !== false)
+            ? 'The template\'s trigger(s) are ENABLED and arm when the agent is published. Pass triggers:[] to disable them (a PUT cannot remove a trigger: an empty list is ignored).'
+            : 'Every trigger is disabled: publishing arms none of them.' };
+      }
+      // Folder membership is not on the agent record: it shows only through the folder-filtered list (proven 2026-09-28).
+      if (report.ok && plan.folder) {
+        const q = new URLSearchParams({ locationId: args.locationId, folderId: plan.folder.folderId });
+        const r = await gw.call('GET', `/agent-studio/super-agent/agents?${q}`, undefined, { base: AI_BASE });
+        const listed = r.ok && JSON.stringify(r.json ?? {}).includes(report.agentId);
+        data.folder = { ...plan.folder, verified: listed, ...(r.ok ? {} : { status: r.status }) };
+        if (!listed) return withFailureData(fail('AGENT_FOLDER_UNVERIFIED', `agent ${report.agentId} was created and verified, but the folder ${plan.folder.folderId} does not list it.`,
+          'Check the folder id (GET /agent-studio/agents/folders?locationId=), then move the agent with POST /agent-studio/agents/folders/{folderId}/move-agents.'), data);
       }
       return report.ok ? ok(data) : withFailureData(fail(report.code, 'Agent Studio creation did not complete and verify.',
         'This unproven SSE path may have partially created a canary. Inspect data.created and clean it up before retrying.'), data);
@@ -7378,14 +7422,36 @@ export const TOOLS = [
       + 'done by this plugin (operator decision 2026-09-23): a connection stores credentials for an external server. '
       + 'When a workflow needs an MCP server that is not in mcpConnections, TELL THE USER to add it themselves in the GHL '
       + 'builder (open the workflow, the AI Agent step, its MCP servers panel, add a connection), then re-run this tool '
-      + 'for the new connectionId. Do not reach for raw_request to create one.',
-    inputSchema: schema({ locationId: z.string() }),
+      + 'for the new connectionId. Do not reach for raw_request to create one. '
+      + 'product:"conversation_ai" instead reads the models a CONVERSATION AI agent can use (its llm.primary / llm.secondary): '
+      + 'GET /ai-employees/employees/models, a different roster from the workflow step\'s, with per-million-token prices and '
+      + 'deprecations. The editor shows it only behind conversationsAI.multiLLM or tokenBasedPricing.',
+    inputSchema: schema({ locationId: z.string(), product: z.enum(['workflow_ai_agent', 'conversation_ai']).default('workflow_ai_agent') }),
     capabilities: [
-      { method: 'GET', path: '/workflow/agent/{loc}/models' },
-      { method: 'GET', path: '/workflow/agent/{loc}/mcp-connections' },
-      { method: 'GET', path: '/workflow/agent/{loc}/mcp-connections/oauth2-tokens' },
+      // Two rails in one read tool: product:"conversation_ai" dials the AI rail, the workflow step's options the backend one.
+      { method: 'GET', path: '/ai-employees/employees/models', origin: 'https://services.leadconnectorhq.com' },
+      { method: 'GET', path: '/workflow/agent/{loc}/models', origin: 'https://backend.leadconnectorhq.com' },
+      { method: 'GET', path: '/workflow/agent/{loc}/mcp-connections', origin: 'https://backend.leadconnectorhq.com' },
+      { method: 'GET', path: '/workflow/agent/{loc}/mcp-connections/oauth2-tokens', origin: 'https://backend.leadconnectorhq.com' },
     ],
     handler: async (args, deps) => guard(async () => {
+      // Conversation AI's own roster (live 2026-09-29: 14 GPT ids, gpt-4.1 default + recommended, two with a deprecation).
+      if (args.product === 'conversation_ai') {
+        const r = await deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state }).call('GET', '/ai-employees/employees/models');
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const list = Array.isArray(r.json?.models) ? r.json.models : [];
+        return ok({
+          product: 'conversation_ai',
+          models: {
+            count: list.length, defaultModelId: list.find((m) => m.default === true)?.value ?? null,
+            models: list.map((m) => ({ id: m.value, provider: m.provider, inputPrice: m.inputPrice ?? null, outputPrice: m.outputPrice ?? null,
+              priceUnit: m.priceUnit ?? null, costTier: m.costTier ?? null, recommended: m.recommended === true, isDefault: m.default === true,
+              isNew: m.isNew === true, deprecation: m.deprecation ?? null })),
+          },
+          note: 'Set on the agent as llm {primary, secondary} (create_convai_agent / update_convai_agent). Prices are per million tokens. '
+            + 'primary and secondary must differ (the server refuses them equal).',
+        });
+      }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const loc = encodeURIComponent(args.locationId);
       const read = async (path) => {

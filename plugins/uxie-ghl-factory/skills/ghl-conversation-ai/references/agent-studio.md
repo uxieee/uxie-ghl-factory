@@ -42,7 +42,7 @@ detail page shows Activity and a **Memory** tab marked "SOON".
 | `POST` | `/agent-studio/super-agent/agents/:id/test` | test panel: `{message, locationId, sessionId?, contactId?}` → SSE `reasoning_delta` / `tool_started` / `tool_completed` / `text_delta` / `completed {finalText, sessionId}`; **works on a DRAFT**; uses one of 30 test runs a month, no USD (proven live) |
 | `POST` | `/agent-studio/super-agent/agents/:id/execute` | the agent view's chat: `{message, locationId}` → SSE `session` … `completed`; runs a draft too, is listed in activity (`kind: chat`) and sessions, and **bills USD** (US$0.039 for one short reply) (proven live) |
 | `POST` | `/agent-studio/super-agents/build` + `existingAgentId` | "Edit this agent with chat": the AI builder edits AND SAVES the agent itself (proven live) — see Traps |
-| `POST` | `/agent-studio/super-agent/agents/from-template` | `{templateId, locationId}` — a "Start from a use case" card: creates a draft agent at once (proven live) — see Traps |
+| `POST` | `/agent-studio/super-agent/agents/from-template` | `{templateId, locationId, folderId?, folderName?}` — a "Start from a use case" card: creates a draft at once, no AI build, and answers `{id, config, status, …}` (proven live, folder keys too). `create_studio_agent` with `templateId` drives it — see Traps |
 | `POST` / `GET` | `/agent-studio/plugins/custom-skills` | custom skills are location-level records `{name, description, skillContent (Markdown + front-matter), agentIds}`; the agent's config does not change; a run loads one with a `use_plugin` call (proven live) |
 | `POST` | `/agent-studio/agents/anton/session` | builder-chat session — note `anton` is the **flow** builder's runtime; the Managed-Agent editor fires this on open (a write-on-open) and only reads history from it |
 | `POST` | `/agent-studio/super-agent/agents` | the product's own Save: `{locationId, agencyId, builderSessionId, config, folderId?}` (*bundle*; not yet used by this plugin) |
@@ -135,9 +135,25 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
 - 🔴 **The agent-view chat bills; the test panel does not.** Test with `…/test` (works on a draft, uses a free test
   count). `…/execute` bills USD even on a draft.
 - **Templates create agents.** Picking a "Start from a use case" card calls `…/from-template` and creates a draft at
-  once — the "Customer Support Agent" template carries the Default plugin (all CRM skills), `kb_search` +
-  `web_search`, a chat trigger and a prompt with a "Settings (edit these for your business)" block. Rename it and set
-  `plugins` before anything goes live.
+  once.
+  - The "Customer Support Agent" template carries the Default plugin (all CRM skills), `kb_search` + `web_search`,
+    an ENABLED chat trigger, and a prompt with a "Settings (edit these for your business)" block.
+  - The 12 template ids are client-side: knowledge-base-assistant, social-media-posting, lead-qualifier, welcome-email,
+    review-request, deal-brief, opportunity-pipeline, email-campaign, weekly-creative-studio, prospect-finder,
+    competitor-watch, marketing-performance-report. Their triggers: Chat ×2, Form submission, Tag added ×2, New
+    opportunity, Weekdays, Every 2 weeks, Weekly ×4. A publish arms whichever one the template carries.
+  - `create_studio_agent` with `templateId` makes the create, then PUTs the template's OWN config with your keys on
+    top, so its prompt stays unless you pass `systemPrompt`. Pass a TEST name, `plugins: []` and `triggers: []`.
+- 🔴 **A PUT cannot remove a trigger.** `triggers: []` in the full-config PUT is IGNORED: the stored triggers stay,
+  enabled. This was live on 2026-09-29, twice, on an own draft. A trigger sent back with `enabled: false` sticks. So
+  in `create_studio_agent`'s template door, `triggers: []` means "disable every trigger". On the build door an
+  authored `triggers: []` still fails the verify loudly, because the build's own chat trigger remains.
+- **Folders at create.** Both doors take `folderId` (+ `folderName`), as the builder does from its route query, and
+  the tool confirms membership in `GET /agent-studio/super-agent/agents?folderId=`. Remove-from-folder is a
+  move-agents call with the **locationId** as the folderId.
+- **Custom API** is a top-level `config.customApiEnabled`, sent only by the PUT (the build never carries it).
+  `create_studio_agent` sets it with `customApiEnabled`. It flips the switch only: configure no outward URL or
+  credential with it.
 - **Generated media stays behind.** `image_generation` and `tts_generation` save their PNG / MP3 into the location's
   media library.
 - **A trigger with no `triggerMessage` gets a per-type default** from GHL (chat: "A new chat conversation has started
@@ -194,8 +210,8 @@ answers by re-POSTing the build with `sessionId`, `answeredQuestions`, `skippedQ
 paused once and completed once. `create_studio_agent` treats `awaiting_input` as the end of the stream and fails with
 `STUDIO_BUILD_AWAITING_INPUT`, naming each question and its options, sending nothing further: put the answers in
 `buildPrompt` and create again. (A client that waits only for `agent_saved`/`done` sees an "incomplete stream" and
-loses the questions.) Any spec key the tool cannot apply (`folderId`, `templateId`, `customApiEnabled`…) is refused
-before the build. The product's own Save also
+loses the questions.) Any spec key the tool cannot apply (e.g. `publish`) is refused before anything is sent;
+`folderId`/`folderName`, `templateId` and `customApiEnabled` apply (live 2026-09-29). The product's own Save also
 creates with a full `config` (`POST /agent-studio/super-agent/agents`, table above); this engine does not use that
 path yet, and whether it works without a builder session is unproven.
 

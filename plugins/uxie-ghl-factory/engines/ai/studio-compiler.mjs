@@ -94,6 +94,8 @@ function buildConfig(norm) {
     actions: [],
     ...(norm.imageGeneration !== undefined ? { imageGeneration: norm.imageGeneration } : {}),
     ...(norm.mediaSettings !== undefined ? { mediaSettings: norm.mediaSettings } : {}),
+    // The editor's Custom API switch is a top-level config key, sent only by this PUT (superagentsApp 3b22@151825).
+    ...(norm.customApiEnabled !== undefined ? { customApiEnabled: norm.customApiEnabled } : {}),
   };
 }
 
@@ -124,7 +126,7 @@ export function compileSuperAgentUpdate(ir, { agentId, locationId } = {}) {
 // embedded in the NL prompt text itself, not sent as a separate field (there is no
 // separate `name` field in the wire body). `companyId` (agencyId) and `mode` are
 // passed through opts; `mode` defaults to 'fast', the only value ever observed live.
-export function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, companyId, mode = 'fast' } = {}) {
+export function compileSuperAgentCreate({ buildPrompt, name, folderId, folderName } = {}, { locationId, companyId, mode = 'fast' } = {}) {
   if (typeof buildPrompt !== 'string' || buildPrompt.length === 0)
     throw new IRError('SCHEMA', 'buildPrompt must be a non-empty string');
   if (name !== undefined && (typeof name !== 'string' || name.length === 0))
@@ -135,6 +137,38 @@ export function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId
     locationId,
     context: { companyId: companyId ?? null },
     mode,
+    // Folder placement rides the build body, each key only when set (superagentsApp 3b22@47060).
+    ...(folderId ? { folderId } : {}),
+    ...(folderId && folderName ? { folderName } : {}),
   };
   return { method: 'POST', path: '/agent-studio/super-agents/build', body, authHeader: AUTH_HEADER };
+}
+
+// POST /agent-studio/super-agent/agents/from-template — a "Start from a use case" card (superagentsApp 316f@10170): the
+// server creates a DRAFT from the template at once, no AI build, and answers {id, config, status, …} (live 2026-09-29:
+// knowledge-base-assistant → the Default plugin with ALL skills, kb_search + web_search, a CHAT trigger enabled:true).
+export function compileSuperAgentFromTemplate({ templateId, folderId, folderName } = {}, { locationId } = {}) {
+  const body = { templateId, locationId, ...(folderId ? { folderId } : {}), ...(folderId && folderName ? { folderName } : {}) };
+  return { method: 'POST', path: '/agent-studio/super-agent/agents/from-template', body, json: true, authHeader: AUTH_HEADER };
+}
+
+// What a template create overlays on the template's own config: ONLY the keys the spec authors (the PUT is a whole
+// replace, so the template's config is read from the create's answer and sent back with these on top).
+export function templateOverrides(ir) {
+  const o = {};
+  for (const k of ['name', 'description', 'model', 'systemPrompt', 'plugins', 'starterPrompts', 'knowledgeBaseIds',
+    'imageGeneration', 'mediaSettings', 'customApiEnabled']) if (ir[k] !== undefined) o[k] = ir[k];
+  if (ir.tools !== undefined) o.tools = [...new Set([...ir.tools, ...(Array.isArray(ir.knowledgeBaseIds) && ir.knowledgeBaseIds.length ? ['kb_search'] : [])])];
+  if (ir.reasoningEffort !== undefined) o.reasoning = { effort: ir.reasoningEffort };
+  if (ir.trigger !== undefined || (Array.isArray(ir.triggers) && ir.triggers.length)) o.triggers = buildTriggers(ir);
+  return o;
+}
+
+// 🔴 `triggers: []` in the PUT is IGNORED — the stored triggers stay, enabled (live 2026-09-29, own draft, twice). What
+// sticks is each trigger sent back with enabled:false. So a spec's `triggers: []` means "disable every trigger".
+export const disablesTriggers = (ir) => Array.isArray(ir.triggers) && ir.triggers.length === 0 && ir.trigger === undefined;
+export function mergeTemplateConfig(templateConfig, overrides, { disableTriggers = false } = {}) {
+  const merged = { ...(templateConfig ?? {}), ...overrides };
+  if (disableTriggers) merged.triggers = (templateConfig?.triggers ?? []).map((t) => ({ ...t, enabled: false }));
+  return merged;
 }

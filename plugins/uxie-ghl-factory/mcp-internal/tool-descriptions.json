@@ -789,9 +789,9 @@
     ]
   },
   "get_ai_agent_options": {
-    "description": "List the models and MCP connections an ai_agent step can use — proof: live-runtime (2026-09-25); risk: read",
+    "description": "List the models and MCP connections an ai_agent step can use — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "source-derived (builder bundle 2026-09-14)",
     "rows": [
       "workflow-agent-options"

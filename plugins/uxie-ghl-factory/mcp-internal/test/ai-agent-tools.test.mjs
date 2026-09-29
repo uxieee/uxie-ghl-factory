@@ -132,9 +132,9 @@ test('t22: every AI create tool refuses an unapplied spec key with confirm:true,
   let gatewayConstructed = false;
   const deps = { state: {}, makeGw: () => { gatewayConstructed = true; throw new Error('a refusal must not create a gateway'); } };
   const cases = [
-    ['create_convai_agent', { locationId: 'L', confirm: true, spec: { ...convai, emailSettings: {} } }],
+    ['create_convai_agent', { locationId: 'L', confirm: true, spec: { ...convai, workingHours: {} } }],
     ['create_voiceai_agent', { locationId: 'L', confirm: true, spec: { ...voiceai, voiceId: 'v' } }],
-    ['create_studio_agent', { locationId: 'L', companyId: 'A', confirm: true, spec: { ...studio, folderId: 'f' } }],
+    ['create_studio_agent', { locationId: 'L', companyId: 'A', confirm: true, spec: { ...studio, publish: true } }],
   ];
   for (const [name, args] of cases) {
     const result = await tool(name).handler(args, deps);

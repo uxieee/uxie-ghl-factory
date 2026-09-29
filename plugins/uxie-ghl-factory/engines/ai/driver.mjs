@@ -1,12 +1,15 @@
 // Execute a compiled AI-agent request plan through the MCP gateway. This module
 // never owns credentials or fetches directly: every request is gw.call/gw.stream.
 
+import { mergeTemplateConfig } from './studio-compiler.mjs';
+
 export const AI_BASE = 'https://services.leadconnectorhq.com';
 
 const kindFor = (create) => {
   if (create?.path === '/ai-employees/employees') return 'convai';
   if (create?.path === '/voice-ai/agents') return 'voiceai';
   if (create?.path === '/agent-studio/super-agents/build') return 'studio';
+  if (create?.path === '/agent-studio/super-agent/agents/from-template') return 'studio';
   return null;
 };
 
@@ -39,7 +42,8 @@ export function extractAgentId(kind, response) {
         if (id) return id;
       }
     }
-    return null;
+    // The template door answers plain JSON {id, config, …}, not a stream.
+    return responseId(response?.json);
   }
   if (kind === 'convai') return response?.json?.id ?? response?.json?.data?.id ?? null;
   if (kind === 'voiceai') return response?.json?._id ?? response?.json?.id ?? response?.json?.data?._id ?? response?.json?.data?.id ?? null;
@@ -225,7 +229,7 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
     // awaiting_input ENDS a paused build's stream: no done, no agent_saved. The gateway throws SSE_INCOMPLETE on a stream
     // that closes without a terminal event, so a pause surfaced as a bare failure with the questions lost (live
     // 2026-09-29: a build that asked for a calendar closed with no done and saved no agent). It is a terminal here.
-    created = kind === 'studio'
+    created = kind === 'studio' && plan.create.json !== true
       ? await gw.stream('POST', plan.create.path, plan.create.body, { base: AI_BASE, terminalEvents: STUDIO_TERMINAL_EVENTS })
       : await gw.call(plan.create.method, plan.create.path, plan.create.body, { base: AI_BASE });
   } catch (error) {
@@ -250,7 +254,17 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   }
 
   for (let index = 0; index < (plan.followUps ?? []).length; index++) {
-    const followUp = threadAgentId(plan.followUps[index], report.agentId);
+    let followUp = threadAgentId(plan.followUps[index], report.agentId);
+    // READ-MERGE-WRITE on the template door: the PUT replaces the whole config, so it is the template's own config (the
+    // create's answer) with the spec's keys on top — never a config rebuilt from defaults.
+    if (followUp.mergeCreatedConfig) {
+      const base = created.json?.config;
+      if (!base || typeof base !== 'object') return failure('TEMPLATE_CONFIG_MISSING', 'follow_up', report);
+      const { overrides, disableTriggers } = followUp.mergeCreatedConfig;
+      report.templateConfig = { triggers: base.triggers ?? [], plugins: base.plugins ?? null, tools: base.tools ?? [] };
+      report.mergedConfig = mergeTemplateConfig(base, overrides, { disableTriggers });
+      followUp = { method: followUp.method, path: followUp.path, body: { ...followUp.body, config: report.mergedConfig } };
+    }
     try {
       const result = await gw.call(followUp.method, followUp.path, followUp.body, { base: AI_BASE });
       const observed = { index, path: followUp.path, status: result.status };
@@ -302,7 +316,11 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   catch (error) { return failure(error?.code ?? 'AGENT_VERIFY_FAILED', 'verify', report); }
   if (!reread.ok) return failure(`HTTP_${reread.status}`, 'verify', report, { verifyStatus: reread.status });
 
-  const baseExpected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
+  let baseExpected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
+  // The template door verifies what it authored, read off the merged config it actually sent.
+  if (Array.isArray(plan.verifyMergedKeys) && report.mergedConfig) {
+    baseExpected = { config: Object.fromEntries(plan.verifyMergedKeys.filter((k) => k in report.mergedConfig).map((k) => [k, report.mergedConfig[k]])) };
+  }
   const actual = normalizeRead(kind, reread.json);
   // The create body carries `actions: []` because actions are attached AFTER create, by their
   // own POSTs. Comparing that empty list to the re-read — which now correctly lists what we

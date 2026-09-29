@@ -135,12 +135,13 @@ function checkStarterPrompts(prompts) {
 // else is refused before the build starts: the compiler used to copy only what it knew, so an unknown key was dropped
 // and the create still reported success.
 export const CREATE_KEYS = ['name', 'buildPrompt', 'systemPrompt', 'description', 'model', 'tools', 'trigger', 'triggers',
-  'plugins', 'reasoningEffort', 'knowledgeBaseIds', 'starterPrompts', 'imageGeneration', 'mediaSettings'];
+  'plugins', 'reasoningEffort', 'knowledgeBaseIds', 'starterPrompts', 'imageGeneration', 'mediaSettings',
+  'templateId', 'folderId', 'folderName', 'customApiEnabled'];
+// The "Start from a use case" cards — a CLIENT-side list (superagentsApp 1a50@63158); the server creates from these ids.
+export const STUDIO_TEMPLATE_IDS = ['knowledge-base-assistant', 'social-media-posting', 'lead-qualifier', 'welcome-email',
+  'review-request', 'deal-brief', 'opportunity-pipeline', 'email-campaign', 'weekly-creative-studio', 'prospect-finder',
+  'competitor-watch', 'marketing-performance-report'];
 const ELSEWHERE = {
-  folderId: 'folder placement at create is not written by this tool: move the agent afterwards (raw_request on the /agent-studio agent-folder routes)',
-  folderName: 'folder placement at create is not written by this tool: move the agent afterwards (raw_request on the /agent-studio agent-folder routes)',
-  templateId: 'template creation is its own route: raw_request POST /agent-studio/super-agent/agents/from-template {templateId, locationId}',
-  customApiEnabled: 'custom API calls are not written at create: raw_request PUT the agent config afterwards',
   publish: 'this tool never publishes; the agent is created as a draft',
   config: 'pass the config fields at the top level of spec (name, systemPrompt, tools, triggers, …)',
 };
@@ -150,6 +151,42 @@ export function refuseUnappliedStudioKeys(spec) {
   const where = unapplied.filter((k) => k in ELSEWHERE).map((k) => `${k}: ${ELSEWHERE[k]}`);
   throw new IRError('SPEC_KEY_UNAPPLIED', `create_studio_agent cannot apply spec key(s) [${unapplied.join(', ')}], and refuses rather `
     + `than creating an agent without them. ${where.length ? `${where.join('; ')}. ` : ''}Nothing was sent. Applicable keys: ${CREATE_KEYS.join(', ')}.`);
+}
+
+// Folder placement and the custom-API switch, shared by both create doors. folderName travels only beside a folderId
+// (the builder takes both from its route query, superagentsApp 1a50@48387).
+function checkPlacementAndSwitches(ir) {
+  assertStringIfPresent(ir.folderId, 'folderId');
+  assertStringIfPresent(ir.folderName, 'folderName');
+  if (ir.folderId === '') throw new IRError('SCHEMA', 'folderId must be a Managed Agent folder id');
+  if (ir.folderName !== undefined && ir.folderId === undefined) throw new IRError('SCHEMA', 'folderName needs folderId');
+  if (ir.customApiEnabled !== undefined && typeof ir.customApiEnabled !== 'boolean') throw new IRError('SCHEMA', 'customApiEnabled must be a boolean');
+}
+
+// The template door: POST …/from-template creates the agent from a use-case template (no AI build), and a PUT then
+// applies ONLY what the spec authors over the template's own config. name is required, so the agent never keeps the
+// template's name; systemPrompt is optional (the template has one); buildPrompt has nothing to build.
+export function parseSuperAgentTemplateIR(ir) {
+  if (!ir || typeof ir !== 'object') throw new IRError('SCHEMA', 'IR must be an object');
+  if (!STUDIO_TEMPLATE_IDS.includes(ir.templateId)) {
+    throw new IRError('SCHEMA', `templateId must be one of the use-case templates: ${STUDIO_TEMPLATE_IDS.join(', ')}`);
+  }
+  if (ir.buildPrompt !== undefined) {
+    throw new IRError('SPEC_KEY_UNAPPLIED', 'buildPrompt is the AI build\'s message; a template create runs no build. Pass systemPrompt to replace the template\'s prompt, or drop templateId to build. Nothing was sent.');
+  }
+  assertNonEmptyString(ir.name, 'name');
+  assertStringIfPresent(ir.systemPrompt, 'systemPrompt');
+  assertStringIfPresent(ir.description, 'description');
+  assertStringIfPresent(ir.model, 'model');
+  checkTools(ir.tools);
+  checkTrigger(ir);
+  checkPlugins(ir.plugins);
+  checkMedia(ir);
+  assertStringIfPresent(ir.reasoningEffort, 'reasoningEffort');
+  checkKnowledgeBaseIds(ir.knowledgeBaseIds);
+  checkStarterPrompts(ir.starterPrompts);
+  checkPlacementAndSwitches(ir);
+  return { ...ir };
 }
 
 // Full validation for the config PUT that follows the build (compileSuperAgentUpdate). Required: name, systemPrompt
@@ -167,5 +204,6 @@ export function parseSuperAgentIR(ir) {
   assertStringIfPresent(ir.reasoningEffort, 'reasoningEffort');
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkStarterPrompts(ir.starterPrompts);
+  checkPlacementAndSwitches(ir);
   return { ...ir, model: ir.model ?? DEFAULT_MODEL };
 }

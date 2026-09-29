@@ -151,8 +151,14 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   361-minute custom wait (the editor allows 1–360). The design editor is selectable, so the old line "Conversation
   AI cannot send rich HTML email" no longer holds; whether a design-editor email is **delivered** is unproven. An
   agent with no email configured reads `emailSettings: {}`, and echoing that back 422s, so drop it before a PUT.
+  **At create** `[proven-live 2026-09-29]`: the current builder sends `emailWaitTime`, `emailWaitTimeUnit` and
+  `emailSettings` IN the create body whenever `channels` includes `"Email"`. The server stores all three from the
+  create. `create_convai_agent` takes them (Email in channels required; the editor's ranges 1–21600 s / 1–360 m /
+  1–6 h). The design template is a separate call, `POST backend…/email-ai/chat/create-template {locationId,
+  sourceType:"conversation-ai"}`, whose `templateId` then goes in by PUT (not written by the tools).
 - `llm{primary, secondary}` — model selection. The server's enum is GHL's current model roster (15 GPT ids on
-  2026-09-26; `GET /ai-employees/employees/models?locationId=` serves it) and its 422 lists the valid ids. Primary and
+  2026-09-26, 14 on 2026-09-29; `GET /ai-employees/employees/models` serves it, read it with
+  `get_ai_agent_options product:"conversation_ai"` — prices, default, deprecations) and its 422 lists the valid ids. Primary and
   secondary cannot be the same model (server-enforced). Settable on create and update.
 - `businessName` — settable on create and update. `""` answers 200 and does NOT clear a stored name, so the tools
   refuse an empty value.
@@ -413,11 +419,23 @@ All executed on a test account on 2026-09-26 and read back, unless a line says o
   be ≥ 10, and `skip` / `page` are refused (422). The list rows carry `goal` but **not** `personality` or
   `instructions`, and `channels` as `[{name, isPrimary}]`; the single-agent GET returns plain strings. Read the
   single agent before any update.
+- **The builder's own list** `[proven-live 2026-09-29]`: `GET /ai-employees/employees/agent-list?locationId&limit` returns
+  `{folders[], folderCount, employees[], totalCount, filteredTotalCount}`.
+  - Folders come first, and `limit` counts folders and agents together (limit 5 → 1 folder + 4 agents).
+  - There are two cursors: `startAfter` = the last agent id, and `startAfterFolder` = the last folder id. Each gives a
+    disjoint next page. A cursor that is not on this list answers 422 ("must reference an employee / a folder in this
+    location and query").
+  - `query` filters by name, reflected in `filteredTotalCount`. `folderId` lists one folder's agents, and
+    `unfiledOnly:true` lists the unfiled ones. `includeFolderPreview:true` adds `employeeCount` and
+    `previewEmployeeNames` to each folder.
+  - Rows are `{id, name, locationId, folderId, mode, botType, updatedAt, configuredChannels}`. This list DOES carry
+    `folderId`.
 - **Folders.** Create `{locationId, name, employeeIds?}` → `{id, name, employeeCount, previewEmployeeNames}`; list →
   `{folders, totalCount, count, nextStartAfter}`; move `{locationId, employeeIds, folderId}` →
   `{movedCount, unchangedCount}`; rename takes `{name}` only (a `locationId` in the body 422s); delete →
-  `{unfiledCount}` and the agents stay, unfiled. The name is ≤ 40 characters (server). The agent record has no
-  `folderId`, so folder membership is readable only from the folder list.
+  `{unfiledCount}` and the agents stay, unfiled. The name is ≤ 40 characters (server). The single-agent record has no
+  `folderId`; the agent-list rows above do. **Remove from folder** is the same move with `folderId: null` → `{folderId:
+  null, movedCount: 1}` (live 2026-09-29). There is no folder at create: neither the builder nor the form wizard sends one.
 - **Duplicate.** `PUT /ai-employees/employees/duplicate/{id}` with no body returns the copy, named
   `Copy - <name>`. It copies the prompt, timing, sleep, channels, model and business name, and **drops the response
   style** (`aiResponseLengthEnabled` false, no `responseLength`). Re-apply the style after a duplicate.
