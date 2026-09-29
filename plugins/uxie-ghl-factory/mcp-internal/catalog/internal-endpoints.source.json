@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-29T03:40:00.670Z",
+      "capturedAt": "2026-09-29T03:54:46.116Z",
       "hash": "corpus",
-      "fileCount": 1273,
-      "endpoints": 1273
+      "fileCount": 1276,
+      "endpoints": 1276
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1769,
+  "discoveredCallSites": 1772,
   "skippedCallSites": 714,
-  "count": 1543,
+  "count": 1545,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2089,7 +2089,7 @@
         "ai-agents/20-api/chat-widget.md:28",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
         "funnels/10-anatomy/websites-and-global-sections.md:278",
-        "funnels/20-api/funnels-api.md:361",
+        "funnels/20-api/funnels-api.md:386",
         "workflows/70-research/ENDPOINTS.md:137"
       ],
       "serviceClass": null,
@@ -6161,7 +6161,7 @@
         "forms/20-api/public-renderer-and-submit.md:35",
         "forms/20-api/public-renderer-and-submit.md:51",
         "forms/20-api/public-renderer-and-submit.md:74",
-        "funnels/40-rules/silent-failures.md:1326"
+        "funnels/40-rules/silent-failures.md:1328"
       ],
       "serviceBasis": "declared"
     },
@@ -6609,7 +6609,7 @@
         "funnels/20-api/publish-routing-and-site-settings.md:43",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
-        "funnels/40-rules/silent-failures.md:1072"
+        "funnels/40-rules/silent-failures.md:1074"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -6795,7 +6795,7 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:53",
-        "funnels/40-rules/silent-failures.md:1221"
+        "funnels/40-rules/silent-failures.md:1223"
       ],
       "serviceBasis": "declared"
     },
@@ -6884,7 +6884,7 @@
         "funnels/20-api/funnels-api.md:288",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
         "funnels/40-rules/silent-failures.md:802",
-        "funnels/40-rules/silent-failures.md:1073",
+        "funnels/40-rules/silent-failures.md:1075",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
       ],
       "serviceBasis": "declared"
@@ -8578,7 +8578,7 @@
         "funnels/20-api/funnels-api.md:85",
         "funnels/20-api/funnels-api.md:231",
         "funnels/20-api/webinars.md:47",
-        "funnels/40-rules/silent-failures.md:1044",
+        "funnels/40-rules/silent-failures.md:1046",
         "funnels/60-recipes/build-a-multi-step-funnel.md:50"
       ],
       "serviceClass": "FunnelsService",
@@ -8744,7 +8744,7 @@
         "funnels/10-anatomy/websites-and-global-sections.md:300",
         "funnels/20-api/funnel-ai.md:60",
         "funnels/20-api/funnels-api.md:310",
-        "funnels/20-api/funnels-api.md:382"
+        "funnels/20-api/funnels-api.md:407"
       ],
       "serviceBasis": "declared"
     },
@@ -9975,6 +9975,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/funnels-api.md:352",
         "funnels/20-api/url-redirects.md:47"
       ],
       "serviceBasis": "declared"
@@ -10086,7 +10087,7 @@
       },
       "sources": [
         "funnels/20-api/step-products-and-orders.md:70",
-        "funnels/40-rules/silent-failures.md:1322"
+        "funnels/40-rules/silent-failures.md:1324"
       ],
       "serviceBasis": "declared"
     },
@@ -10325,7 +10326,7 @@
       "sources": [
         "services/marketplaceServices/FunnelsService.ts:25",
         "funnels/40-rules/silent-failures.md:599",
-        "funnels/40-rules/silent-failures.md:1112"
+        "funnels/40-rules/silent-failures.md:1114"
       ],
       "serviceClass": "FunnelsService",
       "serviceBasis": "inferred-from-path"
@@ -10362,7 +10363,7 @@
         "funnels/10-anatomy/websites-and-global-sections.md:540",
         "funnels/20-api/funnel-object-operations.md:84",
         "funnels/20-api/funnels-api.md:232",
-        "funnels/20-api/funnels-api.md:380"
+        "funnels/20-api/funnels-api.md:405"
       ],
       "serviceClass": "FunnelsService",
       "serviceBasis": "inferred-from-path",
@@ -10600,7 +10601,7 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:120",
-        "funnels/40-rules/silent-failures.md:1237"
+        "funnels/40-rules/silent-failures.md:1239"
       ],
       "serviceBasis": "declared"
     },
@@ -14906,7 +14907,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:391"
+        "funnels/20-api/funnels-api.md:416"
       ],
       "serviceBasis": "declared"
     },
@@ -35432,7 +35433,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:187"
+        "pipelines-opportunities/20-api/opportunities.md:193"
       ],
       "serviceBasis": "declared"
     },
@@ -35458,7 +35459,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:174"
+        "pipelines-opportunities/20-api/opportunities.md:180"
       ],
       "serviceBasis": "declared"
     },
@@ -35491,8 +35492,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:180",
-        "pipelines-opportunities/20-api/opportunities.md:185"
+        "pipelines-opportunities/20-api/opportunities.md:186",
+        "pipelines-opportunities/20-api/opportunities.md:355",
+        "pipelines-opportunities/20-api/opportunities.md:191"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -35521,7 +35523,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:312"
+        "pipelines-opportunities/20-api/opportunities.md:318"
       ],
       "serviceBasis": "declared"
     },
@@ -35588,7 +35590,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:244"
+        "pipelines-opportunities/20-api/opportunities.md:250"
       ],
       "serviceBasis": "declared"
     },
@@ -37753,7 +37755,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:169"
+        "pipelines-opportunities/20-api/opportunities.md:169",
+        "pipelines-opportunities/20-api/opportunities.md:172"
       ],
       "serviceBasis": "declared"
     },
@@ -41136,7 +41139,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:331"
+        "pipelines-opportunities/20-api/opportunities.md:337"
       ],
       "serviceBasis": "declared"
     },
@@ -47740,7 +47743,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:283"
+        "pipelines-opportunities/20-api/opportunities.md:289"
       ],
       "serviceBasis": "declared"
     },
@@ -47842,6 +47845,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "pipelines-opportunities--records-ids",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/objects/opportunity/records/ids",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:356"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "pipelines-opportunities--records-search",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
@@ -47863,7 +47892,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:308"
+        "pipelines-opportunities/20-api/opportunities.md:314"
       ],
       "serviceBasis": "declared"
     },
@@ -47894,6 +47923,39 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "pipelines-opportunities--opportunities-put-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/{opportunityId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:173",
+        "pipelines-opportunities/20-api/forecast.md:115",
+        "pipelines-opportunities/20-api/opportunities.md:132",
+        "pipelines-opportunities/20-api/opportunities.md:154",
+        "pipelines-opportunities/20-api/opportunities.md:322"
+      ],
+      "serviceBasis": "declared",
+      "aka": [
+        "/opportunities/{id}"
+      ]
+    },
+    {
       "id": "pipelines-opportunities--opportunities-delete",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
@@ -47915,8 +47977,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:222",
-        "pipelines-opportunities/20-api/pipelines.md:271"
+        "pipelines-opportunities/20-api/opportunities.md:228",
+        "pipelines-opportunities/20-api/pipelines.md:270"
       ],
       "serviceBasis": "declared"
     },
@@ -47948,35 +48010,6 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "pipelines-opportunities--opportunities-put",
-      "method": "PUT",
-      "origin": "https://services.leadconnectorhq.com",
-      "path": "/opportunities/{opportunityId}",
-      "authRail": "bearer+token-id",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "pipelines-opportunities",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "pipelines-opportunities/20-api/forecast.md:115",
-        "pipelines-opportunities/20-api/opportunities.md:132",
-        "pipelines-opportunities/20-api/opportunities.md:154",
-        "pipelines-opportunities/20-api/opportunities.md:316"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
       "id": "pipelines-opportunities--opportunities-followers",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
@@ -47998,7 +48031,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:252"
+        "pipelines-opportunities/20-api/opportunities.md:258"
       ],
       "serviceBasis": "declared"
     },
@@ -48024,7 +48057,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:251"
+        "pipelines-opportunities/20-api/opportunities.md:257"
       ],
       "serviceBasis": "declared"
     },
@@ -48051,7 +48084,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/bulk-actions.md:111",
-        "pipelines-opportunities/20-api/opportunities.md:234"
+        "pipelines-opportunities/20-api/opportunities.md:240"
       ],
       "serviceBasis": "declared"
     },
@@ -48077,7 +48110,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:262"
+        "pipelines-opportunities/20-api/opportunities.md:268"
       ],
       "serviceBasis": "declared"
     },
@@ -48588,6 +48621,32 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/pipelines.md:37"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--pipelines-restore",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/{pipelineId}/restore",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/pipelines.md:277"
       ],
       "serviceBasis": "declared"
     },

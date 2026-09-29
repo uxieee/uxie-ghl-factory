@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1552,
+      count: 1554,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2782,7 +2782,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/chat-widget.md:28",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "funnels/10-anatomy/websites-and-global-sections.md:278",
-            "funnels/20-api/funnels-api.md:361",
+            "funnels/20-api/funnels-api.md:386",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -7988,7 +7988,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/20-api/public-renderer-and-submit.md:35",
             "forms/20-api/public-renderer-and-submit.md:51",
             "forms/20-api/public-renderer-and-submit.md:74",
-            "funnels/40-rules/silent-failures.md:1326"
+            "funnels/40-rules/silent-failures.md:1328"
           ]
         },
         {
@@ -8568,7 +8568,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/20-api/publish-routing-and-site-settings.md:43",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
-            "funnels/40-rules/silent-failures.md:1072"
+            "funnels/40-rules/silent-failures.md:1074"
           ]
         },
         {
@@ -8796,7 +8796,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnel-object-operations.md:53",
-            "funnels/40-rules/silent-failures.md:1221"
+            "funnels/40-rules/silent-failures.md:1223"
           ]
         },
         {
@@ -8909,7 +8909,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/20-api/funnels-api.md:288",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
             "funnels/40-rules/silent-failures.md:802",
-            "funnels/40-rules/silent-failures.md:1073",
+            "funnels/40-rules/silent-failures.md:1075",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
           ]
         },
@@ -11065,7 +11065,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/20-api/funnels-api.md:85",
             "funnels/20-api/funnels-api.md:231",
             "funnels/20-api/webinars.md:47",
-            "funnels/40-rules/silent-failures.md:1044",
+            "funnels/40-rules/silent-failures.md:1046",
             "funnels/60-recipes/build-a-multi-step-funnel.md:50"
           ]
         },
@@ -11263,7 +11263,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:300",
             "funnels/20-api/funnel-ai.md:60",
             "funnels/20-api/funnels-api.md:310",
-            "funnels/20-api/funnels-api.md:382"
+            "funnels/20-api/funnels-api.md:407"
           ]
         },
         {
@@ -12753,7 +12753,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "reached",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -12785,6 +12787,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/funnels-api.md:352",
             "funnels/20-api/url-redirects.md:47"
           ]
         },
@@ -12926,7 +12929,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/step-products-and-orders.md:70",
-            "funnels/40-rules/silent-failures.md:1322"
+            "funnels/40-rules/silent-failures.md:1324"
           ]
         },
         {
@@ -13218,7 +13221,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/FunnelsService.ts:25",
             "funnels/40-rules/silent-failures.md:599",
-            "funnels/40-rules/silent-failures.md:1112"
+            "funnels/40-rules/silent-failures.md:1114"
           ]
         },
         {
@@ -13269,7 +13272,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:540",
             "funnels/20-api/funnel-object-operations.md:84",
             "funnels/20-api/funnels-api.md:232",
-            "funnels/20-api/funnels-api.md:380"
+            "funnels/20-api/funnels-api.md:405"
           ]
         },
         {
@@ -13561,7 +13564,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnel-object-operations.md:120",
-            "funnels/40-rules/silent-failures.md:1237"
+            "funnels/40-rules/silent-failures.md:1239"
           ]
         },
         {
@@ -15231,6 +15234,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "copy_workflow_to_location",
             "create_funnel",
             "create_snapshot",
+            "edit_funnel",
             "get_snapshot_contents",
             "get_snapshot_manifest",
             "list_snapshots",
@@ -19098,7 +19102,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:391"
+            "funnels/20-api/funnels-api.md:416"
           ]
         },
         {
@@ -44727,7 +44731,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:187"
+            "pipelines-opportunities/20-api/opportunities.md:193"
           ]
         },
         {
@@ -44758,7 +44762,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:174"
+            "pipelines-opportunities/20-api/opportunities.md:180"
           ]
         },
         {
@@ -44807,8 +44811,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:180",
-            "pipelines-opportunities/20-api/opportunities.md:185"
+            "pipelines-opportunities/20-api/opportunities.md:186",
+            "pipelines-opportunities/20-api/opportunities.md:355",
+            "pipelines-opportunities/20-api/opportunities.md:191"
           ]
         },
         {
@@ -44839,7 +44844,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:312"
+            "pipelines-opportunities/20-api/opportunities.md:318"
           ]
         },
         {
@@ -44920,7 +44925,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:244"
+            "pipelines-opportunities/20-api/opportunities.md:250"
           ]
         },
         {
@@ -47725,7 +47730,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:169"
+            "pipelines-opportunities/20-api/opportunities.md:169",
+            "pipelines-opportunities/20-api/opportunities.md:172"
           ]
         },
         {
@@ -51873,7 +51879,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:331"
+            "pipelines-opportunities/20-api/opportunities.md:337"
           ]
         },
         {
@@ -60306,7 +60312,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:283"
+            "pipelines-opportunities/20-api/opportunities.md:289"
           ]
         },
         {
@@ -60433,6 +60439,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--records-ids",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/objects/opportunity/records/ids",
+          path: "/objects/opportunity/records/ids",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:356"
+          ]
+        },
+        {
           id: "pipelines-opportunities--records-search",
           method: "POST",
           url: "https://services.leadconnectorhq.com/objects/task/records/search",
@@ -60460,7 +60497,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:308"
+            "pipelines-opportunities/20-api/opportunities.md:314"
           ]
         },
         {
@@ -60534,8 +60571,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:222",
-            "pipelines-opportunities/20-api/pipelines.md:271"
+            "pipelines-opportunities/20-api/opportunities.md:228",
+            "pipelines-opportunities/20-api/pipelines.md:270"
           ]
         },
         {
@@ -60577,7 +60614,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "pipelines-opportunities--opportunities-put",
+          id: "pipelines-opportunities--opportunities-put-put",
+          aka: [
+            "/opportunities/{id}"
+          ],
           method: "PUT",
           url: "https://services.leadconnectorhq.com/opportunities/{opportunityId}",
           path: "/opportunities/{opportunityId}",
@@ -60614,10 +60654,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "pipelines-opportunities/20-api/opportunities.md:173",
             "pipelines-opportunities/20-api/forecast.md:115",
             "pipelines-opportunities/20-api/opportunities.md:132",
             "pipelines-opportunities/20-api/opportunities.md:154",
-            "pipelines-opportunities/20-api/opportunities.md:316"
+            "pipelines-opportunities/20-api/opportunities.md:322"
           ]
         },
         {
@@ -60652,7 +60693,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:252"
+            "pipelines-opportunities/20-api/opportunities.md:258"
           ]
         },
         {
@@ -60687,7 +60728,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:251"
+            "pipelines-opportunities/20-api/opportunities.md:257"
           ]
         },
         {
@@ -60727,7 +60768,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/bulk-actions.md:111",
-            "pipelines-opportunities/20-api/opportunities.md:234"
+            "pipelines-opportunities/20-api/opportunities.md:240"
           ]
         },
         {
@@ -60766,7 +60807,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:262"
+            "pipelines-opportunities/20-api/opportunities.md:268"
           ]
         },
         {
@@ -61454,6 +61495,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/pipelines.md:37"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--pipelines-restore",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/{pipelineId}/restore",
+          path: "/opportunities/pipelines/{pipelineId}/restore",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pipelineId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/pipelines.md:277"
           ]
         },
         {
@@ -116411,29 +116487,45 @@ function settingsFrom(funnel) {
   for (const [key, src] of Object.entries(SETTINGS_KEYS)) out[key] = funnel?.[src] ?? null;
   return out;
 }
-function settingsBody(locationId, funnel, overrides = {}) {
+function paymentModeFields(funnel, location, overrides = {}) {
+  if ("paymentMode" in overrides) return { allowPaymentModeOption: true, paymentMode: overrides.paymentMode };
+  if (funnel.isLivePaymentMode !== void 0 && funnel.isLivePaymentMode !== null) return { allowPaymentModeOption: true, paymentMode: funnel.isLivePaymentMode };
+  const offered = !location?.stripe?.publishable_key;
+  return offered ? { allowPaymentModeOption: true, paymentMode: location?.stripeConnectMode || true } : { allowPaymentModeOption: false };
+}
+var needsLocationForSettings = (funnel, overrides = {}) => !("paymentMode" in overrides) && (funnel.isLivePaymentMode === void 0 || funnel.isLivePaymentMode === null);
+function settingsBody(locationId, funnel, overrides = {}, ctx = {}) {
+  const funnelId = funnel._id ?? funnel.id;
   return {
     locationId,
-    funnelId: funnel._id ?? funnel.id,
+    funnelId,
     funnelPath: funnel.url,
     funnelName: funnel.name,
     domainId: funnel.domainId ?? "",
     faviconUrl: funnel.faviconUrl ?? "",
     headTrackingCode: funnel.trackingCodeHead ?? "",
     bodyTrackingCode: funnel.trackingCodeBody ?? "",
-    allowPaymentModeOption: true,
-    paymentMode: funnel.isLivePaymentMode ?? true,
+    ...paymentModeFields(funnel, ctx.location, overrides),
     chatWidgetId: funnel.chatWidgetId ?? "",
     imageOptimization: funnel.imageOptimization ?? true,
     isGdprCompliant: funnel.isGdprCompliant ?? false,
     isOptimisePageLoad: funnel.isOptimisePageLoad ?? true,
-    stopAllSplitTestsAndReset: null,
+    stopAllSplitTestsAndReset: ctx.resetSplitTests ? { locationId, funnelId, userId: ctx.userId } : null,
     requireCreditCard: funnel.requireCreditCard ?? true,
     storeCurrencyFormatting: funnel.storeCurrencyFormatting ?? false,
-    autoGenerateSchema: funnel.autoGenerateSchema ?? true,
-    ...overrides
+    autoGenerateSchema: funnel.autoGenerateSchema === true,
+    ...Object.fromEntries(Object.entries(overrides).filter(([k]) => k !== "paymentMode"))
   };
 }
+function domainChangeGuard(funnel, overrides = {}) {
+  if (!("domainId" in overrides)) return null;
+  const was = funnel.domainId ?? "";
+  const next = overrides.domainId ?? "";
+  if (!was || next === was) return null;
+  if (funnel.type === "website" || funnel.type === "webinar") return null;
+  return next ? "changing" : "removing";
+}
+var regexRedirectOn = (domainUrl, rows) => (Array.isArray(rows) ? rows : rows?.data ?? []).filter((r) => r?.domain === domainUrl);
 function settingsDiff(requested, after) {
   const got = settingsFrom(after);
   return Object.entries(requested).map(([k, want]) => {
@@ -116441,6 +116533,19 @@ function settingsDiff(requested, after) {
     const same3 = k === "funnelPath" ? normPath(have) === normPath(want) : JSON.stringify(have ?? "") === JSON.stringify(want ?? "");
     return { key: k, requested: want, readBack: have, applied: same3 };
   });
+}
+function settingsSideEffects(requested, before, after, sentBody) {
+  const was = settingsFrom(before);
+  const now = settingsFrom(after);
+  const materialised = [];
+  const changed = [];
+  for (const k of Object.keys(SETTINGS_KEYS)) {
+    if (k in requested) continue;
+    if (JSON.stringify(was[k] ?? null) === JSON.stringify(now[k] ?? null)) continue;
+    if (was[k] == null && JSON.stringify(now[k]) === JSON.stringify(sentBody?.[k])) materialised.push({ key: k, readBack: now[k] });
+    else changed.push({ key: k, before: was[k], after: now[k] });
+  }
+  return { materialised, changed };
 }
 var normPath = (p2) => p2 == null ? p2 : `/${String(p2).replace(/^\/+/, "")}`;
 function planCreateStep({ funnel, step }) {
@@ -209965,7 +210070,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_funnel",
-    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read; only named fields change) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true) \xB7 add-header (exact-case path only) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (this location; no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId} (returns stepProductId, what a sell-product button stores). Not offered: sharing (opening Share creates a link anyone can import, not removable below the $497 plan \u2014 read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true) \xB7 add-header (exact-case path only) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (this location; no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId} (returns stepProductId, what a sell-product button stores). Not offered: sharing (opening Share creates a link anyone can import, not removable below the $497 plan \u2014 read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -210010,10 +210115,13 @@ var TOOLS2 = [
       displayText: external_exports.string().optional(),
       quantity: external_exports.object({ max: external_exports.number().int().min(1).optional(), allowMultiple: external_exports.boolean().optional() }).optional(),
       bump: external_exports.boolean().optional(),
+      resetSplitTests: external_exports.boolean().optional(),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
       { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
+      { method: "GET", path: "/locations/{id}" },
+      { method: "GET", path: "/funnels/lookup/redirect/regex/bulk" },
       { method: "GET", path: "/funnels/lookup/list" },
       { method: "GET", path: "/funnels/domain/" },
       { method: "GET", path: "/users/{userId}" },
@@ -210062,7 +210170,39 @@ var TOOLS2 = [
               );
             }
             requested = s;
-            plan = { method: "POST", path: "/funnels/funnel/update-settings", body: settingsBody(args.locationId, funnel, s) };
+            const change = domainChangeGuard(funnel, s);
+            if (change && args.resetSplitTests !== true) {
+              plan = { refuse: `${change} the domain of this funnel stops and deletes every split-test variation step and deletes the split-test stats (the page builder asks for the same confirmation). Pass resetSplitTests:true to do it; nothing was sent.` };
+              break;
+            }
+            if (s.domainId) {
+              const d = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              if (!d.ok) return fromHttp(d.status, d.json);
+              const list = d.json?.domains ?? d.json?.data ?? [];
+              const dom = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === s.domainId);
+              if (!dom) {
+                plan = { refuse: `domainId ${s.domainId} is not a domain of this location (${(Array.isArray(list) ? list : []).length} domain(s))` };
+                break;
+              }
+              const rx = await gw.call("GET", `/funnels/lookup/redirect/regex/bulk?${new URLSearchParams({ domains: dom.url, locationId: args.locationId })}`);
+              if (!rx.ok) return fromHttp(rx.status, rx.json);
+              const hits = regexRedirectOn(dom.url, rx.json);
+              if (hits.length) {
+                plan = { refuse: `${dom.url} carries a regex/wildcard redirect${hits[0]?.target ? ` (to ${hits[0].target})` : ""}, so the Settings page does not offer it and its pages would be redirected away. Remove the redirect first (edit_redirects) or pick another domain.` };
+                break;
+              }
+            }
+            let location;
+            if (needsLocationForSettings(funnel, s)) {
+              const l = await gw.call("GET", `/locations/${encodeURIComponent(args.locationId)}`);
+              if (!l.ok) return fromHttp(l.status, l.json);
+              location = l.json?.location ?? l.json;
+            }
+            if (change && typeof gw.uid !== "string") {
+              plan = { refuse: "resetting split tests needs the user id, and this credential carries none. Change the domain in the page builder settings." };
+              break;
+            }
+            plan = { method: "POST", path: "/funnels/funnel/update-settings", body: settingsBody(args.locationId, funnel, s, { location, resetSplitTests: !!change, userId: gw.uid }) };
             break;
           }
           case "create-step":
@@ -210272,11 +210412,15 @@ var TOOLS2 = [
             const after = await fresh();
             const diff = settingsDiff(requested, after);
             const notApplied = diff.filter((d) => !d.applied);
+            const side = settingsSideEffects(requested, funnel, after, plan.body);
             const notes = [];
+            if (side.materialised.length) notes.push(`The save stored default(s) the document never had: ${side.materialised.map((m) => `${m.key}=${JSON.stringify(m.readBack)}`).join(", ")} \u2014 the values the Settings page itself sends.`);
+            if (plan.body.stopAllSplitTestsAndReset) notes.push("The domain change stopped every split test on this funnel and deleted their variation steps and stats, as confirmed with resetSplitTests.");
             if ("funnelPath" in requested) notes.push(`funnelPath is the funnel ROOT lookup row: it moved in place and the old path now 404s. ${CACHE_NOTE}`);
             if ("headTrackingCode" in requested || "bodyTrackingCode" in requested) notes.push("Tracking code renders on every page of the funnel: head code in <head>, body code at the end of <body>.");
-            const out = { op: "settings", status: w.status, readBack: diff, ...notes.length ? { notes } : {} };
+            const out = { op: "settings", status: w.status, readBack: diff, ...side.changed.length ? { unrequestedChanges: side.changed } : {}, ...notes.length ? { notes } : {} };
             if (notApplied.length) return withFailureData(fail(CODES.VERIFY_FAILED, `update-settings answered ${w.status} but ${notApplied.length} field(s) did not read back as requested`, "Compare data.readBack; the server may normalise a value."), out);
+            if (side.changed.length) return withFailureData(fail(CODES.VERIFY_FAILED, `update-settings also changed ${side.changed.length} field(s) the call did not name: ${side.changed.map((c) => c.key).join(", ")}`, "Compare data.unrequestedChanges; set them back with another settings op if unwanted."), out);
             return ok(out);
           }
           case "create-step": {
