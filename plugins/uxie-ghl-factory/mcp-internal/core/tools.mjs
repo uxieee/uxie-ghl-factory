@@ -12,10 +12,12 @@ import { refuseRawRequest, refuseEmptyWriteBody, matchCatalogRow, refuseRedacted
 import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgePageRecord, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
+import { nodeLayerCss } from './style-layer.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
   makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, nodeExtraFromCss, elementSizeCss, buttonColourCss, applyPalette, resetIds, val,
-  NEEDS_STEP_TYPE, videoSourceProblems, isPdpKind, pdpNodeProblems, pdpStylingWarning,
+  NEEDS_STEP_TYPE, videoSourceProblems, isPdpKind, pdpNodeProblems, pdpStylingWarning, builderStylingWarning,
+  BUILDER_INNER_MAX_WIDTH, SECTION_SPEC_KEYS,
 } from './funnel-pages.mjs';
 import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
@@ -2077,12 +2079,14 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   const stepKey = (funnel?.steps ?? []).find((st) => st.id === args.stepId)?.key;
   const pdpBad = pageData.sections.filter((sec) => appendedIds.has(sec.id)).flatMap((sec) => sec.elements.flatMap((n) => pdpNodeProblems(n, sec, { stepKey })));
   if (pdpBad.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${pdpBad.length} product-page block(s) this call appends are misplaced; nothing was written`, 'Append them in a section with pdp:true, on the store\'s product-detail step (or a custom product page).'), { problems: pdpBad, report });
+  const appendedScope = { sectionIds: appendedIds, popupIds: new Set(report.filter((r) => r.op === 'append-popup').map((r) => r.popupId)) };
   const problems = auditPageData(pageData);
   const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, expectPage, ...r }) => r), ...(seo ? { seo: { from: seo.before, to: seo.write } } : {}), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
     ...(problems.length ? { preexistingProblems: problems } : {}),
     ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
     ...(submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {}),
-    ...(pdpStylingWarning(pageData, appendedIds) ? { pdpStyling: pdpStylingWarning(pageData, appendedIds) } : {}),
+    ...(builderStylingWarning(pageData, appendedScope) ? { builderStyling: builderStylingWarning(pageData, appendedScope) } : {}),
+    ...(pdpStylingWarning(pageData, appendedScope) ? { pdpStyling: pdpStylingWarning(pageData, appendedScope) } : {}),
     willPublish: args.publish === true,
     note: args.publish === true
       ? 'Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes.'
@@ -11515,8 +11519,8 @@ export const TOOLS = [
     name: 'build_funnel_page',
     description: `${describe('build_funnel_page', 'Compose a funnel page from native elements and write it')}. `
       + 'Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, '
-      + 'popups?, typography?): writes the nodes AND the compiled stylesheet — the builder canvas reads node styles, '
-      + 'the public page the compiled CSS; both are needed. Sizes, weights, click actions and builder defaults sit on the nodes, so a builder save keeps them. Refuses what autosave accepts with 201 and then breaks: a '
+      + 'popups?, typography?): writes the nodes AND the compiled stylesheet. '
+      + 'Sizes, margins, tablet/mobile styles and defaults sit on the nodes and compile as the builder compiles them; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a '
       + 'meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does '
       + 'not take (refused by name: text → html), an empty popup, an openPopup naming no popup, a video with no '
       + 'source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, '
@@ -11551,6 +11555,14 @@ export const TOOLS = [
         sticky: z.enum(['none', 'top', 'bottom']).optional(),
         width: z.enum(['full', 'wide', 'midWide', 'small']).optional(),
         fullWidthRows: z.boolean().optional(),
+        wrapper: z.record(z.any()).optional(),
+        tabletStyles: z.record(z.any()).optional(),
+        mobileStyles: z.record(z.any()).optional(),
+        tabletWrapper: z.record(z.any()).optional(),
+        mobileWrapper: z.record(z.any()).optional(),
+        visibility: z.object({ hideDesktop: z.boolean().optional(), hideTablet: z.boolean().optional(), hideMobile: z.boolean().optional() }).optional(),
+        customClass: z.union([z.string(), z.array(z.string())]).optional(),
+        bgImage: z.object({ url: z.string(), options: z.string().optional(), opacity: z.number().min(0).max(1).optional() }).optional(),
         section: z.record(z.any()).optional(),
         popup: z.record(z.any()).optional(),
         trackingCode: z.object({ headerCode: z.string().optional(), footerCode: z.string().optional() }).optional(),
@@ -11643,6 +11655,7 @@ export const TOOLS = [
           cls,
           tag: e.tag ?? '',
           salt,
+          wrapper: e.wrapper, tabletStyles: e.tabletStyles, mobileStyles: e.mobileStyles, tabletWrapper: e.tabletWrapper, mobileWrapper: e.mobileWrapper,
         });
         // An explicit `css` block wins — it can express breakpoints, descendant selectors and
         // pseudo-states that a flat style map cannot. Otherwise the leaf's `styles` are
@@ -11656,10 +11669,18 @@ export const TOOLS = [
         css += entranceCss(leaf.id, leaf.class) + hoverCss(leaf.id, leaf.class);
         // The rule the builder compiles from extra.typography; without it the page font never applies.
         if (e.font) css += typographyRule(leaf.id, e.font);
-        return { leaf, css };
+        // The builder's generic layer for this node (wrapper, styles, tablet / mobile) goes FIRST: on save the builder writes
+        // every generic rule before the per-kind ones, so a per-kind rule (a heading's weight) wins over a generic one
+        // (knowledge sniffs/funnels-wave31-styles-live-2026-09-29 live-render-diff.json: appended last, a heading's generic
+        // font-weight overrode its text rule until the builder's save put it back).
+        return { leaf, css: nodeLayerCss(leaf) + css };
       };
       // One composer for both modes: a section spec → a section node tree with its compiled stylesheet.
       const composeSection = (spec, si, saltBase = 'S') => {
+        const unknown = Object.keys(spec ?? {}).filter((k) => !SECTION_SPEC_KEYS.includes(k));
+        if (unknown.length) throw Object.assign(new Error(`section: unknown key(s) ${unknown.map((k) => `\`${k}\``).join(', ')} — a section takes ${SECTION_SPEC_KEYS.join(', ')}`), { remediation: 'Nothing was written. Element keys go on the elements inside columns[].elements.' });
+        let secCls;
+        if (spec.entranceAnimation) { secCls = entranceClass(spec.entranceAnimation); }
         if (spec.fullWidthRows === true && spec.maxWidth !== undefined) throw Object.assign(new Error('a section takes fullWidthRows OR maxWidth, not both: fullWidthRows makes the rows\' container 100% wide'), { remediation: 'Drop one of them.' });
         const css = [];
         const columns = (spec.columns ?? []).map((c, ci) => {
@@ -11671,12 +11692,18 @@ export const TOOLS = [
           const widthPct = c.widthPct ?? Math.round(10000 / (spec.columns.length || 1)) / 100;
           return { col: makeColumn({ children: leaves, widthPct, padX: c.padX ?? 20, salt: `${saltBase}${si}C${ci}` }), leaves, widthPct };
         });
-        return makeSection({
+        const built = makeSection({
           columns, background: spec.background ?? 'transparent', padY: spec.padY ?? 60,
-          maxWidth: spec.maxWidth ?? 1100, elementCss: css.join(''),
+          maxWidth: spec.maxWidth ?? BUILDER_INNER_MAX_WIDTH, elementCss: css.join(''),
           sticky: spec.sticky, width: spec.width, fullWidthRows: spec.fullWidthRows, pdp: spec.pdp,
+          styles: spec.styles, wrapper: spec.wrapper, tabletStyles: spec.tabletStyles, mobileStyles: spec.mobileStyles,
+          tabletWrapper: spec.tabletWrapper, mobileWrapper: spec.mobileWrapper, visibility: spec.visibility, customClass: spec.customClass,
+          bgImage: spec.bgImage, cls: secCls,
           pageId: args.pageId, funnelId: args.funnelId, locationId: args.locationId, salt: `${saltBase}${si}`,
         });
+        // A section's entrance animation compiles like an element's (core/page-animation.mjs).
+        if (secCls) built.general.sectionStyles += entranceCss(built.id, built.metaData.class);
+        return built;
       };
       if (args.edits || args.seo) return editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts });
       if (!args.sections) return fail(CODES.VALIDATION_FAILED, 'pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)', 'See the tool description for both shapes.');
@@ -11744,6 +11771,7 @@ export const TOOLS = [
         compiledCssBytes: cssBytes,
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === 'element').map((e) => e.meta)))],
         audit: 'clean',
+        ...(builderStylingWarning(pageData) ? { builderStyling: builderStylingWarning(pageData) } : {}),
         ...(pdpStylingWarning(pageData) ? { pdpStyling: pdpStylingWarning(pageData) } : {}),
         ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
         ...(submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {}),

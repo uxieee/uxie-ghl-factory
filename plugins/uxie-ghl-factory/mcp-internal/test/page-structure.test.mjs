@@ -62,7 +62,7 @@ test('section knobs: sticky, width and full-width rows, with the builder\'s comp
   assert.match(s.general.sectionStyles, new RegExp(`#${s.id}>\\.inner\\{max-width:100%\\}`));
   const d = makeSection({ columns: [], salt: 'S1' });
   assert.equal(d.metaData.class.width, undefined);
-  assert.match(d.general.sectionStyles, /\.inner\{max-width:1100px\}/);
+  assert.match(d.general.sectionStyles, /\.inner\{max-width:1170px\}/, 'the default inner width is the builder\'s (it recompiles 1170 on every save)');
   assert.throws(() => makeSection({ columns: [], width: 'huge', salt: 'S2' }), /width must be one of/);
 });
 
@@ -85,7 +85,15 @@ test('set on a section writes its knobs, the classStr width and the inner rule; 
   assert.equal(meta.classStr, 'noBorder radius0 none midWideSection');
   assert.equal(pageData.sections[0].general.sectionStyles, '.z{}#section-A>.inner{max-width:100%}');
   assert.ok(verifyEdits(pageData, report).every((v) => v.applied));
-  assert.match(applyPageEdits(pd, [{ op: 'set', nodeId: 'section-A', styles: { color: 'red' } }]).errors[0].error, /takes sticky, width and fullWidthRows/);
+  // f4b: a section's styling is set in place too, compiled through the builder's generic layer; `extra` stays refused
+  const styled = applyPageEdits(pd, [{ op: 'set', nodeId: 'section-A', styles: { borderRadius: '8px' }, mobileStyles: { paddingTop: 10 }, visibility: { hideMobile: true } }]);
+  assert.equal(styled.errors.length, 0);
+  const sm = styled.pageData.sections[0].metaData;
+  assert.deepEqual([sm.styles.borderRadius, sm.mobileStyles.paddingTop, sm.extra.visibility.value.hideMobile], [{ value: '8px' }, { value: 10, unit: 'px' }, true]);
+  assert.match(styled.pageData.sections[0].general.sectionStyles, /\.section-A\{[^}]*border-radius:8px/);
+  assert.match(styled.pageData.sections[0].general.sectionStyles, /@media screen and \(min-width:0px\) and \(max-width:767px\)\{\.hl_page-preview--content \.section-A\{padding-top:10px\}\}/);
+  assert.ok(verifyEdits(styled.pageData, styled.report).every((v) => v.applied));
+  assert.match(applyPageEdits(pd, [{ op: 'set', nodeId: 'section-A', extra: { x: { value: 1 } } }]).errors[0].error, /a section takes sticky, width, fullWidthRows, styles/);
 });
 
 test('set animations on leaves: class + compiled rules; hover only on buttons; entrance only where the builder offers it', () => {

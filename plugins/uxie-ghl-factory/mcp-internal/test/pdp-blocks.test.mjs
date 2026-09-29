@@ -61,3 +61,22 @@ test('edit: an appended pdp section on the product-detail step previews with pdp
   const other = await run({ stepName: 'Product details', edits: [{ op: 'set', nodeId: 'heading-X', extra: { text: { value: 'b' } } }] });
   assert.equal(other.data.preview.pdpStyling, undefined);
 });
+
+test('builderStyling: every builder-styled kind this call writes (sections and popups), with pdpStyling kept as the PDP subset', async () => {
+  const res = await run({ sections: [PDP_SECTION, { columns: [{ elements: [{ meta: 'nav-menu-v2' }, { meta: 'heading', html: 'x' }] }] }] });
+  const b = res.data.preview.builderStyling;
+  assert.deepEqual(b.nodes.map((n) => n.kind), ['store-pdp-v2-images', 'store-pdp-v2-title', 'store-pdp-v2-price', 'store-pdp-v2-add-to-cart', 'nav-menu-v2']);
+  assert.match(b.warning, /render differently until the page is saved once in the page builder, which compiles their CSS/);
+  assert.equal(res.data.preview.pdpStyling.nodes.length, 4, 'pdpStyling stays: the PDP subset');
+  const pop = await run({ sections: [HEADING_SECTION], popups: [{ name: 'P', columns: [{ elements: [{ meta: 'faq' }] }] }] });
+  assert.deepEqual(pop.data?.preview?.builderStyling?.nodes.map((n) => n.kind), ['faq'], JSON.stringify(pop).slice(0, 300));
+  const plain = await run({ sections: [HEADING_SECTION] });
+  assert.equal(plain.data.preview.builderStyling, undefined);
+});
+
+test('builderStyling in edit mode names only what the call appends', async () => {
+  const pre = await run({ stepName: 'Product details', edits: [{ op: 'append-section', section: { columns: [{ elements: [{ meta: 'divider' }] }] } }] });
+  assert.deepEqual(pre.data.preview.builderStyling.nodes.map((n) => n.kind), ['divider']);
+  const other = await run({ stepName: 'Product details', edits: [{ op: 'set', nodeId: 'heading-X', extra: { text: { value: 'b' } } }] });
+  assert.equal(other.data.preview.builderStyling, undefined);
+});

@@ -19,7 +19,10 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { KIND_DEFAULT_EXTRA, KIND_PDP_STYLES } from './kind-defaults.mjs';
+import { KIND_DEFAULT_EXTRA, KIND_PDP_STYLES, fillTextFieldInitials } from './kind-defaults.mjs';
+import { KIND_FACTORY_EXTRA, KIND_FACTORY_STYLES, KIND_FACTORY_WRAPPER } from './kind-factory-defaults.mjs';
+import { nodeLayerCss, storedMap } from './style-layer.mjs';
+import { entranceClass } from './page-animation.mjs';
 import { KIND_BUILDER_EXTRA, KIND_BUILDER_STYLES } from './kind-builder-defaults.mjs';
 
 // Embedded by esbuild into dist so the bundle stays self-contained (the bundle test asserts it
@@ -246,14 +249,42 @@ export function pdpNodeProblems(n, section, opts = {}) {
   return out;
 }
 
-// The tool compiles no CSS for the product-page blocks yet; the builder compiles it on its first save of the page, and
-// until then a visitor sees them unstyled — native buttons and select, default font (bl-298; knowledge
-// sniffs/funnels-wave29-kinds-2026-09-29 render.public-pdp.png vs render.public-pdp.after-builder-save.png).
+// 🔴 Kinds whose look depends on CSS only the page BUILDER compiles (bl-298). Measured 2026-09-29 by rendering one page
+// of every plain kind before and after a builder save (knowledge sniffs/funnels-wave30-kind-css-2026-09-29,
+// live-diff.pre-vs-post.json: these 31 change, the section width recompile aside), pricing-table (wave31) and the
+// product-page page (wave29).
+// The tool compiles none of their CSS yet, so until someone saves the page once in the builder a visitor sees them
+// differently — unstyled buttons and selects, other heights, hidden or collapsed parts. A kind leaves this set when its
+// builder style function is ported and the same harness shows no difference after a save.
+export const BUILDER_STYLED_KINDS = Object.freeze(new Set([
+  'video', 'divider', 'two-setp-order', 'one-step-order', 'nav-menu', 'nav-menu-v2', 'map', 'progress-bar',
+  'image-feature', 'order-confirmation', 'faq', 'blog', 'blog-post', 'category-navigation', 'store-product-list',
+  'store-product-detail', 'nav-cart', 'upsell', 'collection-list', 'featured-products', 'social-icons', 'image-slider',
+  'searchbar', 'photo-video-gallery', 'social-share-blog', 'blog-subscribe-form', 'featured-product',
+  'store-custom-product-detail', 'logo-showcase', 'qr-code', 'testimonial',
+  // pricing-table rendered nothing bare on 1.24.0; with the builder's factory defaults it renders its table, and a builder
+  // save relays it on mobile (530 → 1362 px; knowledge sniffs/funnels-wave31-styles-live-2026-09-29 live-render-diff.json)
+  'pricing-table',
+  'store-pdp-v2-title', 'store-pdp-v2-price', 'store-pdp-v2-images', 'store-pdp-v2-variants', 'store-pdp-v2-quantity',
+  'store-pdp-v2-add-to-cart', 'store-pdp-v2-buy-now', 'store-pdp-v2-review-stars', 'store-pdp-v2-description',
+  'store-pdp-v2-related-products', 'store-pdp-v2-reviews',
+]));
+export const BUILDER_STYLING_WARNING = 'these render differently until the page is saved once in the page builder, which compiles their CSS (bl-298); open and save it there before sharing the page';
+// Kept for 1.24.0's consumers: the product-page subset of builderStyling, with its original sentence. Deprecated.
 export const PDP_STYLING_WARNING = 'these blocks render unstyled until the page is opened and saved once in the page builder (bl-298); do that before sharing the page';
-/** The preview/result entry for product-page blocks this call writes (all of the page's, or those in `sectionIds`), or null. */
-export function pdpStylingWarning(pageData, sectionIds = null) {
-  const nodes = (pageData?.sections ?? []).filter((sec) => !sectionIds || sectionIds.has(sec.id))
-    .flatMap((sec) => (sec.elements ?? []).filter((n) => n.type === 'element' && isPdpKind(n.meta)).map((n) => ({ id: n.id, kind: n.meta })));
+const styledNodes = (pageData, pred, { sectionIds = null, popupIds = null } = {}) => [
+  ...(pageData?.sections ?? []).filter((sec) => !sectionIds || sectionIds.has(sec.id)).flatMap((sec) => sec.elements ?? []),
+  ...(pageData?.popupsList ?? []).filter((p) => (sectionIds ? popupIds?.has(p.id) : true)).flatMap((p) => p.elements ?? []),
+].filter((n) => n?.type === 'element' && pred(n.meta)).map((n) => ({ id: n.id, kind: n.meta }));
+/** The preview/result entry for builder-styled kinds this call writes (the whole page's, or the appended `sectionIds` /
+ *  `popupIds` of an edit), or null. */
+export function builderStylingWarning(pageData, scope) {
+  const nodes = styledNodes(pageData, (m) => BUILDER_STYLED_KINDS.has(m), scope);
+  return nodes.length ? { nodes, warning: BUILDER_STYLING_WARNING } : null;
+}
+/** Deprecated alias (1.24.0): the product-page subset. */
+export function pdpStylingWarning(pageData, scope) {
+  const nodes = styledNodes(pageData, isPdpKind, scope);
   return nodes.length ? { nodes, warning: PDP_STYLING_WARNING } : null;
 }
 
@@ -313,7 +344,10 @@ export const completeExtra = (meta, given = {}) => {
   // page (a `{value:""}` size is truthy, so `${value}${unit}` prints "undefined"), and what gave the store kinds an
   // itemsPerPage of [] and the timers an expireAction of "" (knowledge sniffs/funnels-completeness-2026-09-29
   // a-defaults-diff.json). emptyFor is now only for a prop the builder declares no default for.
-  const builder = KIND_BUILDER_EXTRA[meta] ?? {};
+  // The builder's own element FACTORY (kind-factory-defaults.mjs, createNewElement run offline) wins over the older
+  // registry table: the table missed shared factories (the product-page buttons) and inverted featured-product.
+  const factory = KIND_FACTORY_EXTRA[meta] ?? {};
+  const builder = { ...(KIND_BUILDER_EXTRA[meta] ?? {}), ...factory };
   const out = {};
   for (const prop of declared) {
     // 🔴 `visibility` and `customClass` are declared on most kinds, and the envelope already gives
@@ -330,6 +364,9 @@ export const completeExtra = (meta, given = {}) => {
   // A kind may need a property its own registry entry does not declare — `customText` is declared,
   // but `step1` on store-checkout is not, and the renderer reads it anyway.
   for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
+  // …and every config prop the builder's factory writes on a fresh node, declared or not: a bare tool node is the
+  // builder's fresh node minus content (knowledge sniffs/funnels-wave30-kind-css-2026-09-29 offline-tool-vs-fresh.json).
+  for (const [prop, v] of Object.entries(factory)) if (!(prop in out) && !(prop in given)) out[prop] = v;
   // A SIZE prop the builder declares with no default (most tablet sizes, the pricing table's mobile sizes) takes its
   // desktop sibling — the builder's own fallback when a breakpoint has no size — or, failing that, the same prop's
   // default on another kind. Never a shaped empty: `${value}${unit}` of {value:""} compiles to "undefined".
@@ -419,7 +456,10 @@ export function videoSourceProblems(pageData, onlyIds = null) {
   return out;
 }
 
-export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', salt }) => {
+// The kinds whose CSS this tool compiles itself, as the builder does (f1: textElementMediaQueryStyle, buttonElementStyle).
+export const TOOL_COMPILED_KINDS = Object.freeze(new Set(['heading', 'sub-heading', 'paragraph', 'rich-text', 'bulletList', 'button']));
+
+export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', salt, wrapper, tabletStyles, mobileStyles, tabletWrapper, mobileWrapper }) => {
   if (!ELEMENTS[meta]) throw new Error(`unknown element meta '${meta}' — the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta, salt);
   // The builder's fontWeight objects first: its text, button and timer compilers read `.desktop` / `.mobile` from them
@@ -429,7 +469,11 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
   const builderStyles = KIND_BUILDER_STYLES[meta] ?? {};
   // boxShadow likewise: the builder compiles an image's `box-shadow` from it with no fallback (`box-shadow:undefined`).
   const weights = Object.fromEntries(Object.entries(builderStyles).filter(([k]) => /^fontWeight|^boxShadow$/.test(k)));
-  const base = { ...weights, ...(KIND_DEFAULT_STYLES[meta] ?? {}), ...(KIND_PDP_STYLES[meta] ?? {}), ...(STYLE_DEFAULTS[meta] ?? {}) };
+  // Lowest: every style key the builder's factory writes on a fresh node (its compilers read them unguarded) — except on
+  // the kinds this tool compiles itself (TOOL_COMPILED_KINDS), where the builder's fresh values (textAlign center, colours)
+  // would make a builder save restyle what the tool rendered: their node styles stay as proven (wave26 saved-bytes).
+  const factoryStyles = TOOL_COMPILED_KINDS.has(meta) ? {} : (KIND_FACTORY_STYLES[meta] ?? {});
+  const base = { ...factoryStyles, ...weights, ...(KIND_DEFAULT_STYLES[meta] ?? {}), ...(KIND_PDP_STYLES[meta] ?? {}), ...(STYLE_DEFAULTS[meta] ?? {}) };
   // Every default weight object gets `.mobile` = `.desktop`, whichever table it came from: the template-derived nav-menu
   // and image-feature weights lacked it too and a builder save compiled `font-weight:undefined` into their mobile rules
   // (f1 kinds check, knowledge sniffs/funnels-wave26-builder-save-2026-09-29 live-saved-bytes.kinds.json).
@@ -444,7 +488,10 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
   }
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
   const routed = routeClickAction(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra);
-  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, completeExtra(meta, routed), withDefaults, cls);
+  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, fillTextFieldInitials(meta, structuredClone(completeExtra(meta, routed))), withDefaults, cls, TOOL_COMPILED_KINDS.has(meta) ? undefined : KIND_FACTORY_WRAPPER[meta]);
+  // The wrapper and per-device maps a caller gave (numbers are px), over the envelope's.
+  if (wrapper) node.wrapper = { ...node.wrapper, ...storedMap(wrapper) };
+  for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) node[k] = storedMap(v);
   // Most leaves carry tag:''. The store and blog kinds carry their tagName, and do not render without it.
   node.tag = tag || (TAG_IS_TAGNAME.has(meta) ? ELEMENTS[meta].tagName : '');
   return node;
@@ -486,7 +533,38 @@ export function sectionKnobs({ sticky, width, fullWidthRows, pdp } = {}) {
   return { extra, cls };
 }
 
-export const makeSection = ({ columns, background = 'transparent', padY = 60, maxWidth = 1100, elementCss = '', pageId, funnelId, locationId, salt, sticky, width, fullWidthRows, pdp }) => {
+/** The keys a section spec in build_funnel_page may carry; any other is refused by name (it used to be dropped silently). */
+export const SECTION_SPEC_KEYS = Object.freeze(['columns', 'background', 'padY', 'maxWidth', 'sticky', 'width', 'fullWidthRows', 'pdp',
+  'styles', 'wrapper', 'tabletStyles', 'mobileStyles', 'tabletWrapper', 'mobileWrapper', 'visibility', 'customClass', 'bgImage', 'entranceAnimation']);
+
+// A section's background image, in the builder's stored shape (the renderer reads it from extra.bgImage; it is never in
+// the stylesheet — knowledge sniffs/funnels-wave30-kind-css-2026-09-29 probe-edges.json sectionBg).
+const BG_OPTIONS = Object.freeze(['bgCover', 'bgContain', 'bgNoRepeat', 'bgRepeat', 'bgFixed']);
+function sectionBgImage(spec) {
+  if (spec === undefined) return BG_IMAGE;
+  if (!spec || typeof spec !== 'object' || typeof spec.url !== 'string' || !/^https?:\/\//.test(spec.url)) throw Object.assign(new Error('section bgImage must be {url: "https://…", options?, opacity?}'), { remediation: `options: ${BG_OPTIONS.join(' | ')} (default bgCover); opacity 0–1 (default 1).` });
+  if (spec.options !== undefined && !BG_OPTIONS.includes(spec.options)) throw new Error(`section bgImage.options must be one of ${BG_OPTIONS.join(', ')}`);
+  return { value: { ...BG_IMAGE.value, url: spec.url, options: spec.options ?? 'bgCover', opacity: String(spec.opacity ?? 1) } };
+}
+const sectionClasses = (c) => { const list = Array.isArray(c) ? c : [c]; if (list.some((x) => typeof x !== 'string' || !/^[A-Za-z_][\w-]*$/.test(x))) throw new Error('section customClass must be class names (letters, digits, - and _)'); return list; };
+
+/** A section's styling from a spec / set op, in node shape: layers to MERGE and per-device maps to REPLACE. */
+export function sectionStylingPatch(o = {}) {
+  const merge = {}; const replace = {};
+  if (o.styles) merge.styles = storedMap(o.styles);
+  if (o.wrapper) merge.wrapper = storedMap(o.wrapper);
+  const extra = {};
+  if (o.visibility) extra.visibility = val({ hideDesktop: !!o.visibility.hideDesktop, hideTablet: !!o.visibility.hideTablet, hideMobile: !!o.visibility.hideMobile });
+  if (o.customClass) extra.customClass = val(sectionClasses(o.customClass));
+  if (o.bgImage) extra.bgImage = sectionBgImage(o.bgImage);
+  if (Object.keys(extra).length) merge.extra = extra;
+  if (o.entranceAnimation) merge.class = entranceClass(o.entranceAnimation);
+  for (const k of ['tabletStyles', 'mobileStyles', 'tabletWrapper', 'mobileWrapper']) if (o[k]) replace[k] = storedMap(o[k]);
+  return { merge, replace, touchesCss: !!(o.styles || o.wrapper || o.entranceAnimation || Object.keys(replace).length) };
+}
+
+export const makeSection = ({ columns, background = 'transparent', padY = 60, maxWidth = BUILDER_INNER_MAX_WIDTH, elementCss = '', pageId, funnelId, locationId, salt, sticky, width, fullWidthRows, pdp,
+  styles, wrapper, tabletStyles, mobileStyles, tabletWrapper, mobileWrapper, visibility, customClass, bgImage, cls: extraCls, sectionCss = '' }) => {
   // 🔴 COLUMN WIDTHS MUST FILL THE ROW. A column is `flex: 1 1 auto`, so the `width` compiled here
   // acts as a flex BASIS, not a fixed size: a row whose widths sum to less than 100 does not leave a
   // gap, it GROWS every column to fill. Two columns at 33.33% render at 50% each — the page looks
@@ -525,17 +603,22 @@ export const makeSection = ({ columns, background = 'transparent', padY = 60, ma
   row.child = columns.map((c) => c.col.id);
   const knobs = sectionKnobs({ sticky, width, fullWidthRows, pdp });
   const meta = envelope(sid, 'section', 'section', 'c-section',
-    { sticky: val('noneSticky'), bgImage: BG_IMAGE, allowRowMaxWidth: val(false), ...knobs.extra },
-    { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20) },
-    knobs.cls);
+    { sticky: val('noneSticky'), bgImage: sectionBgImage(bgImage), allowRowMaxWidth: val(false), ...knobs.extra,
+      ...(visibility ? { visibility: val({ hideDesktop: !!visibility.hideDesktop, hideTablet: !!visibility.hideTablet, hideMobile: !!visibility.hideMobile }) } : {}),
+      ...(customClass ? { customClass: val(sectionClasses(customClass)) } : {}) },
+    { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20), ...(storedMap(styles) ?? {}) },
+    { ...knobs.cls, ...(extraCls ?? {}) }, storedMap(wrapper));
+  for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) meta[k] = storedMap(v);
   meta._id = sid; meta.child = [rid]; meta.isGlobal = false;
 
+  // The section, row and columns compile through the builder's generic layer (core/style-layer.mjs), so a builder save
+  // writes the same rules; the inner width and the column's inner flex rule are the builder's per-kind additions.
   const scaffold = [
-    `${PREFIX} .${sid}{box-shadow:none;padding:${padY}px 20px;margin:0;background-color:${background};border:0}`,
+    nodeLayerCss({ ...meta, id: sid }),
     sectionInnerRule(sid, { fullWidthRows: fullWidthRows === true, maxWidth }),
-    `${PREFIX} .${rid}{margin:0 auto;padding:0;width:100%;background-color:transparent;box-shadow:none;border:0}`,
-    ...columns.map(({ col, widthPct }) => `${PREFIX} .${col.id}{padding:0 20px;width:${widthPct}%;margin:0;background-color:transparent;box-shadow:none;border:0}`
-      + `#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`),
+    sectionCss,
+    nodeLayerCss(row),
+    ...columns.map(({ col }) => nodeLayerCss(col) + `#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`),
   ].join('');
 
   return {
