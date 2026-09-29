@@ -1048,3 +1048,23 @@ test('CONTROL: a complete create_row compiles exactly as before (no lookup/forma
   for (const k of ['lookupColumns', 'lookupStep', 'formatting']) assert.equal(k in a, false, k);
   assert.deepEqual(a.columnRange, ['A', 'C']);
 });
+
+// wave23 W23-3/W23-4 (completeness sweep 2026-09-29 §4 #22-23): an authored router compiled into one lane-less step that
+// validated clean and could not branch; an authored loop compiled as a straight line. Both are refused by name now.
+const oneNode = (node) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+  graph: [node, { ref: 'x', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['a'] } }] });
+test('router: authoring one is refused (ROUTER_NOT_AUTHORED) with the lane shape and the allowlist named', () => {
+  for (const node of [{ ref: 'r', type: 'router', name: 'R', attributes: { branches: [{ id: 'b1', name: 'All', branchType: 'always_run', segments: [] }] } },
+    { ref: 'r', kind: 'action', type: 'router', name: 'R' }])
+    assert.throws(() => compile(oneNode(node), ctx()), (e) => e.code === 'ROUTER_NOT_AUTHORED' && /lane/.test(e.message) && /allowlisted/.test(e.message) && /if_else/.test(e.message));
+});
+test('loop: authoring one is refused (LOOP_NOT_AUTHORED) with the body shape and the allowlist named', () => {
+  assert.throws(() => compile(oneNode({ ref: 'l', type: 'loop', name: 'L', attributes: { items: '{{contact.tags}}' } }), ctx()),
+    (e) => e.code === 'LOOP_NOT_AUTHORED' && /parentContainerId/.test(e.message) && /allowlisted/.test(e.message));
+});
+test('CONTROL: a raw (builder-made) router step is carried through; if_else still compiles', () => {
+  const raw = { ref: 'r', kind: 'raw', type: 'router', name: 'R', attributes: { routerName: 'R', branches: [], version: 1 } };
+  assert.doesNotThrow(() => compile(oneNode(raw), ctx()));
+  const ifElse = { ref: 'i', type: 'if_else', name: 'If', branches: [{ name: 'A', conditions: [{ conditionType: 'contact_detail', tag: 'a' }], then: [] }, { name: 'None', else: true, then: [] }] };
+  assert.doesNotThrow(() => compile({ ...oneNode(ifElse), graph: [ifElse] }, ctx()));
+});

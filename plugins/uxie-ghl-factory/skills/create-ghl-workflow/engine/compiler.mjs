@@ -2983,8 +2983,9 @@ export function compile(ir, ctx) {
       + loops.map((l) => `'${l.name ?? l.id}' -> '${l.targetName ?? l.target}'`).join('; ')
       + '. GHL detects the cycle server-side, marks the node "Loop Locked", stamps the workflow '
       + 'loopIdentified and forces its status to draft — a published workflow silently stops. '
-      + 'Loops are not a legal flow shape here: restructure so the goto points forward, or use '
-      + 'the dedicated `loop` step type, which is a supported container with its own body.');
+      + 'Loops are not a legal flow shape here: restructure so the goto points forward. GHL\'s dedicated '
+      + '`loop` step repeats steps properly, but the engine does not author it (the builder offers Loop only on '
+      + 'allowlisted locations) — add it in the builder where it is offered.');
   }
   // custom_code needs a SERVER test run before the builder accepts it: the drawer's Save requires
   // attributes.output to be the non-empty object returned by POST /custom-code/run-test, and editing

@@ -67,6 +67,25 @@ const SCOPE_OWNERS = {
 // Compiled as a plain marketplace step it was a straight line the builder never produces.
 const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision: 'ai_decision', workflow_ai_decision_maker: 'ai_decision',
   ai_intent: 'ai_intent', workflow_ai_intent_detection: 'ai_intent', goto: 'goto' };
+// Container types the engine cannot author, refused by name instead of compiled wrong (wave23, completeness sweep
+// 2026-09-29 §4 #22-23). A router compiled into ONE step with a scalar `next` — no lanes, no condition-node — that saved and
+// passed validation and could not branch. A loop has no body scope here, so it compiled as a straight line and was then
+// refused by checkLoopHasBody with no word about why. Both are builder-picker features gated to allowlisted locations,
+// so neither can be proven on the designated test sub-account. `kind:'raw'` (a builder-made step carried verbatim) is
+// untouched: edits keep existing routers and loops as stored.
+const NOT_AUTHORED = {
+  router: { code: 'ROUTER_NOT_AUTHORED', message: (n) => `node '${n.ref ?? n.name ?? 'router'}': the engine does not author a Router. `
+    + 'GHL stores one as a condition-node root (attributes.branches, next = its lane ids) plus one template per lane '
+    + '(type router, nodeType branch-yes, parentKey = the router) (utils/router.ts:616-760); the engine has no router kind, '
+    + 'and what it used to write was a single step that cannot branch. The builder offers Router only on allowlisted '
+    + 'locations (IS_ROUTER_ACTION_SHIPPED is false; utils/router-flag.ts). Use if_else (one path per condition), or add the '
+    + 'Router in the builder where it is offered.' },
+  loop: { code: 'LOOP_NOT_AUTHORED', message: (n) => `node '${n.ref ?? n.name ?? 'loop'}': the engine does not author a Loop. `
+    + 'GHL stores the body as separate steps tagged parentContainerId = the loop, running from the loop\'s next up to '
+    + 'attributes.exitNext (utils/loop.helper.ts:571-648); the engine has no body scope. The builder offers Loop only on '
+    + 'allowlisted locations (isLoopActionEnabled: GHL-internal companies or 41 listed location ids, loop.helper.ts:37-85). '
+    + 'Add the loop in the builder where it is offered.' },
+};
 // ai_intent's branches are FIXED by GHL: exactly these names, each at most once, any may be omitted (an empty lane, as the builder leaves it).
 export const AI_INTENT_BRANCHES = ['positive', 'negative', 'none'];
 
@@ -354,6 +373,7 @@ export function parseIR(ir, { externalRefs } = {}) {
       n.kind = KIND_BY_TYPE[n.type];
     }
     if (n.kind !== 'raw' && WIRE_TYPE_ALIASES[n.type]) n.type = WIRE_TYPE_ALIASES[n.type];
+    if (n.kind !== 'raw' && NOT_AUTHORED[n.type]) throw new IRError(NOT_AUTHORED[n.type].code, NOT_AUTHORED[n.type].message(n));
     // Fail CLOSED on a kind nothing handles. This runs AFTER the aliases above, so every
     // legitimate spelling has already been normalised and anything still unrecognised is a value
     // no handler will claim. Refusing here is the whole point: every guard downstream is keyed on

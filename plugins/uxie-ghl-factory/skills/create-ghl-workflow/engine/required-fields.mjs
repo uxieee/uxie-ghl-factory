@@ -345,6 +345,20 @@ export const CATALOG_CORRECTIONS = {
       + 'and `{{sheetLookupResult.N.result}}` from lookup_multiple_rows #N. The Google account must be connected in the '
       + 'sub-account first; the engine cannot connect one.',
   },
+  // Listed in the index as buildable (◐) though the engine authored neither: a router compiled lane-less, a loop
+  // without a body. parseIR now refuses both by name (ir.mjs NOT_AUTHORED); the index says so.
+  router: {
+    reason: 'the engine has no router kind; an authored router compiled into one lane-less step (sweep 2026-09-29 §4 #23)',
+    docNote: '⛔ **NOT authored** — refused with ROUTER_NOT_AUTHORED. GHL stores a router as a condition-node root plus one '
+      + 'template per lane, and offers it only on allowlisted locations (IS_ROUTER_ACTION_SHIPPED false). Use `if_else`, or '
+      + 'add the Router in the builder where it is offered; edits carry an existing router as stored.',
+  },
+  loop: {
+    reason: 'the engine has no loop-body scope; an authored loop compiled as a straight line (sweep 2026-09-29 §4 #22)',
+    docNote: '⛔ **NOT authored** — refused with LOOP_NOT_AUTHORED. GHL stores the body as steps tagged parentContainerId, '
+      + 'from the loop\'s next to attributes.exitNext, and offers Loop only on allowlisted locations (isLoopActionEnabled). '
+      + 'Add the loop in the builder where it is offered; edits carry an existing loop as stored.',
+  },
 };
 
 // How "supplied" is decided per field. `presence` fields are satisfied by ANY value

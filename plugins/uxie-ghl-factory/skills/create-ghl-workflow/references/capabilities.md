@@ -80,11 +80,11 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `event_start_date` — attrs: `type`, `event_start_type`, `value`, `recurring_type`, `recurring_time`
 - ✅ `goto` — attrs: `targetNodeId`, `type`, `loopIdentified`
 - ✅ `if_else` — attrs: `else`; container → IR kind `if_else`
-- ◐ `loop`
+- ◐ `loop`. ⛔ **NOT authored** — refused with LOOP_NOT_AUTHORED. GHL stores the body as steps tagged parentContainerId, from the loop's next to attributes.exitNext, and offers Loop only on allowlisted locations (isLoopActionEnabled). Add the loop in the builder where it is offered; edits carry an existing loop as stored.
 - ✅ `math_operation` — attrs: `selectField`, `selectFieldtype`, `sourceCustomValueId`, `updateField`, `updateFieldType`, `targetCustomValueId`, `operators`, `operator`, `value`
 - ◐ `number_formatter` — attrs: `action`
 - ✅ `remove_from_workflow` — attrs: `type`, `workflow_id`, `includeCurrent`, `allWorkflows`
-- ◐ `router`
+- ◐ `router`. ⛔ **NOT authored** — refused with ROUTER_NOT_AUTHORED. GHL stores a router as a condition-node root plus one template per lane, and offers it only on allowlisted locations (IS_ROUTER_ACTION_SHIPPED false). Use `if_else`, or add the Router in the builder where it is offered; edits carry an existing router as stored.
 - ✅ `text_formatter` — attrs: `type`, `extras`, `formatterType`, `field`; premium
 - ◐ `update_custom_value` — attrs: `name`, `custom_value_id`, `current_value`, `new_value`
 - ✅ `wait` — attrs: `type`, `startAfter`, `window`, `condition`, `appointmentStartAfter`, `appointmentCondition`, `appointmentSpecificStep`, `reply`, `replyLabel`, `emailEventSteps`, `emailEventStepsLabel`, `emailEventTypes` +45 more (see card)
