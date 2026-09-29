@@ -470,7 +470,9 @@ export function checkAiAgentAttrs(node, a, ctx, now = ctx?.now ?? Date.now()) {
     }
     if (a.skills.length && now < AI_AGENT_SKILLS_PUBLIC_AT)
       ctx?.warn?.(`${where}: ${a.skills.length} skill(s) attached. Until 2026-10-25 GHL's builder hides the Skills `
-        + 'section on most accounts (a date gate), so the skills are stored but a person opening this step will not see them.');
+        + 'section on most accounts (a date gate), so the skills are stored but a person opening this step will not see them — '
+        + 'and on the test sub-account the skills service itself answered 404 to list and resolve (2026-09-29), so a skill '
+        + 'may not resolve when the agent runs before then. Check GET /workflow/agent/{loc}/skills on the target account.');
   }
   if (a.mcpConnections !== undefined && (!Array.isArray(a.mcpConnections)
     || a.mcpConnections.some((c) => !c || typeof c !== 'object' || typeof c.connectionId !== 'string' || !c.connectionId)))
