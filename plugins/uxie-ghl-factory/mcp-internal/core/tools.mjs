@@ -1419,7 +1419,10 @@ function verifyTriggerRoundTrip(expectations, actualTriggers, beforeTriggers = [
     const expected = triggerSemanticExpectation(request.body, { verifyActive });
     let actual;
     let matchSource = null;
-    if (request.op === 'modifyTrigger') {
+    // An op that PUTs an EXISTING trigger is matched by its id: modifyTrigger, and the two fan-outs from replaceTag / replaceFieldId
+    // (replaceTagInTriggers, replaceFieldIdInTriggers). Those two were not listed here, found no stored trigger, and so were ALWAYS
+    // reported as "did not persist" — an ENGINE_ABORT on a write that had landed (live 2026-09-30, live-W30-tag-fix-verifier.json).
+    if (request.op === 'modifyTrigger' || request.op === 'replaceTagInTriggers' || request.op === 'replaceFieldIdInTriggers') {
       actual = actualById.get(request.triggerId);
       matchSource = actual ? 'triggerId' : null;
     } else if (returnedId) {
