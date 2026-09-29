@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1576,
+      count: 1581,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -1569,7 +1569,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchAssociationsForObject",
-          service: null,
+          service: "pipelines-opportunities",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -4634,7 +4634,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/30-types/native-elements.md:133"
+            "funnels/30-types/native-elements.md:174"
           ]
         },
         {
@@ -29174,7 +29174,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "resolved"
           },
           sources: [
-            "services/api/contact-service.ts:59"
+            "services/api/contact-service.ts:59",
+            "workflows/20-api/workflow-maps.md:52",
+            "workflows/20-api/workflow-maps.md:78"
           ]
         },
         {
@@ -29283,7 +29285,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "erased"
           },
           sources: [
-            "components/workflow-grid/services/index.ts:105"
+            "components/workflow-grid/services/index.ts:105",
+            "workflows/20-api/workflow-maps.md:68"
           ]
         },
         {
@@ -30341,9 +30344,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "components/workflow-grid/services/index.ts:120",
             "services/api/workflow-overview.service.ts:166",
             "services/ErrorNotificationService.ts:43",
-            "workflows/50-runtime/error-notifications.md:35",
-            "workflows/50-runtime/error-notifications.md:48",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:64"
+            "workflows/20-api/workflow-maps.md:68",
+            "workflows/20-api/workflow-maps.md:82",
+            "workflows/50-runtime/error-notifications.md:35"
           ]
         },
         {
@@ -30551,7 +30554,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "primitive"
           },
           sources: [
-            "components/workflow-grid/services/index.ts:172"
+            "components/workflow-grid/services/index.ts:172",
+            "workflows/20-api/workflow-maps.md:83"
           ]
         },
         {
@@ -30594,7 +30598,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "primitive"
           },
           sources: [
-            "components/workflow-grid/services/index.ts:195"
+            "components/workflow-grid/services/index.ts:195",
+            "workflows/20-api/workflow-maps.md:69",
+            "workflows/20-api/workflow-maps.md:84"
           ]
         },
         {
@@ -33067,7 +33073,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "components/workflow-grid/services/index.ts:224",
-            "workflows/10-anatomy/06-fields-glossary.md:137"
+            "workflows/20-api/workflow-maps.md:77",
+            "workflows/10-anatomy/06-fields-glossary.md:137",
+            "workflows/20-api/workflow-maps.md:42"
           ]
         },
         {
@@ -38804,7 +38812,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "erased"
           },
           sources: [
-            "components/workflow-grid/services/index.ts:81"
+            "components/workflow-grid/services/index.ts:81",
+            "workflows/20-api/workflow-maps.md:21",
+            "workflows/20-api/workflow-maps.md:76"
           ]
         },
         {
@@ -39596,7 +39606,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "resolved"
           },
           sources: [
-            "services/api/workflow-status-service.ts:122"
+            "services/api/workflow-status-service.ts:122",
+            "workflows/20-api/workflow-maps.md:54",
+            "workflows/20-api/workflow-maps.md:79"
           ]
         },
         {
@@ -40341,9 +40353,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "components/workflow-grid/services/index.ts:148",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
             "workflows/20-api/03-endpoints.md:365",
-            "workflows/50-runtime/11-runtime-logs.md:189",
-            "workflows/50-runtime/11-runtime-logs.md:255",
-            "workflows/50-runtime/observed-query-shapes.md:61"
+            "workflows/20-api/workflow-maps.md:63",
+            "workflows/20-api/workflow-maps.md:81",
+            "workflows/50-runtime/11-runtime-logs.md:189"
           ]
         },
         {
@@ -40430,10 +40442,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/workflow-status-service.ts:91",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
+            "workflows/20-api/workflow-maps.md:58",
+            "workflows/20-api/workflow-maps.md:80",
             "workflows/50-runtime/11-runtime-logs.md:159",
-            "workflows/50-runtime/11-runtime-logs.md:253",
-            "workflows/50-runtime/observed-query-shapes.md:44",
-            "workflows/70-research/ENDPOINTS.md:195"
+            "workflows/50-runtime/11-runtime-logs.md:253"
           ]
         },
         {
@@ -45137,6 +45149,72 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--associations",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/associations/",
+          path: "/associations/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:377"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--associations-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/associations/{id}",
+          path: "/associations/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:395"
+          ]
+        },
+        {
           id: "forms--associations-object-key",
           method: "GET",
           url: "https://services.leadconnectorhq.com/associations/objectKey/{objectKey}",
@@ -45248,9 +45326,76 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--associations-relations-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/associations/relations/{relationId}",
+          path: "/associations/relations/{relationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "relationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:394"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--relations-bulk",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/associations/relations/bulk",
+          path: "/associations/relations/bulk",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:388"
+          ]
+        },
+        {
           id: "pipelines-opportunities--relations-record",
           aka: [
-            "/associations/relations/record/{contactId}"
+            "/associations/relations/record/{contactId}",
+            "/associations/relations/record/{id}"
           ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/associations/relations/record/{opportunityId}",
@@ -45294,7 +45439,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/opportunities.md:186",
-            "pipelines-opportunities/20-api/opportunities.md:365",
+            "pipelines-opportunities/20-api/opportunities.md:406",
+            "pipelines-opportunities/20-api/opportunities.md:393",
             "pipelines-opportunities/20-api/opportunities.md:191"
           ]
         },
@@ -52367,6 +52513,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-deployment-routing.md:408"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--invoices",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/invoices/{id}",
+          path: "/invoices/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:365"
           ]
         },
         {
@@ -60988,7 +61169,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:366"
+            "pipelines-opportunities/20-api/opportunities.md:407"
           ]
         },
         {
@@ -71595,9 +71776,9 @@ var define_FUNNEL_ELEMENTS_default;
 var init_define_FUNNEL_ELEMENTS = __esm({
   "<define:__FUNNEL_ELEMENTS__>"() {
     define_FUNNEL_ELEMENTS_default = {
-      _source: "knowledge/corpus/funnels/_data/elements.json + sniffs/funnel-element-registry-2026-09-09/defaults.json",
-      _note: "meta is a CLOSED set of 60; extraProps must all be present on a node or the public render 500s.",
-      count: 60,
+      _source: "knowledge/corpus/funnels/_data/elements.json (editableProps.extra)",
+      _note: "meta is a CLOSED set of 72; extraProps must all be present on a node or the public render 500s.",
+      count: 72,
       elements: {
         section: {
           tagName: "c-section",
@@ -72228,6 +72409,7 @@ var init_define_FUNNEL_ELEMENTS = __esm({
             "blogMainTitle",
             "blogType",
             "blogCategories",
+            "blogAuthor",
             "blogShowOption",
             "visibility",
             "customClass",
@@ -72277,6 +72459,7 @@ var init_define_FUNNEL_ELEMENTS = __esm({
             "featureHeadlineTabletFontSize",
             "enableSorting",
             "enableFiltering",
+            "sortFilterLayout",
             "addToCart",
             "filterByAvailability",
             "filterByPrice",
@@ -72292,7 +72475,17 @@ var init_define_FUNNEL_ELEMENTS = __esm({
             "desktopColumns",
             "mobileColumns",
             "tabletColumns",
+            "desktopColumnGap",
+            "tabletColumnGap",
+            "mobileColumnGap",
+            "desktopRowGap",
+            "tabletRowGap",
+            "mobileRowGap",
             "enableWishlisting",
+            "productCardShowSecondImageOnHover",
+            "productCardZoomImageOnHover",
+            "productCardPriceConfiguration",
+            "productCardStartingAtText",
             "customClass",
             "visibility"
           ]
@@ -72413,6 +72606,10 @@ var init_define_FUNNEL_ELEMENTS = __esm({
             "featureHeadlineTabletFontSize",
             "desktopFontSize",
             "mobileFontSize",
+            "productCardShowSecondImageOnHover",
+            "productCardZoomImageOnHover",
+            "productCardPriceConfiguration",
+            "productCardStartingAtText",
             "customClass",
             "visibility"
           ]
@@ -72442,6 +72639,10 @@ var init_define_FUNNEL_ELEMENTS = __esm({
             "desktopFontSize",
             "mobileFontSize",
             "enableWishlisting",
+            "productCardShowSecondImageOnHover",
+            "productCardZoomImageOnHover",
+            "productCardPriceConfiguration",
+            "productCardStartingAtText",
             "addToCart",
             "customText",
             "customClass",
@@ -72779,6 +72980,194 @@ var init_define_FUNNEL_ELEMENTS = __esm({
             "customClass",
             "visibility",
             "elementVersion"
+          ]
+        },
+        "instagram-feed": {
+          tagName: "c-instagram-feed",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "igGeneralSource",
+            "igGeneralLayout",
+            "igPostStyleGroup",
+            "igPostElements",
+            "igPostAdvanced",
+            "igStyleColorScheme",
+            "igStyleCustomize",
+            "visibility",
+            "customClass",
+            "elementVersion"
+          ]
+        },
+        "store-pdp-v2-title": {
+          tagName: "c-store-pdp-v2-title",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-pdp-v2-price": {
+          tagName: "c-store-pdp-v2-price",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "desktopFontSize",
+            "mobileFontSize",
+            "tabletFontSize",
+            "priceDiscountDesktopFontSize",
+            "priceDiscountMobileFontSize",
+            "priceDiscountTabletFontSize",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-pdp-v2-images": {
+          tagName: "c-store-pdp-v2-images",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "mediaLayout",
+            "imageZoom",
+            "enableWishlisting",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-pdp-v2-variants": {
+          tagName: "c-store-pdp-v2-variants",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "variantsStyling",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-pdp-v2-quantity": {
+          tagName: "c-store-pdp-v2-quantity",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "quantityLabelText",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-pdp-v2-add-to-cart": {
+          tagName: "c-store-pdp-v2-add-to-cart",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "itemsAddedHeadline",
+            "viewCartButtonText",
+            "continueShopping",
+            "cartEmptyHeadline",
+            "cartEmptySubHeadline",
+            "outOfStockText",
+            "viewDetailsModalButtonText",
+            "viewCartButtonColor",
+            "viewCartButtonTextColor",
+            "continueShoppingTextColor",
+            "drawerHeadlineColor",
+            "drawerProductTitleColor",
+            "drawerItemTextColor",
+            "drawerPriceColor",
+            "drawerHeadlineFontSize",
+            "drawerHeadlineFontFamily",
+            "drawerProductTitleFontSize",
+            "drawerProductTitleFontFamily"
+          ]
+        },
+        "store-pdp-v2-buy-now": {
+          tagName: "c-store-pdp-v2-buy-now",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: []
+        },
+        "store-pdp-v2-review-stars": {
+          tagName: "c-store-pdp-v2-review-stars",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "showRatingsCount",
+            "reviewStarsDesktopFontSize",
+            "reviewStarsMobileFontSize",
+            "reviewStarsTabletFontSize",
+            "singleReviewCountText",
+            "multipleReviewCountText",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-pdp-v2-description": {
+          tagName: "c-store-pdp-v2-description",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "descriptionDesktopFontSize",
+            "descriptionMobileFontSize",
+            "descriptionShowMoreText",
+            "descriptionShowLessText",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-pdp-v2-related-products": {
+          tagName: "c-store-pdp-v2-related-products",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "relatedProductsHeadingText",
+            "showReviewsAndRatings",
+            "showRatingsCount",
+            "reviewStarsDesktopFontSize",
+            "reviewStarsMobileFontSize",
+            "reviewStarsTabletFontSize",
+            "itemsPerPage",
+            "desktopColumns",
+            "mobileColumns",
+            "tabletColumns",
+            "typography",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "tabletFontSize",
+            "priceDiscountDesktopFontSize",
+            "priceDiscountMobileFontSize",
+            "priceDiscountTabletFontSize",
+            "relatedProductsDesktopFontSize",
+            "relatedProductsMobileFontSize",
+            "relatedProductsTabletFontSize",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-pdp-v2-reviews": {
+          tagName: "c-store-pdp-v2-reviews",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "customText",
+            "customClass",
+            "visibility"
           ]
         }
       }
@@ -110762,6 +111151,916 @@ var KIND_DEFAULT_EXTRA = Object.freeze({
         "bgColor": "#101828"
       }
     }
+  },
+  // 🔴 The 11 product-page (PDP v2) blocks, verbatim from the extras of GHL's own store "Product details" page as its
+  // migration wrote them (knowledge sniffs/funnels-wave29-kinds-2026-09-29/live-read.pdp-page.json). They win over the
+  // builder's registry table, which disagrees on some mobile sizes (price 32px there, 16px on the real page) and carries
+  // no drawer labels at all. variantsStyling is a RAW object of {value} groups; customText is {value: {section: labels}}.
+  "store-pdp-v2-images": {
+    "mediaLayout": {
+      "value": "stack-gallery"
+    },
+    "imageZoom": {
+      "value": "noZoom"
+    },
+    "enableWishlisting": {
+      "value": false
+    }
+  },
+  "store-pdp-v2-title": {
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-review-stars": {
+    "showRatingsCount": {
+      "value": true
+    },
+    "reviewStarsDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "singleReviewCountText": {
+      "value": "review"
+    },
+    "multipleReviewCountText": {
+      "value": "reviews"
+    }
+  },
+  "store-pdp-v2-price": {
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-variants": {
+    "variantsStyling": {
+      "variantPickerStyle": {
+        "value": "dropdown"
+      },
+      "pillColors": {
+        "value": {
+          "selectedText": "#155EEF",
+          "selectedBg": "#EFF4FF",
+          "selectedBorder": "#155EEF",
+          "unselectedText": "#667085",
+          "unselectedBg": "#FFFFFF",
+          "unselectedBorder": "#D0D5DD"
+        }
+      },
+      "dropdownColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      },
+      "labelColor": {
+        "value": "#344054"
+      }
+    }
+  },
+  "store-pdp-v2-quantity": {
+    "quantityLabelText": {
+      "value": "Quantity"
+    }
+  },
+  "store-pdp-v2-add-to-cart": {
+    "text": {
+      "value": "Add to Cart"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "typography": {
+      "value": "var(--headlinefont)"
+    },
+    "itemsAddedHeadline": {
+      "value": "item(s) added"
+    },
+    "viewCartButtonText": {
+      "value": "View Cart"
+    },
+    "continueShopping": {
+      "value": "Continue Shopping"
+    },
+    "cartEmptyHeadline": {
+      "value": "Your cart is empty"
+    },
+    "cartEmptySubHeadline": {
+      "value": "Add items to your cart to continue shopping"
+    },
+    "outOfStockText": {
+      "value": "Out of Stock"
+    },
+    "viewDetailsModalButtonText": {
+      "value": "View full details"
+    },
+    "viewCartButtonColor": {
+      "value": "var(--secondary)"
+    },
+    "viewCartButtonTextColor": {
+      "value": "var(--white)"
+    },
+    "continueShoppingTextColor": {
+      "value": "#188bf6"
+    },
+    "drawerHeadlineColor": {
+      "value": "#101828"
+    },
+    "drawerProductTitleColor": {
+      "value": "var(--black)"
+    },
+    "drawerItemTextColor": {
+      "value": "#101828"
+    },
+    "drawerPriceColor": {
+      "value": "#101828"
+    },
+    "drawerHeadlineFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "drawerHeadlineFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "drawerProductTitleFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "drawerProductTitleFontFamily": {
+      "value": "var(--contentfont)"
+    }
+  },
+  "store-pdp-v2-buy-now": {
+    "text": {
+      "value": "Buy now"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "typography": {
+      "value": "var(--headlinefont)"
+    }
+  },
+  "store-pdp-v2-description": {
+    "descriptionDesktopFontSize": {
+      "unit": "px",
+      "value": 16
+    },
+    "descriptionMobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "descriptionShowMoreText": {
+      "value": "Show more"
+    },
+    "descriptionShowLessText": {
+      "value": "Show less"
+    }
+  },
+  "store-pdp-v2-related-products": {
+    "relatedProductsHeadingText": {
+      "value": "You may also like"
+    },
+    "showReviewsAndRatings": {
+      "value": true
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "reviewStarsDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "itemsPerPage": {
+      "value": 6
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "typography": {
+      "value": "var(--contentfont)"
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "relatedProductsDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "relatedProductsMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-reviews": {
+    "customText": {
+      "value": {
+        "reviewsAndRatingsSection": {
+          "reviewsRatingsHeadline": "Customer Reviews",
+          "averageRatingText": "Average Ratings",
+          "reviewButtonText": "Write a review",
+          "noReviewsText": "Be the first one to review this product",
+          "noReviewsMatchText": "Sorry, no reviews match your current selections.",
+          "tryClearingFiltersText": "Try clearing or changing some filters.",
+          "clearFiltersButtonText": "Clear Filters",
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page"
+        },
+        "sortAndFilterSectionReviews": {
+          "dateNewToOld": "Date, New to Old",
+          "dateOldToNew": "Date, Old to New",
+          "ratingLowToHigh": "Rating, Low to High",
+          "ratingHighToLow": "Rating, High to Low",
+          "allStars": "All Stars",
+          "multipleStarsText": "stars",
+          "oneStarText": "star"
+        },
+        "reviewSubmissionSection": {
+          "headline": "Write a review",
+          "overallRatingText": "Overall Rating",
+          "name": "Name",
+          "email": "Email",
+          "contactNumber": "Contact Number",
+          "addAHeadline": "Add a headline",
+          "addADetailedReview": "Add a detailed review",
+          "cancelButtonText": "Cancel",
+          "submitButtonText": "Submit",
+          "reviewSuccessHeadline": "Review submitted successfully!",
+          "reviewSuccessSubHeadline": "Thank you for submitting your review. Your review will be published soon after we approve it.",
+          "closeButtonText": "Close"
+        }
+      }
+    }
+  }
+});
+var KIND_PDP_STYLES = Object.freeze({
+  "store-pdp-v2-images": {
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "width": {
+      "value": 100,
+      "unit": "%"
+    },
+    "textAlign": {
+      "value": "center"
+    },
+    "borderColor": {
+      "value": "#000000"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-title": {
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-review-stars": {
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-price": {
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-variants": {
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-quantity": {
+    "quantityLabelColor": {
+      "value": "#101828"
+    },
+    "color": {
+      "value": "#101828"
+    },
+    "quantityBackgroundColor": {
+      "value": "#FFFFFF"
+    },
+    "quantityBorderColor": {
+      "value": "#D0D5DD"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-description": {
+    "descriptionFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "descriptionFontColor": {
+      "value": "#000000"
+    },
+    "descriptionBackgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "descriptionFontWeight": {
+      "desktop": "400"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "showMoreButtonColor": {
+      "value": "#8f8585ff"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-related-products": {
+    "relatedProductsHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "relatedProductsHeadingFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "reviewsAndRatingsFontFamily": {
+      "value": ""
+    },
+    "reviewsAndRatingsFontWeight": {
+      "desktop": "400"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-reviews": {
+    "writeButtonBgColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "#004EEB"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-buy-now": {
+    "backgroundColor": {
+      "value": "transparent"
+    },
+    "color": {
+      "value": "var(--secondary)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "500"
+    },
+    "borderColor": {
+      "value": "var(--secondary)"
+    },
+    "borderWidth": {
+      "value": "1"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "5px"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingTop": {
+      "value": 12,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 12,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-add-to-cart": {
+    "backgroundColor": {
+      "value": "var(--secondary)"
+    },
+    "color": {
+      "value": "var(--white)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "500"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "5px"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingTop": {
+      "value": 12,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 12,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "drawerHeadlineFontWeight": {
+      "desktop": "700"
+    },
+    "drawerProductTitleFontWeight": {
+      "desktop": "400"
+    }
   }
 });
 
@@ -113204,12 +114503,6 @@ var KIND_BUILDER_EXTRA = Object.freeze({
     }
   },
   "store-pdp-v2-add-to-cart": {
-    "itemsAddedHeadline": {},
-    "viewCartButtonText": {},
-    "continueShopping": {},
-    "cartEmptyHeadline": {},
-    "cartEmptySubHeadline": {},
-    "outOfStockText": {},
     "viewDetailsModalButtonText": {
       "value": "View full details"
     },
@@ -113280,13 +114573,11 @@ var KIND_BUILDER_EXTRA = Object.freeze({
     "descriptionMobileFontSize": {
       "value": 14,
       "unit": "px"
-    },
-    "descriptionShowMoreText": {},
-    "descriptionShowLessText": {}
+    }
   },
   "store-pdp-v2-related-products": {
     "relatedProductsHeadingText": {
-      "value": "productDetailPage.relatedProductsHeading"
+      "value": "You may also like"
     },
     "showReviewsAndRatings": {
       "value": false
@@ -116664,6 +117955,31 @@ var NEEDS_STEP_TYPE = Object.freeze({
   "store-thank-you": "store",
   "blog-content": "blog-post"
 });
+var PDP_FUNNEL_STEP_KEYS = Object.freeze(["store-product-detail", "store-custom-product-detail"]);
+var isPdpKind = (meta3) => typeof meta3 === "string" && meta3.startsWith("store-pdp-v2-");
+function pdpSectionExtra(pdp) {
+  const products = pdp === true ? [] : pdp?.products;
+  if (!Array.isArray(products) || products.some((p2) => typeof p2 !== "string" || !p2)) {
+    throw Object.assign(new Error("section pdp must be true or {products: [<product id>, \u2026]}"), { remediation: `true on the store's "Product details" step (the product comes from the URL); {products: [id]} on a custom product page, where the first id is the product shown.` });
+  }
+  return { selectedProducts: val(products), manageProducts: val(""), typography: val("var(--contentfont)"), pdpV2Section: true };
+}
+function pdpNodeProblems(n, section, opts = {}) {
+  const out = [];
+  if (n?.type !== "element" || !isPdpKind(n.meta)) return out;
+  if ("stepKey" in opts && !PDP_FUNNEL_STEP_KEYS.includes(opts.stepKey)) {
+    out.push(`node ${n.id} (${n.meta}): product-page blocks belong on a step whose key is ${PDP_FUNNEL_STEP_KEYS.join(" or ")} (the store's "Product details" step, or a custom product page) \u2014 this step's key is ${opts.stepKey ? `'${opts.stepKey}'` : "absent"}; the builder does not offer them anywhere else.`);
+  }
+  if (section?.metaData?.extra?.pdpV2Section !== true) {
+    out.push(`node ${n.id} (${n.meta}): a product-page block reads its product from the section flagged extra.pdpV2Section:true \u2014 section ${section?.id} is not; give the section \`pdp: true\` (or {products: [id]}).`);
+  }
+  return out;
+}
+var PDP_STYLING_WARNING = "these blocks render unstyled until the page is opened and saved once in the page builder (bl-298); do that before sharing the page";
+function pdpStylingWarning(pageData, sectionIds = null) {
+  const nodes = (pageData?.sections ?? []).filter((sec) => !sectionIds || sectionIds.has(sec.id)).flatMap((sec) => (sec.elements ?? []).filter((n) => n.type === "element" && isPdpKind(n.meta)).map((n) => ({ id: n.id, kind: n.meta })));
+  return nodes.length ? { nodes, warning: PDP_STYLING_WARNING } : null;
+}
 var TAG_IS_TAGNAME = Object.freeze(/* @__PURE__ */ new Set([
   "store-cart",
   "store-checkout",
@@ -116784,7 +118100,7 @@ var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt
   const id = mkId(meta3, salt);
   const builderStyles = KIND_BUILDER_STYLES[meta3] ?? {};
   const weights = Object.fromEntries(Object.entries(builderStyles).filter(([k]) => /^fontWeight|^boxShadow$/.test(k)));
-  const base = { ...weights, ...KIND_DEFAULT_STYLES[meta3] ?? {}, ...STYLE_DEFAULTS[meta3] ?? {} };
+  const base = { ...weights, ...KIND_DEFAULT_STYLES[meta3] ?? {}, ...KIND_PDP_STYLES[meta3] ?? {}, ...STYLE_DEFAULTS[meta3] ?? {} };
   for (const [k, w] of Object.entries(base)) if (/^fontWeight/.test(k) && w && typeof w === "object" && w.desktop !== void 0 && w.mobile === void 0) base[k] = { ...w, mobile: w.desktop };
   for (const [k, v] of Object.entries(base)) if (/var\(--color-/.test(JSON.stringify(v)) && builderStyles[k]) base[k] = builderStyles[k];
   for (const [k, v] of Object.entries(base)) {
@@ -116827,9 +118143,10 @@ var SECTION_STICKY = Object.freeze({ none: "noneSticky", top: "stickyTop", botto
 var SECTION_WIDTH = Object.freeze({ full: "fullSection", wide: "wideSection", midWide: "midWideSection", small: "midSection" });
 var BUILDER_INNER_MAX_WIDTH = 1170;
 var sectionInnerRule = (sid, { fullWidthRows, maxWidth }) => `#${sid}>.inner{max-width:${fullWidthRows ? "100%" : `${maxWidth}px`}}`;
-function sectionKnobs({ sticky, width, fullWidthRows } = {}) {
+function sectionKnobs({ sticky, width, fullWidthRows, pdp } = {}) {
   const extra = {};
   const cls = {};
+  if (pdp !== void 0 && pdp !== false) Object.assign(extra, pdpSectionExtra(pdp));
   if (sticky !== void 0) {
     if (!SECTION_STICKY[sticky]) throw Object.assign(new Error(`section sticky must be one of ${Object.keys(SECTION_STICKY).join(", ")}`), { remediation: "none = scrolls away; top/bottom = stays fixed to that edge while the page scrolls." });
     extra.sticky = val(SECTION_STICKY[sticky]);
@@ -116841,7 +118158,7 @@ function sectionKnobs({ sticky, width, fullWidthRows } = {}) {
   if (fullWidthRows !== void 0) extra.allowRowMaxWidth = val(fullWidthRows === true);
   return { extra, cls };
 }
-var makeSection = ({ columns, background = "transparent", padY = 60, maxWidth = 1100, elementCss = "", pageId, funnelId, locationId, salt, sticky, width, fullWidthRows }) => {
+var makeSection = ({ columns, background = "transparent", padY = 60, maxWidth = 1100, elementCss = "", pageId, funnelId, locationId, salt, sticky, width, fullWidthRows, pdp }) => {
   const widths = columns.map((c) => Number(c.widthPct)).filter((n) => Number.isFinite(n));
   const total = widths.reduce((a, b) => a + b, 0);
   if (widths.length === columns.length && columns.length > 0 && Math.abs(total - 100) > 1) {
@@ -116862,7 +118179,7 @@ var makeSection = ({ columns, background = "transparent", padY = 60, maxWidth = 
     { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val("transparent") }
   );
   row.child = columns.map((c) => c.col.id);
-  const knobs = sectionKnobs({ sticky, width, fullWidthRows });
+  const knobs = sectionKnobs({ sticky, width, fullWidthRows, pdp });
   const meta3 = envelope(
     sid,
     "section",
@@ -117081,7 +118398,8 @@ var autosaveEnvelope = ({ funnelId, pageData, pageVersion = 1 }) => ({
     popup: false
   }
 });
-var auditPageData = (pageData, { stepType } = {}) => {
+var auditPageData = (pageData, opts = {}) => {
+  const { stepType } = opts;
   const problems = [];
   if (!pageData.settings?.settings?.background) {
     problems.push("settings.settings.background is missing: the public page will render but the BUILDER will hang forever (bgStyle() destructures bgImage from it unguarded). Use buildPageData(), or add builderSettings().");
@@ -117150,6 +118468,7 @@ var auditPageData = (pageData, { stepType } = {}) => {
       if (n.type === "element" && NEEDS_STEP_TYPE[n.meta] && stepType !== NEEDS_STEP_TYPE[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): this kind renders only on a step of type '${NEEDS_STEP_TYPE[n.meta]}' \u2014 on a plain funnel page it 500s (or 404s for blog kinds). Create the step with that type.`);
       }
+      problems.push(...pdpNodeProblems(n, s, opts));
       if (n.type === "element" && NEEDS_CONTEXT[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): ${NEEDS_CONTEXT[n.meta]}`);
       }
@@ -201922,6 +203241,10 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     const cur = rec.json?.meta ?? {};
     seo = { before: cur, write: seoMeta(cur, args.seo) };
   }
+  const appendedIds = new Set(report.filter((r) => r.op === "append-section").map((r) => r.sectionId));
+  const stepKey2 = (funnel?.steps ?? []).find((st) => st.id === args.stepId)?.key;
+  const pdpBad = pageData.sections.filter((sec) => appendedIds.has(sec.id)).flatMap((sec) => sec.elements.flatMap((n) => pdpNodeProblems(n, sec, { stepKey: stepKey2 })));
+  if (pdpBad.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${pdpBad.length} product-page block(s) this call appends are misplaced; nothing was written`, "Append them in a section with pdp:true, on the store's product-detail step (or a custom product page)."), { problems: pdpBad, report });
   const problems = auditPageData(pageData);
   const preview = {
     mode: "edit",
@@ -201934,6 +203257,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     ...problems.length ? { preexistingProblems: problems } : {},
     ...billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {},
     ...submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {},
+    ...pdpStylingWarning(pageData, appendedIds) ? { pdpStyling: pdpStylingWarning(pageData, appendedIds) } : {},
     willPublish: args.publish === true,
     note: args.publish === true ? "Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes." : "Writes a DRAFT through autosave. Nothing outside the named ops changes. A published page shows neither content nor SEO changes until it is published again (publish:true)."
   };
@@ -210438,7 +211762,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, popups?, typography?): writes the nodes AND the compiled stylesheet \u2014 the builder canvas reads node styles, the public page the compiled CSS; both are needed. Sizes, weights, click actions and builder defaults sit on the nodes, so a builder save keeps them. Refuses what autosave accepts with 201 and then breaks: a meta outside the 60 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (refused by name: text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, remove-node, page (trackingCode, customCss, background, typography), append-popup; seo writes the page record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Element keys per kind, animations, popups, fonts and every trap: ghl-funnels-pages SKILL \u2192 references/build-funnel-page.md. Siblings: edit_funnel (steps, settings, publish state), get_funnel (read), create_funnel (the document).`,
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, popups?, typography?): writes the nodes AND the compiled stylesheet \u2014 the builder canvas reads node styles, the public page the compiled CSS; both are needed. Sizes, weights, click actions and builder defaults sit on the nodes, so a builder save keeps them. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (refused by name: text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, remove-node, page (trackingCode, customCss, background, typography), append-popup; seo writes the page record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages \u2192 references/build-funnel-page.md. Siblings: edit_funnel, get_funnel, create_funnel.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -210580,6 +211904,7 @@ var TOOLS2 = [
           sticky: spec.sticky,
           width: spec.width,
           fullWidthRows: spec.fullWidthRows,
+          pdp: spec.pdp,
           pageId: args.pageId,
           funnelId: args.funnelId,
           locationId: args.locationId,
@@ -210628,12 +211953,17 @@ var TOOLS2 = [
         );
       }
       let stepType;
-      const typed = pageData.sections.some((sec) => sec.elements.some((e) => e.type === "element" && NEEDS_STEP_TYPE[e.meta]));
-      if (typed) {
+      const stepCtx = {};
+      const leavesOf = (pred) => pageData.sections.some((sec) => sec.elements.some((e) => e.type === "element" && pred(e.meta)));
+      const typed = leavesOf((m) => NEEDS_STEP_TYPE[m]);
+      const pdp = leavesOf(isPdpKind);
+      if (typed || pdp) {
         const fr = await readFunnel(deps.makeGw({ loc: args.locationId, state: deps.state }), args.locationId, args.funnelId);
-        stepType = fr.res.ok ? (fr.funnel?.steps ?? []).find((st) => st.id === args.stepId)?.type : void 0;
+        const step = fr.res.ok ? (fr.funnel?.steps ?? []).find((st) => st.id === args.stepId) : void 0;
+        stepType = step?.type;
+        if (pdp) stepCtx.stepKey = step?.key;
       }
-      const problems = auditPageData(pageData, { stepType });
+      const problems = auditPageData(pageData, { stepType, ...stepCtx });
       if (problems.length) {
         return withFailureData(
           fail(
@@ -210652,6 +211982,7 @@ var TOOLS2 = [
         compiledCssBytes: cssBytes,
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === "element").map((e) => e.meta)))],
         audit: "clean",
+        ...pdpStylingWarning(pageData) ? { pdpStyling: pdpStylingWarning(pageData) } : {},
         ...billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {},
         ...submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {},
         note: args.publish === true ? "This writes a draft AND PUBLISHES it \u2014 the page becomes visible to the public at its mapped path. It does not map a path that does not already exist." : "This writes a DRAFT. It does not publish, and it does not map a public path.",

@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-29",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1576,
+  "count": 1581,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1392,7 +1392,7 @@
         "Version"
       ],
       "operation": "fetchAssociationsForObject",
-      "service": null,
+      "service": "pipelines-opportunities",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -4457,7 +4457,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/30-types/native-elements.md:133"
+        "funnels/30-types/native-elements.md:174"
       ]
     },
     {
@@ -28992,7 +28992,9 @@
         "returns": "resolved"
       },
       "sources": [
-        "services/api/contact-service.ts:59"
+        "services/api/contact-service.ts:59",
+        "workflows/20-api/workflow-maps.md:52",
+        "workflows/20-api/workflow-maps.md:78"
       ]
     },
     {
@@ -29100,7 +29102,8 @@
         "returns": "erased"
       },
       "sources": [
-        "components/workflow-grid/services/index.ts:105"
+        "components/workflow-grid/services/index.ts:105",
+        "workflows/20-api/workflow-maps.md:68"
       ]
     },
     {
@@ -30158,9 +30161,9 @@
         "components/workflow-grid/services/index.ts:120",
         "services/api/workflow-overview.service.ts:166",
         "services/ErrorNotificationService.ts:43",
-        "workflows/50-runtime/error-notifications.md:35",
-        "workflows/50-runtime/error-notifications.md:48",
-        "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:64"
+        "workflows/20-api/workflow-maps.md:68",
+        "workflows/20-api/workflow-maps.md:82",
+        "workflows/50-runtime/error-notifications.md:35"
       ]
     },
     {
@@ -30368,7 +30371,8 @@
         "returns": "primitive"
       },
       "sources": [
-        "components/workflow-grid/services/index.ts:172"
+        "components/workflow-grid/services/index.ts:172",
+        "workflows/20-api/workflow-maps.md:83"
       ]
     },
     {
@@ -30411,7 +30415,9 @@
         "returns": "primitive"
       },
       "sources": [
-        "components/workflow-grid/services/index.ts:195"
+        "components/workflow-grid/services/index.ts:195",
+        "workflows/20-api/workflow-maps.md:69",
+        "workflows/20-api/workflow-maps.md:84"
       ]
     },
     {
@@ -32882,7 +32888,9 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:224",
-        "workflows/10-anatomy/06-fields-glossary.md:137"
+        "workflows/20-api/workflow-maps.md:77",
+        "workflows/10-anatomy/06-fields-glossary.md:137",
+        "workflows/20-api/workflow-maps.md:42"
       ]
     },
     {
@@ -38617,7 +38625,9 @@
         "returns": "erased"
       },
       "sources": [
-        "components/workflow-grid/services/index.ts:81"
+        "components/workflow-grid/services/index.ts:81",
+        "workflows/20-api/workflow-maps.md:21",
+        "workflows/20-api/workflow-maps.md:76"
       ]
     },
     {
@@ -39408,7 +39418,9 @@
         "returns": "resolved"
       },
       "sources": [
-        "services/api/workflow-status-service.ts:122"
+        "services/api/workflow-status-service.ts:122",
+        "workflows/20-api/workflow-maps.md:54",
+        "workflows/20-api/workflow-maps.md:79"
       ]
     },
     {
@@ -40153,9 +40165,9 @@
         "components/workflow-grid/services/index.ts:148",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
         "workflows/20-api/03-endpoints.md:365",
-        "workflows/50-runtime/11-runtime-logs.md:189",
-        "workflows/50-runtime/11-runtime-logs.md:255",
-        "workflows/50-runtime/observed-query-shapes.md:61"
+        "workflows/20-api/workflow-maps.md:63",
+        "workflows/20-api/workflow-maps.md:81",
+        "workflows/50-runtime/11-runtime-logs.md:189"
       ]
     },
     {
@@ -40242,10 +40254,10 @@
       "sources": [
         "services/api/workflow-status-service.ts:91",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
+        "workflows/20-api/workflow-maps.md:58",
+        "workflows/20-api/workflow-maps.md:80",
         "workflows/50-runtime/11-runtime-logs.md:159",
-        "workflows/50-runtime/11-runtime-logs.md:253",
-        "workflows/50-runtime/observed-query-shapes.md:44",
-        "workflows/70-research/ENDPOINTS.md:195"
+        "workflows/50-runtime/11-runtime-logs.md:253"
       ]
     },
     {
@@ -44948,6 +44960,72 @@
       ]
     },
     {
+      "id": "pipelines-opportunities--associations",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/associations/",
+      "path": "/associations/",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:377"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--associations-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/associations/{id}",
+      "path": "/associations/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:395"
+      ]
+    },
+    {
       "id": "forms--associations-object-key",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/associations/objectKey/{objectKey}",
@@ -45059,9 +45137,76 @@
       ]
     },
     {
+      "id": "pipelines-opportunities--associations-relations-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/associations/relations/{relationId}",
+      "path": "/associations/relations/{relationId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "relationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:394"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--relations-bulk",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/associations/relations/bulk",
+      "path": "/associations/relations/bulk",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:388"
+      ]
+    },
+    {
       "id": "pipelines-opportunities--relations-record",
       "aka": [
-        "/associations/relations/record/{contactId}"
+        "/associations/relations/record/{contactId}",
+        "/associations/relations/record/{id}"
       ],
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/associations/relations/record/{opportunityId}",
@@ -45105,7 +45250,8 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/opportunities.md:186",
-        "pipelines-opportunities/20-api/opportunities.md:365",
+        "pipelines-opportunities/20-api/opportunities.md:406",
+        "pipelines-opportunities/20-api/opportunities.md:393",
         "pipelines-opportunities/20-api/opportunities.md:191"
       ]
     },
@@ -52178,6 +52324,41 @@
       },
       "sources": [
         "ai-agents/20-api/agent-deployment-routing.md:408"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--invoices",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/invoices/{id}",
+      "path": "/invoices/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:365"
       ]
     },
     {
@@ -60799,7 +60980,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:366"
+        "pipelines-opportunities/20-api/opportunities.md:407"
       ]
     },
     {

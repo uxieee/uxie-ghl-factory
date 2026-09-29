@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-29T04:08:01.449Z",
+      "capturedAt": "2026-09-29T04:42:53.915Z",
       "hash": "corpus",
-      "fileCount": 1303,
-      "endpoints": 1303
+      "fileCount": 1316,
+      "endpoints": 1316
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1799,
+  "discoveredCallSites": 1812,
   "skippedCallSites": 714,
-  "count": 1567,
+  "count": 1572,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1174,7 +1174,7 @@
         "Version"
       ],
       "operation": "fetchAssociationsForObject",
-      "service": null,
+      "service": "pipelines-opportunities",
       "query": [
         {
           "name": "locationId",
@@ -1196,7 +1196,7 @@
         "workflows/70-research/ENDPOINTS.md:146"
       ],
       "serviceClass": "AssociationsService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows--blacklist",
@@ -3528,7 +3528,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/30-types/native-elements.md:133"
+        "funnels/30-types/native-elements.md:174"
       ],
       "serviceBasis": "declared"
     },
@@ -22761,7 +22761,9 @@
         "returns": "resolved"
       },
       "sources": [
-        "services/api/contact-service.ts:59"
+        "services/api/contact-service.ts:59",
+        "workflows/20-api/workflow-maps.md:52",
+        "workflows/20-api/workflow-maps.md:78"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -22849,7 +22851,8 @@
         "returns": "erased"
       },
       "sources": [
-        "components/workflow-grid/services/index.ts:105"
+        "components/workflow-grid/services/index.ts:105",
+        "workflows/20-api/workflow-maps.md:68"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -23711,9 +23714,9 @@
         "components/workflow-grid/services/index.ts:120",
         "services/api/workflow-overview.service.ts:166",
         "services/ErrorNotificationService.ts:43",
-        "workflows/50-runtime/error-notifications.md:35",
-        "workflows/50-runtime/error-notifications.md:48",
-        "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:64"
+        "workflows/20-api/workflow-maps.md:68",
+        "workflows/20-api/workflow-maps.md:82",
+        "workflows/50-runtime/error-notifications.md:35"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -23859,7 +23862,8 @@
         "returns": "primitive"
       },
       "sources": [
-        "components/workflow-grid/services/index.ts:172"
+        "components/workflow-grid/services/index.ts:172",
+        "workflows/20-api/workflow-maps.md:83"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -23894,7 +23898,9 @@
         "returns": "primitive"
       },
       "sources": [
-        "components/workflow-grid/services/index.ts:195"
+        "components/workflow-grid/services/index.ts:195",
+        "workflows/20-api/workflow-maps.md:69",
+        "workflows/20-api/workflow-maps.md:84"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -25793,7 +25799,9 @@
       },
       "sources": [
         "components/workflow-grid/services/index.ts:224",
-        "workflows/10-anatomy/06-fields-glossary.md:137"
+        "workflows/20-api/workflow-maps.md:77",
+        "workflows/10-anatomy/06-fields-glossary.md:137",
+        "workflows/20-api/workflow-maps.md:42"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path",
@@ -30608,7 +30616,9 @@
         "returns": "erased"
       },
       "sources": [
-        "components/workflow-grid/services/index.ts:81"
+        "components/workflow-grid/services/index.ts:81",
+        "workflows/20-api/workflow-maps.md:21",
+        "workflows/20-api/workflow-maps.md:76"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -31325,7 +31335,9 @@
         "returns": "resolved"
       },
       "sources": [
-        "services/api/workflow-status-service.ts:122"
+        "services/api/workflow-status-service.ts:122",
+        "workflows/20-api/workflow-maps.md:54",
+        "workflows/20-api/workflow-maps.md:79"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -32027,9 +32039,9 @@
         "components/workflow-grid/services/index.ts:148",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
         "workflows/20-api/03-endpoints.md:365",
-        "workflows/50-runtime/11-runtime-logs.md:189",
-        "workflows/50-runtime/11-runtime-logs.md:255",
-        "workflows/50-runtime/observed-query-shapes.md:61"
+        "workflows/20-api/workflow-maps.md:63",
+        "workflows/20-api/workflow-maps.md:81",
+        "workflows/50-runtime/11-runtime-logs.md:189"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -32105,10 +32117,10 @@
       "sources": [
         "services/api/workflow-status-service.ts:91",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
+        "workflows/20-api/workflow-maps.md:58",
+        "workflows/20-api/workflow-maps.md:80",
         "workflows/50-runtime/11-runtime-logs.md:159",
-        "workflows/50-runtime/11-runtime-logs.md:253",
-        "workflows/50-runtime/observed-query-shapes.md:44",
-        "workflows/70-research/ENDPOINTS.md:195"
+        "workflows/50-runtime/11-runtime-logs.md:253"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -35757,6 +35769,58 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "pipelines-opportunities--associations",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/associations/",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:377"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--associations-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/associations/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:395"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "forms--associations-object-key",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -35848,6 +35912,58 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "pipelines-opportunities--associations-relations-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/associations/relations/{relationId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:394"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--relations-bulk",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/associations/relations/bulk",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:388"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "pipelines-opportunities--relations-record",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -35877,12 +35993,14 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/opportunities.md:186",
-        "pipelines-opportunities/20-api/opportunities.md:365",
+        "pipelines-opportunities/20-api/opportunities.md:406",
+        "pipelines-opportunities/20-api/opportunities.md:393",
         "pipelines-opportunities/20-api/opportunities.md:191"
       ],
       "serviceBasis": "declared",
       "aka": [
-        "/associations/relations/record/{contactId}"
+        "/associations/relations/record/{contactId}",
+        "/associations/relations/record/{id}"
       ]
     },
     {
@@ -41529,6 +41647,32 @@
       },
       "sources": [
         "ai-agents/20-api/agent-deployment-routing.md:408"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--invoices",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/invoices/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:365"
       ],
       "serviceBasis": "declared"
     },
@@ -48281,7 +48425,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:366"
+        "pipelines-opportunities/20-api/opportunities.md:407"
       ],
       "serviceBasis": "declared"
     },
