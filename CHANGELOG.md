@@ -11,6 +11,23 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.32.1] — 2026-09-30
+
+**🔴 Fix: an if/else checking for a capitalised tag always took the ELSE branch. Executed live on the test
+account.**
+
+### Fixed
+- 🔴 The capitalised-tag trap also applies to *if/else* tag conditions: GHL stores tags in lower case, so a condition
+  checking for `VIP` never matches. Live: two identical workflows, one contact holding the tag. The lower-case condition
+  took YES; the mixed-case one took ELSE. Conditions are now stored in lower case (merge tags untouched).
+- `check_workflow` flags `IFELSE_TAG_CASE`. `find_workflows_using` `problems:"mixed-case-tag-rows"` now also lists
+  if/else steps, still in a handful of reads per account. The only case it does not cover is the tag written by an
+  add/remove-tag step.
+
+### Docs
+- A trigger link registers a click only from a browser-like client. Link scanners and scripted requests do not fire
+  it.
+
 ## [1.32.0] — 2026-09-30
 
 **Webinars: create live and on-demand webinars, including recurring series, and read them back. Daily scheduler
