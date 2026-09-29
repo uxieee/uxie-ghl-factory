@@ -2161,6 +2161,11 @@
   },
   {
     "tool": "create_funnel",
+    "method": "GET",
+    "path": "/medias/files"
+  },
+  {
+    "tool": "create_funnel",
     "method": "POST",
     "path": "/funnels/funnel/create"
   },
@@ -2243,6 +2248,11 @@
     "tool": "get_funnel",
     "method": "GET",
     "path": "/stats/video/stats"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/webinar/sessions"
   },
   {
     "tool": "edit_funnel",

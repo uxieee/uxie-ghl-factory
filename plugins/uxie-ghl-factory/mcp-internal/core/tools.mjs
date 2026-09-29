@@ -28,7 +28,7 @@ import {
   readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS, planAddStepProduct, STEP_PRODUCT_NOTE, readStepProducts, stepProductView,
   CLONE_FUNNEL_NOTE, IMPORT_PAGE_NOTE, BILLING_FIELDS_NOTE, BILLING_ON_SAVE_NOTE, billingCheckouts,
 } from './funnel-ops.mjs';
-import { planCreateFunnel, createdId, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
+import { planCreateFunnel, createdId, findMediaVideo, webinarView, sessionWarnings, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { elementSpecProblem } from './element-spec.mjs';
@@ -12212,7 +12212,9 @@ export const TOOLS = [
       + 'domain); a store and a webinar are GHL\'s BLANK TEMPLATE installs — that is the UI\'s own blank path '
       + '(store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, '
       + 'broadcast and expired pages, bound to the registration form you name, which must be one of this '
-      + 'location\'s forms; webinar.date is the calendar day and the start is converted from webinar.timezone to UTC — GHL\'s own one-off wizard uses the browser\'s offset instead — and the session is read back); a blog gets a Blog Home and a Blog Post step. The blank store\'s Contact Us page '
+      + 'location\'s forms. webinar.type live (default: date + startTime/endTime in webinar.timezone, converted to UTC — GHL\'s own one-off wizard '
+      + 'uses the browser\'s offset instead — the live link videoUrl, and optionally a DAILY/WEEKLY/MONTHLY recurring series) or onDemand (a Media Storage '
+      + 'video by id/name, no schedule); the sessions are read back. A new webinar sends NO emails: notifications stay off until you enable one with a template on the Edit webinar screen); a blog gets a Blog Home and a Blog Post step. The blank store\'s Contact Us page '
       + 'embeds a form from GHL\'s template account that does not exist here — rebind it. Other templates '
       + 'are not offered: an install can bring side assets. The funnels list\'s "Build with AI" (the AI '
       + 'builder; it creates a funnel on click) is left to the UI — this tool plus build_funnel_page is the '
@@ -12223,10 +12225,21 @@ export const TOOLS = [
       name: z.string(),
       description: z.string().optional(),
       webinar: z.object({
-        timezone: z.string().describe('IANA timezone the webinar runs in, e.g. America/New_York'),
-        date: z.string().describe('the session\'s calendar day "YYYY-MM-DD"; startTime on that day in `timezone` is converted to UTC for you'),
-        startTime: z.string(), endTime: z.string(),
-        formId: z.string(), videoUrl: z.string().optional(),
+        type: z.enum(['live', 'onDemand']).optional().describe('live (default) or onDemand — a pre-recorded webinar with no schedule'),
+        timezone: z.string().optional().describe('IANA timezone the webinar runs in, e.g. America/New_York (required for live; on-demand defaults to America/New_York)'),
+        date: z.string().optional().describe('live: the first session\'s calendar day "YYYY-MM-DD"; startTime on that day in `timezone` is converted to UTC for you'),
+        startTime: z.string().optional(), endTime: z.string().optional(),
+        formId: z.string(),
+        videoUrl: z.string().optional().describe('live: the live webinar link (required)'),
+        video: z.string().optional().describe('onDemand: the recording — a video file in this location\'s Media Storage, by id or exact name'),
+        recurring: z.object({
+          frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']),
+          repeat: z.number().int().optional().describe('every N weeks / months (a daily series repeats every day)'),
+          occurrences: z.number().int().optional().describe('After: the number of sessions, 1-50 (default 7)'),
+          endDate: z.string().optional().describe('By: the last day "YYYY-MM-DD" (instead of occurrences)'),
+          weeklyDays: z.array(z.enum(['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'])).optional(),
+          monthlyDay: z.number().int().optional(), monthlyWeek: z.number().int().optional(), monthlyWeekDay: z.enum(['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']).optional(),
+        }).optional().describe('live only: a recurring series'),
       }).optional(),
       confirm: z.boolean().default(false),
     }),
@@ -12236,6 +12249,7 @@ export const TOOLS = [
       { method: 'GET', path: '/funnels/funnel/blog/list/' },
       { method: 'GET', path: '/forms/{id}' },
       { method: 'GET', path: '/locations/{locationId}' },
+      { method: 'GET', path: '/medias/files' },
       { method: 'POST', path: '/funnels/funnel/create' },
       { method: 'POST', path: '/templates/template/load' },
       { method: 'POST', path: '/blogs/site' },
@@ -12254,16 +12268,22 @@ export const TOOLS = [
           return withFailureData(fail(CODES.VALIDATION_FAILED, `a document named ${JSON.stringify(clash[0].name)} already exists on this location`, 'Pick another name; nothing was sent.'),
             { existing: clash.map((f) => ({ id: f._id ?? f.id, name: f.name, type: f.type })) });
         }
-        let formName, companyId;
+        let formName, companyId, video;
         if (args.kind === 'webinar') {
           if (args.webinar?.formId) {
             const fr = await gw.call('GET', `/forms/${encodeURIComponent(args.webinar.formId)}`);
             if (!fr.ok) return fail(CODES.VALIDATION_FAILED, `webinar.formId ${args.webinar.formId} does not read on this location (${fr.status})`, 'Name one of this location\'s forms (list_forms). Nothing was sent.');
             formName = fr.json?.form?.name ?? fr.json?.name ?? '';
           }
+          if (args.webinar?.type === 'onDemand' && args.webinar.video) {
+            const m = await findMediaVideo(gw, args.locationId, args.webinar.video);
+            if (!m.hits) return fromHttp(m.res?.status, m.res?.json);
+            if (m.hits.length !== 1) return fail(CODES.VALIDATION_FAILED, m.hits.length ? `webinar.video ${JSON.stringify(args.webinar.video)} matches ${m.hits.length} video files in Media Storage` : `webinar.video ${JSON.stringify(args.webinar.video)} is not a video file in this location's Media Storage`, m.hits.length ? 'Pass the file id instead. Nothing was sent.' : 'Upload the recording in Media Storage first (the New webinar wizard\'s Browse picks from there). Nothing was sent.');
+            video = m.hits[0];
+          }
           companyId = await resolveCompanyId(gw, args.locationId);
         }
-        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName });
+        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.() });
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was sent.');
         const preview = { kind: args.kind, request: { method: plan.method, path: plan.path, body: plan.body } };
         if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `create_funnel ${args.kind} preview is ready; no write was sent.`, 'Repeat with confirm:true to send exactly this request.'), { preview });
@@ -12289,16 +12309,32 @@ export const TOOLS = [
           ...(args.kind === 'blog' ? { blogList: blogRow ? { id: blogRow._id, name: blogRow.name } : null } : {}),
           ...(args.kind === 'store' ? { note: STORE_DANGLING_FORM_NOTE } : {}),
         };
-        // A webinar's schedule is proven by its SESSION, not the stored strings: GHL builds the session from endDate.
+        // A webinar's schedule is proven by its SESSIONS, not the stored strings: GHL builds them from endDate + recurringSettings.
         if (args.kind === 'webinar' && id) {
-          const want = Date.parse(plan.sessionStart);
-          const got = await reread(async () => (await gw.call('POST', '/funnels/funnel/webinar/sessions', { webinarId: id, locationId: args.locationId, includeDeleted: false })).json?.webinarSessions ?? [],
-            (rows) => rows.length > 0, deps.rereadOptions ?? {});
-          const sessions = got.value.map((x) => ({ start: x.sessionStart, end: x.sessionEnd, timezone: x.timezone }));
-          out.sessions = sessions;
-          out.sessionStart = { sent: plan.sessionStart, wall: `${args.webinar.startTime} ${args.webinar.timezone}` };
-          if (!sessions.some((x) => Date.parse(x.start) === want)) {
-            return withFailureData(fail(CODES.VERIFY_FAILED, `the webinar was created but its session does not start at ${plan.sessionStart} (${out.sessionStart.wall})`, 'Open Sites → Webinars → ⋮ → Edit and check the date and time; do not create again.'), out);
+          const wp = f?.webinarProperties ?? {};
+          const rows = Array.isArray(wp.notifications) ? wp.notifications : [];
+          out.webinar = { type: wp.webinarType === 'demand' ? 'onDemand' : (wp.webinarType ?? null), timezone: wp.timezone ?? null, recurring: wp.recurring === true, rrule: wp.recurringSettings?.rrule ?? null, formId: wp.formId ?? null, videoUrl: wp.videoUrl ?? null,
+            notifications: { rows: rows.length, enabled: rows.filter((r) => r.enabled === true).length } };
+          out.note = 'No webinar email is set up by this create: registrants are emailed only after you enable a notification row WITH an email template on Sites → Webinars → ⋮ → Edit → Notifications. Check the template has a subject (a library template copy sent an empty one).';
+          if (wp.webinarType === 'demand') {
+            const got = await gw.call('POST', '/funnels/funnel/webinar/sessions', { webinarId: id, locationId: args.locationId, includeDeleted: false });
+            out.sessions = (got.json?.webinarSessions ?? []).map((x) => ({ start: x.sessionStart, end: x.sessionEnd, timezone: x.timezone }));
+          } else {
+            const want = Date.parse(plan.sessionStart);
+            const expected = plan.series?.occurrences ?? (plan.series ? null : 1);
+            const got = await reread(async () => (await gw.call('POST', '/funnels/funnel/webinar/sessions', { webinarId: id, locationId: args.locationId, includeDeleted: false })).json?.webinarSessions ?? [],
+              (rows) => rows.length > 0 && (expected === null || rows.length === expected), deps.rereadOptions ?? {});
+            const sessions = got.value.map((x) => ({ start: x.sessionStart, end: x.sessionEnd, timezone: x.timezone })).sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
+            out.sessions = sessions;
+            out.sessionStart = { sent: plan.sessionStart, wall: `${args.webinar.startTime} ${args.webinar.timezone}` };
+            const lastOk = !plan.series?.endDate || sessions.every((x) => Date.parse(x.start) <= Date.parse(plan.series.endDate));
+            // DAILY starts on the start day; WEEKLY / MONTHLY start at the first day matching the rule on or after it (measured), so only "not before" holds for them.
+            const firstOk = sessions.length > 0 && (plan.series && plan.series.frequency !== 'DAILY' ? Date.parse(sessions[0].start) >= want : Date.parse(sessions[0].start) === want);
+            if (!firstOk || (expected !== null && sessions.length !== expected) || !lastOk) {
+              return withFailureData(fail(CODES.VERIFY_FAILED, `the webinar was created but its sessions are not the ones sent (first ${plan.sessionStart}, ${expected ?? 'until ' + plan.series?.endDate} session(s); read back ${sessions.length}, first ${sessions[0]?.start ?? 'none'})`, 'Open Sites → Webinars → ⋮ → Edit and check the date, time and recurrence; do not create again.'), out);
+            }
+            const warnings = sessionWarnings(sessions, { timezone: args.webinar.timezone, startTime: args.webinar.startTime, startUtc: plan.sessionStart });
+            if (warnings.length) out.warnings = warnings;
           }
         }
         const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== 'store' || f.isStoreActive === true);
@@ -12326,13 +12362,14 @@ export const TOOLS = [
       + 'cards show: page views, opt-ins, sales and their value, opt-in rate, and hosted-video plays/completion; 🔴 only a HOSTED '
       + 'video (a Media Storage file) reports analytics — YouTube, Vimeo, Wistia and embeds send nothing; RESETTING stats is not '
       + 'offered: it is irreversible, applies asynchronously (~30 s) and clears the Sites Analytics numbers too — funnel → Stats → Reset). '
+      + 'webinar (type, schedule, recurrence, form, live link/video, sessions, notification rows, guests + workflow-recipe links). '
       + 'Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole '
       + 'site for dangling references and publish drift — this tool does not repeat that audit. '
       + 'Read-only.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
-      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages', 'step-products', 'stats']).default('summary'),
+      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages', 'step-products', 'stats', 'webinar']).default('summary'),
       pageId: z.string().optional(),
       stepId: z.string().optional(),
       from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -12352,6 +12389,7 @@ export const TOOLS = [
       { method: 'GET', path: '/stats/count' },
       { method: 'GET', path: '/stats/optin/conversion-rate' },
       { method: 'GET', path: '/stats/video/stats' },
+      { method: 'POST', path: '/funnels/funnel/webinar/sessions' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -12434,6 +12472,12 @@ export const TOOLS = [
       }
       const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
       if (!res.ok) return fromHttp(res.status, res.json);
+      if (view === 'webinar') {
+        if (funnel.type !== 'webinar') return fail(CODES.VALIDATION_FAILED, `${JSON.stringify(funnel.name)} is a ${funnel.type}, not a webinar`, 'view "webinar" reads a webinar document (find_ghl_site list:true type:"webinar").');
+        const sr = await gw.call('POST', '/funnels/funnel/webinar/sessions', { webinarId: args.funnelId, locationId: args.locationId, includeDeleted: false });
+        if (!sr.ok) return fromHttp(sr.status, sr.json);
+        return ok({ funnelId: args.funnelId, name: funnel.name, webinar: webinarView(funnel, sr.json?.webinarSessions ?? [], args.locationId) });
+      }
       if (view === 'settings') return ok({ funnelId: args.funnelId, settings: settingsFrom(funnel), securityHeaders: funnel.securityHeaders ?? [], cookieConsentUrl: funnel.cookieConsent ?? null });
       if (view === 'lookups') {
         const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);

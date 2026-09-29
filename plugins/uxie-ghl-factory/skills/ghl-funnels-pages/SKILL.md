@@ -42,7 +42,7 @@ funnel ──has many──▶ step ──has many──▶ page (control + spli
 
 | # | step | how |
 |---|---|---|
-| 1 | create the funnel | **`create_funnel`** — `kind` funnel / website / store / webinar / blog; refuses a name already on the location; store and webinar are GHL's blank-template installs (the UI's own blank path) |
+| 1 | create the funnel | **`create_funnel`** — `kind` funnel / website / store / webinar / blog; refuses a name already on the location; store and webinar are GHL's blank-template installs (the UI's own blank path). A webinar is `webinar.type` `live` (date + start/end time in a timezone, the live link `videoUrl`, optionally a DAILY / WEEKLY / MONTHLY `recurring` series) or `onDemand` (a Media Storage video by id or name, no schedule); the sessions are read back, and it returns `warnings` when a series starts later than the date given or drifts an hour across a daylight-saving change. A new webinar emails nobody: registrants are emailed only after a notification row with a template is enabled on the Edit webinar screen |
 | 2 | attach the domain **before creating steps** | **no tool** — recipe 11. Rows are stamped from the funnel path as it stands when minted, so steps created first get flat paths. 🔴 Run **`audit_site`** first: a path is held per DOMAIN across every document on the location, the attach renames a collision silently and arbitrarily, and routing never follows a later step rename |
 | 3 | create each step (mints its page) | **`edit_funnel` op `create-step`** — refuses on a funnel with no domain (such a step gets no lookup row and 404s); preview returns the `step.id`, pass it back on confirm |
 | 4 | author + publish the page | **`build_funnel_page`** — composes, validates, writes, reads back, and publishes when you pass `publish:true` |
@@ -58,7 +58,8 @@ Step 2 is still a recipe; the rest have typed tools. 🔴 A store from `create_f
 routing rows: a step with no row 404s; `publishStatus` null = never touched = live), `settings`,
 `versions` (one page, sorted by timestamp), `security`, `events`, `cookie-consent`, `share` (the funnel's
 share link if one exists — `shareWith`, the import URL), `archived-pages` (pages a page "delete" or a split
-winner archived; restorable).
+winner archived; restorable), `webinar` (a webinar's type, schedule, recurrence, form, live link or video,
+its sessions, notification rows, and the guests and workflow-recipe links the Edit webinar screen shows).
 
 **`edit_funnel`** — one `op` per call, preview first, `confirm:true` writes and reads back:
 `settings` · `create-step` · `update-step` (rename / move path) · `reorder-steps` · `clone-step` ·
@@ -215,7 +216,7 @@ YYYY-MM-DD, with the previous period and each row's per-interval series).
 | visitor geo-location | nothing to set | a runtime lookup (`GET /funnels/funnel/geo-location/` → the visitor's country) the builder uses to format prices |
 | install a Template Library template (1,000+ funnels, websites, stores, webinars) | Sites → Funnels → New funnel → From templates → Continue → Choose | an install can bring side assets (forms, products) the plugin does not track; `create_funnel` makes the blank document. The raw install is `POST /templates/template/load` (documented, synchronous). Browsing is reads on `services…/templates/*`; 🔴 a `keyword` list call saves the user's recent searches |
 | upload a funnel / website / store / webinar to the agency template library; template admin (own categories and types, what sub-accounts see, selling, sharing) | a row's ⋮ → Upload To … templates (agency admins only) | the $497 agency plan, and it publishes AGENCY-wide: every sub-account, clients included, sees the template |
-| a webinar's schedule, recurrence and email notifications | Sites → Webinars → row ⋮ → Edit | rare, and the Edit webinar screen does it: `PATCH /funnels/funnel/webinar/{id}` with the whole `webinarProperties`; sessions read on `POST /funnels/funnel/webinar/sessions`. 🔴 A one-off (non-recurring) webinar stores its start with the SAVING BROWSER's UTC offset, not the webinar timezone — by raw call send `endDate` in UTC converted from `timezone`. Enabling a notification needs an email template first |
+| changing a webinar's schedule, recurrence or email notifications after it exists (create_funnel sets them at creation; `get_funnel view webinar` reads them, with the guests and workflow-recipe links) | Sites → Webinars → row ⋮ → Edit | rare, and the Edit webinar screen does it: `PATCH /funnels/funnel/webinar/{id}` with the whole `webinarProperties`; sessions read on `POST /funnels/funnel/webinar/sessions`. 🔴 A one-off (non-recurring) webinar stores its start with the SAVING BROWSER's UTC offset, not the webinar timezone — by raw call send `endDate` in UTC converted from `timezone`. Enabling a notification needs an email template first |
 | Widget Marketplace widgets (third-party "All The Apps" elements) | page builder → Add Elements → Widget Marketplace | each widget is a third-party app that must be installed on the location first (its own OAuth grant; most are paid); installing apps is outside this plugin |
 
 What the builder does that a 2xx will not tell you (all measured live):

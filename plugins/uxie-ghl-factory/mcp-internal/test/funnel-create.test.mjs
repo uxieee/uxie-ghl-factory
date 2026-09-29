@@ -64,14 +64,15 @@ test('planCreateFunnel sends each kind exactly as its New screen does', () => {
   assert.deepEqual(planCreateFunnel({ kind: 'blog', name: 'B', locationId: 'L', description: 'd' }), { method: 'POST', path: '/blogs/site', body: { locationId: 'L', title: 'B', description: 'd' } });
   const st = planCreateFunnel({ kind: 'store', name: 'S', locationId: 'L' });
   assert.deepEqual(st.body, { templateId: BLANK_TEMPLATES.store, locationId: 'L', product: 'stores', extras: { name: 'S' } });
-  const w = { timezone: 'Asia/Manila', date: '2026-10-01T10:00:00+08:00', startTime: '10:00', endTime: '11:00', formId: 'FORM1' };
-  const wb = planCreateFunnel({ kind: 'webinar', name: 'W', locationId: 'L', companyId: 'C', webinar: w, formName: 'Reg' });
+  const w = { timezone: 'Asia/Manila', date: '2026-10-01T10:00:00+08:00', startTime: '10:00', endTime: '11:00', formId: 'FORM1', videoUrl: 'https://example.com/live' };
+  const NOW = Date.parse('2026-09-30T00:00:00Z');
+  const wb = planCreateFunnel({ kind: 'webinar', name: 'W', locationId: 'L', companyId: 'C', webinar: w, formName: 'Reg', now: NOW });
   assert.equal(wb.body.templateId, BLANK_TEMPLATES.webinar);
   assert.equal(wb.body.subProduct, 'live');
   assert.deepEqual([wb.body.extras.webinarProperties.endDate, wb.body.extras.webinarProperties.endTime, wb.body.extras.webinarProperties.webinarEndTime], ['2026-10-01T02:00:00Z', '10:00', '11:00'],
     'the wizard stores the START as endDate/endTime and the END as webinarEndTime; endDate is that start in UTC');
-  assert.match(planCreateFunnel({ kind: 'webinar', name: 'W', locationId: 'L', companyId: 'C', webinar: { ...w, formId: '' } }).refuse, /formId/);
-  assert.match(planCreateFunnel({ kind: 'webinar', name: 'W', locationId: 'L', companyId: 'C', webinar: { ...w, startTime: '9am' } }).refuse, /HH:mm/);
+  assert.match(planCreateFunnel({ kind: 'webinar', name: 'W', locationId: 'L', companyId: 'C', webinar: { ...w, formId: '' }, now: NOW }).refuse, /formId/);
+  assert.match(planCreateFunnel({ kind: 'webinar', name: 'W', locationId: 'L', companyId: 'C', webinar: { ...w, startTime: '9am' }, now: NOW }).refuse, /HH:mm/);
   assert.match(planCreateFunnel({ kind: 'nope', name: 'x' }).refuse, /kind/);
 });
 
@@ -85,7 +86,7 @@ function createDeps({ existing = [], created = null, forms = { FORM1: 'Reg' }, s
   const calls = [];
   let doc = null;
   return {
-    calls, state: {}, rereadOptions: fast,
+    calls, state: {}, rereadOptions: fast, nowMs: () => Date.parse('2026-09-30T00:00:00Z'),
     makeGw: () => ({ uid: 'U1', call: async (method, path, body) => {
       calls.push({ method, path, body });
       if (path.startsWith('/funnels/funnel/list')) return { ok: true, status: 200, json: { funnels: [...existing, ...(doc ? [doc] : [])], count: existing.length + (doc ? 1 : 0) } };
@@ -124,7 +125,7 @@ test('create_funnel creates each kind and verifies it on a separate read', async
     if (kind === 'store') { assert.equal(r.data.readBack.store, true); assert.match(r.data.note, /Contact Us/); }
     if (kind === 'blog') assert.equal(r.data.blogList.id, 'NEWB');
   }
-  const w = { timezone: 'Asia/Manila', date: '2026-10-01T10:00:00+08:00', startTime: '10:00', endTime: '11:00', formId: 'FORM1' };
+  const w = { timezone: 'Asia/Manila', date: '2026-10-01T10:00:00+08:00', startTime: '10:00', endTime: '11:00', formId: 'FORM1', videoUrl: 'https://example.com/live' };
   const d = createDeps();
   const r = await cf({ kind: 'webinar', name: 'TEST web', webinar: w, confirm: true }, d);
   assert.equal(r.ok, true, r.detail);
@@ -261,7 +262,7 @@ test('webinar start: the calendar day + startTime are converted in webinar.timez
 });
 
 test('create_funnel webinar: sends the UTC start, reads the SESSION back, and fails loudly when it runs at another time', async () => {
-  const w = { timezone: 'America/New_York', date: '2026-10-01', startTime: '10:00', endTime: '11:00', formId: 'FORM1' };
+  const w = { timezone: 'America/New_York', date: '2026-10-01', startTime: '10:00', endTime: '11:00', formId: 'FORM1', videoUrl: 'https://example.com/live' };
   const d = createDeps();
   const r = await cf({ kind: 'webinar', name: 'TEST ny', webinar: w, confirm: true }, d);
   assert.equal(r.ok, true, r.detail);
