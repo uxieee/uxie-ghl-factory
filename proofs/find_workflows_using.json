@@ -553,21 +553,35 @@
         "receipt:2026-09-25-1017"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:88604b00",
+        "corpus:corpus/workflows/20-api/smart-lists.md"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-25",
+    "hashedAt": "2026-09-29",
     "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "eb7d0149e959efe4c9cc0a7b8615c8688463787b3960a56be91eae1d7be9fa7a",
       "POST https://backend.leadconnectorhq.com /workflows/es/search": "d854677d2fa2e5bec62be7f35e16615c9488ec17ca3f843c25b209d6efdb3a97"
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#find_workflows_using": "b92eccabdd0d41860376b5cc4e987e66958bfa1e71ae2ef595b02daabeeacefe",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#find_workflows_using": "685e682e9aaacadba0273f972124bbf0064418821cfa5b66d2373549032291ce",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "4d51e727fa5e24e85a1e4ab4b91bba8ed9ad58e312e1b80992a439043e68006b",
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/lints/tag-case.mjs": "dd07753a8a2b6e5694d7425c4840a0b66186201b65c0843e8fc3f44b11d97620"
     }
   }
 }

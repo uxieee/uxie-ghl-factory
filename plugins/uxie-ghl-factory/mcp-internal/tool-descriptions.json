@@ -652,9 +652,9 @@
     ]
   },
   "find_workflows_using": {
-    "description": "Find which workflows contain a step or trigger type — proof: live-runtime (2026-09-25); risk: read",
+    "description": "Find which workflows contain a step or trigger type — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "source-derived (builder bundle 2026-09-14)",
     "rows": [
       "workflow-es-search"
