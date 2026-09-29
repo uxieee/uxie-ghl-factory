@@ -251,7 +251,15 @@ export function planPublishState({ funnel, lookups, pageId, publish, redirect, u
     const u = String(redirect.url ?? '');
     if (!/^https?:\/\//i.test(u)) return { refuse: 'redirect.url must be an absolute http(s) URL' };
     fields = () => ({ target: u, action: 'url', publishStatus: 'unpublished', type: 'redirect' });
-  } else return { refuse: `redirect.type ${JSON.stringify(redirect.type)} is not supported (404 | url). Redirect-to-step is not proven.` };
+  } else if (redirect.type === 'step') {
+    // "Custom redirect page → Choose from existing steps in this funnel": the same lookup rows, action "funnel", target = a STEP id
+    // (captured with the save blocked, knowledge sniffs/funnels-wave38-f5b-settings-2026-09-30 ui-cap.unpublish-redirect-step.BLOCKED.json).
+    const to = (funnel.steps ?? []).find((x) => x.id === redirect.stepId);
+    if (!to) return { refuse: `redirect.stepId ${redirect.stepId} is not a step of this funnel` };
+    if (to.id === step.id) return { refuse: 'a page cannot redirect to its own step' };
+    if (!lookups.some((r) => r.type === 'step' && r.typeId === to.id && r.domain)) return { refuse: `step "${to.name}" has no domain attached (GHL refuses a redirect to it) — publish it on a domain first` };
+    fields = () => ({ target: to.id, action: 'funnel', publishStatus: 'unpublished', type: 'redirect' });
+  } else return { refuse: `redirect.type ${JSON.stringify(redirect.type)} is not supported (404 | url | step).` };
   return {
     method: 'PUT', path: '/funnels/lookup/multiple',
     body: { lookups: rows.map((r) => ({ lookupId: r._id, ...fields(r), ...who })) },
@@ -264,6 +272,78 @@ export function planAddHeader({ funnel, locationId, key, value }) {
   const existing = (funnel.securityHeaders ?? []).find((h) => String(h.key).toLowerCase() === String(key).toLowerCase());
   if (existing) return { refuse: `header ${existing.key} already exists on this funnel; editing/removing is not proven here` };
   return { method: 'POST', path: '/funnels/funnel/headers', body: { locationId, funnelId: funnel._id ?? funnel.id, key, value: String(value ?? '') } };
+}
+
+// ---- security headers: edit and delete (the Security tab's row menu; bodies captured with the save BLOCKED, wave38) ----
+//   edit    PUT  /funnels/funnel/headers        {locationId, funnelId, key, value}      (the key is locked; only the value changes)
+//   delete  POST /funnels/funnel/headers/delete {locationId, funnelId, key}
+// A header has no id: the target check is the exact key AND its current value (`expectValue`), the way delete-step wants id AND name.
+export function planEditHeader({ funnel, locationId, key, value }) {
+  const cur = (funnel.securityHeaders ?? []).find((h) => String(h.key).toLowerCase() === String(key ?? '').toLowerCase());
+  if (!cur) return { refuse: `no header ${key} on this funnel (${(funnel.securityHeaders ?? []).map((h) => h.key).join(', ') || 'it has none'}); add-header creates one` };
+  if (typeof value !== 'string') return { refuse: 'edit-header needs the new value (a string)' };
+  if (cur.value === value) return { refuse: `header ${cur.key} already has this value` };
+  return { method: 'PUT', path: '/funnels/funnel/headers', body: { locationId, funnelId: funnel._id ?? funnel.id, key: cur.key, value }, target: { key: cur.key, from: cur.value, to: value } };
+}
+export function planDeleteHeader({ funnel, locationId, key, expectValue }) {
+  const cur = (funnel.securityHeaders ?? []).find((h) => h.key === key);
+  if (!cur) return { refuse: `no header with the exact key ${JSON.stringify(key)} on this funnel (${(funnel.securityHeaders ?? []).map((h) => h.key).join(', ') || 'it has none'})` };
+  if (typeof expectValue !== 'string' || cur.value !== expectValue) return { refuse: `target check failed: header ${cur.key} has value ${JSON.stringify(cur.value)}, not ${JSON.stringify(expectValue)}. Nothing was deleted.` };
+  return { method: 'POST', path: '/funnels/funnel/headers/delete', body: { locationId, funnelId: funnel._id ?? funnel.id, key: cur.key }, target: { key: cur.key, value: cur.value } };
+}
+
+// ---- Meta Pixel events (Events tab): add / edit / delete. Bodies from the screen (add: wave1 capture; edit + delete: wave38, save BLOCKED) ----
+//   add     POST   /funnels/event      {funnelId, type:"funnel", locationId, conversionEnabled, level, pixelId, events[], provider:"facebook", (pageIds when level "page"), (accessToken)}
+//   edit    PATCH  /funnels/event/{id} {conversionEnabled, type, accessToken, level, pageIds, pixelId, events[]}
+//   delete  DELETE /funnels/event/{id}
+export const META_EVENTS = Object.freeze(['page_view', 'view_content', 'initiate_checkout', 'add_payment_info', 'purchase']);
+const eventProblems = (funnel, e) => {
+  if (funnel.type === 'website') return 'meta events were captured on a funnel only; a website\'s Events screen is not measured';
+  if (!/^\d{6,20}$/.test(String(e.pixelId ?? ''))) return 'pixelId must be the Meta pixel id (digits only)';
+  if (!Array.isArray(e.events) || !e.events.length || e.events.some((x) => !META_EVENTS.includes(x))) return `events must be a non-empty list from ${META_EVENTS.join(', ')}`;
+  if (new Set(e.events).size !== e.events.length) return 'events lists an event twice';
+  if (e.level !== 'funnel' && e.level !== 'page') return 'level must be "funnel" or "page"';
+  if (e.level === 'page') {
+    const onFunnel = new Set((funnel.steps ?? []).flatMap((st) => st.pages ?? []));
+    if (!Array.isArray(e.pageIds) || !e.pageIds.length) return 'level "page" needs pageIds';
+    const off = e.pageIds.filter((id) => !onFunnel.has(id));
+    if (off.length) return `pageIds ${off.join(', ')} are not pages of this funnel`;
+  } else if (e.pageIds?.length) return 'level "funnel" takes no pageIds';
+  return null;
+};
+export function planAddEvent({ funnel, locationId, event, existing = [] }) {
+  const bad = eventProblems(funnel, event ?? {});
+  if (bad) return { refuse: bad };
+  if (existing.some((r) => r.pixelId === event.pixelId && r.level === event.level && (event.level === 'funnel' || JSON.stringify(r.pageIds) === JSON.stringify(event.pageIds)))) return { refuse: `pixel ${event.pixelId} already has a ${event.level}-level event on this funnel; edit-event changes it` };
+  // The Conversions API access token is a CREDENTIAL: the tool layer refuses credential-looking arguments, so the API stays off here (set it on the Events screen).
+  if (event.conversionApi !== undefined) return { refuse: 'the Conversions API needs an access token, which is a credential and is never passed through this tool: add the event with the API off and turn it on in the Events screen' };
+  return { method: 'POST', path: '/funnels/event', body: { funnelId: funnel._id ?? funnel.id, type: 'funnel', locationId, conversionEnabled: false, level: event.level, pixelId: event.pixelId, events: event.events, provider: 'facebook', ...(event.level === 'page' ? { pageIds: event.pageIds } : {}) } };
+}
+const rowOf = (rows, eventId, expectPixelId) => {
+  const r = rows.filter((x) => (x._id ?? x.id) === eventId);
+  if (r.length !== 1) return { refuse: `no single meta event ${eventId} on this funnel (${r.length} found)` };
+  if (r[0].pixelId !== expectPixelId) return { refuse: `target check failed: event ${eventId} is pixel ${r[0].pixelId}, not ${expectPixelId}. Nothing was sent.` };
+  return { row: r[0] };
+};
+export function planEditEvent({ funnel, locationId, rows, eventId, expectPixelId, event }) {
+  const t = rowOf(rows, eventId, expectPixelId); if (t.refuse) return t;
+  const cur = t.row;
+  const next = { pixelId: event?.pixelId ?? cur.pixelId, level: event?.level ?? cur.level, pageIds: event?.pageIds ?? (event?.level === 'funnel' ? [] : cur.pageIds ?? []), events: event?.events ?? cur.events };
+  const bad = eventProblems(funnel, { ...next, pageIds: next.level === 'funnel' ? [] : next.pageIds });
+  if (bad) return { refuse: bad };
+  if (event?.conversionApi !== undefined && event.conversionApi !== false) return { refuse: 'conversionApi can only be false here: the access token is a credential and is never passed through this tool' };
+  // An event that sends via the Conversions API has a token the read never returns, and a PATCH would blank it: refuse unless the caller means to turn the API off.
+  if (cur.conversionEnabled === true && event?.conversionApi !== false) return { refuse: 'this event sends via the Conversions API; its token is not readable and an edit would clear it. Edit it on the Events screen, or pass conversionApi:false to turn the API off' };
+  return { method: 'PATCH', path: `/funnels/event/${encodeURIComponent(eventId)}`, body: { conversionEnabled: false, type: 'funnel', accessToken: '', level: next.level, pageIds: next.level === 'page' ? next.pageIds : [], pixelId: next.pixelId, events: next.events },
+    target: { eventId, pixelId: cur.pixelId, level: cur.level, events: cur.events } };
+}
+export function planDeleteEvent({ rows, eventId, expectPixelId }) {
+  const t = rowOf(rows, eventId, expectPixelId); if (t.refuse) return t;
+  return { method: 'DELETE', path: `/funnels/event/${encodeURIComponent(eventId)}`, target: { eventId, pixelId: t.row.pixelId, level: t.row.level, events: t.row.events } };
+}
+export async function readEvents(gw, locationId, funnelId) {
+  const r = await gw.call('GET', `/funnels/event?funnelId=${enc(funnelId)}&locationId=${enc(locationId)}&page=1&limit=20`);
+  return { res: r, rows: Array.isArray(r.json?.events) ? r.json.events : [] };
 }
 
 // Delete a whole funnel/website document. Measured (sniffs/funnels-wave10-e-plan-2026-09-28

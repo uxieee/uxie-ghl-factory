@@ -2316,6 +2316,41 @@
   },
   {
     "tool": "edit_funnel",
+    "method": "PUT",
+    "path": "/funnels/funnel/headers"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/headers/delete"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/event"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/domain/invalidate-cache"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/event"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "PATCH",
+    "path": "/funnels/event/{id}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "DELETE",
+    "path": "/funnels/event/{id}"
+  },
+  {
+    "tool": "edit_funnel",
     "method": "POST",
     "path": "/funnels/funnel/funnel-page/{pageId}"
   },
