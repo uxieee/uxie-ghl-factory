@@ -14,8 +14,10 @@ Every item was executed on the designated test sub-account and read back on a se
   `(i + 1) / (n + 1) * 100`, and still answers 201.
 - **A stage rename keeps its id,** so workflows (which reference stages by id) keep working. A
   rename fires no stage-changed trigger; moving a card fires everything.
-- **Deleting a pipeline deletes its opportunities,** with no DELETED audit row, so they cannot be
-  restored from Settings › Audit logs. A single-opportunity delete can be restored.
+- **Deleting a pipeline deletes its opportunities,** and the cards get no DELETED audit row of their
+  own. Restore the **pipeline** instead: Settings › Audit logs › Pipeline · Deleted › Restore
+  (`POST /opportunities/pipelines/{id}/restore {}`). That brought back the pipeline and its card four
+  days after the delete. A single-opportunity delete is restored from its own row.
 - **`PATCH …/position` with an empty body moves the pipeline.** `raw_request` refuses it without
   `targetPosition`.
 - The update body is the GET row with `id`, `position`, `dateAdded`, `dateUpdated`, `locationId`
