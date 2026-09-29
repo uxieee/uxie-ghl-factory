@@ -1712,6 +1712,28 @@ function malformedSelectedParkedRows(rows) {
   return null;
 }
 
+// The workflow's status, for the draft warning (bl-314). A failed read returns null: no warning, never a refusal.
+async function readWorkflowStatus(gw, loc, wid) {
+  try { const r = await gw.call('GET', `/workflow/${loc}/${wid}`); return r?.ok ? (r.json?.status ?? null) : null; } catch { return null; }
+}
+
+// Re-read the parked roster after a requeue and report which attempted ids have LEFT the step (bl-314). Polled up to
+// four times, 1.5 s apart, because the requeue is processed asynchronously.
+async function readBackRequeue(ff, wid, stepId, statusIds, sleep = (ms) => new Promise((r) => setTimeout(r, ms))) {
+  let stillParked = statusIds; let polls = 0;
+  try {
+    for (; polls < 4; ) {
+      await sleep(1500); polls += 1;
+      const parkedNow = new Set((await ff.allParked(wid, stepId)).map((row) => row._id));
+      stillParked = statusIds.filter((id) => parkedNow.has(id));
+      if (!stillParked.length) break;
+    }
+  } catch (err) {
+    return { verified: false, moved: [], stillParked: [], polls, error: String(err?.message ?? err).slice(0, 200) };
+  }
+  return { verified: true, moved: statusIds.filter((id) => !stillParked.includes(id)), stillParked, polls };
+}
+
 function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) {
   const sample = rows.slice(0, 10);
   const statusIds = rows.map((row) => row._id);
@@ -8937,8 +8959,8 @@ export const TOOLS = [
   {
     name: 'fast_forward_contacts',
     description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step. '
-      + '🔴 `moved` counts the enrollments GHL ACCEPTED, not a read-back: on a DRAFT workflow GHL answers 200 and moves nobody '
-      + '(reported, bl-314). After a confirm, read the step again with get_contacts_at_step before relying on the move. '
+      + '`moved` is what a separate re-read shows has LEFT the step (statusIdsStillParked lists the rest; verified:false if '
+      + 'the re-read failed). 🔴 On a DRAFT workflow GHL accepts the requeue and moves nobody: the preview warns. '
       + '(proof: documented).'),
     inputSchema: schema({
       locationId: z.string(),
@@ -8987,6 +9009,13 @@ export const TOOLS = [
         );
       }
       const preview = fastForwardPreview(selectedRows, selector, args);
+      // bl-314: on a DRAFT workflow GHL answers the requeue 200 and moves nobody (reported 2026-09-29 on a client
+      // account; the read-back below is what proves it either way). Said up front, in the preview.
+      const workflowStatus = await readWorkflowStatus(gw, args.locationId, args.workflowId);
+      if (workflowStatus && workflowStatus !== 'published') {
+        preview.warning = `The workflow is '${workflowStatus}', not published: GHL accepts a requeue on a draft and moves nobody. `
+          + 'Publish it first if the move must happen; the result reports what actually left the step.';
+      }
       if (args.confirm !== true) {
         return withFailureData(
           fail(
@@ -9055,11 +9084,22 @@ export const TOOLS = [
         }, selectedRows);
       }
       partialProgress.write.acknowledged = true;
+      // bl-314: `moved` used to be statusIds.length — what GHL ACCEPTED. It is now what a separate read shows has LEFT
+      // the step (polled briefly: the requeue is asynchronous). An id still parked after the polls is reported as such.
+      const readBack = await readBackRequeue(ff, args.workflowId, args.stepId, statusIds, deps.sleep);
       return ok({
-        moved: statusIds.length,
+        moved: readBack.moved.length,
         statusIds,
         statusIdsAttempted: statusIds,
-        statusIdsMoved: statusIds,
+        statusIdsMoved: readBack.moved,
+        statusIdsStillParked: readBack.stillParked,
+        verified: readBack.verified,
+        ...(workflowStatus ? { workflowStatus } : {}),
+        ...(preview.warning ? { warning: preview.warning } : {}),
+        ...(readBack.verified && readBack.stillParked.length
+          ? { note: `GHL accepted ${statusIds.length} but ${readBack.stillParked.length} still sit at this step after ${readBack.polls} reads.` }
+          : {}),
+        ...(readBack.verified ? {} : { note: `The requeue was accepted but the step could not be re-read (${readBack.error}); moved is unverified.` }),
         partialProgress,
         upstream: requeueCall.value,
       });

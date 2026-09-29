@@ -9,9 +9,11 @@ const fastForwardTool = () => TOOLS.find((candidate) => candidate.name === 'fast
 
 function depsFixture({
   rows = [], getFailure = null, postFailure = null, throwAfterPostApply = false,
+  workflowStatus = 'published', moveOnPost = true,
 } = {}) {
   const calls = [];
   let made = 0;
+  rows = [...rows];
   const gw = {
     loc: 'LOC',
     uid: 'USER',
@@ -28,9 +30,12 @@ function depsFixture({
           json: { totalCount: rows.length, rows: rows.slice(skip, skip + limit) },
         };
       }
+      if (method === 'GET' && path === '/workflow/LOC/WID') return { status: 200, ok: true, json: { status: workflowStatus } };
       if (method === 'POST' && path.includes('/requeue-stuck-statuses/')) {
         if (throwAfterPostApply) throw new Error('transport lost after requeue applied');
         if (postFailure) return postFailure;
+        // a published workflow releases the requeued ids from the step; a draft (bl-314) accepts and moves nobody
+        if (moveOnPost && workflowStatus === 'published') rows = rows.filter((row) => !body.statusIds.includes(row._id));
         return { status: 200, ok: true, json: { queued: body.statusIds } };
       }
       return { status: 404, ok: false, json: { message: 'unstubbed' } };
@@ -42,9 +47,17 @@ function depsFixture({
     deps: {
       state: { tokenFile: '/fixture/token.txt', allowedLocations: new Set(['LOC']) },
       makeGw: () => { made++; return gw; },
+      sleep: async () => {},
     },
   };
 }
+
+// The roster pages read BEFORE the requeue POST (the bl-314 read-back after it is asserted on its own).
+const rosterPagesBeforeWrite = (calls) => {
+  const post = calls.findIndex(({ method }) => method === 'POST');
+  return (post === -1 ? calls : calls.slice(0, post))
+    .filter(({ path }) => path.includes('/details-by-step?')).map(({ path }) => path.match(/[?&]skip=(\d+)/)[1]);
+};
 
 const request = (selector, extra = {}) => ({
   locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', ...selector, ...extra,
@@ -121,7 +134,7 @@ test('fast_forward_contacts preview walks every parked page and never writes', a
   assert.deepEqual(result.data.preview.samples.statusIds, rows.slice(0, 10).map((row) => row._id));
   assert.deepEqual(result.data.preview.samples.contactIds, rows.slice(0, 10).map((row) => row.contactId));
   assert.deepEqual(
-    fixture.calls.filter(({ method }) => method === 'GET').map(({ path }) => path.match(/[?&]skip=(\d+)/)[1]),
+    rosterPagesBeforeWrite(fixture.calls),
     ['0', '50'],
   );
   assert.equal(fixture.calls.some(({ method }) => method === 'POST'), false);
@@ -181,7 +194,7 @@ test('confirmed fast-forward requeues exact workflow-status ULIDs and reports at
   assert.deepEqual(result.data.statusIds, ['STATUS_ULID_1', 'STATUS_ULID_2']);
   assert.deepEqual(result.data.statusIdsAttempted, ['STATUS_ULID_1', 'STATUS_ULID_2']);
   assert.deepEqual(result.data.statusIdsMoved, ['STATUS_ULID_1', 'STATUS_ULID_2']);
-  assert.deepEqual(fixture.calls.at(-1), {
+  assert.deepEqual(fixture.calls.find(({ method }) => method === 'POST'), {
     method: 'POST',
     path: '/workflow/LOC/WID/requeue-stuck-statuses/STEP',
     body: {
@@ -214,7 +227,7 @@ test('confirmed statusIds resolve the same current parked set as preview when li
   assert.equal(confirmed.ok, true);
   assert.deepEqual(confirmed.data.statusIdsAttempted, preview.data.preview.statusIds);
   assert.deepEqual(confirmed.data.statusIdsMoved, ['STATUS_LIVE']);
-  assert.deepEqual(confirmFixture.calls.at(-1).body.statusIds, ['STATUS_LIVE']);
+  assert.deepEqual(confirmFixture.calls.find(({ method }) => method === 'POST').body.statusIds, ['STATUS_LIVE']);
 });
 
 test('statusIds preview exposes the full resolved set even when samples are truncated', async () => {
@@ -271,7 +284,7 @@ test('confirmed all selector walks every 50-row page before one exact requeue', 
   assert.deepEqual(result.data.statusIdsAttempted, rows.map((row) => row._id));
   assert.deepEqual(result.data.statusIdsMoved, rows.map((row) => row._id));
   assert.deepEqual(
-    fixture.calls.filter(({ method }) => method === 'GET').map(({ path }) => path.match(/[?&]skip=(\d+)/)[1]),
+    rosterPagesBeforeWrite(fixture.calls),
     ['0', '50'],
   );
   assert.equal(fixture.calls.filter(({ method }) => method === 'POST').length, 1);
@@ -542,5 +555,51 @@ test('duplicate requested statusIds are deduplicated in first-occurrence order b
   assert.equal(result.ok, true);
   assert.equal(result.data.moved, 2);
   assert.deepEqual(result.data.statusIdsAttempted, ['STATUS_2', 'STATUS_1']);
-  assert.deepEqual(fixture.calls.at(-1).body.statusIds, ['STATUS_2', 'STATUS_1']);
+  assert.deepEqual(fixture.calls.find(({ method }) => method === 'POST').body.statusIds, ['STATUS_2', 'STATUS_1']);
+});
+
+// bl-314 (reported on a client account 2026-09-29): on a DRAFT workflow GHL accepts the requeue and moves nobody.
+test('bl-314: a draft is warned in the preview, and moved counts only what a re-read shows has left the step', async () => {
+  const rows = [{ _id: 'S1', contactId: 'C1' }, { _id: 'S2', contactId: 'C2' }];
+  const selector = { statusIds: ['S1', 'S2'] };
+  const pv = depsFixture({ rows, workflowStatus: 'draft' });
+  const preview = await fastForwardTool().handler(request(selector), pv.deps);
+  assert.match(preview.data.preview.warning, /'draft', not published/);
+  const fx = depsFixture({ rows, workflowStatus: 'draft' });
+  const r = await fastForwardTool().handler(request(selector, { confirm: true, previewToken: preview.data.preview.previewToken }), fx.deps);
+  assert.equal(r.ok, true);
+  assert.equal(r.data.moved, 0, 'GHL accepted but nobody left the step');
+  assert.deepEqual(r.data.statusIdsStillParked, ['S1', 'S2']);
+  assert.equal(r.data.verified, true);
+  assert.match(r.data.note, /GHL accepted 2 but 2 still sit at this step/);
+  assert.ok(fx.calls.filter(({ path }) => path.includes('/details-by-step?')).length > 1, 'the step was re-read after the write');
+});
+
+test('bl-314 CONTROL: a published workflow reports the ids that really left, with no warning', async () => {
+  const rows = [{ _id: 'S1', contactId: 'C1' }];
+  const pv = depsFixture({ rows });
+  const preview = await fastForwardTool().handler(request({ statusIds: ['S1'] }), pv.deps);
+  assert.equal(preview.data.preview.warning, undefined);
+  const fx = depsFixture({ rows });
+  const r = await fastForwardTool().handler(request({ statusIds: ['S1'] }, { confirm: true, previewToken: preview.data.preview.previewToken }), fx.deps);
+  assert.deepEqual([r.data.moved, r.data.statusIdsMoved, r.data.statusIdsStillParked, r.data.verified], [1, ['S1'], [], true]);
+});
+
+test('bl-314: a failed re-read reports moved as unverified, never as the attempted count', async () => {
+  const rows = [{ _id: 'S1', contactId: 'C1' }];
+  const pv = depsFixture({ rows });
+  const preview = await fastForwardTool().handler(request({ statusIds: ['S1'] }), pv.deps);
+  const fx = depsFixture({ rows });
+  let posted = false;
+  const call = fx.deps.makeGw().call;
+  const gw = { loc: 'LOC', uid: 'USER', call: async (m, p, b) => {
+    if (m === 'POST') posted = true;
+    if (posted && m === 'GET' && p.includes('/details-by-step?')) return { status: 500, ok: false, json: { message: 'down' } };
+    return call(m, p, b);
+  } };
+  const r = await fastForwardTool().handler(request({ statusIds: ['S1'] }, { confirm: true, previewToken: preview.data.preview.previewToken }),
+    { ...fx.deps, makeGw: () => gw });
+  assert.equal(r.data.verified, false);
+  assert.equal(r.data.moved, 0);
+  assert.match(r.data.note, /moved is unverified/);
 });
