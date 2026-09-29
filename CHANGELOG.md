@@ -11,6 +11,28 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.28.0] — 2026-09-30
+
+**Pages: 16 more element kinds look right the moment they are built, with no builder save needed. Executed live on
+the test account.**
+
+### Added
+- `build_funnel_page` / `edit_funnel` write the page builder's own per-kind styling for the two order forms, the 11
+  product-page blocks, the collection list, featured products and the store product list. They leave
+  `builderStyling` (43 kinds → 27). Live: on two pages, the builder's saved stylesheet equalled the tool's for all 48
+  nodes (3,120 declarations), after an in-place edit too, and the pages rendered identically at three widths. Each
+  kind reproduced the builder's output on 500 random combinations of its settings, order forms with random palettes.
+  A setting the measurements don't cover is refused for styling, not guessed, and the element stays under
+  `builderStyling` with the reason.
+
+### Changed
+- ⚠️ `build_funnel_page` refuses a page colour that reuses a built-in label (Primary, Secondary, Red…) with another
+  value. A builder save relabels such an entry and restores the built-in value, so every element using it would change
+  colour. Use a custom one-word label.
+
+### Fixed
+- Element defaults no longer share one object between two settings (desktop and tablet font size, for example).
+
 ## [1.27.2] — 2026-09-30
 
 **Security fix: webhook secrets no longer come back in plain text. Executed live on the test account.**
