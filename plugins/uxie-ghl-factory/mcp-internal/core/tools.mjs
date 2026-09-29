@@ -129,7 +129,7 @@ import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from '../../engines
 import { compileDeploymentIntent, executeDeployment, DEPLOY_PATH, CHANNELS } from '../../engines/ai/deployment.mjs';
 import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
 import { submitActionWarning } from './submit-action.mjs';
-import { renderableFields, blankSubmitWarning } from './form-fields.mjs';
+import { renderableFields, blankSubmitWarning, addressGroup, carries } from './form-fields.mjs';
 import { StudioApi, queryProjectHistory, filterRoutes, classifySite, nameWarning,
          sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor } from './ai-studio.mjs';
 
@@ -9818,10 +9818,9 @@ export const TOOLS = [
   {
     name: 'list_forms',
     description: `${describe('list_forms', 'List forms in a sub-account — risk: read')}. `
-      + 'Lists forms with their ids, names and folder. `type: "form"` returns forms only — ANY other '
-      + 'value, including omitting it, returns forms AND folders in one array, because `type` selects '
-      + 'the row kind rather than the productType. Quizzes live on this collection too '
-      + '(productType "quiz"); surveys do not. Offset paging via skip/limit. `query` is a '
+      + 'Lists forms (or, with productType "quiz", quizzes) with their ids, names and folder, sent as the list app '
+      + 'sends it: `type` and `productType` together. includeFolders:true leaves `type` out, which returns folders in '
+      + 'the same array. Surveys do not live here. Offset paging via skip/limit. `query` is a '
       + 'case-insensitive substring match on the name. The count endpoint counts forms PLUS folders, '
       + 'so it will not agree with the number of rows here.',
     inputSchema: schema({
@@ -9829,6 +9828,7 @@ export const TOOLS = [
       query: z.string().optional(),
       parentId: z.string().optional(),
       includeFolders: z.boolean().default(false),
+      productType: z.enum(['form', 'quiz']).default('form'),
       skip: z.number().default(0),
       limit: z.number().default(20),
     }),
@@ -9845,7 +9845,12 @@ export const TOOLS = [
       });
       // Omitting `type` is what returns folders as well — that is the documented switch, not a
       // separate endpoint.
-      if (args.includeFolders !== true) q.set('type', 'form');
+      // The list app always pairs the row kind with the productType: forms {type:"form", productType:"form"},
+      // quizzes {type:"quiz", productType:"quiz"} (formSurveyApp list chunks; knowledge sniffs/funnels-completeness-
+      // 2026-09-29 notes-C D11). Folders: the row kind is left out, the productType kept.
+      const pt = args.productType ?? 'form';
+      q.set('productType', pt);
+      if (args.includeFolders !== true) q.set('type', pt);
       if (args.query) q.set('query', args.query);
       if (args.parentId) q.set('parentId', args.parentId);
       const r = await gw.call('GET', `/forms/?${q}`);
@@ -9959,11 +9964,14 @@ export const TOOLS = [
         return fail(CODES.VALIDATION_FAILED, `${problems.length} field(s) would not render: ${problems.join(' ')}`,
           'Give each element a renderer `type`. Built-in tags (first_name, email, phone, button, …) get the builder\'s shape when type is left out.');
       }
-      const blank = blankSubmitWarning(fields);
+      // The builder's save of an address group: children after it in `fields`, settings in `form.address`.
+      const grouped = addressGroup(fields);
+      const blank = blankSubmitWarning(grouped.fields);
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const document = {
         form: {
-          fields,
+          fields: grouped.fields,
+          ...(grouped.address ? { address: grouped.address } : {}),
           ...(args.formAction ? { formAction: args.formAction } : {}),
           ...(args.style ? { style: args.style } : {}),
         },
@@ -9971,7 +9979,7 @@ export const TOOLS = [
       const preview = {
         creates: { name: args.name, productType: 'form', source: args.source ?? 'landing_page', parentId: args.parentId ?? null },
         document,
-        fieldTags: fields.map((f) => f.tag),
+        fieldTags: grouped.fields.map((f) => f.tag),
         ...(filled.length ? { completed: filled } : {}),
         warning: 'The form is PUBLIC the moment it is created — there is no draft state, and formData is readable with no credentials.',
         ...(blank ? { blankSubmit: blank } : {}),
@@ -10015,12 +10023,12 @@ export const TOOLS = [
         );
       }
       // Reads lag writes by seconds; a single immediate read returns the PREVIOUS document, which
-      // is how a verifier reports success on a write that has not landed. Compare on tags.
-      const want = fields.map((f) => f.tag).filter(Boolean);
+      // is how a verifier reports success on a write that has not landed. Compare the whole document, value for value.
+      const want = grouped.fields.map((f) => f.tag).filter(Boolean);
       const back = await gw.readBackUntil(async () => {
         const g = await gw.call('GET', `/forms/${encodeURIComponent(formId)}`);
-        const got = (g.json?.form?.formData?.form?.fields ?? []).map((f) => f.tag).filter(Boolean);
-        return want.every((t) => got.includes(t)) ? got : null;
+        const doc = g.json?.form?.formData?.form ?? {};
+        return carries(document.form, doc) ? (doc.fields ?? []).map((f) => f.tag).filter(Boolean) : null;
       }, { pollMs: 2000, maxPolls: 4 });
       return ok({
         formId,
@@ -10068,8 +10076,9 @@ export const TOOLS = [
         return fail(CODES.VALIDATION_FAILED, `${shaped.problems.length} field(s) would not render: ${shaped.problems.join(' ')}`,
           'Give each element a renderer `type`. Built-in tags (first_name, email, phone, button, …) get the builder\'s shape when type is left out.');
       }
-      if (shaped) args = { ...args, fields: shaped.fields };
-      const blank = shaped ? blankSubmitWarning(shaped.fields) : null;
+      const grouped = shaped ? addressGroup(shaped.fields) : null;
+      if (shaped) args = { ...args, fields: grouped.fields };
+      const blank = shaped ? blankSubmitWarning(grouped.fields) : null;
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const id = encodeURIComponent(args.formId);
       const current = await gw.call('GET', `/forms/${id}`);
@@ -10084,6 +10093,7 @@ export const TOOLS = [
       const before = form.formData?.form ?? {};
       const after = { ...before };
       for (const k of patch) after[k] = args[k];
+      if (grouped?.address) after.address = grouped.address;
       const name = args.name ?? form.name;
       const preview = {
         formId: args.formId,
@@ -10124,19 +10134,17 @@ export const TOOLS = [
         formData: { ...(form.formData ?? {}), ...flatMirror, form: after },
       });
       if (!saved.ok) return fromHttp(saved.status, saved.json);
-      // GHL renames two keys on write. Comparing on the names we SENT would report a mismatch on a
-      // perfectly good save, which is how a verifier trains people to ignore it.
-      const RENAMED = { redirect_url: 'redirectUrl', ac_branding: 'acBranding' };
-      const stored = (obj) => Object.fromEntries(Object.entries(obj ?? {}).map(([k, v]) => [RENAMED[k] ?? k, v]));
+      // VALUE for value, never key presence: the previous document has every tag and every formAction key of an edit
+      // that changes only a label, a style or a redirect target, so a presence check passed on the stale read
+      // (knowledge sniffs/funnels-completeness-2026-09-29 notes-C D5). `carries` maps GHL's two write-time renames
+      // (formAction.redirect_url → redirectUrl, style.ac_branding → acBranding).
       const wantTags = (args.fields ?? after.fields ?? []).map((f) => f.tag).filter(Boolean);
-      const wantAction = args.formAction ? Object.keys(stored(args.formAction)) : [];
+      const sentPart = Object.fromEntries([...patch, ...(grouped?.address ? ['address'] : [])].map((k) => [k, after[k]]));
       const back = await gw.readBackUntil(async () => {
         const g = await gw.call('GET', `/forms/${id}`);
         const doc = g.json?.form?.formData?.form ?? {};
-        const tags = (doc.fields ?? []).map((f) => f.tag).filter(Boolean);
-        const tagsOk = wantTags.every((t) => tags.includes(t));
-        const actionOk = wantAction.every((k) => (doc.formAction ?? {})[k] !== undefined);
-        return tagsOk && actionOk ? { tags, formAction: doc.formAction ?? null } : null;
+        const nameOk = args.name === undefined || g.json?.form?.name === args.name;
+        return nameOk && carries(sentPart, doc) ? { tags: (doc.fields ?? []).map((f) => f.tag).filter(Boolean), formAction: doc.formAction ?? null } : null;
       }, { pollMs: 2000, maxPolls: 4 });
       return ok({
         formId: args.formId,
