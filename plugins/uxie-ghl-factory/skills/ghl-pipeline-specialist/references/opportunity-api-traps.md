@@ -67,6 +67,11 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
   The name does not mean sent: it read back as a draft, not sent. It needs the contact's email and
   an E.164 phone. Without them it answers 422 while the UI shows nothing.
 
+- **A linked invoice can quote the deal.** With `opportunityDetails.opportunityId` set, its text takes
+  `{{ opportunity.name }}` and the rest of the Opportunity Details group (pipeline, stage, status, value, owner,
+  source, lost reason, close date, probability, custom fields). The tag is stored raw and renders only on the
+  hosted invoice page (⋮ › Preview, or when sent). The editor's own preview shows it blank.
+
 - **A lost reason typed into the edit form is created the moment you pick it** (`POST
   /opportunities/lost-reason`), even if the form is then cancelled. Stray reasons stay in the list.
 
