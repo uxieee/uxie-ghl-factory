@@ -95,3 +95,11 @@ test('a patch that INTRODUCES a key on a skipped type warns and names the key', 
   assert.match(hit, /introduces key\(s\) \[stage\]/);
   assert.match(hit, /retypeStep/);
 });
+
+// wave22: re-targeting a goto that lost its target (an edge deleted on the advanced canvas) adds targetNodeId back.
+// That is the goto's wire key, so it must not draw MODIFY_NOT_NORMALISED; an author-shape key still does.
+test('a goto re-targeted after losing its target draws no MODIFY_NOT_NORMALISED; a foreign key still warns', () => {
+  const goto = { id: 'g', type: 'goto', name: 'Go', attributes: { type: 'goto', targetNodeId: 'B' } };
+  assert.deepEqual(normalizeStoredAttributes(goto, {}, { novelKeys: ['targetNodeId'] }).warnings, []);
+  assert.equal(normalizeStoredAttributes({ ...goto, attributes: { ...goto.attributes, stage: 'x' } }, {}, { novelKeys: ['stage'] }).warnings.length, 1);
+});

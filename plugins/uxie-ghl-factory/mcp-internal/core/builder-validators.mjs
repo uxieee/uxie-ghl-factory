@@ -186,11 +186,18 @@ export function runBuilderValidators(templates, bag, vname) {
   for (const s of (templates ?? [])) {
     const vn = vname?.[s.type];
     if (!vn) { (unchecked[s.type] ??= []).push(s.name ?? s.id ?? null); continue; }
-    validated += 1;
     const arg = { ...s, templates, parentNode: { next: s.next }, ...canvasAttributes(s) };
     let out;
+    // A validator that THROWS checked nothing: the step is NOT validated and is listed as unchecked too, so a crash can
+    // never read as a clean step. Nine recovered bodies call minified aliases the capture never resolved (W$, R$, G$, hxe,
+    // MJ …; completeness sweep 2026-09-29 §3 #7) and threw on every call while the step counted as validated.
     try { out = bag[vn](arg); }
-    catch (e) { crashed.push({ step: s.name ?? s.id ?? null, type: s.type, validator: vn, error: String(e?.message ?? e).slice(0, 160) }); continue; }
+    catch (e) {
+      crashed.push({ step: s.name ?? s.id ?? null, type: s.type, validator: vn, error: String(e?.message ?? e).slice(0, 160) });
+      (unchecked[s.type] ??= []).push(s.name ?? s.id ?? null);
+      continue;
+    }
+    validated += 1;
     for (const r of (out ?? [])) {
       const row = { step: s.name ?? s.id ?? null, type: s.type, ...r };
       (r?.resource ? lookups : findings).push(row);
