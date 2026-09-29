@@ -131,12 +131,29 @@ function checkStarterPrompts(prompts) {
   }
 }
 
-// Full validation — used by both compileSuperAgentUpdate (full-replace PUT) and
-// (for its up-front shape check) compileSuperAgentCreate. Required: name,
-// systemPrompt (non-empty strings). model defaults to DEFAULT_MODEL when omitted —
-// this is the one field this IR normalizes rather than leaving to the compiler,
-// since both captures show it as a fixed literal with no IR-level knob to vary it
-// yet.
+// The keys create_studio_agent applies (buildPrompt is the build message; the rest land in the config PUT). Anything
+// else is refused before the build starts: the compiler used to copy only what it knew, so an unknown key was dropped
+// and the create still reported success.
+export const CREATE_KEYS = ['name', 'buildPrompt', 'systemPrompt', 'description', 'model', 'tools', 'trigger', 'triggers',
+  'plugins', 'reasoningEffort', 'knowledgeBaseIds', 'starterPrompts', 'imageGeneration', 'mediaSettings'];
+const ELSEWHERE = {
+  folderId: 'folder placement at create is not written by this tool: move the agent afterwards (raw_request on the /agent-studio agent-folder routes)',
+  folderName: 'folder placement at create is not written by this tool: move the agent afterwards (raw_request on the /agent-studio agent-folder routes)',
+  templateId: 'template creation is its own route: raw_request POST /agent-studio/super-agent/agents/from-template {templateId, locationId}',
+  customApiEnabled: 'custom API calls are not written at create: raw_request PUT the agent config afterwards',
+  publish: 'this tool never publishes; the agent is created as a draft',
+  config: 'pass the config fields at the top level of spec (name, systemPrompt, tools, triggers, …)',
+};
+export function refuseUnappliedStudioKeys(spec) {
+  const unapplied = Object.keys(spec ?? {}).filter((k) => !CREATE_KEYS.includes(k));
+  if (!unapplied.length) return;
+  const where = unapplied.filter((k) => k in ELSEWHERE).map((k) => `${k}: ${ELSEWHERE[k]}`);
+  throw new IRError('SPEC_KEY_UNAPPLIED', `create_studio_agent cannot apply spec key(s) [${unapplied.join(', ')}], and refuses rather `
+    + `than creating an agent without them. ${where.length ? `${where.join('; ')}. ` : ''}Nothing was sent. Applicable keys: ${CREATE_KEYS.join(', ')}.`);
+}
+
+// Full validation for the config PUT that follows the build (compileSuperAgentUpdate). Required: name, systemPrompt
+// (non-empty strings). model defaults to DEFAULT_MODEL when omitted.
 export function parseSuperAgentIR(ir) {
   if (!ir || typeof ir !== 'object') throw new IRError('SCHEMA', 'IR must be an object');
   assertNonEmptyString(ir.name, 'name');

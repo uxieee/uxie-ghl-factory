@@ -48,6 +48,26 @@ export function extractAgentId(kind, response) {
 
 const actionId = (body) => responseId(body);
 
+const MAX_OPTIONS_SHOWN = 20;
+/** The builder's pause, with its questions, or null when the stream did not stop for input. */
+export function awaitingInput(events) {
+  const list = Array.isArray(events) ? events : [];
+  const wait = list.find((e) => e?.event === 'awaiting_input');
+  if (!wait) return null;
+  const questions = list.filter((e) => e?.event === 'build_question').map(({ data: q = {} }) => {
+    const options = Array.isArray(q.options) ? q.options : [];
+    return {
+      id: q.id ?? null,
+      prompt: q.prompt ?? null,
+      allowMultiple: Boolean(q.allowMultiple),
+      options: options.slice(0, MAX_OPTIONS_SHOWN).map((o) => ({ value: o?.value ?? null, label: o?.label ?? null })),
+      ...(options.length > MAX_OPTIONS_SHOWN || q.hasMore ? { moreOptions: true, totalCount: q.totalCount ?? options.length } : {}),
+    };
+  });
+  return { sessionId: wait.data?.sessionId ?? null, count: Number(wait.data?.count ?? questions.length), questions,
+    stale: list.some((e) => e?.event === 'answers_stale') };
+}
+
 // The server's own words, whole. GHL answers a refused action with `{message: [..every rule it
 // broke..]}`; reporting only `HTTP_422` left the caller guessing (live 2026-09-26: an action refused
 // for "transferBotType must be one of the following values: Default, Custom" surfaced as a bare 422).
@@ -207,6 +227,12 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   }
   if (!created.ok) return failure(`HTTP_${created.status}`, 'create', report, { createStatus: created.status, serverMessage: serverMessage(created.json) });
   report.agentId = extractAgentId(kind, created);
+  // THE BUILD CAN STOP AND ASK. The Managed Agent builder streams build_question events and then awaiting_input
+  // {count, sessionId}, and waits for a re-POST carrying answeredQuestions / skippedQuestionIds (superagentsApp
+  // 316f@4990, 3b22@51800). Treated as a finished build, that pause read as "did not complete" with no reason. It is
+  // named here, with the questions, and nothing further is sent.
+  const paused = kind === 'studio' ? awaitingInput(created.events) : null;
+  if (paused) return failure('STUDIO_BUILD_AWAITING_INPUT', 'create', report, { awaitingInput: paused });
   if (!report.agentId) {
     // Surface a payload-free event map so a human can locate an agent the stream saved
     // but whose id we failed to extract (review D2). Only event names + any id per frame —

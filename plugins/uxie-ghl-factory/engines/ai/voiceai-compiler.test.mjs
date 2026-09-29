@@ -490,7 +490,7 @@ test('compileVoiceAiUpdate: full-replace body matches voiceai-update-identity.js
     llmModel: 'gpt-4.1',
     knowledgeBaseIds: null,
     knowledgeBasePrompt: 'Use this knowledge base if the user asks any questions about the business, services, products, contact details, or other relevant information that requires accessing the business wiki to provide accurate and up-to-date information.',
-    provider: 'RETELL',
+    // provider: 'RETELL' is in the capture; it is no longer sent — GHL derives it from llmModel (2026-09-28)
     translation: { enabled: false, language: null },
     beginMessageDelayMs: 0,
     welcomeMessageMode: 'ai_custom',
@@ -572,7 +572,7 @@ test('compileVoiceAiUpdate: full-replace body matches voiceai-update-behavior-tr
     llmModel: 'gpt-4.1',
     knowledgeBaseIds: null,
     knowledgeBasePrompt: 'Use this knowledge base if the user asks any questions about the business, services, products, contact details, or other relevant information that requires accessing the business wiki to provide accurate and up-to-date information.',
-    provider: 'RETELL',
+    // provider: 'RETELL' is in the capture; it is no longer sent — GHL derives it from llmModel (2026-09-28)
     translation: { enabled: false, language: null },
     beginMessageDelayMs: 0,
     welcomeMessageMode: 'ai_custom',
