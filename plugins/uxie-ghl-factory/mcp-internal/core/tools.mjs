@@ -5272,6 +5272,11 @@ export const TOOLS = [
         }
         const now = deps.now ? new Date(deps.now).getTime() : Date.now();
         const days = f.days ?? 30;
+        // The schema caps this too, but a caller that reaches the handler without it (a direct call, an older client) must
+        // still be refused BY NAME rather than sent a window the builder never asks for (live 2026-09-29: a 40-day call passed).
+        if (!Number.isInteger(days) || days < 1 || days > 31) {
+          return fail(CODES.VALIDATION_FAILED, `triggerCountFilter.days must be 1-31 (the builder's own date guard); got ${days}.`, 'Use days 31 or fewer.');
+        }
         // fromDate / toDate MUST be strings: GHL answered an empty body for epoch-ms numbers (measured 2026-09-29).
         const body = { locationId: args.locationId, dateType: 'custom', fromDate: String(now - days * 86_400_000), toDate: String(now),
           ...(f.workflowId ? { workflowId: f.workflowId } : {}), ...(f.triggerType ? { triggerType: f.triggerType } : {}),

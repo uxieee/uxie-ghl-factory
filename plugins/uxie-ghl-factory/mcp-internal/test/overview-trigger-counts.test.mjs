@@ -114,6 +114,13 @@ test('CONTROL: entityId is refused BY NAME unless triggerType is form_submission
   assert.equal(good.posts.length, 1); assert.deepEqual(good.posts[0].body.entityId, ['f1']);
 });
 
+test('CONTROL: a window beyond 31 days is refused BY NAME in the handler itself (no schema in the way), nothing sent', async () => {
+  for (const days of [32, 40, 0, 1.5]) {
+    const { r, posts } = await filtered({ triggerType: ['contact_tag'], days });
+    assert.equal(r.ok, false, `days ${days}`); assert.equal(r.code, 'VALIDATION_FAILED'); assert.equal(posts.length, 0);
+  }
+});
+
 test('a failed filtered count is nulls + error, never zeros', async () => {
   const failed = await filtered({ triggerType: ['contact_tag'] }, () => ({ status: 500, ok: false, json: {} }));
   assert.equal(failed.r.ok, true);
