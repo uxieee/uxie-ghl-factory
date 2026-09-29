@@ -331,7 +331,51 @@ function normalizeAttrs(node, attrs, ctx) {
       : (INNER_ATTRIBUTE_TYPE[node.type] ?? node.type);
   }
   checkAttrKeys(node, out, meta);
+  if (node.type === 'ai_agent') checkAiAgentAttrs(node, out, ctx);
   return out;
+}
+
+// ai_agent keys the drawer writes beyond the example's seven (catalogue correction in required-fields.mjs).
+// Limits are the builder's: MAX_SKILLS_PER_ACTION = 10 (hooks/use-agent-skill-attachment.ts:26), a budget separate
+// from AIAgent.MAX_TOOLS = 10, which counts tools + MCP connections (models/actions/AIAgent.ts:155-162). The tool cap
+// is a picker limit, not a save gate (hasErrors does not read it), so exceeding it warns rather than refuses.
+// The Skills section is behind a DATE gate, isLevelUp2026Enabled (states/app.ts:1080-1094): hidden before
+// 2026-10-25T00:00Z except in non-production and one GHL company.
+export const AI_AGENT_MAX_SKILLS = 10;
+export const AI_AGENT_MAX_TOOLS = 10;
+export const AI_AGENT_SKILLS_PUBLIC_AT = Date.parse('2026-10-25T00:00:00.000Z');
+export function checkAiAgentAttrs(node, a, ctx, now = ctx?.now ?? Date.now()) {
+  const where = `ai_agent '${node.ref ?? node.name ?? node.id}'`;
+  if (a.skills !== undefined) {
+    if (!Array.isArray(a.skills))
+      throw new IRError('AGENT_SKILLS', `${where}: skills must be an array of {id, name}, not ${typeof a.skills}.`);
+    if (a.skills.length > AI_AGENT_MAX_SKILLS)
+      throw new IRError('AGENT_SKILLS', `${where}: ${a.skills.length} skills — the builder attaches at most `
+        + `${AI_AGENT_MAX_SKILLS} per step (MAX_SKILLS_PER_ACTION).`);
+    const seen = new Set();
+    for (const s of a.skills) {
+      const keys = s && typeof s === 'object' && !Array.isArray(s) ? Object.keys(s) : null;
+      if (!keys || typeof s.id !== 'string' || !s.id.trim() || typeof s.name !== 'string' || keys.some((k) => k !== 'id' && k !== 'name'))
+        throw new IRError('AGENT_SKILLS', `${where}: each skill is exactly {id, name} with a non-empty string id `
+          + `(builtin:<key> or a skill document id from GET /workflow/agent/{loc}/skills); got ${JSON.stringify(s)}.`);
+      if (seen.has(s.id)) throw new IRError('AGENT_SKILLS', `${where}: skill '${s.id}' is attached twice.`);
+      seen.add(s.id);
+    }
+    if (a.skills.length && now < AI_AGENT_SKILLS_PUBLIC_AT)
+      ctx?.warn?.(`${where}: ${a.skills.length} skill(s) attached. Until 2026-10-25 GHL's builder hides the Skills `
+        + 'section on most accounts (a date gate), so the skills are stored but a person opening this step will not see them.');
+  }
+  if (a.mcpConnections !== undefined && (!Array.isArray(a.mcpConnections)
+    || a.mcpConnections.some((c) => !c || typeof c !== 'object' || typeof c.connectionId !== 'string' || !c.connectionId)))
+    throw new IRError('AGENT_MCP', `${where}: mcpConnections is the drawer's [{connectionId, name, serverUrl, selectedTools}] `
+      + 'list; the engine passes it through but does not author it — connect MCP servers in the builder.');
+  if (a.templateId !== undefined && a.templateId !== null && typeof a.templateId !== 'string')
+    throw new IRError('AGENT_TEMPLATE', `${where}: templateId is the id string of an applied agent template (set by the builder).`);
+  if (a.disableToolOutputGuards !== undefined && typeof a.disableToolOutputGuards !== 'boolean')
+    throw new IRError('AGENT_GUARDS', `${where}: disableToolOutputGuards is a boolean switch.`);
+  const toolCount = (Array.isArray(a.tools) ? a.tools.length : 0) + (Array.isArray(a.mcpConnections) ? a.mcpConnections.length : 0);
+  if (toolCount > AI_AGENT_MAX_TOOLS)
+    ctx?.warn?.(`${where}: ${toolCount} tools + MCP connections — the builder's picker stops at ${AI_AGENT_MAX_TOOLS} (AIAgent.MAX_TOOLS).`);
 }
 
 // Attribute keys the compiler/orchestrator/resolver own, plus the documented

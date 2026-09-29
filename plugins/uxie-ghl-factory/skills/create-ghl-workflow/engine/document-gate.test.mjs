@@ -217,3 +217,14 @@ test('update_appointment_status rental partial WARNS (drawer cannot show it); ap
   assert.equal(w.length, 1); assert.match(w[0].message, /cannot display 'partial' for rental appointments/);
   assert.equal(gateDocument(st('service_booking'), { catalog, marketplaceTypes: new Set() }).warnings.filter((f) => f.check === 'DRAWER_CANNOT_SHOW').length, 0);
 });
+
+// wave23 W23-1: a builder-made agent carrying a template, an MCP server, Skills or the guard switch was refused on
+// publish and on in-scope edits ("an invented key"). The four drawer keys are known; an invented one still is not.
+test('ai_agent: the drawer keys pass the gate; an invented key on the same step is still an ATTRIBUTE_KEY error', () => {
+  const agent = (extra) => [{ id: 'a1', name: 'Agent', type: 'ai_agent', order: 0, attributes: { prompt: 'p', model: 'm', tools: [],
+    outputFormat: 'text', outputDescription: '', memoryEnabled: false, ...extra } }];
+  const keyErr = (tpl) => gateDocument(tpl, { catalog, marketplaceTypes: new Set() }).errors.filter((f) => f.check === 'ATTRIBUTE_KEY');
+  assert.deepEqual(keyErr(agent({ templateId: 'tpl', mcpConnections: [], skills: [{ id: 'builtin:x', name: 'X' }], disableToolOutputGuards: true })), []);
+  const bad = keyErr(agent({ templateId: 'tpl', agentName: 'x' }));
+  assert.equal(bad.length, 1); assert.match(bad[0].message, /\[agentName\]/);
+});

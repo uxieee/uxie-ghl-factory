@@ -148,7 +148,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `webhook` — attrs: `method`, `url`, `customData`, `headers`
 
 ### workflow_ai
-- ✅ `ai_agent` — attrs: `prompt`, `structuredResponse`, `model`, `tools`, `outputFormat`, `outputDescription`, `memoryEnabled`; premium
+- ✅ `ai_agent` — attrs: `prompt`, `structuredResponse`, `model`, `tools`, `outputFormat`, `outputDescription`, `memoryEnabled`, `skills`, `mcpConnections`, `templateId`, `disableToolOutputGuards`; premium. `skills: [{id, name}]` attaches Skills: at most 10 per step, a budget separate from tools. `id` is `builtin:<key>` or a skill document id (list them read-only with GET /workflow/agent/{loc}/skills); `name` is display-only. Until 2026-10-25 the builder hides the Skills section on most accounts (a date gate, `isLevelUp2026Enabled`), so an attached skill is stored but a person cannot see it in the drawer. `templateId` (an applied agent template), `mcpConnections` (MCP servers, counted with tools against the drawer's 10-tool cap) and `disableToolOutputGuards` are written by the drawer; the engine keeps them on edit and passes them through verbatim, but does not author templates or MCP connections — attach those in the builder.
 
 ## Containers / control flow (IR node kinds)
 

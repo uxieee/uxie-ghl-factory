@@ -300,6 +300,26 @@ export const CATALOG_CORRECTIONS = {
       + 'the bot says when it gives up) and reveals an optional `tags`; the engine refuses a '
       + 'blocking objective without one.',
   },
+  // The verified-live example predates four keys the drawer writes, so the ATTR_KEY guard and the
+  // document gate called them invented and refused every agent a person had given a template, an MCP
+  // server, a Skill or the output-guard switch (publish_workflow and in-scope edits blocked).
+  // attrKeys REPLACES the generated list: the seven example keys carried verbatim, four appended.
+  ai_agent: {
+    reason: 'the drawer writes templateId (applyTemplate, models/actions/AIAgent.ts:94), disableToolOutputGuards '
+      + '(:136), mcpConnections [{connectionId,name,serverUrl,selectedTools}] (:143-195) and skills [{id,name}] '
+      + '(ai-agent-components/hooks/use-agent-skill-attachment.ts:10-60) — bundle-2026-09-29-2; the 7-key '
+      + 'example had none of them, so the ATTR_KEY guard and the gate refused builder-made agents',
+    attrKeys: ['prompt', 'structuredResponse', 'model', 'tools', 'outputFormat', 'outputDescription', 'memoryEnabled',
+      'skills', 'mcpConnections', 'templateId', 'disableToolOutputGuards'],
+    docNote: '`skills: [{id, name}]` attaches Skills: at most 10 per step, a budget separate from tools. `id` is '
+      + '`builtin:<key>` or a skill document id (list them read-only with GET /workflow/agent/{loc}/skills); `name` '
+      + 'is display-only. Until 2026-10-25 the builder hides the Skills section on most accounts (a date gate, '
+      + '`isLevelUp2026Enabled`), so an attached skill is stored but a person cannot see it in the drawer. '
+      + '`templateId` (an applied agent template), `mcpConnections` (MCP servers, counted with tools against the '
+      + 'drawer\'s 10-tool cap) and `disableToolOutputGuards` are written by the drawer; the engine keeps them on '
+      + 'edit and passes them through verbatim, but does not author templates or MCP connections — attach those in '
+      + 'the builder.',
+  },
 };
 
 // How "supplied" is decided per field. `presence` fields are satisfied by ANY value

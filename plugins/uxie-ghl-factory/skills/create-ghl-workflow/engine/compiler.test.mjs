@@ -955,3 +955,46 @@ test('CONTROL: authored weights totalling 100 compile as written', () => {
   assert.deepEqual(weightsOf(splitIR([{ weight: 70 }, { weight: 30 }], { mode: 'weighted' })), [70, 30]);
   assert.deepEqual(weightsOf(splitIR([{ weight: 33.3 }, { weight: 33.3 }, { weight: 33.4 }], { mode: 'weighted' })), [33.3, 33.3, 33.4]);
 });
+
+// wave23 W23-1 (completeness sweep 2026-09-29 §4 #24): the drawer writes skills, mcpConnections, templateId and
+// disableToolOutputGuards on an ai_agent (models/actions/AIAgent.ts; hooks/use-agent-skill-attachment.ts). The 7-key
+// example made ATTR_KEY refuse all four at compile, and the gate refuse builder-made agents on publish/edit.
+const agentIR = (attrs) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'a', kind: 'action', type: 'ai_agent', name: 'Agent', attributes: { prompt: 'Answer {{contact.first_name}}', outputFormat: 'text', ...attrs } }] });
+const agentOf = (ir, c = ctx()) => compile(ir, c).autoSaveBody.workflowData.templates.find((s) => s.type === 'ai_agent').attributes;
+const BEFORE = Date.parse('2026-10-01T00:00:00Z'), AFTER = Date.parse('2026-10-26T00:00:00Z');
+test('ai_agent: skills, mcpConnections, templateId and disableToolOutputGuards compile through verbatim', () => {
+  const skills = [{ id: 'builtin:web_search', name: 'Web search' }, { id: '6650aa11bb22cc33dd44ee55', name: 'Refunds' }];
+  const mcp = [{ connectionId: 'c1', name: 'Docs', serverUrl: 'https://mcp.x.test', selectedTools: ['search'] }];
+  const a = agentOf(agentIR({ skills, mcpConnections: mcp, templateId: 'tpl_1', disableToolOutputGuards: true }), { ...ctx(), now: AFTER });
+  assert.deepEqual(a.skills, skills); assert.deepEqual(a.mcpConnections, mcp);
+  assert.equal(a.templateId, 'tpl_1'); assert.equal(a.disableToolOutputGuards, true);
+});
+test('ai_agent: an invented key is still refused (ATTR_KEY guard stays armed)', () => {
+  assert.throws(() => agentOf(agentIR({ skillz: [] })), (e) => e.code === 'ATTR_KEY' && /skillz/.test(e.message));
+});
+test('ai_agent skills: >10, a bad shape, an extra key and a duplicate id are refused', () => {
+  const s = (n) => Array.from({ length: n }, (_, i) => ({ id: `builtin:k${i}`, name: `K${i}` }));
+  assert.doesNotThrow(() => agentOf(agentIR({ skills: s(10) }), { ...ctx(), now: AFTER }));
+  for (const bad of [s(11), 'builtin:x', [{ id: '', name: 'x' }], [{ id: 'builtin:x' }], [{ id: 'builtin:x', name: 'x', extra: 1 }],
+    [{ id: 'builtin:x', name: 'x' }, { id: 'builtin:x', name: 'y' }]])
+    assert.throws(() => agentOf(agentIR({ skills: bad })), (e) => e.code === 'AGENT_SKILLS', JSON.stringify(bad));
+});
+test('ai_agent skills warn before 2026-10-25 (the builder hides Skills) and not after', () => {
+  const run = (now) => { const w = []; agentOf(agentIR({ skills: [{ id: 'builtin:x', name: 'X' }] }), { ...ctx(), now, warn: (m) => w.push(m) }); return w; };
+  assert.ok(run(BEFORE).some((m) => /2026-10-25/.test(m)), 'warns before');
+  assert.equal(run(AFTER).filter((m) => /2026-10-25/.test(m)).length, 0, 'silent after');
+});
+test('ai_agent: mcpConnections / templateId / disableToolOutputGuards shapes are checked; tools+MCP over 10 warns', () => {
+  assert.throws(() => agentOf(agentIR({ mcpConnections: [{ name: 'no id' }] })), (e) => e.code === 'AGENT_MCP');
+  assert.throws(() => agentOf(agentIR({ templateId: 7 })), (e) => e.code === 'AGENT_TEMPLATE');
+  assert.throws(() => agentOf(agentIR({ disableToolOutputGuards: 'yes' })), (e) => e.code === 'AGENT_GUARDS');
+  const w = []; const mcp = Array.from({ length: 11 }, (_, i) => ({ connectionId: `c${i}`, name: `M${i}`, serverUrl: 'https://m.x.test', selectedTools: [] }));
+  agentOf(agentIR({ mcpConnections: mcp }), { ...ctx(), warn: (m) => w.push(m) });
+  assert.ok(w.some((m) => /11 tools \+ MCP/.test(m)), JSON.stringify(w));
+});
+test('CONTROL: an ai_agent with none of the four keys compiles without them and without a skills warning', () => {
+  const w = []; const a = agentOf(agentIR({}), { ...ctx(), now: BEFORE, warn: (m) => w.push(m) });
+  for (const k of ['skills', 'mcpConnections', 'templateId', 'disableToolOutputGuards']) assert.equal(k in a, false, k);
+  assert.equal(w.filter((m) => /skill/i.test(m)).length, 0);
+});
