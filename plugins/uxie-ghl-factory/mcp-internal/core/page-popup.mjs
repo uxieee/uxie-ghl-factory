@@ -12,7 +12,7 @@
 // - An EMPTY popup (child []) never renders at all (wave11), so one is refused here.
 // Colours are written as literals: an API-composed page has no builder `:root` palette, so `var(--white)`
 // resolves to nothing there (measured: the popup background came out transparent).
-import { makeLeaf, makeColumn, BG_IMAGE, mkId, px, val } from './funnel-pages.mjs';
+import { makeLeaf, makeColumn, BG_IMAGE, mkId, px, val, clickActionOf } from './funnel-pages.mjs';
 
 export const POPUP_WIDTHS = Object.freeze({ full: ['full-page', 960], medium: ['medium-page', 720], small: ['small-page', 550] });
 const POSITION = {
@@ -97,7 +97,7 @@ export function popupRefProblems(pageData, onlyIds = null) {
   const problems = [];
   const nodes = [...(pageData.sections ?? []).flatMap((s) => s.elements ?? []), ...(pageData.popupsList ?? []).flatMap((p) => p.elements ?? [])];
   for (const n of nodes) {
-    if (n?.extra?.action?.value !== 'openPopup' || (onlyIds && !onlyIds.has(n.id))) continue;
+    if (clickActionOf(n) !== 'openPopup' || (onlyIds && !onlyIds.has(n.id))) continue;
     const pid = n.extra?.popupId?.value;
     if (!pid || !ids.has(pid)) problems.push(`${n.id}: action openPopup names popup "${pid ?? ''}", which is not on this page (${[...ids].join(', ') || 'it has no popups'})`);
   }

@@ -14,7 +14,8 @@ import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-ga
 import { makeGateway } from './gateway.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
-  makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, resetIds, val, NEEDS_STEP_TYPE, videoSourceProblems,
+  makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, nodeExtraFromCss, elementSizeCss, buttonColourCss, applyPalette, resetIds, val,
+  NEEDS_STEP_TYPE, videoSourceProblems,
 } from './funnel-pages.mjs';
 import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
@@ -2013,9 +2014,11 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   } catch (e) {
     return fail(CODES.VALIDATION_FAILED, e.message, e.remediation ?? 'Fix the op named in the message.');
   }
-  const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles) });
+  const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles), compileSizes: elementSizeCss });
   // Every family this call wrote through a variable is loaded and declared, as the builder would.
   if (fonts && !errors.length) applyTypography(edited, {}, fonts.reg);
+  // …and every palette colour (a page this tool composed before 2026-09-29 declared none).
+  if (!errors.length) applyPalette(edited);
   if (errors.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${errors.length} edit(s) could not be applied; nothing was written`, 'data.report names each refused op.'), { report });
   // An openPopup this call wrote must name a popup the page has (a dangling one does nothing on click).
   const touched = new Set([...report.filter((r) => r.op === 'set').map((r) => r.nodeId),
@@ -11325,7 +11328,7 @@ export const TOOLS = [
     description: `${describe('build_funnel_page', 'Compose a funnel page from native elements and write it')}. `
       + 'Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, '
       + 'popups?, typography?): writes the nodes AND the compiled stylesheet — the builder canvas reads node styles, '
-      + 'the public page the compiled CSS; both are needed. Refuses what autosave accepts with 201 and then breaks: a '
+      + 'the public page the compiled CSS; both are needed. Sizes, weights, click actions and builder defaults sit on the nodes, so a builder save keeps them. Refuses what autosave accepts with 201 and then breaks: a '
       + 'meta outside the 60 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does '
       + 'not take (refused by name: text → html), an empty popup, an openPopup naming no popup, a video with no '
       + 'source. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, '
@@ -11445,7 +11448,8 @@ export const TOOLS = [
         }
         const leaf = makeLeaf({
           meta: e.meta,
-          extra,
+          // A `css` size goes on the NODE, where the builder reads it on every save; an authored extra key wins.
+          extra: e.css ? { ...nodeExtraFromCss(e.meta, e.css), ...extra } : extra,
           // A `css` block also yields the node styles it implies, so the builder canvas and the
           // public render agree (bl-120); an authored `styles` key always wins.
           styles: { ...(e.css ? nodeStylesFromCss(e.meta, e.css) : {}), ...(e.styles ?? {}) },
@@ -11458,6 +11462,9 @@ export const TOOLS = [
         // COMPILED, so styling set through `styles` alone reaches the public renderer instead
         // of living only on the builder canvas. See leafStyleCss for what that used to cost.
         let css = e.css ? (e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css)) : leafStyleCss(leaf.id, e.styles);
+        // Sizes and weights: the builder's own rules for this node, so a builder save recompiles the same thing.
+        css += elementSizeCss(leaf);
+        if (e.meta === 'button' && !e.css) css += buttonColourCss(leaf);
         // Animations: the builder's own compiled rules, byte for byte (core/page-animation.mjs).
         css += entranceCss(leaf.id, leaf.class) + hoverCss(leaf.id, leaf.class);
         // The rule the builder compiles from extra.typography; without it the page font never applies.
@@ -11509,6 +11516,7 @@ export const TOOLS = [
         });
         pageData.popupsList = popups.map((p) => p.entry);
         applyTypography(pageData, typo, fonts.reg);
+        applyPalette(pageData);
         const refs = popupRefProblems(pageData);
         if (refs.length) throw Object.assign(new Error(refs.join('; ')), { remediation: 'A button whose action is openPopup must name a popup on this page — use `openPopup: "<popup name>"` on the element.' });
         const vids = videoSourceProblems(pageData);

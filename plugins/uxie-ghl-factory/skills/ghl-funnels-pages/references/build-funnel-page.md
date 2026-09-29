@@ -35,17 +35,24 @@ Autosave answers `201` to all of these:
   | `html` | kinds that store `text` | `extra.text` |
   | `extra` | every kind | extra props as `{<prop>: {value}}` |
   | `styles` | every kind | node styles (also compiled) |
-  | `css` | every kind | the compiled rule (breakpoints, pseudo-states) plus the node styles it implies |
+  | `css` | every kind | the element's box rule plus the node styles it implies. `size` / `mobileSize` / `weight` on a text kind or button go ON THE NODE (`extra.desktopFontSize` / `mobileFontSize` `{value, unit:"px"}`, `styles.fontWeight {desktop, mobile}`; a button's `font` → `extra.typography`) and compile at the builder's 0–767 / 768+ breakpoints |
   | `font` | kinds with `typography` | `'headline'` or `'content'` |
   | `tag` | every kind | the node tag |
   | `entranceAnimation` | the entrance kinds | see below |
   | `hoverAnimation` | buttons only | see below |
-  | `openPopup` | kinds with `popupId` | a popup name |
+  | `openPopup` | kinds with `popupId` | a popup name. On `image` / `image-feature` it is written to `extra.imageActions`, on `svg` to `svgImageActions` + `imageActions` — the props their renderer reads; an `extra.action` given for those kinds is moved there too (their own menus: image 11 actions, svg 4) |
 
   Any other key is refused by name, with a "did you mean". A button given `text` instead of `html` was once
   stored empty.
 - An EMPTY popup is refused, because GHL never renders it. So is an `openPopup` naming a popup the page lacks,
   and a video with no source.
+- **A composed page survives a builder save.** On every save the builder discards the stored stylesheet and recompiles
+  it from the nodes, so everything a visitor sees is on the node: sizes, weights, a button's font, click actions, and
+  every unset prop filled with the BUILDER's own fresh-node default (not a name-guessed empty, which compiled to
+  `font-size:undefined`). Palette variables (`var(--white)`, `var(--cobalt)`…) are declared on the page the way GHL's
+  pages declare them: `general.general.colors` plus a `:root` block in `pageStyles` — the builder rebuilds that block from
+  `colors` on save. Proven 2026-09-29 by a real builder save and publish: 0 `undefined`, every size/weight/action/font/
+  colour unchanged, and the public render identical at 1280 and 390 px (knowledge sniffs/funnels-wave26-builder-save).
 
 ## Verification
 
@@ -92,7 +99,8 @@ Both the class knobs AND the builder's compiled rules are written, byte-equal to
 
 - A popup spec is `{name, width full|medium|small, showOn 'exit'|'none'|{delay}, closeOnOutsideClick, position,
   background, columns}`. In edit mode, use `append-popup`.
-- An element's `openPopup: "<popup name>"` wires a button to a popup.
+- An element's `openPopup: "<popup name>"` wires a button, image, image-feature or svg to a popup. 🔴 An svg's click
+  listener is on the inner `<svg>`: the click lands only on the graphic itself, not its padding.
 - 🔴 **Trap:** the builder's first save of an API-composed page adds an empty popup. Opening an empty-action
   button's General tab then rewrites that button to `openPopup` on that popup. Re-read buttons after a builder
   session.

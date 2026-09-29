@@ -18,7 +18,7 @@ export function findNode(pageData, nodeId) {
   return null;
 }
 
-import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf } from './funnel-pages.mjs';
+import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction } from './funnel-pages.mjs';
 import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, customFamily } from './page-fonts.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
 
@@ -39,7 +39,7 @@ const mergeInto = (node, key, patch) => {
  *  { op: 'remove-node', nodeId }                           a leaf (and its id in its parent's child[]) or a whole section
  * `compileStyles(nodeId, meta, styles)` returns a CSS rule string for the public stylesheet (or '').
  */
-export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {}) {
+export function applyPageEdits(pageData, ops, { compileStyles = () => '', compileSizes = () => '' } = {}) {
   const next = structuredClone(pageData);
   const report = [];
   for (const [i, o] of ops.entries()) {
@@ -105,6 +105,10 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
         if (!given.type) next.type = given.selfHostedVideo?.id ? 'selfHosted' : (given.url ? (videoTypeOf(given.url) ?? cur.type) : cur.type);
         o.extra = { ...o.extra, videoProperties: { value: next } };
       }
+      // An image or svg keeps its click action in imageActions / svgImageActions, not `action` (funnel-pages.mjs).
+      if (o.extra) {
+        try { o.extra = routeClickAction(hit.node.meta, o.extra); } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
+      }
       if (o.extra && Object.keys(o.extra).length) { mergeInto(hit.node, 'extra', o.extra); changed.push(...Object.keys(o.extra).map((k) => `extra.${k}`)); }
       if (o.styles && Object.keys(o.styles).length) {
         mergeInto(hit.node, 'styles', o.styles); changed.push(...Object.keys(o.styles).map((k) => `styles.${k}`));
@@ -113,6 +117,13 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
           hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: `${hit.section.general?.sectionStyles ?? ''}${rule}` };
           changed.push('section.general.sectionStyles');
         }
+      }
+      // A size or weight change is recompiled from the node, the way the builder compiles it; the later rule wins.
+      const sized = Object.keys(o.extra ?? {}).some((k) => /FontSize$/.test(k)) || Object.keys(o.styles ?? {}).some((k) => /^fontWeight/.test(k));
+      const sizeRule = sized ? compileSizes(hit.node) : '';
+      if (sizeRule) {
+        hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: `${hit.section.general?.sectionStyles ?? ''}${sizeRule}` };
+        changed.push('section.general.sectionStyles');
       }
       hit.node.updated = true;
       report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch } });
