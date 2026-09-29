@@ -146,7 +146,10 @@ export const CODES = Object.freeze({
 
 const TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
 const TOKENISH_SCAN = /\bey[A-Za-z0-9._-]{20,}/;
-const SECRET_LABEL = '(?:token(?:[-_ ]?id)?|(?:access|refresh|auth|id|oauth|csrf|xsrf)[-_ ]?token|authorization|proxy[-_ ]?authorization|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|secret[-_ ]?access[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|password|credentials?|cookies?|set[-_ ]?cookie|session(?:[-_ ]?(?:id|token|key|secret|cookie|credentials?))?)';
+// bl-336: a BARE `session` is also an ordinary English word ("per session: a session that touched the page" came back as
+// "per session: <redacted> session…"). It counts as a label only when the value that follows is credential-shaped (16+ characters, no
+// spaces); session id / token / key / secret / cookie / credential(s) stay labels whatever follows.
+const SECRET_LABEL = '(?:token(?:[-_ ]?id)?|(?:access|refresh|auth|id|oauth|csrf|xsrf)[-_ ]?token|authorization|proxy[-_ ]?authorization|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|secret[-_ ]?access[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|password|credentials?|cookies?|set[-_ ]?cookie|session[-_ ]?(?:id|token|key|secret|cookie|credentials?)|session(?=\\s*[:=/]\\s*(?:Bearer\\s+)?[^\\s,;&#/]{16,}))';
 // An HTML `data-*` ATTRIBUTE NAME is not a credential label. GHL's step HTML carries
 // `data-cv-token="true">{{message.body}}` (a custom-value marker the builder writes), and the
 // labelled rule read `token="true"` as a secret: export_workflow returned `<redacted>` in place
