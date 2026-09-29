@@ -43,6 +43,15 @@ Tell the user GHL can do these on the canvas, and where:
   copy, so GHL's validator refuses the new workflow until that edge is cleared by hand.
 - **Changelog** (header history icon) and ⌘Z undo/redo up to the last 50 changes; nothing is written until Save.
 - **`?layoutDirection=vertical`** re-lays the canvas top-down; the next Save overwrites every saved position.
+- **Deleting a step** (⇧⌫) in the middle of a chain does not reconnect it: the step before keeps no `next` and the
+  step after loses its `parentKey`, so the workflow has two roots until someone draws the edge. Every save rewrites
+  `order` across `templates[]`; `order` is layout bookkeeping, not identity — address steps by id.
+- **Selection**: ⌘A selects every node, `s` switches to marquee selection and `h` back to the hand; ⇧D, ⌘C and ⇧N act
+  on the selection.
+- **Version history** (⇧V) opens an old version "in View Only Mode": nothing done there is sent, and only
+  **Restore** writes.
+- **Errors rail**: lists every step with an error ("SMS body is empty") with Open step and How to fix (the latter
+  opens GHL's AI chat). A step stored with `hasErrors: true` shows here.
 
 ## Traps
 

@@ -32,6 +32,7 @@ const KNOWN_NODE_KEYS = new Set([
   'instructions', 'information',            // ai_decision
   'inputText',                              // ai_intent
   'target',                                 // goto
+  'integrationAccountId',                   // INTEGRATION_AI marketplace step: the connected account (compiler checks the publisher)
   ...SCOPE_KEYS,
 ]);
 
@@ -309,7 +310,7 @@ export function walkNodes(nodes, visit) {
 
 // Every key buildTrigger (compiler.mjs) actually reads, plus `active`, which parseIR defaults.
 const KNOWN_TRIGGER_KEYS = new Set(['ref', 'type', 'name', 'filters', 'active', 'marketplace',
-  'masterType', 'target', 'targetActionId', 'convTriggerBotId']);
+  'masterType', 'target', 'targetActionId', 'convTriggerBotId', 'integrationAccountId']);
 // Keys ONE trigger type reads and no other does. custom_date_reminder takes its date field and schedule as
 // `config: {field, runHour, offsetDays, matchYear?, timezone?}` (compiler.mjs customDateReminderParts). The allowlist above
 // refused `config` for every type, so the one trigger that needs it could not be authored at all (T1 sweep 2026-09-28, bl-283).

@@ -63,6 +63,26 @@ engine:
   being listed under the name you write. A hard allowlist here would reject shapes the
   builder itself stores.
 
+## INTEGRATION_AI apps: the connected account (`integrationAccountId`)
+
+A GHL-hosted integration (an asset labelled `INTEGRATION_AI`: Asana, Notion, Jotform…) can have several connected
+accounts. The builder stores the chosen one as `integrationAccountId` on the step or trigger ROOT, and refuses to
+save an INTEGRATION_AI **step** without one: "Choose a connected account before publishing". Author it on the node:
+
+```js
+{ ref: 'n1', kind: 'action', marketplace: true, type: '<integration action key>', name: 'Create issue',
+  integrationAccountId: '<connected account id>', attributes: { … } }
+```
+
+- It is emitted on the root only for an `INTEGRATION_AI` asset; on an INTERNAL (first-party) asset, an unlabelled
+  third-party app or a native step it is refused (`INTEGRATION_ACCOUNT_NOT_APPLICABLE`) — GHL never stores it there.
+- An INTEGRATION_AI step without it builds with a **warning** in GHL's own words: the step is saved with an error and
+  cannot be published until someone picks the account in the step (or you set it with `edit_workflow`
+  `modifyStep` `stepPatch: {integrationAccountId}`).
+- Triggers carry it the same way, but GHL has no save gate on a trigger without one.
+- The engine does not list accounts or connect one: that is the app's Manage account / Integrations page in the
+  sub-account. An AI agent's tool using an integration needs no account (GHL falls back to the location's default).
+
 ## Authoring a marketplace trigger
 
 ```js

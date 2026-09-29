@@ -453,3 +453,62 @@ test('cross-app collision: compiling a marketplace STEP of the key fails closed,
   }), ctx({ marketplace: crossAppMarketplace })),
     (e) => e.code === 'MARKETPLACE_APP_NOT_INSTALLED' && /not installed/i.test(e.message));
 });
+
+// wave23 W23-5 (completeness sweep 2026-09-29 §3 #4): integrationAccountId was refused as input (NODE_KEY / TRIGGER_KEY) and
+// never emitted. GHL stores it on the root of an INTEGRATION_AI step/trigger only (Marketplace.ts:600, TriggerMain.ts:912,991)
+// and refuses to save such a step without one: "Choose a connected account before publishing" (Marketplace.ts:771-782).
+const labelled = () => {
+  const A = JSON.parse(JSON.stringify(ASSETS));
+  const act = A.actions[0].actions[0], trg = A.triggers[0].triggers[0];
+  A.actions[0].actions.push({ ...act, _id: 'ia1', key: 'ia_action', workflowsActionType: 'INTEGRATION_AI' },
+    { ...act, _id: 'in1', key: 'int_action', workflowsActionType: 'INTERNAL' });
+  A.triggers[0].triggers.push({ ...trg, _id: 'ia2', key: 'ia_trigger', workflowsTriggerType: 'INTEGRATION_AI' });
+  // An INTEGRATION_AI app must be installed like any app (only INTERNAL is exempt), so the clones join the installed app.
+  const M = JSON.parse(JSON.stringify(MODULES));
+  M.actions[0].actions.push({ ...M.actions[0].actions[0], _id: 'ia1', key: 'ia_action' });
+  if (M.triggers?.[0]?.triggers?.length) M.triggers[0].triggers.push({ ...M.triggers[0].triggers[0], _id: 'ia2', key: 'ia_trigger' });
+  return buildMarketplaceIndex({ assets: A, modules: M });
+};
+const iaCtx = (over = {}) => ctx({ marketplace: labelled(), ...over });
+const mStep = (type, extra = {}) => ({ ref: 'a', kind: 'action', marketplace: true, type, name: 'App step',
+  attributes: { to_phone: '{{contact.phone_raw}}', message: 'hi' }, ...extra });
+test('integrationAccountId: an INTEGRATION_AI step stores it on the root, not in attributes', () => {
+  n = 0;
+  const step = compile(irWith(mStep('ia_action', { integrationAccountId: 'acct_1' })), iaCtx()).autoSaveBody.workflowData.templates[0];
+  assert.equal(step.workflowsActionType, 'INTEGRATION_AI');
+  assert.equal(step.integrationAccountId, 'acct_1');
+  assert.equal('integrationAccountId' in step.attributes, false);
+});
+test('integrationAccountId: an INTEGRATION_AI step without one warns with GHL\'s wording and emits no key', () => {
+  n = 0;
+  const w = [];
+  const step = compile(irWith(mStep('ia_action')), iaCtx({ warn: (m) => w.push(m) })).autoSaveBody.workflowData.templates[0];
+  assert.equal('integrationAccountId' in step, false);
+  assert.ok(w.some((m) => /Choose a connected account before publishing/.test(m)), JSON.stringify(w));
+});
+test('integrationAccountId: refused on an INTERNAL asset, an unlabelled app and a native step', () => {
+  for (const node of [mStep('int_action', { integrationAccountId: 'x' }), mStep('imessage_a', { integrationAccountId: 'x' }),
+    { ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['t'] }, integrationAccountId: 'x' }]) {
+    n = 0;
+    assert.throws(() => compile(irWith(node), iaCtx()), (e) => e.code === 'INTEGRATION_ACCOUNT_NOT_APPLICABLE', node.type);
+  }
+});
+test('integrationAccountId: an INTEGRATION_AI trigger stores it; a native trigger refuses it', () => {
+  n = 0;
+  const ir = { name: 'wf', triggers: [{ ref: 't', type: 'ia_trigger', marketplace: true, name: 'T', filters: [], integrationAccountId: 'acct_2' }],
+    graph: [{ ref: 'x', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['t'] } }] };
+  const trig = compile(ir, iaCtx()).triggerBodies[0];
+  assert.equal(trig.integrationAccountId, 'acct_2');
+  n = 0;
+  assert.throws(() => compile({ ...ir, triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [], integrationAccountId: 'x' }] }, iaCtx()),
+    (e) => e.code === 'INTEGRATION_ACCOUNT_NOT_APPLICABLE');
+});
+test('CONTROL: an unlabelled app step and an INTERNAL step without the key compile as before, with no account warning', () => {
+  for (const type of ['imessage_a', 'int_action']) {
+    n = 0;
+    const w = [];
+    const step = compile(irWith(mStep(type)), iaCtx({ warn: (m) => w.push(m) })).autoSaveBody.workflowData.templates[0];
+    assert.equal('integrationAccountId' in step, false, type);
+    assert.equal(w.filter((m) => /connected account/.test(m)).length, 0, type);
+  }
+});

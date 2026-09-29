@@ -336,6 +336,32 @@ function normalizeAttrs(node, attrs, ctx) {
   return out;
 }
 
+// integrationAccountId — which connected account an INTEGRATION_AI app step or trigger uses. GHL stores it on the
+// step / trigger ROOT only when set (models/actions/Marketplace.ts:600; models/Triggers/TriggerMain.ts:912,991), offers
+// the account picker only for INTEGRATION_AI (MarketplaceAction.vue:17; TriggerOptions.vue:801-803), and gates SAVE of a
+// step without one: shouldGateForIATF = INTEGRATION_AI && appId && no id (helpers/iatf-account.ts:134-139) →
+// "Choose a connected account before publishing" (Marketplace.ts:771-782). A tool (useAsTool) is exempt — it falls back to
+// the location's default account — and there is no trigger save gate (TriggerMain.hasErrors does not read it).
+// INTERNAL (first-party) and unlabelled third-party assets never carry it, so it is refused there.
+function integrationAccountFor(node, publisher, kind, ctx) {
+  const id = node.integrationAccountId;
+  const where = `${kind} '${node.ref ?? node.name ?? node.type}' (${node.type})`;
+  if (id === undefined || id === null || id === '') {
+    if (publisher === 'INTEGRATION_AI' && kind === 'step')
+      ctx?.warn?.(`${where}: Choose a connected account before publishing — an INTEGRATION_AI app step with no `
+        + 'integrationAccountId is saved with an error by GHL\'s builder and cannot be published until someone picks the '
+        + 'account in the step. Pass integrationAccountId (the connected account id) to set it here.');
+    return {};
+  }
+  if (publisher !== 'INTEGRATION_AI')
+    throw new IRError('INTEGRATION_ACCOUNT_NOT_APPLICABLE', `${where}: integrationAccountId applies only to INTEGRATION_AI `
+      + `app ${kind}s; this one is ${publisher ? `labelled ${publisher}` : (node.marketplace === true ? 'an unlabelled third-party app' : 'not a marketplace ' + kind)}, `
+      + 'and GHL never stores an account on it.');
+  if (typeof id !== 'string' || !id.trim())
+    throw new IRError('INTEGRATION_ACCOUNT_NOT_APPLICABLE', `${where}: integrationAccountId must be the connected account's id string.`);
+  return { integrationAccountId: id };
+}
+
 // GHL's own save rules for a Sheets step: GoogleSheetsApi.hasErrors (models/actions/premium-actions/GoogleSheetsApi.ts:
 // 367-386) and the per-action getters it reads (:193-363); isValidNumeric / isValidRowSpec (utils/validation.ts:84-150);
 // isValidGoogleSheetsColor (constants/google-sheets-colors.ts:28-97). A step failing any of these is saved with the
@@ -2041,7 +2067,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         tmpl.workflowsActionType = asset.publisher;
         if (asset.showStepIndex) tmpl.stepIndex = null; // numbered below, per type, like every other
       } else tmpl.isMarketplaceAction = true;
-    }
+      Object.assign(tmpl, integrationAccountFor(n, asset.publisher, 'step', ctx));
+    } else if (n.integrationAccountId !== undefined) integrationAccountFor(n, null, 'step', ctx);
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl, ctx));
   });
@@ -2505,6 +2532,7 @@ export function buildTrigger(t, ctx, wid, refMap) {
   }
   let marketplaceFields = {};
   let marketplaceMasterType = 'marketplace';
+  if (t.marketplace !== true && t.integrationAccountId !== undefined) integrationAccountFor(t, null, 'trigger', ctx);
   if (t.marketplace === true) {
     // A marketplace TRIGGER is always a trigger key — never an action key.
     const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, 'trigger');
@@ -2515,6 +2543,7 @@ export function buildTrigger(t, ctx, wid, refMap) {
     // validator refuse every first-party trigger: "Master Type has an invalid value". UI-built
     // evidence agrees — 16 stored triggers carry 'internal', none of 710 carries 'marketplace'.
     marketplaceMasterType = entry.publisher ? 'internal' : 'marketplace';
+    Object.assign(marketplaceFields, integrationAccountFor(t, entry.publisher, 'trigger', ctx));
     // A marketplace condition addresses the event payload by dotted path, and the stored
     // shape carries `id` and `field` as the SAME string. It also carries the filter's TYPE and
     // TITLE, and its operator defaults per type exactly as the drawer pre-selects one — the row
