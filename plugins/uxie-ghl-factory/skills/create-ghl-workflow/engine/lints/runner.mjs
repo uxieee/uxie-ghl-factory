@@ -84,7 +84,10 @@ export function runLints(doc, {
           F('platform', 'ifelse-vocab', 'warning', `${f.where}${f.branch ? ` [${f.branch}]` : ''}: ${f.msg}`);
         }
       }
-      lintContactFieldTemplates(T, T.map((t) => t.id), { warn: (m) => F('platform', 'contact-field-shape', 'warning', m) });
+      // The third argument is the warn FUNCTION itself (contact-field-shapes.mjs:155). It was passed as { warn }, so the first
+      // finding threw "warn is not a function", the catch below swallowed it, and every platform lint after this line was
+      // silently skipped in check_workflow (live 2026-09-29, live-W26-check-types.json).
+      lintContactFieldTemplates(T, T.map((t) => t.id), (m) => F('platform', 'contact-field-shape', 'warning', m));
       for (const f of lintEntryStep(T)) F('platform', f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : {});
       // The publish validator's STRUCTURAL rules. Publish is the only validator that matters:
       // 21 workflows passed check_workflow with 0 errors and the PUT refused three of them.

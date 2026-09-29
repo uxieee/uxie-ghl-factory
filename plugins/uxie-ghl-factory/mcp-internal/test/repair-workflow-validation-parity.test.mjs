@@ -120,3 +120,14 @@ test('a goto with a step after it warns (graph-context), and the preview carries
   assert.equal(preview.data.preview.assetPreflight.warnings.length, 1);
   assert.deepEqual(calls.filter((c) => c.method === 'PUT'), [], 'the preview wrote nothing');
 });
+
+// wave27: repair_workflow called lintContactFieldTemplates(..., { warn }) — an object where the function is expected — so a
+// repair whose document held a flagged contact-field write THREW "warn is not a function" instead of warning.
+test('a repair whose document holds an empty update_field_data write warns (it used to throw)', async () => {
+  const uf = (value) => ({ id: 'uf', type: 'update_contact_field', name: 'Write', next: null, parentKey: null, order: 0,
+    attributes: { type: 'update_contact_field', actionType: 'update_field_data', fields: [{ field: 'F1', title: '', type: 'string', date: '', value }] } });
+  const { gw } = gateway([uf('x')]);
+  const r = await run(gw, [uf('')], { confirm: true });
+  assert.equal(r.ok, true, JSON.stringify(r).slice(0, 400));
+  assert.ok((r.data?.warnings ?? []).some((w) => /CONTACT_FIELD_CLEAR_MISMATCH/.test(w)), JSON.stringify(r.data?.warnings));
+});

@@ -264,3 +264,21 @@ test('nothing throws on an empty or hostile document', () => {
     assert.ok(Array.isArray(r.platform) && Array.isArray(r.hygiene));
   }
 });
+
+// live 2026-09-29 (knowledge sniffs/workflows-wave1-2026-09-25/live-W26-check-types.json): check_workflow on a workflow holding an
+// empty update_field_data write returned lints.notEvaluable ["platform crashed: warn is not a function"]. The contact-field lint
+// takes the warn FUNCTION; the runner passed { warn }. The first finding threw, the catch swallowed it, and every platform lint
+// AFTER it (entry step, publish rules, opportunity writes, formatter skips, trigger rows, name length) was silently skipped.
+test('a flagged contact-field write is REPORTED, and does not hide the platform lints that run after it', () => {
+  const emptyWrite = { id: 'uf', type: 'update_contact_field', name: 'Write', next: null, parentKey: null, order: 0,
+    attributes: { type: 'update_contact_field', actionType: 'update_field_data', fields: [{ field: 'F1', title: '', type: 'string', date: '', value: '' }] } };
+  const longName = { id: 'nm', type: 'add_contact_tag', name: 'x'.repeat(400), next: null, parentKey: 'uf', order: 1, attributes: { tags: ['t'] } };
+  const r = runLints({ templates: [emptyWrite, longName], triggers: [] }, { catalog });
+  assert.deepEqual(r.notEvaluable.filter((n) => /crashed/.test(n)), [], 'no layer may crash');
+  assert.ok(r.platform.some((f) => f.rule === 'contact-field-shape' && /CONTACT_FIELD_CLEAR_MISMATCH/.test(f.msg)), 'the empty write is reported');
+  assert.ok(r.platform.some((f) => /name/i.test(f.rule) || /name/i.test(f.msg)), 'a lint that runs AFTER the contact-field lint still ran (name length)');
+  // CONTROL: the same document with a real value reports no contact-field finding, and still does not crash.
+  const clean = runLints({ templates: [{ ...emptyWrite, attributes: { ...emptyWrite.attributes, fields: [{ ...emptyWrite.attributes.fields[0], value: 'x' }] } }], triggers: [] }, { catalog });
+  assert.deepEqual(clean.notEvaluable.filter((n) => /crashed/.test(n)), []);
+  assert.equal(clean.platform.some((f) => f.rule === 'contact-field-shape'), false);
+});
