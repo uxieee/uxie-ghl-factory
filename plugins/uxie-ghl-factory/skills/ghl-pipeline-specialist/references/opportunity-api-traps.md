@@ -18,6 +18,9 @@ Every item was executed on the designated test sub-account and read back on a se
   own. Restore the **pipeline** instead: Settings › Audit logs › Pipeline · Deleted › Restore
   (`POST /opportunities/pipelines/{id}/restore {}`). That brought back the pipeline and its card four
   days after the delete. A single-opportunity delete is restored from its own row.
+- **Deleting a contact deletes its opportunities.** Each card gets its own Opportunity · Deleted audit row.
+  Restoring a card from that row (`PUT /opportunities/{id}/restore {forceRestore:true}`) brings the card
+  back **and restores the deleted contact with it**. Warn before deleting a contact that holds deals.
 - **`PATCH …/position` with an empty body moves the pipeline.** `raw_request` refuses it without
   `targetPosition`.
 - The update body is the GET row with `id`, `position`, `dateAdded`, `dateUpdated`, `locationId`
