@@ -881,3 +881,55 @@ test('CONTROL: a branching reply wait with a positive timeout compiles unchanged
   const c = compile(ir, ctx()).autoSaveBody.workflowData.templates.find((s) => s.type === 'wait');
   assert.deepEqual(c.attributes.startAfter, { type: 'hours', value: 2, when: 'after' });
 });
+
+// wave22 (completeness sweep 2026-09-29 §3 #5): emailAttributes built a fixed key set, so "send to associated contacts"
+// (emailRecipients + associationLabels, Email.ts:108-164) and the linked-snippet attachment snapshot vanished silently.
+const emailIR = (attrs) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'e', kind: 'action', type: 'email', name: 'Mail', attributes: { subject: 'S', html: '<p>x</p>', ...attrs } }] });
+const emailOf = (ir, c = ctx()) => compile(ir, c).autoSaveBody.workflowData.templates.find((s) => s.type === 'email').attributes;
+test('email: emailRecipients, associationLabels and linkedSnippetAttachmentUrls reach the wire', () => {
+  const a = emailOf(emailIR({ emailRecipients: 'all_associated_contacts', associationLabels: [{ associationId: 'ASSOC1' }, { associationId: 'ASSOC2', label: 'Manager' }],
+    linkedSnippetAttachmentUrls: ['https://x.test/a.pdf'] }));
+  assert.equal(a.emailRecipients, 'all_associated_contacts');
+  assert.deepEqual(a.associationLabels, [{ associationId: 'ASSOC1' }, { associationId: 'ASSOC2', label: 'Manager' }]);
+  assert.deepEqual(a.linkedSnippetAttachmentUrls, ['https://x.test/a.pdf']);
+});
+test('email: an unknown emailRecipients mode is refused with the four real ones named', () => {
+  assert.throws(() => emailOf(emailIR({ emailRecipients: 'everyone' })), /enrolled_contacts.*most_recently_associated.*earliest_associated.*all_associated_contacts/);
+});
+test('email: a fan-out mode with no association label warns (the drawer flags it outside Company workflows)', () => {
+  const warns = []; emailOf(emailIR({ emailRecipients: 'most_recently_associated' }), { ...ctx(), warn: (w) => warns.push(w) });
+  assert.ok(warns.some((w) => /associationLabels/.test(w)), JSON.stringify(warns));
+});
+test('CONTROL: an email with none of these keys compiles without them', () => {
+  const a = emailOf(emailIR({}));
+  for (const k of ['emailRecipients', 'associationLabels', 'linkedSnippetAttachmentUrls']) assert.equal(k in a, false, k);
+});
+
+// wave22 (completeness sweep 2026-09-29 §3 #10): internal_notification email/sms/whatsapp dropped the drawer's own
+// recipient keys — followers toggles (FollowerToggleSection.vue), assigned owners (Email.ts:299-320, SMS.ts:262-266,
+// WhatsApp.ts:64-72) and the internal email's bcc (SendEmail.vue:171-216).
+const notifIR = (channel, b) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'n', kind: 'action', type: 'internal_notification', name: 'Notify', attributes: { type: channel, [channel]: b } }] });
+const notifOf = (ir, warns = []) => compile(ir, { ...ctx(), warn: (w) => warns.push(w) }).autoSaveBody.workflowData.templates.find((s) => s.type === 'internal_notification').attributes;
+test('internal_notification email/sms/whatsapp keep assigned owners + follower toggles; email keeps bcc', () => {
+  for (const ch of ['email', 'sms', 'whatsapp']) {
+    const warns = [];
+    const a = notifOf(notifIR(ch, { userType: 'assign', assignedOwners: ['contact_owner', 'opportunity_owner'], alsoNotifyContactFollowers: true,
+      alsoNotifyOpportunityFollowers: true, ...(ch === 'email' ? { subject: 's', html: '<p>h</p>', bcc: '{{custom_values.ops_inbox}}' } : { body: 'b' }) }), warns);
+    assert.deepEqual(a[ch].assignedOwners, ['contact_owner', 'opportunity_owner'], ch);
+    assert.equal(a[ch].alsoNotifyContactFollowers, true, ch); assert.equal(a[ch].alsoNotifyOpportunityFollowers, true, ch);
+    if (ch === 'email') assert.equal(a.email.bcc, '{{custom_values.ops_inbox}}');
+    assert.deepEqual(warns.filter((w) => /NOTIFICATION_KEY_DROPPED/.test(w)), [], ch);
+  }
+});
+test('internal_notification sms/email/whatsapp assign with no owners stamps none (undefined = contact owner in the builder)', () => {
+  assert.equal('assignedOwners' in notifOf(notifIR('sms', { userType: 'assign', body: 'b' })).sms, false);
+});
+test('internal_notification whatsapp refuses a userType the drawer cannot produce', () => {
+  assert.throws(() => notifOf(notifIR('whatsapp', { userType: 'all', body: 'b' })), /whatsapp.*assign.*user/i);
+});
+test('CONTROL: a particular-user email notification carries no owner/follower keys', () => {
+  const a = notifOf(notifIR('email', { userType: 'user', selectedUser: ['U1'], subject: 's', html: '<p>h</p>' }));
+  for (const k of ['assignedOwners', 'alsoNotifyContactFollowers', 'bcc']) assert.equal(k in a.email, false, k);
+});

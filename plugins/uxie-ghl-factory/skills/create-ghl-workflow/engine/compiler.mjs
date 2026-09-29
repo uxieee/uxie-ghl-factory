@@ -778,13 +778,17 @@ function asUserArray(v) {
 // that is NOT here gets dropped by the allowlist — so we warn instead of vanishing it.
 // This is the class fix for the `to` bug: the allowlist design is right (the editor binds
 // to an exact field set), but a silent drop is how a "clean build" ships a dead step.
+// "Assigned owners" and "also notify followers" exist on EVERY channel's drawer, not just in-app (Email.ts:299-320,
+// SMS.ts:262-266, WhatsApp.ts:64-72, FollowerToggleSection.vue); they were dropped on email/sms/whatsapp (sweep 2026-09-29 §3 #10).
+const RECIPIENT_EXTRA_KEYS = ['assignedOwners', 'alsoNotifyContactFollowers', 'alsoNotifyOpportunityFollowers'];
 const NOTIFICATION_EMITTED_KEYS = {
   // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published client-account
   // nodes carry email.template_id + templatesource:'email-builder' and NO inline html; GHL's own
   // guards exempt the body on !<channel>.template_id). Dropping them forced every notification
   // into inline mode and made template-mode impossible to author — found by the enforcement tests.
-  email: ['from_name', 'from_email', 'to', 'userType', 'subject', 'html', 'attachments', 'selectedUser', 'cc', 'preHeader', 'template_id', 'templatesource'],
-  sms: ['body', 'to', 'userType', 'attachments', 'selectedUser', 'template_id'],
+  email: ['from_name', 'from_email', 'to', 'userType', 'subject', 'html', 'attachments', 'selectedUser', 'cc', 'bcc', 'preHeader', 'template_id', 'templatesource',
+    ...RECIPIENT_EXTRA_KEYS],
+  sms: ['body', 'to', 'userType', 'attachments', 'selectedUser', 'template_id', ...RECIPIENT_EXTRA_KEYS],
   // `type` is the DRAWER's own key for the in-app channel (the stored shape reads
   // notification.type); `notificationType` is the authoring alias the builder accepted first.
   // Without `type` here, re-normalising a STORED notification reported its own real key as
@@ -793,16 +797,16 @@ const NOTIFICATION_EMITTED_KEYS = {
   // them here the builder reported the drawer's own fields as dropped.
   notification: ['type', 'notificationType', 'body', 'title', 'redirectPage', 'userType', 'selectedUser',
     'assignedOwners', 'alsoNotifyContactFollowers', 'alsoNotifyOpportunityFollowers'],
-  whatsapp: ['body', 'userType', 'selectedUser', 'template_id'],
+  whatsapp: ['body', 'userType', 'selectedUser', 'template_id', ...RECIPIENT_EXTRA_KEYS],
 };
 
 // The drawer's "Assigned owners" block (Notification.ts:56-64, assigned-owners.ts). Switching
 // userType to `assign` defaults the list to Contact owner; switching to anything else CLEARS it,
 // so stale state cannot leak onto a notification that no longer routes by owner.
 const ASSIGNED_OWNERS = new Set(['contact_owner', 'opportunity_owner']);
-function assignedOwnerKeys(b, userType) {
+function assignedOwnerKeys(b, userType, { defaultOwners = true } = {}) {
   const out = {};
-  if (userType === 'assign') {
+  if (userType === 'assign' && (defaultOwners || Array.isArray(b.assignedOwners))) {
     const authored = Array.isArray(b.assignedOwners)
       ? b.assignedOwners.map((v) => (typeof v === 'string' ? v : v?.value)).filter((v) => ASSIGNED_OWNERS.has(v))
       : [];
@@ -861,9 +865,12 @@ function internalNotificationAttributes(a, ctx) {
         ? { template_id: b.template_id, ...(b.templatesource != null ? { templatesource: b.templatesource } : {}) }
         : { html: b.html ?? '' }),
       ...(b.cc != null ? { cc: b.cc } : {}),
+      ...(b.bcc != null ? { bcc: b.bcc } : {}),
       ...(b.preHeader != null ? { preHeader: b.preHeader } : {}),
       attachments: b.attachments ?? [],
       ...(wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}),
+      // undefined owners = contact owner in the builder (backward-compat default, SMS.ts/Email.ts validators): not stamped.
+      ...assignedOwnerKeys(b, userType, { defaultOwners: false }),
     } };
   }
   if (channel === 'sms') {
@@ -885,6 +892,8 @@ function internalNotificationAttributes(a, ctx) {
       userType,
       attachments: b.attachments ?? [],
       ...(wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}),
+      // undefined owners = contact owner in the builder (backward-compat default, SMS.ts/Email.ts validators): not stamped.
+      ...assignedOwnerKeys(b, userType, { defaultOwners: false }),
     } };
   }
   if (channel === 'notification') {
@@ -901,12 +910,17 @@ function internalNotificationAttributes(a, ctx) {
       ...assignedOwnerKeys(b, userType),
     } };
   }
-  // whatsapp — the staff-facing channel of internal_notification (not the native action)
+  // whatsapp — the staff-facing channel of internal_notification (not the native action). Its drawer offers only
+  // "Assigned owners" and "Particular user" (WhatsApp.ts getUserTypeOptions); anything else cannot be opened there.
+  if (!['assign', 'user'].includes(userType))
+    throw new IRError('NOTIFICATION_USER_TYPE', `internal_notification (whatsapp) userType '${userType}' — the drawer offers only `
+      + "'assign' (assigned owners) and 'user' (a particular user).");
   return { type: 'whatsapp', whatsapp: {
     body: b.body ?? '',
     ...(b.template_id != null && b.template_id !== '' ? { template_id: b.template_id } : {}),
     userType,
-    selectedUser: asUserArray(b.selectedUser),
+    ...(wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}),
+    ...assignedOwnerKeys(b, userType, { defaultOwners: false }),
   } };
 }
 
@@ -1107,6 +1121,7 @@ function waitAttributes(node, ctx) {
 // a bare {subject,html} email shows an error until these are present). Handles both the
 // inline-HTML path and the template path. For template mode the `template_id` must already
 // exist (created via POST /emails/builder by the orchestrator) — a non-existent id errors.
+const EMAIL_RECIPIENT_MODES = ['enrolled_contacts', 'most_recently_associated', 'earliest_associated', 'all_associated_contacts'];
 function emailAttributes(node, ctx) {
   const a = node.attributes ?? {};
   const base = {
@@ -1125,7 +1140,20 @@ function emailAttributes(node, ctx) {
     ...(a.cc != null ? { cc: a.cc } : {}),
     ...(a.bcc != null ? { bcc: a.bcc } : {}),
     ...(a.customSubtypeId != null ? { customSubtypeId: a.customSubtypeId } : {}),
+    // "Send to associated contacts" and the linked-snippet file snapshot (Email.ts:108-164): the same fixed-list
+    // trap as cc/bcc — they used to vanish with no warning (completeness sweep 2026-09-29 §3 #5).
+    ...(a.emailRecipients != null ? { emailRecipients: a.emailRecipients } : {}),
+    ...(a.associationLabels != null ? { associationLabels: a.associationLabels } : {}),
+    ...(a.linkedSnippetAttachmentUrls != null ? { linkedSnippetAttachmentUrls: a.linkedSnippetAttachmentUrls } : {}),
   };
+  if (a.emailRecipients != null && !EMAIL_RECIPIENT_MODES.includes(a.emailRecipients)) {
+    throw new IRError('EMAIL_RECIPIENTS', `email "${node.name ?? node.ref}": emailRecipients '${a.emailRecipients}' is not one of `
+      + `${EMAIL_RECIPIENT_MODES.join(' | ')} (Email.ts EmailRecipientMode).`);
+  }
+  if (a.emailRecipients && a.emailRecipients !== 'enrolled_contacts' && !(Array.isArray(a.associationLabels) && a.associationLabels.length)) {
+    ctx?.warn?.(`email "${node.name ?? node.ref}": emailRecipients '${a.emailRecipients}' with no associationLabels — the drawer flags `
+      + 'the step until a label is chosen, except in a Company workflow (Email.ts validateAssociationLabels).');
+  }
   // "none" is the BUILDER's inline switch (Email.ts::selectTemplate clears template_id and
   // templatesource), and it is TRUTHY — so this branch used to emit template_id:"none" and GHL's
   // validate-assets faulted it exactly like a bogus id: "Referenced Email Template does not exist or
