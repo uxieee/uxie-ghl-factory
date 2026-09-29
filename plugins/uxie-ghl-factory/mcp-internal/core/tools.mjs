@@ -68,6 +68,7 @@ import {
   opsUseMarketplace,
   partitionOps,
   planTriggerOps,
+  planWorkflowNoteOps,
 } from '../../skills/create-ghl-workflow/engine/edit-driver.mjs';
 import { planStickyNoteOp } from '../../skills/create-ghl-workflow/engine/sticky-notes.mjs';
 import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engine/contact-field-shapes.mjs';
@@ -1155,10 +1156,30 @@ async function webhookReferenceFor(gw, loc, triggers) {
   return { triggerId: tid, payload: r.json?.payload ?? null };
 }
 
+/**
+ * The asset catalogue a publish or repair gate needs, for the workflow's OWN type (bl-309). Both paths
+ * used to pass `assets: null`, so the document gate could not tell a first-party step from a typo: every
+ * step with no native card (a company step, Find company, …) drew "not a known step type (marketplace
+ * types were not available to rule it out)" although it was correct and had just run live (R7-3b,
+ * 2026-09-29). Read only when some step would reach that check — a native-only document stays
+ * network-identical — and scoped like the builder's own read (assetsPath: company, custom-object and
+ * contact workflows each get their own catalogue). A failed read returns null: the old warning, not a refusal.
+ */
+async function gateAssetsFor(gw, loc, doc, templates, catalog) {
+  // Two checks need the list: STEP_TYPE (a step with no native card) and ATTRIBUTE_KEY, which skips an
+  // asset-LABELLED step (workflowsActionType) only when the list confirms the key — without it, a
+  // builder-made Find company drew "unknown attribute key(s) [cat, convertToMultipath, transitions,
+  // __name__]" on publish once bl-310 gave it a card (live 2026-09-29, live-W24-bl309-main.json).
+  const needs = (templates ?? []).some((t) => typeof t?.type === 'string' && t.isMarketplaceAction !== true
+    && (!catalog?.step?.(t.type) || typeof t.workflowsActionType === 'string'));
+  if (!needs) return null;
+  try { const r = await gw.call('GET', assetsPath(loc, doc)); return r?.ok ? r.json : null; } catch { return null; }
+}
+
 async function workflowValidationGate({
   gw, loc, wid, fresh, document, templates, triggers, scope, catalog, assets, allow, warnings, waive = null,
   intent = 'edit', status = null, settings = null, senderDomain, webhookReference, skipWorkflowRules = false,
-  baselineTriggers,
+  baselineTriggers, unknownStepSeverity = null,
 }) {
   let marketplaceTypes = null;
   try { marketplaceTypes = assets ? new Set(parseActionSchema(assets).keys()) : null; } catch { marketplaceTypes = null; }
@@ -1172,7 +1193,7 @@ async function workflowValidationGate({
   } : null;
   const v = await validateForWrite({
     call, loc, wid, document, templates, triggers, catalog, marketplaceTypes, scope, waive, baseline, allow,
-    intent, status, settings, senderDomain, webhookReference, skipWorkflowRules, baselineDocument,
+    intent, status, settings, senderDomain, webhookReference, skipWorkflowRules, baselineDocument, unknownStepSeverity,
   });
   for (const f of v.engine.warnings) warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
   for (const f of v.canvas.warnings) warnings.push(`VALIDATION CANVAS: '${f.stepName ?? f.stepId}': ${f.message} (outside this write's scope)`);
@@ -4075,6 +4096,82 @@ export const TOOLS = [
     }, args),
   },
   {
+    name: 'get_contact_workflow_history',
+    description: describe(
+      'get_contact_workflow_history',
+      'One contact\'s (or one company record\'s) workflow runs, newest first: every enrolment with the workflow NAME beside '
+      + 'its id, the run\'s status, when it entered, and the step it is at or ended on. Pass workflowId to narrow to that '
+      + 'workflow\'s runs of the contact. Paged: pass back `nextCursor` until it is null. '
+      + 'Use it for "which workflows has this contact been through, and where is it now". For "what happened inside '
+      + 'workflow X" (each step\'s outcome, skips, errors) use get_workflow_logs — this tool returns runs, not step logs. '
+      + 'A company workflow\'s record is addressed as contactId "business_<company id>". '
+      + 'Each run id is what get_workflow_logs takes as its executionId filter.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      contactId: z.string().describe('A contact id, or "business_<company id>" for a company record.'),
+      workflowId: z.string().optional().describe('Only this workflow\'s runs of the contact.'),
+      limit: z.number().int().min(1).max(100).default(20),
+      cursor: z.string().optional().describe('The nextCursor of the previous page.'),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflows/status/search/contact-executions' },
+      { method: 'GET', path: '/workflows/status/search/workflow-with-filter' },
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const limit = args.limit ?? 20;
+      // THE CURSOR is the reference of the LAST run this tool returned. The two routes page differently (live 2026-09-29):
+      //  - contact-executions takes ONLY referenceSid and starts AFTER it; referenceCreatedAt / referenceId answer 422
+      //    "property … should not exist", although the map's own source still sends all three
+      //    (services/api/workflow-status-service.ts) — knowledge sniffs/workflows-wave1-2026-09-25/live-W24-history.json.
+      //  - workflow-with-filter takes referenceId + referenceCreatedAt (+ referenceSid) and is INCLUSIVE of the
+      //    reference row (measured 2026-08-02).
+      // Either way a next page drops a leading row equal to the cursor, so both semantics lose nothing.
+      let ref = null;
+      if (args.cursor) {
+        try { ref = JSON.parse(Buffer.from(args.cursor, 'hex').toString('utf8')); } catch { ref = null; }
+        if (!ref?.i || !ref?.c || (!args.workflowId && !ref.s) || (ref.w ?? null) !== (args.workflowId ?? null) || ref.k !== args.contactId)
+          return fail(CODES.VALIDATION_FAILED, 'cursor is not a nextCursor this tool returned for the same contact and workflowId',
+            'Pass back nextCursor exactly as returned, with the same contactId and workflowId; omit it for the first page.');
+      }
+      const q = new URLSearchParams({ action: ref ? 'next' : 'first', contactId: args.contactId, limit: String(limit + (ref ? 2 : 1)), locationId: args.locationId });
+      if (args.workflowId) q.set('workflowId', args.workflowId);
+      if (ref && args.workflowId) { q.set('referenceCreatedAt', ref.c); q.set('referenceId', ref.i); if (ref.s) q.set('referenceSid', ref.s); }
+      else if (ref) q.set('referenceSid', ref.s);
+      const path = args.workflowId ? '/workflows/status/search/workflow-with-filter' : '/workflows/status/search/contact-executions';
+      const r = await gw.call('GET', `${path}?${q}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      let rows = Array.isArray(r.json?.statuses) ? r.json.statuses : [];
+      if (ref && rows[0]?._id === ref.i) rows = rows.slice(1);
+      const more = rows.length > limit;
+      const page = rows.slice(0, limit);
+      // Names beside ids: one workflow read per distinct workflow on the page.
+      const names = new Map();
+      for (const wid of [...new Set(page.map((x) => x.workflowId).filter(Boolean))]) {
+        const w = await gw.call('GET', `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(wid)}`);
+        names.set(wid, w.ok ? (w.json?.name ?? null) : null);
+      }
+      const last = page.at(-1);
+      const nextCursor = more && last && (args.workflowId || last.sid)
+        // HEX, not base64: base64 of a JSON object starts `eyJ`, which the result scrubber reads as a JWT and redacts.
+        ? Buffer.from(JSON.stringify({ c: last.createdAt, i: last._id, s: last.sid ?? null, w: args.workflowId ?? null, k: args.contactId })).toString('hex')
+        : null;
+      return ok({
+        contactId: args.contactId,
+        ...(args.workflowId ? { workflowId: args.workflowId } : {}),
+        runs: page.map((x) => ({
+          runId: x._id, workflowId: x.workflowId ?? null, workflowName: names.get(x.workflowId) ?? null,
+          status: x.status ?? null, enteredAt: x.createdAt ?? null, updatedAt: x.updatedAt ?? null,
+          step: x.currentStepName || x.currentStepType ? { name: x.currentStepName ?? null, type: x.currentStepType ?? null } : null,
+        })),
+        nextCursor,
+        ...(nextCursor ? { next: 'call again with cursor: nextCursor for older runs' } : {}),
+      });
+    }, args),
+  },
+  {
     name: 'get_workflow_stats',
     description: describe(
       'get_workflow_stats',
@@ -5598,7 +5695,7 @@ export const TOOLS = [
       + 'disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteBranch {containerId, branch} (an author-defined branch and everything under it), deleteContainer, repairParentKeys, addStepNote, '
       + 'duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, '
       + 'modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} — a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; deleteTrigger, duplicateTrigger; '
-      + 'settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. '
+      + 'settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote, setWorkflowNote {content} ("" clears; bumps the version). '
       + 'Names in steps and triggers resolve to ids (ignoreUnresolved to bypass). '
       + 'Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, '
       + "GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on "
@@ -5686,6 +5783,8 @@ export const TOOLS = [
       // Sticky notes (addStickyNote / updateStickyNote ops) — a separate resource, not the document.
       { method: 'POST', path: '/workflows/sticky-note' },
       { method: 'PATCH', path: '/workflows/sticky-note' },
+      // setWorkflowNote: the workflow's own note (bumps the version)
+      { method: 'PUT', path: '/workflow/{loc}/update-workflow-note/{wid}' },
       // The build path's pre-write validators, ported to edit. Asset preflight is stateless
       // (payload in, verdict out — nothing written); the sandbox runs code without touching the
       // account; the readiness reads run ONLY when a touched step's channel needs them.
@@ -5851,6 +5950,8 @@ export const TOOLS = [
         idGen,
         catalog: loadCatalog(),
         marketplace,
+        // an object-based workflow's triggers carry its schema key as objectKey (buildTrigger, bl-311)
+        ...(typeof fresh?.customObjectType === 'string' ? { customObjectType: fresh.customObjectType } : {}),
         ...(customFields !== undefined ? { customFields } : {}),
         ...(customValues !== undefined ? { customValues } : {}),
         ...(args.strictMergeTags === false ? { strictMergeTags: false } : {}),
@@ -5878,7 +5979,7 @@ export const TOOLS = [
         }
         for (const u of resolved.unresolved) warnings.push(`UNRESOLVED (ignored): ${u.where} '${u.name}'`);
       }
-      const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
+      const { stepOps, triggerOps, settingsOps, stickyOps, noteOps } = partitionOps(editOps);
       // THE CLONE TRAP (backlog 29, D-86). Field ids — STANDARD fields included — differ per
       // account: `contact.last_name` is one id on account A and another on account B, and both
       // resolve through GET /locations/{loc}/customFields/{id} (dataType STANDARD_FIELD). A
@@ -5910,6 +6011,7 @@ export const TOOLS = [
       // Sticky notes — a SEPARATE resource (POST/PATCH /workflows/sticky-note); planned now so a bad
       // note fails the preview, written after the step commit and trigger writes.
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
+      const notePlan = planWorkflowNoteOps(noteOps, { loc: args.locationId, wid: args.workflowId });
       const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen, stepIndexCounter: fresh?.meta?.stepIndexCounter });
       // PARKED CONTACTS ON A DELETED STEP ARE EJECTED (backlog 23, D-83): the run ends with
       // `step_was_deleted_by_user`, and an autonomous trigger does not re-fire for them in that
@@ -6085,7 +6187,7 @@ export const TOOLS = [
       // draft that carried an unrelated rule violation, which the builder never does (2026-09-23).
       const writesDocument = stepOps.length > 0 || Boolean(settingsPatch) || triggerOps.length > 0;
       const validation = !writesDocument
-        ? { refusal: null, report: { skipped: 'sticky-note-only edit: nothing in the workflow document or its triggers is written' } }
+        ? { refusal: null, report: { skipped: 'note-only edit (sticky notes / workflow note): nothing in the workflow document or its triggers is written' } }
         : await workflowValidationGate({
         // No `templates` here on purpose: the gate must judge the DOCUMENT, whose templates the commit
         // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
@@ -6120,6 +6222,7 @@ export const TOOLS = [
           .map((k) => [k, k === 'statsView' ? (commitBody.meta?.statsView ?? false) : commitBody[k]]));
       }
       if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
+      if (notePlan) preview.workflowNote = { method: notePlan.method, path: notePlan.path, chars: notePlan.body.content.length, clears: notePlan.body.content === '', bumpsVersion: true };
       if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
       // The ported build-path pre-flight verdicts, visible while the edit can still be changed.
       if (assetPreflight) preview.assetPreflight = assetPreflight;
@@ -6384,6 +6487,24 @@ export const TOOLS = [
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
       partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
+      // setWorkflowNote — written LAST, after the document round trip, because it bumps the workflow version (measured
+      // 2 → 3); read back on its own GET.
+      let workflowNote = null;
+      if (notePlan) {
+        const noteCall = await attemptWrite('workflow_note_write', () => gw.call(notePlan.method, notePlan.path, notePlan.body));
+        if (noteCall.threw || !noteCall.value.ok) {
+          return partialFailure(
+            noteCall.threw ? noteCall.failure : fromHttp(noteCall.value.status, noteCall.value.json),
+            'workflow_note_write',
+            'Every other write in this edit is committed; only the workflow note failed. Re-run setWorkflowNote alone.',
+          );
+        }
+        const back = await getWorkflow(gw, args.locationId, args.workflowId);
+        const note = back.ok ? (back.json?.workflowNote ?? null) : null;
+        workflowNote = { applied: back.ok && (note?.content ?? '') === notePlan.body.content, content: note?.content ?? null,
+          updatedByName: note?.updatedByName ?? null, updatedAt: note?.updatedAt ?? null, versionAfter: back.ok ? (back.json?.version ?? null) : null };
+        if (!workflowNote.applied) warnings.push('WORKFLOW_NOTE_NOT_APPLIED: the note write answered OK but the read-back does not carry the text sent.');
+      }
       const requiresPublish = triggerPlan.some((request) => triggerRequiresPublish(request, fresh.status));
       const data = {
         workflowId: args.workflowId,
@@ -6396,6 +6517,7 @@ export const TOOLS = [
         triggerChangesApplied: partialProgress.triggerWrites.applied,
         stickyNotesApplied: partialProgress.stickyNotes.applied,
         stickyNoteIds: partialProgress.stickyNotes.ids,
+        ...(workflowNote ? { workflowNote } : {}),
         requiresPublish,
         publishInstruction: triggerPublishInstruction(triggerPlan, fresh.status, { committed: true }),
         verify,
@@ -6641,7 +6763,8 @@ export const TOOLS = [
         ? await senderDomainFor(gw, args.locationId, args.workflowId, repairFromEmail, catalog) : undefined;
       const validation = await workflowValidationGate({
         gw, loc: args.locationId, wid: args.workflowId, fresh, document: commitBody, triggers: gateTriggers,
-        scope: touchedIds, catalog, assets: null, allow: args.allowValidationFailure === true, warnings,
+        scope: touchedIds, catalog, assets: await gateAssetsFor(gw, args.locationId, fresh, args.templates, catalog), unknownStepSeverity: 'warning',
+        allow: args.allowValidationFailure === true, warnings,
         intent: 'repair', status: fresh.status, skipWorkflowRules: args.skipWorkflowRules,
         settings: { senderAddress: fresh.senderAddress },
         senderDomain: repairSenderDomain,
@@ -6856,6 +6979,8 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/{loc}/email/domain-selection' },
       // inboundWebhookTriggerValidator needs the webhook's mapped sample — read only when there is one.
       { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
+      // bl-309: the catalogue for the workflow's own type, read only when a step has no native card.
+      { method: 'GET', path: '/workflows-marketplace/location/{loc}/assets' },
       { method: 'PUT', path: '/workflow/{loc}/{wid}' },
       // REPAIR (added 2026-08-28): one per-trigger status write for any trigger still
       // inactive after the document PUT's own cascade — see the handler's measurement note.
@@ -6889,7 +7014,9 @@ export const TOOLS = [
       const validation = await workflowValidationGate({
         gw, loc: args.locationId, wid: args.workflowId, fresh: null, document: current,
         triggers: listed.triggers,
-        scope: null, catalog: publishCatalog, assets: null, allow: args.allowValidationFailure === true, warnings: publishWarnings,
+        scope: null, catalog: publishCatalog,
+        assets: await gateAssetsFor(gw, args.locationId, current, current?.workflowData?.templates, publishCatalog), unknownStepSeverity: 'warning',
+        allow: args.allowValidationFailure === true, warnings: publishWarnings,
         // intent 'publish' is what turns on the publish-only rules (an empty workflow, a goto with
         // no target) and the canvas's stored error flag — the two layers this path never ran.
         intent: 'publish', status: current?.status ?? null, skipWorkflowRules: args.skipWorkflowRules,

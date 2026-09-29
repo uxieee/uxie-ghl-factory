@@ -17,7 +17,7 @@ const SCOPE_KEYS = ['onEvent', 'onTimeout', 'onFound', 'onNotFound', 'onBooked',
 // round-trip for a fraction of the authored IR (found live 2026-07-16: a 51-step IR
 // reported "steps: 8 | round-trip: 8 clean"). Normalize the alias here, once, so both
 // spellings reach the compiler as { kind:'action', type:'<container>' }.
-const CONTAINER_KINDS = new Set(['find_opportunity', 'find_contact', 'lc_merge_contact']);
+const CONTAINER_KINDS = new Set(['find_opportunity', 'find_contact', 'lc_merge_contact', 'co_find_company_record']);
 
 // Every node-level key the compiler actually reads. A key outside this set is author
 // intent the engine would silently discard — see checkNodeKeys.
@@ -27,7 +27,7 @@ const KNOWN_NODE_KEYS = new Set([
   'marketplace',                            // third-party app step (see marketplace.mjs)
   'config', 'window', 'waitType',          // wait
   'branches', 'paths', 'mode', 'condition', // if_else / split
-  'find', 'match_by',                       // find_opportunity / find_contact / lc_merge_contact
+  'find', 'match_by',                       // find_opportunity / find_contact / lc_merge_contact / co_find_company_record
   'reply', 'timeout',                       // multipath wait
   'instructions', 'information',            // ai_decision
   'inputText',                              // ai_intent
@@ -40,8 +40,8 @@ const KNOWN_NODE_KEYS = new Set([
 // `onFound` on a plain action is the item-1 failure in miniature: authored, never read.
 const SCOPE_OWNERS = {
   onEvent: ['wait'], onTimeout: ['wait'],
-  onFound: ['find_opportunity', 'find_contact', 'lc_merge_contact'],
-  onNotFound: ['find_opportunity', 'find_contact', 'lc_merge_contact'],
+  onFound: ['find_opportunity', 'find_contact', 'lc_merge_contact', 'co_find_company_record'],
+  onNotFound: ['find_opportunity', 'find_contact', 'lc_merge_contact', 'co_find_company_record'],
   // Both Conversation-AI booking containers use these scopes: book_appointment books into a GHL
   // calendar, services_booking into a commerce service. Same two pre-defined branches.
   onBooked: ['conversationai_book_appointment', 'conversationai_services_booking'],

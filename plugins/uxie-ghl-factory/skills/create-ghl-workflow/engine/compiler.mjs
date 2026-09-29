@@ -172,6 +172,17 @@ const MARKETPLACE_ENVELOPE_KEYS = new Set([
 // with none). marketplaceAttributes (the STEP path) always asks for 'action'; buildTrigger
 // (the TRIGGER path) always asks for 'trigger'. See marketplace.mjs's buildMarketplaceIndex
 // for the split index this depends on.
+// The keys a step's OWN dynamic generator defines as inputs (bl-311 b). The builder renders and saves them, but the
+// static `inputs` list only shows the DYNAMIC placeholder, so a correct key read as "not declared": associate_records'
+// associatedObject / filter_on / associationLabel and add|remove_associated_records' WorkflowId / associationLabel
+// (live assets 2026-09-29, knowledge sniffs/workflows-wave1-2026-09-25/live-R7-8-assets-all.json). Read only from that
+// step's own generator source, only as `field: "<key>"` definitions — no blanket suppression.
+export function generatorDeclaredKeys(entry) {
+  const src = (entry?.inputs ?? []).filter((f) => f?.field === 'DYNAMIC')
+    .map((f) => f?.dynamicFieldsConfig?.customGenerator ?? '').join('\n');
+  return new Set([...src.matchAll(/["']?field["']?\s*:\s*["'`]([A-Za-z_][A-Za-z0-9_]*)["'`]/g)].map((m) => m[1]));
+}
+
 export function marketplaceEntry(node, ctx, kind) {
   const entry = ctx?.marketplace?.get?.(node.type, kind);
   const readFailed = ctx?.marketplace?.readFailed ?? {};
@@ -294,14 +305,36 @@ function marketplaceAttributes(node, ctx) {
   // Unknown keys WARN rather than throw: `connected_phone` in the live capture maps to a
   // DYNAMIC pseudo-field that `inputs` does not list under that name, so a hard allowlist
   // would reject a shape the builder accepts.
-  const declared = new Set(entry.inputs.map((f) => f?.field).filter(Boolean));
+  const declared = new Set([...entry.inputs.map((f) => f?.field).filter(Boolean), ...generatorDeclaredKeys(entry)]);
   for (const key of Object.keys(out)) {
     if (MARKETPLACE_ENVELOPE_KEYS.has(key) || declared.has(key)) continue;
     ctx?.warn?.(`marketplace step '${node.ref}' (${node.type}) sets '${key}', which "${entry.appName}" `
       + `does not declare in its inputs. It will be stored verbatim; confirm the key is right.`);
   }
+  const behaviour = ASSET_BEHAVIOUR_WARNINGS[node.type]?.(out);
+  if (behaviour) ctx?.warn?.(`${behaviour.code}: step '${node.ref}' (${node.type}): ${behaviour.message}`);
   return out;
 }
+
+// What a correct asset step DOES that its drawer does not say — measured live, so an author hears it before the run
+// (coordinator ruling 2026-09-29). Warnings, not refusals: each is legal and sometimes intended.
+const ASSET_BEHAVIOUR_WARNINGS = {
+  // A differential on two PUBLISHED company workflows: the step named one, and the record's runs in BOTH ended in the
+  // same second (knowledge sniffs/workflows-wave1-2026-09-25/live-R7-7-remove-differential.json; corpus 40-rules/
+  // remove-associated-records-ends-every-run.md).
+  remove_associated_records_from_workflow: () => ({ code: 'REMOVE_ENDS_OTHER_RUNS',
+    message: 'GHL ends the associated record\'s runs in OTHER workflows too, not only the one named in WorkflowId '
+      + '(measured: a company in two published workflows left both). Do not use it while the record must stay in another '
+      + 'workflow; put the exit inside that workflow instead.' }),
+  // Company-mode clear logs success and changes nothing (live-R7-2-company-runtime.json; contact mode does apply,
+  // live-R7-6-contact-mode-runtime.json; corpus 40-rules/company-field-clear-not-applied.md).
+  clear_fields_of_company_or_associated_contact: (a) => (a?.associationId === 'COMPANY' ? { code: 'CLEAR_NOT_APPLIED',
+    message: 'clearing a COMPANY field logs success and leaves the value unchanged (measured). Only contact mode '
+      + '(associationId BUSINESSES_CONTACTS_ASSOCIATION) has been shown to blank a field.' } : null),
+  clear_associated_company_fields: () => ({ code: 'CLEAR_NOT_APPLIED',
+    message: 'clearing a company field logs success and leaves the value unchanged (measured twice, 2026-09-28), and on a '
+      + 'contact with no company the step FAILS (an error notification to every admin). No step has been shown to blank a company field.' }),
+};
 
 // Fill structural attribute fields from the catalog's verified-live shape. Only
 // touches fields the real persisted example carried, so a bare intent authoring
@@ -1875,6 +1908,53 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
 
+    // co_find_company_record (Find company) — the company workflow's finder: a multipath container with PRE-DEFINED
+    // "Company Found" / "Company Not Found" branches, emitted exactly as the builder stores it (knowledge
+    // sniffs/workflows-wave1-2026-09-25/live-R7-1-builder-find-company-capture.json): `transitions[].fields` is an
+    // OBJECT and each branch key a fresh uuid. Rows are authored at node level, find.filters: [{ field, value }], where
+    // `field` is the builder's typed key `<field key>__<DATA TYPE>` (business.name__TEXT). GHL's rulebook requires an
+    // inbound_webhook trigger (validateRequiredTriggersForActions), and the asset says the step is skipped when a
+    // company trigger started the run.
+    if (n.type === 'co_find_company_record') {
+      if (n.attributes?.__customInputFields__ !== undefined)
+        throw new IRError('FIND_FILTERS_MISPLACED',
+          `co_find_company_record '${n.ref ?? n.name}' authors attributes.__customInputFields__ — that is the emitted shape. `
+          + `Author find.filters: [{ field: 'business.name__TEXT', value: '{{inboundWebhookRequest.<path>}}' }].`);
+      const filters = n.find?.filters ?? [];
+      const badField = filters.find((f) => !/^[a-z][a-z0-9_]*\.[A-Za-z0-9_]+__[A-Z_]+$/.test(String(f?.field ?? '')));
+      if (!filters.length || badField)
+        throw new IRError('FIND_COMPANY_FILTER',
+          `co_find_company_record '${n.ref ?? n.name}' needs find.filters rows whose field is the builder's typed key `
+          + `'<field key>__<DATA TYPE>' (e.g. business.name__TEXT)${badField ? `; got '${badField.field}'` : ''}.`);
+      const filterOn = n.find?.filter_on ?? 'earliest';
+      if (!['earliest', 'latest'].includes(filterOn))
+        throw new IRError('FIND_COMPANY_FILTER', `co_find_company_record '${n.ref ?? n.name}': find.filter_on is 'earliest' or 'latest'.`);
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const container = {
+        id, type: 'co_find_company_record', name: n.name, order: i, parentKey, cat: 'multi-path',
+        workflowsActionType: 'INTERNAL', next: [t1, t2],
+        attributes: {
+          filter_on: filterOn, type: 'co_find_company_record',
+          __customInputFields__: filters.map((f) => ({ __customInputs__: {}, filterField: f.field, valueField: f.value })),
+          __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
+          transitions: [
+            { id: t1, name: 'Company Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Company Not Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+          ],
+          __name__: n.name,
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: 'transition', name: 'Company Found', cat: 'transition', parentKey: id, parent: id, order: 1, attributes: {}, ...(found.entryId ? { next: found.entryId } : {}) });
+      templates.push(...found.templates);
+      const notf = flattenGraph(n.onNotFound ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: 'transition', name: 'Company Not Found', cat: 'transition', parentKey: id, parent: id, order: 1, attributes: {}, ...(notf.entryId ? { next: notf.entryId } : {}) });
+      templates.push(...notf.templates);
+      return;
+    }
+
     if (n.kind === 'goto') {
       // Resolve the target id (forward refs legal — pre-assign if not seen yet;
       // the target node reuses this id when its own scope is walked).
@@ -2508,7 +2588,10 @@ function customDateReminderParts(t, ctx) {
   };
 }
 
-export function buildTrigger(t, ctx, wid, refMap) {
+// opts.objectKey: the workflow's customObjectType. The builder stamps it on EVERY trigger of an object-based workflow
+// (TriggerMain.ts:935-937) and the stored trigger keeps it; one created without it stores objectKey null (bl-311,
+// live 2026-09-29: knowledge sniffs/workflows-wave1-2026-09-25/live-R7-4-pets-trigger-readback.json).
+export function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
   const meta = ctx.catalog.trigger(t.type);
   const rows = meta?.filterRows ?? [];
   let conditions = (t.filters ?? []).map((f) => expandFilter(f, rows, { ctx, meta }));
@@ -2545,6 +2628,11 @@ export function buildTrigger(t, ctx, wid, refMap) {
     // validator refuse every first-party trigger: "Master Type has an invalid value". UI-built
     // evidence agrees — 16 stored triggers carry 'internal', none of 710 carries 'marketplace'.
     marketplaceMasterType = entry.publisher ? 'internal' : 'marketplace';
+    // ...and the builder then copies the asset's label onto the trigger (TriggerMain.ts:930-931:
+    // masterType 'internal' → workflowsTriggerType = the asset's). Without it the stored trigger lacked the
+    // field a builder-made one carries (bl-311; it still fired: live-R7-1-builder-company-capture.json vs
+    // live-R7-2-company-runtime.json).
+    if (entry.publisher) marketplaceFields.workflowsTriggerType = entry.publisher;
     Object.assign(marketplaceFields, integrationAccountFor(t, entry.publisher, 'trigger', ctx));
     // A marketplace condition addresses the event payload by dotted path, and the stored
     // shape carries `id` and `field` as the SAME string. It also carries the filter's TYPE and
@@ -2707,6 +2795,7 @@ export function buildTrigger(t, ctx, wid, refMap) {
     // sends it (captured live 2026-07-27 from its own POST) and GHL persists it, so mirror
     // it wherever the catalog records one — and never invent it where it does not.
     ...(meta?.workflowsTriggerType ? { workflowsTriggerType: meta.workflowsTriggerType } : {}),
+    ...(typeof objectKey === 'string' && objectKey.startsWith('custom_objects.') ? { objectKey } : {}),
     active: t.active !== false, triggersChanged: true,
     location_id: ctx.loc, company_id: ctx.cid, company_age: ctx.companyAge,
     // NOTE: convTriggerBotId is deliberately NOT emitted here — GHL discards it (see above).
@@ -2983,7 +3072,7 @@ export function compile(ir, ctx) {
   };
 
   const triggerBodies = norm.triggers.map((t, i) => {
-    const body = buildTrigger(t, ctx, wid, refMap);
+    const body = buildTrigger(t, ctx, wid, refMap, { objectKey: norm.customObjectType ?? null });
     const placeholder = triggerRefs.get(t.ref ?? `__trigger_${i}`);
     return {
       ...body,

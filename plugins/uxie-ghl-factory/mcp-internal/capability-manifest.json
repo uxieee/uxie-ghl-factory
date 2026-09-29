@@ -355,6 +355,21 @@
     "path": "/workflow/{loc}/drip-schedule/{wid}/step/{stepId}/contacts"
   },
   {
+    "tool": "get_contact_workflow_history",
+    "method": "GET",
+    "path": "/workflows/status/search/contact-executions"
+  },
+  {
+    "tool": "get_contact_workflow_history",
+    "method": "GET",
+    "path": "/workflows/status/search/workflow-with-filter"
+  },
+  {
+    "tool": "get_contact_workflow_history",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
     "tool": "get_workflow_stats",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"
@@ -1156,6 +1171,11 @@
   },
   {
     "tool": "edit_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/update-workflow-note/{wid}"
+  },
+  {
+    "tool": "edit_workflow",
     "method": "POST",
     "path": "/workflow/{loc}/validate-assets"
   },
@@ -1358,6 +1378,11 @@
     "tool": "publish_workflow",
     "method": "GET",
     "path": "/hooks/inbound-webhook-request/reference/{triggerId}"
+  },
+  {
+    "tool": "publish_workflow",
+    "method": "GET",
+    "path": "/workflows-marketplace/location/{loc}/assets"
   },
   {
     "tool": "publish_workflow",
