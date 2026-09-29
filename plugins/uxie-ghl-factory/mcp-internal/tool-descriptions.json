@@ -2084,9 +2084,9 @@
     ]
   },
   "get_pipeline_forecast": {
-    "description": "Read the opportunity forecast — proof: live-runtime (2026-09-28); risk: read",
+    "description": "Read the opportunity forecast — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "pipelines-opportunities--forecast-summary",
