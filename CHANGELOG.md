@@ -11,6 +11,45 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.25.0] — 2026-09-29
+
+**Workflows: company workflows end to end, a contact's workflow history, and the workflow note. Executed live on the
+test account.**
+
+### Added
+- `get_contact_workflow_history`: every workflow run of a contact (or of a company record), newest first, with the
+  workflow's name beside its id, the step the run is on, and a cursor for the next page. It can be narrowed to one
+  workflow. Checked against the raw rail: same runs, same order, no duplicates, across four pages.
+- `edit_workflow` `setWorkflowNote`: sets or clears the workflow's own note, then reads it back. The steps are not
+  touched.
+- The engine authors **Find company** (`co_find_company_record`) with its Found and Not Found branches, stored exactly
+  as the builder stores it. Both branches ran live. Not Found is a skipped step that takes its branch, not an error.
+- Company-workflow authoring (`workflowType: business`) is documented in the skill: the catalogue, the entry paths,
+  the traps, and Find company.
+
+### Fixed
+- `publish_workflow` and `repair_workflow` read the step catalogue for the workflow's own type. First-party company
+  steps no longer draw a false "not a known step type" warning, and builder-made steps no longer draw false
+  undeclared-key warnings. An unknown step type is still reported.
+- Engine-built marketplace triggers carry GHL's trigger label, and every trigger of an object workflow carries its
+  `objectKey`, as the builder stores them. The engine-built Company Created trigger fired live.
+- The step catalogue is read from every workflow type, not only contact workflows. The engine now refuses what the
+  builder refuses: *Create company* under a *Company Created* trigger, and *Find company* / *Find object record*
+  without an inbound webhook trigger. The catalogue also gains 14 first-party steps and 14 triggers from GHL's current
+  catalogue. Those are known from GHL's published schema only, not yet run.
+- Three step descriptions shipped a fragment of GHL's own code as their summary. They no longer do.
+
+### Changed
+- ⚠️ The engine warns at author time when a step does something GHL does not show:
+  - *Remove associated records from workflow* also ends that record's runs in OTHER workflows (proven live on two
+    published workflows).
+  - Clearing company fields in company mode is accepted and not applied. Contact mode works.
+- *User logged in* follows GHL's move to a Client Portal trigger. An engine-built draft trigger and a builder-made
+  one stored identically.
+
+### Docs
+- The web-request step's drawer **Test** has no tool; the skill names the route and body to call it with.
+
 ## [1.24.1] — 2026-09-29
 
 **Fix: removing a pipeline stage no longer reports success while GHL silently moves a just-created deal. Executed live
