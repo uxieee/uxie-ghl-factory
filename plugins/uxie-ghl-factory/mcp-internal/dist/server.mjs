@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1537,
+      count: 1542,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -4668,7 +4668,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/30-types/native-elements.md:127"
+            "funnels/30-types/native-elements.md:133"
           ]
         },
         {
@@ -11293,7 +11293,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/00-overview/index.md:29",
-            "funnels/00-overview/index.md:66",
+            "funnels/00-overview/index.md:68",
             "funnels/10-anatomy/websites-and-global-sections.md:300",
             "funnels/20-api/funnel-ai.md:60",
             "funnels/20-api/funnels-api.md:310",
@@ -11844,7 +11844,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/00-overview/index.md:72",
+            "funnels/00-overview/index.md:74",
             "funnels/10-anatomy/domains-and-public-urls.md:33",
             "funnels/10-anatomy/websites-and-global-sections.md:264",
             "funnels/10-anatomy/websites-and-global-sections.md:490",
@@ -12354,6 +12354,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/00-overview/index.md:65",
             "funnels/70-research/2026-09-29-route-census.md:79"
           ]
         },
@@ -23673,7 +23674,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:62"
+            "funnels/50-runtime/analytics.md:63"
           ]
         },
         {
@@ -23916,7 +23917,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:45"
+            "funnels/50-runtime/analytics.md:46"
           ]
         },
         {
@@ -23947,6 +23948,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/50-runtime/analytics.md:82",
             "funnels/70-research/2026-09-29-route-census.md:93"
           ]
         },
@@ -24127,7 +24129,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:50"
+            "funnels/50-runtime/analytics.md:51"
           ]
         },
         {
@@ -24194,24 +24196,17 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "funnels",
           tree: "documented",
           pathParams: [],
-          query: [
-            {
-              name: "sessionBreakdown",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
+          query: [],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "documented",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:75"
+            "funnels/50-runtime/analytics.md:79"
           ]
         },
         {
@@ -40575,9 +40570,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:117",
-            "ai-agents/20-api/agent-logs.md:176",
-            "ai-agents/20-api/agent-logs.md:243"
+            "ai-agents/20-api/agent-logs.md:151",
+            "ai-agents/20-api/agent-logs.md:210",
+            "ai-agents/20-api/agent-logs.md:277"
           ]
         },
         {
@@ -40608,7 +40603,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:30"
+            "ai-agents/20-api/agent-logs.md:30",
+            "ai-agents/20-api/agent-logs.md:104"
           ]
         },
         {
@@ -40640,7 +40636,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:31"
+            "ai-agents/20-api/agent-logs.md:31",
+            "ai-agents/20-api/agent-logs.md:91"
           ]
         },
         {
@@ -40744,7 +40741,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:31"
+            "ai-agents/20-api/agent-logs.md:31",
+            "ai-agents/20-api/agent-logs.md:106"
           ]
         },
         {
@@ -40779,8 +40777,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:119",
-            "ai-agents/20-api/agent-logs.md:228"
+            "ai-agents/20-api/agent-logs.md:153",
+            "ai-agents/20-api/agent-logs.md:262"
           ]
         },
         {
@@ -40816,7 +40814,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:126"
+            "ai-agents/20-api/agent-logs.md:160"
           ]
         },
         {
@@ -40858,9 +40856,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:99",
-            "ai-agents/20-api/agent-logs.md:116",
-            "ai-agents/20-api/agent-logs.md:136"
+            "ai-agents/20-api/agent-logs.md:133",
+            "ai-agents/20-api/agent-logs.md:150",
+            "ai-agents/20-api/agent-logs.md:170"
           ]
         },
         {
@@ -40905,7 +40903,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:65",
-            "ai-agents/20-api/agent-logs.md:127"
+            "ai-agents/20-api/agent-logs.md:161"
           ]
         },
         {
@@ -40949,9 +40947,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:120",
-            "ai-agents/20-api/agent-logs.md:357",
-            "ai-agents/20-api/agent-logs.md:358"
+            "ai-agents/20-api/agent-logs.md:154",
+            "ai-agents/20-api/agent-logs.md:391",
+            "ai-agents/20-api/agent-logs.md:392"
           ]
         },
         {
@@ -40998,9 +40996,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:122",
-            "ai-agents/20-api/agent-logs.md:364",
-            "ai-agents/20-api/agent-logs.md:378"
+            "ai-agents/20-api/agent-logs.md:156",
+            "ai-agents/20-api/agent-logs.md:398",
+            "ai-agents/20-api/agent-logs.md:412"
           ]
         },
         {
@@ -41046,8 +41044,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:124",
-            "ai-agents/20-api/agent-logs.md:379"
+            "ai-agents/20-api/agent-logs.md:158",
+            "ai-agents/20-api/agent-logs.md:413"
           ]
         },
         {
@@ -41093,9 +41091,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:121",
-            "ai-agents/20-api/agent-logs.md:360",
-            "ai-agents/20-api/agent-logs.md:376"
+            "ai-agents/20-api/agent-logs.md:155",
+            "ai-agents/20-api/agent-logs.md:394",
+            "ai-agents/20-api/agent-logs.md:410"
           ]
         },
         {
@@ -41147,9 +41145,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:123",
-            "ai-agents/20-api/agent-logs.md:284",
-            "ai-agents/20-api/agent-logs.md:377"
+            "ai-agents/20-api/agent-logs.md:157",
+            "ai-agents/20-api/agent-logs.md:318",
+            "ai-agents/20-api/agent-logs.md:411"
           ]
         },
         {
@@ -41192,8 +41190,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:80",
-            "ai-agents/20-api/agent-logs.md:118",
-            "ai-agents/20-api/agent-logs.md:253"
+            "ai-agents/20-api/agent-logs.md:152",
+            "ai-agents/20-api/agent-logs.md:287"
           ]
         },
         {
@@ -41236,8 +41234,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:125",
-            "ai-agents/20-api/agent-logs.md:271"
+            "ai-agents/20-api/agent-logs.md:159",
+            "ai-agents/20-api/agent-logs.md:305"
           ]
         },
         {
@@ -41271,7 +41269,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:71",
-            "ai-agents/20-api/agent-logs.md:128"
+            "ai-agents/20-api/agent-logs.md:162"
           ]
         },
         {
@@ -41319,7 +41317,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:74",
-            "ai-agents/20-api/agent-logs.md:130"
+            "ai-agents/20-api/agent-logs.md:164"
           ]
         },
         {
@@ -41367,7 +41365,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:72",
-            "ai-agents/20-api/agent-logs.md:129"
+            "ai-agents/20-api/agent-logs.md:163"
           ]
         },
         {
@@ -43564,7 +43562,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:384",
+            "ai-agents/20-api/agent-logs.md:418",
             "ai-agents/20-api/logs-deployment-email.md:69"
           ]
         },
@@ -46919,8 +46917,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:132",
-            "ai-agents/20-api/agent-logs.md:133"
+            "ai-agents/20-api/agent-logs.md:166",
+            "ai-agents/20-api/agent-logs.md:167"
           ]
         },
         {
@@ -48563,9 +48561,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "forms--delete-forms",
+          aka: [
+            "/forms/{id}"
+          ],
           method: "DELETE",
-          url: "https://services.leadconnectorhq.com/forms/{id}",
-          path: "/forms/{id}",
+          url: "https://services.leadconnectorhq.com/forms/{setting}",
+          path: "/forms/{setting}",
           origin: "https://services.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
@@ -48581,7 +48582,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           tree: "documented",
           pathParams: [
             {
-              name: "id"
+              name: "setting"
             }
           ],
           query: [],
@@ -48601,9 +48602,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "forms--get-forms-get",
+          aka: [
+            "/forms/{id}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/forms/{id}",
-          path: "/forms/{id}",
+          url: "https://services.leadconnectorhq.com/forms/{setting}",
+          path: "/forms/{setting}",
           origin: "https://services.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -48624,7 +48628,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           tree: "documented",
           pathParams: [
             {
-              name: "id"
+              name: "setting"
             }
           ],
           query: [],
@@ -48642,14 +48646,18 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "forms/10-anatomy/form-object.md:90",
             "forms/20-api/forms.md:35",
             "forms/20-api/forms.md:69",
-            "forms/40-rules/validators-and-quirks.md:73"
+            "forms/40-rules/validators-and-quirks.md:73",
+            "forms/40-rules/validators-and-quirks.md:165"
           ]
         },
         {
           id: "forms--forms-patch",
+          aka: [
+            "/forms/{id}"
+          ],
           method: "PATCH",
-          url: "https://services.leadconnectorhq.com/forms/{id}",
-          path: "/forms/{id}",
+          url: "https://services.leadconnectorhq.com/forms/{setting}",
+          path: "/forms/{setting}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -48664,7 +48672,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           tree: "documented",
           pathParams: [
             {
-              name: "id"
+              name: "setting"
             }
           ],
           query: [],
@@ -48682,9 +48690,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "forms--post-forms-post",
+          aka: [
+            "/forms/{id}"
+          ],
           method: "POST",
-          url: "https://services.leadconnectorhq.com/forms/{id}",
-          path: "/forms/{id}",
+          url: "https://services.leadconnectorhq.com/forms/{setting}",
+          path: "/forms/{setting}",
           origin: "https://services.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -48703,7 +48714,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           tree: "documented",
           pathParams: [
             {
-              name: "id"
+              name: "setting"
             }
           ],
           query: [],
@@ -48722,6 +48733,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "forms/10-anatomy/form-object.md:101",
             "forms/20-api/forms.md:39",
             "forms/20-api/forms.md:100"
+          ]
+        },
+        {
+          id: "forms--forms-conversation-on-submission",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/conversation-on-submission",
+          path: "/forms/conversation-on-submission",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:165"
           ]
         },
         {
@@ -49628,6 +49670,72 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "forms/20-api/forms.md",
             "forms/10-anatomy/form-object.md:76",
             "forms/20-api/forms.md:49"
+          ]
+        },
+        {
+          id: "forms--forms-update-setting",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/update-{setting}",
+          path: "/forms/update-{setting}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "setting"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:161"
+          ]
+        },
+        {
+          id: "forms--forms-update-conversation-on-submission",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/update-conversation-on-submission",
+          path: "/forms/update-conversation-on-submission",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:162"
           ]
         },
         {
@@ -59613,7 +59721,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/opportunities.md:222",
-            "pipelines-opportunities/20-api/pipelines.md:263"
+            "pipelines-opportunities/20-api/pipelines.md:271"
           ]
         },
         {
@@ -60037,7 +60145,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:137",
+            "pipelines-opportunities/20-api/forecast.md:142",
             "pipelines-opportunities/20-api/pipelines.md:42"
           ]
         },
@@ -60073,7 +60181,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:149",
+            "pipelines-opportunities/20-api/forecast.md:154",
             "pipelines-opportunities/20-api/pipelines.md:43",
             "pipelines-opportunities/20-api/pipelines.md:169"
           ]
@@ -60117,7 +60225,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:145"
+            "pipelines-opportunities/20-api/forecast.md:150",
+            "pipelines-opportunities/20-api/forecast.md:164"
           ]
         },
         {
@@ -60163,7 +60272,42 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:138"
+            "pipelines-opportunities/20-api/forecast.md:143"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-lost-reason-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/opportunities/lost-reason/{lostReasonId}",
+          path: "/opportunities/lost-reason/{lostReasonId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "lostReasonId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:163"
           ]
         },
         {
@@ -60288,7 +60432,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/pipelines.md:38",
-            "pipelines-opportunities/20-api/pipelines.md:259"
+            "pipelines-opportunities/20-api/pipelines.md:267"
           ]
         },
         {
@@ -60613,7 +60757,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:139",
+            "pipelines-opportunities/20-api/forecast.md:144",
             "pipelines-opportunities/20-api/pipelines.md:39"
           ]
         },
@@ -60651,6 +60795,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "pipelines-opportunities/20-api/forecast.md:112",
             "pipelines-opportunities/20-api/opportunities.md:32"
           ]
         },
@@ -62731,6 +62876,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "forms--surveys-update-setting",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/update-{setting}",
+          path: "/surveys/update-{setting}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "setting"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:161"
+          ]
+        },
+        {
           id: "memberships-courses--templates",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/templates/{id}",
@@ -64373,7 +64553,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "funnels/20-api/funnels-api.md:67",
             "funnels/20-api/template-library.md:77",
             "funnels/20-api/template-library.md:192",
-            "funnels/30-types/synthesis-contract.md:158"
+            "funnels/30-types/synthesis-contract.md:160"
           ]
         },
         {
@@ -65858,10 +66038,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "ai-agents--voice-ai-call",
-          aka: [
-            "/voice-ai/call/{_id}"
-          ],
+          id: "ai-agents--voice-ai-call-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
           path: "/voice-ai/call/{callId}",
@@ -65902,14 +66079,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:55",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:424",
-            "ai-agents/20-api/logs-deployment-email.md:23"
+            "ai-agents/20-api/logs-deployment-email.md:23",
+            "ai-agents/20-api/logs-deployment-email.md:55"
           ]
         },
         {
@@ -71115,9 +71292,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_workflow: {
-        description: "Build workflow \u2014 proof: live-runtime (2026-09-28), floor: documented; risk: write",
+        description: "Build workflow \u2014 proof: live-runtime (2026-09-29), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "documented",
         proofRows: [
           "entities-tags-create",
@@ -71210,9 +71387,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_workflow: {
-        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-09-28); risk: read",
+        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -71486,9 +71663,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_workflow: {
-        description: "Edit workflow \u2014 proof: live-runtime (2026-09-25), floor: live-roundtrip (2026-07-17); risk: destructive",
+        description: "Edit workflow \u2014 proof: live-runtime (2026-09-29), floor: live-roundtrip (2026-07-17); risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-roundtrip (2026-07-17)",
         proofRows: [
           "triggers-create-for-edit"
@@ -72530,9 +72707,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       publish_workflow: {
-        description: "Publish workflow \u2014 proof: live-runtime (2026-09-28), floor: documented; risk: destructive",
+        description: "Publish workflow \u2014 proof: live-runtime (2026-09-29), floor: documented; risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "documented",
         proofRows: [
           "workflow-publish"
@@ -72614,9 +72791,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       repair_workflow: {
-        description: "Repair a workflow from an export or a raw templates body \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Repair a workflow from an export or a raw templates body \u2014 proof: live-runtime (2026-09-29); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -180553,13 +180730,29 @@ function asUserArray(v) {
   if (v == null || v === "") return [];
   return Array.isArray(v) ? v : [v];
 }
+var RECIPIENT_EXTRA_KEYS = ["assignedOwners", "alsoNotifyContactFollowers", "alsoNotifyOpportunityFollowers"];
 var NOTIFICATION_EMITTED_KEYS = {
   // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published client-account
   // nodes carry email.template_id + templatesource:'email-builder' and NO inline html; GHL's own
   // guards exempt the body on !<channel>.template_id). Dropping them forced every notification
   // into inline mode and made template-mode impossible to author — found by the enforcement tests.
-  email: ["from_name", "from_email", "to", "userType", "subject", "html", "attachments", "selectedUser", "cc", "preHeader", "template_id", "templatesource"],
-  sms: ["body", "to", "userType", "attachments", "selectedUser", "template_id"],
+  email: [
+    "from_name",
+    "from_email",
+    "to",
+    "userType",
+    "subject",
+    "html",
+    "attachments",
+    "selectedUser",
+    "cc",
+    "bcc",
+    "preHeader",
+    "template_id",
+    "templatesource",
+    ...RECIPIENT_EXTRA_KEYS
+  ],
+  sms: ["body", "to", "userType", "attachments", "selectedUser", "template_id", ...RECIPIENT_EXTRA_KEYS],
   // `type` is the DRAWER's own key for the in-app channel (the stored shape reads
   // notification.type); `notificationType` is the authoring alias the builder accepted first.
   // Without `type` here, re-normalising a STORED notification reported its own real key as
@@ -180578,12 +180771,12 @@ var NOTIFICATION_EMITTED_KEYS = {
     "alsoNotifyContactFollowers",
     "alsoNotifyOpportunityFollowers"
   ],
-  whatsapp: ["body", "userType", "selectedUser", "template_id"]
+  whatsapp: ["body", "userType", "selectedUser", "template_id", ...RECIPIENT_EXTRA_KEYS]
 };
 var ASSIGNED_OWNERS = /* @__PURE__ */ new Set(["contact_owner", "opportunity_owner"]);
-function assignedOwnerKeys(b, userType) {
+function assignedOwnerKeys(b, userType, { defaultOwners = true } = {}) {
   const out = {};
-  if (userType === "assign") {
+  if (userType === "assign" && (defaultOwners || Array.isArray(b.assignedOwners))) {
     const authored = Array.isArray(b.assignedOwners) ? b.assignedOwners.map((v) => typeof v === "string" ? v : v?.value).filter((v) => ASSIGNED_OWNERS.has(v)) : [];
     out.assignedOwners = authored.length ? authored : ["contact_owner"];
   }
@@ -180626,9 +180819,12 @@ function internalNotificationAttributes(a, ctx) {
       // html, never both (an empty inline body next to a template invites GHL to prefer it).
       ...b.template_id != null && b.template_id !== "" && b.template_id !== "none" ? { template_id: b.template_id, ...b.templatesource != null ? { templatesource: b.templatesource } : {} } : { html: b.html ?? "" },
       ...b.cc != null ? { cc: b.cc } : {},
+      ...b.bcc != null ? { bcc: b.bcc } : {},
       ...b.preHeader != null ? { preHeader: b.preHeader } : {},
       attachments: b.attachments ?? [],
-      ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}
+      ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {},
+      // undefined owners = contact owner in the builder (backward-compat default, SMS.ts/Email.ts validators): not stamped.
+      ...assignedOwnerKeys(b, userType, { defaultOwners: false })
     } };
   }
   if (channel === "sms") {
@@ -180645,7 +180841,9 @@ function internalNotificationAttributes(a, ctx) {
       ...b.template_id != null && b.template_id !== "" ? { template_id: b.template_id } : {},
       userType,
       attachments: b.attachments ?? [],
-      ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}
+      ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {},
+      // undefined owners = contact owner in the builder (backward-compat default, SMS.ts/Email.ts validators): not stamped.
+      ...assignedOwnerKeys(b, userType, { defaultOwners: false })
     } };
   }
   if (channel === "notification") {
@@ -180660,11 +180858,14 @@ function internalNotificationAttributes(a, ctx) {
       ...assignedOwnerKeys(b, userType)
     } };
   }
+  if (!["assign", "user"].includes(userType))
+    throw new IRError("NOTIFICATION_USER_TYPE", `internal_notification (whatsapp) userType '${userType}' \u2014 the drawer offers only 'assign' (assigned owners) and 'user' (a particular user).`);
   return { type: "whatsapp", whatsapp: {
     body: b.body ?? "",
     ...b.template_id != null && b.template_id !== "" ? { template_id: b.template_id } : {},
     userType,
-    selectedUser: asUserArray(b.selectedUser)
+    ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {},
+    ...assignedOwnerKeys(b, userType, { defaultOwners: false })
   } };
 }
 var WEBHOOK_EVENTS = /* @__PURE__ */ new Set(["CUSTOM"]);
@@ -180797,6 +180998,7 @@ function waitAttributes(node, ctx) {
   }
   return { type: wt, ...a, ...hybrid };
 }
+var EMAIL_RECIPIENT_MODES = ["enrolled_contacts", "most_recently_associated", "earliest_associated", "all_associated_contacts"];
 function emailAttributes(node, ctx) {
   const a = node.attributes ?? {};
   const base = {
@@ -180814,8 +181016,19 @@ function emailAttributes(node, ctx) {
     // out of it was dropped silently: cc/bcc went out empty (live 2026-09-28, live-3AV).
     ...a.cc != null ? { cc: a.cc } : {},
     ...a.bcc != null ? { bcc: a.bcc } : {},
-    ...a.customSubtypeId != null ? { customSubtypeId: a.customSubtypeId } : {}
+    ...a.customSubtypeId != null ? { customSubtypeId: a.customSubtypeId } : {},
+    // "Send to associated contacts" and the linked-snippet file snapshot (Email.ts:108-164): the same fixed-list
+    // trap as cc/bcc — they used to vanish with no warning (completeness sweep 2026-09-29 §3 #5).
+    ...a.emailRecipients != null ? { emailRecipients: a.emailRecipients } : {},
+    ...a.associationLabels != null ? { associationLabels: a.associationLabels } : {},
+    ...a.linkedSnippetAttachmentUrls != null ? { linkedSnippetAttachmentUrls: a.linkedSnippetAttachmentUrls } : {}
   };
+  if (a.emailRecipients != null && !EMAIL_RECIPIENT_MODES.includes(a.emailRecipients)) {
+    throw new IRError("EMAIL_RECIPIENTS", `email "${node.name ?? node.ref}": emailRecipients '${a.emailRecipients}' is not one of ${EMAIL_RECIPIENT_MODES.join(" | ")} (Email.ts EmailRecipientMode).`);
+  }
+  if (a.emailRecipients && a.emailRecipients !== "enrolled_contacts" && !(Array.isArray(a.associationLabels) && a.associationLabels.length)) {
+    ctx?.warn?.(`email "${node.name ?? node.ref}": emailRecipients '${a.emailRecipients}' with no associationLabels \u2014 the drawer flags the step until a label is chosen, except in a Company workflow (Email.ts validateAssociationLabels).`);
+  }
   const authoredTemplate = a.template_id === "none" ? "" : a.template_id;
   if (authoredTemplate) {
     base.template_id = authoredTemplate;
@@ -181199,6 +181412,13 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       } else {
         subtype = { ...n.attributes ?? {} };
       }
+      const effective = startAfter ?? subtype.startAfter;
+      if (!(Number(effective?.value) > 0)) {
+        throw new IRError(
+          "WAIT_TIMEOUT",
+          `branching wait '${n.ref}' needs a timeout greater than 0 (timeout: { unit, value }). Its second branch IS the timeout; the builder only branches a wait whose Timeout is on, refuses to save a timeout of 0, and shows a wait stored with none as not branching.`
+        );
+      }
       const mkTrans = (tid, name, cond, primary, desc) => ({ id: tid, name, condition: cond, conditionType: "user-defined", isPrimaryBranch: primary, description: "", attributes: { type: primary ? `wait_${wt}` : "wait_timeout", description: desc } });
       const container = {
         id,
@@ -181210,8 +181430,8 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         cat: "multi-path",
         attributes: {
           type: wt,
-          ...startAfter ? { startAfter } : {},
           ...subtype,
+          startAfter: effective,
           name: n.name,
           cat: "multi-path",
           timePeriodInputMode: "standard",
@@ -181297,11 +181517,18 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     if (n.kind === "split") {
       const pathIds = n.paths.map((p2) => idForRef(refMap, ctx, p2.ref));
       const weighted = n.mode === "weighted" || n.mode === "random";
-      const even = Math.round(100 / n.paths.length);
+      if (n.paths.length > 5) throw new IRError("SPLIT_ARITY", `split '${n.ref}' has ${n.paths.length} paths; the builder allows at most 5.`);
+      if ((n.condition ?? "random-split") !== "random-split")
+        throw new IRError("SPLIT_MODE", `split '${n.ref}' condition '${n.condition}': the builder offers only 'random-split' (Split.ts splitConditionOptions).`);
+      const evenShare = Math.floor(100 / n.paths.length);
+      const even = (pi) => pi === n.paths.length - 1 ? 100 - evenShare * (n.paths.length - 1) : evenShare;
       const weightDistribution = {};
       n.paths.forEach((p2, pi) => {
-        weightDistribution[pathIds[pi]] = weighted ? p2.weight ?? even : even;
+        weightDistribution[pathIds[pi]] = weighted && typeof p2.weight === "number" ? p2.weight : even(pi);
       });
+      const total = Math.round(Object.values(weightDistribution).reduce((a, b) => a + b, 0) * 10) / 10;
+      if (total !== 100)
+        throw new IRError("SPLIT_WEIGHT", `split '${n.ref}' weights total ${total}; the builder requires exactly 100 and marks the step invalid otherwise.`);
       const container = {
         id,
         type: "workflow_split",
@@ -183088,6 +183315,7 @@ function buildResolvers(raw = {}) {
     workflowId: (q3) => byName(raw.workflows, [(w) => w.name])(q3)?.id,
     customValueId: (q3) => byName(raw.customValues, [(v) => v.name, (v) => v.fieldKey, (v) => String(v.fieldKey ?? "").replace(/^\{\{\s*custom_values\./, "").replace(/\s*\}\}$/, "")])(q3)?.id,
     triggerLinkId: (q3) => byName(raw.triggerLinks, [(l) => l.name])(q3)?.id,
+    triggerLinkName: (id) => (raw.triggerLinks ?? []).find((l) => l.id === id)?.name,
     offerId: (q3) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q3)?.id,
     membershipProductId: (q3) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q3)?.id,
     // G4/G5/G6/G9
@@ -183193,6 +183421,14 @@ function resolveIR(ir, r) {
     if (type === "task-notification" && a.assignedTo && !looksLikeId2(a.assignedTo) && !/_/.test(a.assignedTo)) {
       a.assignedTo = need(r.userId(a.assignedTo), "task.assignedTo", a.assignedTo) ?? a.assignedTo;
     }
+    const waitType = n.waitType ?? (type === "wait" ? a.type : void 0);
+    if ((n.kind === "wait" || type === "wait") && (a.type ?? waitType) === "link_clicked" && Array.isArray(a.link)) {
+      a.link = a.link.map((l) => looksLikeId2(l) ? l : need(r.triggerLinkId(l), "wait.link", l) ?? l);
+      if (!Array.isArray(a.linksLabel)) {
+        const names = a.link.map((id) => r.triggerLinkName?.(id));
+        if (names.every(Boolean)) a.linksLabel = names;
+      }
+    }
     if (type === "appointment_booking" && a.calendar && !a.calendarId) {
       a.calendarId = need(r.calendarId(a.calendar), "appointment_booking.calendar", a.calendar);
     }
@@ -183296,9 +183532,11 @@ var NORMALIZE_SKIP = /* @__PURE__ */ new Set([
   "workflow_goal",
   "workflow_ai_intent_detection"
 ]);
+var SKIPPED_TYPE_WIRE_KEYS = { goto: ["targetNodeId"] };
 function normalizeStoredAttributes2(template, ctx, opts) {
   if (!template?.attributes || template.isMarketplaceAction === true || NORMALIZE_SKIP.has(template.type)) {
-    const novel = Array.isArray(opts?.novelKeys) ? opts.novelKeys : null;
+    const wire = SKIPPED_TYPE_WIRE_KEYS[template?.type] ?? [];
+    const novel = Array.isArray(opts?.novelKeys) ? opts.novelKeys.filter((k) => !wire.includes(k)) : null;
     if (novel && !novel.length) return { attributes: template?.attributes, warnings: [] };
     const which = novel ? `the patch introduces key(s) [${novel.join(", ")}] the stored step did not carry, and they were merged as given` : "attributes were merged as given";
     return {
@@ -183470,6 +183708,8 @@ function modifyStep(templates, stepId, attrPatch, stepPatch, ctx) {
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] } };
 }
 var RETYPE_PRESERVED_FIELDS = ["id", "order", "next", "parent", "parentKey"];
+var RETYPE_CARRIED_FIELDS = ["parentContainerId", "comments"];
+var RETYPE_SAME_TYPE_FIELDS = ["stepIndex", "integrationAccountId"];
 function retypeStep(templates, stepId, compiledEntry) {
   const old = requireStep(templates, stepId, "retypeStep");
   if (Array.isArray(old.next))
@@ -183480,6 +183720,13 @@ function retypeStep(templates, stepId, compiledEntry) {
     else delete next[k];
   }
   if (old.advanceCanvasMeta !== void 0) next.advanceCanvasMeta = old.advanceCanvasMeta;
+  for (const k of RETYPE_CARRIED_FIELDS) if (old[k] !== void 0) next[k] = old[k];
+  if (old.cat !== void 0 && next.cat === void 0) next.cat = old.cat;
+  const sameType = old.type === next.type;
+  for (const k of RETYPE_SAME_TYPE_FIELDS) {
+    if (sameType && old[k] !== void 0) next[k] = old[k];
+    else if (!sameType && k === "stepIndex") delete next.stepIndex;
+  }
   const drifted = RETYPE_PRESERVED_FIELDS.filter((k) => JSON.stringify(old[k] ?? null) !== JSON.stringify(next[k] ?? null));
   if (drifted.length)
     throw new Error(`retypeStep: graph field(s) ${drifted.map((k) => `'${k}'`).join(", ")} changed on '${old.name ?? stepId}' \u2014 a retype must leave the graph byte-identical. Refusing to commit.`);
@@ -183488,26 +183735,32 @@ function retypeStep(templates, stepId, compiledEntry) {
     diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] }
   };
 }
-function marketplaceStepIndexCounter(templates) {
-  const counter2 = /* @__PURE__ */ new Map();
+function numberNewSteps(templates, numberIds, storedCounter = {}) {
+  const high = /* @__PURE__ */ new Map();
   for (const t of templates ?? []) {
-    if (t?.isMarketplaceAction !== true || !t.type) continue;
-    counter2.set(t.type, Math.max(counter2.get(t.type) ?? 0, Number(t.stepIndex) || 0));
+    if (!requiresStepIndex(t) || numberIds.has(t.id) || !Number.isFinite(Number(t.stepIndex)) || t.stepIndex === null) continue;
+    high.set(t.type, Math.max(high.get(t.type) ?? 0, Number(t.stepIndex)));
   }
-  return counter2;
-}
-function assignMarketplaceStepIndexes(templates) {
   const running = /* @__PURE__ */ new Map();
   const changed = [];
   const out = (templates ?? []).map((t) => {
-    if (t?.isMarketplaceAction !== true || !t.type) return t;
-    const n = (running.get(t.type) ?? 0) + 1;
+    if (!numberIds.has(t.id) || !requiresStepIndex(t)) return t;
+    const base = running.get(t.type) ?? Math.max(Number(storedCounter?.[t.type]) || 0, high.get(t.type) ?? 0);
+    const n = base + 1;
     running.set(t.type, n);
     if (t.stepIndex === n) return t;
     changed.push(t.id);
     return { ...t, stepIndex: n };
   });
   return { templates: out, changed, counter: running };
+}
+function stepIndexHighWater(templates) {
+  const counter2 = /* @__PURE__ */ new Map();
+  for (const t of templates ?? []) {
+    if (!requiresStepIndex(t) || !t.type || !Number.isFinite(Number(t.stepIndex)) || t.stepIndex === null) continue;
+    counter2.set(t.type, Math.max(counter2.get(t.type) ?? 0, Number(t.stepIndex)));
+  }
+  return counter2;
 }
 function renameStep(templates, stepId, name) {
   requireStep(templates, stepId, "renameStep");
@@ -184057,9 +184310,11 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
         risks.map((r) => `'${r.name}' routes the workflow's existing steps down ${r.carrying.map((b) => `'${b}'`).join(", ")} while ${r.deadEnded.map((b) => `'${b}'`).join(", ")} ${r.deadEnded.length > 1 ? "terminate" : "terminates"} immediately at END`).join("; ") + `. Contacts taking the terminating branch reach the end of the workflow and nothing downstream runs. Confirm that is intended (or attach steps to it / re-run with a different attachTailTo), then pass deadBranchAcknowledged:true.`
       );
   }
-  const counter2 = marketplaceStepIndexCounter(newTemplates);
   const touched = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
-  const editTouchedMarketplace = newTemplates.some((t) => t.isMarketplaceAction === true && touched.has(t.id));
+  const numberedTypes = new Set(newTemplates.filter((t) => requiresStepIndex(t) && touched.has(t.id)).map((t) => t.type));
+  const hw = stepIndexHighWater(newTemplates);
+  const counter2 = new Map([...numberedTypes].filter((k) => hw.has(k)).map((k) => [k, Math.max(Number(fresh.meta?.stepIndexCounter?.[k]) || 0, hw.get(k))]));
+  const editTouchedMarketplace = counter2.size > 0;
   const settingsBody2 = opts.settingsPatch ? settingsCommitFields(fresh, opts.settingsPatch, uid, opts) : {};
   return {
     ...fresh,
@@ -185820,8 +186075,44 @@ var OBSERVED_INNER_TYPES = Object.freeze({
 });
 
 // ../skills/create-ghl-workflow/engine/document-gate.mjs
-var STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
-var CONDITIONAL_ATTR_KEYS = { conversationai_objective: ["closingMessage", "tags"], workflow_ai_generate_image: ["__dynamicAttachments__"] };
+var BUILDER_TEMPLATE_KEYS = Object.freeze([
+  "id",
+  "stepIndex",
+  "type",
+  "customVarPrefix",
+  "name",
+  "window",
+  "start_after",
+  "attributes",
+  "next",
+  "parent",
+  "sibling",
+  "order",
+  "cat",
+  "comments",
+  "nodeType",
+  "position",
+  "isMarketplaceAction",
+  "version",
+  "workflowsActionType",
+  "integrationAccountId",
+  "parentKey",
+  "parentContainerId",
+  "currentStepEnd",
+  "hasErrors",
+  "errorMessage",
+  "advanceCanvasMeta",
+  "testRequest",
+  "testResponse"
+]);
+var STEP_TOP_LEVEL_KEYS = /* @__PURE__ */ new Set([...OBSERVED_TOP_LEVEL_KEYS, ...BUILDER_TEMPLATE_KEYS]);
+var MODEL_KEYS_UNMAPPED_BY_EXTRACTOR = { send_to_eliza: ["sendToSpecificUser", "userId"] };
+var CONDITIONAL_ATTR_KEYS = {
+  conversationai_objective: ["closingMessage", "tags"],
+  workflow_ai_generate_image: ["__dynamicAttachments__"],
+  loop: ["exitNext"],
+  ...MODEL_KEYS_UNMAPPED_BY_EXTRACTOR
+};
 var SERVER_WRITTEN_ATTR_KEYS = { drip: ["configuredAt"] };
 var MULTIPATH_TYPES = /* @__PURE__ */ new Map([
   ["find_opportunity", { convertFlag: true }],
@@ -185882,6 +186173,9 @@ var finding = (check2, severity, t, message) => ({
   type: t?.type ?? null,
   message
 });
+function transitionInnerTypes(catalog) {
+  return [...(catalog?.workflowRules?.vocab?.multipathSupportedWaitTypes ?? []).map((w) => `wait_${w}`), "wait_timeout"];
+}
 function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null } = {}) {
   const out = [];
   for (const t of templates) {
@@ -185916,7 +186210,18 @@ function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceType
       continue;
     }
     const attrs = t.attributes ?? {};
-    const innerAllowed = INNER_ATTRIBUTE_TYPE[t.type] ? /* @__PURE__ */ new Set([INNER_ATTRIBUTE_TYPE[t.type]]) : OBSERVED_INNER_TYPES[t.type] ? /* @__PURE__ */ new Set([...OBSERVED_INNER_TYPES[t.type], ...(card2.modelFields?.fields ?? []).find((f) => f?.name === "type")?.members ?? []]) : null;
+    if (t.type === "update_appointment_status" && attrs.category === "rental_booking" && attrs.status_type === "partial")
+      out.push(finding(
+        "DRAWER_CANNOT_SHOW",
+        "warning",
+        t,
+        "the builder's drawer cannot display 'partial' for rental appointments; a person who opens and saves this step will lose it (AppointmentStatus.ts:39-47)"
+      ));
+    const innerAllowed = INNER_ATTRIBUTE_TYPE[t.type] ? /* @__PURE__ */ new Set([INNER_ATTRIBUTE_TYPE[t.type]]) : OBSERVED_INNER_TYPES[t.type] ? /* @__PURE__ */ new Set([
+      ...OBSERVED_INNER_TYPES[t.type],
+      ...(card2.modelFields?.fields ?? []).find((f) => f?.name === "type")?.members ?? [],
+      ...t.type === "transition" ? transitionInnerTypes(catalog) : []
+    ]) : null;
     if (innerAllowed && "type" in attrs && !innerAllowed.has(attrs.type)) out.push(finding(
       "INNER_TYPE",
       "error",
@@ -187102,15 +187407,16 @@ function runBuilderValidators(templates, bag, vname) {
       (unchecked[s.type] ??= []).push(s.name ?? s.id ?? null);
       continue;
     }
-    validated += 1;
     const arg = { ...s, templates, parentNode: { next: s.next }, ...canvasAttributes(s) };
     let out;
     try {
       out = bag[vn](arg);
     } catch (e) {
       crashed.push({ step: s.name ?? s.id ?? null, type: s.type, validator: vn, error: String(e?.message ?? e).slice(0, 160) });
+      (unchecked[s.type] ??= []).push(s.name ?? s.id ?? null);
       continue;
     }
+    validated += 1;
     for (const r of out ?? []) {
       const row = { step: s.name ?? s.id ?? null, type: s.type, ...r };
       (r?.resource ? lookups : findings).push(row);
@@ -187799,7 +188105,7 @@ function applyOp(templates, op, { ctx, idGen }) {
       }
   }
 }
-function applyOps(templates, ops, { ctx, idGen }) {
+function applyOps(templates, ops, { ctx, idGen, stepIndexCounter = {} }) {
   let tpls = templates;
   let diff = empty();
   const opRefs = /* @__PURE__ */ new Map();
@@ -187823,12 +188129,14 @@ function applyOps(templates, ops, { ctx, idGen }) {
     }
   }
   const norm3 = normalizeDiff(diff);
-  const touched = /* @__PURE__ */ new Set([...norm3.createdSteps, ...norm3.modifiedSteps]);
-  if (tpls.some((t) => t?.isMarketplaceAction === true && touched.has(t.id))) {
-    const renumbered = assignMarketplaceStepIndexes(tpls);
-    tpls = renumbered.templates;
-    if (renumbered.changed.length)
-      norm3.modifiedSteps = [.../* @__PURE__ */ new Set([...norm3.modifiedSteps, ...renumbered.changed])];
+  const created = new Set(norm3.createdSteps);
+  const numberIds = new Set(tpls.filter((t) => created.has(t.id) || norm3.modifiedSteps.includes(t.id) && (t.stepIndex === void 0 || t.stepIndex === null)).map((t) => t.id));
+  if (numberIds.size) {
+    const numbered = numberNewSteps(tpls, numberIds, stepIndexCounter ?? {});
+    tpls = numbered.templates;
+    const touched = /* @__PURE__ */ new Set([...norm3.createdSteps, ...norm3.modifiedSteps]);
+    const extra = numbered.changed.filter((id) => !touched.has(id));
+    if (extra.length) norm3.modifiedSteps = [...norm3.modifiedSteps, ...extra];
   }
   return { templates: tpls, diff: norm3, opRefs, opResults };
 }
@@ -196132,9 +196440,12 @@ var TOOLS2 = [
           uncheckedByType: Object.fromEntries(Object.entries(r.unchecked).map(([t, xs]) => [t, xs.length])),
           uncheckedSteps: Object.values(r.unchecked).reduce((n, xs) => n + xs.length, 0),
           crashed: r.crashed,
+          // GHL's TRIGGER validators (contact_changed, contact_created, ig_comment_on_post …) are recovered but not run
+          // here: this layer replays step validators only. Say so rather than let "0 findings" cover the triggers.
+          triggersChecked: false,
           mappedTypes: Object.keys(vname).length,
           helperFidelity: HELPER_FIDELITY,
-          note: "A validator body exists for 114 step types as of 0.86.0, up from 61 \u2014 the trigger validators were recovered when the capture behind this was re-mined off its four-month-old baseline. The rest have no validator at all. Read uncheckedByType before reading findings: zero findings over few validated steps is not a clean workflow. And read assetReferences: GHL's validators do not check whether a referenced pipeline, calendar or user still exists."
+          note: "GHL ships a validator for part of the surface only; a step whose validator THREW is listed in `crashed` and counted in uncheckedByType, never as validated (update_contact_field, create_update_contact, find_contact, workflow_split, workflow_goal, messenger and instagram-dm crash in this capture until it is re-extracted). Read uncheckedByType before reading findings: zero findings over few validated steps is not a clean workflow. And read assetReferences: GHL's validators do not check whether a referenced pipeline, calendar or user still exists."
         };
       })();
       const assetRefs = await (async () => {
@@ -198646,7 +198957,7 @@ var TOOLS2 = [
         }
         const settingsPatch = mergeSettingsOps(settingsOps);
         const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
-        const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+        const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen, stepIndexCounter: fresh?.meta?.stepIndexCounter });
         let parkedOnDeletedSteps = [];
         if (fresh.status === "published" && diff.deletedSteps?.length) {
           const counts = await safeGatewayCall(() => gw.call(
