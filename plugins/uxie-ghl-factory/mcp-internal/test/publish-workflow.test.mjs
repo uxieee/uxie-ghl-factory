@@ -513,9 +513,11 @@ test('CONTROL: an ordinary draft, and one whose pause has ended (fields null), g
 // "not a known step type" (measured on an own company workflow, R7-3b). The builder saves such a step with
 // workflowsActionType instead of isMarketplaceAction.
 const companyDoc = (steps) => ({ ...workflow(), workflowType: 'business', workflowData: { templates: steps } });
-const FIND = { id: 'f1', type: 'co_find_company_record', name: 'Find company', workflowsActionType: 'INTERNAL', parentKey: null, next: null,
-  attributes: { type: 'co_find_company_record', filter_on: 'earliest', __customInputFields__: [] } };
-const COMPANY_ASSETS = { actions: [{ appName: 'Company', actions: [{ key: 'co_find_company_record', workflowsActionType: 'INTERNAL', inputs: [] }] }], triggers: [] };
+// A first-party key with NO native card: since bl-310 every asset of the 2026-09-29 read has a card, so the gap this
+// guards is a step GHL ships after the catalogue was last regenerated. The builder saves it with workflowsActionType.
+const FIND = { id: 'f1', type: 'zz_first_party_step', name: 'New first-party step', workflowsActionType: 'INTERNAL', parentKey: null, next: null,
+  attributes: { type: 'zz_first_party_step' } };
+const COMPANY_ASSETS = { actions: [{ appName: 'Company', actions: [{ key: 'zz_first_party_step', workflowsActionType: 'INTERNAL', inputs: [] }] }], triggers: [] };
 const stepTypeWarnings = (result) => (result.data?.preview?.warnings ?? []).filter((w) => /STEP_TYPE/.test(w));
 
 test('bl-309: publish reads the catalogue for the workflow\'s OWN type, and a first-party step no longer draws STEP_TYPE', async () => {
