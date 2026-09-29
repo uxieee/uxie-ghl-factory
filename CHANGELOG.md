@@ -11,6 +11,39 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.19.0] — 2026-09-29
+
+**Creating AI agents: the three create tools now build what GHL's builders build, and refuse what they cannot
+apply. Executed live on the test account.**
+
+### Added
+- `create_convai_agent`:
+  - `fullPrompt` create, the current builder's own contract;
+  - knowledge-base triggers at create;
+  - agent-level cancel/reschedule on flow bots (also on `update_convai_agent`);
+  - multi-calendar appointment booking.
+- `create_voiceai_agent`:
+  - `folderId`;
+  - user-speaks-first, with its fallback and silence delay;
+  - all three noise-cancellation modes;
+  - multiple languages, session variables, end-call and spam settings, and disabled prompts.
+  - Speech-to-speech models get their provider from GHL, and `s2sBehaviour` goes in a second write.
+- `update_voiceai_agent`: languages, after-call spam blocking, and the user-first silence delay.
+
+### Changed
+- ⚠️ All three create tools refuse any spec key they cannot apply, before anything is sent, and name where it lives.
+  They used to drop it silently and report success.
+- Refused by name: `isPrimary: true` (the primary agent is location-wide; set it in the UI), the Services booking mode
+  (no calendar service to prove it on), `patienceLevel` (GHL stores nothing), and phone-number keys (location-wide).
+
+### Fixed
+- A Managed Agent build that paused to ask a question was reported as an incomplete stream, and its questions were
+  lost. `create_studio_agent` now returns STUDIO_BUILD_AWAITING_INPUT with the questions and their options, and sends
+  nothing further. A live pause was observed: one calendar question with 13 options.
+- `create_voiceai_agent` no longer forces provider RETELL, so a speech-to-speech create works.
+
+Workflow step cards: two one-line summaries restored (1.18.0 had shown proof text in their place). Catalogue: +1 route.
+
 ## [1.18.0] — 2026-09-29
 
 **Added: `build_funnel_page` warns about a form, survey or calendar with no on-submit action. Executed live on the
