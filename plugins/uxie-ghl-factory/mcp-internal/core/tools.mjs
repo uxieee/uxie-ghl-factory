@@ -103,6 +103,8 @@ import {
   sessionRow as agentLogSessionRow,
   walkSessions as walkAgentSessions,
   sortNote as agentLogSortNote,
+  FEEDBACK_PRODUCT_TYPE as AGENT_LOG_FEEDBACK_PRODUCT_TYPE,
+  sessionFeedback as agentLogSessionFeedback,
 } from './agent-logs.mjs';
 import { VOICE_ACTION_TYPES, VOICE_SORT_FIELDS, VOICE_PAGE_SIZE_MAX, PENDING_STATUSES, CAI_PRESET_PERIODS, CAI_LIMIT_MAX,
   toEpochMs, voiceCallLogsQuery, voiceCallRow, voicePendingQuery, caiConversationLogsQuery, caiLogRow, caiSummaryRow } from './ai-call-logs.mjs';
@@ -4493,7 +4495,7 @@ export const TOOLS = [
     name: 'get_agent_session',
     description: describe(
       'get_agent_session',
-      'One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries userQueries[] and aiResponses[] — every message of the turn, as the Conversation view shows them (the singular userQuery / aiResponse can hold only one, and is "" on a voice call\'s greeting turn) — and the traceId that get_agent_message_trace expands.',
+      'One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries userQueries[] and aiResponses[] — every message of the turn, as the Conversation view shows them (the singular userQuery / aiResponse can hold only one, and is "" on a voice call\'s greeting turn) — and the traceId that get_agent_message_trace expands. A managed-agent (superagents) session id works here too (the Run page embeds this same detail); for those, each interaction also carries feedback {responseKey, sentiment} | null and the output a feedback block (the Activity-row rating, every chat-turn rating) — sentiment only, the reason/comment is one raw GET /agent-logs/feedback?responseKey. Other products carry no feedback field.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -4507,6 +4509,7 @@ export const TOOLS = [
       { method: 'GET', path: '/agent-logs/logs/{sessionId}/summary' },
       { method: 'GET', path: '/agent-logs/logs/{sessionId}/interactions' },
       { method: 'GET', path: '/agent-logs/logs/{sessionId}/metrics' },
+      { method: 'GET', path: '/agent-logs/feedback/states' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
@@ -4567,6 +4570,24 @@ export const TOOLS = [
         const m = await gw.call('GET', `/agent-logs/logs/${sid}/metrics?${lq}`);
         out.metrics = m.ok ? { overview: m.json?.overview ?? null, perInteraction: m.json?.perInteraction ?? [] } : null;
         if (!m.ok) out.metricsError = { status: m.status };
+      }
+      // Ratings (managed agents only; every other product gets no field — nothing there can be rated). Best-effort: a failed
+      // states read never fails the session read.
+      const fbType = AGENT_LOG_FEEDBACK_PRODUCT_TYPE[summary.productName];
+      if (fbType) {
+        const fq = new URLSearchParams({ locationId: args.locationId, productType: fbType });
+        let f;
+        try { f = await gw.call('GET', `/agent-logs/feedback/states?${fq}`); } catch (e) { f = { ok: false, status: null, thrown: String(e?.message ?? e).slice(0, 200) }; }
+        if (f.ok) {
+          const fb = agentLogSessionFeedback(args.agentSessionId, interactions.length, f.json?.states);
+          fb.perInteraction.forEach((v, i) => { interactions[i].feedback = v; });
+          out.feedback = {
+            activity: fb.activity, turns: fb.turns, ...(fb.unplaced.length ? { unplaced: fb.unplaced } : {}),
+            note: 'Sentiment only; the reasons and comment of a rating are GET /agent-logs/feedback?productType=super_agents&responseKey=<key> (raw_request). activity = the rating on the agent page\'s Activity row (key = the session id); turns = chat-turn ratings, key <session>#<n>, n = the chat\'s bot-message count from 1 (one per send), placed on interaction n. A turn that called tools may count differently in a reloaded chat, so any key that does not fit is listed under unplaced. /feedback/states is one unpaged, location-wide list (no cursor or total); a server cap on a very long list has not been measured.',
+          };
+        } else {
+          out.feedbackError = { status: f.status, ...(f.thrown ? { thrown: f.thrown } : {}), detail: 'the ratings read (/agent-logs/feedback/states) failed; the session read is unaffected' };
+        }
       }
       out.note = 'Each interaction is one inbound message; its traceId IS that message\'s CRM id. Expand it with get_agent_message_trace.';
       return ok(out);

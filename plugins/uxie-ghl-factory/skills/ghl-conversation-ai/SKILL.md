@@ -141,6 +141,12 @@ never assume a write succeeded because the response was 200.
 - Voice AI calls → `get_voice_call_logs` (view `calls` with callType LIVE|TRIAL, dates, actions, sort; view `call` for
   one call's transcript with tool calls; view `pending` for the outbound queue). There is no text search on calls.
 - Conversation AI Test-panel chats are logged nowhere; a Voice AI Test Audio call is logged (TRIAL).
+- Managed Agents: a chat or Run session id IS an Agent Logs session id (the Run page embeds that detail), so
+  `get_agent_session` reads it. For `superagents` sessions only, each interaction also carries `feedback`
+  {responseKey, sentiment} | null (chat turn n = key `<session>#<n>`), and `feedback.activity` is the Activity-row
+  rating (key = the session id). **Sentiment only**: a rating's reasons and comment are one raw
+  `GET /agent-logs/feedback?productType=super_agents&responseKey=<key>`. Submitting a rating
+  (`POST /agent-logs/feedback`) has no tool; its body is in `references/agent-studio.md`.
 
 Delegate never-hand-roll: don't call these endpoints ad hoc — drive them through the
 `engine/` compilers so behavior stays traced to the captures.
