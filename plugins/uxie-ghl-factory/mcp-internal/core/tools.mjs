@@ -8932,7 +8932,10 @@ export const TOOLS = [
   },
   {
     name: 'fast_forward_contacts',
-    description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step (proof: documented).'),
+    description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step. '
+      + '🔴 `moved` counts the enrollments GHL ACCEPTED, not a read-back: on a DRAFT workflow GHL answers 200 and moves nobody '
+      + '(reported, bl-314). After a confirm, read the step again with get_contacts_at_step before relying on the move. '
+      + '(proof: documented).'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
