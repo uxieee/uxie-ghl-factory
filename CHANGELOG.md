@@ -11,6 +11,28 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.31.0] — 2026-09-30
+
+**Find workflows that never fire because of a capitalised tag, and edit a site's headers, pixel events and
+unpublished-page redirects. Executed live on the test account.**
+
+### Added
+- `find_workflows_using` `problems:"mixed-case-tag-rows"`: one account-wide read that lists every workflow with a
+  capitalised tag in a trigger filter, with its status and whether a lowercase row already exists. Each hit carries the
+  exact fix. It says what it does not cover: if/else tag conditions and step tag values.
+- `check_workflow` flags `TRIGGER_TAG_CASE` as an error on one workflow. The fix is `edit_workflow`
+  `replaceTag {oldTag, newTag}`. Live: the repaired workflow enrolled a tagged contact; the untagged control did not.
+- `edit_funnel` site settings:
+  - edit and delete a security header (a delete needs the exact key AND its current value);
+  - add, edit and delete a Meta pixel event (edit and delete need the event id AND its pixel id). The public page's
+    cache is refreshed the way the Events screen does it. Without that, the page kept the old pixel for 5+ minutes.
+  - An unpublished page can redirect to another funnel step.
+  Live on an own funnel: the stored values and the public headers, pixel and 301 all moved, and nothing else changed.
+
+### Fixed
+- 🔴 `edit_workflow` `replaceTag` / `replaceFieldId` on a trigger reported "did not persist" although the change had
+  landed. A retry was harmless, but the report was wrong.
+
 ## [1.30.0] — 2026-09-30
 
 **Redirects to funnel steps and pages, redirect click stats, and page styles written the way the builder stores
