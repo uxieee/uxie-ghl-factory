@@ -208023,7 +208023,7 @@ function runLints(doc, {
           F("platform", "ifelse-vocab", "warning", `${f.where}${f.branch ? ` [${f.branch}]` : ""}: ${f.msg}`);
         }
       }
-      lintContactFieldTemplates(T, T.map((t) => t.id), { warn: (m) => F("platform", "contact-field-shape", "warning", m) });
+      lintContactFieldTemplates(T, T.map((t) => t.id), (m) => F("platform", "contact-field-shape", "warning", m));
       for (const f of lintEntryStep(T)) F("platform", f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : {});
       for (const f of lintPublishRules(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintOpportunityWrites(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
@@ -218403,7 +218403,7 @@ var TOOLS2 = [
           "The document was rejected before any request was sent \u2014 nothing was written."
         );
       }
-      lintContactFieldTemplates(args.templates, [...diff.createdSteps, ...diff.modifiedSteps], { warn });
+      lintContactFieldTemplates(args.templates, [...diff.createdSteps, ...diff.modifiedSteps], warn);
       let existingTriggers = [];
       if (rulesNeedTriggers(args.templates, catalog?.workflowRules)) {
         const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
