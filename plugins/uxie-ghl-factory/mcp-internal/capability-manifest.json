@@ -490,6 +490,36 @@
     "path": "/agent-logs/logs/{sessionId}/metrics"
   },
   {
+    "tool": "get_agent_log_filter_values",
+    "method": "POST",
+    "path": "/agent-logs/filter-values"
+  },
+  {
+    "tool": "get_voice_call_logs",
+    "method": "GET",
+    "path": "/voice-ai/dashboard/call-logs"
+  },
+  {
+    "tool": "get_voice_call_logs",
+    "method": "GET",
+    "path": "/voice-ai/call/{callId}"
+  },
+  {
+    "tool": "get_voice_call_logs",
+    "method": "GET",
+    "path": "/voice-ai/dashboard/pending-call-logs"
+  },
+  {
+    "tool": "get_convai_conversation_logs",
+    "method": "GET",
+    "path": "/ai-employees/employees/{locationId}/conversation-logs"
+  },
+  {
+    "tool": "get_convai_conversation_logs",
+    "method": "GET",
+    "path": "/ai-employees/summary/{locationId}/contact/{contactId}"
+  },
+  {
     "tool": "get_agent_message_trace",
     "method": "GET",
     "path": "/agent-logs/logs/{traceId}/spans"

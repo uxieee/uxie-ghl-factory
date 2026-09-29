@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1389,
+      count: 1390,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -3497,7 +3497,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/triggers/contact_tag.md:86"
+            "workflows/30-types/triggers/contact_tag.md:87"
           ]
         },
         {
@@ -25253,7 +25253,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:30",
-            "workflows/10-anatomy/advanced-canvas.md:35",
+            "workflows/10-anatomy/advanced-canvas.md:36",
             "workflows/20-api/03-endpoints.md:191",
             "workflows/20-api/trash-and-restore.md:24",
             "workflows/40-rules/publish-gate.md:138",
@@ -29999,7 +29999,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/SplitService.ts:33"
+            "services/SplitService.ts:33",
+            "workflows/10-anatomy/advanced-canvas.md:59",
+            "workflows/30-types/steps/workflow_split.md:147"
           ]
         },
         {
@@ -30211,7 +30213,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "workflows/10-anatomy/04-workflow-anatomy.md:434",
             "workflows/10-anatomy/04-workflow-anatomy.md:571",
             "workflows/10-anatomy/05-build-flow.md:24",
-            "workflows/10-anatomy/advanced-canvas.md:51",
+            "workflows/10-anatomy/advanced-canvas.md:52",
             "workflows/20-api/trigger-create.md:11"
           ]
         },
@@ -30346,7 +30348,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/BaseService.ts:46",
-            "workflows/10-anatomy/advanced-canvas.md:37",
+            "workflows/10-anatomy/advanced-canvas.md:38",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
             "workflows/50-runtime/flow-bot-four-node-certification.md:58"
           ]
@@ -38364,7 +38366,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/agent-logs.md:117",
             "ai-agents/20-api/agent-logs.md:176",
-            "ai-agents/20-api/agent-logs.md:239"
+            "ai-agents/20-api/agent-logs.md:243"
           ]
         },
         {
@@ -38543,7 +38545,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "Dropdown values for one filter field, derived from that location\u2019s data.",
           note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). `field` is the one strictly validated enum: 422 "field must be one of the following values: agentName, channel, contactName, voiceName". limit caps at 100 and the list is never scoped by products/timeRange.',
           reach: "proven-live",
-          coveredBy: [],
+          coveredBy: [
+            "get_agent_log_filter_values"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -38563,7 +38567,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:119",
-            "ai-agents/20-api/agent-logs.md:226"
+            "ai-agents/20-api/agent-logs.md:228"
           ]
         },
         {
@@ -38733,8 +38737,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:120",
-            "ai-agents/20-api/agent-logs.md:353",
-            "ai-agents/20-api/agent-logs.md:354"
+            "ai-agents/20-api/agent-logs.md:357",
+            "ai-agents/20-api/agent-logs.md:358"
           ]
         },
         {
@@ -38782,8 +38786,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:122",
-            "ai-agents/20-api/agent-logs.md:360",
-            "ai-agents/20-api/agent-logs.md:371"
+            "ai-agents/20-api/agent-logs.md:364",
+            "ai-agents/20-api/agent-logs.md:378"
           ]
         },
         {
@@ -38830,7 +38834,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:124",
-            "ai-agents/20-api/agent-logs.md:372"
+            "ai-agents/20-api/agent-logs.md:379"
           ]
         },
         {
@@ -38877,8 +38881,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:121",
-            "ai-agents/20-api/agent-logs.md:356",
-            "ai-agents/20-api/agent-logs.md:369"
+            "ai-agents/20-api/agent-logs.md:360",
+            "ai-agents/20-api/agent-logs.md:376"
           ]
         },
         {
@@ -38931,8 +38935,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:123",
-            "ai-agents/20-api/agent-logs.md:280",
-            "ai-agents/20-api/agent-logs.md:370"
+            "ai-agents/20-api/agent-logs.md:284",
+            "ai-agents/20-api/agent-logs.md:377"
           ]
         },
         {
@@ -38976,7 +38980,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/agent-logs.md:80",
             "ai-agents/20-api/agent-logs.md:118",
-            "ai-agents/20-api/agent-logs.md:249"
+            "ai-agents/20-api/agent-logs.md:253"
           ]
         },
         {
@@ -39020,7 +39024,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-logs.md:125",
-            "ai-agents/20-api/agent-logs.md:267"
+            "ai-agents/20-api/agent-logs.md:271"
           ]
         },
         {
@@ -40795,7 +40799,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "reached",
-          coveredBy: [],
+          coveredBy: [
+            "get_convai_conversation_logs"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -40819,7 +40825,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:81",
-            "ai-agents/20-api/logs-deployment-email.md:42"
+            "ai-agents/20-api/logs-deployment-email.md:65"
           ]
         },
         {
@@ -40854,7 +40860,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:45"
+            "ai-agents/20-api/logs-deployment-email.md:68"
           ]
         },
         {
@@ -40885,7 +40891,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:44"
+            "ai-agents/20-api/logs-deployment-email.md:67"
           ]
         },
         {
@@ -41345,8 +41351,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:377",
-            "ai-agents/20-api/logs-deployment-email.md:46"
+            "ai-agents/20-api/agent-logs.md:384",
+            "ai-agents/20-api/logs-deployment-email.md:69"
           ]
         },
         {
@@ -41381,7 +41387,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:47"
+            "ai-agents/20-api/logs-deployment-email.md:70"
           ]
         },
         {
@@ -41467,7 +41473,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_convai_conversation_logs"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -41493,7 +41501,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:75"
+            "ai-agents/20-api/logs-deployment-email.md:103"
           ]
         },
         {
@@ -59946,7 +59954,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:194"
+            "ai-agents/20-api/logs-deployment-email.md:224"
           ]
         },
         {
@@ -59984,7 +59992,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:196"
+            "ai-agents/20-api/logs-deployment-email.md:226"
           ]
         },
         {
@@ -60015,7 +60023,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:199"
+            "ai-agents/20-api/logs-deployment-email.md:229"
           ]
         },
         {
@@ -60046,7 +60054,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:200"
+            "ai-agents/20-api/logs-deployment-email.md:230"
           ]
         },
         {
@@ -60077,7 +60085,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:197"
+            "ai-agents/20-api/logs-deployment-email.md:227"
           ]
         },
         {
@@ -60108,7 +60116,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:203"
+            "ai-agents/20-api/logs-deployment-email.md:233"
           ]
         },
         {
@@ -60508,7 +60516,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:101"
+            "ai-agents/20-api/logs-deployment-email.md:131"
           ]
         },
         {
@@ -60543,7 +60551,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:100"
+            "ai-agents/20-api/logs-deployment-email.md:130"
           ]
         },
         {
@@ -60625,7 +60633,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:130"
+            "ai-agents/20-api/logs-deployment-email.md:160"
           ]
         },
         {
@@ -60671,7 +60679,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:498",
-            "ai-agents/20-api/logs-deployment-email.md:129"
+            "ai-agents/20-api/logs-deployment-email.md:159"
           ]
         },
         {
@@ -60957,7 +60965,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:124"
+            "ai-agents/20-api/logs-deployment-email.md:154"
           ]
         },
         {
@@ -61026,6 +61034,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "ai-agents--voice-ai-call",
+          aka: [
+            "/voice-ai/call/{_id}"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
           path: "/voice-ai/call/{callId}",
@@ -61033,7 +61044,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_voice_call_logs"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -61064,12 +61077,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           returns: null,
           confidence: {
             path: "documented",
-            query: "documented",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:424"
+            "ai-agents/20-api/logs-deployment-email.md:55",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:424",
+            "ai-agents/20-api/logs-deployment-email.md:23"
           ]
         },
         {
@@ -61104,7 +61119,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:26"
+            "ai-agents/20-api/logs-deployment-email.md:29"
           ]
         },
         {
@@ -61153,7 +61168,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:439",
-            "ai-agents/20-api/logs-deployment-email.md:27"
+            "ai-agents/20-api/logs-deployment-email.md:30"
           ]
         },
         {
@@ -61287,7 +61302,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:426",
-            "ai-agents/20-api/logs-deployment-email.md:24",
+            "ai-agents/20-api/logs-deployment-email.md:27",
             "ai-agents/20-api/voice-ai-boundary.md:71",
             "ai-agents/30-types/voice-ai-actions.md:109"
           ]
@@ -61334,7 +61349,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:427",
-            "ai-agents/20-api/logs-deployment-email.md:25",
+            "ai-agents/20-api/logs-deployment-email.md:28",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
         },
@@ -61401,7 +61416,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:115"
+            "ai-agents/20-api/logs-deployment-email.md:145"
           ]
         },
         {
@@ -61436,7 +61451,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:116"
+            "ai-agents/20-api/logs-deployment-email.md:146"
           ]
         },
         {
@@ -61467,7 +61482,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:117"
+            "ai-agents/20-api/logs-deployment-email.md:147"
           ]
         },
         {
@@ -61502,7 +61517,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:118"
+            "ai-agents/20-api/logs-deployment-email.md:148"
           ]
         },
         {
@@ -61540,7 +61555,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:119"
+            "ai-agents/20-api/logs-deployment-email.md:149"
           ]
         },
         {
@@ -61575,7 +61590,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:120"
+            "ai-agents/20-api/logs-deployment-email.md:150"
           ]
         },
         {
@@ -61613,7 +61628,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:121"
+            "ai-agents/20-api/logs-deployment-email.md:151"
           ]
         },
         {
@@ -61644,7 +61659,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:114"
+            "ai-agents/20-api/logs-deployment-email.md:144"
           ]
         },
         {
@@ -61683,7 +61698,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:173",
-            "ai-agents/20-api/logs-deployment-email.md:113",
+            "ai-agents/20-api/logs-deployment-email.md:143",
             "ai-agents/20-api/voice-ai-boundary.md:73",
             "ai-agents/30-types/voice-ai-actions.md:79"
           ]
@@ -61717,7 +61732,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
-            "ai-agents/20-api/logs-deployment-email.md:123"
+            "ai-agents/20-api/logs-deployment-email.md:153"
           ]
         },
         {
@@ -61748,7 +61763,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:122"
+            "ai-agents/20-api/logs-deployment-email.md:152"
           ]
         },
         {
@@ -61779,7 +61794,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:22",
+            "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:68"
           ]
         },
@@ -61811,7 +61826,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:23",
+            "ai-agents/20-api/logs-deployment-email.md:26",
             "ai-agents/20-api/voice-ai-boundary.md:69"
           ]
         },
@@ -61824,7 +61839,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "reached",
-          coveredBy: [],
+          coveredBy: [
+            "get_voice_call_logs"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -61844,8 +61861,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:366",
-            "ai-agents/20-api/logs-deployment-email.md:19",
+            "ai-agents/20-api/logs-deployment-email.md:20",
             "ai-agents/20-api/voice-ai-boundary.md:70"
+          ]
+        },
+        {
+          id: "ai-agents--dashboard-pending-call-logs",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/dashboard/pending-call-logs",
+          path: "/voice-ai/dashboard/pending-call-logs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_voice_call_logs"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:24"
           ]
         },
         {
@@ -62189,7 +62239,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:201"
+            "ai-agents/20-api/logs-deployment-email.md:231"
           ]
         },
         {
@@ -62220,7 +62270,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:202"
+            "ai-agents/20-api/logs-deployment-email.md:232"
           ]
         },
         {
@@ -62251,7 +62301,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:204"
+            "ai-agents/20-api/logs-deployment-email.md:234"
           ]
         },
         {
@@ -66825,9 +66875,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_agent_session: {
-        description: "One agent session: summary, customConfigs, every interaction and its metrics \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "One agent session: summary, customConfigs, every interaction and its metrics \u2014 proof: live-runtime (2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--logs-summary",
@@ -67366,9 +67416,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_agent_sessions: {
-        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-28); risk: read",
+        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--agent-logs-logs"
@@ -68377,6 +68427,68 @@ var init_define_TOOL_CATALOG = __esm({
           "ai-agents--routing-config-configs-post",
           "ai-agents--routing-config-configs-patch",
           "ai-agents--routing-config-configs-get"
+        ]
+      },
+      get_agent_log_filter_values: {
+        description: "Read Agent Logs filter values \u2014 proof: live-runtime (2026-09-29); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-29)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "ai-agents--agent-logs-filter-values"
+        ],
+        proofFloorRows: [
+          "ai-agents--agent-logs-filter-values"
+        ],
+        riskRows: [
+          "ai-agents--agent-logs-filter-values"
+        ],
+        rows: [
+          "ai-agents--agent-logs-filter-values"
+        ]
+      },
+      get_voice_call_logs: {
+        description: "Read Voice AI call logs \u2014 proof: live-runtime (2026-09-29); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-29)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "ai-agents--dashboard-call-logs",
+          "ai-agents--voice-ai-call"
+        ],
+        proofFloorRows: [
+          "ai-agents--dashboard-call-logs",
+          "ai-agents--voice-ai-call"
+        ],
+        riskRows: [
+          "ai-agents--dashboard-call-logs",
+          "ai-agents--voice-ai-call"
+        ],
+        rows: [
+          "ai-agents--dashboard-call-logs",
+          "ai-agents--voice-ai-call"
+        ]
+      },
+      get_convai_conversation_logs: {
+        description: "Read Conversation AI conversation logs \u2014 proof: live-runtime (2026-09-29); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-29)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "ai-agents--employees-conversation-logs",
+          "ai-agents--summary-contact"
+        ],
+        proofFloorRows: [
+          "ai-agents--employees-conversation-logs",
+          "ai-agents--summary-contact"
+        ],
+        riskRows: [
+          "ai-agents--employees-conversation-logs",
+          "ai-agents--summary-contact"
+        ],
+        rows: [
+          "ai-agents--employees-conversation-logs",
+          "ai-agents--summary-contact"
         ]
       }
     };
@@ -183533,8 +183645,9 @@ var UNRELIABLE_SORTS = {
 };
 var sortNote = (sortBy) => UNRELIABLE_SORTS[sortBy] ?? null;
 var TIME_RANGES = ["1_day", "7_days", "14_days", "30_days", "90_days", "custom"];
-var PRODUCTS = ["agent_studio", "voice_ai", "conversation_ai", "superagents", "ask_ai", "agent_logs_assistant"];
+var PRODUCTS = ["agent_studio", "voice_ai", "conversation_ai", "superagents", "ask_ai", "agent_logs_assistant", "ai_studio"];
 var MAX_OFFSET = 500;
+var FILTER_FIELDS = ["agentName", "contactName", "channel", "voiceName"];
 var parseMeta = (raw) => {
   if (raw == null) return null;
   if (typeof raw === "object") return raw;
@@ -183712,6 +183825,7 @@ var sessionRow = (r) => ({
   agentId: r.agentId ?? null,
   agentName: r.agentName ?? null,
   status: r.status ?? null,
+  messageCount: r.messageCount ?? null,
   totalTokens: r.totalTokens ?? null,
   latencyMs: r.latencyMs ?? null,
   durationMs: r.durationMs ?? null,
@@ -183762,6 +183876,126 @@ var walkSessions = async (gw, body2, { maxRows = 1e3, maxHops = 200 } = {}) => {
   }
   return { rows, meta: meta3, hops, dupes, error: error51 };
 };
+
+// core/ai-call-logs.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var VOICE_ACTION_TYPES = [
+  "CALL_TRANSFER",
+  "DATA_EXTRACTION",
+  "IN_CALL_DATA_EXTRACTION",
+  "WORKFLOW_TRIGGER",
+  "SMS",
+  "APPOINTMENT_BOOKING",
+  "CUSTOM_ACTION",
+  "KNOWLEDGE_BASE"
+];
+var VOICE_SORT_FIELDS = ["createdAt", "duration"];
+var VOICE_PAGE_SIZE_MAX = 50;
+var PENDING_STATUSES = ["queued", "scheduled", "rejected"];
+var CAI_PRESET_PERIODS = ["today", "this-week", "prev-week", "this-month", "prev-month", "this-year", "prev-year"];
+var CAI_LIMIT_MAX = 100;
+var toEpochMs2 = (v, { endOfDay = false } = {}) => {
+  if (v === void 0 || v === null || v === "") return null;
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  const s = String(v).trim();
+  if (/^\d{10,}$/.test(s)) return Number(s);
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(s);
+  const t = Date.parse(dateOnly ? `${s}T${endOfDay ? "23:59:59.999" : "00:00:00.000"}Z` : s);
+  return Number.isFinite(t) ? t : null;
+};
+function voiceCallLogsQuery(args) {
+  const q3 = new URLSearchParams({ locationId: args.locationId, pageSize: String(args.pageSize ?? 20), page: String(args.page ?? 1) });
+  if (args.timezone) q3.set("timezone", args.timezone);
+  if (args.agentId) q3.set("agentId", args.agentId);
+  if (args.contactIds?.length) q3.set("contactId", args.contactIds.join(","));
+  const from = toEpochMs2(args.startDate);
+  const to = toEpochMs2(args.endDate, { endOfDay: true });
+  if (from !== null) q3.set("startDate", String(from));
+  if (to !== null) q3.set("endDate", String(to));
+  if (args.actionTypes?.length) q3.set("actionType", args.actionTypes.join(","));
+  if (args.sortBy) q3.set("sortBy", args.sortBy);
+  if (args.sortOrder) q3.set("sort", args.sortOrder === "asc" ? "ascend" : "descend");
+  if (args.callType) q3.set("callType", args.callType);
+  if (args.direction) q3.set("direction", args.direction);
+  return q3;
+}
+var actionsOf = (row) => (row?.executedCallActions ?? []).map((a) => a?.actionType ?? a?.type ?? null).filter(Boolean);
+var voiceCallRow = (r, { includeTranscript = false } = {}) => ({
+  callId: r._id ?? null,
+  createdAt: r.createdAt ?? null,
+  durationSec: r.duration ?? null,
+  agentId: r.agentId ?? null,
+  agentName: r.agentName ?? null,
+  agentDeleted: r.isAgentDeleted ?? null,
+  contactId: r.contactId ?? null,
+  contactName: r.contactName ?? null,
+  callType: r.callType ?? null,
+  direction: r.direction ?? null,
+  trialCall: r.trialCall ?? null,
+  callStatus: r.callStatus ?? null,
+  actions: actionsOf(r),
+  agentTransferOccurred: r.agentTransferOccurred ?? null,
+  workflowName: r.workflowName ?? null,
+  summary: r.summary ?? null,
+  extractedData: r.extractedData ?? null,
+  ...includeTranscript ? { transcript: r.transcript ?? null, translation: r.translation ?? null } : {}
+});
+function voicePendingQuery(args) {
+  const q3 = new URLSearchParams({ locationId: args.locationId, limit: String(args.limit ?? 20) });
+  if (args.after) q3.set("after", args.after);
+  if (args.status) q3.set("status", args.status);
+  if (args.contactIds?.length === 1) q3.set("contactId", args.contactIds[0]);
+  if (args.agentId) q3.set("agentId", args.agentId);
+  const from = toEpochMs2(args.startDate);
+  const to = toEpochMs2(args.endDate, { endOfDay: true });
+  if (from !== null) q3.set("startDate", String(from));
+  if (to !== null) q3.set("endDate", String(to));
+  return q3;
+}
+function caiConversationLogsQuery(args) {
+  const q3 = new URLSearchParams();
+  if (args.from || args.to) {
+    q3.set("from", args.from);
+    q3.set("to", args.to);
+  } else q3.set("presetPeriod", args.presetPeriod ?? "this-month");
+  if (args.channel) q3.set("channel", args.channel);
+  if (args.agentId) q3.set("employeeId", args.agentId);
+  if (args.contactId) q3.set("contactId", args.contactId);
+  q3.set("sortOrder", args.sortOrder ?? "desc");
+  q3.set("limit", String(args.limit ?? 20));
+  q3.set("page", String(args.page ?? 1));
+  return q3;
+}
+var caiLogRow = (r) => ({
+  id: r.id ?? null,
+  conversationId: r.conversationId ?? null,
+  at: r.dateAdded ?? null,
+  channel: r.channel ?? null,
+  agentId: r.employeeId ?? null,
+  agentName: r.employeeName ?? null,
+  agentDeleted: r.isEmployeeDeleted ?? null,
+  contactId: r.contactId ?? null,
+  contactName: r.contactName ?? null,
+  contactDeleted: r.isContactDeleted ?? null,
+  lastMessage: r.lastMessage ?? null
+});
+var caiSummaryRow = (r, { includeTranscript = true } = {}) => ({
+  channel: r.channelName ?? null,
+  agentId: r.employeeId ?? null,
+  trigger: r.trigger ?? null,
+  summary: r.summary ?? null,
+  windowStart: r.summaryWindowStartTime ?? null,
+  windowEnd: r.summaryWindowEndTime ?? null,
+  createdAt: r.createdAt ?? null,
+  firstMessageId: r.firstMessageId ?? null,
+  lastMessageId: r.lastMessageId ?? null,
+  ...includeTranscript ? { transcript: r.transcript ?? [] } : { transcriptMessages: (r.transcript ?? []).length }
+});
 
 // ../skills/create-ghl-workflow/engine/lints/runner.mjs
 init_define_BUILDER_VALIDATORS();
@@ -188782,7 +189016,7 @@ var scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   if (endpointWords(e).reach === "refused") score -= 60;
   return score;
 };
-var FILTER_FIELDS = null;
+var FILTER_FIELDS2 = null;
 var VALIDATOR_BAG;
 var builderValidatorBag = () => {
   if (VALIDATOR_BAG !== void 0) return VALIDATOR_BAG;
@@ -188792,17 +189026,17 @@ var builderValidatorBag = () => {
   return VALIDATOR_BAG;
 };
 var staticFilterFields = () => {
-  if (FILTER_FIELDS) return FILTER_FIELDS;
+  if (FILTER_FIELDS2) return FILTER_FIELDS2;
   if (true) {
-    FILTER_FIELDS = define_CONTACT_FILTER_FIELDS_default;
-    return FILTER_FIELDS;
+    FILTER_FIELDS2 = define_CONTACT_FILTER_FIELDS_default;
+    return FILTER_FIELDS2;
   }
   try {
-    FILTER_FIELDS = JSON.parse(readFileSync3(resolve3(HERE2, "../catalog/contact-filter-fields.json"), "utf8"));
+    FILTER_FIELDS2 = JSON.parse(readFileSync3(resolve3(HERE2, "../catalog/contact-filter-fields.json"), "utf8"));
   } catch {
-    FILTER_FIELDS = null;
+    FILTER_FIELDS2 = null;
   }
-  return FILTER_FIELDS;
+  return FILTER_FIELDS2;
 };
 var endpointStub = (e, callerClass = null) => {
   const w = endpointWords(e);
@@ -192172,7 +192406,7 @@ var TOOLS2 = [
     name: "list_agent_sessions",
     description: describe3(
       "list_agent_sessions",
-      `The AI Agents \u2192 Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, tokens, latency and duration. Read-only despite being a POST \u2014 this endpoint reads, so it does not take the raw-write confirmation gate. Traps (live 2026-09-28): sortBy:"durationMs" is NOT a true sort on GHL's side (the result carries a note; re-sort yourself); agentName is a substring match; Conversation AI Test-panel chats are never logged (a trial chat has no session row), while a Voice AI Test Audio web call is.`
+      `The AI Agents \u2192 Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, message count, tokens, latency and duration. products: agent_studio, voice_ai, conversation_ai, superagents, ask_ai, agent_logs_assistant, ai_studio (the AI Studio site builder). For the exact agentName / channel spellings use get_agent_log_filter_values. Read-only despite being a POST \u2014 this endpoint reads, so it does not take the raw-write confirmation gate. Traps (live 2026-09-28): sortBy:"durationMs" is NOT a true sort on GHL's side (the result carries a note; re-sort yourself); agentName is a substring match; Conversation AI Test-panel chats are never logged (a trial chat has no session row), while a Voice AI Test Audio web call is.`
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -192275,7 +192509,7 @@ var TOOLS2 = [
     name: "get_agent_session",
     description: describe3(
       "get_agent_session",
-      "One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries the traceId that get_agent_message_trace expands."
+      `One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries userQueries[] and aiResponses[] \u2014 every message of the turn, as the Conversation view shows them (the singular userQuery / aiResponse can hold only one, and is "" on a voice call's greeting turn) \u2014 and the traceId that get_agent_message_trace expands.`
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -192320,6 +192554,10 @@ var TOOLS2 = [
             contactName: i.contactName ?? null,
             userQuery: i.userQuery ?? null,
             aiResponse: i.aiResponse ?? null,
+            // The Conversation view renders these arrays, not the singular fields: a turn can carry several messages each
+            // way, and a voice session's first turn has userQuery "" with the greeting in aiResponses[0] (live 2026-09-29).
+            userQueries: Array.isArray(i.userQueries) ? i.userQueries : [],
+            aiResponses: Array.isArray(i.aiResponses) ? i.aiResponses : [],
             attachments: i.allAttachments ?? [],
             metrics: i.metrics ?? null
           });
@@ -192355,6 +192593,194 @@ var TOOLS2 = [
       }
       out.note = "Each interaction is one inbound message; its traceId IS that message's CRM id. Expand it with get_agent_message_trace.";
       return ok(out);
+    }, args)
+  },
+  {
+    // t23 (2026-09-29). The Agent Logs filter dropdowns' own lookup. A POST that only reads, cleared as a read below.
+    name: "get_agent_log_filter_values",
+    description: describe3(
+      "get_agent_log_filter_values",
+      "The values Agent Logs can filter on, as its filter dropdowns list them: every agentName, contactName, channel or voiceName that has a logged session on the location (POST /agent-logs/filter-values). search narrows it (a substring match). Use it to find the exact agentName / channel spelling before list_agent_sessions or get_agent_metrics filter on it. Returns the names only \u2014 no ids or counts. Read-only despite being a POST."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      field: external_exports.enum(FILTER_FIELDS),
+      search: external_exports.string().optional(),
+      limit: external_exports.number().int().positive().max(100).default(100)
+    }),
+    capabilities: [{ method: "POST", path: "/agent-logs/filter-values" }],
+    // Verified 2026-09-29: one POST that returns a list of names; the Agent Logs filter dropdowns issue it on open and on
+    // every keystroke. It writes nothing.
+    readOnly: true,
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const r = await gw.call("POST", "/agent-logs/filter-values", { locationId: args.locationId, field: args.field, search: args.search ?? "", limit: args.limit ?? 100 });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const values = Array.isArray(r.json?.data) ? r.json.data : [];
+      return ok({
+        field: args.field,
+        values,
+        count: values.length,
+        ...values.length >= (args.limit ?? 100) ? { note: `The list may be cut at limit ${args.limit ?? 100}; narrow it with search.` } : {}
+      });
+    }, args)
+  },
+  {
+    // t23 (2026-09-29). Voice AI → Dashboard → Call Logs, one call's detail, and the outbound queue. One read family.
+    name: "get_voice_call_logs",
+    description: describe3(
+      "get_voice_call_logs",
+      'Voice AI call logs, the Voice AI dashboard\'s own table. view "calls" (default): the calls, newest first, filtered by agentId, contactIds, startDate/endDate (YYYY-MM-DD or ISO; sent as epoch ms), actionTypes, callType LIVE|TRIAL (real vs test calls; omit for both), direction INBOUND|OUTBOUND, sortBy createdAt|duration + sortOrder; page + pageSize (\u226450, the server cap). Each row: callId, when, duration, agent, contact, type, direction, status, the actions that ran, summary, extracted data; includeTranscript adds the transcript. view "call": one call by callId (a calls row\'s callId) with its agentId \u2014 transcript with tool calls, telephony data, status. view "pending": the outbound queue (calls not yet placed): status queued|scheduled|rejected, agentId, one contactId, dates, limit, cursor `after`. GHL has no text search on call logs. For Agent Logs sessions (all products, spans and traces) use list_agent_sessions / get_agent_session; for Conversation AI use get_convai_conversation_logs. Read-only.'
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      view: external_exports.enum(["calls", "call", "pending"]).default("calls"),
+      callId: external_exports.string().optional(),
+      agentId: external_exports.string().optional(),
+      contactIds: external_exports.array(external_exports.string()).optional(),
+      startDate: external_exports.string().optional(),
+      endDate: external_exports.string().optional(),
+      actionTypes: external_exports.array(external_exports.enum(VOICE_ACTION_TYPES)).optional(),
+      callType: external_exports.enum(["LIVE", "TRIAL"]).optional(),
+      direction: external_exports.enum(["INBOUND", "OUTBOUND"]).optional(),
+      sortBy: external_exports.enum(VOICE_SORT_FIELDS).optional(),
+      sortOrder: external_exports.enum(["asc", "desc"]).optional(),
+      page: external_exports.number().int().positive().max(1e4).default(1),
+      pageSize: external_exports.number().int().positive().max(VOICE_PAGE_SIZE_MAX).default(20),
+      timezone: external_exports.string().optional(),
+      includeTranscript: external_exports.boolean().default(false),
+      status: external_exports.enum(PENDING_STATUSES).optional(),
+      after: external_exports.string().optional(),
+      limit: external_exports.number().int().positive().max(100).default(20)
+    }),
+    capabilities: [
+      { method: "GET", path: "/voice-ai/dashboard/call-logs" },
+      { method: "GET", path: "/voice-ai/call/{callId}" },
+      { method: "GET", path: "/voice-ai/dashboard/pending-call-logs" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const view = args.view ?? "calls";
+      for (const k of ["startDate", "endDate"]) {
+        if (args[k] !== void 0 && toEpochMs2(args[k]) === null) return fail(CODES.VALIDATION_FAILED, `${k} ${JSON.stringify(args[k])} is not a date (use YYYY-MM-DD or an ISO date-time).`);
+      }
+      if (view === "call") {
+        if (!args.callId || !args.agentId) {
+          return fail(CODES.VALIDATION_FAILED, 'view "call" needs callId AND agentId \u2014 take both from a view "calls" row (the route requires the agent; a provider call id answers 403).');
+        }
+        const q3 = new URLSearchParams({ locationId: args.locationId, agentId: args.agentId });
+        const r2 = await gw.call("GET", `/voice-ai/call/${encodeURIComponent(args.callId)}?${q3}`, void 0, { base: AI_BASE3 });
+        if (!r2.ok) return fromHttp(r2.status, r2.json);
+        const c = r2.json ?? {};
+        return ok({
+          callId: c._id ?? args.callId,
+          callStatus: c.callStatus ?? null,
+          provider: c.provider ?? null,
+          createdAt: c.createdAt ?? null,
+          summary: c.summary ?? null,
+          transcript: c.transcript ?? null,
+          transcriptWithToolCalls: c.transcriptWithToolCalls ?? null,
+          telephonyData: c.telephonyData ?? null
+        });
+      }
+      if (view === "pending") {
+        if ((args.contactIds?.length ?? 0) > 1) return fail(CODES.VALIDATION_FAILED, 'view "pending" filters on ONE contactId (the queue route takes a single contact).');
+        const r2 = await gw.call("GET", `/voice-ai/dashboard/pending-call-logs?${voicePendingQuery(args)}`, void 0, { base: AI_BASE3 });
+        if (!r2.ok) return fromHttp(r2.status, r2.json);
+        const rows2 = Array.isArray(r2.json?.pendingCalls) ? r2.json.pendingCalls : [];
+        return ok({
+          view,
+          pendingCalls: rows2,
+          count: rows2.length,
+          total: r2.json?.total ?? rows2.length,
+          hasMore: Boolean(r2.json?.hasMore),
+          after: r2.json?.nextCursor ?? null,
+          ...r2.json?.hasMore ? { note: "Pass after (the returned cursor) for the next page." } : {}
+        });
+      }
+      const r = await gw.call("GET", `/voice-ai/dashboard/call-logs?${voiceCallLogsQuery(args)}`, void 0, { base: AI_BASE3 });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = (Array.isArray(r.json?.callLogs) ? r.json.callLogs : []).map((x) => voiceCallRow(x, { includeTranscript: args.includeTranscript === true }));
+      const total = Number(r.json?.totalRecords ?? rows.length);
+      const page = args.page ?? 1;
+      const pageSize = args.pageSize ?? 20;
+      return ok({
+        view,
+        calls: rows,
+        count: rows.length,
+        totalRecords: total,
+        page,
+        pageSize,
+        hasMore: page * pageSize < total,
+        ...page * pageSize < total ? { note: `Page ${page} of ${Math.ceil(total / pageSize)}; pass page ${page + 1} for more.` } : {}
+      });
+    }, args)
+  },
+  {
+    // t23 (2026-09-29). Conversation AI → Dashboard → Conversation Logs, and its View Transcript / Summary drawer.
+    name: "get_convai_conversation_logs",
+    description: describe3(
+      "get_convai_conversation_logs",
+      `Conversation AI conversation logs, the Conversation AI dashboard's table: one row per conversation an agent answered (channel, agent, contact, last message, when). view "logs" (default) needs a scope \u2014 presetPeriod (today, this-week, prev-week, this-month [default], prev-month, this-year, prev-year) or both from and to (ISO) \u2014 and filters by agentId, contactId, channel (the exact channel name: SMS, Live_Chat, WebChat\u2026; a wrong one returns 0 rows, not an error); sortOrder, page, limit \u2264100. view "summaries": what the table's View Transcript / Summary shows for one contactId \u2014 each conversation summary the agent wrote (summary text, what triggered it, the transcript it summarised), optionally one channel. A contact has summaries only where the agent's conversation summary is on. For every AI product's sessions with spans use list_agent_sessions; for Voice AI calls use get_voice_call_logs. Read-only.`
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      view: external_exports.enum(["logs", "summaries"]).default("logs"),
+      presetPeriod: external_exports.enum(CAI_PRESET_PERIODS).optional(),
+      from: external_exports.string().optional(),
+      to: external_exports.string().optional(),
+      agentId: external_exports.string().optional(),
+      contactId: external_exports.string().optional(),
+      channel: external_exports.string().optional(),
+      sortOrder: external_exports.enum(["asc", "desc"]).default("desc"),
+      page: external_exports.number().int().positive().default(1),
+      limit: external_exports.number().int().positive().max(CAI_LIMIT_MAX).default(20),
+      includeTranscript: external_exports.boolean().default(true)
+    }),
+    capabilities: [
+      { method: "GET", path: "/ai-employees/employees/{locationId}/conversation-logs" },
+      { method: "GET", path: "/ai-employees/summary/{locationId}/contact/{contactId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      if ((args.view ?? "logs") === "summaries") {
+        if (!args.contactId) return fail(CODES.VALIDATION_FAILED, `view "summaries" needs contactId (a logs row's contactId).`);
+        const q3 = new URLSearchParams({ page: String(args.page ?? 1), limit: String(args.limit ?? 20) });
+        if (args.channel) q3.set("channelName", args.channel);
+        const r2 = await gw.call("GET", `/ai-employees/summary/${loc}/contact/${encodeURIComponent(args.contactId)}?${q3}`, void 0, { base: AI_BASE3 });
+        if (!r2.ok) return fromHttp(r2.status, r2.json);
+        const items = (Array.isArray(r2.json?.items) ? r2.json.items : []).map((x) => caiSummaryRow(x, { includeTranscript: args.includeTranscript !== false }));
+        return ok({
+          view: "summaries",
+          contactId: args.contactId,
+          summaries: items,
+          count: items.length,
+          totalCount: r2.json?.totalCount ?? items.length,
+          ...items.length ? {} : { note: "No summaries: they exist only where the agent's conversation summary setting is on (and, with channel, only on that channel)." }
+        });
+      }
+      if (args.from && !args.to || !args.from && args.to) return fail(CODES.VALIDATION_FAILED, "from and to go together (ISO date-times); or use presetPeriod.");
+      if (args.from && args.presetPeriod) return fail(CODES.VALIDATION_FAILED, "pass presetPeriod OR from + to, not both.");
+      for (const k of ["from", "to"]) if (args[k] && !Number.isFinite(Date.parse(args[k]))) return fail(CODES.VALIDATION_FAILED, `${k} must be an ISO 8601 date-time.`);
+      const r = await gw.call("GET", `/ai-employees/employees/${loc}/conversation-logs?${caiConversationLogsQuery(args)}`, void 0, { base: AI_BASE3 });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = (Array.isArray(r.json?.items) ? r.json.items : []).map(caiLogRow);
+      const p2 = r.json?.pagination ?? {};
+      const total = Number(p2.totalItems ?? rows.length);
+      const page = Number(p2.page ?? args.page ?? 1);
+      const limit = Number(p2.limit ?? args.limit ?? 20);
+      return ok({
+        view: "logs",
+        scope: args.from ? { from: args.from, to: args.to } : { presetPeriod: args.presetPeriod ?? "this-month" },
+        conversations: rows,
+        count: rows.length,
+        totalItems: total,
+        page,
+        limit,
+        hasMore: page * limit < total,
+        ...page * limit < total ? { note: `Page ${page} of ${Math.ceil(total / limit)}; pass page ${page + 1} for more.` } : {}
+      });
     }, args)
   },
   {
