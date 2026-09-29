@@ -74058,9 +74058,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       export_workflow: {
-        description: "Export workflow \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Export workflow \u2014 proof: live-runtime (2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "documented",
         proofRows: [
           "triggers-list",
@@ -74592,9 +74592,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_logs: {
-        description: "Get workflow logs \u2014 proof: live-runtime (2026-09-25), floor: documented; risk: read",
+        description: "Get workflow logs \u2014 proof: live-runtime (2026-09-29), floor: documented; risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "documented",
         proofRows: [
           "logs-count-per-step",
@@ -108422,24 +108422,48 @@ function containsSecrets(value, key = "", depth = 0) {
   }
   return false;
 }
-function scrubSecrets(value) {
+var SECRET_PAIR_NAME = /secret|hmac|token|passw(?:or)?d|passphrase|bearer|signature|credential|cookie|api[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|authorization|authentication|\bx-?auth\b|auth[-_ ](?:key|token|secret|code|header)/i;
+var SECRET_PAIR_EXACT = /* @__PURE__ */ new Set(["key", "auth", "pwd", "pass", "jwt", "hmac", "sig", "session", "sessionid", "sid", "apikey"]);
+var isSecretPairName = (name) => typeof name === "string" && (SECRET_PAIR_NAME.test(name) || SECRET_PAIR_EXACT.has(name.trim().toLowerCase().replace(/^x-/, "")));
+var SECRET_VALUE_SHAPE = [
+  /^Bearer\s+\S{16,}/i,
+  /^Basic\s+[A-Za-z0-9+/=]{12,}/i,
+  /^eyJ[\w-]+\.[\w-]+\./,
+  /^(sk|rk|pk)_(live|test)_/,
+  /^pit-[0-9a-f-]{20,}/i,
+  /^AIza[0-9A-Za-z_-]{30,}/,
+  /^gh[pousr]_[A-Za-z0-9]{30,}/,
+  /^xox[abpr]-/
+];
+var isSecretShapedValue = (v) => typeof v === "string" && SECRET_VALUE_SHAPE.some((re) => re.test(v.trim()));
+var PAIR_MAP_PARENTS = /* @__PURE__ */ new Set(["headers", "header", "parameters", "params", "queryparams", "querystring", "customdata", "keyvaluedata", "cookies"]);
+var redactPairValue = (v) => v === "" || v == null || v === REDACTED ? v : REDACTED;
+function scrubSecrets(value, parentKey = "") {
   if (typeof value === "string") return scrub(value);
-  if (Array.isArray(value)) return value.map(scrubSecrets);
+  if (Array.isArray(value)) return value.map((item) => scrubSecrets(item, parentKey));
   if (value && typeof value === "object") {
+    const lean = Object.keys(value).every((k) => ["name", "value", "type", "enabled", "description"].includes(k));
+    const pairName = typeof value.key === "string" ? value.key : lean && typeof value.name === "string" ? value.name : null;
+    const isPair = "value" in value && pairName !== null;
+    const isSecretPair = isPair && (isSecretPairName(pairName) || isSecretShapedValue(value.value));
+    const isPairMap = !isPair && PAIR_MAP_PARENTS.has(String(parentKey).replace(/[-_\s]/g, "").toLowerCase());
     return Object.fromEntries(Object.entries(value).map(([key, item]) => [
       scrub(key),
-      // Deliberately scrubs the WHOLE subtree under a secret-named key, not just
-      // primitives. A nested credential need not be JWT-shaped (`{credentials:{value:
-      // "sk_live_…"}}`), so recursing would leak it. Callers wanting to expose metadata
-      // ABOUT a credential must name the field something that is not itself a credential
-      // name — see authStatus's `jwtClaims` / `tokenIdClaims`.
-      //
-      // Two values under a secret-named key carry no credential and are passed through as they are:
-      // an EMPTY string and the exact no-auth object. Redacting them manufactured one: a chatgpt
-      // step's apiKey:"" read back as "<redacted>", and writing that export back would store the
-      // literal as the key (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
-      // live-3P2-chatgpt-apikey.json).
-      isSecretKey(key) ? item === "" || isNoAuthObject(key, item) ? item : "<redacted>" : scrubSecrets(item)
+      // A secret-named pair's value, or a secret-named property of a header-like map (scalar values only).
+      isSecretPair && key === "value" || isPairMap && (item === null || typeof item !== "object") && (isSecretPairName(key) || isSecretShapedValue(item)) ? redactPairValue(item) : (
+        // Deliberately scrubs the WHOLE subtree under a secret-named key, not just
+        // primitives. A nested credential need not be JWT-shaped (`{credentials:{value:
+        // "sk_live_…"}}`), so recursing would leak it. Callers wanting to expose metadata
+        // ABOUT a credential must name the field something that is not itself a credential
+        // name — see authStatus's `jwtClaims` / `tokenIdClaims`.
+        //
+        // Two values under a secret-named key carry no credential and are passed through as they are:
+        // an EMPTY string and the exact no-auth object. Redacting them manufactured one: a chatgpt
+        // step's apiKey:"" read back as "<redacted>", and writing that export back would store the
+        // literal as the key (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
+        // live-3P2-chatgpt-apikey.json).
+        isSecretKey(key) ? item === "" || isNoAuthObject(key, item) ? item : "<redacted>" : scrubSecrets(item, key)
+      )
     ]));
   }
   return value;
