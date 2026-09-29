@@ -203594,7 +203594,12 @@ function instantiateRowTemplate(f, key, extra) {
     if (!field) continue;
     const type = VALUE_TYPE_BY_DATATYPE[field.dataType] ?? "string";
     const forced = FORCED_HAS_CHANGED.has(field.dataType) ? "has-changed" : null;
-    const menu = Array.isArray(tpl.operatorMenu) && tpl.operatorMenu.length ? tpl.operatorMenu : null;
+    let menu = Array.isArray(tpl.operatorMenu) && tpl.operatorMenu.length ? tpl.operatorMenu : null;
+    if (extra?.meta?.type === "contact_changed") {
+      if (field.dataType === "TEXTBOX_LIST")
+        throw new IRError("TRIGGER_FILTER_UNKNOWN", `contact_changed does not offer the text-box-list field '${field.name}' \u2014 the drawer's custom-field list leaves it out.`);
+      if (field.dataType === "MULTIPLE_OPTIONS" || field.dataType === "CHECKBOX") menu = ["add-index-of-true", "remove-index-of-true"];
+    }
     let operator = f.operator ?? forced ?? tpl.defaultOperator ?? (menu ? null : defaultOp(type));
     if (operator == null) {
       throw new IRError(
@@ -203627,10 +203632,23 @@ function instantiateRowTemplate(f, key, extra) {
   return null;
 }
 var PIPELINE_STAGE_ROW = { field: "opportunity.pipelineStageId", title: "Pipeline stage", type: "select", operator: "==", requires: "opportunity.pipelineId" };
+var PAY_SELECT = ["==", "!="];
+var paymentRow = (field, title, requiresValue, extra = {}) => ({ field, title, type: "select", operator: "==", operators: PAY_SELECT, requires: "payment.source", requiresValue, ...extra });
 var DEPENDENT_TRIGGER_ROWS = {
   pipeline_stage_updated: [PIPELINE_STAGE_ROW],
   opportunity_status_changed: [PIPELINE_STAGE_ROW],
-  opportunity_changed: [PIPELINE_STAGE_ROW]
+  opportunity_changed: [PIPELINE_STAGE_ROW],
+  payment_received: [
+    paymentRow("payment.funnel.sub_source", "Sub-Source", "funnel"),
+    paymentRow("payment.website.sub_source", "Sub-Source", "website"),
+    paymentRow("payment.invoice.sub_source", "Sub-Source", "invoice"),
+    paymentRow("payment.external.sub_source", "Sub-Source", "external"),
+    paymentRow("payment.funnel.transaction_type", "Transaction type", "funnel"),
+    paymentRow("payment.website.transaction_type", "Transaction type", "website"),
+    paymentRow("payment.calendar.id", "Calendar", "calendar"),
+    paymentRow("payment.form.id", "Form is", "form", { operator: "is-any-of", operators: ["is-any-of", "is-none-of"] }),
+    { field: "payment.global_product_price_ids", title: "Product price", type: "select", operator: "is-in-array", operators: ["is-in-array", "is-not-in-array"], requires: "payment.global_product_ids" }
+  ]
 };
 function expandFilter(f, rows, extra = {}) {
   if (f.field && f.operator && f.title && f.type) {
@@ -203648,15 +203666,23 @@ function expandFilter(f, rows, extra = {}) {
     const instantiated = instantiateRowTemplate(f, key, extra);
     if (instantiated) return instantiated;
     const triggerType = extra?.meta?.type ?? extra?.meta?.id ?? "?";
-    const dep = (DEPENDENT_TRIGGER_ROWS[triggerType] ?? []).find((r) => r.field === key || norm3(r.title) === norm3(key));
+    const depRows = DEPENDENT_TRIGGER_ROWS[triggerType] ?? [];
+    const byTitle = depRows.filter((r) => norm3(r.title) === norm3(key));
+    const dep = depRows.find((r) => r.field === key) ?? (byTitle.length === 1 ? byTitle[0] : void 0);
+    if (!dep && byTitle.length > 1)
+      throw new IRError(
+        "TRIGGER_FILTER_AMBIGUOUS",
+        `trigger filter '${key}' on '${triggerType}' names ${byTitle.length} rows (${byTitle.map((r) => r.field).join(", ")}); the drawer offers one per Source. Author the field id.`
+      );
     if (dep) {
-      if (f.operator && f.operator !== dep.operator)
+      const menu2 = dep.operators ?? [dep.operator];
+      if (f.operator && !menu2.includes(f.operator))
         throw new IRError(
           "FILTER_OPERATOR",
-          `trigger filter '${dep.title}' on '${triggerType}' is stored by the drawer with operator '${dep.operator}' only, not '${f.operator}'.`
+          `trigger filter '${dep.title}' on '${triggerType}' is stored by the drawer with operator ${menu2.map((o) => `'${o}'`).join(" or ")} only, not '${f.operator}'.`
         );
       const { on: _on, ...rest } = f;
-      return { ...rest, field: dep.field, operator: dep.operator, title: f.title ?? dep.title, type: f.type ?? dep.type };
+      return { ...rest, field: dep.field, operator: f.operator ?? dep.operator, title: f.title ?? dep.title, type: f.type ?? dep.type };
     }
     const seen = (observed_trigger_filters_default[triggerType] ?? []).find((r) => r.field === key || r.id === key || norm3(r.title) === norm3(key));
     if (seen) {
@@ -203710,9 +203736,19 @@ function expandFilter(f, rows, extra = {}) {
       `trigger filter '${row.value}' resolved to a non-string ${which} \u2014 an unresolved catalog artefact. GHL returns 500 on an object-valued row. Fix the catalog row (TRIGGER_CORRECTIONS in required-fields.mjs, or regenerate with the enum resolved) rather than authoring around it.`
     );
   }
+  const PRODUCT_ROW = row.value === "payment.global_product_ids";
+  if (PRODUCT_ROW) {
+    if (!f.operator) operator = "is-in-array";
+    else if (!["is-in-array", "is-not-in-array"].includes(operator))
+      throw new IRError("FILTER_OPERATOR", `trigger filter 'payment.global_product_ids' operator '${operator}' is not in the drawer's menu [is-in-array, is-not-in-array] \u2014 the drawer would show "Select operator".`);
+  }
   let value = f.value;
   if (Array.isArray(value) && operator === "==") operator = "is-any-of";
-  if (ARRAY_OPS.has(operator) && !Array.isArray(value)) value = [value];
+  if (ARRAY_OPS.has(operator) && !Array.isArray(value) && !PRODUCT_ROW) value = [value];
+  if (PRODUCT_ROW && Array.isArray(value)) {
+    if (value.length > 1) throw new IRError("FILTER_VALUE", "trigger filter 'payment.global_product_ids' takes ONE product; use one trigger per product");
+    value = value[0];
+  }
   if (SCALAR_OPS.has(operator) && Array.isArray(value)) {
     if (value.length > 1) {
       throw new IRError(
@@ -203721,6 +203757,23 @@ function expandFilter(f, rows, extra = {}) {
       );
     }
     value = value[0];
+  }
+  if (row.optionsSource === "literal" && Array.isArray(row.options) && row.options.length && value !== void 0 && value !== null && value !== "") {
+    const normOpt = (x) => String(x ?? "").toLowerCase().replace(/[\s_-]+/g, "");
+    const one = (v) => {
+      if (typeof v !== "string" || /\{\{/.test(v)) return v;
+      const exact = row.options.find((o) => o.value === v);
+      if (exact) return v;
+      const byLabel = row.options.find((o) => normOpt(o.label) === normOpt(v) || normOpt(o.value) === normOpt(v));
+      if (byLabel) return byLabel.value;
+      extra?.ctx?.warn?.(`TRIGGER_FILTER_VALUE_UNKNOWN: filter '${row.value}' value '${v}' is not one of the row's options (${row.options.map((o) => `${o.value} = "${o.label}"`).join(", ")}) \u2014 it is stored as written and will match nothing.`);
+      return v;
+    };
+    value = Array.isArray(value) ? value.map(one) : one(value);
+  }
+  if (["contact.tags", "tagsAdded", "tagsRemoved"].includes(row.value)) {
+    const low = (v) => typeof v === "string" && !/\{\{/.test(v) ? v.toLowerCase() : v;
+    value = Array.isArray(value) ? value.map(low) : low(value);
   }
   const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
   if (row.id) cond.id = row.id;
@@ -203785,10 +203838,17 @@ function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
   const rows = meta3?.filterRows ?? [];
   let conditions = (t.filters ?? []).map((f) => expandFilter(f, rows, { ctx, meta: meta3 }));
   for (const dep of DEPENDENT_TRIGGER_ROWS[t.type] ?? []) {
-    if (conditions.some((c) => c?.field === dep.field) && !conditions.some((c) => c?.field === dep.requires))
+    if (!conditions.some((c) => c?.field === dep.field)) continue;
+    const parent = conditions.find((c) => c?.field === dep.requires);
+    if (!parent)
       throw new IRError(
         "TRIGGER_FILTER_PARENT",
-        `trigger '${t.name ?? t.type}' (${t.type}) has a '${dep.title}' row but no '${dep.requires}' row \u2014 the drawer offers '${dep.title}' only after that row is chosen. Add { field: '${dep.requires}', value: '<pipeline id>' }.`
+        `trigger '${t.name ?? t.type}' (${t.type}) has a '${dep.title}' row but no '${dep.requires}' row \u2014 the drawer offers '${dep.title}' only after that row is chosen. Add { field: '${dep.requires}', value: '${dep.requiresValue ?? "<pipeline id>"}' }.`
+      );
+    if (dep.requiresValue && String(parent.value) !== dep.requiresValue)
+      throw new IRError(
+        "TRIGGER_FILTER_PARENT",
+        `trigger '${t.name ?? t.type}' (${t.type}) has '${dep.field}' but '${dep.requires}' is '${parent.value}', not '${dep.requiresValue}' \u2014 the drawer offers that row only while ${dep.requires} is '${dep.requiresValue}'.`
       );
   }
   if (ctx?.skipTriggerSeeds !== true) {
@@ -203838,6 +203898,14 @@ function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
     const empty2 = !row || row.value == null || row.value === "" || Array.isArray(row.value) && !row.value.length;
     const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` \u2014 GHL: "${ctx.catalog.i18n[r.i18n]}"` : "";
     if (empty2) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) \u2014 GHL requires filter '${r.field}'${r.beDedupeAssetType ? " (the SERVER blocks the save without it)" : ""}${ghlText}`);
+  }
+  for (const c of conditions) {
+    if (!c || c.operator === "has-changed" || c.operator === "has_value" || c.operator === "has_no_value" || c.field === "facebook.pageId" || c.field === "facebook.formId") continue;
+    const emptyList = Array.isArray(c.value) && !c.value.length;
+    const noValue = (!c.value || emptyList) && c.value !== false && c.value !== 0;
+    if (noValue || !c.field || !c.operator) {
+      ctx?.warn?.(`TRIGGER_FILTER_EMPTY_VALUE: '${t.name ?? t.type}' (${t.type}) row '${c?.title ?? c?.field ?? "?"}' ${!c.field ? "has no field" : !c.operator ? "has no operator" : `(${c.operator}) has no value`} \u2014 the API stores it, but the drawer then shows the row as "Select operator" or with an empty value, and the builder refuses to save the trigger until every row has a value (TriggerMain.hasErrors), so it cannot be edited and re-saved in the UI. Give the row a value, or use 'has-changed' where the trigger offers it.`);
+    }
   }
   if (t.type === "opportunity_status_changed" && !conditions.some((c) => ["moved-from-status", "moved-to-status"].includes(c?.id) || ["opportunity.status", "opportunity.oldStatus"].includes(c?.field)))
     throw new IRError(
