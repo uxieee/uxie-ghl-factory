@@ -88,7 +88,7 @@ import {
   leaves as filterLeaves,
 } from './smart-lists.mjs';
 import { planPipelineEdit, verifyPipeline, COLOR_RENDER_MODES } from './pipelines.mjs';
-import { FORECAST_VIEWS, GROUP_BY, PATHS as FORECAST_PATHS, forecastBody, nameMaps, shapeForecast } from './forecast.mjs';
+import { CLOSE_DATE_BUCKETS, DRILLDOWN_BY, FORECAST_VIEWS, GROUP_BY, PATHS as FORECAST_PATHS, forecastBody, nameMaps, shapeForecast } from './forecast.mjs';
 import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId } from './snapshots.mjs';
 import {
   digestSpans as digestAgentSpans,
@@ -10786,7 +10786,11 @@ export const TOOLS = [
     description: `${describe('get_pipeline_forecast', 'Read the opportunity forecast — risk: read')}. `
       + 'The app\'s Forecast tab: expected, weighted and won revenue grouped by stage, owner, status or close date '
       + '(view:"summary"); one period\'s deals and metrics (view:"timeline", periodType week|month|quarter with '
-      + 'startDate/endDate); the deals behind a period\'s weighted or unweighted number (view:"drilldown"); and '
+      + 'startDate/endDate, paged with page/limit; the app shows 20 a column); the deals behind a KPI tile, a summary row or a close-date '
+      + 'bucket, exactly as the Forecast tab lists them when clicked (view:"drilldown" with drilldownBy kpi|stage|owner|status|close_date '
+      + 'and key: bestCase|weightedForecast|closedWon|activeOpportunities, a stage id, an owner id or "__none__", a status, or the '
+      + 'bucket start YYYY-MM-DD with closeDateBucket month|quarter|year; lost and abandoned deals are left out unless you drill into '
+      + 'that status; paged with page/limit, 10 by default); and '
       + 'deals whose close date keeps slipping, by risk band (view:"slippage"). Rows carry pipeline, stage and '
       + 'owner NAMES; GHL itself labels stage and owner rows with UUIDs. Weighting follows the pipeline\'s '
       + 'useOpportunityProbability switch. Slippage bands: the server default is "1+ times AND 7+ days" for medium, '
@@ -10801,12 +10805,14 @@ export const TOOLS = [
       view: z.enum(FORECAST_VIEWS),
       pipelineId: z.string().optional(),
       groupBy: z.enum(GROUP_BY).optional(),
-      closeDateBucket: z.enum(['month', 'quarter']).optional(),
+      closeDateBucket: z.enum(CLOSE_DATE_BUCKETS).optional(),
       closeDateMode: z.enum(['all_available', 'windowed']).optional(),
       periodType: z.enum(['week', 'month', 'quarter']).optional(),
       startDate: z.string().optional(),
       endDate: z.string().optional(),
       showBy: z.enum(['forecast_expected_close_date', 'date_added']).optional(),
+      drilldownBy: z.enum(DRILLDOWN_BY).optional(),
+      key: z.string().optional(),
       periodStart: z.string().optional(),
       metric: z.enum(['weighted', 'unweighted']).optional(),
       risk: z.enum(['high', 'medium', 'low']).optional(),
@@ -10819,8 +10825,8 @@ export const TOOLS = [
     capabilities: [
       { method: 'POST', path: '/opportunities/forecast/summary' },
       { method: 'POST', path: '/opportunities/forecast/column' },
-      { method: 'POST', path: '/opportunities/forecast/drilldown' },
       { method: 'POST', path: '/opportunities/forecast/slippage' },
+      { method: 'POST', path: '/opportunities/search' },
       { method: 'GET', path: '/opportunities/pipelines' },
       // The owner-name join dials the default (backend) gateway, not the ai rail the reports use.
       { method: 'GET', path: '/users/', origin: 'https://backend.leadconnectorhq.com' },
@@ -10833,16 +10839,21 @@ export const TOOLS = [
       if (built.error) return fail(CODES.VALIDATION_FAILED, built.error, 'Adjust the arguments for this view.');
       const ai = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
       const wf = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const r = await ai.call('POST', FORECAST_PATHS[args.view], built.body);
+      const r = await ai.call('POST', built.path ?? FORECAST_PATHS[args.view], built.body);
       if (!r.ok) return fromHttp(r.status, r.json);
       // Names are best-effort: a failed lookup leaves ids in place and says so.
       const notes = [];
+      if (args.view === 'drilldown' && args.metric) notes.push('metric is not used: the app\'s drilldown lists the same deals for weighted and unweighted; the per-deal probability is on each row');
       const pl = await ai.call('GET', `/opportunities/pipelines?${new URLSearchParams({ locationId: args.locationId })}`);
       if (!pl.ok) notes.push(`pipeline names unavailable (${pl.status}); stage and pipeline ids shown`);
       const us = await wf.call('GET', `/users/?${new URLSearchParams({ locationId: args.locationId })}`);
       if (!us.ok) notes.push(`user names unavailable (${us.status}); owner ids shown`);
       const maps = nameMaps(pl.ok ? pl.json?.pipelines : [], us.ok ? us.json?.users : []);
       const data = { view: args.view, ...shapeForecast(args.view, r.json, maps) };
+      if (built.body.page !== undefined && built.body.limit !== undefined) {
+        data.page = built.body.page; data.limit = built.body.limit;
+        data.hasMore = typeof data.total === 'number' && built.body.page * built.body.limit < data.total;
+      }
       if (notes.length) data.notes = notes;
       if (args.raw === true) data.raw = r.json;
       return ok(data);
