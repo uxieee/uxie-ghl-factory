@@ -16,6 +16,7 @@ import { evaluateIfElseVocab } from '../ifelse-vocab.mjs';
 import { lintContactFieldTemplates } from '../contact-field-shapes.mjs';
 import { lintOpportunityWrites } from './opportunity.mjs';
 import { lintTriggerRows } from './trigger-rows.mjs';
+import { lintIfElseTagCase } from './tag-case.mjs';
 import { lintEntryStep } from './entry-step.mjs';
 import { lintPublishRules } from './publish-rules.mjs';
 import { lintNameLength } from './name-length.mjs';
@@ -99,6 +100,7 @@ export function runLints(doc, {
       for (const f of lintContactLessSteps(T, triggers)) F('platform', f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintSmsTemplateBody(T)) F('platform', f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintEventStartRecurring(T)) F('platform', f.code, f.severity, f.msg, { stepId: f.stepId });
+      for (const f of lintIfElseTagCase(T)) F('platform', f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F('platform', f.code, f.severity, f.msg, { triggerId: f.triggerId });
       // A name the API accepts and the builder's drawer refuses (R-58) — reported for steps and
       // triggers alike, so an id-keyed reader gets whichever key applies.

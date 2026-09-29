@@ -1490,7 +1490,9 @@ export function normalizeCondition(rawC, ctx) {
       conditionType: 'contact_detail',
       conditionSubType: 'tags',
       conditionOperator: negate ? 'index-of-false' : 'index-of-true',
-      conditionValue: raw == null ? [] : (Array.isArray(raw) ? raw : [raw]),
+      // GHL stores tags lower case, and an if/else tag condition holding a capital letter NEVER MATCHES: with the same own contact and the
+      // same tag, the lower-case condition took Yes and the mixed-case one took Else (live 2026-09-30, live-W31-ifelse-tag-result.json).
+      conditionValue: raw == null ? [] : (Array.isArray(raw) ? raw : [raw]).map((v) => (typeof v === 'string' && !/\{\{/.test(v) ? v.toLowerCase() : v)),
     };
   }
 

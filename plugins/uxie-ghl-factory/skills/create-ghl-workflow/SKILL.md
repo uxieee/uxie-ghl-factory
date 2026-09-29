@@ -203,11 +203,15 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
 - **A `from_email` on a domain the location cannot send from is rewritten, not dropped.** It goes
   out as `local+domain@<the location's sending subdomain>`, with the From NAME kept. The step's log
   shows the address as authored; read the conversation message to see what was sent (live 2026-09-29).
-- **A trigger row that names a tag must hold it in lower case.** GHL stores every tag lower case, and a trigger row with a
-  capital letter NEVER FIRES (live 2026-09-30: two published `contact_tag` workflows, same tag, only the lower-case row enrolled the
-  contact). The engine lower-cases the row it writes; a workflow built earlier, by hand or by API can still carry one. `check_workflow`
-  reports `TRIGGER_TAG_CASE`, `find_workflows_using {problems:"mixed-case-tag-rows"}` lists them account-wide (one index call; NOT
-  covered: if/else tag conditions and step tag values), and `edit_workflow {op:"replaceTag", oldTag, newTag, allowNoop:true}` fixes one.
+- **A trigger row or an if/else condition that names a tag must hold it in lower case.** GHL stores every tag lower case, and a
+  mixed-case row NEVER MATCHES (live 2026-09-30: two published `contact_tag` workflows, same tag, only the lower-case row enrolled the
+  contact; two if/else workflows on the same contact, the lower-case condition took Yes and the mixed-case one took Else). The engine
+  lower-cases what it writes; a workflow built earlier, by hand or by API can still carry one. `check_workflow` reports
+  `TRIGGER_TAG_CASE` / `IFELSE_TAG_CASE`, `find_workflows_using {problems:"mixed-case-tag-rows"}` lists them account-wide (NOT covered:
+  the tags add/remove-tag STEPS write), and `edit_workflow {op:"replaceTag", oldTag, newTag, allowNoop:true}` fixes one.
+- **A `trigger_link` click only fires for a browser-like client.** The tracked short URL answers a `302` to `/r/2/<token>` and the
+  second request registers the click, but with `curl`'s own User-Agent neither request enrolled the contact (live 2026-09-30). Link
+  scanners and scripted clickers will not trigger it; test with a browser or a browser User-Agent.
 - **`workflow_ai_extract_data` output is `{{workflow_ai_extract_data.N.<fieldName>}}`.**
   `{{workflow_ai_extract_data.N.output.<fieldName>}}` builds clean and renders EMPTY (live
   2026-09-28).
