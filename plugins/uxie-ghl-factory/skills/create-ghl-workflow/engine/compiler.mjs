@@ -2359,7 +2359,15 @@ function instantiateRowTemplate(f, key, extra) {
 
     const type = VALUE_TYPE_BY_DATATYPE[field.dataType] ?? 'string';
     const forced = FORCED_HAS_CHANGED.has(field.dataType) ? 'has-changed' : null;
-    const menu = Array.isArray(tpl.operatorMenu) && tpl.operatorMenu.length ? tpl.operatorMenu : null;
+    let menu = Array.isArray(tpl.operatorMenu) && tpl.operatorMenu.length ? tpl.operatorMenu : null;
+    // contact_changed: a multi-select or checkbox custom field is offered Added / Removed, not Has changed / Has changed to
+    // (ContactChangedFilter.getOperatorOptions; drawer walk 2026-09-30, live-W29-f-contact_changed-filters.json). Text-box-list
+    // fields are not offered at all (getOptions).
+    if (extra?.meta?.type === 'contact_changed') {
+      if (field.dataType === 'TEXTBOX_LIST')
+        throw new IRError('TRIGGER_FILTER_UNKNOWN', `contact_changed does not offer the text-box-list field '${field.name}' — the drawer's custom-field list leaves it out.`);
+      if (field.dataType === 'MULTIPLE_OPTIONS' || field.dataType === 'CHECKBOX') menu = ['add-index-of-true', 'remove-index-of-true'];
+    }
     let operator = f.operator ?? forced ?? tpl.defaultOperator ?? (menu ? null : defaultOp(type));
     if (operator == null) {
       throw new IRError('FILTER_OPERATOR_REQUIRED',
@@ -2397,10 +2405,27 @@ function instantiateRowTemplate(f, key, extra) {
 // Stage' filter" — while with '==' it saved and fired on a move INTO the stage and on a create in it
 // (live 2026-09-28, sniffs/workflows-wave1-2026-09-25/live-3BP-opp-triggers.json, live-3BP2-stage-row-probe.json).
 const PIPELINE_STAGE_ROW = { field: 'opportunity.pipelineStageId', title: 'Pipeline stage', type: 'select', operator: '==', requires: 'opportunity.pipelineId' };
+// payment_received's drawer adds rows once a Source (or a Global product) is chosen (PaymentReceived.addDynamicFilterOptions,
+// bundle 2026-09-29). Operators are the drawer's menus for the row's kind: a select is '==' / '!=' (string_without_empty), the
+// form multi-select 'is-any-of' / 'is-none-of', the product price 'is-in-array' / 'is-not-in-array' (utils/conditions.ts). The
+// drawer walk of 2026-09-30 (live-W29-f-payment_received-sources-*.json) shows which Source offers which row.
+const PAY_SELECT = ['==', '!='];
+const paymentRow = (field, title, requiresValue, extra = {}) => ({ field, title, type: 'select', operator: '==', operators: PAY_SELECT, requires: 'payment.source', requiresValue, ...extra });
 export const DEPENDENT_TRIGGER_ROWS = {
   pipeline_stage_updated: [PIPELINE_STAGE_ROW],
   opportunity_status_changed: [PIPELINE_STAGE_ROW],
   opportunity_changed: [PIPELINE_STAGE_ROW],
+  payment_received: [
+    paymentRow('payment.funnel.sub_source', 'Sub-Source', 'funnel'),
+    paymentRow('payment.website.sub_source', 'Sub-Source', 'website'),
+    paymentRow('payment.invoice.sub_source', 'Sub-Source', 'invoice'),
+    paymentRow('payment.external.sub_source', 'Sub-Source', 'external'),
+    paymentRow('payment.funnel.transaction_type', 'Transaction type', 'funnel'),
+    paymentRow('payment.website.transaction_type', 'Transaction type', 'website'),
+    paymentRow('payment.calendar.id', 'Calendar', 'calendar'),
+    paymentRow('payment.form.id', 'Form is', 'form', { operator: 'is-any-of', operators: ['is-any-of', 'is-none-of'] }),
+    { field: 'payment.global_product_price_ids', title: 'Product price', type: 'select', operator: 'is-in-array', operators: ['is-in-array', 'is-not-in-array'], requires: 'payment.global_product_ids' },
+  ],
 };
 
 function expandFilter(f, rows, extra = {}) {
@@ -2434,13 +2459,19 @@ function expandFilter(f, rows, extra = {}) {
     // UI-written trigger of this type was SEEN to store this field, so its title/type/id are filled
     // from that observation. The authored operator always wins; one is supplied only when exactly one
     // was ever observed, and that is said.
-    const dep = (DEPENDENT_TRIGGER_ROWS[triggerType] ?? []).find((r) => r.field === key || norm(r.title) === norm(key));
+    const depRows = DEPENDENT_TRIGGER_ROWS[triggerType] ?? [];
+    const byTitle = depRows.filter((r) => norm(r.title) === norm(key));
+    const dep = depRows.find((r) => r.field === key) ?? (byTitle.length === 1 ? byTitle[0] : undefined);
+    if (!dep && byTitle.length > 1)
+      throw new IRError('TRIGGER_FILTER_AMBIGUOUS',
+        `trigger filter '${key}' on '${triggerType}' names ${byTitle.length} rows (${byTitle.map((r) => r.field).join(', ')}); the drawer offers one per Source. Author the field id.`);
     if (dep) {
-      if (f.operator && f.operator !== dep.operator)
+      const menu = dep.operators ?? [dep.operator];
+      if (f.operator && !menu.includes(f.operator))
         throw new IRError('FILTER_OPERATOR',
-          `trigger filter '${dep.title}' on '${triggerType}' is stored by the drawer with operator '${dep.operator}' only, not '${f.operator}'.`);
+          `trigger filter '${dep.title}' on '${triggerType}' is stored by the drawer with operator ${menu.map((o) => `'${o}'`).join(' or ')} only, not '${f.operator}'.`);
       const { on: _on, ...rest } = f;
-      return { ...rest, field: dep.field, operator: dep.operator, title: f.title ?? dep.title, type: f.type ?? dep.type };
+      return { ...rest, field: dep.field, operator: f.operator ?? dep.operator, title: f.title ?? dep.title, type: f.type ?? dep.type };
     }
     const seen = (OBSERVED_TRIGGER_FILTERS[triggerType] ?? []).find((r) => r.field === key || r.id === key || norm(r.title) === norm(key));
     if (seen) {
@@ -2516,11 +2547,25 @@ function expandFilter(f, rows, extra = {}) {
       + `500 on an object-valued row. Fix the catalog row (TRIGGER_CORRECTIONS in required-fields.mjs, or regenerate `
       + `with the enum resolved) rather than authoring around it.`);
   }
+  // payment_received's Global product row: the drawer's menu is Is / Is not = 'is-in-array' / 'is-not-in-array' (utils/conditions.ts
+  // array_to_string), and the value is ONE product id, a string. Stored with '==' the drawer shows "Select operator"; stored with a
+  // one-element ARRAY it shows the operator and an empty value (both read on a tool-built draft, live-W29-f-render-payment_received.json,
+  // live-W29-f-render-payprod-*.json).
+  const PRODUCT_ROW = row.value === 'payment.global_product_ids';
+  if (PRODUCT_ROW) {
+    if (!f.operator) operator = 'is-in-array';
+    else if (!['is-in-array', 'is-not-in-array'].includes(operator))
+      throw new IRError('FILTER_OPERATOR', `trigger filter 'payment.global_product_ids' operator '${operator}' is not in the drawer's menu [is-in-array, is-not-in-array] — the drawer would show "Select operator".`);
+  }
   let value = f.value;
   // an array value with a scalar-equality operator means "one of" — upgrade to is-any-of
   // (e.g. form.id, whose recovered row has no operator and defaults to '==')
   if (Array.isArray(value) && operator === '==') operator = 'is-any-of';
-  if (ARRAY_OPS.has(operator) && !Array.isArray(value)) value = [value];
+  if (ARRAY_OPS.has(operator) && !Array.isArray(value) && !PRODUCT_ROW) value = [value];
+  if (PRODUCT_ROW && Array.isArray(value)) {
+    if (value.length > 1) throw new IRError('FILTER_VALUE', "trigger filter 'payment.global_product_ids' takes ONE product; use one trigger per product");
+    value = value[0];
+  }
   // Unwrap a convenience-authored ['tag'] back to the scalar the dispatcher requires.
   if (SCALAR_OPS.has(operator) && Array.isArray(value)) {
     if (value.length > 1) {
@@ -2528,6 +2573,29 @@ function expandFilter(f, rows, extra = {}) {
         `trigger filter '${row.value}' (${operator}) takes a single tag, got ${value.length}; use one filter row per tag`);
     }
     value = value[0];
+  }
+  // A select row whose options are a fixed LIST stores the option's VALUE, not its label: the drawer shows "Success" and stores
+  // 'succeeded', "Website" and stores 'website'. A label written to the wire matches nothing, and GHL accepts it (drawer walk +
+  // catalog, payment_received). Map a label (case/space-insensitive) to its value; warn on anything that is neither.
+  if (row.optionsSource === 'literal' && Array.isArray(row.options) && row.options.length && value !== undefined && value !== null && value !== '') {
+    const normOpt = (x) => String(x ?? '').toLowerCase().replace(/[\s_-]+/g, '');
+    const one = (v) => {
+      if (typeof v !== 'string' || /\{\{/.test(v)) return v;
+      const exact = row.options.find((o) => o.value === v);
+      if (exact) return v;
+      const byLabel = row.options.find((o) => normOpt(o.label) === normOpt(v) || normOpt(o.value) === normOpt(v));
+      if (byLabel) return byLabel.value;
+      extra?.ctx?.warn?.(`TRIGGER_FILTER_VALUE_UNKNOWN: filter '${row.value}' value '${v}' is not one of the row's options `
+        + `(${row.options.map((o) => `${o.value} = "${o.label}"`).join(', ')}) — it is stored as written and will match nothing.`);
+      return v;
+    };
+    value = Array.isArray(value) ? value.map(one) : one(value);
+  }
+  // GHL stores tags in lower case and the drawer's tag picker lists them that way: a row written 'VIP' shows "Select a tag" in the
+  // drawer (read on a tool-built draft, live-W29-f-render-contact_tag.json vs live-W29-f-render-taglower.json). Lower-case it.
+  if (['contact.tags', 'tagsAdded', 'tagsRemoved'].includes(row.value)) {
+    const low = (v) => (typeof v === 'string' && !/\{\{/.test(v) ? v.toLowerCase() : v);
+    value = Array.isArray(value) ? value.map(low) : low(value);
   }
   const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
   if (row.id) cond.id = row.id;
@@ -2622,10 +2690,17 @@ export function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
   // A dependent row exists in the drawer only under its parent row, so a trigger carrying one without
   // the parent is one the builder cannot produce (and the stage id means nothing without its pipeline).
   for (const dep of DEPENDENT_TRIGGER_ROWS[t.type] ?? []) {
-    if (conditions.some((c) => c?.field === dep.field) && !conditions.some((c) => c?.field === dep.requires))
+    if (!conditions.some((c) => c?.field === dep.field)) continue;
+    const parent = conditions.find((c) => c?.field === dep.requires);
+    if (!parent)
       throw new IRError('TRIGGER_FILTER_PARENT',
         `trigger '${t.name ?? t.type}' (${t.type}) has a '${dep.title}' row but no '${dep.requires}' row — the drawer offers `
-        + `'${dep.title}' only after that row is chosen. Add { field: '${dep.requires}', value: '<pipeline id>' }.`);
+        + `'${dep.title}' only after that row is chosen. Add { field: '${dep.requires}', value: '${dep.requiresValue ?? '<pipeline id>'}' }.`);
+    // payment_received: the row exists only under ONE Source value (a Funnel sub-source is not offered under Invoice).
+    if (dep.requiresValue && String(parent.value) !== dep.requiresValue)
+      throw new IRError('TRIGGER_FILTER_PARENT',
+        `trigger '${t.name ?? t.type}' (${t.type}) has '${dep.field}' but '${dep.requires}' is '${parent.value}', not '${dep.requiresValue}' — `
+        + `the drawer offers that row only while ${dep.requires} is '${dep.requiresValue}'.`);
   }
   // TRIGGER SEEDS — rows the UI adds to this trigger type by itself (TriggerMain.addMandatoryFilters,
   // on creation AND load). Only corpus-CONFIRMED rows are seeded (appointment.eventType == 'normal'
@@ -2705,6 +2780,23 @@ export function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
     // quote the builder's own wording when the catalog carries it (i18n, from the compiled chunk)
     const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` — GHL: "${ctx.catalog.i18n[r.i18n]}"` : '';
     if (empty) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) — GHL requires filter '${r.field}'${r.beDedupeAssetType ? ' (the SERVER blocks the save without it)' : ''}${ghlText}`);
+  }
+  // VALUE-LESS ROWS. The API stores a filter row with no value and reports success, but the builder refuses to SAVE a trigger
+  // carrying one (TriggerMain.hasErrors -> checkForEmptyFilter, TriggerMain.ts:306-334): the Save trigger button stays blocked
+  // until a value is chosen, so a person who opens the trigger later cannot re-save it (the block is read from source; the drawer's
+  // "Select operator" / empty value for such a row is measured live, live-W29-f-render-payment-BEFORE-noop.json). Exempt exactly as the builder does:
+  // operator 'has-changed', 'has_value', 'has_no_value', the two Facebook page/form fields, and a value of false or 0.
+  for (const c of conditions) {
+    if (!c || c.operator === 'has-changed' || c.operator === 'has_value' || c.operator === 'has_no_value'
+      || c.field === 'facebook.pageId' || c.field === 'facebook.formId') continue;
+    const emptyList = Array.isArray(c.value) && !c.value.length;
+    const noValue = (!c.value || emptyList) && c.value !== false && c.value !== 0;
+    if (noValue || !c.field || !c.operator) {
+      ctx?.warn?.(`TRIGGER_FILTER_EMPTY_VALUE: '${t.name ?? t.type}' (${t.type}) row '${c?.title ?? c?.field ?? '?'}' `
+        + `${!c.field ? 'has no field' : !c.operator ? 'has no operator' : `(${c.operator}) has no value`} — the API stores it, but the drawer then shows `
+        + 'the row as "Select operator" or with an empty value, and the builder refuses to save the trigger until every row has a value (TriggerMain.hasErrors), so it cannot be edited and re-saved in the UI. '
+        + "Give the row a value, or use 'has-changed' where the trigger offers it.");
+    }
   }
   // opportunity_status_changed needs a "Moved from status" or "Moved to status" row. The builder
   // checks it client-side (TriggerMain.checkRequiredOpportunityStatusChanged, by filter id) and the
