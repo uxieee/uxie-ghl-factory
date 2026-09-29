@@ -696,9 +696,9 @@
     ]
   },
   "get_account_workflow_overview": {
-    "description": "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals — proof: live-runtime (2026-09-25); risk: read",
+    "description": "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "workflows-statistics",
@@ -1048,9 +1048,9 @@
     ]
   },
   "get_trigger_logs": {
-    "description": "Trigger attempt logs + top failed reasons — proof: live-runtime (2026-09-25); risk: read",
+    "description": "Trigger attempt logs + top failed reasons — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "trigger-logs-triggerId",
