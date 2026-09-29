@@ -11,6 +11,28 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.26.0] — 2026-09-29
+
+**Pages: margins, tablet and mobile styles, and section styling, all kept exactly by a builder save. Executed live on
+the test account.**
+
+### Added
+- `build_funnel_page` / `edit_funnel`: margins, wrapper styles, and tablet and mobile overrides on every element, row
+  and column. Sections take styles, per-device maps, visibility, custom classes, a background image and an entrance
+  animation. An unknown section key is refused by name. Three live cycles (build, rebuild, edit), each followed by a
+  save in GHL's page builder: all 283 nodes' styling was unchanged in the saved page and on a later read.
+- Elements get the page builder's own defaults for each kind, taken from the builder's element factory and pinned to
+  the builder version they came from. A test fails when GHL ships a new builder.
+
+### Fixed
+- Five element kinds (nav cart, search bar, QR code, pricing table, featured product) no longer write `undefined`
+  styles. Builder-native fields get the value the browser would compute.
+- A row's default inner width is the builder's 1170 px. It was 1100, which every builder save rewrote.
+
+### Changed
+- ⚠️ Results list under `builderStyling` the 43 element kinds that only look right after the page has been saved once
+  in the builder. `pdpStyling` is kept as a deprecated alias.
+
 ## [1.25.0] — 2026-09-29
 
 **Workflows: company workflows end to end, a contact's workflow history, and the workflow note. Executed live on the
