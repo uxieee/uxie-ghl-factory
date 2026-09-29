@@ -274,6 +274,20 @@ triggers:
   four formatters, math_operation, custom_code, add/remove(-all)_from_workflow, array_functions,
   drip, add_notes. Contact-centric steps (tags, opportunities, SMS…) are un-producible there.
 - Object trigger filters are minted per schema field — author them as stored rows or leave `[]`.
+- Every trigger of an object workflow carries `objectKey: "custom_objects.<key>"`, as the builder writes it; the
+  engine stamps it on build and on edit (live-proven 2026-09-29).
+
+**Company workflows** — top-level `workflowType: "business"`. The run belongs to the company record
+(`contactId: "business_<company id>"` in logs). The catalogue is the company one (`workflowTypes=default,company`):
+the four company-record steps (create / update / clear company or associated contact, `co_find_company_record`),
+`associate_records`, and the company triggers `business_created` / `business_changed` (author them `marketplace: true`).
+A company enters only by those triggers, by an `inbound_webhook` + `co_find_company_record`, or by
+`add_associated_records_to_workflow` in a CONTACT workflow — there is no manual enrolment. Traps (all live-proven):
+clearing a COMPANY field is accepted and not applied (the engine warns CLEAR_NOT_APPLIED; contact mode works);
+`remove_associated_records_from_workflow` ends the record's runs in OTHER workflows too (REMOVE_ENDS_OTHER_RUNS);
+`create_company_or_associated_contact` beside `business_created` is refused (a loop). Find company is authored as
+`{type: "co_find_company_record", find: {filter_on?, filters: [{field: "business.name__TEXT", value}]}, onFound, onNotFound}`
+and needs an `inbound_webhook` trigger; Not Found is a branch (the step logs `skipped`), not an error.
 
 ### Step outputs — referencing what an earlier step PRODUCED
 
