@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1581,
+      count: 1583,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -1569,7 +1569,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchAssociationsForObject",
-          service: "pipelines-opportunities",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -1595,6 +1595,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/AssociationsService.ts:17",
             "workflows/70-research/ENDPOINTS.md:146"
+          ]
+        },
+        {
+          id: "workflows--object-key-business",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/associations/objectKey/business",
+          path: "/associations/objectKey/business",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/company.md:99"
           ]
         },
         {
@@ -3417,6 +3448,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "workflows--contacts-workflow",
+          aka: [
+            "/contacts/{id}/workflow/{wid}"
+          ],
           method: "POST",
           url: "https://backend.leadconnectorhq.com/contacts/{contactId}/workflow/{workflowId}",
           path: "/contacts/{contactId}/workflow/{workflowId}",
@@ -3454,7 +3488,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/50-runtime/forcing-and-removing-contacts.md:45"
+            "workflows/50-runtime/forcing-and-removing-contacts.md:45",
+            "workflows/30-types/steps-marketplace/company.md:165"
           ]
         },
         {
@@ -19578,7 +19613,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/30-types/steps-marketplace/company.md:54",
-            "workflows/30-types/steps-marketplace/company.md:68"
+            "workflows/30-types/steps-marketplace/company.md:68",
+            "workflows/40-rules/company-field-clear-not-applied.md:25"
+          ]
+        },
+        {
+          id: "workflows--records-search-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/objects/business/records/search",
+          path: "/objects/business/records/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps/custom_webhook.md:165"
           ]
         },
         {
@@ -27513,6 +27580,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "edit_workflow",
             "export_workflow",
             "get_agent_message_trace",
+            "get_contact_workflow_history",
             "get_workflow",
             "get_workflow_digest",
             "get_workflow_runtime_window",
@@ -31934,7 +32002,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/CustomWebhookService.ts:44"
+            "services/CustomWebhookService.ts:44",
+            "workflows/30-types/steps/custom_webhook.md:163"
           ]
         },
         {
@@ -33029,7 +33098,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -38289,6 +38360,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           coveredBy: [
             "check_workflow",
             "edit_workflow",
+            "publish_workflow",
             "repair_workflow"
           ],
           rawCallable: true,
@@ -39528,7 +39600,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_contact_workflow_history"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -40372,6 +40446,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "agency-admin-bearer"
           ],
           coveredBy: [
+            "get_contact_workflow_history",
             "get_workflow_logs",
             "get_workflow_runtime_window"
           ],
@@ -75560,6 +75635,32 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "ai-agents--employees-conversation-logs",
           "ai-agents--summary-contact"
+        ]
+      },
+      get_contact_workflow_history: {
+        description: "Contact workflow run history \u2014 proof: live-runtime (2026-09-29); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-29)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "workflows--search-contact-executions",
+          "workflows--search-workflow-with-filter-get",
+          "workflow-read"
+        ],
+        proofFloorRows: [
+          "workflows--search-contact-executions",
+          "workflows--search-workflow-with-filter-get",
+          "workflow-read"
+        ],
+        riskRows: [
+          "workflows--search-contact-executions",
+          "workflows--search-workflow-with-filter-get",
+          "workflow-read"
+        ],
+        rows: [
+          "workflows--search-contact-executions",
+          "workflows--search-workflow-with-filter-get",
+          "workflow-read"
         ]
       }
     };
@@ -122365,7 +122466,7 @@ var IRError = class extends Error {
   }
 };
 var SCOPE_KEYS = ["onEvent", "onTimeout", "onFound", "onNotFound", "onBooked", "onNotBooked", "default"];
-var CONTAINER_KINDS = /* @__PURE__ */ new Set(["find_opportunity", "find_contact", "lc_merge_contact"]);
+var CONTAINER_KINDS = /* @__PURE__ */ new Set(["find_opportunity", "find_contact", "lc_merge_contact", "co_find_company_record"]);
 var KNOWN_NODE_KEYS = /* @__PURE__ */ new Set([
   "ref",
   "kind",
@@ -122390,7 +122491,7 @@ var KNOWN_NODE_KEYS = /* @__PURE__ */ new Set([
   // if_else / split
   "find",
   "match_by",
-  // find_opportunity / find_contact / lc_merge_contact
+  // find_opportunity / find_contact / lc_merge_contact / co_find_company_record
   "reply",
   "timeout",
   // multipath wait
@@ -122408,8 +122509,8 @@ var KNOWN_NODE_KEYS = /* @__PURE__ */ new Set([
 var SCOPE_OWNERS = {
   onEvent: ["wait"],
   onTimeout: ["wait"],
-  onFound: ["find_opportunity", "find_contact", "lc_merge_contact"],
-  onNotFound: ["find_opportunity", "find_contact", "lc_merge_contact"],
+  onFound: ["find_opportunity", "find_contact", "lc_merge_contact", "co_find_company_record"],
+  onNotFound: ["find_opportunity", "find_contact", "lc_merge_contact", "co_find_company_record"],
   // Both Conversation-AI booking containers use these scopes: book_appointment books into a GHL
   // calendar, services_booking into a commerce service. Same two pre-defined branches.
   onBooked: ["conversationai_book_appointment", "conversationai_services_booking"],
@@ -189821,6 +189922,10 @@ var MARKETPLACE_ENVELOPE_KEYS = /* @__PURE__ */ new Set([
   "__customInputFields__",
   "type"
 ]);
+function generatorDeclaredKeys(entry) {
+  const src = (entry?.inputs ?? []).filter((f) => f?.field === "DYNAMIC").map((f) => f?.dynamicFieldsConfig?.customGenerator ?? "").join("\n");
+  return new Set([...src.matchAll(/["']?field["']?\s*:\s*["'`]([A-Za-z_][A-Za-z0-9_]*)["'`]/g)].map((m) => m[1]));
+}
 function marketplaceEntry(node, ctx, kind) {
   const entry = ctx?.marketplace?.get?.(node.type, kind);
   const readFailed = ctx?.marketplace?.readFailed ?? {};
@@ -189872,13 +189977,34 @@ function marketplaceAttributes(node, ctx) {
       "MARKETPLACE_REQUIRED_FIELD",
       `marketplace step '${node.ref}' (${node.type}, "${entry.appName}") is missing required input(s): ${missing.join(", ")}. The builder would show "Resolve N Errors".`
     );
-  const declared = new Set(entry.inputs.map((f) => f?.field).filter(Boolean));
+  const declared = /* @__PURE__ */ new Set([...entry.inputs.map((f) => f?.field).filter(Boolean), ...generatorDeclaredKeys(entry)]);
   for (const key of Object.keys(out)) {
     if (MARKETPLACE_ENVELOPE_KEYS.has(key) || declared.has(key)) continue;
     ctx?.warn?.(`marketplace step '${node.ref}' (${node.type}) sets '${key}', which "${entry.appName}" does not declare in its inputs. It will be stored verbatim; confirm the key is right.`);
   }
+  const behaviour = ASSET_BEHAVIOUR_WARNINGS[node.type]?.(out);
+  if (behaviour) ctx?.warn?.(`${behaviour.code}: step '${node.ref}' (${node.type}): ${behaviour.message}`);
   return out;
 }
+var ASSET_BEHAVIOUR_WARNINGS = {
+  // A differential on two PUBLISHED company workflows: the step named one, and the record's runs in BOTH ended in the
+  // same second (knowledge sniffs/workflows-wave1-2026-09-25/live-R7-7-remove-differential.json; corpus 40-rules/
+  // remove-associated-records-ends-every-run.md).
+  remove_associated_records_from_workflow: () => ({
+    code: "REMOVE_ENDS_OTHER_RUNS",
+    message: "GHL ends the associated record's runs in OTHER workflows too, not only the one named in WorkflowId (measured: a company in two published workflows left both). Do not use it while the record must stay in another workflow; put the exit inside that workflow instead."
+  }),
+  // Company-mode clear logs success and changes nothing (live-R7-2-company-runtime.json; contact mode does apply,
+  // live-R7-6-contact-mode-runtime.json; corpus 40-rules/company-field-clear-not-applied.md).
+  clear_fields_of_company_or_associated_contact: (a) => a?.associationId === "COMPANY" ? {
+    code: "CLEAR_NOT_APPLIED",
+    message: "clearing a COMPANY field logs success and leaves the value unchanged (measured). Only contact mode (associationId BUSINESSES_CONTACTS_ASSOCIATION) has been shown to blank a field."
+  } : null,
+  clear_associated_company_fields: () => ({
+    code: "CLEAR_NOT_APPLIED",
+    message: "clearing a company field logs success and leaves the value unchanged (measured twice, 2026-09-28), and on a contact with no company the step FAILS (an error notification to every admin). No step has been shown to blank a company field."
+  })
+};
 function normalizeAttrs(node, attrs, ctx) {
   const meta3 = ctx?.catalog?.step(node.type);
   if (!meta3) return attrs;
@@ -191073,6 +191199,56 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       templates.push(...notf.templates);
       return;
     }
+    if (n.type === "co_find_company_record") {
+      if (n.attributes?.__customInputFields__ !== void 0)
+        throw new IRError(
+          "FIND_FILTERS_MISPLACED",
+          `co_find_company_record '${n.ref ?? n.name}' authors attributes.__customInputFields__ \u2014 that is the emitted shape. Author find.filters: [{ field: 'business.name__TEXT', value: '{{inboundWebhookRequest.<path>}}' }].`
+        );
+      const filters = n.find?.filters ?? [];
+      const badField = filters.find((f) => !/^[a-z][a-z0-9_]*\.[A-Za-z0-9_]+__[A-Z_]+$/.test(String(f?.field ?? "")));
+      if (!filters.length || badField)
+        throw new IRError(
+          "FIND_COMPANY_FILTER",
+          `co_find_company_record '${n.ref ?? n.name}' needs find.filters rows whose field is the builder's typed key '<field key>__<DATA TYPE>' (e.g. business.name__TEXT)${badField ? `; got '${badField.field}'` : ""}.`
+        );
+      const filterOn = n.find?.filter_on ?? "earliest";
+      if (!["earliest", "latest"].includes(filterOn))
+        throw new IRError("FIND_COMPANY_FILTER", `co_find_company_record '${n.ref ?? n.name}': find.filter_on is 'earliest' or 'latest'.`);
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const container = {
+        id,
+        type: "co_find_company_record",
+        name: n.name,
+        order: i,
+        parentKey,
+        cat: "multi-path",
+        workflowsActionType: "INTERNAL",
+        next: [t1, t2],
+        attributes: {
+          filter_on: filterOn,
+          type: "co_find_company_record",
+          __customInputFields__: filters.map((f) => ({ __customInputs__: {}, filterField: f.field, valueField: f.value })),
+          __customInputs__: {},
+          cat: "multi-path",
+          convertToMultipath: true,
+          transitions: [
+            { id: t1, name: "Company Found", fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" },
+            { id: t2, name: "Company Not Found", fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" }
+          ],
+          __name__: n.name
+        }
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: "transition", name: "Company Found", cat: "transition", parentKey: id, parent: id, order: 1, attributes: {}, ...found.entryId ? { next: found.entryId } : {} });
+      templates.push(...found.templates);
+      const notf = flattenGraph(n.onNotFound ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: "transition", name: "Company Not Found", cat: "transition", parentKey: id, parent: id, order: 1, attributes: {}, ...notf.entryId ? { next: notf.entryId } : {} });
+      templates.push(...notf.templates);
+      return;
+    }
     if (n.kind === "goto") {
       if (!refMap.has(n.target)) refMap.set(n.target, ctx.idGen());
       const gotoTarget = refMap.get(n.target);
@@ -191613,7 +191789,7 @@ function customDateReminderParts(t, ctx) {
     }
   };
 }
-function buildTrigger(t, ctx, wid, refMap) {
+function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
   const meta3 = ctx.catalog.trigger(t.type);
   const rows = meta3?.filterRows ?? [];
   let conditions = (t.filters ?? []).map((f) => expandFilter(f, rows, { ctx, meta: meta3 }));
@@ -191639,6 +191815,7 @@ function buildTrigger(t, ctx, wid, refMap) {
     const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, "trigger");
     marketplaceFields = { version: entry.version, templateId: entry.templateId };
     marketplaceMasterType = entry.publisher ? "internal" : "marketplace";
+    if (entry.publisher) marketplaceFields.workflowsTriggerType = entry.publisher;
     Object.assign(marketplaceFields, integrationAccountFor(t, entry.publisher, "trigger", ctx));
     const table = ctx?.catalog?.marketplaceFilterOperators ?? null;
     conditions = conditions.map((c) => {
@@ -191737,6 +191914,7 @@ function buildTrigger(t, ctx, wid, refMap) {
     // sends it (captured live 2026-07-27 from its own POST) and GHL persists it, so mirror
     // it wherever the catalog records one — and never invent it where it does not.
     ...meta3?.workflowsTriggerType ? { workflowsTriggerType: meta3.workflowsTriggerType } : {},
+    ...typeof objectKey === "string" && objectKey.startsWith("custom_objects.") ? { objectKey } : {},
     active: t.active !== false,
     triggersChanged: true,
     location_id: ctx.loc,
@@ -191936,7 +192114,7 @@ function compile(ir, ctx) {
     ...stepIndexCounter.size > 0 || S.statsView ? { meta: { ...stepIndexCounter.size > 0 ? { stepIndexCounter: Object.fromEntries(stepIndexCounter) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
   };
   const triggerBodies = norm3.triggers.map((t, i) => {
-    const body2 = buildTrigger(t, ctx, wid, refMap);
+    const body2 = buildTrigger(t, ctx, wid, refMap, { objectKey: norm3.customObjectType ?? null });
     const placeholder = triggerRefs.get(t.ref ?? `__trigger_${i}`);
     return {
       ...body2,
@@ -195765,7 +195943,7 @@ var finding = (check2, severity, t, message) => ({
 function transitionInnerTypes(catalog) {
   return [...(catalog?.workflowRules?.vocab?.multipathSupportedWaitTypes ?? []).map((w) => `wait_${w}`), "wait_timeout"];
 }
-function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null } = {}) {
+function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null, unknownStepSeverity = null } = {}) {
   const out = [];
   for (const t of templates) {
     if (!t || typeof t !== "object") continue;
@@ -195791,7 +195969,7 @@ function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceType
       } else {
         out.push(finding(
           "STEP_TYPE",
-          marketplaceTypes ? "error" : "warning",
+          unknownStepSeverity ?? (marketplaceTypes ? "error" : "warning"),
           t,
           `'${t.type}' is not a known step type${marketplaceTypes ? ", native or marketplace" : " (marketplace types were not available to rule it out)"}. GHL does NOT catch this on an agent flow.`
         ));
@@ -195946,6 +196124,7 @@ function validateDocument({
   marketplaceTypes = null,
   scope = null,
   waive = null,
+  unknownStepSeverity = null,
   skipWorkflowRules = false,
   allow = false
 } = {}) {
@@ -195965,7 +196144,7 @@ function validateDocument({
   const outOfScope = (f) => Boolean(scope && f.stepId && !scope.has(f.stepId));
   const canvasErrors = canvasAll.filter((f) => !outOfScope(f));
   const canvasWarnings = canvasAll.filter(outOfScope);
-  const engine = gateDocument(templates, { catalog, marketplaceTypes, scope, waive });
+  const engine = gateDocument(templates, { catalog, marketplaceTypes, scope, waive, unknownStepSeverity });
   const blockedLayers = [];
   if (ruleFindings.length) blockedLayers.push("workflow_rules");
   if (canvasErrors.length) blockedLayers.push("canvas");
@@ -197023,6 +197202,7 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger", "duplicateTrigger", "replaceTagInTriggers", "replaceFieldIdInTriggers"]);
 var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
+var NOTE_OPS = /* @__PURE__ */ new Set(["setWorkflowNote"]);
 function externalRefsOf(templates, opRefs = /* @__PURE__ */ new Map()) {
   const ids = new Set((templates ?? []).map((t) => t.id));
   const byName = /* @__PURE__ */ new Map();
@@ -197141,15 +197321,29 @@ function replaceFieldIdInTriggerConditions(conditions, oldId, newId) {
   return changed ? out : null;
 }
 function partitionOps(ops) {
-  const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
+  const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [], noteOps = [];
   for (const raw of ops ?? []) {
     const op = { ...raw, op: canonicalOpName(raw?.op) };
     checkOpShape(op);
-    (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
+    (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : NOTE_OPS.has(op.op) ? noteOps : stepOps).push(op);
     if (op.op === "replaceTag" && op.triggers !== false) triggerOps.push({ op: "replaceTagInTriggers", oldTag: op.oldTag, newTag: op.newTag });
     if (op.op === "replaceFieldId" && op.triggers !== false) triggerOps.push({ op: "replaceFieldIdInTriggers", oldId: op.oldId, newId: op.newId });
   }
-  return { stepOps, triggerOps, settingsOps, stickyOps };
+  return { stepOps, triggerOps, settingsOps, stickyOps, noteOps };
+}
+function planWorkflowNoteOps(noteOps, { loc, wid } = {}) {
+  if (!noteOps?.length) return null;
+  if (noteOps.length > 1) throw new Error(`setWorkflowNote: one per edit (got ${noteOps.length}); the note is a single field`);
+  const op = noteOps[0];
+  if (typeof op.content !== "string") throw new Error(`setWorkflowNote needs 'content' (a string; "" clears the note)`);
+  if (op.updatedByName !== void 0 && (typeof op.updatedByName !== "string" || !op.updatedByName.trim()))
+    throw new Error(`setWorkflowNote: 'updatedByName' is the author name shown beside the note \u2014 a non-empty string`);
+  return {
+    op: "setWorkflowNote",
+    method: "PUT",
+    path: `/workflow/${encodeURIComponent(loc)}/update-workflow-note/${encodeURIComponent(wid)}`,
+    body: { content: op.content, updatedByName: op.updatedByName ?? "uxie-ghl-factory" }
+  };
 }
 function mergeSettingsOps(settingsOps) {
   if (!settingsOps?.length) return null;
@@ -197218,7 +197412,7 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
     switch (op.op) {
       case "addTrigger": {
         const { conditions: verbatim, ...authored } = op.trigger;
-        const built = buildTrigger(authored, ctx, wid, refMapFrom(ctx?.externalRefs));
+        const built = buildTrigger(authored, ctx, wid, refMapFrom(ctx?.externalRefs), { objectKey: ctx?.customObjectType ?? null });
         const body2 = { ...built, ...verbatim !== void 0 ? { conditions: verbatim } : {}, status: targetStatus };
         return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: body2, requested: requestedTriggerFields(op.trigger, body2) };
       }
@@ -197312,7 +197506,8 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
           },
           ctx,
           wid,
-          refMapFrom(ctx?.externalRefs)
+          refMapFrom(ctx?.externalRefs),
+          { objectKey: t.objectKey ?? ctx?.customObjectType ?? null }
         );
         delete merged.status;
         const body2 = {
@@ -197408,7 +197603,8 @@ var OP_REQUIRED_ARGS = {
   deleteBranch: ["containerId", "branch"],
   replaceFieldId: ["oldId", "newId"],
   replaceInAttributes: ["path", "find", "replace"],
-  repairParentKeys: []
+  repairParentKeys: [],
+  setWorkflowNote: ["content"]
 };
 var OP_ACCEPTED_ARGS = {
   appendStep: ["step"],
@@ -197439,7 +197635,8 @@ var OP_ACCEPTED_ARGS = {
   // settings + sticky notes
   updateSettings: ["settings"],
   addStickyNote: ["note"],
-  updateStickyNote: ["noteId", "note"]
+  updateStickyNote: ["noteId", "note"],
+  setWorkflowNote: ["content", "updatedByName"]
 };
 var OP_ARG_ALIASES = {
   node: "step",
@@ -197682,14 +197879,16 @@ function applyOp(templates, op, { ctx, idGen }) {
         throw new Error(`'${op.op}' is a TRIGGER op \u2014 it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);
       if (SETTINGS_OPS.has(op.op))
         throw new Error(`'${op.op}' is a SETTINGS op \u2014 it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() \u2192 editCommitBody({ settingsPatch }).`);
+      if (NOTE_OPS.has(op.op))
+        throw new Error(`'${op.op}' is a WORKFLOW-NOTE op \u2014 the note has its own route (update-workflow-note), not workflowData.templates. Route it through partitionOps()/planWorkflowNoteOps().`);
       if (STICKY_OPS.has(op.op))
         throw new Error(`'${op.op}' is a STICKY-NOTE op \u2014 sticky notes are a separate resource (/workflows/sticky-note), not workflowData.templates. Route it through partitionOps()/planStickyNoteOp().`);
       {
-        const all = [...STEP_OP_NAMES, ...TRIGGER_OPS, ...SETTINGS_OPS, ...STICKY_OPS];
+        const all = [...STEP_OP_NAMES, ...TRIGGER_OPS, ...SETTINGS_OPS, ...STICKY_OPS, ...NOTE_OPS];
         const candidates = [...all.map((n) => [n, n]), ...Object.entries(OP_NAME_ALIASES)];
         const near = candidates.map(([spelling, canonical]) => [opDistance(String(op.op ?? ""), spelling), canonical]).sort((a, b) => a[0] - b[0])[0];
         throw new Error(
-          `unknown edit op ${JSON.stringify(op.op)}${near && near[0] <= 4 ? ` \u2014 did you mean '${near[1]}'?` : ""}. Step ops: ${STEP_OP_NAMES.join(", ")}. Trigger ops: ${[...TRIGGER_OPS].join(", ")}. Settings: ${[...SETTINGS_OPS].join(", ")}. Sticky notes: ${[...STICKY_OPS].join(", ")}.`
+          `unknown edit op ${JSON.stringify(op.op)}${near && near[0] <= 4 ? ` \u2014 did you mean '${near[1]}'?` : ""}. Step ops: ${STEP_OP_NAMES.join(", ")}. Trigger ops: ${[...TRIGGER_OPS].join(", ")}. Settings: ${[...SETTINGS_OPS].join(", ")}. Sticky notes: ${[...STICKY_OPS].join(", ")}. Workflow note: ${[...NOTE_OPS].join(", ")}.`
         );
       }
   }
@@ -204537,6 +204736,16 @@ async function webhookReferenceFor(gw, loc, triggers) {
   if (!r?.ok) return void 0;
   return { triggerId: tid, payload: r.json?.payload ?? null };
 }
+async function gateAssetsFor(gw, loc, doc, templates, catalog) {
+  const needs = (templates ?? []).some((t) => typeof t?.type === "string" && t.isMarketplaceAction !== true && (!catalog?.step?.(t.type) || typeof t.workflowsActionType === "string"));
+  if (!needs) return null;
+  try {
+    const r = await gw.call("GET", assetsPath(loc, doc));
+    return r?.ok ? r.json : null;
+  } catch {
+    return null;
+  }
+}
 async function workflowValidationGate({
   gw,
   loc,
@@ -204557,7 +204766,8 @@ async function workflowValidationGate({
   senderDomain,
   webhookReference,
   skipWorkflowRules = false,
-  baselineTriggers
+  baselineTriggers,
+  unknownStepSeverity = null
 }) {
   let marketplaceTypes = null;
   try {
@@ -204593,7 +204803,8 @@ async function workflowValidationGate({
     senderDomain,
     webhookReference,
     skipWorkflowRules,
-    baselineDocument
+    baselineDocument,
+    unknownStepSeverity
   });
   for (const f of v.engine.warnings) warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
   for (const f of v.canvas.warnings) warnings.push(`VALIDATION CANVAS: '${f.stepName ?? f.stepId}': ${f.message} (outside this write's scope)`);
@@ -207062,6 +207273,79 @@ var TOOLS2 = [
     }, args)
   },
   {
+    name: "get_contact_workflow_history",
+    description: describe3(
+      "get_contact_workflow_history",
+      `One contact's (or one company record's) workflow runs, newest first: every enrolment with the workflow NAME beside its id, the run's status, when it entered, and the step it is at or ended on. Pass workflowId to narrow to that workflow's runs of the contact. Paged: pass back \`nextCursor\` until it is null. Use it for "which workflows has this contact been through, and where is it now". For "what happened inside workflow X" (each step's outcome, skips, errors) use get_workflow_logs \u2014 this tool returns runs, not step logs. A company workflow's record is addressed as contactId "business_<company id>". Each run id is what get_workflow_logs takes as its executionId filter.`
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      contactId: external_exports.string().describe('A contact id, or "business_<company id>" for a company record.'),
+      workflowId: external_exports.string().optional().describe("Only this workflow's runs of the contact."),
+      limit: external_exports.number().int().min(1).max(100).default(20),
+      cursor: external_exports.string().optional().describe("The nextCursor of the previous page.")
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflows/status/search/contact-executions" },
+      { method: "GET", path: "/workflows/status/search/workflow-with-filter" },
+      { method: "GET", path: "/workflow/{loc}/{wid}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const limit = args.limit ?? 20;
+      let ref = null;
+      if (args.cursor) {
+        try {
+          ref = JSON.parse(Buffer.from(args.cursor, "hex").toString("utf8"));
+        } catch {
+          ref = null;
+        }
+        if (!ref?.i || !ref?.c || !args.workflowId && !ref.s || (ref.w ?? null) !== (args.workflowId ?? null) || ref.k !== args.contactId)
+          return fail(
+            CODES.VALIDATION_FAILED,
+            "cursor is not a nextCursor this tool returned for the same contact and workflowId",
+            "Pass back nextCursor exactly as returned, with the same contactId and workflowId; omit it for the first page."
+          );
+      }
+      const q3 = new URLSearchParams({ action: ref ? "next" : "first", contactId: args.contactId, limit: String(limit + (ref ? 2 : 1)), locationId: args.locationId });
+      if (args.workflowId) q3.set("workflowId", args.workflowId);
+      if (ref && args.workflowId) {
+        q3.set("referenceCreatedAt", ref.c);
+        q3.set("referenceId", ref.i);
+        if (ref.s) q3.set("referenceSid", ref.s);
+      } else if (ref) q3.set("referenceSid", ref.s);
+      const path = args.workflowId ? "/workflows/status/search/workflow-with-filter" : "/workflows/status/search/contact-executions";
+      const r = await gw.call("GET", `${path}?${q3}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      let rows = Array.isArray(r.json?.statuses) ? r.json.statuses : [];
+      if (ref && rows[0]?._id === ref.i) rows = rows.slice(1);
+      const more = rows.length > limit;
+      const page = rows.slice(0, limit);
+      const names = /* @__PURE__ */ new Map();
+      for (const wid of [...new Set(page.map((x) => x.workflowId).filter(Boolean))]) {
+        const w = await gw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(wid)}`);
+        names.set(wid, w.ok ? w.json?.name ?? null : null);
+      }
+      const last = page.at(-1);
+      const nextCursor = more && last && (args.workflowId || last.sid) ? Buffer.from(JSON.stringify({ c: last.createdAt, i: last._id, s: last.sid ?? null, w: args.workflowId ?? null, k: args.contactId })).toString("hex") : null;
+      return ok({
+        contactId: args.contactId,
+        ...args.workflowId ? { workflowId: args.workflowId } : {},
+        runs: page.map((x) => ({
+          runId: x._id,
+          workflowId: x.workflowId ?? null,
+          workflowName: names.get(x.workflowId) ?? null,
+          status: x.status ?? null,
+          enteredAt: x.createdAt ?? null,
+          updatedAt: x.updatedAt ?? null,
+          step: x.currentStepName || x.currentStepType ? { name: x.currentStepName ?? null, type: x.currentStepType ?? null } : null
+        })),
+        nextCursor,
+        ...nextCursor ? { next: "call again with cursor: nextCursor for older runs" } : {}
+      });
+    }, args)
+  },
+  {
     name: "get_workflow_stats",
     description: describe3(
       "get_workflow_stats",
@@ -208595,7 +208879,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_workflow",
-    description: describe3("edit_workflow", "Preview, or with confirm write, edits to an existing workflow (the canonical edit engine). Confirmed step edits use only the plain workflow PUT, round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowFlowTriggerEdit, allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name. Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch \u2014 never `attributes`, never `name`; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteBranch {containerId, branch} (an author-defined branch and everything under it), deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} \u2014 a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; deleteTrigger, duplicateTrigger; settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document. Verifier rules: skill references/editing.md."),
+    description: describe3("edit_workflow", 'Preview, or with confirm write, edits to an existing workflow (the canonical edit engine). Confirmed step edits use only the plain workflow PUT, round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowFlowTriggerEdit, allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name. Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch \u2014 never `attributes`, never `name`; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteBranch {containerId, branch} (an author-defined branch and everything under it), deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} \u2014 a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; deleteTrigger, duplicateTrigger; settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote, setWorkflowNote {content} ("" clears; bumps the version). Names in steps and triggers resolve to ids (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL\'s asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document. Verifier rules: skill references/editing.md.'),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -208678,6 +208962,8 @@ var TOOLS2 = [
       // Sticky notes (addStickyNote / updateStickyNote ops) — a separate resource, not the document.
       { method: "POST", path: "/workflows/sticky-note" },
       { method: "PATCH", path: "/workflows/sticky-note" },
+      // setWorkflowNote: the workflow's own note (bumps the version)
+      { method: "PUT", path: "/workflow/{loc}/update-workflow-note/{wid}" },
       // The build path's pre-write validators, ported to edit. Asset preflight is stateless
       // (payload in, verdict out — nothing written); the sandbox runs code without touching the
       // account; the readiness reads run ONLY when a touched step's channel needs them.
@@ -208809,6 +209095,8 @@ var TOOLS2 = [
           idGen,
           catalog: loadCatalog(),
           marketplace,
+          // an object-based workflow's triggers carry its schema key as objectKey (buildTrigger, bl-311)
+          ...typeof fresh?.customObjectType === "string" ? { customObjectType: fresh.customObjectType } : {},
           ...customFields !== void 0 ? { customFields } : {},
           ...customValues !== void 0 ? { customValues } : {},
           ...args.strictMergeTags === false ? { strictMergeTags: false } : {},
@@ -208829,7 +209117,7 @@ var TOOLS2 = [
           }
           for (const u of resolved.unresolved) warnings.push(`UNRESOLVED (ignored): ${u.where} '${u.name}'`);
         }
-        const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
+        const { stepOps, triggerOps, settingsOps, stickyOps, noteOps } = partitionOps(editOps);
         for (const op of stepOps.filter((o) => o.op === "replaceFieldId")) {
           const lookups = await Promise.all([op.newId, op.oldId].map(async (id) => {
             const r = await gw.call("GET", `/locations/${locationPath}/customFields/${encodeURIComponent(id)}`);
@@ -208849,6 +209137,7 @@ var TOOLS2 = [
         }
         const settingsPatch = mergeSettingsOps(settingsOps);
         const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
+        const notePlan = planWorkflowNoteOps(noteOps, { loc: args.locationId, wid: args.workflowId });
         const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen, stepIndexCounter: fresh?.meta?.stepIndexCounter });
         let parkedOnDeletedSteps = [];
         if (fresh.status === "published" && diff.deletedSteps?.length) {
@@ -208971,7 +209260,7 @@ var TOOLS2 = [
         const editSenderDomain = fromEmailNeedsDomain(editFromEmail) ? await senderDomainFor(gw, args.locationId, args.workflowId, editFromEmail, ctx.catalog) : void 0;
         const editWebhookReference = fresh.status === "published" ? await webhookReferenceFor(gw, args.locationId, gateTriggers) : void 0;
         const writesDocument = stepOps.length > 0 || Boolean(settingsPatch) || triggerOps.length > 0;
-        const validation = !writesDocument ? { refusal: null, report: { skipped: "sticky-note-only edit: nothing in the workflow document or its triggers is written" } } : await workflowValidationGate({
+        const validation = !writesDocument ? { refusal: null, report: { skipped: "note-only edit (sticky notes / workflow note): nothing in the workflow document or its triggers is written" } } : await workflowValidationGate({
           // No `templates` here on purpose: the gate must judge the DOCUMENT, whose templates the commit
           // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
           // array made GHL judge bytes we never send, and refused a correctly authored if_else.
@@ -209023,6 +209312,7 @@ var TOOLS2 = [
           preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));
         }
         if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body: body2 }) => ({ op, method, path, color: body2.color, chars: body2.content?.length }));
+        if (notePlan) preview.workflowNote = { method: notePlan.method, path: notePlan.path, chars: notePlan.body.content.length, clears: notePlan.body.content === "", bumpsVersion: true };
         if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
         if (assetPreflight) preview.assetPreflight = assetPreflight;
         preview.validation = validation.report;
@@ -209239,6 +209529,27 @@ var TOOLS2 = [
         partialProgress.verification.completed = true;
         partialProgress.verification.roundTrip = verify.roundTrip;
         partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
+        let workflowNote = null;
+        if (notePlan) {
+          const noteCall = await attemptWrite("workflow_note_write", () => gw.call(notePlan.method, notePlan.path, notePlan.body));
+          if (noteCall.threw || !noteCall.value.ok) {
+            return partialFailure(
+              noteCall.threw ? noteCall.failure : fromHttp(noteCall.value.status, noteCall.value.json),
+              "workflow_note_write",
+              "Every other write in this edit is committed; only the workflow note failed. Re-run setWorkflowNote alone."
+            );
+          }
+          const back = await getWorkflow(gw, args.locationId, args.workflowId);
+          const note = back.ok ? back.json?.workflowNote ?? null : null;
+          workflowNote = {
+            applied: back.ok && (note?.content ?? "") === notePlan.body.content,
+            content: note?.content ?? null,
+            updatedByName: note?.updatedByName ?? null,
+            updatedAt: note?.updatedAt ?? null,
+            versionAfter: back.ok ? back.json?.version ?? null : null
+          };
+          if (!workflowNote.applied) warnings.push("WORKFLOW_NOTE_NOT_APPLIED: the note write answered OK but the read-back does not carry the text sent.");
+        }
         const requiresPublish = triggerPlan.some((request) => triggerRequiresPublish(request, fresh.status));
         const data2 = {
           workflowId: args.workflowId,
@@ -209251,6 +209562,7 @@ var TOOLS2 = [
           triggerChangesApplied: partialProgress.triggerWrites.applied,
           stickyNotesApplied: partialProgress.stickyNotes.applied,
           stickyNoteIds: partialProgress.stickyNotes.ids,
+          ...workflowNote ? { workflowNote } : {},
           requiresPublish,
           publishInstruction: triggerPublishInstruction(triggerPlan, fresh.status, { committed: true }),
           verify,
@@ -209488,7 +209800,8 @@ var TOOLS2 = [
         triggers: gateTriggers,
         scope: touchedIds,
         catalog,
-        assets: null,
+        assets: await gateAssetsFor(gw, args.locationId, fresh, args.templates, catalog),
+        unknownStepSeverity: "warning",
         allow: args.allowValidationFailure === true,
         warnings,
         intent: "repair",
@@ -209681,6 +209994,8 @@ var TOOLS2 = [
       { method: "GET", path: "/workflow/{loc}/email/domain-selection" },
       // inboundWebhookTriggerValidator needs the webhook's mapped sample — read only when there is one.
       { method: "GET", path: "/hooks/inbound-webhook-request/reference/{triggerId}" },
+      // bl-309: the catalogue for the workflow's own type, read only when a step has no native card.
+      { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" },
       { method: "PUT", path: "/workflow/{loc}/{wid}" },
       // REPAIR (added 2026-08-28): one per-trigger status write for any trigger still
       // inactive after the document PUT's own cascade — see the handler's measurement note.
@@ -209716,7 +210031,8 @@ var TOOLS2 = [
         triggers: listed.triggers,
         scope: null,
         catalog: publishCatalog,
-        assets: null,
+        assets: await gateAssetsFor(gw, args.locationId, current, current?.workflowData?.templates, publishCatalog),
+        unknownStepSeverity: "warning",
         allow: args.allowValidationFailure === true,
         warnings: publishWarnings,
         // intent 'publish' is what turns on the publish-only rules (an empty workflow, a goto with

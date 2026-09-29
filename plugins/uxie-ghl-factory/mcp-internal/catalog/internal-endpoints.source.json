@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-29T04:59:51.225Z",
+      "capturedAt": "2026-09-29T06:36:17.400Z",
       "hash": "corpus",
-      "fileCount": 1316,
-      "endpoints": 1316
+      "fileCount": 1320,
+      "endpoints": 1320
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1812,
-  "skippedCallSites": 714,
-  "count": 1572,
+  "discoveredCallSites": 1816,
+  "skippedCallSites": 713,
+  "count": 1574,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1174,7 +1174,7 @@
         "Version"
       ],
       "operation": "fetchAssociationsForObject",
-      "service": "pipelines-opportunities",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -1196,7 +1196,33 @@
         "workflows/70-research/ENDPOINTS.md:146"
       ],
       "serviceClass": "AssociationsService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
+    },
+    {
+      "id": "workflows--object-key-business",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/associations/objectKey/business",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/company.md:99"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "workflows--blacklist",
@@ -2543,9 +2569,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/50-runtime/forcing-and-removing-contacts.md:45"
+        "workflows/50-runtime/forcing-and-removing-contacts.md:45",
+        "workflows/30-types/steps-marketplace/company.md:165"
       ],
       "serviceBasis": "reviewed",
+      "aka": [
+        "/contacts/{id}/workflow/{wid}"
+      ],
       "serviceReason": "OWNED: enrols a contact into a workflow"
     },
     {
@@ -15284,7 +15314,34 @@
       },
       "sources": [
         "workflows/30-types/steps-marketplace/company.md:54",
-        "workflows/30-types/steps-marketplace/company.md:68"
+        "workflows/30-types/steps-marketplace/company.md:68",
+        "workflows/40-rules/company-field-clear-not-applied.md:25"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--records-search-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/objects/business/records/search",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps/custom_webhook.md:165"
       ],
       "serviceBasis": "declared"
     },
@@ -24950,7 +25007,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/CustomWebhookService.ts:44"
+        "services/CustomWebhookService.ts:44",
+        "workflows/30-types/steps/custom_webhook.md:163"
       ],
       "serviceClass": "CustomWebhookService",
       "serviceBasis": "inferred-from-path"

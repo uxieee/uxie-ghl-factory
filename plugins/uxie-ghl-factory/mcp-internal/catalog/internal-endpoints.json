@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-29",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1581,
+  "count": 1583,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1392,7 +1392,7 @@
         "Version"
       ],
       "operation": "fetchAssociationsForObject",
-      "service": "pipelines-opportunities",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -1418,6 +1418,37 @@
       "sources": [
         "services/marketplaceServices/AssociationsService.ts:17",
         "workflows/70-research/ENDPOINTS.md:146"
+      ]
+    },
+    {
+      "id": "workflows--object-key-business",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/associations/objectKey/business",
+      "path": "/associations/objectKey/business",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/company.md:99"
       ]
     },
     {
@@ -3240,6 +3271,9 @@
     },
     {
       "id": "workflows--contacts-workflow",
+      "aka": [
+        "/contacts/{id}/workflow/{wid}"
+      ],
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/contacts/{contactId}/workflow/{workflowId}",
       "path": "/contacts/{contactId}/workflow/{workflowId}",
@@ -3277,7 +3311,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/50-runtime/forcing-and-removing-contacts.md:45"
+        "workflows/50-runtime/forcing-and-removing-contacts.md:45",
+        "workflows/30-types/steps-marketplace/company.md:165"
       ]
     },
     {
@@ -19401,7 +19436,39 @@
       },
       "sources": [
         "workflows/30-types/steps-marketplace/company.md:54",
-        "workflows/30-types/steps-marketplace/company.md:68"
+        "workflows/30-types/steps-marketplace/company.md:68",
+        "workflows/40-rules/company-field-clear-not-applied.md:25"
+      ]
+    },
+    {
+      "id": "workflows--records-search-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/objects/business/records/search",
+      "path": "/objects/business/records/search",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps/custom_webhook.md:165"
       ]
     },
     {
@@ -27336,6 +27403,7 @@
         "edit_workflow",
         "export_workflow",
         "get_agent_message_trace",
+        "get_contact_workflow_history",
         "get_workflow",
         "get_workflow_digest",
         "get_workflow_runtime_window",
@@ -31750,7 +31818,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/CustomWebhookService.ts:44"
+        "services/CustomWebhookService.ts:44",
+        "workflows/30-types/steps/custom_webhook.md:163"
       ]
     },
     {
@@ -32844,7 +32913,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -38102,6 +38173,7 @@
       "coveredBy": [
         "check_workflow",
         "edit_workflow",
+        "publish_workflow",
         "repair_workflow"
       ],
       "rawCallable": true,
@@ -39340,7 +39412,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_contact_workflow_history"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -40184,6 +40258,7 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
+        "get_contact_workflow_history",
         "get_workflow_logs",
         "get_workflow_runtime_window"
       ],
