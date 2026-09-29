@@ -75,12 +75,23 @@
         "commit:9d9f54da"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:4faa7190"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
     "hashedAt": "2026-09-29",
     "endpoints": {
+      "DELETE https://backend.leadconnectorhq.com /funnels/event/{}": "77d2b2c9dd415048865ff9f428db03720ac03d11dc7235059f2ce5ee82ccbded",
       "GET https://backend.leadconnectorhq.com /funnels/domain": "c5b3c268c5e5f235ed1b1a8c81b05a9fcbcff4f25c53173a9643b08828993523",
+      "GET https://backend.leadconnectorhq.com /funnels/event": "eb7f84d6b3af2310e5c90a55c2c99f270aeb8db039ea0503f8d6644285dd4b77",
       "GET https://backend.leadconnectorhq.com /funnels/funnel/fetch/{}": "f8882ab1b0d06b2d4806af0b9032cc3373aaed5c54184a9f5fea3a984fb1bd9a",
       "GET https://backend.leadconnectorhq.com /funnels/funnel/list": "a46307268f695398a8ae97eecb8b1e2c3174eef69d6fc11550b0857d5b6de8fb",
       "GET https://backend.leadconnectorhq.com /funnels/lookup/list": "962f65054f5b6f0e185aacea82a8b71253217cad24eb73aabe3d7cc469e7f5c5",
@@ -89,7 +100,10 @@
       "GET https://backend.leadconnectorhq.com /funnels/page/list": "f502de909e45ce8c7e94d52e8dd38f16d708c03c02d5d578dd836dd06e10f165",
       "GET https://backend.leadconnectorhq.com /funnels/page/{}": "638dc6d0a7b3e8206981701bfe975504b3ccc77386df9437dba4eb069a1adcb5",
       "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
+      "PATCH https://backend.leadconnectorhq.com /funnels/event/{}": "f2dd9fa9d5a5a2a74859086c5165de1d3688b0b54c58b02e100973894b2573eb",
       "PATCH https://backend.leadconnectorhq.com /funnels/funnel/update/{}": "4a1aa4c23083223f7775fff0ffa3a6148434f7f00fa56f5556abab8c9da2e710",
+      "POST https://backend.leadconnectorhq.com /funnels/domain/invalidate-cache": "c3b8c6466993d7400c34a94aafce43d208ebfd12fe6caafd52b4c49e352bb5dd",
+      "POST https://backend.leadconnectorhq.com /funnels/event": "9571884cabad0e65eb3340e26e9d3357ad4f3d9705ee1ae1142203c1a194d0f1",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-control-page": "d183c05c291ca64bf51f55a9664a7425ca494953e4644dfb2254661b7231bead",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-funnel-step": "2625afaef8d395f484583a653d8f063f323ad26609404ba47bac5dd4625f1bd4",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-funnel-to-locations": "e4c8f7e43c4a168c1d55f276a6ac8b0645156f76f05091de39d7cb9334ac95be",
@@ -98,12 +112,14 @@
       "POST https://backend.leadconnectorhq.com /funnels/funnel/delete-step": "38ad4ca5e07c2267e3b2c766fc494445d2142eadaa9091512e6fe3b958810ad7",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/funnel-page/{}": "e60848a40e30e25fc5209c619b13f6f987352c87a1210634ead11ecf2f0c7125",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/headers": "c111de9f910e2c1ff366f9d04d7a9589616ea3da3d1bed7ddb5170c864245cba",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/headers/delete": "5823713f82aa20d2a03131ae6e322f8933eb4a101c8ece0b2f10dfeccb5efe90",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/update-funnel-and-page": "6290dc3d8592f5d14a6af3708af5bd482ea1d668bb5431f54e0827d725e27fce",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/update-settings": "04aa42c84de003e0c38a88f58eb6eb8bcd11d46cf741c7dfc1a72dd881ab54f3",
       "POST https://backend.leadconnectorhq.com /funnels/lookup/create": "2679a6f1d9b45f7141abfa746532bcd50db7554538a473aa46a82b1c6fce31e1",
       "POST https://backend.leadconnectorhq.com /funnels/lookup/exists": "16b5337bc09a462c8d429cd8b2b4d9afbf16afe00f3548859815f1f0d3a0ece7",
       "POST https://backend.leadconnectorhq.com /funnels/order-form/products": "dc7a6f28130ff98d563eef1a30fe3d9c039bd875145b0d4589a1c5693fb9be08",
       "POST https://backend.leadconnectorhq.com /funnels/store/create-in-funnel": "8412d455dfad26c6d8494d95755c0da1d7dfaee59de906d112ff081716f854c6",
+      "PUT https://backend.leadconnectorhq.com /funnels/funnel/headers": "4942a201df000f1f80a2f2c899f76fba13c47ce015d40f48b38947ec45b24aa0",
       "PUT https://backend.leadconnectorhq.com /funnels/funnel/step/{}": "2d7cb629f1115364da1d16ef733fbbeb0446fb8ab94e0c91533fcdd663f2ebf7",
       "PUT https://backend.leadconnectorhq.com /funnels/lookup/multiple": "b8e3ddf74f11d5431331cda00208e70086c16f9eef3c4115a575eedfb3277f3a"
     },
@@ -114,14 +130,14 @@
       "redirectApp": 222
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_funnel": "38673c1015d3f240ff644e51ecf1aa8e2949081714ea91300031927e730b10b4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_funnel": "c90f8af32c447678d382ef74ad60c775f8b413d0c479818595ddfd6149f883b6",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "4d51e727fa5e24e85a1e4ab4b91bba8ed9ad58e312e1b80992a439043e68006b",
       "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd",
       "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "ad162da6af9a7f168dfa201a04742c7aa2aa2fce7bcc9e1d6008307851635aa2",
-      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "0cdfe862ea875275fed8e1cdc5e7a843de77c2c19eb0d67ccc52f1a54f821212"
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "adbc00705d9cee264f7c542b4f9459d7dc429729c3fe4b024f6c45a724da3bf3"
     }
   }
 }
