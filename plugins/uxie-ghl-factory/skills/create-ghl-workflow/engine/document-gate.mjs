@@ -29,7 +29,16 @@ import { checkFieldCaps, describeCap } from './field-caps.mjs';
 import { ENGINE_ATTR_KEYS } from './compiler.mjs';
 import { OBSERVED_TOP_LEVEL_KEYS, OBSERVED_ATTRIBUTE_KEYS, OBSERVED_INNER_TYPES } from './observed-step-keys.mjs';
 
-export const STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
+// The builder's own step type, models/Workflow.ts `WorkflowTemplateBase` (09-29 capture, lines 805-850): every key a
+// builder-saved step may carry at its root. The 09-11 census alone refused real builder keys — `parentContainerId` on
+// every loop-body step, `integrationAccountId` / `testRequest` / `testResponse` on every account-bound INTEGRATION_AI
+// step — so publish_workflow refused those whole workflows (completeness sweep 2026-09-29 §3 #3). A drift test compares
+// this list with the newest capture when one sits beside the checkout.
+export const BUILDER_TEMPLATE_KEYS = Object.freeze(['id', 'stepIndex', 'type', 'customVarPrefix', 'name', 'window', 'start_after',
+  'attributes', 'next', 'parent', 'sibling', 'order', 'cat', 'comments', 'nodeType', 'position', 'isMarketplaceAction', 'version',
+  'workflowsActionType', 'integrationAccountId', 'parentKey', 'parentContainerId', 'currentStepEnd', 'hasErrors', 'errorMessage',
+  'advanceCanvasMeta', 'testRequest', 'testResponse']);
+export const STEP_TOP_LEVEL_KEYS = new Set([...OBSERVED_TOP_LEVEL_KEYS, ...BUILDER_TEMPLATE_KEYS]);
 
 // Keys a type carries only in one state, so a census can miss them. Each is grounded in the file
 // that already handles it: conversationai_objective gains closingMessage (required) and tags the
@@ -38,7 +47,10 @@ export const STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
 // ({referenceImages:[{content, filename, attachmentMode:'url'}]}), outside the IGenerateImageAI model. Live
 // 2026-09-28 a step whose only reference was `{{workflow_ai_generate_image.1.image_url}}` redrew that image
 // (knowledge sniffs/workflows-wave1-2026-09-25/live-3Q-generate-image.json), so the key moves the output.
-const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'], workflow_ai_generate_image: ['__dynamicAttachments__'] };
+// loop.exitNext: the builder persists the step that runs after the loop — "the one fact that cannot be recovered from
+// the tree" (utils/loop.helper.ts:571-596, use-latest-node-saved.ts:935). Absent from the census only because no
+// census workflow had a loop.
+const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'], workflow_ai_generate_image: ['__dynamicAttachments__'], loop: ['exitNext'] };
 
 // Keys GHL's SERVER writes onto a step when the document is saved. The author never sends them and
 // the builder's front-end source does not contain them, so no model, card or asset lists them — and
