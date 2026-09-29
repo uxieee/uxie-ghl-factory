@@ -2415,6 +2415,12 @@ export const DEPENDENT_TRIGGER_ROWS = {
   pipeline_stage_updated: [PIPELINE_STAGE_ROW],
   opportunity_status_changed: [PIPELINE_STAGE_ROW],
   opportunity_changed: [PIPELINE_STAGE_ROW],
+  // scheduler_trigger, Daily: the drawer's "At what time" row is `scheduler.daily.times` (15-minute HH:MM grid, a list). The catalogue models
+  // the weekly one and not the daily one, so a Daily interval written with a time went out with no operator, title or type — the drawer then
+  // shows the Interval and NO time row (live-W30-f-render-scheduler_trigger*.json; corpus scheduler_trigger.md).
+  scheduler_trigger: [
+    { field: 'scheduler.daily.times', title: 'At what time', type: 'multiselect', operator: '==', operators: ['=='], requires: 'scheduler.interval', requiresValue: 'daily' },
+  ],
   payment_received: [
     paymentRow('payment.funnel.sub_source', 'Sub-Source', 'funnel'),
     paymentRow('payment.website.sub_source', 'Sub-Source', 'website'),
