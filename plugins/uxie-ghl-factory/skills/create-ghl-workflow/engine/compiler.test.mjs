@@ -451,8 +451,9 @@ test('Appendix A acceptance: tagged-vip-nurture compiles to 8 steps, correct sha
   assert.equal(byName('Tag premium').parent, byName('Yes').id);
   assert.equal(triggerBodies[0].type, 'contact_tag');
   // filter expansion enriches the lean {field,operator,value} into the full UI condition
-  // shape, unwrapping the fixture's authored ['VIP'] to the scalar the dispatcher needs
-  assert.deepEqual(triggerBodies[0].conditions, [{ field: 'tagsAdded', operator: 'index-of-true', value: 'VIP', title: 'Tag added', type: 'select', id: 'tag-added' }]);
+  // shape, unwrapping the fixture's authored ['VIP'] to the scalar the dispatcher needs, lower-cased as GHL stores tags (the drawer's
+  // tag picker shows "Select a tag" for a mixed-case value: live-W29-f-render-contact_tag-BEFORE-mixedcase.json)
+  assert.deepEqual(triggerBodies[0].conditions, [{ field: 'tagsAdded', operator: 'index-of-true', value: 'vip', title: 'Tag added', type: 'select', id: 'tag-added' }]);
   assert.equal(autoSaveBody.createdSteps.length, 8);
 });
 

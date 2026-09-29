@@ -63,3 +63,11 @@ test('an option LABEL is mapped to the stored value; a stored value and a wrong 
   assert.equal(bad.conditions[0].value, 'paid');
   assert.ok(bad.warnings.some((w) => /TRIGGER_FILTER_VALUE_UNKNOWN/.test(w) && /succeeded = "Success"/.test(w)));
 });
+
+test('the Global product row defaults to is-in-array with a SCALAR id (== and a one-element array both render wrong in the drawer)', () => {
+  assert.deepEqual(run([{ field: 'payment.global_product_ids', value: 'P1' }]).conditions[0], { field: 'payment.global_product_ids', operator: 'is-in-array', value: 'P1', title: 'Global product', type: 'select_with_pagination' });
+  assert.equal(run([{ field: 'payment.global_product_ids', operator: 'is-in-array', value: ['P1'] }]).conditions[0].value, 'P1');
+  assert.equal(run([{ field: 'payment.global_product_ids', operator: 'is-not-in-array', value: 'P1' }]).conditions[0].operator, 'is-not-in-array');
+  assert.throws(() => run([{ field: 'payment.global_product_ids', operator: '==', value: 'P1' }]), (e) => e.code === 'FILTER_OPERATOR');
+  assert.throws(() => run([{ field: 'payment.global_product_ids', value: ['P1', 'P2'] }]), (e) => e.code === 'FILTER_VALUE');
+});

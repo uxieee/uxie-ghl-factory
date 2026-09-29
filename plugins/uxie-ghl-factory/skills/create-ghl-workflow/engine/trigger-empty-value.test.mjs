@@ -18,7 +18,7 @@ test('a row with an operator and no value warns (empty string, missing, empty li
   for (const value of ['', undefined, null, []]) {
     const w = run('opportunity_created', [{ field: 'opportunity.monetaryValue', operator: '>', ...(value === undefined ? {} : { value }) }]);
     assert.equal(w.length, 1, JSON.stringify(value));
-    assert.match(w[0], /builder blocks saving/);
+    assert.match(w[0], /refuses to save the trigger/);
   }
 });
 

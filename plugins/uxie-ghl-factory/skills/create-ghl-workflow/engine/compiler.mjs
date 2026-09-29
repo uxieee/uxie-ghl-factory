@@ -2547,11 +2547,25 @@ function expandFilter(f, rows, extra = {}) {
       + `500 on an object-valued row. Fix the catalog row (TRIGGER_CORRECTIONS in required-fields.mjs, or regenerate `
       + `with the enum resolved) rather than authoring around it.`);
   }
+  // payment_received's Global product row: the drawer's menu is Is / Is not = 'is-in-array' / 'is-not-in-array' (utils/conditions.ts
+  // array_to_string), and the value is ONE product id, a string. Stored with '==' the drawer shows "Select operator"; stored with a
+  // one-element ARRAY it shows the operator and an empty value (both read on a tool-built draft, live-W29-f-render-payment_received.json,
+  // live-W29-f-render-payprod-*.json).
+  const PRODUCT_ROW = row.value === 'payment.global_product_ids';
+  if (PRODUCT_ROW) {
+    if (!f.operator) operator = 'is-in-array';
+    else if (!['is-in-array', 'is-not-in-array'].includes(operator))
+      throw new IRError('FILTER_OPERATOR', `trigger filter 'payment.global_product_ids' operator '${operator}' is not in the drawer's menu [is-in-array, is-not-in-array] — the drawer would show "Select operator".`);
+  }
   let value = f.value;
   // an array value with a scalar-equality operator means "one of" — upgrade to is-any-of
   // (e.g. form.id, whose recovered row has no operator and defaults to '==')
   if (Array.isArray(value) && operator === '==') operator = 'is-any-of';
-  if (ARRAY_OPS.has(operator) && !Array.isArray(value)) value = [value];
+  if (ARRAY_OPS.has(operator) && !Array.isArray(value) && !PRODUCT_ROW) value = [value];
+  if (PRODUCT_ROW && Array.isArray(value)) {
+    if (value.length > 1) throw new IRError('FILTER_VALUE', "trigger filter 'payment.global_product_ids' takes ONE product; use one trigger per product");
+    value = value[0];
+  }
   // Unwrap a convenience-authored ['tag'] back to the scalar the dispatcher requires.
   if (SCALAR_OPS.has(operator) && Array.isArray(value)) {
     if (value.length > 1) {
@@ -2576,6 +2590,12 @@ function expandFilter(f, rows, extra = {}) {
       return v;
     };
     value = Array.isArray(value) ? value.map(one) : one(value);
+  }
+  // GHL stores tags in lower case and the drawer's tag picker lists them that way: a row written 'VIP' shows "Select a tag" in the
+  // drawer (read on a tool-built draft, live-W29-f-render-contact_tag.json vs live-W29-f-render-taglower.json). Lower-case it.
+  if (['contact.tags', 'tagsAdded', 'tagsRemoved'].includes(row.value)) {
+    const low = (v) => (typeof v === 'string' && !/\{\{/.test(v) ? v.toLowerCase() : v);
+    value = Array.isArray(value) ? value.map(low) : low(value);
   }
   const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
   if (row.id) cond.id = row.id;
@@ -2763,7 +2783,8 @@ export function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
   }
   // VALUE-LESS ROWS. The API stores a filter row with no value and reports success, but the builder refuses to SAVE a trigger
   // carrying one (TriggerMain.hasErrors -> checkForEmptyFilter, TriggerMain.ts:306-334): the Save trigger button stays blocked
-  // until a value is chosen, so a person who opens the trigger later cannot re-save it. Exempt exactly as the builder does:
+  // until a value is chosen, so a person who opens the trigger later cannot re-save it (the block is read from source; the drawer's
+  // "Select operator" / empty value for such a row is measured live, live-W29-f-render-payment-BEFORE-noop.json). Exempt exactly as the builder does:
   // operator 'has-changed', 'has_value', 'has_no_value', the two Facebook page/form fields, and a value of false or 0.
   for (const c of conditions) {
     if (!c || c.operator === 'has-changed' || c.operator === 'has_value' || c.operator === 'has_no_value'
@@ -2772,8 +2793,8 @@ export function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
     const noValue = (!c.value || emptyList) && c.value !== false && c.value !== 0;
     if (noValue || !c.field || !c.operator) {
       ctx?.warn?.(`TRIGGER_FILTER_EMPTY_VALUE: '${t.name ?? t.type}' (${t.type}) row '${c?.title ?? c?.field ?? '?'}' `
-        + `${!c.field ? 'has no field' : !c.operator ? 'has no operator' : `(${c.operator}) has no value`} — the API stores it, but the builder blocks `
-        + 'saving this trigger until the row has a value (TriggerMain.hasErrors), so it cannot be edited and re-saved in the UI. '
+        + `${!c.field ? 'has no field' : !c.operator ? 'has no operator' : `(${c.operator}) has no value`} — the API stores it, but the drawer then shows `
+        + 'the row as "Select operator" or with an empty value, and the builder refuses to save the trigger until every row has a value (TriggerMain.hasErrors), so it cannot be edited and re-saved in the UI. '
         + "Give the row a value, or use 'has-changed' where the trigger offers it.");
     }
   }
