@@ -440,14 +440,18 @@ other unlisted `actionType`.
 | Task | Route | Trap |
 |---|---|---|
 | Dashboard metrics | `GET /voice-ai/dashboard/agents?locationId=&timezone=&timePeriod=&startTime=&endTime=`; `/detailed` also takes `type` (`CALLS`, `ATTEMPTED_CALLS`) and `direction` (`INBOUND`, `OUTBOUND`) | `timePeriod` (`THIS_WEEK`, `LAST_WEEK`, `LAST_7_DAYS`, `THIS_MONTH`, `THIS_YEAR`, `CUSTOM`) and epoch-ms `startTime`/`endTime` are **required** (422 without them); the call log's source select is **Live · Test**: Live (the default) neither counts nor lists Test Audio calls, **Test** lists them with their rating |
-| Call logs | `GET /voice-ai/dashboard/call-logs?locationId=&page=&pageSize=` (typed: `get_voice_call_logs`) | returns test calls too, including the operator's contact id. `page` is required and `pageSize` ≤ 50; `sort` is `ascend`/`descend` with `sortBy` `duration`/`createdAt`; `callType` LIVE/TRIAL; `direction` INBOUND/OUTBOUND; `contactId` and `actionType` are comma lists; dates are epoch ms; `query` is refused (422) — no text search. One call: `GET /voice-ai/call/{_id}?locationId&agentId`. Outbound queue: `GET /voice-ai/dashboard/pending-call-logs` (cursor `after`; `status` not validated server-side) |
+| Call logs | `GET /voice-ai/dashboard/call-logs?locationId=&page=&pageSize=` (typed: `get_voice_call_logs`) | returns test calls too, including the operator's contact id. `page` is required and `pageSize` ≤ 50; `sort` is `ascend`/`descend` with `sortBy` `duration`/`createdAt`; `callType` LIVE/TRIAL; `direction` INBOUND/OUTBOUND; `contactId` and `actionType` are comma lists; dates are epoch ms; `query` is refused (422) — no text search. One call: `GET /voice-ai/call/{callId}?locationId&agentId` (callId = the row's `_id`). The row's Call Recording player downloads `{CONVERSATIONS}/messages/{messageId}/locations/{loc}/recording` (phone calls only); Export is a client-side CSV of the rows. Outbound queue: `GET /voice-ai/dashboard/pending-call-logs` (cursor `after`; `status` not validated server-side) |
 | Agent list with folders | `GET /voice-ai/agents/agents-with-folders?locationId=` | — |
 | Folders | see "Duplicate, folders, delete, test calls" | deleting a folder keeps its agents |
 | Duplicate / delete / bulk delete | `POST /voice-ai/agents/{id}/duplicate`, `DELETE /voice-ai/agents/{id}?locationId=`, `POST /voice-ai/agents/bulk-delete {locationId, agentIds}` | the duplicate drops hangup prompt / hold phrases / voiceModel; after a delete a read is **403**, not 404; the Delete modal lists "Agents that can transfer to this agent" (they get disconnected); the list's Bulk Actions are Move to Different Folder and Delete only |
 | Voice library | `GET /voice-ai/voices/all?locationId=` | `voiceId` is the 20-char providerVoiceId, not the 24-char `_id` |
 | s2s voices | flat `voiceId` on an s2s agent → `s2sBehaviour.voiceId`; 10 OpenAI voices (marin, cedar, ash, ballad, coral, sage, verse, alloy, echo, shimmer) | an unknown name answers 200 and is **silently not stored** |
 | Community voices | `GET /voice-ai/voices/search?provider=elevenlabs&query=&locationId=`, `POST /voice-ai/voices/import/{providerVoiceId}?companyId=&provider=`, `GET /voice-ai/voices/my-voices?locationId=&companyId=`, `GET /voice-ai/voices/{recordId}/agents?companyId=` | **10 imports per account**; delete is keyed by **providerVoiceId**: `DELETE /voice-ai/voices/my-voices/{providerVoiceId}?companyId=` (the record id 404s) |
-| Test call | `POST /voice-ai/call/create-trial-web-call/{agentId}`, `GET /voice-ai/call/{callId}?locationId=&agentId=`, `GET /voice-ai/call/trial-usage?agentId=&locationId=` | 1200 free s per **agent** per day; `payPerUse` bills; 🔴 binds to the operator's own contact |
+| Test call (Retell agents) | `POST /voice-ai/call/create-trial-web-call/{agentId} {testScenario, useGatewayTransport: true}`, live transcript `GET /voice-ai/call/live-transcript/{agentId}/{callId}` (event stream), `GET /voice-ai/call/{callId}?locationId=&agentId=`, `GET /voice-ai/call/trial-usage?agentId=&locationId=` | 1200 free s per **agent** per day; `payPerUse` bills; 🔴 binds to the operator's own contact |
+| Test call (GHL-native / speech-to-speech, provider `lc`) | `POST /voice-ai/streaming/web-call/setup {agentId, locationId, trialCall: true, contactId?, payPerUse?}` → `{sessionToken, wsUrl, transportSource "web", transport webrtc\|websocket, callId}` | setup alone writes a call record (`call-attempted`) but no call-log row, uses no trial seconds and bills nothing (live 2026-09-29); the call needs the browser to open `wsUrl` with microphone audio. Never log `sessionToken` / `wsUrl` |
+| Generate with AI (form helpers) | `POST /voice-ai/actions/generate-with-ai/ai-description/stream {calendarIds, locationId}` (plain text), `…/trigger-prompts {calendars[{id, existingTriggerPrompt}], generateOnlyEmpty, locationId}`, `…/generate-contact-field {locationId, contactFieldId, contactFieldName, contactFieldKey, contactFieldDataType}`, `…/generate-contact-field-example {…+ triggerPrompt, existingExamples[], exampleIndex}` | every call answers **201**: read `success`. 🔴 The calendar pair needs **active** calendars ("No valid calendars found" otherwise). Nothing is saved: put the text into the action yourself. No AI meter moved (live 2026-09-29) |
+| Action helpers | `POST /voice-ai/actions/test-webhook` (legacy custom action's Test Webhook: calls the user's URL), `GET /voice-ai/actions/incoming-transfers?…`, `DELETE /agent-execution/actions/{capActionId}?locationId=` (a Custom Action 2.0 definition) | bundle-read, not executed |
+| MCP servers | `GET /voice-ai/mcp/servers?locationId=&agentId=` (proven); `POST\|PUT\|DELETE /voice-ai/mcp/server {agentId, locationId, mcpServer{name, url, timeout_ms, headers, query_params}}`, `GET\|POST /voice-ai/mcp/tools` | the writes make GHL call the URL server-side with those headers: not exercised. GHL's own MCP is `https://services.leadconnectorhq.com/mcp` |
 | Call feedback | `PATCH /voice-ai/call/{callId}/feedback?locationId=&agentId= {isPositive, feedbackOptions[], additionalComments}` | **write-once** (409 on a second); a comment on a positive rating was dropped |
 | Pricing estimate | s2s agents: `GET /voice-ai/agents/{id}/s2s-tokenizer?locationId=` → `{model, unitPricePerMinute, surchargePerMinute, pricePerMinute, segments {prompts, tools, injections}, total, limit}` (the builder's "1.2k/15k tokens · $0.20/min") | a text agent answers **400** (its range is computed in the browser from the bundle's price table); not stored, and it follows the stored prompt |
 | Translate the prompt | `POST /voice-ai/translate/ai {text, target}` → `["…"]` | the builder pastes the **array wrapper** `["…"]` into the prompt: strip it before saving |
@@ -455,6 +459,24 @@ other unlisted `actionType`.
 | s2s prompt check | `POST /voice-ai/agents/{id}/s2s/prompt-validate {locationId}` → `{mode, fem, bem, prompt, changes[], warnings[], confidence}` | saves nothing |
 | Performance summary email | `GET/PUT/DELETE /voice-ai/performance-report/settings/{agentId}`, `GET …/preview?frequency=`, `POST …/dispatch {force: true}` (test send) | the stored timezone is the agent's, whatever is sent; the test send emails the recipients |
 | System-prompt sections | `GET /voice-ai/agents/{id}/prompts/defaults` (the default texts) | `prompts` stores only `personality, appointmentBooking, dateAndTimeAwareness, numericAndEmailHandling, emailConfirmationProcess`; `endCall*` / `greetingRule` answer 200 and are **dropped** (the hangup and spam prompts are `endCallConfig`). `update_voiceai_agent` writes `prompts` (merge; null resets) |
+
+## Feature flags and background sound (source-derived, build 707)
+
+- **Flags:** the builder reads 25 `voiceAI.*` flags:
+  - agentTransfer, agentUpgrade, aiMarketplaceTemplates, appointmentBooking, builder, customActions, enableS2S,
+    endCallTool, exposeSystemPrompts, flowBasedBuilder, knowledgeBase, mcp;
+  - multiCalendarSupport, multilingual, noiseCancellationBackchanneling, outboundCalling, performanceReporting,
+    promptEvaluator, promptOptimizer, sendWhatsAppMessage, separateDuringPostActions, skipContactConsent,
+    updatedPricing, voiceClone, voiceImport.
+
+  A missing control in the UI is usually a flag, not a missing feature.
+- **Background sound:** `agentSettings.backgroundSound` is one of `coffee-shop · convention-hall · summer-outdoor ·
+  mountain-outdoor · static-noise · call-center`, or unset. With a sound on, `ambientSoundVolume` defaults to 1.
+- **Update contact field during the call:** the form's "During The Call" radio stores `IN_CALL_DATA_EXTRACTION`
+  (flag `separateDuringPostActions`), and "After The Call" stores `DATA_EXTRACTION`.
+- **Booking toggles and their defaults:** `collectEmail` true; every other `collect*` false; `daysOfOfferingDates` /
+  `slotsPerDay` / `hoursBetweenSlots` 3; `timezoneSelection` `userAgent`; `fallbackTimezone` `askUser`;
+  `onlyShareBookingLink`, `respectCalendarAutoConfirm`, `cancelEnabled` and `rescheduleEnabled` all false.
 
 ## Driving `voiceai-compiler.mjs`
 
