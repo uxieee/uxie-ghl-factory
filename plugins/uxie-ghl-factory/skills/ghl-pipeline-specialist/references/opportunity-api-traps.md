@@ -134,6 +134,17 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
 
 - Bulk edit and bulk delete run as jobs listed under Opportunities › Bulk Actions.
 - A bulk delete can be undone there (Restore) or per card. A bulk edit cannot be undone.
+- A bulk edit REPLACES a field's value, and a field added to the edit but left EMPTY **clears** it
+  (`customFields:[{id, field_value:null}]`). Value must be a number >= 0 once it is added; Name is not editable.
+- **Dragging a card to LOST is not safe to cancel.** With no stored reason the app asks for one, but Cancel still saves
+  `status:"lost"` with `lostReasonId:null`. With a reason already stored it does not ask, and it wipes the reason.
+  Move a lost card back with `status:"open"` (an open card drops its reason), and re-set the reason yourself.
+- **A primary-contact swap or an additional-contact add is refused when that contact already holds a card in the same
+  pipeline** and duplicates are off (`OPPORTUNITY_NO_DUPLICATE` on the PUT, "duplicate opportunity relation" on
+  `POST /associations/relations/`). The app's edit form shows no error: it just stays open, unsaved. Read the card back.
+- **A blank Opportunities board or Forecast can be a third-party agency script, not an outage.** The console error
+  `Module "./vue3" does not exist in container.` with the GoGHL script (`api.goghl.ai`) installed; blocking that host in
+  the browser makes the screens render. The fix belongs to whoever owns the script.
 - A CSV import is a background job (`bulk-import-v2`) that can sit at "processing 0/N" for minutes before
   it runs. A `Source` column is written to both the contact and the opportunity.
 
