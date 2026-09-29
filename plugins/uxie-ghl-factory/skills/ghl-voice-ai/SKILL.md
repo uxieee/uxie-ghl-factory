@@ -118,6 +118,7 @@ Full set: `ai-agents/40-rules/constraints.md`.
 | Surface | Status |
 |---|---|
 | create → builder-save PUT → verify | **live-proven end-to-end.** `POST /voice-ai/agents` takes `{locationId, folderId?}` and returns an id; the follow-up `PUT …?publishAgent=true&mode=update` applies the config and the re-read confirms it. Proven at create (2026-09-29): folder, `user_first` (+ fallback, silence ms), all three denoising modes, `languages[]`, session variables, `endCallConfig`, `spamConfig`, `disabledPrompts`; a speech-to-speech model switches the provider to `lc` and `s2sBehaviour` goes in a second PUT. `patienceLevel` is accepted by GHL and stored nowhere, so both tools refuse it. Unknown spec keys are refused before anything is sent |
+| Call logs, one call, outbound queue (`get_voice_call_logs`) | **live-proven reads** (2026-09-29): every filter by differential; LIVE vs TRIAL separates real calls from Test Audio calls; the queue was empty on the test account |
 | `CALL_TRANSFER`, `DATA_EXTRACTION` | **live-fired** |
 | `WORKFLOW_TRIGGER` | **ran on a live call** (2026-09-28 web call: the tool fired mid-call and spoke its static `triggerMessage`) |
 | `SMS`, `APPOINTMENT_BOOKING`, `AGENT_TRANSFER_CHILD` | **created live by `create_voiceai_agent`** and read back (booking mints `GET_SLOTS` / `BOOK_SLOT`, the transfer mints its `AGENT_TRANSFER` root); not run on a call |

@@ -442,6 +442,10 @@ All executed on a test account on 2026-09-26 and read back, unless a line says o
   isEmployeeDeleted}`, with `pagination{page, limit, totalItems, sortOrder}`. The row's Summary action is
   `GET /ai-employees/summary/{locationId}/contact/{contactId}?page=1&limit=100&channelName=` → `{items[], totalCount}`.
   It reads what the agent's `summary{}` setting stored. It generates nothing: the AI usage snapshot did not move.
+  Scope is required (`presetPeriod` today · this-week · prev-week · this-month · prev-month · this-year · prev-year, or
+  `from` + `to` ISO); `employeeId`, `channel`, `contactId` filter, and a made-up channel returns 0 rows, not an error.
+  A summary item is `{summary, trigger, transcript[{direction, body…}], channelName, summaryWindow*}`. Typed read:
+  `get_convai_conversation_logs`.
 - **Intents and prompt templates.** `intentType` is `generalSupport` | `appointmentFlow` | `appointmentBooking`
   (anything else 422s); each selects a different stored template, and the Create Agent picker's General Q&A /
   Appointment booking cards apply them at create. `GET /conversations-ai/prompt` falls back to the default template.

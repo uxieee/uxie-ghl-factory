@@ -35,6 +35,16 @@
         "commit:e02cf7a7"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:e02cf7a7",
+        "commit:a99d4718"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -54,6 +64,7 @@
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_agent_session": "cd00ca6213c38747c2d452e1184c8e28278d864833c8537e86632beed8112495",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/agent-logs.mjs": "08ce651b9e9a863c10b94cd7818105521b6bfc4197d7207fc829ed72efbc1e6c",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
