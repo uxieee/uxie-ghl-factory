@@ -1,0 +1,37 @@
+{
+  "tool": "get_contact_workflow_history",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:fe416819",
+        "corpus:sniffs/workflows-wave1-2026-09-25/live-W24-history.json",
+        "corpus:sniffs/workflows-wave1-2026-09-25/live-W24-history-repeat.json"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-29",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "eb7d0149e959efe4c9cc0a7b8615c8688463787b3960a56be91eae1d7be9fa7a",
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/contact-executions": "99a8401876da5895f7afde56703b1dd54fb21edc5591d9028e4119bfb3693ac6",
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/workflow-with-filter": "6c525adb75da6c928fb6cc5e811c9449af3411a404ac7c881ac572f86ab7b65a"
+    },
+    "builds": {
+      "builder-chunks": "assets/index-BZBeFyAW.js"
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_contact_workflow_history": "9870ee63d30b1c51c0e81e35ce308a61c9282b011ffa5f5032272379cd7a5d53",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "aace93819a562eb4c84c691a3a50601282afbaeda75c49c253799595154fc1e4"
+    }
+  }
+}

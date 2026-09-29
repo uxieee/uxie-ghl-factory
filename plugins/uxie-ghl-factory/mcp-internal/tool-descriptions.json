@@ -2380,5 +2380,31 @@
       "ai-agents--employees-conversation-logs",
       "ai-agents--summary-contact"
     ]
+  },
+  "get_contact_workflow_history": {
+    "description": "Contact workflow run history — proof: live-runtime (2026-09-29); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-09-29)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "workflows--search-contact-executions",
+      "workflows--search-workflow-with-filter-get",
+      "workflow-read"
+    ],
+    "proofFloorRows": [
+      "workflows--search-contact-executions",
+      "workflows--search-workflow-with-filter-get",
+      "workflow-read"
+    ],
+    "riskRows": [
+      "workflows--search-contact-executions",
+      "workflows--search-workflow-with-filter-get",
+      "workflow-read"
+    ],
+    "rows": [
+      "workflows--search-contact-executions",
+      "workflows--search-workflow-with-filter-get",
+      "workflow-read"
+    ]
   }
 }
