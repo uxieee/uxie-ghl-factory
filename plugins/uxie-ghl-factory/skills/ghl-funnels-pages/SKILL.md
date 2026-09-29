@@ -328,8 +328,8 @@ routing and headers on the exact path, after the cache window.
 
 ## Scope
 
-**IN:** funnel / step / page creation, native-element authoring (56 of the builder's 68 leaf kinds
-compose from scratch; the 12 newest — `instagram-feed`, 11 `store-pdp-v2-*` — are edit-in-place only), art direction, custom HTML, tracking code, page `meta`, public-path and domain routing,
+**IN:** funnel / step / page creation, native-element authoring (all 68 of the builder's leaf kinds
+compose from scratch; the 11 `store-pdp-v2-*` product-page blocks need a product-detail step and a `pdp` section), art direction, custom HTML, tracking code, page `meta`, public-path and domain routing,
 calendar and product bindings, chat widget, split tests, publishing, site audit. Store pages need a
 step of `type:"store"`; blog pages need a `blog-post` step in a `type:"blog"` funnel, which
 `create_funnel` `kind:"blog"` makes (with a Blog Home step).

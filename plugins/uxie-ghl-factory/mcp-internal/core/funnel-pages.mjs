@@ -19,7 +19,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { KIND_DEFAULT_EXTRA } from './kind-defaults.mjs';
+import { KIND_DEFAULT_EXTRA, KIND_PDP_STYLES } from './kind-defaults.mjs';
 import { KIND_BUILDER_EXTRA, KIND_BUILDER_STYLES } from './kind-builder-defaults.mjs';
 
 // Embedded by esbuild into dist so the bundle stays self-contained (the bundle test asserts it
@@ -217,6 +217,22 @@ export const NEEDS_STEP_TYPE = Object.freeze({
   'blog-content': 'blog-post',
 });
 
+// 🔴 The product-page blocks (store-pdp-v2-*) need a step KEY, not a type, and a flagged section. The builder offers them
+// only on a step whose key is one of these (the store's "Product details" step, type store; or a custom product page,
+// type optin_funnel_page), and each block finds its product by walking up to the section with extra.pdpV2Section:true
+// (a RAW boolean) and reading extra.selectedProducts.value — empty on the store's own page, where the product comes from
+// the URL route. Read off GHL's own store page (knowledge sniffs/funnels-wave29-kinds-2026-09-29/live-read.pdp-page.json)
+// and the builder's buildV2SectionExtra.
+export const PDP_FUNNEL_STEP_KEYS = Object.freeze(['store-product-detail', 'store-custom-product-detail']);
+export const isPdpKind = (meta) => typeof meta === 'string' && meta.startsWith('store-pdp-v2-');
+export function pdpSectionExtra(pdp) {
+  const products = pdp === true ? [] : pdp?.products;
+  if (!Array.isArray(products) || products.some((p) => typeof p !== 'string' || !p)) {
+    throw Object.assign(new Error('section pdp must be true or {products: [<product id>, …]}'), { remediation: 'true on the store\'s "Product details" step (the product comes from the URL); {products: [id]} on a custom product page, where the first id is the product shown.' });
+  }
+  return { selectedProducts: val(products), manageProducts: val(''), typography: val('var(--contentfont)'), pdpV2Section: true };
+}
+
 // 🔴 These kinds carry `tag` EQUAL TO THEIR tagName, not the empty string every other leaf uses.
 // Read off real template nodes; a leaf built with tag:'' does not render.
 export const TAG_IS_TAGNAME = Object.freeze(new Set([
@@ -389,7 +405,7 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
   const builderStyles = KIND_BUILDER_STYLES[meta] ?? {};
   // boxShadow likewise: the builder compiles an image's `box-shadow` from it with no fallback (`box-shadow:undefined`).
   const weights = Object.fromEntries(Object.entries(builderStyles).filter(([k]) => /^fontWeight|^boxShadow$/.test(k)));
-  const base = { ...weights, ...(KIND_DEFAULT_STYLES[meta] ?? {}), ...(STYLE_DEFAULTS[meta] ?? {}) };
+  const base = { ...weights, ...(KIND_DEFAULT_STYLES[meta] ?? {}), ...(KIND_PDP_STYLES[meta] ?? {}), ...(STYLE_DEFAULTS[meta] ?? {}) };
   // Every default weight object gets `.mobile` = `.desktop`, whichever table it came from: the template-derived nav-menu
   // and image-feature weights lacked it too and a builder save compiled `font-weight:undefined` into their mobile rules
   // (f1 kinds check, knowledge sniffs/funnels-wave26-builder-save-2026-09-29 live-saved-bytes.kinds.json).
@@ -431,8 +447,9 @@ export const SECTION_WIDTH = Object.freeze({ full: 'fullSection', wide: 'wideSec
 // the page in the builder.
 export const BUILDER_INNER_MAX_WIDTH = 1170;
 export const sectionInnerRule = (sid, { fullWidthRows, maxWidth }) => `#${sid}>.inner{max-width:${fullWidthRows ? '100%' : `${maxWidth}px`}}`;
-export function sectionKnobs({ sticky, width, fullWidthRows } = {}) {
+export function sectionKnobs({ sticky, width, fullWidthRows, pdp } = {}) {
   const extra = {}; const cls = {};
+  if (pdp !== undefined && pdp !== false) Object.assign(extra, pdpSectionExtra(pdp));
   if (sticky !== undefined) {
     if (!SECTION_STICKY[sticky]) throw Object.assign(new Error(`section sticky must be one of ${Object.keys(SECTION_STICKY).join(', ')}`), { remediation: 'none = scrolls away; top/bottom = stays fixed to that edge while the page scrolls.' });
     extra.sticky = val(SECTION_STICKY[sticky]);
@@ -445,7 +462,7 @@ export function sectionKnobs({ sticky, width, fullWidthRows } = {}) {
   return { extra, cls };
 }
 
-export const makeSection = ({ columns, background = 'transparent', padY = 60, maxWidth = 1100, elementCss = '', pageId, funnelId, locationId, salt, sticky, width, fullWidthRows }) => {
+export const makeSection = ({ columns, background = 'transparent', padY = 60, maxWidth = 1100, elementCss = '', pageId, funnelId, locationId, salt, sticky, width, fullWidthRows, pdp }) => {
   // 🔴 COLUMN WIDTHS MUST FILL THE ROW. A column is `flex: 1 1 auto`, so the `width` compiled here
   // acts as a flex BASIS, not a fixed size: a row whose widths sum to less than 100 does not leave a
   // gap, it GROWS every column to fill. Two columns at 33.33% render at 50% each — the page looks
@@ -482,7 +499,7 @@ export const makeSection = ({ columns, background = 'transparent', padY = 60, ma
   const row = envelope(rid, 'row', 'row', 'c-row', { bgImage: BG_IMAGE },
     { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val('transparent') });
   row.child = columns.map((c) => c.col.id);
-  const knobs = sectionKnobs({ sticky, width, fullWidthRows });
+  const knobs = sectionKnobs({ sticky, width, fullWidthRows, pdp });
   const meta = envelope(sid, 'section', 'section', 'c-section',
     { sticky: val('noneSticky'), bgImage: BG_IMAGE, allowRowMaxWidth: val(false), ...knobs.extra },
     { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20) },
@@ -730,7 +747,10 @@ export const autosaveEnvelope = ({ funnelId, pageData, pageVersion = 1 }) => ({
 /** Structural checks the write path will NOT do for you. Returns [] when the page is sane. */
 // `stepType`: the type of the step the page sits on, when the caller has read it. Without it the step-typed kinds
 // (store cart/checkout/thank-you, blog content) are flagged, because a static audit cannot tell where the page lives.
-export const auditPageData = (pageData, { stepType } = {}) => {
+// `stepKey` is checked only when the caller passed it (compose reads the step); the edit preview lists problems of a
+// page as it already is, and a real product page's step key is not re-read there.
+export const auditPageData = (pageData, opts = {}) => {
+  const { stepType, stepKey } = opts;
   const problems = [];
   // A page missing this renders in public and hangs the BUILDER — the failure mode with no error.
   if (!pageData.settings?.settings?.background) {
@@ -812,6 +832,14 @@ export const auditPageData = (pageData, { stepType } = {}) => {
       }
       if (n.type === 'element' && NEEDS_STEP_TYPE[n.meta] && stepType !== NEEDS_STEP_TYPE[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): this kind renders only on a step of type '${NEEDS_STEP_TYPE[n.meta]}' — on a plain funnel page it 500s (or 404s for blog kinds). Create the step with that type.`);
+      }
+      if (n.type === 'element' && isPdpKind(n.meta)) {
+        if ('stepKey' in opts && !PDP_FUNNEL_STEP_KEYS.includes(stepKey)) {
+          problems.push(`node ${n.id} (${n.meta}): product-page blocks belong on a step whose key is ${PDP_FUNNEL_STEP_KEYS.join(' or ')} (the store's "Product details" step, or a custom product page) — this step's key is ${stepKey ? `'${stepKey}'` : 'absent'}; the builder does not offer them anywhere else.`);
+        }
+        if (s.metaData?.extra?.pdpV2Section !== true) {
+          problems.push(`node ${n.id} (${n.meta}): a product-page block reads its product from the section flagged extra.pdpV2Section:true — section ${s.id} is not; give the section \`pdp: true\` (or {products: [id]}).`);
+        }
       }
       if (n.type === 'element' && NEEDS_CONTEXT[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): ${NEEDS_CONTEXT[n.meta]}`);

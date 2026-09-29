@@ -97,9 +97,10 @@ if (hasKnowledge) {
   // UNGUARDED, so a missing property 500s the public page while autosave still answers 201.
   // The full corpus file also carries observed shapes and palette metadata the plugin never reads.
   {
+    // One source: the corpus file carries each kind's factory-declared props (`editableProps.extra`, merged from the
+    // builder registry). It used to be joined with a dated 2026-09-09 registry dump, which pinned the catalogue at 60
+    // kinds after the builder grew to 72 (knowledge sniffs/funnels-wave29-kinds-2026-09-29).
     const src = JSON.parse(readFileSync(join(KNOWLEDGE, 'corpus/funnels/_data/elements.json'), 'utf8'));
-    const defsPath = join(KNOWLEDGE, 'sniffs/funnel-element-registry-2026-09-09/defaults.json');
-    const defs = existsSync(defsPath) ? JSON.parse(readFileSync(defsPath, 'utf8')).elements : {};
     const elements = {};
     for (const [meta, v] of Object.entries(src.elements)) {
       elements[meta] = {
@@ -107,12 +108,12 @@ if (hasKnowledge) {
         type: v.type,
         insertable: !!v.insertable,
         ...(v.protected ? { protected: true } : {}),
-        extraProps: (defs[meta]?.extra?.props ?? []).map((p) => p.prop),
+        extraProps: (v.editableProps?.extra ?? []).map((p) => p.prop),
       };
     }
     writeFileSync(join(MCP, 'catalog/funnel-elements.json'),
-      JSON.stringify({ _source: 'knowledge/corpus/funnels/_data/elements.json + sniffs/funnel-element-registry-2026-09-09/defaults.json',
-        _note: 'meta is a CLOSED set of 60; extraProps must all be present on a node or the public render 500s.',
+      JSON.stringify({ _source: 'knowledge/corpus/funnels/_data/elements.json (editableProps.extra)',
+        _note: `meta is a CLOSED set of ${Object.keys(elements).length}; extraProps must all be present on a node or the public render 500s.`,
         count: Object.keys(elements).length, elements }, null, 1) + '\n');
     if (!quiet) console.log(`sync: funnel-elements ← knowledge/corpus/funnels/_data (${Object.keys(elements).length} kinds)`);
   }

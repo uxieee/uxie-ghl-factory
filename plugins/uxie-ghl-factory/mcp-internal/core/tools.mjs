@@ -15,7 +15,7 @@ import { makeGateway } from './gateway.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
   makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, nodeExtraFromCss, elementSizeCss, buttonColourCss, applyPalette, resetIds, val,
-  NEEDS_STEP_TYPE, videoSourceProblems,
+  NEEDS_STEP_TYPE, videoSourceProblems, isPdpKind,
 } from './funnel-pages.mjs';
 import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
@@ -11338,9 +11338,9 @@ export const TOOLS = [
       + 'Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, '
       + 'popups?, typography?): writes the nodes AND the compiled stylesheet — the builder canvas reads node styles, '
       + 'the public page the compiled CSS; both are needed. Sizes, weights, click actions and builder defaults sit on the nodes, so a builder save keeps them. Refuses what autosave accepts with 201 and then breaks: a '
-      + 'meta outside the 60 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does '
+      + 'meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does '
       + 'not take (refused by name: text → html), an empty popup, an openPopup naming no popup, a video with no '
-      + 'source. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, '
+      + 'source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, '
       + 'remove-node, page (trackingCode, customCss, background, typography), append-popup; seo writes the page '
       + 'record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified '
       + 'by value on a separate read. 🔴 Visitors see only the PUBLISHED version: pass publish:true for content and '
@@ -11349,9 +11349,8 @@ export const TOOLS = [
       + 'flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an '
       + 'element\'s font \'headline\'|\'content\'; families are written as var(--name) so a builder save keeps loading '
       + 'them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column '
-      + 'layout knobs, saved and global sections, font upload. Element keys per kind, animations, popups, fonts and '
-      + 'every trap: ghl-funnels-pages SKILL → references/build-funnel-page.md. Siblings: edit_funnel (steps, '
-      + 'settings, publish state), get_funnel (read), create_funnel (the document).',
+      + 'layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: '
+      + 'ghl-funnels-pages → references/build-funnel-page.md. Siblings: edit_funnel, get_funnel, create_funnel.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
@@ -11496,7 +11495,7 @@ export const TOOLS = [
         return makeSection({
           columns, background: spec.background ?? 'transparent', padY: spec.padY ?? 60,
           maxWidth: spec.maxWidth ?? 1100, elementCss: css.join(''),
-          sticky: spec.sticky, width: spec.width, fullWidthRows: spec.fullWidthRows,
+          sticky: spec.sticky, width: spec.width, fullWidthRows: spec.fullWidthRows, pdp: spec.pdp,
           pageId: args.pageId, funnelId: args.funnelId, locationId: args.locationId, salt: `${saltBase}${si}`,
         });
       };
@@ -11539,13 +11538,17 @@ export const TOOLS = [
 
       // A step-typed kind (store cart/checkout/thank-you, blog content) is only valid on a step of that type: read the
       // step's real type instead of refusing the kind everywhere (it used to refuse them even on a store step).
-      let stepType;
-      const typed = pageData.sections.some((sec) => sec.elements.some((e) => e.type === 'element' && NEEDS_STEP_TYPE[e.meta]));
-      if (typed) {
+      // Product-page blocks are keyed by the step's KEY instead (store-product-detail | store-custom-product-detail).
+      let stepType; const stepCtx = {};
+      const leavesOf = (pred) => pageData.sections.some((sec) => sec.elements.some((e) => e.type === 'element' && pred(e.meta)));
+      const typed = leavesOf((m) => NEEDS_STEP_TYPE[m]); const pdp = leavesOf(isPdpKind);
+      if (typed || pdp) {
         const fr = await readFunnel(deps.makeGw({ loc: args.locationId, state: deps.state }), args.locationId, args.funnelId);
-        stepType = fr.res.ok ? (fr.funnel?.steps ?? []).find((st) => st.id === args.stepId)?.type : undefined;
+        const step = fr.res.ok ? (fr.funnel?.steps ?? []).find((st) => st.id === args.stepId) : undefined;
+        stepType = step?.type;
+        if (pdp) stepCtx.stepKey = step?.key;
       }
-      const problems = auditPageData(pageData, { stepType });
+      const problems = auditPageData(pageData, { stepType, ...stepCtx });
       if (problems.length) {
         return withFailureData(
           fail(CODES.VALIDATION_FAILED, `The composed page would save with 201 and then fail: ${problems.length} problem(s).`,

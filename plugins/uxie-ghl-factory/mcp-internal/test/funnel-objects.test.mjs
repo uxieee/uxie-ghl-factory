@@ -187,3 +187,22 @@ test('compose: a step-typed store kind is refused on a plain step and accepted o
   const store = await run('build_funnel_page', { stepId: 'SS', pageId: 'PS', sections: [{ columns: [{ elements: [{ meta: 'store-cart' }] }] }] }, d);
   assert.equal(store.code, 'CONFIRM_REQUIRED');
 });
+
+test('compose: product-page blocks need a pdp section AND a product-detail step key (knowledge wave29)', async () => {
+  const d = fakeDeps();
+  d.db.funnel.steps.push({ id: 'SP', name: 'Product details', url: '/store-product-detail', type: 'store', key: 'store-product-detail', pages: ['PP'] });
+  d.db.funnel.steps.push({ id: 'SC', name: 'Cart', url: '/cart', type: 'store', key: 'store-cart', pages: ['PC'] });
+  const pdpSection = (extra = {}) => [{ ...extra, columns: [{ elements: [{ meta: 'store-pdp-v2-images' }] }, { elements: ['title', 'price', 'add-to-cart'].map((k) => ({ meta: `store-pdp-v2-${k}` })) }] }];
+  const ok = await run('build_funnel_page', { stepId: 'SP', pageId: 'PP', sections: pdpSection({ pdp: true }) }, d);
+  assert.equal(ok.code, 'CONFIRM_REQUIRED', JSON.stringify(ok.data?.problems ?? ok));
+  const noFlag = await run('build_funnel_page', { stepId: 'SP', pageId: 'PP', sections: pdpSection() }, d);
+  assert.equal(noFlag.code, 'VALIDATION_FAILED');
+  assert.match(JSON.stringify(noFlag.data.problems), /pdpV2Section/);
+  const wrongKey = await run('build_funnel_page', { stepId: 'SC', pageId: 'PC', sections: pdpSection({ pdp: true }) }, d);
+  assert.equal(wrongKey.code, 'VALIDATION_FAILED');
+  assert.match(JSON.stringify(wrongKey.data.problems), /'store-cart'/);
+  const plain = await run('build_funnel_page', { stepId: 'S1', pageId: 'P1', sections: pdpSection({ pdp: { products: ['PR1'] } }) }, d);
+  assert.match(JSON.stringify(plain.data.problems), /key is absent/);
+  const bad = await run('build_funnel_page', { stepId: 'SP', pageId: 'PP', sections: pdpSection({ pdp: { products: 'PR1' } }) }, d);
+  assert.match(bad.message ?? bad.detail ?? '', /section pdp must be/);
+});
