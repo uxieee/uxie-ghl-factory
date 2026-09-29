@@ -20,6 +20,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { KIND_DEFAULT_EXTRA } from './kind-defaults.mjs';
+import { KIND_BUILDER_EXTRA, KIND_BUILDER_STYLES } from './kind-builder-defaults.mjs';
 
 // Embedded by esbuild into dist so the bundle stays self-contained (the bundle test asserts it
 // ships with NO sibling files); read from disk when running from source.
@@ -58,6 +59,116 @@ export const ACTION_VALUES = Object.freeze([
   'go-to-cac', 'logout', 'go-to-membership',
 ]);
 export const GO_TO_NEXT_STEP = 'go-to-next-funnel-step';
+
+// 🔴 AN IMAGE'S CLICK ACTION IS NOT `extra.action`. image and image-feature take it in `extra.imageActions`, svg in
+// `extra.svgImageActions`; neither kind declares `action`. The public renderer switches on `imageActions` for all three
+// (svg included, although the builder declares svgImageActions for it — so svg carries both). A composed image told
+// to open a popup stored `action: openPopup` with `imageActions: []` and did nothing on click, while every check passed
+// (knowledge sniffs/funnels-completeness-2026-09-29 notes-A D15). The values are the builder's own menus
+// (index.e1b163ff.js `imageActions`, 11; `svgImageActions`, 4).
+const IMAGE_ACTION_VALUES = Object.freeze(['none', 'openPopup', 'url', 'download-file', 'show-hide-element', 'scroll-to-element',
+  'go-to-funnel-step', 'go-to-next-funnel-step', 'click-to-call', 'click-to-sms', 'click-to-mail']);
+export const CLICK_ACTION_PROPS = Object.freeze({
+  image: { props: ['imageActions'], values: IMAGE_ACTION_VALUES },
+  'image-feature': { props: ['imageActions'], values: IMAGE_ACTION_VALUES },
+  svg: { props: ['svgImageActions', 'imageActions'], values: Object.freeze(['none', 'openPopup', 'url', 'download-file']) },
+});
+/** Move a caller's `extra.action` to the prop this kind's renderer reads. Other kinds pass through untouched. */
+export function routeClickAction(meta, extra = {}) {
+  const spec = CLICK_ACTION_PROPS[meta];
+  if (!spec || !extra || !Object.prototype.hasOwnProperty.call(extra, 'action')) return extra;
+  const { action, ...rest } = extra;
+  const v = action?.value ?? action;
+  if (v !== '' && !spec.values.includes(v)) {
+    throw Object.assign(new Error(`${meta}: click action '${v}' is not one the builder offers on this kind (${spec.values.join(', ')})`),
+      { remediation: `Use one of ${spec.values.join(', ')}.` });
+  }
+  const out = { ...rest };
+  for (const p of spec.props) out[p] = { value: v === '' ? 'none' : v };
+  return out;
+}
+/** The click action a node will perform, wherever its kind keeps it. */
+export const clickActionOf = (n) => {
+  const spec = CLICK_ACTION_PROPS[n?.meta];
+  return spec ? n?.extra?.[spec.props[0]]?.value : n?.extra?.action?.value;
+};
+
+// ── Text size and weight, as the BUILDER compiles them ──
+// On every save the builder throws the stored stylesheet away and recompiles each text and button node's sizes from
+// the NODE: `extra.desktopFontSize/mobileFontSize/tabletFontSize` as `${value}${unit}` and `styles.fontWeight.desktop/
+// .mobile/.tablet`, at its 0–767 / 768–10000 / 768–1024 breakpoints (textElementMediaQueryStyle and buttonElementStyle,
+// page-builder index.e1b163ff.js). Sizes that lived only in the tool's compiled CSS were lost on the first builder save
+// (64 × `font-size:undefined`, knowledge sniffs/funnels-wave19-tool-drift-2026-09-29 ui-cap.builder-save.json). So the
+// node carries them, and the compiled rules below are the builder's own output for that node — the public page reads
+// the same sizes before and after anyone saves in the builder.
+export const TEXT_SIZE_KINDS = Object.freeze(new Set(['heading', 'sub-heading', 'paragraph', 'rich-text', 'bulletList']));
+const TABLET_MQ = 'screen and (min-width:768px) and (max-width:1024px)';
+const MOBILE_MQ = 'screen and (min-width:0px) and (max-width:767px)';
+const DESKTOP_MQ = 'screen and (min-width:768px) and (max-width:10000px)';
+const sizeOf = (a) => (a ? `${a.value}${a.unit}` : null);
+const spacing = (x) => (x?.itemSpacing ? `${x.itemSpacing.value}${x.itemSpacing.unit || ''}` : null);
+
+/** textElementMediaQueryStyle, minified. */
+export function builderTextSizeCss(node) {
+  const { id, extra = {}, styles = {} } = node;
+  const fw = styles.fontWeight;
+  const d = sizeOf(extra.desktopFontSize) ?? '16px';
+  const m = sizeOf(extra.mobileFontSize) ?? d;
+  const t = sizeOf(extra.tabletFontSize);
+  const tSp = spacing(node.tabletExtra);
+  const tW = fw?.tablet ?? null;
+  const mW = fw?.mobile ?? fw?.desktop;
+  const heads = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  if (node.meta === 'rich-text') {
+    const all = `.${id}.text-output,.${id} ul li,.${id}`;
+    const hs = heads.map((h) => `.${id}.text-output ${h}`).join(',');
+    const mSp = spacing(node.mobileExtra);
+    let tablet = '';
+    if (t || tSp || tW) {
+      tablet = `@media ${TABLET_MQ}{${t ? `${all}{font-size:${t}!important}` : ''}${tW ? `${all}{font-weight:${tW}}${hs}{font-weight:${tW}!important}` : ''}`
+        + `${tSp ? `.${id}.text-output li:not(:last-child){margin-bottom:${tSp}!important}` : ''}}`;
+    }
+    return `@media ${MOBILE_MQ}{${all}{font-size:${m}!important;font-weight:${mW}}${hs}{font-weight:${mW}!important}`
+      + `.${id}.text-output li:not(:last-child){margin-bottom:${mSp ? `${mSp}!important` : '0px'}}}`
+      + `@media ${DESKTOP_MQ}{${all}{font-size:${d}!important;font-weight:${fw?.desktop}}${hs}{font-weight:${fw?.desktop}!important}}${tablet}`;
+  }
+  const all = [`.${id}.text-output`, `.${id} ul li`, ...heads.map((h) => `.${id} ${h}`)].join(',');
+  const mSp = spacing(node.mobileExtra);
+  const bullet = node.meta === 'bulletList';
+  let tablet = '';
+  if (t || tW || (bullet && tSp)) {
+    tablet = `@media ${TABLET_MQ}{${t ? `${all}{font-size:${t}!important}` : ''}${tW ? `${all}{font-weight:${tW}}` : ''}`
+      + `${bullet && tSp ? `.${id}.text-output li:not(:last-child){margin-bottom:${tSp}!important}` : ''}}`;
+  }
+  return `@media ${MOBILE_MQ}{${all}{font-size:${m}!important;font-weight:${mW}}`
+    + `${bullet ? `.${id}.text-output li:not(:last-child){margin-bottom:${mSp ? `${mSp}!important` : '0px'}}` : ''}}`
+    + `@media ${DESKTOP_MQ}{${all}{font-size:${d}!important;font-weight:${fw?.desktop}}}${tablet}`;
+}
+
+/** The size and weight half of buttonElementStyle (icons and animations are compiled elsewhere), minified. */
+export function builderButtonSizeCss(node) {
+  const { id, extra = {}, styles = {} } = node;
+  const fw = styles.fontWeight; const fs = styles.fontWeightSub;
+  const d = sizeOf(extra.desktopFontSize) ?? '20px';
+  const m = sizeOf(extra.mobileFontSize) ?? d;
+  const t = sizeOf(extra.tabletFontSize) ?? d;
+  const sd = sizeOf(extra.subTextDesktopFontSize) ?? '15px';
+  // the builder falls back to the raw desktop sub-size OBJECT here (prints "[object Object]"); the tool always
+  // writes subTextMobileFontSize, so this branch is the builder's behaviour, kept for a node written by someone else
+  const sm = sizeOf(extra.subTextMobileFontSize) ?? String(extra.subTextDesktopFontSize);
+  const st = sizeOf(extra.subTextTabletFontSize) ?? sd;
+  const color = styles.secondaryColor ? styles.secondaryColor.value : styles.color?.value;
+  const main = (size, w) => `.${id} .main-heading-button,.${id} .button-icon-start,.${id} .button-icon-end{font-size:${size};font-weight:${w}}`
+    + `.${id} .button-icon-start{margin-right:5px}.${id} .button-icon-end{margin-left:5px}`;
+  const sub = (size, w) => `.${id} .sub-heading-button{font-size:${size};color:${color};font-weight:${w}}`;
+  return `@media ${DESKTOP_MQ}{${main(d, fw?.desktop)}${sub(sd, fs?.desktop)}}`
+    + `@media ${TABLET_MQ}{${main(t, fw?.tablet ?? fw?.desktop)}${sub(st, fs?.tablet ?? fs?.desktop)}}`
+    + `@media ${MOBILE_MQ}{${main(m, fw?.mobile ? fw.mobile : fw?.desktop)}${sub(sm, fs?.mobile)}}`;
+}
+
+/** The builder's size/weight rules for a node, or '' for a kind it does not compile them for here. */
+export const elementSizeCss = (node) => (TEXT_SIZE_KINDS.has(node?.meta) ? builderTextSizeCss(node)
+  : node?.meta === 'button' ? builderButtonSizeCss(node) : '');
 
 // Some kinds want a specific empty SHAPE and the property name does not predict it — `nav-menu`
 // reads its properties as lists even for ones called `icon`/`imageProperties`, so an object-shaped
@@ -157,6 +268,12 @@ export const completeExtra = (meta, given = {}) => {
   // get the real default first; the shaped empty is only the last resort.
   // Hand-curated required objects first, then the builder-save config fill (kind-style-defaults.mjs).
   const known = { ...(KIND_CONFIG_EXTRA[meta] ?? {}), ...(KIND_DEFAULT_EXTRA[meta] ?? {}) };
+  // 🔴 Below those, the BUILDER's own fresh-node default (kind-builder-defaults.mjs, generated from its element
+  // registry). A name-guessed empty is what a builder save compiled into `font-size:undefined` 64 times on one tool
+  // page (a `{value:""}` size is truthy, so `${value}${unit}` prints "undefined"), and what gave the store kinds an
+  // itemsPerPage of [] and the timers an expireAction of "" (knowledge sniffs/funnels-completeness-2026-09-29
+  // a-defaults-diff.json). emptyFor is now only for a prop the builder declares no default for.
+  const builder = KIND_BUILDER_EXTRA[meta] ?? {};
   const out = {};
   for (const prop of declared) {
     // 🔴 `visibility` and `customClass` are declared on most kinds, and the envelope already gives
@@ -167,13 +284,28 @@ export const completeExtra = (meta, given = {}) => {
     if ((prop === 'visibility' || prop === 'customClass') && !Object.prototype.hasOwnProperty.call(given, prop)) continue;
     out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop]
       : Object.prototype.hasOwnProperty.call(known, prop) ? known[prop]
-        : emptyFor(prop, meta);
+        : Object.prototype.hasOwnProperty.call(builder, prop) ? builder[prop]
+          : emptyFor(prop, meta);
   }
   // A kind may need a property its own registry entry does not declare — `customText` is declared,
   // but `step1` on store-checkout is not, and the renderer reads it anyway.
   for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
+  // A SIZE prop the builder declares with no default (most tablet sizes, the pricing table's mobile sizes) takes its
+  // desktop sibling — the builder's own fallback when a breakpoint has no size — or, failing that, the same prop's
+  // default on another kind. Never a shaped empty: `${value}${unit}` of {value:""} compiles to "undefined".
+  for (const [prop, v] of Object.entries(out)) {
+    if (!/FontSize$/.test(prop) || Object.prototype.hasOwnProperty.call(given, prop) || isSize(v)) continue;
+    const sib = prop.replace(/(Tablet|Mobile)FontSize$/, 'DesktopFontSize').replace(/^(tablet|mobile)FontSize$/, 'desktopFontSize');
+    out[prop] = isSize(out[sib]) ? out[sib] : (SIZE_ELSEWHERE[prop] ?? SIZE_ELSEWHERE[sib] ?? px(16));
+  }
   return { ...out, ...given };
 };
+const isSize = (v) => !!v && typeof v === 'object' && typeof v.value === 'number' && !!v.unit;
+// The first builder default for each size prop across all kinds.
+const SIZE_ELSEWHERE = Object.freeze(Object.values(KIND_BUILDER_EXTRA).reduce((acc, o) => {
+  for (const [k, v] of Object.entries(o)) if (/FontSize$/.test(k) && isSize(v) && !(k in acc)) acc[k] = v;
+  return acc;
+}, {}));
 
 // 🔴 A BUTTON WITH NO COLOUR KILLS THE PAGE BUILDER (console bl-119). Its styleStr reads
 // `styles.secondaryColor ? styles.secondaryColor.value : styles.color.value` UNGUARDED, so a button
@@ -181,10 +313,15 @@ export const completeExtra = (meta, given = {}) => {
 // should not be empty"), while the public page renders. GHL's own buttons always carry color,
 // secondaryColor and backgroundColor (knowledge sniffs/funnel-native-elements-2026-09-09); an absent
 // one is filled here, an authored one is never overwritten.
+//
+// 🔴 The background was `var(--blue)` until 2026-09-29, and `--blue` is NOT a builder palette variable (its palette is
+// primary, secondary, white, gray, black, red, orange, yellow, green, teal, malibu, indigo, purple, pink, cobalt,
+// smoke, overlay, transparent — index.e1b163ff.js `colors`), so no page ever declared it and a default button had no
+// background even after a builder save. `var(--cobalt)` is the builder's own fresh-button background.
 const BUTTON_STYLE_DEFAULTS = {
   color: { value: 'var(--white)' },
   secondaryColor: { value: 'var(--white)' },
-  backgroundColor: { value: 'var(--blue)' },
+  backgroundColor: { value: 'var(--cobalt)' },
 };
 // 🔴 THE SAME TRAP ON THE ORDER FORMS: the builder's orderFormStyles reads styles.buttonColor / buttonTextColor /
 // formBgColor / buttonSize / formRadius / textAlign `.value` UNGUARDED on every save, so an order form composed with
@@ -245,9 +382,29 @@ export function videoSourceProblems(pageData, onlyIds = null) {
 export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', salt }) => {
   if (!ELEMENTS[meta]) throw new Error(`unknown element meta '${meta}' — the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta, salt);
-  const base = { ...(KIND_DEFAULT_STYLES[meta] ?? {}), ...(STYLE_DEFAULTS[meta] ?? {}) };
+  // The builder's fontWeight objects first: its text, button and timer compilers read `.desktop` / `.mobile` from them
+  // and print `font-weight:undefined` when the object is absent (wave19 ui-cap.builder-save.json).
+  // Each gets `.mobile` too: the button compiler prints the sub-text's mobile weight with NO fallback to desktop, so the
+  // builder's own fresh button compiles `font-weight:undefined` there.
+  const builderStyles = KIND_BUILDER_STYLES[meta] ?? {};
+  // boxShadow likewise: the builder compiles an image's `box-shadow` from it with no fallback (`box-shadow:undefined`).
+  const weights = Object.fromEntries(Object.entries(builderStyles).filter(([k]) => /^fontWeight|^boxShadow$/.test(k)));
+  const base = { ...weights, ...(KIND_DEFAULT_STYLES[meta] ?? {}), ...(STYLE_DEFAULTS[meta] ?? {}) };
+  // Every default weight object gets `.mobile` = `.desktop`, whichever table it came from: the template-derived nav-menu
+  // and image-feature weights lacked it too and a builder save compiled `font-weight:undefined` into their mobile rules
+  // (f1 kinds check, knowledge sniffs/funnels-wave26-builder-save-2026-09-29 live-saved-bytes.kinds.json).
+  for (const [k, w] of Object.entries(base)) if (/^fontWeight/.test(k) && w && typeof w === 'object' && w.desktop !== undefined && w.mobile === undefined) base[k] = { ...w, mobile: w.desktop };
+  // A template node's CUSTOM palette colour (`var(--color-mckljcbj)`) is declared only on that template's page; here it
+  // resolves to nothing. The builder's own default for the same key replaces it.
+  for (const [k, v] of Object.entries(base)) if (/var\(--color-/.test(JSON.stringify(v)) && builderStyles[k]) base[k] = builderStyles[k];
+  // Likewise a template's FONT variable (`var(--open-sans)` on faq): nothing declares or loads it on this page, so it
+  // becomes the page's content font, which is what the builder gives a fresh element (bl-267: fonts go through vars).
+  for (const [k, v] of Object.entries(base)) {
+    if (/FontFamily$/.test(k) && typeof v?.value === 'string' && /^var\(--(?!headlinefont\)|contentfont\))/.test(v.value)) base[k] = { ...v, value: 'var(--contentfont)' };
+  }
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
-  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, completeExtra(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra), withDefaults, cls);
+  const routed = routeClickAction(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra);
+  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, completeExtra(meta, routed), withDefaults, cls);
   // Most leaves carry tag:''. The store and blog kinds carry their tagName, and do not render without it.
   node.tag = tag || (TAG_IS_TAGNAME.has(meta) ? ELEMENTS[meta].tagName : '');
   return node;
@@ -347,32 +504,53 @@ export const makeSection = ({ columns, background = 'transparent', padY = 60, ma
   };
 };
 
-/** CSS for a text-ish leaf. Font sizes live only inside breakpoint media queries in GHL's output. */
 // The NODE styles a `css` block implies (console bl-120). A caller who styles a leaf through `css` got
 // the public stylesheet and NO node styles, so the builder canvas showed default type while the public
 // page was right. These are the keys GHL's own text and button leaves carry, in its {value} shape; an
 // authored `styles` key always wins.
+// fontWeight is the builder's per-breakpoint object ({value, desktop, mobile}); a `{value: 700}` was ignored by
+// its compiler, which reads `.desktop`, and printed `font-weight:undefined` on the first builder save.
+const weightObj = (w) => ({ value: '', desktop: String(w), mobile: String(w) });
 export const nodeStylesFromCss = (meta, o = {}) => {
   const out = {};
   const put = (k, v) => { if (v !== undefined && v !== null && v !== '') out[k] = { value: v }; };
   if (meta === 'button') {
     put('backgroundColor', o.background); put('color', o.color); put('secondaryColor', o.color);
+    // 600 is what this tool's compiled button rule always set; the builder's fresh button is 500
+    out.fontWeight = weightObj(o.weight ?? 600);
   } else {
-    put('color', o.color); put('fontFamily', o.font); put('fontWeight', o.weight); put('textAlign', o.align);
+    put('color', o.color); put('fontFamily', o.font); put('textAlign', o.align);
     put('lineHeight', o.lineHeight);
+    if (o.weight !== undefined && o.weight !== null && o.weight !== '') out.fontWeight = weightObj(o.weight);
+  }
+  return out;
+};
+// The NODE sizes a `css` block implies, where the builder reads them ({value, unit:'px'} on extra). A text size given
+// without a mobile size keeps this tool's long-standing 80% mobile scale.
+export const nodeExtraFromCss = (meta, o = {}) => {
+  const out = {};
+  if (meta === 'button') {
+    const d = o.size ?? 16;
+    out.desktopFontSize = px(d); out.mobileFontSize = px(o.mobileSize ?? d);
+    // A button's font is `extra.typography`: the builder compiles `.c<id>{font-family}` from it (computeElementStyleStr)
+    // and has no fontFamily style for a button, so a font only in the compiled rule was lost on the first builder save
+    // (f1 render check: Georgia → the browser default, knowledge sniffs/funnels-wave26-builder-save-2026-09-29
+    // render.pre-vs-post.json, cycle 2).
+    if (o.font) out.typography = { value: o.font };
+  } else if (TEXT_SIZE_KINDS.has(meta) && o.size !== undefined && o.size !== null && o.size !== '') {
+    out.desktopFontSize = px(o.size); out.mobileFontSize = px(o.mobileSize ?? Math.round(o.size * 0.8));
   }
   return out;
 };
 
+// The box rule for a text leaf styled through `css`. Its sizes are NOT here: they are compiled from the node by
+// elementSizeCss, exactly as the builder compiles them, so they survive a builder save.
 export const textCss = (id, o) => {
-  const sel = `.${id} h1,.${id} h2,.${id} h3,.${id} h4,.${id} h5,.${id} h6,.${id} ul li,.${id}.text-output`;
   const weight = o.weight ?? 400;
   return [
     `${PREFIX} #${id}{margin:0}`,
     `${PREFIX} .c${id}{font-family:${o.font};color:${o.color};font-weight:${weight};padding:0;opacity:1;`
       + `line-height:${o.lineHeight ?? '1.35em'};letter-spacing:${o.letterSpacing ?? 0}px;text-align:${o.align ?? 'center'};background-color:transparent}`,
-    `@media screen and (min-width:481px) and (max-width:10000px){${sel}{font-size:${o.size}px!important;font-weight:${weight}}}`,
-    `@media screen and (min-width:0px) and (max-width:480px){${sel}{font-size:${o.mobileSize ?? Math.round(o.size * 0.8)}px!important;font-weight:${weight}}}`,
   ].join('');
 };
 
@@ -406,9 +584,21 @@ const declValue = (v) => {
 };
 export const leafStyleCss = (id, styles) => {
   const decls = Object.entries(styles ?? {})
-    .map(([k, v]) => { const out = declValue(v); return out === null ? null : `${KEBAB(k)}:${out}`; })
+    // fontWeight* are per-breakpoint objects the builder compiles itself (elementSizeCss); an empty value is no rule
+    .map(([k, v]) => { if (/^fontWeight/.test(k)) return null; const out = declValue(v); return out === null || out === '' ? null : `${KEBAB(k)}:${out}`; })
     .filter(Boolean);
   return decls.length ? `${PREFIX} .${id}{${decls.join(';')}}` : '';
+};
+
+// A button composed with no `css` still has colours on its node (BUTTON_STYLE_DEFAULTS, or authored `styles`); the
+// builder compiles them onto the button element, `.c<id>`, on save. Without this rule the visitor saw the browser's grey
+// default button until someone saved the page in the builder (f1 render check, knowledge sniffs/funnels-wave26-builder-
+// save-2026-09-29).
+export const buttonColourCss = (node) => {
+  const st = node.styles ?? {};
+  const d = [['color', st.color], ['background-color', st.backgroundColor]].filter(([, v]) => typeof v?.value === 'string' && v.value)
+    .map(([k, v]) => `${k}:${v.value}`);
+  return d.length ? `${PREFIX} .c${node.id}{${d.join(';')}}` : '';
 };
 
 export const buttonCss = (id, o) => [
@@ -416,7 +606,6 @@ export const buttonCss = (id, o) => [
   `${PREFIX} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;`
     + `padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;`
     + `letter-spacing:.3px;width:auto;display:inline-block}`,
-  `.${id} .main-heading-button{font-size:${o.size ?? 16}px;font-weight:600}`,
 ].join('');
 
 
@@ -449,6 +638,63 @@ export const withElement = (n) => {
         : pick([...base, 'customCss', 'tag']);
   return { ...n, ...(n.type === 'col' ? { noOfColumns: n.noOfColumns ?? 1 } : {}), element };
 };
+
+// ── The builder's colour palette ──
+// 🔴 Palette variables (`var(--white)`, `var(--cobalt)`…) resolve only where the page DECLARES them. A GHL-authored page
+// lists the palette in `general.general.colors` and declares it in a `:root{ --primary: #37ca37; … }` block at the head
+// of `pageStyles` (knowledge sniffs/funnel-native-elements-2026-09-09), and the builder rebuilds that block from
+// `general.colors` on every save (its rootVars getter: `--` + label lower-cased → value). A tool page wrote `colors: []`
+// and no block, so its palette-variable defaults resolved to nothing in public until someone saved the page in the
+// builder (funnels-wave12 render.popup-differential.json: a `var(--white)` background rendered transparent).
+// Variables, not literals: a variable is what the builder's own defaults write and what its colour pickers show as a
+// palette swatch, and bl-267 showed the builder keeps a `:root` declaration across a save while it drops what it does
+// not recognise. The values are the builder's defaults (index.e1b163ff.js `colors`); --text-color / --link-color come
+// from the page's typography colours, as the builder derives them.
+export const BUILDER_PALETTE = Object.freeze([
+  { label: 'Transparent', value: 'transparent' }, { label: 'Primary', value: '#37ca37' }, { label: 'Secondary', value: '#188bf6' },
+  { label: 'White', value: '#ffffff' }, { label: 'Gray', value: '#cbd5e0' }, { label: 'Black', value: '#000000' },
+  { label: 'Red', value: '#e93d3d' }, { label: 'Orange', value: '#f6ad55' }, { label: 'Yellow', value: '#faf089' },
+  { label: 'Green', value: '#9ae6b4' }, { label: 'Teal', value: '#81e6d9' }, { label: 'Malibu', value: '#63b3ed' },
+  { label: 'Indigo', value: '#757BBD' }, { label: 'Purple', value: '#d6bcfa' }, { label: 'Pink', value: '#fbb6ce' },
+  { label: 'Cobalt', value: '#155eef' }, { label: 'Smoke', value: '#f5f5f5' }, { label: 'Overlay', value: 'rgba(0, 0, 0, 0.5)' },
+  // Not in the builder's 18: `var(--blue)` is what its own default link colour is labelled (convertToColorObject({label:
+  // "Blue", value:"#188bf6"})) and what GHL's template nodes write (image-feature linkTextColor, a store kind's
+  // secondaryColor — kind-style-defaults.mjs). Listed here, --blue is declared on the page and the builder's rootVars
+  // (every general.colors label) keep declaring it after a save.
+  { label: 'Blue', value: '#188bf6' },
+].map(Object.freeze));
+const varName = (label) => `--${String(label).toLowerCase()}`;
+/** The palette with the caller's (or the page's) colours over the builder's defaults, matched by label. */
+export const mergePalette = (colors = []) => {
+  const out = BUILDER_PALETTE.map((c) => ({ ...c }));
+  for (const c of colors ?? []) {
+    if (!c?.label) continue;
+    const at = out.findIndex((x) => x.label.toLowerCase() === String(c.label).toLowerCase());
+    if (at >= 0) out[at] = { ...out[at], ...c }; else out.push({ ...c });
+  }
+  return out;
+};
+/** Add each missing `--name: value` to the page's head `:root` block; a declaration already present is left alone. */
+export const addMissingRootVars = (css, vars) => {
+  const cur = css ?? '';
+  const missing = Object.entries(vars).filter(([n]) => !new RegExp(`${n.replace(/[-]/g, '\\-')}\\s*:`).test(cur));
+  return missing.length ? `:root{${missing.map(([n, v]) => `${n}:${v}`).join(';')}}${cur}` : cur;
+};
+/**
+ * Declare the palette on a page, as the builder would: general.general.colors carries every palette colour (the page's
+ * own values win), and `pageStyles` declares each one not already declared. Idempotent; mutates and returns pageData.
+ */
+export function applyPalette(pageData) {
+  const g = pageData.general?.general;
+  if (!g) return pageData;
+  g.colors = mergePalette(g.colors);
+  const typo = pageData.settings?.settings?.typography?.colors ?? {};
+  const vars = Object.fromEntries(g.colors.map((c) => [varName(c.label), c.value]));
+  vars['--text-color'] = typo.textColor?.value?.value || '#000000';
+  vars['--link-color'] = typo.linkColor?.value?.value || '#188bf6';
+  pageData.pageStyles = addMissingRootVars(pageData.pageStyles, vars);
+  return pageData;
+}
 
 export const buildPageData = ({ pageId, stepId, funnelId, locationId, sections, pageStyles = '', fonts = ['Arial', 'Georgia', 'Roboto'], colors = [], pageBackground = 'var(--white)' }) => ({
   funnelId, locationId, pageId, id: pageId, stepId,
@@ -538,6 +784,15 @@ export const auditPageData = (pageData, { stepType } = {}) => {
       if (action !== undefined && action !== '' && !ACTION_VALUES.includes(action)) {
         problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action — use one of ${ACTION_VALUES.join(', ')}. `
           + 'autosave stores an unknown value with a 201 and the control silently does nothing.');
+      }
+      // …and an image's or svg's, which lives in its own prop with its own menu.
+      const spec = CLICK_ACTION_PROPS[n.meta];
+      if (spec) {
+        if (action !== undefined) problems.push(`node ${n.id} (${n.meta}): extra.action is not read on this kind — its click action is extra.${spec.props[0]} (the public renderer reads imageActions); set that instead`);
+        for (const p of spec.props) {
+          const v = n.extra?.[p]?.value;
+          if (v !== undefined && !spec.values.includes(v)) problems.push(`node ${n.id} (${n.meta}): extra.${p}.value ${JSON.stringify(v)} is not one of ${spec.values.join(', ')} — the click does nothing`);
+        }
       }
       // A reference to another asset is `{value, text}` — `formId` proven live 2026-09-10 by reading a
       // `form` node out of GHL's own template. A bare string is the shape a `"formId":"<id>"` scan

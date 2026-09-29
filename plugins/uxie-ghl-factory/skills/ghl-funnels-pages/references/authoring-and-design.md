@@ -78,11 +78,15 @@ page a visitor would get and asserting your own copy is in the HTML.
 ## The action enum (`STYLE_PROPS_VALUE`)
 
 ```
-go-to-next-funnel-step · go-to-funnel-step · step-path · url
-openPopup · go-to-product-collection · go-to-cac · logout
+go-to-next-funnel-step · go-to-funnel-step · step-path · url · download-file · openPopup · show-hide-element
+scroll-to-element · sell-product · add-to-cart · buy-now · click-to-call · click-to-sms · click-to-mail · none
+go-to-product-collection · go-to-cac · logout            (+ go-to-membership, offered on buttons only)
 ```
 
-Anything else stores and does nothing.
+Anything else stores and does nothing. An image's click action is NOT `extra.action`: image and image-feature keep it
+in `extra.imageActions` (none, openPopup, url, download-file, show-hide-element, scroll-to-element, go-to-funnel-step,
+go-to-next-funnel-step, click-to-call, click-to-sms, click-to-mail), svg in `svgImageActions` (none, openPopup, url,
+download-file) — and the public renderer reads `imageActions` for all three.
 
 ## Three keys whose absence 500s the page
 

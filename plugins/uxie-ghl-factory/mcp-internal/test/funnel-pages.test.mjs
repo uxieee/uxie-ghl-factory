@@ -7,6 +7,7 @@ import {
   ELEMENT_KINDS, ELEMENTS, completeExtra, makeLeaf, makeColumn, makeSection,
   buildPageData, autosaveEnvelope, auditPageData, resetIds, textCss, val, BG_IMAGE,
   emptyFor, GO_TO_NEXT_STEP, NEEDS_CONTEXT, NEEDS_STEP_TYPE, TAG_IS_TAGNAME,
+  nodeExtraFromCss, elementSizeCss,
 } from '../core/funnel-pages.mjs';
 
 const page = (over = {}) => {
@@ -101,11 +102,17 @@ test('a missing declared prop is reported by name', () => {
   assert.match(out, /typography/);
 });
 
-test('font sizes are emitted only inside breakpoint media queries', () => {
+test('font sizes live on the NODE and compile at the builder\'s 767/768 breakpoints, never in the box rule', () => {
   const css = textCss('heading-X', { size: 40, color: '#000', font: 'serif' });
-  assert.match(css, /@media screen and \(min-width:481px\)/);
-  assert.match(css, /@media screen and \(min-width:0px\) and \(max-width:480px\)/);
-  assert.ok(!/^[^@]*font-size/.test(css.split('@media')[0]), 'no unscoped font-size before the first media query');
+  assert.ok(!/font-size/.test(css), 'the box rule carries no size: a builder save would drop it');
+  resetIds();
+  const h = makeLeaf({ meta: 'heading', extra: nodeExtraFromCss('heading', { size: 40 }), styles: nodeStylesFromCss('heading', { weight: 700 }) });
+  assert.deepEqual(h.extra.desktopFontSize, { value: 40, unit: 'px' });
+  assert.deepEqual(h.extra.mobileFontSize, { value: 32, unit: 'px' });
+  const sizes = elementSizeCss(h);
+  assert.match(sizes, /@media screen and \(min-width:0px\) and \(max-width:767px\)\{[^}]*\{font-size:32px!important;font-weight:700\}/);
+  assert.match(sizes, /@media screen and \(min-width:768px\) and \(max-width:10000px\)\{[^}]*\{font-size:40px!important;font-weight:700\}/);
+  assert.ok(!/480px|481px/.test(sizes));
 });
 
 test('the autosave envelope counts custom-code elements rather than hardcoding 0', () => {
@@ -332,11 +339,12 @@ test('bl-119: a button leaf built with no styles gets GHL\'s colour keys; author
   const b = makeLeaf({ meta: 'button', salt: 'x' });
   assert.equal(b.styles.color.value, 'var(--white)');
   assert.equal(b.styles.secondaryColor.value, 'var(--white)');
-  assert.equal(b.styles.backgroundColor.value, 'var(--blue)');
+  assert.equal(b.styles.backgroundColor.value, 'var(--cobalt)', '--blue is not a builder palette variable; cobalt is its fresh button');
   const mine = makeLeaf({ meta: 'button', salt: 'y', styles: { color: { value: '#111' } } });
   assert.equal(mine.styles.color.value, '#111');
   const para = makeLeaf({ meta: 'paragraph', salt: 'z' });
-  assert.deepEqual(para.styles, {}, 'only buttons get defaults');
+  assert.ok(!('color' in para.styles) && !('backgroundColor' in para.styles), 'only buttons get colour defaults');
+  assert.deepEqual(para.styles.fontWeight, { value: 'medium', desktop: '400', mobile: '400' }, 'every text kind gets the builder\'s weight object');
   const bare = { ...b, styles: {} };
   const pd = buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [] });
   pd.sections = [{ id: 'sec', elements: [bare], metaData: { child: [] } }];
@@ -345,9 +353,9 @@ test('bl-119: a button leaf built with no styles gets GHL\'s colour keys; author
 
 test('bl-120: a css block also yields the node styles it implies, so the builder canvas matches the public page', () => {
   assert.deepEqual(nodeStylesFromCss('paragraph', { font: 'Georgia', color: '#222', weight: 600, align: 'left' }),
-    { color: { value: '#222' }, fontFamily: { value: 'Georgia' }, fontWeight: { value: 600 }, textAlign: { value: 'left' } });
+    { color: { value: '#222' }, fontFamily: { value: 'Georgia' }, fontWeight: { value: '', desktop: '600', mobile: '600' }, textAlign: { value: 'left' } });
   assert.deepEqual(nodeStylesFromCss('button', { background: '#0a0', color: '#fff' }),
-    { backgroundColor: { value: '#0a0' }, color: { value: '#fff' }, secondaryColor: { value: '#fff' } });
+    { backgroundColor: { value: '#0a0' }, color: { value: '#fff' }, secondaryColor: { value: '#fff' }, fontWeight: { value: '', desktop: '600', mobile: '600' } });
 });
 
 // bl-245 (2026-09-28): a shaped empty `{value:""}` for visibility/customClass was spread over the
