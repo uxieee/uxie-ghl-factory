@@ -1908,6 +1908,53 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
 
+    // co_find_company_record (Find company) — the company workflow's finder: a multipath container with PRE-DEFINED
+    // "Company Found" / "Company Not Found" branches, emitted exactly as the builder stores it (knowledge
+    // sniffs/workflows-wave1-2026-09-25/live-R7-1-builder-find-company-capture.json): `transitions[].fields` is an
+    // OBJECT and each branch key a fresh uuid. Rows are authored at node level, find.filters: [{ field, value }], where
+    // `field` is the builder's typed key `<field key>__<DATA TYPE>` (business.name__TEXT). GHL's rulebook requires an
+    // inbound_webhook trigger (validateRequiredTriggersForActions), and the asset says the step is skipped when a
+    // company trigger started the run.
+    if (n.type === 'co_find_company_record') {
+      if (n.attributes?.__customInputFields__ !== undefined)
+        throw new IRError('FIND_FILTERS_MISPLACED',
+          `co_find_company_record '${n.ref ?? n.name}' authors attributes.__customInputFields__ — that is the emitted shape. `
+          + `Author find.filters: [{ field: 'business.name__TEXT', value: '{{inboundWebhookRequest.<path>}}' }].`);
+      const filters = n.find?.filters ?? [];
+      const badField = filters.find((f) => !/^[a-z][a-z0-9_]*\.[A-Za-z0-9_]+__[A-Z_]+$/.test(String(f?.field ?? '')));
+      if (!filters.length || badField)
+        throw new IRError('FIND_COMPANY_FILTER',
+          `co_find_company_record '${n.ref ?? n.name}' needs find.filters rows whose field is the builder's typed key `
+          + `'<field key>__<DATA TYPE>' (e.g. business.name__TEXT)${badField ? `; got '${badField.field}'` : ''}.`);
+      const filterOn = n.find?.filter_on ?? 'earliest';
+      if (!['earliest', 'latest'].includes(filterOn))
+        throw new IRError('FIND_COMPANY_FILTER', `co_find_company_record '${n.ref ?? n.name}': find.filter_on is 'earliest' or 'latest'.`);
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const container = {
+        id, type: 'co_find_company_record', name: n.name, order: i, parentKey, cat: 'multi-path',
+        workflowsActionType: 'INTERNAL', next: [t1, t2],
+        attributes: {
+          filter_on: filterOn, type: 'co_find_company_record',
+          __customInputFields__: filters.map((f) => ({ __customInputs__: {}, filterField: f.field, valueField: f.value })),
+          __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
+          transitions: [
+            { id: t1, name: 'Company Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Company Not Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+          ],
+          __name__: n.name,
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: 'transition', name: 'Company Found', cat: 'transition', parentKey: id, parent: id, order: 1, attributes: {}, ...(found.entryId ? { next: found.entryId } : {}) });
+      templates.push(...found.templates);
+      const notf = flattenGraph(n.onNotFound ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: 'transition', name: 'Company Not Found', cat: 'transition', parentKey: id, parent: id, order: 1, attributes: {}, ...(notf.entryId ? { next: notf.entryId } : {}) });
+      templates.push(...notf.templates);
+      return;
+    }
+
     if (n.kind === 'goto') {
       // Resolve the target id (forward refs legal — pre-assign if not seen yet;
       // the target node reuses this id when its own scope is walked).
