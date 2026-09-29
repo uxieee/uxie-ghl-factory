@@ -87,7 +87,8 @@ Never ask the user something recon or the brief already answers.
 - `references/agent-studio.md` — **Managed Agents** (the UI's "Agent Studio" tab; the internal
   `/agent-studio/super-agent/*` surface that `create_studio_agent` drives).
   Read its **Traps** first: a builder-chat edit can re-add every CRM skill; the agent-view chat bills while the
-  test panel is free; a use-case template creates an agent.
+  test panel is free; a use-case template creates an agent; 🔴 a config PUT cannot remove a trigger (`triggers: []`
+  is ignored and the stored ones stay enabled; send each back with `enabled: false`).
 
 Sibling skills: **`ghl-voice-ai`** (phone agents, internal rail) and **`ghl-knowledge-base`**
 (the content both products consume).
@@ -174,7 +175,7 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 | Capability | Where in GHL | Why not here |
 |---|---|---|
 | API Call action (custom HTTP call during the chat) | Conversation AI agent → Build → Actions → API Call | an Actions-Platform skill with a mandatory test run; not yet engine-authored |
-| Active Hours (per-bot working hours, off-hours reply) | Agent → Deploy → Working Hours (needs Labs "Working Hours for Conversation AI") | Labs-gated per location |
+| Active Hours (per-bot working hours, off-hours reply) | Agent → Deploy → Working Hours (needs Labs "Working Hours for Conversation AI") | Labs-gated per location; the record itself is raw (`GET\|POST\|PUT /ai-employees/employees/{id}/working-hours`, `references/conversation-ai.md`) |
 | Prompt Optimizer (simulated test chats, auto-optimise) | Agent editor → Prompt Optimizer (Labs) | billed per run, Labs-gated |
 | Flow agents (the node-graph canvas) | Voice AI → Create Agent → **Flow Builder** (any location with the flag); AI Agents → Agent Studio (flow agents, create limited to five agencies) | no typed tool; corpus `ai-agents/10-anatomy/flow-agent-shape.md` has the graph, tools, actions, AI Router and Deploy. 🔴 A Router edge with no condition lets the agent hang up at any turn; Build with AI (vera) built no End Call node when asked to end the call |
 | Agent apps beyond Default: marketplace MCP apps, app connections, custom MCP servers, configured skill copies | Managed Agent editor → Apps → **Add app** / **Add custom MCP** | connecting an app is an OAuth grant, and an MCP server or API-call skill makes GHL call an outside URL — not exercised; corpus `ai-agents/20-api/actions-and-plugins.md` has the Default catalogue, custom skills and the actions catalogue |
@@ -186,6 +187,10 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 | AI Suite billing, usage limits, rebilling | Agency → AI Suite | agency billing, account-wide |
 | Making an agent the location's **primary** bot (`isPrimary`) | Conversation AI → agent menu → Set as Primary (hidden when channel management is on) | location-wide: it hands the location's inbound messages to that agent and can unseat the current primary; `create_convai_agent` refuses `isPrimary:true` |
 | Appointment Booking in **Services** mode (book one of the location's calendar services) | agent → Actions → Appointment Booking → Services (flag `servicesCalendarsAppointmentBooking`) | never executed live (no calendar service to test against); `create_convai_agent` refuses it — raw `POST /ai-employees/actions` with `calendarIds [{id: serviceId, triggerCondition: ""}]` + `aiDescription` (corpus `30-types/conversation-ai-actions.md`) |
+| **Industry Agents** (the vertical business-setup wizard: prefill, template seeding, deploy) | AI Agents → Industry Agents (only where `conversationsAI.industryAgentsSubAccount` is on) | no typed tool; its deploy CREATES a Conversation AI employee, which `update_convai_agent` then edits. Corpus `ai-agents/20-api/industry-agents.md` |
+| **Agent Templates** (install a ready-made voice or chat agent) | AI Agents → Agent Templates → a card → Install | an OAuth app authorization, mostly from third-party developers. 🔴 A template's booking and workflow actions are bound to the DEVELOPER's calendar and workflow ids: after an install, re-point them at the account's own objects before the agent goes live [inferred, not installed]. The list is readable raw: corpus `ai-agents/20-api/agent-templates.md` |
+| **Flow-agent Template Library** (create a flow agent from a template, upload one as a template) | Agent Studio → Create from Template | the install call needs an `api-key` credential this plugin does not hold; corpus `ai-agents/10-anatomy/flow-agent-shape.md` |
+| Rating a test-chat reply / "train the bot" | the agent's test pane → thumbs under a reply | the vote is accepted but nothing reads it back; thumbs-down's train modal writes a KB FAQ (`references/conversation-ai.md` → Test chat) |
 | Answering the Managed Agent builder's questions | AI Agents → Managed Agents → build chat (the question cards) | `create_studio_agent` stops at the questions (`STUDIO_BUILD_AWAITING_INPUT`) and names them; put the answers in `buildPrompt` |
 
 **Treat the first real use of any capture-verified type as a validation run** — small,

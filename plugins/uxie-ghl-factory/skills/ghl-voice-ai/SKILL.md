@@ -151,7 +151,7 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 | Voice cloning / importing a community voice | Voice picker → My voices | not engine-authored |
 | Buying numbers, number pools, KYC | Voice agent → Deploy → Buy new number | purchases and compliance |
 | Outbound consent tool (apply / audit consent language) | Voice AI → Outbound settings | compliance, account-wide |
-| Agent templates (Browse Marketplace) | Voice AI → Create Agent → Browse Marketplace → Install | every template is a marketplace app; Install is an OAuth grant of the app to the location |
+| Agent templates (Browse Marketplace; AI Agents → Agent Templates) | Voice AI → Create Agent → Browse Marketplace → Install, or AI Agents → Agent Templates | every template is a marketplace app, mostly third-party; Install is an OAuth app authorization. 🔴 A template's booking and workflow actions are bound to the DEVELOPER's calendar and workflow ids: after an install, re-point them at the account's own objects before going live [inferred, not installed]. The list is readable raw: `GET backend…/marketplace/apps/templates/ai/search?type=voice\|text&locationId=…` (corpus `ai-agents/20-api/agent-templates.md`) |
 
 ## Scope
 

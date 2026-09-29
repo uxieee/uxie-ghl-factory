@@ -71,7 +71,8 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   `autoPilot` from a caller and send `auto-pilot`. `off` disables the bot, `suggestive` drafts
   replies for a human to approve, `auto-pilot` sends unattended (capped by `autoPilotMaxMessages`, 1–100, default
   75, 100 for a flow bot). The flow-bot editor offers only Off and Auto Pilot, but the server stores `suggestive` on
-  a flow bot too, so do not rely on the server to refuse it.
+  a flow bot too, so do not rely on the server to refuse it. In **Suggestive** mode the Stop Bot and Human Handover final-message
+  and reactivate settings do not apply (the editor says "Not applicable in Suggestive mode").
 - `channels[]` — the server's enum (its own 422, 2026-09-26): `GMB`, `IG`, `FB`, `SMS`, `WebChat`, `WhatsApp`,
   `Live_Chat`, `Email`, `TIKTOK`. The editor offers eight (`GMB` is accepted but hidden); `WebChat` is the editor's
   "Chat widget". The create default is `SMS, IG, FB, WebChat, Live_Chat, WhatsApp`. Both tools accept all nine. Non-empty required unless the location has `conversationsAI.channelManagement` on, in which
@@ -455,6 +456,13 @@ All executed on a test account on 2026-09-26 and read back, unless a line says o
   currently experiencing some issues". The panel's ↻ resets it: `DELETE /ai-employees/employees/{id}/reset-memory`,
   no body → `200 {success: true, message: "No test contact found for this location"}` when no trial contact exists
   (live 2026-09-29).
+  **Thumbs on a trial reply:** `PUT /ai-employees/interactions/suggestions/{trialReplyId} {locationId, thumbVote:
+  "up"|"down", source: "bot_trial"}` → 200 with an empty body. 🔴 **Nothing reads it back.**
+  - `GET …/suggestions/{id}` is 404.
+  - `responseDetails?source=bot_trial&messageId={trialReplyId}` returns the trial turn with no vote field (live
+    2026-09-29).
+  - Thumbs-down opens "train the bot", which writes a FAQ into a KB (`POST knowledge-base/faqs`). Do not submit it
+    to test anything.
 - **Conversation logs and summaries** (live 2026-09-29). Each `conversation-logs` row is `{id, conversationId,
   dateAdded, employeeId, contactId, channel, lastMessage, contactName, isContactDeleted, employeeName,
   isEmployeeDeleted}`, with `pagination{page, limit, totalItems, sortOrder}`. The row's Summary action is
@@ -466,9 +474,28 @@ All executed on a test account on 2026-09-26 and read back, unless a line says o
   `get_convai_conversation_logs`.
 - **Intents and prompt templates.** `intentType` is `generalSupport` | `appointmentFlow` | `appointmentBooking`
   (anything else 422s); each selects a different stored template, and the Create Agent picker's General Q&A /
-  Appointment booking cards apply them at create. `GET /conversations-ai/prompt` falls back to the default template.
+  Appointment booking cards apply them at create. `GET /conversations-ai/prompt` falls back to the default template. The pick
+  travels as `?promptIntent=` into the builder, which prefills from the default prompt: its `information` goes to
+  instructions and its `intent` to the goal [source-derived].
   `GET /conversations-ai/intents/{locationId}` returns the legacy v1 location prompt, not intents; the current app
   never calls it.
+- **Working hours** are their own resource, `GET|POST|PUT /ai-employees/employees/{id}/working-hours`, never a key
+  on the agent PUT (which 422s). Body: `{enabled, channels, timezoneMode, schedule{mon..sun{enabled,
+  slots[{startHour, startMinute, endHour, endMinute}]}}, continueConversations, offHoursAutoReply{…,
+  notificationConfig}, followUp}`. An agent with none reads 404. Written and read back on an own agent on 2026-09-29;
+  raw only, and the UI panel is Labs-gated.
+- **Form bots** are created in the UI only behind `conversationsAI.formBasedBot` (the Guided Form Setup), and by the
+  API anywhere: `POST /ai-employees/employees` with `botType: "FORM_BASED_BOT"`, a `brandId` (a brand voice), steps and
+  notification settings (corpus `10-anatomy/conversation-ai-agent-shape.md` has the full body). 🔴 Each UPDATE_FIELD
+  step becomes a separate `updateContactField` action; the step keeps only its `actionId` (live 2026-09-29). Not
+  typed: `create_convai_agent` refuses form-bot keys.
+- **Gates that hide controls:**
+  - the model and cost panel: `conversationsAI.multiLLM` or `tokenBasedPricing`;
+  - Summary Settings: `summarySettings`;
+  - Images / Voice Notes: a flag-or-beta check;
+  - the whole builder shows a premium paywall unless the billing config has `optIn` and the product is available.
+
+  A missing control is usually one of these.
 - **Primary agent.** `GET /ai-employees/employees/primary/{locationId}` answers `200 {success:false, message:"No
   primary employee found"}` when there is none, which is not an error. Setting a primary is location-wide. With
   `conversationsAI.channelManagement` ON, the editor hides "Set as Primary" and saves drop `isPrimary`, because the
