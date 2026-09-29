@@ -45,7 +45,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 var define_BUILDER_VALIDATORS_default;
 var init_define_BUILDER_VALIDATORS = __esm({
   "<define:__BUILDER_VALIDATORS__>"() {
-    define_BUILDER_VALIDATORS_default = { addNotesValidator: "addNotesValidator=e=>{let t=[],{attributes:n}=e;return n?((!n.html||!n.html.trim())&&t.push({message:translate(`note_content_required`),result:`warning`,field:`html`}),t):[]}", addToAffiliateCampaignValidator: "addToAffiliateCampaignValidator=e=>{let t=[],{attributes:n}=e;return n?(n.campaign_id||t.push({field:`campaign_id`,message:translate(`affiliate_campaign_required`),result:`warning`}),t):[]}", addToAffiliateManagerValidator: "addToAffiliateManagerValidator=e=>[]", addToWorkflowValidator: "addToWorkflowValidator=e=>{let t=[],{attributes:n}=e;return n?((!n.workflow_id||!n.workflow_id.trim())&&t.push({message:translate(`workflow_selection_required`),result:`warning`,field:`workflow_id`}),t):[]}", affiliateCreatedValidator: "affiliateCreatedValidator=e=>{let t=[],n=validateCustomFields(e,[`affiliate.id`,`contact.tags`],`warning`);return t.push(...n),t}", aiAppointmentBookValidator: "aiAppointmentBookValidator=e=>{let t=[],{attributes:n}=e;return n?(n.calendar_id||t.push({field:`calendar_id`,message:translate(`ai_appointment_calendar_required`),result:`warning`}),n.timeout_time||t.push({field:`timeout_time`,message:translate(`ai_appointment_timeout_required`),result:`warning`}),n.send_first_message&&(!n.template_id&&!n.first_message?.length&&t.push({field:`first_message`,message:translate(`ai_appointment_message_required`),result:`warning`}),n.first_message&&!isValidHandleBar(n.first_message)&&t.push({field:`first_message`,message:translate(`ai_appointment_message_invalid_vars`),result:`warning`})),n.no_confirmation_message&&n.send_success_message&&(!n.success_message_template_id&&!n.success_message?.length&&t.push({field:`success_message`,message:translate(`ai_appointment_success_message_required`),result:`warning`}),n.success_message&&!isValidHandleBar(n.success_message)&&t.push({field:`success_message`,message:translate(`ai_appointment_success_message_invalid_vars`),result:`warning`})),t):[]}", appointmentStatusValidator: "appointmentStatusValidator=e=>{let t=[],{attributes:n}=e;return n?(n.status_type||t.push({message:translate(`appointment_status_required`),result:`warning`,field:`status_type`}),t):[]}", appointmentValidator: "appointmentValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`calendar.id`),r=n==null?void 0:n.value||`no_value`;r&&t.push({resource:`calendar`,field:`calendar.id`,value:r,result:`warning`});let i=e.conditions?.find(e=>e.field===`appointment.assignedUserId`),a=i==null?void 0:i.value||`no_value`;a&&t.push({resource:`user`,field:`appointment.assignedUserId`,value:a,result:`warning`});let o=validateCustomFields(e,[`contact.tags`],`warning`);return t.push(...o),t}", arrayFunctionsValidator: "arrayFunctionsValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];if(!n.action)return t.push({field:`action`,message:translate(`array_action_required`),result:`warning`}),t;if(n.action===`find`){let e=n.find;e?.fromField||t.push({field:`find.fromField`,message:translate(`array_from_field_required`),result:`warning`}),(!e?.filters?.length||emptyValues(e.filters))&&t.push({field:`find.filters`,message:translate(`array_filters_required`),result:`warning`})}if(n.action===`filter`){let e=n.filter;e?.fromField||t.push({field:`filter.fromField`,message:translate(`array_from_field_required`),result:`warning`}),(!e?.filters?.length||emptyValues(e.filters))&&t.push({field:`filter.filters`,message:translate(`array_filters_required`),result:`warning`})}if(n.action===`math_functions`){let e=n.math_functions;e?.fromField||t.push({field:`math_functions.fromField`,message:translate(`array_from_field_required`),result:`warning`}),e?.key||t.push({field:`math_functions.key`,message:translate(`array_key_required`),result:`warning`}),e?.operations?.length||t.push({field:`math_functions.operations`,message:translate(`array_operations_required`),result:`warning`})}if(n.action===`find_by_index`){let e=n.find_by_index;e?.fromField||t.push({field:`find_by_index.fromField`,message:translate(`array_from_field_required`),result:`warning`}),(e?.index===void 0||e?.index===null)&&t.push({field:`find_by_index.index`,message:translate(`array_index_required`),result:`warning`})}if(n.action===`line_items`){let e=n.line_items;e?.fromField||t.push({field:`line_items.fromField`,message:translate(`array_from_field_required`),result:`warning`}),(!e?.fields?.length||emptyValues(e.fields))&&t.push({field:`line_items.fields`,message:translate(`array_fields_required`),result:`warning`})}if(n.action===`format_as_text`){let e=n.format_as_text;e?.fromField||t.push({field:`format_as_text.fromField`,message:translate(`array_from_field_required`),result:`warning`}),e?.detailField||t.push({field:`format_as_text.detailField`,message:translate(`field_is_required`),result:`warning`}),e?.displayFormat||t.push({field:`format_as_text.displayFormat`,message:translate(`field_is_required`),result:`warning`}),e?.displayFormat===`custom_separator`&&!e?.customSeparator?.trim()&&t.push({field:`format_as_text.customSeparator`,message:translate(`field_is_required`),result:`warning`})}return t}", assignToUserValidator: "function assignToUserValidator(e){let t=[],n=e.attributes;return n?(!n?.user_list?.length&&!n?.customUserList&&t.push({message:translate(`user_list_required`),result:`warning`,field:`user_list`}),n.user_list?.length&&n.user_list.forEach(e=>{t.push({resource:`user`,field:`user_list`,value:e,result:`warning`,message:translate(`user_not_found`)})}),t):[]}", baseSmsValidator: "baseSmsValidator=(e,t)=>{let{attributes:n}=e,r=[];if(!n)return[];let i=n?.template_id&&n?.template_id!==`none`;if(i&&r.push({field:`template_id`,resource:`sms_template`,value:n.template_id,result:`warning`}),!i){let e=parseHTMLToBody(n.body||``);!(n.attachments&&n.attachments.length>0||n.urlAttachments&&n.urlAttachments.length>0)&&!e.trim()&&r.push({field:`body`,message:t,result:`warning`}),e&&!isValidHandleBar(e)&&r.push({field:`body`,message:translate(`workflow.actions.common.issueInCustomVariables`),result:`warning`})}return r}", birthdayReminderValidator: "birthdayReminderValidator=e=>validateCustomFields(e,[`contact.customFields`,`contact.birthDay`,`contact.birthMonth`,`contact.dateOfBirth`],`error`)", callStatusValidator: "callStatusValidator=e=>{let t=[],n=validateCustomFields(e,[`call.status`,`call.type`,`call.direction`,`contact.tags`],`warning`);return t.push(...n),t}", callValidator: "callValidator=e=>{let t=[],{attributes:n}=e;return n?((!n.timeout||n.timeout===0)&&t.push({message:translate(`timeout_required`),result:`warning`,field:`timeout`}),n.timeout&&(n.timeout<1||n.timeout>600)&&t.push({message:translate(`timeout_must_be_between_1_and_600`),result:`warning`,field:`timeout`}),t):[]}", chatGPTValidator: "chatGPTValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];if(n.promptText?isValidHandleBar(n.promptText)||t.push({field:`promptText`,message:translate(`chatgpt_prompt_invalid_vars`),result:`warning`}):t.push({field:`promptText`,message:translate(`chatgpt_prompt_required`),result:`warning`}),!n.temperature&&n.temperature!==0)t.push({field:`temperature`,message:translate(`chatgpt_temperature_required`),result:`warning`});else{let e=Number(n.temperature);(e<0||e>1)&&t.push({field:`temperature`,message:translate(`chatgpt_temperature_range`),result:`warning`})}n.event||t.push({field:`event`,message:translate(`chatgpt_event_required`),result:`warning`});let{message:r,length:i,from:a,to:o}=n.actionParams||{},s=n.actionType;return s===`translate_content`?(r||t.push({field:`actionParams.message`,message:translate(`chatgpt_message_required`),result:`warning`}),a||t.push({field:`actionParams.from`,message:translate(`chatgpt_from_language_required`),result:`warning`}),o||t.push({field:`actionParams.to`,message:translate(`chatgpt_to_language_required`),result:`warning`})):s===`summarize_text`?(r||t.push({field:`actionParams.message`,message:translate(`chatgpt_message_required`),result:`warning`}),i||t.push({field:`actionParams.length`,message:translate(`chatgpt_length_required`),result:`warning`})):s===`analyze_text_sentiment`&&(r||t.push({field:`actionParams.message`,message:translate(`chatgpt_message_required`),result:`warning`})),t}", contactChangedValidator: "contactChangedValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`contact.assignedTo`);n&&n.operator!==`has-changed`&&t.push({resource:`user`,field:`contact.assignedTo`,result:`warning`,value:n.value});let r=validateCustomFields(e,hxe(),`warning`);return t.push(...r),t}", contactCreatedValidator: "contactCreatedValidator=e=>validateCustomFields(e,hxe(),`warning`)", contactDndValidator: "contactDndValidator=e=>validateCustomFields(e,[`contact.dnd_direction`,`contact.tags`,`contact.dnd`,`contact.dnd_channel`,`contact.assignedTo`],`warning`)", contactDNDValidator: "contactDNDValidator=e=>{let t=[],{attributes:n}=e;return n?(n.dnd_contact||t.push({message:translate(`dnd_type_required`),result:`warning`,field:`dnd_contact`}),(n.dnd_contact===`enable_specific`||n.dnd_contact===`disable_specific`)&&(!n.specific_channels||n.specific_channels.length===0)&&t.push({message:translate(`at_least_one_channel_required`),result:`warning`,field:`specific_channels`}),t):[]}", contactTagValidator: "contactTagValidator=e=>{let t=[],{attributes:n}=e;return n?(n.removeAll||(!n.tags||n.tags.length===0)&&!n.customTags&&t.push({message:translate(`at_least_one_tag_required`),result:`warning`,field:`tags`}),t):[]}", copyContactToSubaccountValidator: "copyContactToSubaccountValidator=e=>{let t=[],{attributes:n}=e;return n?((!n.newLocations||n.newLocations.length===0)&&t.push({message:translate(`at_least_one_location_required`),result:`warning`,field:`newLocations`}),t):[]}", createOpportunityActionValidator: "createOpportunityActionValidator=e=>{let t=[];return e.attributes?.pipeline_id?(t.push({resource:`pipeline`,field:`pipeline_id`,result:`warning`,value:e.attributes.pipeline_id}),e.attributes.pipeline_stage_id&&t.push({resource:`pipeline_stage`,field:`pipeline_stage_id`,result:`warning`,value:e.attributes.pipeline_stage_id,context:{pipelineId:e.attributes.pipeline_id}})):t.push({result:`warning`,message:translate(`pipeline_required`),field:`pipeline_id`}),e.attributes?.fields?.forEach(e=>{e.field&&t.push({resource:`opp_custom_field`,field:e.field,result:`warning`,value:e.value})}),t}", createUpdateContactValidator: "createUpdateContactValidator=e=>{let t=[];if(!e.attributes?.fields?.length)return t.push({message:translate(`at_least_one_field_required`),result:`warning`,field:`fields`}),t;let n=!1;return e.attributes.fields.forEach(e=>{if(!e.field){t.push({message:translate(`field_selection_required`),result:`warning`,field:`field`});return}e.value!==!1&&!e.value&&e.date!==`currentDate`&&e.value!==0&&t.push({field:e.field,message:translate(`missing_value_for_field`),result:`warning`}),(e.field===`email`||e.field===`phone`)&&(n=!0),W$.includes(e.field)||t.push({field:e.field,resource:`custom_field`,result:`warning`,value:e.value})}),n||t.push({message:translate(`email_or_phone_required`),result:`warning`,field:`fields`}),t}", customCodeValidator: "customCodeValidator=e=>{let t=[],{attributes:n}=e;return n?(n.code?.length||t.push({field:`code`,message:translate(`custom_code_required`),result:`warning`}),isEmpty(n.output||{})&&t.push({field:`output`,message:translate(`custom_code_must_be_tested`),result:`warning`}),t):[]}", customDateReminderValidator: "customDateReminderValidator=e=>{let t=[`contact.customFields`,`contact.tags`,`opportunity.customFields`,`customDateField.monthValue`,`customDateField.dayValue`,`customDateField.dateValue`],n=(e.conditions??[]).filter(e=>e.field?.endsWith(`.customFields`)&&!t.includes(e.field)).map(e=>e.field);return validateCustomFields(e,[...t,...n],`error`)}", customerReplyValidator: "customerReplyValidator=e=>{let t=[],n=validateCustomFields(e,[`message.type`,`message.source`,`contact.tags`],`warning`);return t.push(...n),t}", customObjectTriggerValidator: "customObjectTriggerValidator=e=>{let t=[];return(e.conditions?.filter(e=>e.field.startsWith(`customObject.`)))?.forEach(e=>{let n=e.field.replace(`customObject.`,``);t.push({resource:`custom_object_field`,field:n,result:`warning`,value:(()=>Array.isArray(e.value)?e.value.filter(e=>e!==void 0):e.value)()})}),t}", customWebhookValidator: "customWebhookValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];if((!n.url||!n.url.trim())&&t.push({message:translate(`webhook_url_required`),result:`warning`,field:`url`}),n.method||t.push({message:translate(`http_method_required`),result:`warning`,field:`method`}),n.event||t.push({message:translate(`event_type_required`),result:`warning`,field:`event`}),n.body&&(n.body.contentType===`application/json`?(!n.body.rawData||!n.body.rawData.trim())&&t.push({message:translate(`request_body_required`),result:`warning`,field:`body.rawData`}):n.body.contentType===`application/x-www-form-urlencoded`&&n.body.keyValueData&&n.body.keyValueData.some(e=>!e.key?.trim()||e.value===void 0||e.value===null)&&t.push({message:translate(`body_data_has_empty_fields`),result:`warning`,field:`body.keyValueData`})),n.headers&&n.headers.some(e=>!e.key?.trim()||e.value===void 0||e.value===null)&&t.push({message:translate(`headers_has_empty_fields`),result:`warning`,field:`headers`}),n.parameters&&n.parameters.some(e=>!e.key?.trim()||e.value===void 0||e.value===null)&&t.push({message:translate(`parameters_has_empty_fields`),result:`warning`,field:`parameters`}),n.authorization)switch(n.authorization.type){case`BEARER_TOKEN`:n.authorization.data&&n.authorization.data.token||t.push({message:translate(`bearer_token_required`),result:`warning`,field:`authorization.data.token`});break;case`API_KEY`:if(!n.authorization.data)t.push({message:translate(`api_key_configuration_required`),result:`warning`,field:`authorization.data`});else{let e=n.authorization.data;(!e.key||!e.value)&&t.push({message:translate(`api_key_and_value_required`),result:`warning`,field:`authorization.data`})}break;case`OAUTH2`:n.authorization.data&&n.authorization.data.tokenId||t.push({message:translate(`oauth2_token_required`),result:`warning`,field:`authorization.data.tokenId`});break}if(n.saveResponse){let e=n.webhookResponse;(!e?.isSampleRequested||e?.status&&e.status>=400)&&t.push({message:translate(`valid_sample_response_required`),result:`warning`,field:`webhookResponse`})}return t}", dateTimeFormatterValidator: "dateTimeFormatterValidator=e=>{let t=[],{attributes:n}=e;return!n||!n.action?(t.push({field:`action`,message:translate(`datetime_action_required`),result:`warning`}),t):(n.action.includes(`format`)&&(n.format?.type||t.push({field:`format.type`,message:translate(`datetime_format_type_required`),result:`warning`}),n.format?.fromField||t.push({field:`format.fromField`,message:translate(`datetime_from_field_required`),result:`warning`}),n.format?.fromFormat||t.push({field:`format.fromFormat`,message:translate(`datetime_from_format_required`),result:`warning`}),n.format?.toFormat||t.push({field:`format.toFormat`,message:translate(`datetime_to_format_required`),result:`warning`}),n.format?.fromField===`_datepicker_`&&!n.format?.fromFieldDatePicker&&t.push({field:`format.fromFieldDatePicker`,message:translate(`datetime_date_picker_required`),result:`warning`})),n.action.includes(`compare`)&&(n.compare?.type||t.push({field:`compare.type`,message:translate(`datetime_compare_type_required`),result:`warning`}),n.compare?.startDate||t.push({field:`compare.startDate`,message:translate(`datetime_start_date_required`),result:`warning`}),n.compare?.startDateFormat||t.push({field:`compare.startDateFormat`,message:translate(`datetime_start_date_format_required`),result:`warning`}),n.compare?.endDate||t.push({field:`compare.endDate`,message:translate(`datetime_end_date_required`),result:`warning`}),n.compare?.endDateFormat||t.push({field:`compare.endDateFormat`,message:translate(`datetime_end_date_format_required`),result:`warning`}),n.compare?.startDate===`_datepicker_`&&!n.compare?.startDatePicker&&t.push({field:`compare.startDatePicker`,message:translate(`datetime_start_date_picker_required`),result:`warning`}),n.compare?.endDate===`_datepicker_`&&!n.compare?.endDatePicker&&t.push({field:`compare.endDatePicker`,message:translate(`datetime_end_date_picker_required`),result:`warning`})),t)}", dripValidator: "dripValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];let r=10080;(n.batchSize<=0||n.batchSize>1e4)&&t.push({field:`batchSize`,message:translate(`drip_batch_size_invalid`),result:`warning`});let i=n.interval?.value,a=n.interval?.timeUnit;return!i||i<=0?t.push({field:`interval.value`,message:translate(`drip_interval_required`),result:`warning`}):(r/1440,r/60,a===`minutes`&&i>r?t.push({field:`interval.value`,message:translate(`drip_interval_minutes_max`),result:`warning`}):a===`hours`&&i>168?t.push({field:`interval.value`,message:translate(`drip_interval_hours_max`),result:`warning`}):a===`days`&&i>7&&t.push({field:`interval.value`,message:translate(`drip_interval_days_max`),result:`warning`})),t}", emailEventsValidator: "emailEventsValidator=e=>{let t=[],n=validateCustomFields(e,[`email.event`,`email.type`,`contact.tags`],`warning`);return t.push(...n),t}", eventStartDateValidator: "eventStartDateValidator=e=>{let t=[],{attributes:n}=e;return n?(n.event_start_type||t.push({field:`event_start_type`,message:translate(`event_start_type_required`),result:`warning`}),(n.value===``||n.value===void 0)&&t.push({field:`value`,message:translate(`event_start_value_required`),result:`warning`}),n.event_start_type===`custom_field`&&n.value&&(isValidHandleBar(n.value)||t.push({field:`value`,message:translate(`event_start_invalid_custom_variable`),result:`warning`})),t):[]}", facebookCommentValidator: "facebookCommentValidator=e=>socialMediaCommentValidator(e,`fb`)", facebookConversionApiValidator: "facebookConversionApiValidator=e=>{let t=[],n=e.extras?.locationId||``,{attributes:r}=e;return r?.connection_type===`AD_MANAGER`&&t.push(...facebookIntegrationValidator(n)),r?.pixel_id||t.push({field:`pixel_id`,result:`warning`,message:translate(`meta_dataset_id_required`)}),t}", facebookCustomAudienceValidator: "facebookCustomAudienceValidator=e=>{let t=[],n=e.extras?.locationId||``;return t.push(...facebookIntegrationValidator(n)),e.attributes?.facebook_account_id?t.push({url:`${B.adPublishingURL}/facebook/ad-accounts/${e.attributes.facebook_account_id}?locationId=${n}`,method:`GET`,absoluteUrl:!0,transformResponse:t=>t.id===e.attributes?.facebook_account_id?[]:{field:`facebook_account_id`,result:`warning`,message:translate(`facebook_account_not_found`)}}):t.push({field:`facebook_account_id`,result:`warning`,message:translate(`facebook_account_required`)}),e.attributes?.facebook_custom_audience_id?t.push({url:`${B.adPublishingURL}/facebook/custom-audience?adAccountId=${e.attributes.facebook_account_id}&locationId=${n}&type=all&source=integration`,absoluteUrl:!0,method:`GET`,transformResponse:t=>t.some(t=>t.id===e.attributes?.facebook_custom_audience_id)?[]:{field:`facebook_custom_audience_id`,result:`warning`,message:translate(`facebook_custom_audience_not_found`)}}):t.push({field:`facebook_custom_audience_id`,result:`warning`,message:translate(`facebook_custom_audience_required`)}),t}", facebookIntegrationValidator: "facebookIntegrationValidator=(e,t)=>[{url:`/integrations/facebook/${e}/connection`,method:`GET`,transformResponse:e=>e.connected&&!e.newConnection?[]:{field:t,result:`warning`,message:translate(`facebook_integration_not_valid`)}}]", facebookLeadGenValidator: "facebookLeadGenValidator=e=>{let t=[],n=validateCustomFields(e,[`facebook.formId`,`facebook.pageId`,`contact.tags`],`warning`);return t.push(...n),t}", findContactValidator: "findContactValidator=e=>{let t=[];return e.attributes?.fields?.length?(e.attributes.fields.forEach(e=>{if(!e.field){t.push({message:translate(`field_selection_required`),result:`warning`,field:`field`});return}e.value!==!1&&!e.value&&e.date!==`currentDate`&&e.value!==0&&t.push({field:e.field,message:translate(`missing_value_for_field`),result:`warning`}),W$.includes(e.field)||t.push({field:e.field,resource:`custom_field`,result:`warning`,value:e.value})}),t):(t.push({message:translate(`at_least_one_field_required`),result:`warning`,field:`fields`}),t)}", formSubmissionValidator: "formSubmissionValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`form.id`),r=n==null?void 0:n.value||`no_value`;return r!=null&&(typeof r==`string`?t.push({resource:`form`,field:`form.id`,result:`warning`,value:r}):Array.isArray(r)&&r.forEach(e=>{t.push({resource:`form`,field:`form.id`,result:`warning`,value:e})})),t}", generateImageAIValidator: "generateImageAIValidator=e=>{let t=[],{attributes:n}=e;return n?(n.prompt?.trim()?n.prompt.length>15e3?t.push({field:`prompt`,message:translate(`workflow.actions.generateImageAI.validation.promptTooLong`,{max:z$,count:n.prompt.length}),result:`warning`}):isValidHandleBar(n.prompt)||t.push({field:`prompt`,message:translate(`workflow.actions.common.issueInCustomVariables`),result:`warning`}):t.push({field:`prompt`,message:translate(`workflow.actions.generateImageAI.validation.promptRequired`),result:`warning`}),n.model||t.push({field:`model`,message:translate(`model_is_required`),result:`warning`}),n.additionalSettings?.brandBoardId&&t.push({resource:`brand_board`,field:`brandBoardId`,result:`error`,value:n.additionalSettings.brandBoardId}),n.additionalSettings?.brandVoiceId&&t.push({resource:`brand_voice`,field:`brandVoiceId`,result:`error`,value:n.additionalSettings.brandVoiceId}),t):[]}", goalActionValidator: "goalActionValidator=e=>{let t=[];return e.attributes?.segments.forEach(n=>{n.conditions.forEach(n=>{if(n.goal_condition===G$.EMAIL_EVENT){let r=n.extras;r&&`stepIds`in r&&r.stepIds.filter(t=>e.templates?.findIndex(e=>e.id===t)===-1).length>0&&t.push({field:`stepIds`,message:translate(`email_steps_not_found`),result:`warning`})}else if(n.goal_condition===G$.LINK_CLICK){let e=n.extras;e&&`linkIds`in e&&e.linkIds.forEach(e=>{t.push({resource:`trigger_link`,field:`extras.linkIds`,result:`warning`,value:e})})}else if(n.goal_condition===G$.APPOINTMENT_STATUS){let e=n.extras;e&&`calendarId`in e&&t.push({resource:`calendar`,field:`extras.calendarId`,result:`warning`,value:e.calendarId})}else if(n.goal_condition===G$.PAYMENT_RECEIVED){let e=n.extras;e&&`globalProductIds`in e&&e.globalProductIds.forEach(e=>{t.push({resource:`global_product`,field:`extras.globalProductIds`,result:`warning`,value:e})})}else if(n.goal_condition===G$.FORM_SUBMITTED){let e=n.extras;e&&`formIds`in e&&e.formIds.forEach(e=>{t.push({resource:`form`,field:`extras.formIds`,result:`warning`,value:e})})}else if(n.goal_condition===G$.DOCUMENT_STATUS){let e=n.extras;e&&`templateId`in e&&e.templateId&&t.push({resource:`template_compilation`,field:`extras.templateId`,result:`warning`,value:e.templateId})}else if(n.goal_condition===G$.INVOICE_PAID){let r=n.extras;r&&`invoiceStepId`in r&&r.invoiceStepId&&e.templates?.findIndex(e=>e.id===r.invoiceStepId)===-1&&t.push({field:`invoiceStepId`,message:translate(`invoice_step_not_found`),result:`warning`})}})}),t}", googleAdwordValidator: "googleAdwordValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];if((!n.conversion_name||!n.conversion_name.trim())&&t.push({message:translate(`conversion_name_required`),result:`warning`,field:`conversion_name`}),n.conversion_value&&!n.conversion_value.startsWith(`{{`)){let e=parseFloat(n.conversion_value);(isNaN(e)||e<=0)&&t.push({message:translate(`conversion_value_must_be_positive`),result:`warning`,field:`conversion_value`})}return n.isCustomMappingEnabled&&(n.customMapping?n.customMapping.gclid||n.customMapping.gbraid||n.customMapping.wbraid||t.push({message:translate(`at_least_one_click_id_required`),result:`warning`,field:`customMapping`}):t.push({message:translate(`custom_mapping_required`),result:`warning`,field:`customMapping`})),t}", googleAnalyticsValidator: "googleAnalyticsValidator=e=>{let t=[],{attributes:n}=e;return n?(n.action_type===`google_analytics_4`&&((!n.measurement_id||!n.measurement_id.trim())&&t.push({message:translate(`measurement_id_required`),result:`warning`,field:`measurement_id`}),(!n.event||!n.event.trim())&&t.push({message:translate(`event_name_required`),result:`warning`,field:`event`}),(!n.api_secret||!n.api_secret.trim())&&t.push({message:translate(`api_secret_required`),result:`warning`,field:`api_secret`})),t):[]}", googleSheetsIntegrationValidator: "googleSheetsIntegrationValidator=e=>{let t=[],{account:n}=e.attributes??{};return n?.id?t.push({url:`${B.integrationsURL}/google/connections?locationId=${e.extras.locationId}`,method:`GET`,absoluteUrl:!0,headers:googleConnectionsHeaders(),transformResponse:e=>mapGoogleConnections(e?.data).some(e=>(e.altId??e.id)===n.id)?[]:{field:`oAuthId`,result:`warning`,message:translate(`google_integration_not_valid`,{name:n.name||``})}}):t.push({field:`oAuthId`,result:`warning`,message:translate(`select_google_account`)}),t}", gotoValidator: "gotoValidator=e=>{let t=[],{attributes:n,parentNode:r,templates:isEmpty}=e;return n?(r?.next&&t.push({message:translate(`goto_must_be_at_end_of_branch`),result:`warning`,field:`placement`}),n.targetNodeId&&(isEmpty?.some(e=>e.id===n.targetNodeId)||t.push({message:translate(`target_node_not_found`),result:`warning`,field:`targetNodeId`})),t):[]}", inboundWebhookValidator: "inboundWebhookValidator=e=>{let t=[],n=validateCustomFields(e,[`webhook.url`,`contact.tags`],`warning`);return t.push(...n),t}", instagramCommentValidator: "instagramCommentValidator=e=>socialMediaCommentValidator(e,`ig`)", instagramDmValidator: "instagramDmValidator=e=>socialMessageValidator(e,`ig`)", instagramIntegrationValidator: "instagramIntegrationValidator=(e,t)=>{let n=[],r=MJ.getQueryData(getInstagramConnectedAccountsQueryKey($.locationId));return r&&!r.isConnected&&n.push({field:t,result:`warning`,message:translate(`instagram_integration_not_valid`)}),n}", internalNotificationValidator: "internalNotificationValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];if(!n.type)return t.push({message:translate(`notification_type_required`),result:`warning`,field:`type`}),t;switch(n.type){case`email`:n.email?n.email.template_id||(n.email.subject?.trim()||t.push({message:translate(`email_subject_required`),result:`warning`,field:`email.subject`}),n.email.html?.trim()||t.push({message:translate(`email_body_required`),result:`warning`,field:`email.html`})):t.push({message:translate(`email_configuration_required`),result:`warning`,field:`email`});break;case`sms`:n.sms?n.sms.template_id||n.sms.body?.trim()||t.push({message:translate(`sms_body_required`),result:`warning`,field:`sms.body`}):t.push({message:translate(`sms_configuration_required`),result:`warning`,field:`sms`});break;case`whatsapp`:n.whatsapp?n.whatsapp.template_id||n.whatsapp.body?.trim()||t.push({message:translate(`whatsapp_body_required`),result:`warning`,field:`whatsapp.body`}):t.push({message:translate(`whatsapp_configuration_required`),result:`warning`,field:`whatsapp`});break;case`notification`:n.notification?n.notification.body?.trim()||t.push({message:translate(`notification_message_required`),result:`warning`,field:`notification.message`}):t.push({message:translate(`notification_configuration_required`),result:`warning`,field:`notification`});break}return t}", invoiceValidator: "invoiceValidator=e=>{let t=[],n=validateCustomFields(e,[`invoice.status`,`invoice.type`,`contact.tags`],`warning`);return t.push(...n),t}", ivrConnectCallValidator: "ivrConnectCallValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];let r=(n.users?.length||0)+(n.customNumbers?.length||0);return r===0&&t.push({field:`users`,message:translate(`ivr_connect_number_required`),result:`warning`}),r>10&&t.push({field:`users`,message:translate(`ivr_connect_max_numbers`),result:`warning`}),n.customNumbers?.some(e=>!e.isValid)&&t.push({field:`customNumbers`,message:translate(`ivr_connect_invalid_number`),result:`warning`}),t}", ivrGatherValidator: "ivrGatherValidator=e=>[]", ivrHangupValidator: "ivrHangupValidator=e=>[]", ivrIncomingCallValidator: "ivrIncomingCallValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`inbound_number`);(!n?.value||Array.isArray(n.value)&&n.value.length===0)&&t.push({message:translate(`ivr_phone_number_required`),result:`warning`,field:`inbound_number`,assetType:`phone_number`});let r=validateCustomFields(e,[`call.callerNumber`,`call.destination`,`contact.tags`,`inbound_number`],`warning`);return t.push(...r),t}", ivrRecordValidator: "ivrRecordValidator=e=>[]", ivrSayValidator: "ivrSayValidator=e=>{let t=[],{attributes:n}=e;return n?(n.loop||t.push({field:`loop`,message:translate(`ivr_loop_required`),result:`warning`}),n.widgetType===`say`&&(n.language||t.push({field:`language`,message:translate(`ivr_language_required`),result:`warning`}),n.message||t.push({field:`message`,message:translate(`ivr_message_required`),result:`warning`}),n.voice||t.push({field:`voice`,message:translate(`ivr_voice_required`),result:`warning`})),n.widgetType===`play`&&(n.audioUrl||t.push({field:`audioUrl`,message:translate(`ivr_audio_required`),result:`warning`})),t):[]}", mathOperationValidator: "mathOperationValidator=e=>{let t=[],{attributes:n,templates:r}=e;if(!n)return[];n.selectField||t.push({field:`selectField`,message:translate(`math_select_field_required`),result:`warning`});let i=/\\{\\{math_operation\\.\\d+\\.result\\}\\}/.test(n.selectField??``),a=getMathOperationSourceTypeFromTemplates(n.selectField,r);return i&&!a&&t.push({field:`selectField`,message:translate(`math_source_action_deleted`),result:`warning`}),a&&n.selectFieldtype!==a&&t.push({field:`selectField`,message:translate(`math_input_field_type_changed`),result:`warning`}),n.selectField&&n.updateField&&!n.updateField.includes(`custom_values`)&&n.selectFieldtype!==n.updateFieldType&&[`numerical`,`date`].includes(n.selectFieldtype)&&t.push({field:`updateField`,message:translate(`math_field_type_mismatch`),result:`warning`}),n.operators?.find(e=>e.operator===`div`&&e.value===0)&&t.push({field:`operators`,message:translate(`math_division_by_zero`),result:`warning`}),t}", membershipCourseValidator: "membershipCourseValidator=e=>{let t=[],n=validateCustomFields(e,[`product.id`,`category.id`,`lesson.id`,`offer.id`,`contact.tags`],`warning`);return t.push(...n),t}", membershipOfferValidator: "membershipOfferValidator=e=>{let t=[],{attributes:n}=e;return n?(n.offer_id||t.push({field:`offer_id`,message:translate(`membership_offer_required`),result:`warning`}),t):[]}", membershipRevokeOfferValidator: "membershipRevokeOfferValidator=e=>{let t=[],{attributes:n}=e;return n?(n.offer_id||t.push({field:`offer_id`,message:translate(`membership_offer_required`),result:`warning`}),t):[]}", messengerValidator: "messengerValidator=e=>socialMessageValidator(e,`fb`)", notesTriggerValidator: "notesTriggerValidator=e=>validateCustomFields(e,[`contact.tags`],`warning`)", numberFormatterValidator: "numberFormatterValidator=e=>{let t=[],{attributes:n}=e;return n?n.action?(n.action===`string_to_number`&&(n.format?.fromField||t.push({field:`format.fromField`,message:translate(`number_from_field_required`),result:`warning`}),n.format?.options?.inputDecimalMark||t.push({field:`format.options.inputDecimalMark`,message:translate(`number_decimal_mark_required`),result:`warning`})),n.action===`string_to_formatted_number`&&(n.format?.fromField||t.push({field:`format.fromField`,message:translate(`number_from_field_required`),result:`warning`}),n.format?.options?.inputDecimalMark||t.push({field:`format.options.inputDecimalMark`,message:translate(`number_decimal_mark_required`),result:`warning`}),n.format?.options?.outputNumberFormat||t.push({field:`format.options.outputNumberFormat`,message:translate(`number_output_format_required`),result:`warning`})),n.action===`number_to_phone`&&(n.format?.fromField||t.push({field:`format.fromField`,message:translate(`number_from_field_required`),result:`warning`}),n.format?.options?.phone?.format||t.push({field:`format.options.phone.format`,message:translate(`phone_format_required`),result:`warning`}),n.format?.options?.phone?.countryCode||t.push({field:`format.options.phone.countryCode`,message:translate(`phone_country_code_required`),result:`warning`})),n.action===`number_to_currency`&&(n.format?.fromField||t.push({field:`format.fromField`,message:translate(`number_from_field_required`),result:`warning`}),n.format?.options?.currency?.currencyLocale||t.push({field:`format.options.currency.currencyLocale`,message:translate(`currency_locale_required`),result:`warning`}),n.format?.options?.currency?.currencyCode||t.push({field:`format.options.currency.currencyCode`,message:translate(`currency_code_required`),result:`warning`})),n.action===`random_number`&&(isValidNumeric(n.random?.min)||t.push({field:`random.min`,message:translate(`random_min_required`),result:`warning`}),isValidNumeric(n.random?.max)||t.push({field:`random.max`,message:translate(`random_max_required`),result:`warning`}),typeof n.random?.max==`number`&&typeof n.random?.min==`number`&&n.random.max<=n.random.min&&t.push({field:`random.max`,message:translate(`random_max_greater_than_min`),result:`warning`}),isValidNumeric(n.random?.decimalPlaces)||t.push({field:`random.decimalPlaces`,message:translate(`random_decimal_places_required`),result:`warning`}),typeof n.random?.decimalPlaces==`number`&&(n.random.decimalPlaces<0||n.random.decimalPlaces>3)&&t.push({field:`random.decimalPlaces`,message:translate(`random_decimal_places_range`),result:`warning`})),t):(t.push({field:`action`,message:translate(`number_action_required`),result:`warning`}),t):[]}", opportunityValidator: "opportunityValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`opportunity.pipelineId`),r=n==null?void 0:n.value||`no_value`;if(r&&typeof r==`string`&&n?.operator!==`has-changed`){t.push({resource:`pipeline`,field:`opportunity.pipelineId`,result:`warning`,value:r});let n=e.conditions?.find(e=>e.field===`opportunity.pipelineStageId`),i=n==null?void 0:n.value||`no_value`;i&&t.push({resource:`pipeline_stage`,field:`opportunity.pipelineStageId`,result:`warning`,value:i,context:{pipelineId:r}})}let i=e.conditions?.find(e=>e.field===`opportunity.assignedTo`),a=i==null?void 0:i.value||`no_value`;a&&i?.operator!==`has-changed`&&t.push({resource:`user`,field:`opportunity.assignedTo`,result:`warning`,value:a});let o=validateCustomFields(e,[`contact.tags`],`warning`);return t.push(...o),t.push(...validateOpportunityCustomFields(e)),t}", orderSubmissionValidator: "orderSubmissionValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`order.funnel_id`),r=n==null?void 0:n.value||`no_value`;r!=null&&(typeof r==`string`?t.push({resource:`funnel`,field:`order.funnel_id`,result:`warning`,value:r}):Array.isArray(r)&&r.forEach(e=>{t.push({resource:`funnel`,field:`order.funnel_id`,result:`warning`,value:e})}));let i=e.conditions?.find(e=>e.field===`order.line_item_global_product_ids`),a=i==null?void 0:i.value||`no_value`;a!=null&&(typeof a==`string`?t.push({resource:`global_product`,field:`order.line_item_global_product_ids`,result:`warning`,value:a}):Array.isArray(a)&&a.forEach(e=>{t.push({resource:`global_product`,field:`order.line_item_global_product_ids`,result:`warning`,value:e})}));let o=e.conditions?.find(e=>e.field===`order.line_item_funnel_product_ids`),s=o==null?void 0:o.value||`no_value`;return s!=null&&(typeof s==`string`?t.push({resource:`product`,field:`order.line_item_funnel_product_ids`,result:`warning`,value:s}):Array.isArray(s)&&s.forEach(e=>{t.push({resource:`product`,field:`order.line_item_funnel_product_ids`,result:`warning`,value:e})})),t}", paymentReceivedValidator: "paymentReceivedValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`payment.calendar.id`),r=n==null?void 0:n.value||`no_value`;r!=null&&(typeof r==`string`?t.push({resource:`calendar`,field:`payment.calendar.id`,result:`warning`,value:r}):Array.isArray(r)&&r.forEach(e=>{t.push({resource:`calendar`,field:`payment.calendar.id`,result:`warning`,value:e})}));let i=e.conditions?.find(e=>e.field===`payment.global_product_ids`),a=i==null?void 0:i.value||`no_value`;a!=null&&(typeof a==`string`?t.push({resource:`global_product`,field:`payment.global_product_ids`,result:`warning`,value:a}):Array.isArray(a)&&a.forEach(e=>{t.push({resource:`global_product`,field:`payment.global_product_ids`,result:`warning`,value:e})}));let o=e.conditions?.find(e=>e.field===`payment.form.id`),s=o==null?void 0:o.value||`no_value`;return s!=null&&(typeof s==`string`?t.push({resource:`form`,field:`payment.form.id`,result:`warning`,value:s}):Array.isArray(s)&&s.forEach(e=>{t.push({resource:`form`,field:`payment.form.id`,result:`warning`,value:e})})),t}", removeAssignedUserValidator: "removeAssignedUserValidator=e=>[]", removeFromWorkflowValidator: "removeFromWorkflowValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];if(!n.allWorkflows){if(`includeCurrent`in n)return t;(!n.workflow_id||Array.isArray(n.workflow_id)&&n.workflow_id.length===0)&&t.push({message:translate(`workflow_selection_required`),result:`warning`,field:`workflow_id`})}return t}", removeOpportunityActionValidator: "removeOpportunityActionValidator=e=>{let t=[];return e.attributes?.opportunity_to_be_found||t.push({result:`warning`,message:translate(`opportunity_to_be_found_required`),field:`opportunity_to_be_found`}),e.attributes?.opportunity_to_be_found===`all`&&!e.attributes?.pipeline_id&&t.push({result:`warning`,message:translate(`pipeline_required`),field:`pipeline_id`}),t}", respondOnCommentValidator: "respondOnCommentValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];let r=n.commentResponse||[];return r.length?r.filter(e=>!e.length).length&&t.push({field:`commentResponse`,message:translate(`respond_comment_empty`),result:`warning`}):t.push({field:`commentResponse`,message:translate(`respond_comment_required`),result:`warning`}),t}", reviewRequestValidator: "reviewRequestValidator=e=>{let t=[],{attributes:n}=e;return n?(n.review_type||t.push({message:translate(`review_type_required`),result:`warning`,field:`review_type`}),t):[]}", schedulerValidator: "schedulerValidator=e=>{let t=[];e.conditions?.find(e=>e.field===`scheduler.interval`)?.value||t.push({message:translate(`scheduler_interval_required`),result:`warning`,field:`scheduler.interval`});let n=validateCustomFields(e,[`scheduler.cron`,`scheduler.frequency`,`scheduler.interval`],`warning`);return t.push(...n),t}", sendEmailActionValidator: "sendEmailActionValidator=e=>{let{attributes:t}=e,n=[];if(!t)return[];let r=t?.template_id&&t?.template_id!==`none`;return!r&&!t?.subject?.trim()&&n.push({field:`subject`,message:translate(`workflow.actions.sendEmail.subjectValidation`),result:`warning`}),r&&n.push({field:`template_id`,resource:`email_template`,value:t.template_id,result:`warning`,context:{templatesource:t.templatesource}}),!r&&!cleanHTMLForEmail(t.html||``)&&n.push({field:`html`,message:translate(`email_body_required`),result:`warning`}),n}", sendSmsActionValidator: "sendSmsActionValidator=e=>baseSmsValidator(e,translate(`sms_body_required`))", sendToElizaValidator: "sendToElizaValidator=e=>[]", shopifyTriggerValidator: "shopifyTriggerValidator=e=>{let t=[],n=validateCustomFields(e,[`shopify.orderId`,`shopify.productId`,`contact.tags`],`warning`);return t.push(...n),t}", slackMessageValidator: "slackMessageValidator=e=>{let t=[],{attributes:n}=e;return n?((!n.integration||!n.integration.id)&&t.push({message:translate(`slack_integration_required`),result:`warning`,field:`integration`}),(!n.action||!n.action.id)&&t.push({message:translate(`slack_action_type_required`),result:`warning`,field:`action`}),(!n.channel||!n.channel.id)&&t.push({message:translate(`slack_channel_required`),result:`warning`,field:`channel`}),(!n.text||!n.text.trim())&&t.push({message:translate(`slack_message_required`),result:`warning`,field:`text`}),n.action?.id===`direct-message`&&(!n.userSource||!n.userSource.id)&&t.push({message:translate(`slack_user_source_required`),result:`warning`,field:`userSource`}),t):[]}", socialMediaCommentValidator: "socialMediaCommentValidator=(e,t)=>{let n=[],r=e.conditions?.find(e=>e.field===`${t}.pageId`),isEmpty=r==null?void 0:r.value||`no_value`,a=e.extras?.locationId||``;if(t===`ig`?n.push(...instagramIntegrationValidator(a)):n.push(...facebookIntegrationValidator(a)),isEmpty!=null&&typeof isEmpty==`string`){if(t===`ig`){let e=MJ.getQueryData(getInstagramConnectedAccountsQueryKey($.locationId));if(e){let r=e.pages.find(e=>e.instagramPageId===isEmpty);r?r.connectionType===`FACEBOOK_PAGE`&&!r.isInstagramAvailable&&n.push({field:`${t}.pageId`,result:`warning`,message:translate(`page_integration_not_valid`)}):n.push({field:`${t}.pageId`,result:`warning`,message:translate(`page_not_found`)})}}else n.push({url:`/integrations/facebook/${a}/pages`,method:`GET`,transformResponse:e=>e.pages.find(e=>e.facebookPageId===isEmpty)?[]:{field:`${t}.pageId`,result:`warning`,message:translate(`page_not_found`)}});let r=e.conditions?.find(e=>e.field===`${t}.postType`),o=r==null?void 0:r.value||`no_value`;if(o===`custom`){let r=e.conditions?.find(e=>e.field===`${t}.postUrlOrId`),a=r==null?void 0:r.value||`no_value`;if(a!=null&&typeof a==`string`)try{new URL(a)}catch{n.push({resource:t===`fb`?`fb_post`:`ig_post`,field:`${t}.postUrlOrId`,result:`warning`,value:a,context:{pageId:isEmpty,postType:`CUSTOM`}})}}else{let r=e.conditions?.find(e=>e.field===`${t}.postId`),a=r==null?void 0:r.value||`no_value`;a!=null&&(typeof a==`string`?n.push({resource:t===`fb`?`fb_post`:`ig_post`,field:`${t}.postId`,result:`warning`,value:a,context:{pageId:isEmpty,postType:o?.toString().toUpperCase()}}):Array.isArray(a)&&a.forEach(e=>{n.push({resource:t===`fb`?`fb_post`:`ig_post`,field:`${t}.postId`,result:`warning`,value:e,context:{pageId:isEmpty,postType:o?.toString().toUpperCase()}})}))}}return n}", socialMessageValidator: "socialMessageValidator=(e,t)=>{let n=[],r=e.extras?.locationId||``;if(t===`ig`?n.push(...instagramIntegrationValidator(r)):n.push(...facebookIntegrationValidator(r)),n.push(...baseSmsValidator(e,translate(t===`fb`?`messenger_message_required`:`instagram_message_required`))),e.attributes?.body){let t=Aee(e.attributes.body).filter(e=>zxe.includes(e.toLowerCase()));t.length>0&&n.push({field:`body`,result:`warning`,message:translate(`sms_contains_illegal_words`,{words:t.join(`, `)})})}return n}", stripeOneTimeChargeValidator: "stripeOneTimeChargeValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];if(!n.amount||!n.amount.trim())t.push({message:translate(`amount_required`),result:`warning`,field:`amount`});else if(!n.amount.startsWith(`{{`)){let e=parseFloat(n.amount);(isNaN(e)||e<=0)&&t.push({message:translate(`amount_must_be_positive`),result:`warning`,field:`amount`})}return(!n.currency||!n.currency.trim())&&t.push({message:translate(`currency_required`),result:`warning`,field:`currency`}),(!n.stripe_customer_id||!n.stripe_customer_id.trim())&&t.push({message:translate(`stripe_customer_id_required`),result:`warning`,field:`stripe_customer_id`}),t}", surveySubmissionValidator: "surveySubmissionValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`survey.id`),r=n==null?void 0:n.value||`no_value`;return r!=null&&(typeof r==`string`?t.push({resource:`survey`,field:`survey.id`,result:`warning`,value:r}):Array.isArray(r)&&r.forEach(e=>{t.push({resource:`survey`,field:`survey.id`,result:`warning`,value:e})})),t}", taskAddedValidator: "taskAddedValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`task.assignedTo`);if(n!=null){let e=n.value;t.push({resource:`user`,field:`task.assignedTo`,result:`warning`,value:e})}let r=validateCustomFields(e,[`task.assignedTo`],`warning`);return t.push(...r),t}", taskDueDateReminderValidator: "taskDueDateReminderValidator=e=>{let t=[],n=validateCustomFields(e,[`task.dueDate`],`warning`);return t.push(...n),t}", textFormatterValidator: "textFormatterValidator=e=>{let t=[],{attributes:n}=e;return n?((!n.formatterType||!Object.values(QX).includes(n.formatterType))&&t.push({field:`formatterType`,message:translate(`text_formatter_type_required`),result:`warning`}),(!n.field||n.field.length===0)&&t.push({field:`field`,message:translate(`text_formatter_field_required`),result:`warning`}),t):[]}", tiktokFormValidator: "tiktokFormValidator=e=>{let t=[],n=validateCustomFields(e,[`tiktok.formId`,`tiktok.pageId`,`contact.tags`],`warning`);return t.push(...n),t}", triggerLinkValidator: "triggerLinkValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`link.id`),r=n==null?void 0:n.value||`no_value`;r&&t.push({resource:`trigger_link`,field:`link.id`,result:`warning`,value:r});let i=validateCustomFields(e,[`link.id`],`warning`);return t.push(...i),t}", twoStepOrderFormValidator: "twoStepOrderFormValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`twoStepOrderForm.funnelId`),r=n==null?void 0:n.value||`no_value`;r!=null&&(typeof r==`string`?t.push({resource:`funnel`,field:`twoStepOrderForm.funnelId`,result:`warning`,value:r}):Array.isArray(r)&&r.forEach(e=>{t.push({resource:`funnel`,field:`twoStepOrderForm.funnelId`,result:`warning`,value:e})}));let i=e.conditions?.find(e=>e.field===`twoStepOrderForm.pageId`),a=i==null?void 0:i.value||`no_value`;a!=null&&(typeof a==`string`?t.push({resource:`page`,field:`twoStepOrderForm.pageId`,result:`warning`,value:a}):Array.isArray(a)&&a.forEach(e=>{t.push({resource:`page`,field:`twoStepOrderForm.pageId`,result:`warning`,value:e})}));let o=e.conditions?.find(e=>e.field===`twoStepOrderForm.productId`),s=o==null?void 0:o.value||`no_value`;return s!=null&&(typeof s==`string`?t.push({resource:`product`,field:`twoStepOrderForm.productId`,result:`warning`,value:s}):Array.isArray(s)&&s.forEach(e=>{t.push({resource:`product`,field:`twoStepOrderForm.productId`,result:`warning`,value:e})})),t}", updateAffiliateValidator: "updateAffiliateValidator=e=>{let t=[],{attributes:n}=e;return n?(n.affiliate_state||t.push({field:`affiliate_state`,message:translate(`affiliate_state_required`),result:`warning`}),t):[]}", updateContactFieldValidator: "updateContactFieldValidator=e=>{let t=[];return e.attributes?.fields?.length||t.push({message:translate(`at_least_one_field_required`),result:`warning`,field:`fields`}),e.attributes?.fields.forEach(n=>{let r=n.value;W$.includes(n.field)||t.push({field:n.field,resource:`custom_field`,result:`warning`,value:contactStandardFields(e.attributes?.actionType)?r:void 0}),contactStandardFields(e.attributes?.actionType)&&isMissingFieldValue(n.value,n.date)&&t.push({field:n.field,message:translate(`missing_value_for_field`),result:`warning`})}),t}", updateCustomValueValidator: "updateCustomValueValidator=e=>{let t=[],{attributes:n}=e;return n?((!n.custom_value_id||!n.custom_value_id.trim())&&t.push({message:translate(`custom_value_selection_required`),result:`warning`,field:`custom_value_id`}),n.custom_value_id&&t.push({resource:`custom_value`,field:n.custom_value_id,result:`warning`}),(!n.new_value||!n.new_value.trim())&&t.push({message:translate(`new_value_required`),result:`warning`,field:`new_value`}),t):[]}", validateAppointmentWait: "function validateAppointmentWait(e){let t=[];return e.appointmentStartAfter?(e.appointmentStartAfter.when||t.push({field:`appointmentStartAfter.when`,message:translate(`wait_appointment_when_required`)||`Please select when to wait (before/after/now)`,result:`error`}),e.appointmentStartAfter.when!==`now`&&!e.appointmentStartAfter.value&&!e.appointmentStartAfter.distributed&&t.push({field:`appointmentStartAfter.value`,message:translate(`wait_appointment_time_required`)||`Wait time value is required`,result:`error`}),e.appointmentCondition||t.push({field:`appointmentCondition`,message:translate(`wait_appointment_condition_required`)||`Please select what to do if the appointment time has passed`,result:`warning`}),e.appointmentCondition===`specific-step`&&!e.appointmentSpecificStep&&t.push({field:`appointmentSpecificStep`,message:translate(`wait_appointment_step_required`)||`Please select the step to move to`,result:`error`}),t):(t.push({field:`appointmentStartAfter`,message:translate(`wait_appointment_config_required`)||`Appointment wait configuration is required`,result:`error`}),t)}", validateConditionWait: "function validateConditionWait(e){let t=[];if(!e.condition)return t.push({field:`condition`,message:translate(`wait_condition_required`)||`Wait condition is required`,result:`error`}),t;let n=e.condition.branches??[];if(n.length===0)return t.push({field:`condition.branches`,message:translate(`wait_condition_branch_required`)||`At least one condition branch is required`,result:`error`}),t;for(let e=0;e<n.length;e++){let r=n[e].segments??[];if(r.length===0){t.push({field:`condition.branches[${e}].segments`,message:translate(`wait_condition_segment_required`)||`At least one condition group is required`,result:`error`});continue}for(let n=0;n<r.length;n++)(r[n].conditions??[]).length===0&&t.push({field:`condition.branches[${e}].segments[${n}].conditions`,message:translate(`wait_condition_empty`)||`At least one condition is required in each group`,result:`error`})}return t}", validateCustomFields: "validateCustomFields=(e,t,n)=>{let r=[];return(e.conditions?.filter(e=>e.field?.startsWith(`contact.`)&&!t.includes(e.field)))?.forEach(e=>{let t=e.field.replace(`contact.`,``);r.push({resource:`custom_field`,field:t,result:n,value:e.value})}),r}", validateEmailEventWait: "function validateEmailEventWait(e){let t=[];return(!e.emailEventSteps||e.emailEventSteps.length===0)&&t.push({field:`emailEventSteps`,message:translate(`wait_email_steps_required`)||`At least one email step must be selected`,result:`error`}),(!e.emailEventTypes||e.emailEventTypes.length===0)&&t.push({field:`emailEventTypes`,message:translate(`wait_email_events_required`)||`At least one email event type must be selected`,result:`error`}),t}", validateLinkClickedWait: "function validateLinkClickedWait(e){let t=[];return(!e.link||e.link.length===0)&&t.push({field:`link`,message:translate(`wait_link_required`)||`At least one trigger link must be selected`,result:`error`}),t}", validateOpportunityCustomFields: "validateOpportunityCustomFields=e=>{let t=e.conditions?.filter(e=>e.field.startsWith(`opportunity.`)&&![`opportunity.pipelineId`,`opportunity.pipelineStageId`,`opportunity.lastActionDate`,`opportunity.assignedTo`,`opportunity.status`,`opportunity.oldStatus`,`opportunity.monetaryValue`,`opportunity.forecastProbability`,`opportunity.forecastExpectedCloseDate`,`opportunity.lostReasonId`].includes(e.field)),n=[];return t?.length&&t.forEach(e=>{n.push({resource:`opp_custom_field`,field:e.field.replace(`opportunity.`,``),result:`warning`,value:e.value})}),n}", validateRecurringScheduleWait: "function validateRecurringScheduleWait(e){let t=!1;if(!e.recurringFrequency)t=!0;else{if(e.recurringFrequency===`weekly`&&(!e.recurringWeeklyDays||e.recurringWeeklyDays.length===0)&&(t=!0),e.recurringFrequency===`monthly`){if(e.recurringMonthlyMode===`day`&&!e.recurringMonthlyDay&&(t=!0),e.recurringMonthlyMode===`nth_weekday`){let n=e.recurringMonthlyWeek;(!n||Array.isArray(n)&&n.length===0||e.recurringMonthlyWeekday==null)&&(t=!0)}(!e.recurringMonths||e.recurringMonths.length===0)&&(t=!0)}e.recurringFrequency===`yearly`&&(!e.recurringYearlyMonth||!e.recurringYearlyDay)&&(t=!0)}let n=e.recurringProceed;if(n===`before`||n===`after`){let n=e.recurringOffsetDays??0,r=e.recurringOffsetHours??0,isEmpty=e.recurringOffsetMinutes??0;n===0&&r===0&&isEmpty===0&&(t=!0)}return t?[{field:`type`,message:translate(`wait_step_not_configured`)||`Wait step is not configured`,result:`error`}]:[]}", validateReplyWait: "function validateReplyWait(e){let t=[];return(!e.reply||e.reply.length===0)&&t.push({field:`reply`,message:translate(`wait_reply_steps_required`)||`At least one step must be selected to wait for reply`,result:`error`}),t}", validateRuleOrRegex: "function validateRuleOrRegex(e,t){if(e.includes(`=>`))return evaluateArrowFunction(e,t);switch(e){case`isValidEmail`:return isValidEmail(t);case`isValidPhone`:return isValidPhone(t);case`isValidURL`:return isValidURL(t);case`isValidNumeric`:return isValidNumeric(t);case`isValidHandleBar`:return isValidHandleBar(t);default:try{if(/^\\/(.+)\\/([gimuy]*)$/.test(e)){let n=e.match(/^\\/(.+)\\/([gimuy]*)$/);if(n){let[,e,r]=n;return new RegExp(e,r).test(String(t))}}return new RegExp(e).test(String(t))}catch(t){return console.error(`Invalid regex pattern:`,e,t),!1}}}", validateSpecificDateWait: "function validateSpecificDateWait(e){let t=e.specificDateInputMode===`dynamic`||e.dynamicSpecificDate!==void 0,n=!1;if(t){let t=e.dynamicSpecificDate?.trim();(!t||!t.startsWith(`{{`)||!t.endsWith(`}}`))&&(n=!0)}else e.specificDate||(n=!0),(e.specificTimeHour==null||e.specificTimePeriod==null)&&(n=!0);e.specificDatePassed===`specific_step`&&!e.specificDateStep&&(n=!0);let r=e.specificDateProceed;if(r===`before`||r===`after`){let t=e.specificDateOffsetDays??0,r=e.specificDateOffsetHours??0,isEmpty=e.specificDateOffsetMinutes??0;t===0&&r===0&&isEmpty===0&&(n=!0)}return n?[{field:`type`,message:translate(`wait_step_not_configured`)||`Wait step is not configured`,result:`error`}]:[]}", validateTimeout: "function validateTimeout(e){let t=[];return e.startAfter&&e.startAfter.value===0&&t.push({field:`startAfter.value`,message:translate(`wait_timeout_zero`)||`Timeout value should be greater than 0`,result:`error`}),t}", validateTimeWait: "function validateTimeWait(e){let t=[];return e.startAfter?(!e.window&&!e.startAfter.value&&e.timePeriodInputMode!==`dynamic`&&t.push({field:`startAfter.value`,message:translate(`wait_time_value_required`),result:`warning`}),e.window&&(e.window.condition===`when`&&!e.window.start&&t.push({field:`window.start`,message:translate(`wait_window_start_required`),result:`error`}),e.window.condition===`when`&&!e.window.end&&t.push({field:`window.end`,message:translate(`wait_window_end_required`),result:`error`}),e.window.condition===`exact`&&!e.window.start&&t.push({field:`window.value`,message:translate(`wait_window_start_required`),result:`error`})),t):(t.push({field:`startAfter`,message:translate(`wait_time_required`),result:`error`}),t)}", validateUserRepliedWait: "function validateUserRepliedWait(e){let t=[];return(!e.channel||e.channel.length===0)&&t.push({field:`channel`,message:translate(`wait_step_v2.channel_is_required`)||`Please select at least one channel`,result:`error`}),(!e.repliedBy||e.repliedBy.length===0)&&t.push({field:`repliedBy`,message:translate(`wait_step_v2.replied_by_is_required`)||`Please select who should reply`,result:`error`}),t}", validationErrorValidator: "validationErrorValidator=e=>{let t=[],n=validateCustomFields(e,[`validation.errorType`,`contact.tags`,`contact.phoneInfo`],`warning`);return t.push(...n),t}", videoEventValidator: "videoEventValidator=e=>{let t=[],n=e.conditions?.find(e=>e.field===`video.funnelId`),r=n==null?void 0:n.value||`no_value`;r!=null&&(typeof r==`string`?t.push({resource:`funnel`,field:`video.funnelId`,result:`warning`,value:r}):Array.isArray(r)&&r.forEach(e=>{t.push({resource:`funnel`,field:`video.funnelId`,result:`warning`,value:e})}));let i=e.conditions?.find(e=>e.field===`video.videoId`),a=i==null?void 0:i.value||`no_value`;return a!=null&&(typeof a==`string`?t.push({resource:`video`,field:`video.videoId`,result:`warning`,value:a}):Array.isArray(a)&&a.forEach(e=>{t.push({resource:`video`,field:`video.videoId`,result:`warning`,value:e})})),t}", voicemailValidator: "voicemailValidator=e=>{let t=[],{attributes:n}=e;return n?((!n.attachment||!n.attachment.url)&&t.push({message:translate(`voicemail_attachment_required`),result:`warning`,field:`attachment`}),t):[]}", waitValidator: "waitValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];n.name&&!isWithinLimits(n.name)&&t.push({field:`name`,message:translate(`wait_name_too_long`)||`Wait step name is too long`,result:`error`});let r=n.type;if(isWaitStepUnconfigured(n))return t.push({field:`type`,message:translate(`wait_step_not_configured`)||`Wait step is not configured`,result:`error`}),t;switch(r){case`time`:t.push(...validateTimeWait(n));break;case`condition`:t.push(...validateConditionWait(n));break;case`reply`:t.push(...validateReplyWait(n));break;case`appointment`:case`service_booking`:case`rental_booking`:case`attendee_event_date`:case`overdue`:t.push(...validateAppointmentWait(n));break;case`email_event`:t.push(...validateEmailEventWait(n));break;case`link_clicked`:t.push(...validateLinkClickedWait(n));break;case`user_replied`:t.push(...validateUserRepliedWait(n));break;case`specific_date`:t.push(...validateSpecificDateWait(n));break;case`recurring_schedule`:t.push(...validateRecurringScheduleWait(n));break;default:r||t.push({field:`type`,message:translate(`wait_type_required`)||`Wait type is required`,result:`error`})}return n.convertToMultipath&&n.startAfter&&t.push(...validateTimeout(n)),t}", webhookValidator: "webhookValidator=e=>{let t=[],{attributes:n}=e;return n?((!n.url||!n.url.trim())&&t.push({message:translate(`webhook_url_required`),result:`warning`,field:`url`}),n.method||t.push({message:translate(`http_method_required`),result:`warning`,field:`method`}),n.customData&&n.customData.some(e=>!e.key?.trim()||e.value===void 0||e.value===null)&&t.push({message:translate(`custom_data_has_empty_fields`),result:`warning`,field:`customData`}),n.headers&&n.headers.some(e=>!e.key?.trim()||e.value===void 0||e.value===null)&&t.push({message:translate(`headers_has_empty_fields`),result:`warning`,field:`headers`}),t):[]}", workflowSplitValidator: "workflowSplitValidator=e=>{let t=[],{attributes:n}=e;if(!n)return[];if(n.paths?.length||t.push({field:`paths`,message:translate(`split_paths_required`),result:`warning`}),n.condition===R$.RANDOM_SPLIT){let e=0;for(let t of n.paths||[])e+=n.extras?.weightDistribution?.[t.id]||0;e=Math.round(e*10)/10,e!==100&&t.push({field:`paths`,message:translate(`split_weightage_must_equal_100`),result:`warning`})}return t}" };
+    define_BUILDER_VALIDATORS_default = { addNotesValidator: "addNotesValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?((!attributes.html||!attributes.html.trim())&&validationConfig.push({message:translate(`note_content_required`),result:`warning`,field:`html`}),validationConfig):[]}", addToAffiliateCampaignValidator: "addToAffiliateCampaignValidator=params=>{let validations=[],{attributes}=params;return attributes?(attributes.campaign_id||validations.push({field:`campaign_id`,message:translate(`affiliate_campaign_required`),result:`warning`}),validations):[]}", addToAffiliateManagerValidator: "addToAffiliateManagerValidator=params=>[]", addToWorkflowValidator: "addToWorkflowValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?((!attributes.workflow_id||!attributes.workflow_id.trim())&&validationConfig.push({message:translate(`workflow_selection_required`),result:`warning`,field:`workflow_id`}),validationConfig):[]}", affiliateCreatedValidator: "affiliateCreatedValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`affiliate.id`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", aiAppointmentBookValidator: "aiAppointmentBookValidator=params=>{let validations=[],{attributes}=params;return attributes?(attributes.calendar_id||validations.push({field:`calendar_id`,message:translate(`ai_appointment_calendar_required`),result:`warning`}),attributes.timeout_time||validations.push({field:`timeout_time`,message:translate(`ai_appointment_timeout_required`),result:`warning`}),attributes.send_first_message&&(!attributes.template_id&&!attributes.first_message?.length&&validations.push({field:`first_message`,message:translate(`ai_appointment_message_required`),result:`warning`}),attributes.first_message&&!isValidHandleBar(attributes.first_message)&&validations.push({field:`first_message`,message:translate(`ai_appointment_message_invalid_vars`),result:`warning`})),attributes.no_confirmation_message&&attributes.send_success_message&&(!attributes.success_message_template_id&&!attributes.success_message?.length&&validations.push({field:`success_message`,message:translate(`ai_appointment_success_message_required`),result:`warning`}),attributes.success_message&&!isValidHandleBar(attributes.success_message)&&validations.push({field:`success_message`,message:translate(`ai_appointment_success_message_invalid_vars`),result:`warning`})),validations):[]}", appointmentStatusValidator: "appointmentStatusValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?(attributes.status_type||validationConfig.push({message:translate(`appointment_status_required`),result:`warning`,field:`status_type`}),validationConfig):[]}", appointmentValidator: "appointmentValidator=params=>{let validationConfig=[],calendarIdField=params.conditions?.find(condition$1=>condition$1.field===`calendar.id`),calendarId=calendarIdField==null?void 0:calendarIdField.value||`no_value`;calendarId&&validationConfig.push({resource:`calendar`,field:`calendar.id`,value:calendarId,result:`warning`});let assignedUserField=params.conditions?.find(condition$1=>condition$1.field===`appointment.assignedUserId`),assignedUserId=assignedUserField==null?void 0:assignedUserField.value||`no_value`;assignedUserId&&validationConfig.push({resource:`user`,field:`appointment.assignedUserId`,value:assignedUserId,result:`warning`});let customFieldValidation=validateCustomFields(params,[`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", arrayFunctionsValidator: "arrayFunctionsValidator=params=>{let validations=[],{attributes}=params;if(!attributes)return[];if(!attributes.action)return validations.push({field:`action`,message:translate(`array_action_required`),result:`warning`}),validations;if(attributes.action===`find`){let findAttr=attributes.find;findAttr?.fromField||validations.push({field:`find.fromField`,message:translate(`array_from_field_required`),result:`warning`}),(!findAttr?.filters?.length||emptyValues(findAttr.filters))&&validations.push({field:`find.filters`,message:translate(`array_filters_required`),result:`warning`})}if(attributes.action===`filter`){let filterAttr=attributes.filter;filterAttr?.fromField||validations.push({field:`filter.fromField`,message:translate(`array_from_field_required`),result:`warning`}),(!filterAttr?.filters?.length||emptyValues(filterAttr.filters))&&validations.push({field:`filter.filters`,message:translate(`array_filters_required`),result:`warning`})}if(attributes.action===`math_functions`){let mathAttr=attributes.math_functions;mathAttr?.fromField||validations.push({field:`math_functions.fromField`,message:translate(`array_from_field_required`),result:`warning`}),mathAttr?.key||validations.push({field:`math_functions.key`,message:translate(`array_key_required`),result:`warning`}),mathAttr?.operations?.length||validations.push({field:`math_functions.operations`,message:translate(`array_operations_required`),result:`warning`})}if(attributes.action===`find_by_index`){let findByIndexAttr=attributes.find_by_index;findByIndexAttr?.fromField||validations.push({field:`find_by_index.fromField`,message:translate(`array_from_field_required`),result:`warning`}),(findByIndexAttr?.index===void 0||findByIndexAttr?.index===null)&&validations.push({field:`find_by_index.index`,message:translate(`array_index_required`),result:`warning`})}if(attributes.action===`line_items`){let lineItemsAttr=attributes.line_items;lineItemsAttr?.fromField||validations.push({field:`line_items.fromField`,message:translate(`array_from_field_required`),result:`warning`}),(!lineItemsAttr?.fields?.length||emptyValues(lineItemsAttr.fields))&&validations.push({field:`line_items.fields`,message:translate(`array_fields_required`),result:`warning`})}if(attributes.action===`format_as_text`){let formatAsTextAttr=attributes.format_as_text;formatAsTextAttr?.fromField||validations.push({field:`format_as_text.fromField`,message:translate(`array_from_field_required`),result:`warning`}),formatAsTextAttr?.detailField||validations.push({field:`format_as_text.detailField`,message:translate(`field_is_required`),result:`warning`}),formatAsTextAttr?.displayFormat||validations.push({field:`format_as_text.displayFormat`,message:translate(`field_is_required`),result:`warning`}),formatAsTextAttr?.displayFormat===`custom_separator`&&!formatAsTextAttr?.customSeparator?.trim()&&validations.push({field:`format_as_text.customSeparator`,message:translate(`field_is_required`),result:`warning`})}return validations}", assignToUserValidator: "function assignToUserValidator(params){let validations=[],attributes=params.attributes;return attributes?(!attributes?.user_list?.length&&!attributes?.customUserList&&validations.push({message:translate(`user_list_required`),result:`warning`,field:`user_list`}),attributes.user_list?.length&&attributes.user_list.forEach(userId=>{validations.push({resource:`user`,field:`user_list`,value:userId,result:`warning`,message:translate(`user_not_found`)})}),validations):[]}", baseSmsValidator: "baseSmsValidator=(params,bodyValidationMsg)=>{let{attributes}=params,validations=[];if(!attributes)return[];let isTemplateSelected=attributes?.template_id&&attributes?.template_id!==`none`;if(isTemplateSelected&&validations.push({field:`template_id`,resource:`sms_template`,value:attributes.template_id,result:`warning`}),!isTemplateSelected){let body=parseHTMLToBody(attributes.body||``);!(attributes.attachments&&attributes.attachments.length>0||attributes.urlAttachments&&attributes.urlAttachments.length>0)&&!body.trim()&&validations.push({field:`body`,message:bodyValidationMsg,result:`warning`}),body&&!isValidHandleBar(body)&&validations.push({field:`body`,message:translate(`workflow.actions.common.issueInCustomVariables`),result:`warning`})}return validations}", birthdayReminderValidator: "birthdayReminderValidator=params=>validateCustomFields(params,[`contact.customFields`,`contact.birthDay`,`contact.birthMonth`,`contact.dateOfBirth`],`error`)", callStatusValidator: "callStatusValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`call.status`,`call.type`,`call.direction`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", callValidator: "callValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?((!attributes.timeout||attributes.timeout===0)&&validationConfig.push({message:translate(`timeout_required`),result:`warning`,field:`timeout`}),attributes.timeout&&(attributes.timeout<1||attributes.timeout>600)&&validationConfig.push({message:translate(`timeout_must_be_between_1_and_600`),result:`warning`,field:`timeout`}),validationConfig):[]}", chatGPTValidator: "chatGPTValidator=params=>{let validations=[],{attributes}=params;if(!attributes)return[];if(attributes.promptText?isValidHandleBar(attributes.promptText)||validations.push({field:`promptText`,message:translate(`chatgpt_prompt_invalid_vars`),result:`warning`}):validations.push({field:`promptText`,message:translate(`chatgpt_prompt_required`),result:`warning`}),!attributes.temperature&&attributes.temperature!==0)validations.push({field:`temperature`,message:translate(`chatgpt_temperature_required`),result:`warning`});else{let temp=Number(attributes.temperature);(temp<0||temp>1)&&validations.push({field:`temperature`,message:translate(`chatgpt_temperature_range`),result:`warning`})}attributes.event||validations.push({field:`event`,message:translate(`chatgpt_event_required`),result:`warning`});let{message:message$1,length,from,to:to$1}=attributes.actionParams||{},actionType=attributes.actionType;return actionType===`translate_content`?(message$1||validations.push({field:`actionParams.message`,message:translate(`chatgpt_message_required`),result:`warning`}),from||validations.push({field:`actionParams.from`,message:translate(`chatgpt_from_language_required`),result:`warning`}),to$1||validations.push({field:`actionParams.to`,message:translate(`chatgpt_to_language_required`),result:`warning`})):actionType===`summarize_text`?(message$1||validations.push({field:`actionParams.message`,message:translate(`chatgpt_message_required`),result:`warning`}),length||validations.push({field:`actionParams.length`,message:translate(`chatgpt_length_required`),result:`warning`})):actionType===`analyze_text_sentiment`&&(message$1||validations.push({field:`actionParams.message`,message:translate(`chatgpt_message_required`),result:`warning`})),validations}", contactChangedValidator: "contactChangedValidator=params=>{let validationConfig=[],assignedTo=params.conditions?.find(condition$1=>condition$1.field===`contact.assignedTo`);assignedTo&&assignedTo.operator!==`has-changed`&&validationConfig.push({resource:`user`,field:`contact.assignedTo`,result:`warning`,value:assignedTo.value});let customFieldValidation=validateCustomFields(params,getStandardContactFields(),`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", contactCreatedValidator: "contactCreatedValidator=params=>validateCustomFields(params,getStandardContactFields(),`warning`)", contactDndValidator: "contactDndValidator=params=>validateCustomFields(params,[`contact.dnd_direction`,`contact.tags`,`contact.dnd`,`contact.dnd_channel`,`contact.assignedTo`],`warning`)", contactDNDValidator: "contactDNDValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?(attributes.dnd_contact||validationConfig.push({message:translate(`dnd_type_required`),result:`warning`,field:`dnd_contact`}),(attributes.dnd_contact===`enable_specific`||attributes.dnd_contact===`disable_specific`)&&(!attributes.specific_channels||attributes.specific_channels.length===0)&&validationConfig.push({message:translate(`at_least_one_channel_required`),result:`warning`,field:`specific_channels`}),validationConfig):[]}", contactTagValidator: "contactTagValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?(attributes.removeAll||(!attributes.tags||attributes.tags.length===0)&&!attributes.customTags&&validationConfig.push({message:translate(`at_least_one_tag_required`),result:`warning`,field:`tags`}),validationConfig):[]}", copyContactToSubaccountValidator: "copyContactToSubaccountValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?((!attributes.newLocations||attributes.newLocations.length===0)&&validationConfig.push({message:translate(`at_least_one_location_required`),result:`warning`,field:`newLocations`}),validationConfig):[]}", createOpportunityActionValidator: "createOpportunityActionValidator=params=>{let validationConfig=[];return params.attributes?.pipeline_id?(validationConfig.push({resource:`pipeline`,field:`pipeline_id`,result:`warning`,value:params.attributes.pipeline_id}),params.attributes.pipeline_stage_id&&validationConfig.push({resource:`pipeline_stage`,field:`pipeline_stage_id`,result:`warning`,value:params.attributes.pipeline_stage_id,context:{pipelineId:params.attributes.pipeline_id}})):validationConfig.push({result:`warning`,message:translate(`pipeline_required`),field:`pipeline_id`}),params.attributes?.fields?.forEach(field$1=>{field$1.field&&validationConfig.push({resource:`opp_custom_field`,field:field$1.field,result:`warning`,value:field$1.value})}),validationConfig}", createUpdateContactValidator: "createUpdateContactValidator=params=>{let validationConfig=[];if(!params.attributes?.fields?.length)return validationConfig.push({message:translate(`at_least_one_field_required`),result:`warning`,field:`fields`}),validationConfig;let hasEmailOrPhone=!1;return params.attributes.fields.forEach(field$1=>{if(!field$1.field){validationConfig.push({message:translate(`field_selection_required`),result:`warning`,field:`field`});return}field$1.value!==!1&&!field$1.value&&field$1.date!==`currentDate`&&field$1.value!==0&&validationConfig.push({field:field$1.field,message:translate(`missing_value_for_field`),result:`warning`}),(field$1.field===`email`||field$1.field===`phone`)&&(hasEmailOrPhone=!0),contactStandardFields.includes(field$1.field)||validationConfig.push({field:field$1.field,resource:`custom_field`,result:`warning`,value:field$1.value})}),hasEmailOrPhone||validationConfig.push({message:translate(`email_or_phone_required`),result:`warning`,field:`fields`}),validationConfig}", customCodeValidator: "customCodeValidator=params=>{let validations=[],{attributes}=params;return attributes?(attributes.code?.length||validations.push({field:`code`,message:translate(`custom_code_required`),result:`warning`}),isEmpty(attributes.output||{})&&validations.push({field:`output`,message:translate(`custom_code_must_be_tested`),result:`warning`}),validations):[]}", customDateReminderValidator: "customDateReminderValidator=params=>{let staticExcludeFields=[`contact.customFields`,`contact.tags`,`opportunity.customFields`,`customDateField.monthValue`,`customDateField.dayValue`,`customDateField.dateValue`],dynamicExcludeFields=(params.conditions??[]).filter(c$3=>c$3.field?.endsWith(`.customFields`)&&!staticExcludeFields.includes(c$3.field)).map(c$3=>c$3.field);return validateCustomFields(params,[...staticExcludeFields,...dynamicExcludeFields],`error`)}", customerReplyValidator: "customerReplyValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`message.type`,`message.source`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", customObjectTriggerValidator: "customObjectTriggerValidator=params=>{let validationConfig=[];return(params.conditions?.filter(condition$1=>condition$1.field.startsWith(`customObject.`)))?.forEach(field$1=>{let fieldId=field$1.field.replace(`customObject.`,``);validationConfig.push({resource:`custom_object_field`,field:fieldId,result:`warning`,value:(()=>Array.isArray(field$1.value)?field$1.value.filter(v$1=>v$1!==void 0):field$1.value)()})}),validationConfig}", customWebhookValidator: "customWebhookValidator=params=>{let validationConfig=[],{attributes}=params;if(!attributes)return[];if((!attributes.url||!attributes.url.trim())&&validationConfig.push({message:translate(`webhook_url_required`),result:`warning`,field:`url`}),attributes.method||validationConfig.push({message:translate(`http_method_required`),result:`warning`,field:`method`}),attributes.event||validationConfig.push({message:translate(`event_type_required`),result:`warning`,field:`event`}),attributes.body&&(attributes.body.contentType===`application/json`?(!attributes.body.rawData||!attributes.body.rawData.trim())&&validationConfig.push({message:translate(`request_body_required`),result:`warning`,field:`body.rawData`}):attributes.body.contentType===`application/x-www-form-urlencoded`&&attributes.body.keyValueData&&attributes.body.keyValueData.some(item$1=>!item$1.key?.trim()||item$1.value===void 0||item$1.value===null)&&validationConfig.push({message:translate(`body_data_has_empty_fields`),result:`warning`,field:`body.keyValueData`})),attributes.headers&&attributes.headers.some(item$1=>!item$1.key?.trim()||item$1.value===void 0||item$1.value===null)&&validationConfig.push({message:translate(`headers_has_empty_fields`),result:`warning`,field:`headers`}),attributes.parameters&&attributes.parameters.some(item$1=>!item$1.key?.trim()||item$1.value===void 0||item$1.value===null)&&validationConfig.push({message:translate(`parameters_has_empty_fields`),result:`warning`,field:`parameters`}),attributes.authorization)switch(attributes.authorization.type){case`BEARER_TOKEN`:attributes.authorization.data&&attributes.authorization.data.token||validationConfig.push({message:translate(`bearer_token_required`),result:`warning`,field:`authorization.data.token`});break;case`API_KEY`:if(!attributes.authorization.data)validationConfig.push({message:translate(`api_key_configuration_required`),result:`warning`,field:`authorization.data`});else{let apiKeyData=attributes.authorization.data;(!apiKeyData.key||!apiKeyData.value)&&validationConfig.push({message:translate(`api_key_and_value_required`),result:`warning`,field:`authorization.data`})}break;case`OAUTH2`:attributes.authorization.data&&attributes.authorization.data.tokenId||validationConfig.push({message:translate(`oauth2_token_required`),result:`warning`,field:`authorization.data.tokenId`});break}if(attributes.saveResponse){let webhookResponse=attributes.webhookResponse;(!webhookResponse?.isSampleRequested||webhookResponse?.status&&webhookResponse.status>=400)&&validationConfig.push({message:translate(`valid_sample_response_required`),result:`warning`,field:`webhookResponse`})}return validationConfig}", dateTimeFormatterValidator: "dateTimeFormatterValidator=params=>{let validations=[],{attributes}=params;return!attributes||!attributes.action?(validations.push({field:`action`,message:translate(`datetime_action_required`),result:`warning`}),validations):(attributes.action.includes(`format`)&&(attributes.format?.type||validations.push({field:`format.type`,message:translate(`datetime_format_type_required`),result:`warning`}),attributes.format?.fromField||validations.push({field:`format.fromField`,message:translate(`datetime_from_field_required`),result:`warning`}),attributes.format?.fromFormat||validations.push({field:`format.fromFormat`,message:translate(`datetime_from_format_required`),result:`warning`}),attributes.format?.toFormat||validations.push({field:`format.toFormat`,message:translate(`datetime_to_format_required`),result:`warning`}),attributes.format?.fromField===`_datepicker_`&&!attributes.format?.fromFieldDatePicker&&validations.push({field:`format.fromFieldDatePicker`,message:translate(`datetime_date_picker_required`),result:`warning`})),attributes.action.includes(`compare`)&&(attributes.compare?.type||validations.push({field:`compare.type`,message:translate(`datetime_compare_type_required`),result:`warning`}),attributes.compare?.startDate||validations.push({field:`compare.startDate`,message:translate(`datetime_start_date_required`),result:`warning`}),attributes.compare?.startDateFormat||validations.push({field:`compare.startDateFormat`,message:translate(`datetime_start_date_format_required`),result:`warning`}),attributes.compare?.endDate||validations.push({field:`compare.endDate`,message:translate(`datetime_end_date_required`),result:`warning`}),attributes.compare?.endDateFormat||validations.push({field:`compare.endDateFormat`,message:translate(`datetime_end_date_format_required`),result:`warning`}),attributes.compare?.startDate===`_datepicker_`&&!attributes.compare?.startDatePicker&&validations.push({field:`compare.startDatePicker`,message:translate(`datetime_start_date_picker_required`),result:`warning`}),attributes.compare?.endDate===`_datepicker_`&&!attributes.compare?.endDatePicker&&validations.push({field:`compare.endDatePicker`,message:translate(`datetime_end_date_picker_required`),result:`warning`})),validations)}", dripValidator: "dripValidator=params=>{let validations=[],{attributes}=params;if(!attributes)return[];let maxBatchSize=1e4,maxIntervalInMinutes=10080;(attributes.batchSize<=0||attributes.batchSize>1e4)&&validations.push({field:`batchSize`,message:translate(`drip_batch_size_invalid`),result:`warning`});let intervalValue=attributes.interval?.value,intervalUnit=attributes.interval?.timeUnit;if(!intervalValue||intervalValue<=0)validations.push({field:`interval.value`,message:translate(`drip_interval_required`),result:`warning`});else{let maxDays=maxIntervalInMinutes/1440,maxHours=maxIntervalInMinutes/60;intervalUnit===`minutes`&&intervalValue>maxIntervalInMinutes?validations.push({field:`interval.value`,message:translate(`drip_interval_minutes_max`),result:`warning`}):intervalUnit===`hours`&&intervalValue>168?validations.push({field:`interval.value`,message:translate(`drip_interval_hours_max`),result:`warning`}):intervalUnit===`days`&&intervalValue>7&&validations.push({field:`interval.value`,message:translate(`drip_interval_days_max`),result:`warning`})}return validations}", emailEventsValidator: "emailEventsValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`email.event`,`email.type`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", eventStartDateValidator: "eventStartDateValidator=params=>{let validations=[],{attributes}=params;return attributes?(attributes.event_start_type||validations.push({field:`event_start_type`,message:translate(`event_start_type_required`),result:`warning`}),(attributes.value===``||attributes.value===void 0)&&validations.push({field:`value`,message:translate(`event_start_value_required`),result:`warning`}),attributes.event_start_type===`custom_field`&&attributes.value&&(isValidHandleBar(attributes.value)||validations.push({field:`value`,message:translate(`event_start_invalid_custom_variable`),result:`warning`})),validations):[]}", facebookCommentValidator: "facebookCommentValidator=params=>socialMediaCommentValidator(params,`fb`)", facebookConversionApiValidator: "facebookConversionApiValidator=params=>{let validationConfig=[],locationId=params.extras?.locationId||``,{attributes}=params;return attributes?.connection_type===`AD_MANAGER`&&validationConfig.push(...facebookIntegrationValidator(locationId)),attributes?.pixel_id||validationConfig.push({field:`pixel_id`,result:`warning`,message:translate(`meta_dataset_id_required`)}),validationConfig}", facebookCustomAudienceValidator: "facebookCustomAudienceValidator=params=>{let validationConfig=[],locationId=params.extras?.locationId||``;return validationConfig.push(...facebookIntegrationValidator(locationId)),params.attributes?.facebook_account_id?validationConfig.push({url:`${config_default.adPublishingURL}/facebook/ad-accounts/${params.attributes.facebook_account_id}?locationId=${locationId}`,method:`GET`,absoluteUrl:!0,transformResponse:response=>response.id===params.attributes?.facebook_account_id?[]:{field:`facebook_account_id`,result:`warning`,message:translate(`facebook_account_not_found`)}}):validationConfig.push({field:`facebook_account_id`,result:`warning`,message:translate(`facebook_account_required`)}),params.attributes?.facebook_custom_audience_id?validationConfig.push({url:`${config_default.adPublishingURL}/facebook/custom-audience?adAccountId=${params.attributes.facebook_account_id}&locationId=${locationId}&type=all&source=integration`,absoluteUrl:!0,method:`GET`,transformResponse:response=>response.some(audience=>audience.id===params.attributes?.facebook_custom_audience_id)?[]:{field:`facebook_custom_audience_id`,result:`warning`,message:translate(`facebook_custom_audience_not_found`)}}):validationConfig.push({field:`facebook_custom_audience_id`,result:`warning`,message:translate(`facebook_custom_audience_required`)}),validationConfig}", facebookIntegrationValidator: "facebookIntegrationValidator=(locationId,field$1)=>[{url:`/integrations/facebook/${locationId}/connection`,method:`GET`,transformResponse:response=>response.connected&&!response.newConnection?[]:{field:field$1,result:`warning`,message:translate(`facebook_integration_not_valid`)}}]", facebookLeadGenValidator: "facebookLeadGenValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`facebook.formId`,`facebook.pageId`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", findContactValidator: "findContactValidator=params=>{let validationConfig=[];return params.attributes?.fields?.length?(params.attributes.fields.forEach(field$1=>{if(!field$1.field){validationConfig.push({message:translate(`field_selection_required`),result:`warning`,field:`field`});return}field$1.value!==!1&&!field$1.value&&field$1.date!==`currentDate`&&field$1.value!==0&&validationConfig.push({field:field$1.field,message:translate(`missing_value_for_field`),result:`warning`}),contactStandardFields.includes(field$1.field)||validationConfig.push({field:field$1.field,resource:`custom_field`,result:`warning`,value:field$1.value})}),validationConfig):(validationConfig.push({message:translate(`at_least_one_field_required`),result:`warning`,field:`fields`}),validationConfig)}", formSubmissionValidator: "formSubmissionValidator=params=>{let validationConfig=[],formIdsField=params.conditions?.find(condition$1=>condition$1.field===`form.id`),formIds=formIdsField==null?void 0:formIdsField.value||`no_value`;return formIds!=null&&(typeof formIds==`string`?validationConfig.push({resource:`form`,field:`form.id`,result:`warning`,value:formIds}):Array.isArray(formIds)&&formIds.forEach(formId=>{validationConfig.push({resource:`form`,field:`form.id`,result:`warning`,value:formId})})),validationConfig}", generateImageAIValidator: "generateImageAIValidator=params=>{let validations=[],{attributes}=params;return attributes?(attributes.prompt?.trim()?attributes.prompt.length>15e3?validations.push({field:`prompt`,message:translate(`workflow.actions.generateImageAI.validation.promptTooLong`,{max:GENERATE_IMAGE_AI_MAX_PROMPT_CHARS,count:attributes.prompt.length}),result:`warning`}):isValidHandleBar(attributes.prompt)||validations.push({field:`prompt`,message:translate(`workflow.actions.common.issueInCustomVariables`),result:`warning`}):validations.push({field:`prompt`,message:translate(`workflow.actions.generateImageAI.validation.promptRequired`),result:`warning`}),attributes.model||validations.push({field:`model`,message:translate(`model_is_required`),result:`warning`}),attributes.additionalSettings?.brandBoardId&&validations.push({resource:`brand_board`,field:`brandBoardId`,result:`error`,value:attributes.additionalSettings.brandBoardId}),attributes.additionalSettings?.brandVoiceId&&validations.push({resource:`brand_voice`,field:`brandVoiceId`,result:`error`,value:attributes.additionalSettings.brandVoiceId}),validations):[]}", goalActionValidator: "goalActionValidator=params=>{let validationConfig=[];return params.attributes?.segments.forEach(seg=>{seg.conditions.forEach(condition$1=>{if(condition$1.goal_condition===GoalCondition.EMAIL_EVENT){let extras=condition$1.extras;extras&&`stepIds`in extras&&extras.stepIds.filter(stepId=>params.templates?.findIndex(step$1=>step$1.id===stepId)===-1).length>0&&validationConfig.push({field:`stepIds`,message:translate(`email_steps_not_found`),result:`warning`})}else if(condition$1.goal_condition===GoalCondition.LINK_CLICK){let extras=condition$1.extras;extras&&`linkIds`in extras&&extras.linkIds.forEach(linkId=>{validationConfig.push({resource:`trigger_link`,field:`extras.linkIds`,result:`warning`,value:linkId})})}else if(condition$1.goal_condition===GoalCondition.APPOINTMENT_STATUS){let extras=condition$1.extras;extras&&`calendarId`in extras&&validationConfig.push({resource:`calendar`,field:`extras.calendarId`,result:`warning`,value:extras.calendarId})}else if(condition$1.goal_condition===GoalCondition.PAYMENT_RECEIVED){let extras=condition$1.extras;extras&&`globalProductIds`in extras&&extras.globalProductIds.forEach(productId=>{validationConfig.push({resource:`global_product`,field:`extras.globalProductIds`,result:`warning`,value:productId})})}else if(condition$1.goal_condition===GoalCondition.FORM_SUBMITTED){let extras=condition$1.extras;extras&&`formIds`in extras&&extras.formIds.forEach(formId=>{validationConfig.push({resource:`form`,field:`extras.formIds`,result:`warning`,value:formId})})}else if(condition$1.goal_condition===GoalCondition.DOCUMENT_STATUS){let extras=condition$1.extras;extras&&`templateId`in extras&&extras.templateId&&validationConfig.push({resource:`template_compilation`,field:`extras.templateId`,result:`warning`,value:extras.templateId})}else if(condition$1.goal_condition===GoalCondition.INVOICE_PAID){let extras=condition$1.extras;extras&&`invoiceStepId`in extras&&extras.invoiceStepId&&params.templates?.findIndex(step$1=>step$1.id===extras.invoiceStepId)===-1&&validationConfig.push({field:`invoiceStepId`,message:translate(`invoice_step_not_found`),result:`warning`})}})}),validationConfig}", googleAdwordValidator: "googleAdwordValidator=params=>{let validationConfig=[],{attributes}=params;if(!attributes)return[];if((!attributes.conversion_name||!attributes.conversion_name.trim())&&validationConfig.push({message:translate(`conversion_name_required`),result:`warning`,field:`conversion_name`}),attributes.conversion_value&&!attributes.conversion_value.startsWith(`{{`)){let value$1=parseFloat(attributes.conversion_value);(isNaN(value$1)||value$1<=0)&&validationConfig.push({message:translate(`conversion_value_must_be_positive`),result:`warning`,field:`conversion_value`})}return attributes.isCustomMappingEnabled&&(attributes.customMapping?attributes.customMapping.gclid||attributes.customMapping.gbraid||attributes.customMapping.wbraid||validationConfig.push({message:translate(`at_least_one_click_id_required`),result:`warning`,field:`customMapping`}):validationConfig.push({message:translate(`custom_mapping_required`),result:`warning`,field:`customMapping`})),validationConfig}", googleAnalyticsValidator: "googleAnalyticsValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?(attributes.action_type===`google_analytics_4`&&((!attributes.measurement_id||!attributes.measurement_id.trim())&&validationConfig.push({message:translate(`measurement_id_required`),result:`warning`,field:`measurement_id`}),(!attributes.event||!attributes.event.trim())&&validationConfig.push({message:translate(`event_name_required`),result:`warning`,field:`event`}),(!attributes.api_secret||!attributes.api_secret.trim())&&validationConfig.push({message:translate(`api_secret_required`),result:`warning`,field:`api_secret`})),validationConfig):[]}", googleSheetsIntegrationValidator: "googleSheetsIntegrationValidator=params=>{let validations=[],{account}=params.attributes??{};return account?.id?validations.push({url:`${config_default.integrationsURL}/google/connections?locationId=${params.extras.locationId}`,method:`GET`,absoluteUrl:!0,headers:googleConnectionsHeaders(),transformResponse:response=>mapGoogleConnections(response?.data).some(oauth=>(oauth.altId??oauth.id)===account.id)?[]:{field:`oAuthId`,result:`warning`,message:translate(`google_integration_not_valid`,{name:account.name||``})}}):validations.push({field:`oAuthId`,result:`warning`,message:translate(`select_google_account`)}),validations}", gotoValidator: "gotoValidator=params=>{let validationConfig=[],{attributes,parentNode,templates:templates$1}=params;return attributes?(parentNode?.next&&validationConfig.push({message:translate(`goto_must_be_at_end_of_branch`),result:`warning`,field:`placement`}),attributes.targetNodeId&&(templates$1?.some(template=>template.id===attributes.targetNodeId)||validationConfig.push({message:translate(`target_node_not_found`),result:`warning`,field:`targetNodeId`})),validationConfig):[]}", inboundWebhookValidator: "inboundWebhookValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`webhook.url`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", instagramCommentValidator: "instagramCommentValidator=params=>socialMediaCommentValidator(params,`ig`)", instagramDmValidator: "instagramDmValidator=params=>socialMessageValidator(params,`ig`)", instagramIntegrationValidator: "instagramIntegrationValidator=(_locationId,field$1)=>{let validations=[],cachedData=queryClient.getQueryData(getInstagramConnectedAccountsQueryKey(app_default.locationId));return cachedData&&!cachedData.isConnected&&validations.push({field:field$1,result:`warning`,message:translate(`instagram_integration_not_valid`)}),validations}", internalNotificationValidator: "internalNotificationValidator=params=>{let validationConfig=[],{attributes}=params;if(!attributes)return[];if(!attributes.type)return validationConfig.push({message:translate(`notification_type_required`),result:`warning`,field:`type`}),validationConfig;switch(attributes.type){case`email`:attributes.email?attributes.email.template_id||(attributes.email.subject?.trim()||validationConfig.push({message:translate(`email_subject_required`),result:`warning`,field:`email.subject`}),attributes.email.html?.trim()||validationConfig.push({message:translate(`email_body_required`),result:`warning`,field:`email.html`})):validationConfig.push({message:translate(`email_configuration_required`),result:`warning`,field:`email`});break;case`sms`:attributes.sms?attributes.sms.template_id||attributes.sms.body?.trim()||validationConfig.push({message:translate(`sms_body_required`),result:`warning`,field:`sms.body`}):validationConfig.push({message:translate(`sms_configuration_required`),result:`warning`,field:`sms`});break;case`whatsapp`:attributes.whatsapp?attributes.whatsapp.template_id||attributes.whatsapp.body?.trim()||validationConfig.push({message:translate(`whatsapp_body_required`),result:`warning`,field:`whatsapp.body`}):validationConfig.push({message:translate(`whatsapp_configuration_required`),result:`warning`,field:`whatsapp`});break;case`notification`:attributes.notification?attributes.notification.body?.trim()||validationConfig.push({message:translate(`notification_message_required`),result:`warning`,field:`notification.message`}):validationConfig.push({message:translate(`notification_configuration_required`),result:`warning`,field:`notification`});break}return validationConfig}", invoiceValidator: "invoiceValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`invoice.status`,`invoice.type`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", ivrConnectCallValidator: "ivrConnectCallValidator=params=>{let validations=[],{attributes}=params;if(!attributes)return[];let totalNumbers=(attributes.users?.length||0)+(attributes.customNumbers?.length||0);return totalNumbers===0&&validations.push({field:`users`,message:translate(`ivr_connect_number_required`),result:`warning`}),totalNumbers>10&&validations.push({field:`users`,message:translate(`ivr_connect_max_numbers`),result:`warning`}),attributes.customNumbers?.some(cn=>!cn.isValid)&&validations.push({field:`customNumbers`,message:translate(`ivr_connect_invalid_number`),result:`warning`}),validations}", ivrGatherValidator: "ivrGatherValidator=params=>[]", ivrHangupValidator: "ivrHangupValidator=params=>[]", ivrIncomingCallValidator: "ivrIncomingCallValidator=params=>{let validationConfig=[],phoneNumberCondition=params.conditions?.find(condition$1=>condition$1.field===`inbound_number`);(!phoneNumberCondition?.value||Array.isArray(phoneNumberCondition.value)&&phoneNumberCondition.value.length===0)&&validationConfig.push({message:translate(`ivr_phone_number_required`),result:`warning`,field:`inbound_number`,assetType:`phone_number`});let customFieldValidation=validateCustomFields(params,[`call.callerNumber`,`call.destination`,`contact.tags`,`inbound_number`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", ivrRecordValidator: "ivrRecordValidator=params=>[]", ivrSayValidator: "ivrSayValidator=params=>{let validations=[],{attributes}=params;return attributes?(attributes.loop||validations.push({field:`loop`,message:translate(`ivr_loop_required`),result:`warning`}),attributes.widgetType===`say`&&(attributes.language||validations.push({field:`language`,message:translate(`ivr_language_required`),result:`warning`}),attributes.message||validations.push({field:`message`,message:translate(`ivr_message_required`),result:`warning`}),attributes.voice||validations.push({field:`voice`,message:translate(`ivr_voice_required`),result:`warning`})),attributes.widgetType===`play`&&(attributes.audioUrl||validations.push({field:`audioUrl`,message:translate(`ivr_audio_required`),result:`warning`})),validations):[]}", mathOperationValidator: "mathOperationValidator=params=>{let validations=[],{attributes,templates:templates$1}=params;if(!attributes)return[];attributes.selectField||validations.push({field:`selectField`,message:translate(`math_select_field_required`),result:`warning`});let isMathOpRef=/\\{\\{math_operation\\.\\d+\\.result\\}\\}/.test(attributes.selectField??``),sourceType=getMathOperationSourceTypeFromTemplates(attributes.selectField,templates$1);return isMathOpRef&&!sourceType&&validations.push({field:`selectField`,message:translate(`math_source_action_deleted`),result:`warning`}),sourceType&&attributes.selectFieldtype!==sourceType&&validations.push({field:`selectField`,message:translate(`math_input_field_type_changed`),result:`warning`}),attributes.selectField&&attributes.updateField&&!attributes.updateField.includes(`custom_values`)&&attributes.selectFieldtype!==attributes.updateFieldType&&[`numerical`,`date`].includes(attributes.selectFieldtype)&&validations.push({field:`updateField`,message:translate(`math_field_type_mismatch`),result:`warning`}),attributes.operators?.find(op=>op.operator===`div`&&op.value===0)&&validations.push({field:`operators`,message:translate(`math_division_by_zero`),result:`warning`}),validations}", membershipCourseValidator: "membershipCourseValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`product.id`,`category.id`,`lesson.id`,`offer.id`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", membershipOfferValidator: "membershipOfferValidator=params=>{let validations=[],{attributes}=params;return attributes?(attributes.offer_id||validations.push({field:`offer_id`,message:translate(`membership_offer_required`),result:`warning`}),validations):[]}", membershipRevokeOfferValidator: "membershipRevokeOfferValidator=params=>{let validations=[],{attributes}=params;return attributes?(attributes.offer_id||validations.push({field:`offer_id`,message:translate(`membership_offer_required`),result:`warning`}),validations):[]}", messengerValidator: "messengerValidator=params=>socialMessageValidator(params,`fb`)", notesTriggerValidator: "notesTriggerValidator=params=>validateCustomFields(params,[`contact.tags`],`warning`)", numberFormatterValidator: "numberFormatterValidator=params=>{let validations=[],{attributes}=params;return attributes?attributes.action?(attributes.action===`string_to_number`&&(attributes.format?.fromField||validations.push({field:`format.fromField`,message:translate(`number_from_field_required`),result:`warning`}),attributes.format?.options?.inputDecimalMark||validations.push({field:`format.options.inputDecimalMark`,message:translate(`number_decimal_mark_required`),result:`warning`})),attributes.action===`string_to_formatted_number`&&(attributes.format?.fromField||validations.push({field:`format.fromField`,message:translate(`number_from_field_required`),result:`warning`}),attributes.format?.options?.inputDecimalMark||validations.push({field:`format.options.inputDecimalMark`,message:translate(`number_decimal_mark_required`),result:`warning`}),attributes.format?.options?.outputNumberFormat||validations.push({field:`format.options.outputNumberFormat`,message:translate(`number_output_format_required`),result:`warning`})),attributes.action===`number_to_phone`&&(attributes.format?.fromField||validations.push({field:`format.fromField`,message:translate(`number_from_field_required`),result:`warning`}),attributes.format?.options?.phone?.format||validations.push({field:`format.options.phone.format`,message:translate(`phone_format_required`),result:`warning`}),attributes.format?.options?.phone?.countryCode||validations.push({field:`format.options.phone.countryCode`,message:translate(`phone_country_code_required`),result:`warning`})),attributes.action===`number_to_currency`&&(attributes.format?.fromField||validations.push({field:`format.fromField`,message:translate(`number_from_field_required`),result:`warning`}),attributes.format?.options?.currency?.currencyLocale||validations.push({field:`format.options.currency.currencyLocale`,message:translate(`currency_locale_required`),result:`warning`}),attributes.format?.options?.currency?.currencyCode||validations.push({field:`format.options.currency.currencyCode`,message:translate(`currency_code_required`),result:`warning`})),attributes.action===`random_number`&&(isValidNumeric(attributes.random?.min)||validations.push({field:`random.min`,message:translate(`random_min_required`),result:`warning`}),isValidNumeric(attributes.random?.max)||validations.push({field:`random.max`,message:translate(`random_max_required`),result:`warning`}),typeof attributes.random?.max==`number`&&typeof attributes.random?.min==`number`&&attributes.random.max<=attributes.random.min&&validations.push({field:`random.max`,message:translate(`random_max_greater_than_min`),result:`warning`}),isValidNumeric(attributes.random?.decimalPlaces)||validations.push({field:`random.decimalPlaces`,message:translate(`random_decimal_places_required`),result:`warning`}),typeof attributes.random?.decimalPlaces==`number`&&(attributes.random.decimalPlaces<0||attributes.random.decimalPlaces>3)&&validations.push({field:`random.decimalPlaces`,message:translate(`random_decimal_places_range`),result:`warning`})),validations):(validations.push({field:`action`,message:translate(`number_action_required`),result:`warning`}),validations):[]}", opportunityValidator: "opportunityValidator=params=>{let validationConfig=[],pipelineIdField=params.conditions?.find(condition$1=>condition$1.field===`opportunity.pipelineId`),pipelineId=pipelineIdField==null?void 0:pipelineIdField.value||`no_value`;if(pipelineId&&typeof pipelineId==`string`&&pipelineIdField?.operator!==`has-changed`){validationConfig.push({resource:`pipeline`,field:`opportunity.pipelineId`,result:`warning`,value:pipelineId});let pipelineStageField=params.conditions?.find(condition$1=>condition$1.field===`opportunity.pipelineStageId`),pipelineStageId=pipelineStageField==null?void 0:pipelineStageField.value||`no_value`;pipelineStageId&&validationConfig.push({resource:`pipeline_stage`,field:`opportunity.pipelineStageId`,result:`warning`,value:pipelineStageId,context:{pipelineId}})}let assignedToField=params.conditions?.find(condition$1=>condition$1.field===`opportunity.assignedTo`),assignedTo=assignedToField==null?void 0:assignedToField.value||`no_value`;assignedTo&&assignedToField?.operator!==`has-changed`&&validationConfig.push({resource:`user`,field:`opportunity.assignedTo`,result:`warning`,value:assignedTo});let customFieldValidation=validateCustomFields(params,[`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig.push(...validateOpportunityCustomFields(params)),validationConfig}", orderSubmissionValidator: "orderSubmissionValidator=params=>{let validationConfig=[],funnelIdField=params.conditions?.find(condition$1=>condition$1.field===`order.funnel_id`),funnelId=funnelIdField==null?void 0:funnelIdField.value||`no_value`;funnelId!=null&&(typeof funnelId==`string`?validationConfig.push({resource:`funnel`,field:`order.funnel_id`,result:`warning`,value:funnelId}):Array.isArray(funnelId)&&funnelId.forEach(id=>{validationConfig.push({resource:`funnel`,field:`order.funnel_id`,result:`warning`,value:id})}));let globalProductIdsField=params.conditions?.find(condition$1=>condition$1.field===`order.line_item_global_product_ids`),globalProductIds=globalProductIdsField==null?void 0:globalProductIdsField.value||`no_value`;globalProductIds!=null&&(typeof globalProductIds==`string`?validationConfig.push({resource:`global_product`,field:`order.line_item_global_product_ids`,result:`warning`,value:globalProductIds}):Array.isArray(globalProductIds)&&globalProductIds.forEach(productId=>{validationConfig.push({resource:`global_product`,field:`order.line_item_global_product_ids`,result:`warning`,value:productId})}));let funnelProductIdsField=params.conditions?.find(condition$1=>condition$1.field===`order.line_item_funnel_product_ids`),funnelProductIds=funnelProductIdsField==null?void 0:funnelProductIdsField.value||`no_value`;return funnelProductIds!=null&&(typeof funnelProductIds==`string`?validationConfig.push({resource:`product`,field:`order.line_item_funnel_product_ids`,result:`warning`,value:funnelProductIds}):Array.isArray(funnelProductIds)&&funnelProductIds.forEach(productId=>{validationConfig.push({resource:`product`,field:`order.line_item_funnel_product_ids`,result:`warning`,value:productId})})),validationConfig}", paymentReceivedValidator: "paymentReceivedValidator=params=>{let validationConfig=[],calendarField=params.conditions?.find(condition$1=>condition$1.field===`payment.calendar.id`),calendarId=calendarField==null?void 0:calendarField.value||`no_value`;calendarId!=null&&(typeof calendarId==`string`?validationConfig.push({resource:`calendar`,field:`payment.calendar.id`,result:`warning`,value:calendarId}):Array.isArray(calendarId)&&calendarId.forEach(id=>{validationConfig.push({resource:`calendar`,field:`payment.calendar.id`,result:`warning`,value:id})}));let globalProductField=params.conditions?.find(condition$1=>condition$1.field===`payment.global_product_ids`),globalProductIds=globalProductField==null?void 0:globalProductField.value||`no_value`;globalProductIds!=null&&(typeof globalProductIds==`string`?validationConfig.push({resource:`global_product`,field:`payment.global_product_ids`,result:`warning`,value:globalProductIds}):Array.isArray(globalProductIds)&&globalProductIds.forEach(productId=>{validationConfig.push({resource:`global_product`,field:`payment.global_product_ids`,result:`warning`,value:productId})}));let formField=params.conditions?.find(condition$1=>condition$1.field===`payment.form.id`),formIds=formField==null?void 0:formField.value||`no_value`;return formIds!=null&&(typeof formIds==`string`?validationConfig.push({resource:`form`,field:`payment.form.id`,result:`warning`,value:formIds}):Array.isArray(formIds)&&formIds.forEach(formId=>{validationConfig.push({resource:`form`,field:`payment.form.id`,result:`warning`,value:formId})})),validationConfig}", removeAssignedUserValidator: "removeAssignedUserValidator=params=>[]", removeFromWorkflowValidator: "removeFromWorkflowValidator=params=>{let validationConfig=[],{attributes}=params;if(!attributes)return[];if(!attributes.allWorkflows){if(`includeCurrent`in attributes)return validationConfig;(!attributes.workflow_id||Array.isArray(attributes.workflow_id)&&attributes.workflow_id.length===0)&&validationConfig.push({message:translate(`workflow_selection_required`),result:`warning`,field:`workflow_id`})}return validationConfig}", removeOpportunityActionValidator: "removeOpportunityActionValidator=params=>{let validationConfig=[];return params.attributes?.opportunity_to_be_found||validationConfig.push({result:`warning`,message:translate(`opportunity_to_be_found_required`),field:`opportunity_to_be_found`}),params.attributes?.opportunity_to_be_found===`all`&&!params.attributes?.pipeline_id&&validationConfig.push({result:`warning`,message:translate(`pipeline_required`),field:`pipeline_id`}),validationConfig}", respondOnCommentValidator: "respondOnCommentValidator=params=>{let validations=[],{attributes}=params;if(!attributes)return[];let commentResponses=attributes.commentResponse||[];return commentResponses.length?commentResponses.filter(response=>!response.length).length&&validations.push({field:`commentResponse`,message:translate(`respond_comment_empty`),result:`warning`}):validations.push({field:`commentResponse`,message:translate(`respond_comment_required`),result:`warning`}),validations}", reviewRequestValidator: "reviewRequestValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?(attributes.review_type||validationConfig.push({message:translate(`review_type_required`),result:`warning`,field:`review_type`}),validationConfig):[]}", schedulerValidator: "schedulerValidator=params=>{let validationConfig=[];params.conditions?.find(condition$1=>condition$1.field===`scheduler.interval`)?.value||validationConfig.push({message:translate(`scheduler_interval_required`),result:`warning`,field:`scheduler.interval`});let customFieldValidation=validateCustomFields(params,[`scheduler.cron`,`scheduler.frequency`,`scheduler.interval`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", sendEmailActionValidator: "sendEmailActionValidator=params=>{let{attributes}=params,validations=[];if(!attributes)return[];let isTemplateSelected=attributes?.template_id&&attributes?.template_id!==`none`;return!isTemplateSelected&&!attributes?.subject?.trim()&&validations.push({field:`subject`,message:translate(`workflow.actions.sendEmail.subjectValidation`),result:`warning`}),isTemplateSelected&&validations.push({field:`template_id`,resource:`email_template`,value:attributes.template_id,result:`warning`,context:{templatesource:attributes.templatesource}}),!isTemplateSelected&&!cleanHTMLForEmail(attributes.html||``)&&validations.push({field:`html`,message:translate(`email_body_required`),result:`warning`}),validations}", sendSmsActionValidator: "sendSmsActionValidator=params=>baseSmsValidator(params,translate(`sms_body_required`))", sendToElizaValidator: "sendToElizaValidator=params=>[]", shopifyTriggerValidator: "shopifyTriggerValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`shopify.orderId`,`shopify.productId`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", slackMessageValidator: "slackMessageValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?((!attributes.integration||!attributes.integration.id)&&validationConfig.push({message:translate(`slack_integration_required`),result:`warning`,field:`integration`}),(!attributes.action||!attributes.action.id)&&validationConfig.push({message:translate(`slack_action_type_required`),result:`warning`,field:`action`}),(!attributes.channel||!attributes.channel.id)&&validationConfig.push({message:translate(`slack_channel_required`),result:`warning`,field:`channel`}),(!attributes.text||!attributes.text.trim())&&validationConfig.push({message:translate(`slack_message_required`),result:`warning`,field:`text`}),attributes.action?.id===`direct-message`&&(!attributes.userSource||!attributes.userSource.id)&&validationConfig.push({message:translate(`slack_user_source_required`),result:`warning`,field:`userSource`}),validationConfig):[]}", socialMediaCommentValidator: "socialMediaCommentValidator=(params,platform)=>{let validationConfig=[],page$1=params.conditions?.find(condition$1=>condition$1.field===`${platform}.pageId`),pageId=page$1==null?void 0:page$1.value||`no_value`,locationId=params.extras?.locationId||``;if(platform===`ig`?validationConfig.push(...instagramIntegrationValidator(locationId)):validationConfig.push(...facebookIntegrationValidator(locationId)),pageId!=null&&typeof pageId==`string`){if(platform===`ig`){let cachedData=queryClient.getQueryData(getInstagramConnectedAccountsQueryKey(app_default.locationId));if(cachedData){let igPage=cachedData.pages.find(p$5=>p$5.instagramPageId===pageId);igPage?igPage.connectionType===`FACEBOOK_PAGE`&&!igPage.isInstagramAvailable&&validationConfig.push({field:`${platform}.pageId`,result:`warning`,message:translate(`page_integration_not_valid`)}):validationConfig.push({field:`${platform}.pageId`,result:`warning`,message:translate(`page_not_found`)})}}else validationConfig.push({url:`/integrations/facebook/${locationId}/pages`,method:`GET`,transformResponse:response=>response.pages.find(page$2=>page$2.facebookPageId===pageId)?[]:{field:`${platform}.pageId`,result:`warning`,message:translate(`page_not_found`)}});let postTypeCondition=params.conditions?.find(condition$1=>condition$1.field===`${platform}.postType`),postType=postTypeCondition==null?void 0:postTypeCondition.value||`no_value`;if(postType===`custom`){let postUrlOrIdField=params.conditions?.find(condition$1=>condition$1.field===`${platform}.postUrlOrId`),postUrlOrId=postUrlOrIdField==null?void 0:postUrlOrIdField.value||`no_value`;if(postUrlOrId!=null&&typeof postUrlOrId==`string`)try{new URL(postUrlOrId)}catch{validationConfig.push({resource:platform===`fb`?`fb_post`:`ig_post`,field:`${platform}.postUrlOrId`,result:`warning`,value:postUrlOrId,context:{pageId,postType:`CUSTOM`}})}}else{let postIdField=params.conditions?.find(condition$1=>condition$1.field===`${platform}.postId`),postId=postIdField==null?void 0:postIdField.value||`no_value`;postId!=null&&(typeof postId==`string`?validationConfig.push({resource:platform===`fb`?`fb_post`:`ig_post`,field:`${platform}.postId`,result:`warning`,value:postId,context:{pageId,postType:postType?.toString().toUpperCase()}}):Array.isArray(postId)&&postId.forEach(id=>{validationConfig.push({resource:platform===`fb`?`fb_post`:`ig_post`,field:`${platform}.postId`,result:`warning`,value:id,context:{pageId,postType:postType?.toString().toUpperCase()}})}))}}return validationConfig}", socialMessageValidator: "socialMessageValidator=(params,platform)=>{let validationConfig=[],locationId=params.extras?.locationId||``;if(platform===`ig`?validationConfig.push(...instagramIntegrationValidator(locationId)):validationConfig.push(...facebookIntegrationValidator(locationId)),validationConfig.push(...baseSmsValidator(params,translate(platform===`fb`?`messenger_message_required`:`instagram_message_required`))),params.attributes?.body){let illegalWords=words_default(params.attributes.body).filter(word=>illegalWordsSms.includes(word.toLowerCase()));illegalWords.length>0&&validationConfig.push({field:`body`,result:`warning`,message:translate(`sms_contains_illegal_words`,{words:illegalWords.join(`, `)})})}return validationConfig}", stripeOneTimeChargeValidator: "stripeOneTimeChargeValidator=params=>{let validationConfig=[],{attributes}=params;if(!attributes)return[];if(!attributes.amount||!attributes.amount.trim())validationConfig.push({message:translate(`amount_required`),result:`warning`,field:`amount`});else if(!attributes.amount.startsWith(`{{`)){let amount$1=parseFloat(attributes.amount);(isNaN(amount$1)||amount$1<=0)&&validationConfig.push({message:translate(`amount_must_be_positive`),result:`warning`,field:`amount`})}return(!attributes.currency||!attributes.currency.trim())&&validationConfig.push({message:translate(`currency_required`),result:`warning`,field:`currency`}),(!attributes.stripe_customer_id||!attributes.stripe_customer_id.trim())&&validationConfig.push({message:translate(`stripe_customer_id_required`),result:`warning`,field:`stripe_customer_id`}),validationConfig}", surveySubmissionValidator: "surveySubmissionValidator=params=>{let validationConfig=[],surveyIdsField=params.conditions?.find(condition$1=>condition$1.field===`survey.id`),surveyIds=surveyIdsField==null?void 0:surveyIdsField.value||`no_value`;return surveyIds!=null&&(typeof surveyIds==`string`?validationConfig.push({resource:`survey`,field:`survey.id`,result:`warning`,value:surveyIds}):Array.isArray(surveyIds)&&surveyIds.forEach(surveyId=>{validationConfig.push({resource:`survey`,field:`survey.id`,result:`warning`,value:surveyId})})),validationConfig}", taskAddedValidator: "taskAddedValidator=params=>{let validationConfig=[],assignedTo=params.conditions?.find(condition$1=>condition$1.field===`task.assignedTo`);if(assignedTo!=null){let userId=assignedTo.value;validationConfig.push({resource:`user`,field:`task.assignedTo`,result:`warning`,value:userId})}let customFieldValidation=validateCustomFields(params,[`task.assignedTo`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", taskDueDateReminderValidator: "taskDueDateReminderValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`task.dueDate`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", textFormatterValidator: "textFormatterValidator=params=>{let validations=[],{attributes}=params;return attributes?((!attributes.formatterType||!Object.values(TextFormatterTypes).includes(attributes.formatterType))&&validations.push({field:`formatterType`,message:translate(`text_formatter_type_required`),result:`warning`}),(!attributes.field||attributes.field.length===0)&&validations.push({field:`field`,message:translate(`text_formatter_field_required`),result:`warning`}),validations):[]}", tiktokFormValidator: "tiktokFormValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`tiktok.formId`,`tiktok.pageId`,`contact.tags`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", triggerLinkValidator: "triggerLinkValidator=params=>{let validationConfig=[],linkIdField=params.conditions?.find(condition$1=>condition$1.field===`link.id`),linkId=linkIdField==null?void 0:linkIdField.value||`no_value`;linkId&&validationConfig.push({resource:`trigger_link`,field:`link.id`,result:`warning`,value:linkId});let customFieldValidation=validateCustomFields(params,[`link.id`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", twoStepOrderFormValidator: "twoStepOrderFormValidator=params=>{let validationConfig=[],funnelIdField=params.conditions?.find(condition$1=>condition$1.field===`twoStepOrderForm.funnelId`),funnelId=funnelIdField==null?void 0:funnelIdField.value||`no_value`;funnelId!=null&&(typeof funnelId==`string`?validationConfig.push({resource:`funnel`,field:`twoStepOrderForm.funnelId`,result:`warning`,value:funnelId}):Array.isArray(funnelId)&&funnelId.forEach(id=>{validationConfig.push({resource:`funnel`,field:`twoStepOrderForm.funnelId`,result:`warning`,value:id})}));let pageField=params.conditions?.find(condition$1=>condition$1.field===`twoStepOrderForm.pageId`),pageId=pageField==null?void 0:pageField.value||`no_value`;pageId!=null&&(typeof pageId==`string`?validationConfig.push({resource:`page`,field:`twoStepOrderForm.pageId`,result:`warning`,value:pageId}):Array.isArray(pageId)&&pageId.forEach(id=>{validationConfig.push({resource:`page`,field:`twoStepOrderForm.pageId`,result:`warning`,value:id})}));let productIdField=params.conditions?.find(condition$1=>condition$1.field===`twoStepOrderForm.productId`),productId=productIdField==null?void 0:productIdField.value||`no_value`;return productId!=null&&(typeof productId==`string`?validationConfig.push({resource:`product`,field:`twoStepOrderForm.productId`,result:`warning`,value:productId}):Array.isArray(productId)&&productId.forEach(id=>{validationConfig.push({resource:`product`,field:`twoStepOrderForm.productId`,result:`warning`,value:id})})),validationConfig}", updateAffiliateValidator: "updateAffiliateValidator=params=>{let validations=[],{attributes}=params;return attributes?(attributes.affiliate_state||validations.push({field:`affiliate_state`,message:translate(`affiliate_state_required`),result:`warning`}),validations):[]}", updateContactFieldValidator: "updateContactFieldValidator=params=>{let validationConfig=[];return params.attributes?.fields?.length||validationConfig.push({message:translate(`at_least_one_field_required`),result:`warning`,field:`fields`}),params.attributes?.fields.forEach(field$1=>{let value$1=field$1.value;contactStandardFields.includes(field$1.field)||validationConfig.push({field:field$1.field,resource:`custom_field`,result:`warning`,value:requiresFieldValue(params.attributes?.actionType)?value$1:void 0}),requiresFieldValue(params.attributes?.actionType)&&isMissingFieldValue(field$1.value,field$1.date)&&validationConfig.push({field:field$1.field,message:translate(`missing_value_for_field`),result:`warning`})}),validationConfig}", updateCustomValueValidator: "updateCustomValueValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?((!attributes.custom_value_id||!attributes.custom_value_id.trim())&&validationConfig.push({message:translate(`custom_value_selection_required`),result:`warning`,field:`custom_value_id`}),attributes.custom_value_id&&validationConfig.push({resource:`custom_value`,field:attributes.custom_value_id,result:`warning`}),(!attributes.new_value||!attributes.new_value.trim())&&validationConfig.push({message:translate(`new_value_required`),result:`warning`,field:`new_value`}),validationConfig):[]}", validateAppointmentWait: "function validateAppointmentWait(attributes){let validations=[];return attributes.appointmentStartAfter?(attributes.appointmentStartAfter.when||validations.push({field:`appointmentStartAfter.when`,message:translate(`wait_appointment_when_required`)||`Please select when to wait (before/after/now)`,result:`error`}),attributes.appointmentStartAfter.when!==`now`&&!attributes.appointmentStartAfter.value&&!attributes.appointmentStartAfter.distributed&&validations.push({field:`appointmentStartAfter.value`,message:translate(`wait_appointment_time_required`)||`Wait time value is required`,result:`error`}),attributes.appointmentCondition||validations.push({field:`appointmentCondition`,message:translate(`wait_appointment_condition_required`)||`Please select what to do if the appointment time has passed`,result:`warning`}),attributes.appointmentCondition===`specific-step`&&!attributes.appointmentSpecificStep&&validations.push({field:`appointmentSpecificStep`,message:translate(`wait_appointment_step_required`)||`Please select the step to move to`,result:`error`}),validations):(validations.push({field:`appointmentStartAfter`,message:translate(`wait_appointment_config_required`)||`Appointment wait configuration is required`,result:`error`}),validations)}", validateConditionWait: "function validateConditionWait(attributes){let validations=[];if(!attributes.condition)return validations.push({field:`condition`,message:translate(`wait_condition_required`)||`Wait condition is required`,result:`error`}),validations;let branches$1=attributes.condition.branches??[];if(branches$1.length===0)return validations.push({field:`condition.branches`,message:translate(`wait_condition_branch_required`)||`At least one condition branch is required`,result:`error`}),validations;for(let branchIndex=0;branchIndex<branches$1.length;branchIndex++){let segments$1=branches$1[branchIndex].segments??[];if(segments$1.length===0){validations.push({field:`condition.branches[${branchIndex}].segments`,message:translate(`wait_condition_segment_required`)||`At least one condition group is required`,result:`error`});continue}for(let segmentIndex=0;segmentIndex<segments$1.length;segmentIndex++)(segments$1[segmentIndex].conditions??[]).length===0&&validations.push({field:`condition.branches[${branchIndex}].segments[${segmentIndex}].conditions`,message:translate(`wait_condition_empty`)||`At least one condition is required in each group`,result:`error`})}return validations}", validateCustomFields: "validateCustomFields=(params,excludeFields,resultType)=>{let validationConfig=[];return(params.conditions?.filter(condition$1=>condition$1.field?.startsWith(`contact.`)&&!excludeFields.includes(condition$1.field)))?.forEach(condition$1=>{let customFieldId=condition$1.field.replace(`contact.`,``);validationConfig.push({resource:`custom_field`,field:customFieldId,result:resultType,value:condition$1.value})}),validationConfig}", validateEmailEventWait: "function validateEmailEventWait(attributes){let validations=[];return(!attributes.emailEventSteps||attributes.emailEventSteps.length===0)&&validations.push({field:`emailEventSteps`,message:translate(`wait_email_steps_required`)||`At least one email step must be selected`,result:`error`}),(!attributes.emailEventTypes||attributes.emailEventTypes.length===0)&&validations.push({field:`emailEventTypes`,message:translate(`wait_email_events_required`)||`At least one email event type must be selected`,result:`error`}),validations}", validateLinkClickedWait: "function validateLinkClickedWait(attributes){let validations=[];return(!attributes.link||attributes.link.length===0)&&validations.push({field:`link`,message:translate(`wait_link_required`)||`At least one trigger link must be selected`,result:`error`}),validations}", validateOpportunityCustomFields: "validateOpportunityCustomFields=params=>{let opportunityCustomFields=params.conditions?.filter(condition$1=>condition$1.field.startsWith(`opportunity.`)&&![`opportunity.pipelineId`,`opportunity.pipelineStageId`,`opportunity.lastActionDate`,`opportunity.assignedTo`,`opportunity.status`,`opportunity.oldStatus`,`opportunity.monetaryValue`,`opportunity.forecastProbability`,`opportunity.forecastExpectedCloseDate`,`opportunity.lostReasonId`].includes(condition$1.field)),customFieldValidations=[];return opportunityCustomFields?.length&&opportunityCustomFields.forEach(field$1=>{customFieldValidations.push({resource:`opp_custom_field`,field:field$1.field.replace(`opportunity.`,``),result:`warning`,value:field$1.value})}),customFieldValidations}", validateRecurringScheduleWait: "function validateRecurringScheduleWait(attributes){let invalid$1=!1;if(!attributes.recurringFrequency)invalid$1=!0;else{if(attributes.recurringFrequency===`weekly`&&(!attributes.recurringWeeklyDays||attributes.recurringWeeklyDays.length===0)&&(invalid$1=!0),attributes.recurringFrequency===`monthly`){if(attributes.recurringMonthlyMode===`day`&&!attributes.recurringMonthlyDay&&(invalid$1=!0),attributes.recurringMonthlyMode===`nth_weekday`){let week=attributes.recurringMonthlyWeek;(!week||Array.isArray(week)&&week.length===0||attributes.recurringMonthlyWeekday==null)&&(invalid$1=!0)}(!attributes.recurringMonths||attributes.recurringMonths.length===0)&&(invalid$1=!0)}attributes.recurringFrequency===`yearly`&&(!attributes.recurringYearlyMonth||!attributes.recurringYearlyDay)&&(invalid$1=!0)}let proceed=attributes.recurringProceed;if(proceed===`before`||proceed===`after`){let days$1=attributes.recurringOffsetDays??0,hours$1=attributes.recurringOffsetHours??0,minutes$1=attributes.recurringOffsetMinutes??0;days$1===0&&hours$1===0&&minutes$1===0&&(invalid$1=!0)}return invalid$1?[{field:`type`,message:translate(`wait_step_not_configured`)||`Wait step is not configured`,result:`error`}]:[]}", validateReplyWait: "function validateReplyWait(attributes){let validations=[];return(!attributes.reply||attributes.reply.length===0)&&validations.push({field:`reply`,message:translate(`wait_reply_steps_required`)||`At least one step must be selected to wait for reply`,result:`error`}),validations}", validateRuleOrRegex: "function validateRuleOrRegex(rule,value$1){if(rule.includes(`=>`))return evaluateArrowFunction(rule,value$1);switch(rule){case`isValidEmail`:return isValidEmail(value$1);case`isValidPhone`:return isValidPhone(value$1);case`isValidURL`:return isValidURL(value$1);case`isValidNumeric`:return isValidNumeric(value$1);case`isValidHandleBar`:return isValidHandleBar(value$1);default:try{if(/^\\/(.+)\\/([gimuy]*)$/.test(rule)){let match=rule.match(/^\\/(.+)\\/([gimuy]*)$/);if(match){let[,pattern,flags]=match;return new RegExp(pattern,flags).test(String(value$1))}}return new RegExp(rule).test(String(value$1))}catch(error$3){return console.error(`Invalid regex pattern:`,rule,error$3),!1}}}", validateSpecificDateWait: "function validateSpecificDateWait(attributes){let isDynamic=attributes.specificDateInputMode===`dynamic`||attributes.dynamicSpecificDate!==void 0,invalid$1=!1;if(isDynamic){let val=attributes.dynamicSpecificDate?.trim();(!val||!val.startsWith(`{{`)||!val.endsWith(`}}`))&&(invalid$1=!0)}else attributes.specificDate||(invalid$1=!0),(attributes.specificTimeHour==null||attributes.specificTimePeriod==null)&&(invalid$1=!0);attributes.specificDatePassed===`specific_step`&&!attributes.specificDateStep&&(invalid$1=!0);let proceed=attributes.specificDateProceed;if(proceed===`before`||proceed===`after`){let days$1=attributes.specificDateOffsetDays??0,hours$1=attributes.specificDateOffsetHours??0,minutes$1=attributes.specificDateOffsetMinutes??0;days$1===0&&hours$1===0&&minutes$1===0&&(invalid$1=!0)}return invalid$1?[{field:`type`,message:translate(`wait_step_not_configured`)||`Wait step is not configured`,result:`error`}]:[]}", validateTimeout: "function validateTimeout(attributes){let validations=[];return attributes.startAfter&&attributes.startAfter.value===0&&validations.push({field:`startAfter.value`,message:translate(`wait_timeout_zero`)||`Timeout value should be greater than 0`,result:`error`}),validations}", validateTimeWait: "function validateTimeWait(attributes){let validations=[];return attributes.startAfter?(!attributes.window&&!attributes.startAfter.value&&attributes.timePeriodInputMode!==`dynamic`&&validations.push({field:`startAfter.value`,message:translate(`wait_time_value_required`),result:`warning`}),attributes.window&&(attributes.window.condition===`when`&&!attributes.window.start&&validations.push({field:`window.start`,message:translate(`wait_window_start_required`),result:`error`}),attributes.window.condition===`when`&&!attributes.window.end&&validations.push({field:`window.end`,message:translate(`wait_window_end_required`),result:`error`}),attributes.window.condition===`exact`&&!attributes.window.start&&validations.push({field:`window.value`,message:translate(`wait_window_start_required`),result:`error`})),validations):(validations.push({field:`startAfter`,message:translate(`wait_time_required`),result:`error`}),validations)}", validateUserRepliedWait: "function validateUserRepliedWait(attributes){let validations=[];return(!attributes.channel||attributes.channel.length===0)&&validations.push({field:`channel`,message:translate(`wait_step_v2.channel_is_required`)||`Please select at least one channel`,result:`error`}),(!attributes.repliedBy||attributes.repliedBy.length===0)&&validations.push({field:`repliedBy`,message:translate(`wait_step_v2.replied_by_is_required`)||`Please select who should reply`,result:`error`}),validations}", validationErrorValidator: "validationErrorValidator=params=>{let validationConfig=[],customFieldValidation=validateCustomFields(params,[`validation.errorType`,`contact.tags`,`contact.phoneInfo`],`warning`);return validationConfig.push(...customFieldValidation),validationConfig}", videoEventValidator: "videoEventValidator=params=>{let validationConfig=[],funnelField=params.conditions?.find(condition$1=>condition$1.field===`video.funnelId`),funnelIds=funnelField==null?void 0:funnelField.value||`no_value`;funnelIds!=null&&(typeof funnelIds==`string`?validationConfig.push({resource:`funnel`,field:`video.funnelId`,result:`warning`,value:funnelIds}):Array.isArray(funnelIds)&&funnelIds.forEach(funnelId=>{validationConfig.push({resource:`funnel`,field:`video.funnelId`,result:`warning`,value:funnelId})}));let videoField=params.conditions?.find(condition$1=>condition$1.field===`video.videoId`),videoIds=videoField==null?void 0:videoField.value||`no_value`;return videoIds!=null&&(typeof videoIds==`string`?validationConfig.push({resource:`video`,field:`video.videoId`,result:`warning`,value:videoIds}):Array.isArray(videoIds)&&videoIds.forEach(videoId=>{validationConfig.push({resource:`video`,field:`video.videoId`,result:`warning`,value:videoId})})),validationConfig}", voicemailValidator: "voicemailValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?((!attributes.attachment||!attributes.attachment.url)&&validationConfig.push({message:translate(`voicemail_attachment_required`),result:`warning`,field:`attachment`}),validationConfig):[]}", waitValidator: "waitValidator=params=>{let validations=[],{attributes}=params;if(!attributes)return[];attributes.name&&!isWithinLimits(attributes.name)&&validations.push({field:`name`,message:translate(`wait_name_too_long`)||`Wait step name is too long`,result:`error`});let waitType=attributes.type;if(isWaitStepUnconfigured(attributes))return validations.push({field:`type`,message:translate(`wait_step_not_configured`)||`Wait step is not configured`,result:`error`}),validations;switch(waitType){case`time`:validations.push(...validateTimeWait(attributes));break;case`condition`:validations.push(...validateConditionWait(attributes));break;case`reply`:validations.push(...validateReplyWait(attributes));break;case`appointment`:case`service_booking`:case`rental_booking`:case`attendee_event_date`:case`overdue`:validations.push(...validateAppointmentWait(attributes));break;case`email_event`:validations.push(...validateEmailEventWait(attributes));break;case`link_clicked`:validations.push(...validateLinkClickedWait(attributes));break;case`user_replied`:validations.push(...validateUserRepliedWait(attributes));break;case`specific_date`:validations.push(...validateSpecificDateWait(attributes));break;case`recurring_schedule`:validations.push(...validateRecurringScheduleWait(attributes));break;default:waitType||validations.push({field:`type`,message:translate(`wait_type_required`)||`Wait type is required`,result:`error`})}return attributes.convertToMultipath&&attributes.startAfter&&validations.push(...validateTimeout(attributes)),validations}", webhookValidator: "webhookValidator=params=>{let validationConfig=[],{attributes}=params;return attributes?((!attributes.url||!attributes.url.trim())&&validationConfig.push({message:translate(`webhook_url_required`),result:`warning`,field:`url`}),attributes.method||validationConfig.push({message:translate(`http_method_required`),result:`warning`,field:`method`}),attributes.customData&&attributes.customData.some(item$1=>!item$1.key?.trim()||item$1.value===void 0||item$1.value===null)&&validationConfig.push({message:translate(`custom_data_has_empty_fields`),result:`warning`,field:`customData`}),attributes.headers&&attributes.headers.some(item$1=>!item$1.key?.trim()||item$1.value===void 0||item$1.value===null)&&validationConfig.push({message:translate(`headers_has_empty_fields`),result:`warning`,field:`headers`}),validationConfig):[]}", workflowSplitValidator: "workflowSplitValidator=params=>{let validations=[],{attributes}=params;if(!attributes)return[];if(attributes.paths?.length||validations.push({field:`paths`,message:translate(`split_paths_required`),result:`warning`}),attributes.condition===SplitCondition.RANDOM_SPLIT){let totalWeightage=0;for(let path of attributes.paths||[])totalWeightage+=attributes.extras?.weightDistribution?.[path.id]||0;totalWeightage=Math.round(totalWeightage*10)/10,totalWeightage!==100&&validations.push({field:`paths`,message:translate(`split_weightage_must_equal_100`),result:`warning`})}return validations}", SplitCondition: "SplitCondition=function(SplitCondition$1){return SplitCondition$1.RANDOM_SPLIT=`random-split`,SplitCondition$1.EVEN_SPLIT=`even-split`,SplitCondition$1.CONDITIONAL_SPLIT=`conditional-split`,SplitCondition$1}({})", GoalCondition: "GoalCondition=function(GoalCondition$1){return GoalCondition$1.EMAIL_EVENT=`email_event`,GoalCondition$1.LINK_CLICK=`link_click`,GoalCondition$1.ADD_CONTACT_TAG=`add_contact_tag`,GoalCondition$1.REMOVE_CONTACT_TAG=`remove_contact_tag`,GoalCondition$1.APPOINTMENT_STATUS=`appointment_status`,GoalCondition$1.PAYMENT_RECEIVED=`payment_received`,GoalCondition$1.FORM_SUBMITTED=`form_submission`,GoalCondition$1.DOCUMENT_STATUS=`document_status`,GoalCondition$1.INVOICE_PAID=`invoice_paid`,GoalCondition$1.REVIEW_REQUEST_CLICKED=`review_request_clicked`,GoalCondition$1.USER_REPLIED=`user_replied`,GoalCondition$1.TASK_STATUS=`task_status`,GoalCondition$1}({})" };
   }
 });
 
@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1542,
+      count: 1549,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -3666,7 +3666,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "erased"
           },
           sources: [
-            "services/api/contact-service.ts:36",
+            "services/api/contact-service.ts:66",
             "platform/20-api/smart-lists.md:105",
             "platform/20-api/smart-lists.md:153",
             "platform/20-api/smart-lists.md:161",
@@ -14132,7 +14132,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/api/google-connections-service.ts:41",
+            "services/api/google-connections-service.ts:59",
             "workflows/30-types/steps/google_sheets.md:105"
           ]
         },
@@ -21114,7 +21114,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@694",
+                name: "__@iterator@746",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -27443,10 +27443,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [
             {
+              name: "includeTriggers",
+              type: "true",
+              required: true,
+              source: "params"
+            },
+            {
               name: "includeScheduledPauseInfo",
-              type: "string",
-              required: false,
-              source: "documented"
+              type: "true",
+              required: true,
+              source: "params"
             }
           ],
           body: null,
@@ -27751,10 +27757,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "workflow-service--get-version-by-number-and-workflow-id",
+          id: "backend--history-by-number",
           aka: [
             "/workflow/{locationId}/{wid}/history-by-number/{n}",
-            "/workflow/{locationId}/{wid}/history-by-number/{version}"
+            "/workflow/{locationId}/{wid}/history-by-number/{version}",
+            "/workflow/{locationId}/{workflowId}/history-by-number/{version}"
           ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history-by-number/{versionNumber}",
@@ -27771,7 +27778,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          operation: "getVersionByNumberAndWorkflowId",
+          operation: null,
           service: "workflows",
           tree: "workflow-builder",
           pathParams: [
@@ -27787,18 +27794,39 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ],
           query: [],
           body: null,
-          returns: null,
+          returns: {
+            typeName: "WorkflowVersionDocument",
+            properties: [
+              {
+                name: "triggersData",
+                type: "unknown[]",
+                optional: true
+              },
+              {
+                name: "version",
+                type: "number",
+                optional: true
+              },
+              {
+                name: "workflowData",
+                type: "{ templates?: WorkflowTemplate<any>[]; }",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
           confidence: {
             path: "resolved",
             query: "none-observed",
             body: "none-observed",
-            returns: "none-observed"
+            returns: "resolved"
           },
           sources: [
-            "services/WorkflowService.ts:550",
+            "services/api/workflow-version-service.ts:26",
             "workflows/20-api/version-history.md:18",
             "workflows/20-api/version-history.md:104",
-            "workflows/50-runtime/11-runtime-logs.md:218"
+            "workflows/50-runtime/11-runtime-logs.md:218",
+            "services/WorkflowService.ts:550"
           ]
         },
         {
@@ -28253,7 +28281,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@694",
+                name: "__@iterator@746",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -28269,7 +28297,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "states/app.ts:586",
-            "components/advanced-workflow-canvas/components/canvas/components/sticky-note/StickyNoteImageUpload.vue:38",
+            "hooks/use-note-image-upload.ts:49",
             "components/sticky-notes/v2/StickyNoteImageUpload.vue:45"
           ]
         },
@@ -28990,6 +29018,66 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "backend--statuses-v2",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/contact/{contactId}/statuses_v2",
+          path: "/workflow/{locationId}/contact/{contactId}/statuses_v2",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "contactId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "ContactWorkflowStatusesResponse",
+            properties: [
+              {
+                name: "msg",
+                type: "string",
+                optional: false,
+                doc: "Human-readable result indicator."
+              },
+              {
+                name: "count",
+                type: "number",
+                optional: false,
+                doc: "Total number of workflow statuses returned."
+              },
+              {
+                name: "workflowStatuses",
+                type: "ContactWorkflowStatus[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/contact-service.ts:59"
+          ]
+        },
+        {
           id: "workflow-service--bulk-delete",
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/delete",
@@ -29050,6 +29138,52 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "workflows/20-api/03-endpoints.md:171",
             "workflows/20-api/03-endpoints.md:387",
             "workflows/20-api/trash-and-restore.md:18"
+          ]
+        },
+        {
+          id: "backend--directory",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/directory",
+          path: "/workflow/{locationId}/directory",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "type",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "WorkflowGridDirectoryListResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "components/workflow-grid/services/index.ts:105"
           ]
         },
         {
@@ -29580,13 +29714,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
               },
               {
-                name: "__@iterator@694",
+                name: "__@iterator@746",
                 type: "() => ArrayIterator<WorkflowDomainEntry>",
                 optional: false,
                 doc: "Iterator"
               },
               {
-                name: "__@unscopables@696",
+                name: "__@unscopables@748",
                 type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
                 optional: false,
                 doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -29922,7 +30056,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "error-notification-service--delete-workflow-error-notification-doc",
+          id: "backend--error-notification",
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/error-notification/{workflowId}",
           path: "/workflow/{locationId}/error-notification/{workflowId}",
@@ -29936,7 +30070,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          operation: "deleteWorkflowErrorNotificationDoc",
+          operation: null,
           service: "workflows",
           tree: "workflow-builder",
           pathParams: [
@@ -29957,6 +30091,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
+            "components/workflow-grid/services/index.ts:132",
             "services/ErrorNotificationService.ts:63",
             "workflows/50-runtime/error-notifications.md:37"
           ]
@@ -30079,26 +30214,31 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           query: [
             {
               name: "skip",
-              type: "unknown",
+              type: "0",
               required: true,
               source: "params"
             },
             {
               name: "limit",
-              type: "unknown",
+              type: "100",
               required: true,
               source: "params"
             }
           ],
           body: null,
-          returns: null,
+          returns: {
+            typeName: "WorkflowGridErrorNotificationResponse",
+            properties: null,
+            confidence: "erased"
+          },
           confidence: {
             path: "resolved",
             query: "resolved",
             body: "none-observed",
-            returns: "none-observed"
+            returns: "erased"
           },
           sources: [
+            "components/workflow-grid/services/index.ts:120",
             "services/api/workflow-overview.service.ts:166",
             "services/ErrorNotificationService.ts:43",
             "workflows/50-runtime/error-notifications.md:35",
@@ -30273,6 +30413,88 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "workflows/20-api/03-endpoints.md:390"
+          ]
+        },
+        {
+          id: "backend--grid-layout",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/grid-layout",
+          path: "/workflow/{locationId}/grid-layout",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "unknown",
+            properties: null,
+            confidence: "primitive"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "primitive"
+          },
+          sources: [
+            "components/workflow-grid/services/index.ts:172"
+          ]
+        },
+        {
+          id: "backend--grid-layout--put-location-id-grid-layout",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/grid-layout",
+          path: "/workflow/{locationId}/grid-layout",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "GridLayoutSnapshotPayload",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "unknown",
+            properties: null,
+            confidence: "primitive"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "primitive"
+          },
+          sources: [
+            "components/workflow-grid/services/index.ts:195"
           ]
         },
         {
@@ -32207,7 +32429,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/SplitService.ts:33",
             "workflows/10-anatomy/advanced-canvas.md:59",
-            "workflows/30-types/steps/workflow_split.md:147"
+            "workflows/30-types/steps/workflow_split.md:148"
           ]
         },
         {
@@ -32690,10 +32912,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "workflows--workflow-update-workflow-note",
+          id: "backend--update-workflow-note",
+          aka: [
+            "/workflow/{locationId}/update-workflow-note/{wid}"
+          ],
           method: "PUT",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/update-workflow-note/{wid}",
-          path: "/workflow/{locationId}/update-workflow-note/{wid}",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/update-workflow-note/{workflowId}",
+          path: "/workflow/{locationId}/update-workflow-note/{workflowId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -32705,25 +32930,43 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           extraHeaders: [],
           operation: null,
           service: "workflows",
-          tree: "documented",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
             },
             {
-              name: "wid"
+              name: "workflowId"
             }
           ],
           query: [],
-          body: null,
+          body: {
+            typeName: "UpdateWorkflowNotePayload",
+            properties: [
+              {
+                name: "content",
+                type: "string",
+                optional: false,
+                doc: "Note text as typed on the grid. Empty clears the note."
+              },
+              {
+                name: "updatedByName",
+                type: "string",
+                optional: false,
+                doc: "Display name of whoever is making this change."
+              }
+            ],
+            confidence: "resolved"
+          },
           returns: null,
           confidence: {
-            path: "documented",
+            path: "resolved",
             query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
+            body: "resolved",
+            returns: "none-observed"
           },
           sources: [
+            "components/workflow-grid/services/index.ts:224",
             "workflows/10-anatomy/06-fields-glossary.md:137"
           ]
         },
@@ -33026,7 +33269,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@694",
+                name: "__@iterator@746",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -33204,7 +33447,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/email.md:160",
+            "workflows/30-types/steps/email.md:161",
             "workflows/30-types/steps/if_else.md:31",
             "workflows/40-rules/server-side-validation.md:246"
           ]
@@ -38426,6 +38669,45 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "backend--linked-assets",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflows/es/linked-assets",
+          path: "/workflows/es/linked-assets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "Record<string, unknown>",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "WorkflowGridLinkedAssetsListResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "erased"
+          },
+          sources: [
+            "components/workflow-grid/services/index.ts:81"
+          ]
+        },
+        {
           id: "workflow-marketplace-service--get-workflows-from-es",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflows/es/search",
@@ -38631,7 +38913,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "workflow-marketplace-service--get-logs",
+          id: "backend--v2",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflows/logs/v2",
           path: "/workflows/logs/v2",
@@ -38652,45 +38934,332 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          operation: "getLogs",
+          operation: null,
           service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
             {
-              name: "workflowId",
-              type: "string",
-              required: false,
-              source: "documented"
+              name: "action",
+              type: '"first"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "dateType",
+              type: '"custom"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "eventType",
+              type: "string[]",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "fromDate",
+              type: "number",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "number",
+              required: true,
+              source: "params"
             },
             {
               name: "locationId",
               type: "string",
-              required: false,
-              source: "documented"
+              required: true,
+              source: "params"
             },
             {
-              name: "limit",
+              name: "toDate",
+              type: "number",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "workflowId",
               type: "string",
-              required: false,
-              source: "documented"
+              required: true,
+              source: "params"
+            },
+            {
+              name: "executionId",
+              type: "string",
+              required: true,
+              source: "params"
             }
           ],
           body: null,
-          returns: null,
+          returns: {
+            typeName: "WorkflowLog[]",
+            properties: [
+              {
+                name: "length",
+                type: "number",
+                optional: false,
+                doc: "Gets or sets the length of the array. This is a number one higher than the highest index in the array."
+              },
+              {
+                name: "toString",
+                type: "() => string",
+                optional: false,
+                doc: "Returns a string representation of an array."
+              },
+              {
+                name: "toLocaleString",
+                type: "{ (): string; (locales: string | string[], options?: NumberFormatOptions & Da...",
+                optional: false,
+                doc: "Returns a string representation of an array. The elements are converted to string using their toLocaleString methods."
+              },
+              {
+                name: "pop",
+                type: "() => WorkflowLog",
+                optional: false,
+                doc: "Removes the last element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+              },
+              {
+                name: "push",
+                type: "(...items: WorkflowLog[]) => number",
+                optional: false,
+                doc: "Appends new elements to the end of an array, and returns the new length of the array."
+              },
+              {
+                name: "concat",
+                type: "{ (...items: ConcatArray<WorkflowLog>[]): WorkflowLog[]; (...items: (Workflow...",
+                optional: false,
+                doc: "Combines two or more arrays.\nThis method returns a new array without modifying any existing arrays."
+              },
+              {
+                name: "join",
+                type: "(separator?: string) => string",
+                optional: false,
+                doc: "Adds all the elements of an array into a string, separated by the specified separator string."
+              },
+              {
+                name: "reverse",
+                type: "() => WorkflowLog[]",
+                optional: false,
+                doc: "Reverses the elements in an array in place.\nThis method mutates the array and returns a reference to the same array."
+              },
+              {
+                name: "shift",
+                type: "() => WorkflowLog",
+                optional: false,
+                doc: "Removes the first element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+              },
+              {
+                name: "slice",
+                type: "(start?: number, end?: number) => WorkflowLog[]",
+                optional: false,
+                doc: "Returns a copy of a section of an array.\nFor both start and end, a negative index can be used to indicate an offset from the end of the array.\nFor example, -2 refers to the second to last element of the array."
+              },
+              {
+                name: "sort",
+                type: "(compareFn?: (a: WorkflowLog, b: WorkflowLog) => number) => WorkflowLog[]",
+                optional: false,
+                doc: "Sorts an array in place.\nThis method mutates the array and returns a reference to the same array."
+              },
+              {
+                name: "splice",
+                type: "{ (start: number, deleteCount?: number): WorkflowLog[]; (start: number, delet...",
+                optional: false,
+                doc: "Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements."
+              },
+              {
+                name: "unshift",
+                type: "(...items: WorkflowLog[]) => number",
+                optional: false,
+                doc: "Inserts new elements at the start of an array, and returns the new length of the array."
+              },
+              {
+                name: "indexOf",
+                type: "(searchElement: WorkflowLog, fromIndex?: number) => number",
+                optional: false,
+                doc: "Returns the index of the first occurrence of a value in an array, or -1 if it is not present."
+              },
+              {
+                name: "lastIndexOf",
+                type: "(searchElement: WorkflowLog, fromIndex?: number) => number",
+                optional: false,
+                doc: "Returns the index of the last occurrence of a specified value in an array, or -1 if it is not present."
+              },
+              {
+                name: "every",
+                type: "{ <S extends WorkflowLog>(predicate: (value: WorkflowLog, index: number, arra...",
+                optional: false,
+                doc: "Determines whether all the members of an array satisfy the specified test."
+              },
+              {
+                name: "some",
+                type: "(predicate: (value: WorkflowLog, index: number, array: WorkflowLog[]) => unkn...",
+                optional: false,
+                doc: "Determines whether the specified callback function returns true for any element of an array."
+              },
+              {
+                name: "forEach",
+                type: "(callbackfn: (value: WorkflowLog, index: number, array: WorkflowLog[]) => voi...",
+                optional: false,
+                doc: "Performs the specified action for each element in an array."
+              },
+              {
+                name: "map",
+                type: "<U>(callbackfn: (value: WorkflowLog, index: number, array: WorkflowLog[]) => ...",
+                optional: false,
+                doc: "Calls a defined callback function on each element of an array, and returns an array that contains the results."
+              },
+              {
+                name: "filter",
+                type: "{ <S extends WorkflowLog>(predicate: (value: WorkflowLog, index: number, arra...",
+                optional: false,
+                doc: "Returns the elements of an array that meet the condition specified in a callback function."
+              },
+              {
+                name: "reduce",
+                type: "{ (callbackfn: (previousValue: WorkflowLog, currentValue: WorkflowLog, curren...",
+                optional: false,
+                doc: "Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+              },
+              {
+                name: "reduceRight",
+                type: "{ (callbackfn: (previousValue: WorkflowLog, currentValue: WorkflowLog, curren...",
+                optional: false,
+                doc: "Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+              },
+              {
+                name: "find",
+                type: "{ <S extends WorkflowLog>(predicate: (value: WorkflowLog, index: number, obj:...",
+                optional: false,
+                doc: "Returns the value of the first element in the array where predicate is true, and undefined\notherwise."
+              },
+              {
+                name: "findIndex",
+                type: "(predicate: (value: WorkflowLog, index: number, obj: WorkflowLog[]) => unknow...",
+                optional: false,
+                doc: "Returns the index of the first element in the array where predicate is true, and -1\notherwise."
+              },
+              {
+                name: "fill",
+                type: "(value: WorkflowLog, start?: number, end?: number) => WorkflowLog[]",
+                optional: false,
+                doc: "Changes all array elements from `start` to `end` index to a static `value` and returns the modified array"
+              },
+              {
+                name: "copyWithin",
+                type: "(target: number, start: number, end?: number) => WorkflowLog[]",
+                optional: false,
+                doc: "Returns the this object after copying a section of the array identified by start and end\nto the same array starting at position target"
+              },
+              {
+                name: "entries",
+                type: "() => ArrayIterator<[number, WorkflowLog]>",
+                optional: false,
+                doc: "Returns an iterable of key, value pairs for every entry in the array"
+              },
+              {
+                name: "keys",
+                type: "() => ArrayIterator<number>",
+                optional: false,
+                doc: "Returns an iterable of keys in the array"
+              },
+              {
+                name: "values",
+                type: "() => ArrayIterator<WorkflowLog>",
+                optional: false,
+                doc: "Returns an iterable of values in the array"
+              },
+              {
+                name: "includes",
+                type: "(searchElement: WorkflowLog, fromIndex?: number) => boolean",
+                optional: false,
+                doc: "Determines whether an array includes a certain element, returning true or false as appropriate."
+              },
+              {
+                name: "flatMap",
+                type: "<U, This = undefined>(callback: (this: This, value: WorkflowLog, index: numbe...",
+                optional: false,
+                doc: "Calls a defined callback function on each element of an array. Then, flattens the result into\na new array.\nThis is identical to a map followed by flat with depth 1."
+              },
+              {
+                name: "flat",
+                type: "<A, D extends number = 1>(this: A, depth?: D) => FlatArray<A, D>[]",
+                optional: false,
+                doc: "Returns a new array with all sub-array elements concatenated into it recursively up to the\nspecified depth."
+              },
+              {
+                name: "at",
+                type: "(index: number) => WorkflowLog",
+                optional: false,
+                doc: "Returns the item located at the specified index."
+              },
+              {
+                name: "findLast",
+                type: "{ <S extends WorkflowLog>(predicate: (value: WorkflowLog, index: number, arra...",
+                optional: false,
+                doc: "Returns the value of the last element in the array where predicate is true, and undefined\notherwise."
+              },
+              {
+                name: "findLastIndex",
+                type: "(predicate: (value: WorkflowLog, index: number, array: WorkflowLog[]) => unkn...",
+                optional: false,
+                doc: "Returns the index of the last element in the array where predicate is true, and -1\notherwise."
+              },
+              {
+                name: "toReversed",
+                type: "() => WorkflowLog[]",
+                optional: false,
+                doc: "Returns a copy of an array with its elements reversed."
+              },
+              {
+                name: "toSorted",
+                type: "(compareFn?: (a: WorkflowLog, b: WorkflowLog) => number) => WorkflowLog[]",
+                optional: false,
+                doc: "Returns a copy of an array with its elements sorted."
+              },
+              {
+                name: "toSpliced",
+                type: "{ (start: number, deleteCount: number, ...items: WorkflowLog[]): WorkflowLog[...",
+                optional: false,
+                doc: "Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."
+              },
+              {
+                name: "with",
+                type: "(index: number, value: WorkflowLog) => WorkflowLog[]",
+                optional: false,
+                doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
+              },
+              {
+                name: "__@iterator@746",
+                type: "() => ArrayIterator<WorkflowLog>",
+                optional: false,
+                doc: "Iterator"
+              },
+              {
+                name: "__@unscopables@748",
+                type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
+                optional: false,
+                doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
+              }
+            ],
+            confidence: "resolved"
+          },
           confidence: {
             path: "resolved",
-            query: "open-map",
+            query: "resolved",
             body: "none-observed",
-            returns: "none-observed"
+            returns: "resolved"
           },
           sources: [
+            "services/api/workflow-logs-service.ts:43",
+            "services/api/workflow-logs-service.ts:72",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:166",
             "workflows/50-runtime/11-runtime-logs.md:37",
             "workflows/50-runtime/11-runtime-logs.md:113",
-            "workflows/50-runtime/11-runtime-logs.md:251",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:81",
-            "workflows/50-runtime/observed-query-shapes.md:19"
+            "workflows/50-runtime/11-runtime-logs.md:251"
           ]
         },
         {
@@ -38838,6 +39407,96 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "workflows/50-runtime/11-runtime-logs.md:256",
             "workflows/70-research/RAIL.md:134",
             "workflows/70-research/RUNTIME-DATA-2.md:70"
+          ]
+        },
+        {
+          id: "backend--contact-executions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/status/search/contact-executions",
+          path: "/workflows/status/search/contact-executions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [
+            {
+              name: "action",
+              type: '"first" | "next"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "contactId",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "number",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "referenceCreatedAt",
+              type: "string",
+              required: false,
+              source: "params"
+            },
+            {
+              name: "referenceId",
+              type: "string",
+              required: false,
+              source: "params"
+            },
+            {
+              name: "referenceSid",
+              type: "string",
+              required: false,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "WorkflowStatusSearchResponse",
+            properties: [
+              {
+                name: "isLocationRateLimited",
+                type: "boolean",
+                optional: true
+              },
+              {
+                name: "statuses",
+                type: "WorkflowExecutionStatus[]",
+                optional: false,
+                doc: "Enrollment records matching the filter, newest first."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/workflow-status-service.ts:122"
           ]
         },
         {
@@ -39255,13 +39914,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
               },
               {
-                name: "__@iterator@694",
+                name: "__@iterator@746",
                 type: "() => ArrayIterator<EnrollStat>",
                 optional: false,
                 doc: "Iterator"
               },
               {
-                name: "__@unscopables@696",
+                name: "__@unscopables@748",
                 type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
                 optional: false,
                 doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -39284,7 +39943,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "workflow-marketplace-service--get-enrollment-stats--get-search-enroll-stats-cache",
+          id: "backend--enroll-stats-cache",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflows/status/search/enroll-stats-cache",
           path: "/workflows/status/search/enroll-stats-cache",
@@ -39301,20 +39960,20 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          operation: "getEnrollmentStats",
+          operation: null,
           service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
             {
-              name: "workflowIds",
-              type: "any",
+              name: "locationId",
+              type: "unknown",
               required: true,
               source: "params"
             },
             {
-              name: "locationId",
-              type: "unknown",
+              name: "workflowIds",
+              type: "any",
               required: true,
               source: "params"
             }
@@ -39558,13 +40217,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
               },
               {
-                name: "__@iterator@694",
+                name: "__@iterator@746",
                 type: "() => ArrayIterator<EnrollStat>",
                 optional: false,
                 doc: "Iterator"
               },
               {
-                name: "__@unscopables@696",
+                name: "__@unscopables@748",
                 type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
                 optional: false,
                 doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -39579,6 +40238,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "resolved"
           },
           sources: [
+            "components/workflow-grid/services/index.ts:148",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
             "workflows/20-api/03-endpoints.md:365",
             "workflows/50-runtime/11-runtime-logs.md:189",
@@ -39587,7 +40247,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "workflow-marketplace-service--get-statuses",
+          id: "backend--workflow-with-filter",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflows/status/search/workflow-with-filter",
           path: "/workflows/status/search/workflow-with-filter",
@@ -39607,51 +40267,73 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          operation: "getStatuses",
+          operation: null,
           service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
             {
-              name: "workflowId",
+              name: "action",
+              type: '"first"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "contactId",
               type: "string",
-              required: false,
-              source: "documented"
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "number",
+              required: true,
+              source: "params"
             },
             {
               name: "locationId",
               type: "string",
-              required: false,
-              source: "documented"
+              required: true,
+              source: "params"
             },
             {
-              name: "action",
+              name: "workflowId",
               type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "limit",
-              type: "string",
-              required: false,
-              source: "documented"
+              required: true,
+              source: "params"
             }
           ],
           body: null,
-          returns: null,
+          returns: {
+            typeName: "WorkflowStatusSearchResponse",
+            properties: [
+              {
+                name: "isLocationRateLimited",
+                type: "boolean",
+                optional: true
+              },
+              {
+                name: "statuses",
+                type: "WorkflowExecutionStatus[]",
+                optional: false,
+                doc: "Enrollment records matching the filter, newest first."
+              }
+            ],
+            confidence: "resolved"
+          },
           confidence: {
             path: "resolved",
-            query: "open-map",
+            query: "resolved",
             body: "none-observed",
-            returns: "none-observed"
+            returns: "resolved"
           },
           sources: [
+            "services/api/workflow-status-service.ts:91",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
             "workflows/50-runtime/11-runtime-logs.md:159",
             "workflows/50-runtime/11-runtime-logs.md:253",
             "workflows/50-runtime/observed-query-shapes.md:44",
-            "workflows/70-research/ENDPOINTS.md:195",
-            "workflows/70-research/VERSIONS-STATS-LOGS.md:549"
+            "workflows/70-research/ENDPOINTS.md:195"
           ]
         },
         {
@@ -59984,7 +60666,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:62"
+            "pipelines-opportunities/20-api/forecast.md:63"
           ]
         },
         {
@@ -59996,9 +60678,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           reach: "proven",
-          coveredBy: [
-            "get_pipeline_forecast"
-          ],
+          coveredBy: [],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -60017,7 +60697,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:63"
+            "pipelines-opportunities/20-api/forecast.md:64"
           ]
         },
         {
@@ -60050,7 +60730,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:64"
+            "pipelines-opportunities/20-api/forecast.md:65"
           ]
         },
         {
@@ -60083,7 +60763,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:61"
+            "pipelines-opportunities/20-api/forecast.md:62"
           ]
         },
         {
@@ -60145,7 +60825,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:142",
+            "pipelines-opportunities/20-api/forecast.md:156",
             "pipelines-opportunities/20-api/pipelines.md:42"
           ]
         },
@@ -60181,7 +60861,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:154",
+            "pipelines-opportunities/20-api/forecast.md:168",
             "pipelines-opportunities/20-api/pipelines.md:43",
             "pipelines-opportunities/20-api/pipelines.md:169"
           ]
@@ -60225,8 +60905,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:150",
-            "pipelines-opportunities/20-api/forecast.md:164"
+            "pipelines-opportunities/20-api/forecast.md:164",
+            "pipelines-opportunities/20-api/forecast.md:178"
           ]
         },
         {
@@ -60272,7 +60952,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:143"
+            "pipelines-opportunities/20-api/forecast.md:157"
           ]
         },
         {
@@ -60307,7 +60987,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:163"
+            "pipelines-opportunities/20-api/forecast.md:177"
           ]
         },
         {
@@ -60757,7 +61437,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:144",
+            "pipelines-opportunities/20-api/forecast.md:158",
             "pipelines-opportunities/20-api/pipelines.md:39"
           ]
         },
@@ -60775,7 +61455,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "agency-admin-bearer"
           ],
           coveredBy: [
-            "edit_pipeline"
+            "edit_pipeline",
+            "get_pipeline_forecast"
           ],
           rawCallable: true,
           transport: "json",
@@ -60795,7 +61476,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:112",
+            "pipelines-opportunities/20-api/forecast.md:15",
+            "pipelines-opportunities/20-api/forecast.md:122",
             "pipelines-opportunities/20-api/opportunities.md:32"
           ]
         },
@@ -67640,6 +68322,51 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "services--get-feature-flags",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/workflow/{locationId}/feature-flags",
+          path: "/workflow/{locationId}/feature-flags",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getFeatureFlags",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "IFeatureFlags",
+            properties: [
+              {
+                name: "workflowGrid",
+                type: "boolean",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/feature-flags.ts:13"
+          ]
+        },
+        {
           id: "services--get-instagram-connected-accounts",
           method: "GET",
           url: "https://services.leadconnectorhq.com/workflow/{locationId}/instagram/connected-accounts",
@@ -72369,9 +73096,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_account_entities: {
-        description: "List account entities \u2014 proof: live-runtime (2026-09-25), floor: documented; risk: read",
+        description: "List account entities \u2014 proof: live-runtime (2026-09-29), floor: documented; risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "documented",
         proofRows: [
           "entities-ai-employees-agents-list",
@@ -73165,9 +73892,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_pipeline: {
-        description: "Edit a pipeline and its stages safely \u2014 proof: live-runtime (2026-09-28); risk: write",
+        description: "Edit a pipeline and its stages safely \u2014 proof: live-runtime (2026-09-29); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "pipelines-opportunities--opportunities-pipelines",
@@ -73196,9 +73923,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_pipeline_forecast: {
-        description: "Read the opportunity forecast \u2014 proof: live-runtime (2026-09-28); risk: read",
+        description: "Read the opportunity forecast \u2014 proof: live-runtime (2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-29)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "pipelines-opportunities--forecast-summary",
@@ -182987,9 +183714,15 @@ var ENTITY_REGISTRY = [
   // lostReasonId is required by an update_opportunity whose status is 'lost' — the builder
   // DELETES the entry when the status is anything else, so an id that matches nothing is a step
   // that saves and records no reason.
+  //
+  // PAGED, defensively. The UI reads `getCount=true&skip=0&limit=100`; the envelope is
+  // {lostReasons, total} and `skip` pages (measured 2026-09-29: skip 0 and skip 2 at limit 2 were
+  // disjoint). A bare read with no paging keys returned all 21 on the sandbox, so no truncation has
+  // been seen; the walk only guarantees that a longer list is not cut at whatever the default is.
   {
     key: "lostReasons",
-    path: (loc) => `/opportunities/lost-reason?${q(loc)}`,
+    path: (loc, { offset = 0, limit = 100 } = {}) => `/opportunities/lost-reason?${q(loc, { getCount: "true", skip: String(offset), limit: String(limit) })}`,
+    page: { limit: 100, total: (j) => j?.total },
     pick: (j) => recordsFrom(j?.data, j?.lostReasons, j),
     project: (x) => ({ id: x.id || x._id, name: x.name ?? x.reason }),
     resolver: { name: "lostReasonId", match: (r) => [r.name], value: (r) => r.id }
@@ -188424,6 +189157,8 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var COLOR_RENDER_MODES = ["none", "dot", "bg-tint"];
 var TOP_LEVEL = ["name", "showInFunnel", "showInPieChart", "useOpportunityProbability", "colorRenderMode"];
+var DERIVED = ["showInFunnel", "showInPieChart"];
+var NEW_STAGE_COLOR = "#64748B";
 var STAGE_PROPS = ["name", "stageWinProbability", "color", "showInFunnel", "showInPieChart"];
 var HEX = /^#[0-9A-Fa-f]{6}$/;
 var trimName = (s) => typeof s === "string" ? s.trim() : s;
@@ -188465,9 +189200,9 @@ function planPipelineEdit(row, edit = {}) {
       name: trimName(a?.name),
       stageWinProbability: a?.stageWinProbability,
       showInFunnel: a?.showInFunnel ?? true,
-      showInPieChart: a?.showInPieChart ?? false
+      showInPieChart: a?.showInPieChart ?? true,
+      color: a?.color ?? NEW_STAGE_COLOR
     };
-    if (a?.color !== void 0) stage.color = a.color;
     if (a?.afterStageId === void 0) {
       final.push(stage);
       continue;
@@ -188492,9 +189227,12 @@ function planPipelineEdit(row, edit = {}) {
     }
     if (s.color !== void 0 && !HEX.test(String(s.color))) errors.push(`stage "${s.name}": color must be #RRGGBB (got ${s.color})`);
   }
+  for (const k of DERIVED) if (edit[k] !== void 0) {
+    errors.push(`${k} at pipeline level is derived from the stages (true when any stage has it on, as the GHL UI sends it); set it per stage in updateStages / addStages instead`);
+  }
   const top = {};
-  for (const k of TOP_LEVEL) if (row?.[k] !== void 0) top[k] = row[k];
-  for (const k of TOP_LEVEL) if (edit[k] !== void 0) top[k] = k === "name" ? trimName(edit[k]) : edit[k];
+  for (const k of TOP_LEVEL) if (!DERIVED.includes(k) && row?.[k] !== void 0) top[k] = row[k];
+  for (const k of TOP_LEVEL) if (!DERIVED.includes(k) && edit[k] !== void 0) top[k] = k === "name" ? trimName(edit[k]) : edit[k];
   if (typeof top.name !== "string" || !top.name || top.name.length > 255) errors.push("pipeline name must be 1\u2013255 characters");
   if (top.colorRenderMode !== void 0 && !COLOR_RENDER_MODES.includes(top.colorRenderMode)) {
     errors.push(`colorRenderMode must be one of ${COLOR_RENDER_MODES.join(", ")}`);
@@ -188512,7 +189250,7 @@ function planPipelineEdit(row, edit = {}) {
     if (s.color !== void 0) out.color = s.color;
     return out;
   });
-  const body2 = { ...top, stages };
+  const body2 = { ...top, showInFunnel: stages.some((s) => s.showInFunnel === true), showInPieChart: stages.some((s) => s.showInPieChart === true), stages };
   return {
     body: body2,
     final: stages,
@@ -188567,10 +189305,13 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var FORECAST_VIEWS = ["summary", "timeline", "drilldown", "slippage"];
 var GROUP_BY = ["stage", "owner", "status", "close_date"];
+var DRILLDOWN_BY = ["kpi", "stage", "owner", "status", "close_date"];
+var KPI_KEYS = ["activeOpportunities", "bestCase", "weightedForecast", "closedWon"];
+var CLOSE_DATE_BUCKETS = ["month", "quarter", "year"];
 var PATHS = {
   summary: "/opportunities/forecast/summary",
   timeline: "/opportunities/forecast/column",
-  drilldown: "/opportunities/forecast/drilldown",
+  drilldown: "/opportunities/search",
   slippage: "/opportunities/forecast/slippage"
 };
 function forecastBody(view, a) {
@@ -188583,6 +189324,7 @@ function forecastBody(view, a) {
       if (b.groupBy === "close_date") {
         if (a.closeDateBucket) b.closeDateBucket = a.closeDateBucket;
         if (a.closeDateMode) b.closeDateMode = a.closeDateMode;
+        if (a.closeDateBucket === "year") return { error: 'closeDateBucket "year" is a drilldown bucket; summary has been measured with month and quarter only' };
       } else if (a.closeDateBucket || a.closeDateMode) {
         return { error: 'closeDateBucket and closeDateMode apply only with groupBy:"close_date"' };
       }
@@ -188590,13 +189332,11 @@ function forecastBody(view, a) {
     }
     case "timeline": {
       const b = { locationId: a.locationId };
-      for (const k of ["periodType", "startDate", "endDate", "showBy"]) if (a[k] !== void 0) b[k] = a[k];
+      for (const k of ["periodType", "startDate", "endDate", "showBy", "page", "limit"]) if (a[k] !== void 0) b[k] = a[k];
       return { body: withFilters(b) };
     }
     case "drilldown":
-      if (!a.periodStart || !a.metric) return { error: 'drilldown needs periodStart (YYYY-MM-DD) and metric ("weighted" or "unweighted")' };
-      if (filters.length) return { error: 'drilldown has only been measured with locationId, periodStart and metric; filters and pipelineId are not sent rather than guessed. Use view:"timeline" for a filtered period' };
-      return { body: { locationId: a.locationId, periodStart: a.periodStart, metric: a.metric } };
+      return drilldownRequest(a);
     case "slippage": {
       const b = { locationId: a.locationId };
       for (const k of ["risk", "riskThresholds", "page", "limit"]) if (a[k] !== void 0) b[k] = a[k];
@@ -188604,6 +189344,56 @@ function forecastBody(view, a) {
     }
     default:
       return { error: `view must be one of ${FORECAST_VIEWS.join(", ")}` };
+  }
+}
+var ymd = (d) => d.toISOString().slice(0, 10);
+function bucketEnd(start, bucket) {
+  const d = /* @__PURE__ */ new Date(`${start}T00:00:00Z`);
+  if (Number.isNaN(d.getTime()) || !/^\d{4}-\d{2}-\d{2}$/.test(start)) return null;
+  const y = d.getUTCFullYear(), m = d.getUTCMonth();
+  const lastMonth = bucket === "year" ? 11 : bucket === "quarter" ? m - m % 3 + 2 : m;
+  return ymd(new Date(Date.UTC(y, lastMonth + 1, 0)));
+}
+function drilldownRequest(a) {
+  let by = a.drilldownBy, key = a.key, bucket = a.closeDateBucket ?? "month";
+  if (!by && a.periodStart) {
+    by = "close_date";
+    key = a.periodStart;
+  }
+  if (!by || key === void 0 || key === "") return { error: `drilldown needs drilldownBy (${DRILLDOWN_BY.join(", ")}) and key: a KPI tile (${KPI_KEYS.join(", ")}), a stage id, an owner user id ("__none__" for unassigned), a status, or a close-date bucket start YYYY-MM-DD` };
+  if (!DRILLDOWN_BY.includes(by)) return { error: `drilldownBy must be one of ${DRILLDOWN_BY.join(", ")}` };
+  const page = a.page ?? 1, limit = a.limit ?? 10;
+  const filters = (a.filters ?? []).filter((f) => f?.field !== "pipeline_id");
+  if (a.pipelineId) filters.push({ field: "pipeline_id", operator: "eq", value: a.pipelineId });
+  const k = String(key).trim().toLowerCase();
+  if (!(by === "status" && (k === "lost" || k === "abandoned"))) {
+    filters.push({ field: "status", operator: "not_eq", value: "lost" }, { field: "status", operator: "not_eq", value: "abandoned" });
+  }
+  const search = (f, extra = {}) => ({ path: "/opportunities/search", body: { locationId: a.locationId, filters: f, page, limit, ...extra } });
+  switch (by) {
+    case "kpi":
+      if (!KPI_KEYS.includes(key)) return { error: `a kpi drilldown key is one of ${KPI_KEYS.join(", ")}` };
+      if (key === "closedWon") filters.push({ field: "status", operator: "eq", value: "won" });
+      else filters.push({ field: "status", operator: "eq", value: "open" });
+      return search(filters);
+    case "stage":
+      return search([...filters, { field: "pipeline_stage_id", operator: "eq", value: key }]);
+    case "owner": {
+      const owner = key === "__unassigned__" ? "__none__" : key;
+      return search([...filters, owner === "__none__" ? { field: "assigned_to", operator: "eq", value: ["__none__"] } : { field: "assigned_to", operator: "eq", value: owner }]);
+    }
+    case "status":
+      return search([...filters, { field: "status", operator: "eq", value: key }]);
+    case "close_date": {
+      if (!CLOSE_DATE_BUCKETS.includes(bucket)) return { error: `closeDateBucket must be one of ${CLOSE_DATE_BUCKETS.join(", ")}` };
+      const end = bucketEnd(key, bucket);
+      if (!end) return { error: "a close_date drilldown key is the bucket start as YYYY-MM-DD" };
+      if (bucket === "year") {
+        const range = { gte: Date.parse(`${key}T00:00:00.000Z`), lte: Date.parse(`${end}T23:59:59.999Z`) };
+        return search([...filters, { field: "forecast_expected_close_date", operator: "range", value: range }], { query: "", sort: [] });
+      }
+      return { path: "/opportunities/forecast/column", body: { locationId: a.locationId, startDate: key, endDate: end, periodType: bucket, filters, query: "", sort: [], page, limit } };
+    }
   }
 }
 function nameMaps(pipelines = [], users = []) {
@@ -188655,7 +189445,10 @@ function shapeForecast(view, json2, m) {
     };
   }
   if (view === "timeline") return { periodStart: j.periodStart, periodEnd: j.periodEnd, metrics: j.metrics, total: j.total, opportunities: (j.opportunities ?? []).map((o) => card(o, m)) };
-  if (view === "drilldown") return { total: j.total, opportunities: (j.opportunities ?? []).map((o) => card(o, m)) };
+  if (view === "drilldown") {
+    const rows = j.opportunities ?? j.data ?? [];
+    return { total: j.total ?? j.pagination?.total ?? 0, opportunities: rows.map((o) => card(o, m)) };
+  }
   return { summary: j.summary, pagination: j.pagination, opportunities: (j.opportunities ?? []).map((o) => card(o, m)) };
 }
 
@@ -203355,7 +204148,7 @@ var TOOLS2 = [
   // pipelines.mjs.
   {
     name: "edit_pipeline",
-    description: `${describe3("edit_pipeline", "Edit a pipeline and its stages safely \u2014 risk: write")}. Rename a pipeline, set its colour mode or probability switch, and add, rename, reorder, recolour, re-weight or remove stages. It reads the pipeline, merges your change onto the whole row and sends the full body, because the stages array REPLACES: a stage left out is deleted and its cards silently land in the first stage. Removing a stage that holds cards is refused unless you name moveCardsTo; the cards are then moved there first, one by one (each move fires opportunity stage-change workflow triggers), and the stage is removed only once none are left. Every stage must end with a stageWinProbability, since one missing value makes GHL rewrite them all. expectedName must match the pipeline's current name. Previews by default; confirm:true writes, then reads the pipeline back and fails on any difference. Does not create or delete pipelines, change sharing permissions, or edit opportunities (except the moves above). Read pipelines with list_account_entities. No tool changes the account-wide opportunity settings (owner decoupling, follower sync, allowing two cards per contact): GHL does them in Settings > Opportunities & Pipelines and Settings > Objects > Opportunities.`,
+    description: `${describe3("edit_pipeline", "Edit a pipeline and its stages safely \u2014 risk: write")}. Rename a pipeline, set its colour mode or probability switch, and add, rename, reorder, recolour, re-weight or remove stages. It reads the pipeline, merges your change onto the whole row and sends the full body, because the stages array REPLACES: a stage left out is deleted and its cards silently land in the first stage. Removing a stage that holds cards is refused unless you name moveCardsTo; the cards are then moved there first, one by one (each move fires opportunity stage-change workflow triggers), and the stage is removed only once none are left. Every stage must end with a stageWinProbability, since one missing value makes GHL rewrite them all. The pipeline-level Funnel / Pie-chart switches are recomputed from the stages (on when any stage is on), as the GHL UI does; dashboards read only those, so a stale pair hides the pipeline. New stages start with both charts on and colour #64748B, like the UI. expectedName must match the pipeline's current name. Previews by default; confirm:true writes, then reads the pipeline back and fails on any difference. Does not create or delete pipelines, change sharing permissions, or edit opportunities (except the moves above). Read pipelines with list_account_entities. No tool changes the account-wide opportunity settings (owner decoupling, follower sync, allowing two cards per contact): GHL does them in Settings > Opportunities & Pipelines and Settings > Objects > Opportunities.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       pipelineId: external_exports.string(),
@@ -203363,8 +204156,6 @@ var TOOLS2 = [
       name: external_exports.string().optional(),
       colorRenderMode: external_exports.enum(COLOR_RENDER_MODES).optional(),
       useOpportunityProbability: external_exports.boolean().optional(),
-      showInFunnel: external_exports.boolean().optional(),
-      showInPieChart: external_exports.boolean().optional(),
       updateStages: external_exports.array(external_exports.object({
         id: external_exports.string(),
         name: external_exports.string().optional(),
@@ -203516,18 +204307,20 @@ var TOOLS2 = [
   // labelled with their UUIDs, so the pipeline and user lists are read and the names joined in.
   {
     name: "get_pipeline_forecast",
-    description: `${describe3("get_pipeline_forecast", "Read the opportunity forecast \u2014 risk: read")}. The app's Forecast tab: expected, weighted and won revenue grouped by stage, owner, status or close date (view:"summary"); one period's deals and metrics (view:"timeline", periodType week|month|quarter with startDate/endDate); the deals behind a period's weighted or unweighted number (view:"drilldown"); and deals whose close date keeps slipping, by risk band (view:"slippage"). Rows carry pipeline, stage and owner NAMES; GHL itself labels stage and owner rows with UUIDs. Weighting follows the pipeline's useOpportunityProbability switch. Slippage bands: the server default is "1+ times AND 7+ days" for medium, the app sends OR; read the returned rule strings. raw:true adds the service's untouched answer. No public API equivalent. Stores nothing. Not for editing: edit_pipeline changes pipelines and stages; the public opportunities tools (ghl MCP) read and change individual opportunities; list_account_entities lists pipelines. Board-only features have no tool: the board/list layout, card fields, drag-to-change-status, the All pipelines list, remembered filters, the full-page Record View, and CSV Export/Import. GHL does them on the Opportunities screen. Which fields search matches is an account-wide setting: Settings \u203A Custom Fields \u203A Edit searchable fields.`,
+    description: `${describe3("get_pipeline_forecast", "Read the opportunity forecast \u2014 risk: read")}. The app's Forecast tab: expected, weighted and won revenue grouped by stage, owner, status or close date (view:"summary"); one period's deals and metrics (view:"timeline", periodType week|month|quarter with startDate/endDate, paged with page/limit; the app shows 20 a column); the deals behind a KPI tile, a summary row or a close-date bucket, exactly as the Forecast tab lists them when clicked (view:"drilldown" with drilldownBy kpi|stage|owner|status|close_date and key: bestCase|weightedForecast|closedWon|activeOpportunities, a stage id, an owner id or "__none__", a status, or the bucket start YYYY-MM-DD with closeDateBucket month|quarter|year; lost and abandoned deals are left out unless you drill into that status; paged with page/limit, 10 by default); and deals whose close date keeps slipping, by risk band (view:"slippage"). Rows carry pipeline, stage and owner NAMES; GHL itself labels stage and owner rows with UUIDs. Weighting follows the pipeline's useOpportunityProbability switch. Slippage bands: the server default is "1+ times AND 7+ days" for medium, the app sends OR; read the returned rule strings. raw:true adds the service's untouched answer. No public API equivalent. Stores nothing. Not for editing: edit_pipeline changes pipelines and stages; the public opportunities tools (ghl MCP) read and change individual opportunities; list_account_entities lists pipelines. Board-only features have no tool: the board/list layout, card fields, drag-to-change-status, the All pipelines list, remembered filters, the full-page Record View, and CSV Export/Import. GHL does them on the Opportunities screen. Which fields search matches is an account-wide setting: Settings \u203A Custom Fields \u203A Edit searchable fields.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       view: external_exports.enum(FORECAST_VIEWS),
       pipelineId: external_exports.string().optional(),
       groupBy: external_exports.enum(GROUP_BY).optional(),
-      closeDateBucket: external_exports.enum(["month", "quarter"]).optional(),
+      closeDateBucket: external_exports.enum(CLOSE_DATE_BUCKETS).optional(),
       closeDateMode: external_exports.enum(["all_available", "windowed"]).optional(),
       periodType: external_exports.enum(["week", "month", "quarter"]).optional(),
       startDate: external_exports.string().optional(),
       endDate: external_exports.string().optional(),
       showBy: external_exports.enum(["forecast_expected_close_date", "date_added"]).optional(),
+      drilldownBy: external_exports.enum(DRILLDOWN_BY).optional(),
+      key: external_exports.string().optional(),
       periodStart: external_exports.string().optional(),
       metric: external_exports.enum(["weighted", "unweighted"]).optional(),
       risk: external_exports.enum(["high", "medium", "low"]).optional(),
@@ -203540,8 +204333,8 @@ var TOOLS2 = [
     capabilities: [
       { method: "POST", path: "/opportunities/forecast/summary" },
       { method: "POST", path: "/opportunities/forecast/column" },
-      { method: "POST", path: "/opportunities/forecast/drilldown" },
       { method: "POST", path: "/opportunities/forecast/slippage" },
+      { method: "POST", path: "/opportunities/search" },
       { method: "GET", path: "/opportunities/pipelines" },
       // The owner-name join dials the default (backend) gateway, not the ai rail the reports use.
       { method: "GET", path: "/users/", origin: "https://backend.leadconnectorhq.com" }
@@ -203554,15 +204347,21 @@ var TOOLS2 = [
       if (built.error) return fail(CODES.VALIDATION_FAILED, built.error, "Adjust the arguments for this view.");
       const ai = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
       const wf = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const r = await ai.call("POST", PATHS[args.view], built.body);
+      const r = await ai.call("POST", built.path ?? PATHS[args.view], built.body);
       if (!r.ok) return fromHttp(r.status, r.json);
       const notes = [];
+      if (args.view === "drilldown" && args.metric) notes.push("metric is not used: the app's drilldown lists the same deals for weighted and unweighted; the per-deal probability is on each row");
       const pl = await ai.call("GET", `/opportunities/pipelines?${new URLSearchParams({ locationId: args.locationId })}`);
       if (!pl.ok) notes.push(`pipeline names unavailable (${pl.status}); stage and pipeline ids shown`);
       const us = await wf.call("GET", `/users/?${new URLSearchParams({ locationId: args.locationId })}`);
       if (!us.ok) notes.push(`user names unavailable (${us.status}); owner ids shown`);
       const maps = nameMaps(pl.ok ? pl.json?.pipelines : [], us.ok ? us.json?.users : []);
       const data2 = { view: args.view, ...shapeForecast(args.view, r.json, maps) };
+      if (built.body.page !== void 0 && built.body.limit !== void 0) {
+        data2.page = built.body.page;
+        data2.limit = built.body.limit;
+        data2.hasMore = typeof data2.total === "number" && built.body.page * built.body.limit < data2.total;
+      }
       if (notes.length) data2.notes = notes;
       if (args.raw === true) data2.raw = r.json;
       return ok(data2);

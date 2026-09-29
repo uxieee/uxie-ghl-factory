@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-29",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1542,
+  "count": 1549,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -3489,7 +3489,7 @@
         "returns": "erased"
       },
       "sources": [
-        "services/api/contact-service.ts:36",
+        "services/api/contact-service.ts:66",
         "platform/20-api/smart-lists.md:105",
         "platform/20-api/smart-lists.md:153",
         "platform/20-api/smart-lists.md:161",
@@ -13955,7 +13955,7 @@
         "returns": "resolved"
       },
       "sources": [
-        "services/api/google-connections-service.ts:41",
+        "services/api/google-connections-service.ts:59",
         "workflows/30-types/steps/google_sheets.md:105"
       ]
     },
@@ -20937,7 +20937,7 @@
             "doc": "Returns a list of values in the list."
           },
           {
-            "name": "__@iterator@694",
+            "name": "__@iterator@746",
             "type": "() => FormDataIterator<[string, FormDataEntryValue]>",
             "optional": false
           }
@@ -27266,10 +27266,16 @@
       ],
       "query": [
         {
+          "name": "includeTriggers",
+          "type": "true",
+          "required": true,
+          "source": "params"
+        },
+        {
           "name": "includeScheduledPauseInfo",
-          "type": "string",
-          "required": false,
-          "source": "documented"
+          "type": "true",
+          "required": true,
+          "source": "params"
         }
       ],
       "body": null,
@@ -27569,10 +27575,11 @@
       ]
     },
     {
-      "id": "workflow-service--get-version-by-number-and-workflow-id",
+      "id": "backend--history-by-number",
       "aka": [
         "/workflow/{locationId}/{wid}/history-by-number/{n}",
-        "/workflow/{locationId}/{wid}/history-by-number/{version}"
+        "/workflow/{locationId}/{wid}/history-by-number/{version}",
+        "/workflow/{locationId}/{workflowId}/history-by-number/{version}"
       ],
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history-by-number/{versionNumber}",
@@ -27589,7 +27596,7 @@
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
-      "operation": "getVersionByNumberAndWorkflowId",
+      "operation": null,
       "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
@@ -27605,18 +27612,39 @@
       ],
       "query": [],
       "body": null,
-      "returns": null,
+      "returns": {
+        "typeName": "WorkflowVersionDocument",
+        "properties": [
+          {
+            "name": "triggersData",
+            "type": "unknown[]",
+            "optional": true
+          },
+          {
+            "name": "version",
+            "type": "number",
+            "optional": true
+          },
+          {
+            "name": "workflowData",
+            "type": "{ templates?: WorkflowTemplate<any>[]; }",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
       "confidence": {
         "path": "resolved",
         "query": "none-observed",
         "body": "none-observed",
-        "returns": "none-observed"
+        "returns": "resolved"
       },
       "sources": [
-        "services/WorkflowService.ts:550",
+        "services/api/workflow-version-service.ts:26",
         "workflows/20-api/version-history.md:18",
         "workflows/20-api/version-history.md:104",
-        "workflows/50-runtime/11-runtime-logs.md:218"
+        "workflows/50-runtime/11-runtime-logs.md:218",
+        "services/WorkflowService.ts:550"
       ]
     },
     {
@@ -28071,7 +28099,7 @@
             "doc": "Returns a list of values in the list."
           },
           {
-            "name": "__@iterator@694",
+            "name": "__@iterator@746",
             "type": "() => FormDataIterator<[string, FormDataEntryValue]>",
             "optional": false
           }
@@ -28087,7 +28115,7 @@
       },
       "sources": [
         "states/app.ts:586",
-        "components/advanced-workflow-canvas/components/canvas/components/sticky-note/StickyNoteImageUpload.vue:38",
+        "hooks/use-note-image-upload.ts:49",
         "components/sticky-notes/v2/StickyNoteImageUpload.vue:45"
       ]
     },
@@ -28808,6 +28836,66 @@
       ]
     },
     {
+      "id": "backend--statuses-v2",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/contact/{contactId}/statuses_v2",
+      "path": "/workflow/{locationId}/contact/{contactId}/statuses_v2",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "contactId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "typeName": "ContactWorkflowStatusesResponse",
+        "properties": [
+          {
+            "name": "msg",
+            "type": "string",
+            "optional": false,
+            "doc": "Human-readable result indicator."
+          },
+          {
+            "name": "count",
+            "type": "number",
+            "optional": false,
+            "doc": "Total number of workflow statuses returned."
+          },
+          {
+            "name": "workflowStatuses",
+            "type": "ContactWorkflowStatus[]",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "resolved"
+      },
+      "sources": [
+        "services/api/contact-service.ts:59"
+      ]
+    },
+    {
       "id": "workflow-service--bulk-delete",
       "method": "DELETE",
       "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/delete",
@@ -28867,6 +28955,52 @@
         "workflows/20-api/03-endpoints.md:171",
         "workflows/20-api/03-endpoints.md:387",
         "workflows/20-api/trash-and-restore.md:18"
+      ]
+    },
+    {
+      "id": "backend--directory",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/directory",
+      "path": "/workflow/{locationId}/directory",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [
+        {
+          "name": "type",
+          "type": "string",
+          "required": true,
+          "source": "url-literal"
+        }
+      ],
+      "body": null,
+      "returns": {
+        "typeName": "WorkflowGridDirectoryListResponse",
+        "properties": null,
+        "confidence": "erased"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "resolved",
+        "body": "none-observed",
+        "returns": "erased"
+      },
+      "sources": [
+        "components/workflow-grid/services/index.ts:105"
       ]
     },
     {
@@ -29397,13 +29531,13 @@
             "doc": "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
           },
           {
-            "name": "__@iterator@694",
+            "name": "__@iterator@746",
             "type": "() => ArrayIterator<WorkflowDomainEntry>",
             "optional": false,
             "doc": "Iterator"
           },
           {
-            "name": "__@unscopables@696",
+            "name": "__@unscopables@748",
             "type": "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
             "optional": false,
             "doc": "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -29739,7 +29873,7 @@
       ]
     },
     {
-      "id": "error-notification-service--delete-workflow-error-notification-doc",
+      "id": "backend--error-notification",
       "method": "DELETE",
       "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/error-notification/{workflowId}",
       "path": "/workflow/{locationId}/error-notification/{workflowId}",
@@ -29753,7 +29887,7 @@
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
-      "operation": "deleteWorkflowErrorNotificationDoc",
+      "operation": null,
       "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [
@@ -29774,6 +29908,7 @@
         "returns": "none-observed"
       },
       "sources": [
+        "components/workflow-grid/services/index.ts:132",
         "services/ErrorNotificationService.ts:63",
         "workflows/50-runtime/error-notifications.md:37"
       ]
@@ -29896,26 +30031,31 @@
       "query": [
         {
           "name": "skip",
-          "type": "unknown",
+          "type": "0",
           "required": true,
           "source": "params"
         },
         {
           "name": "limit",
-          "type": "unknown",
+          "type": "100",
           "required": true,
           "source": "params"
         }
       ],
       "body": null,
-      "returns": null,
+      "returns": {
+        "typeName": "WorkflowGridErrorNotificationResponse",
+        "properties": null,
+        "confidence": "erased"
+      },
       "confidence": {
         "path": "resolved",
         "query": "resolved",
         "body": "none-observed",
-        "returns": "none-observed"
+        "returns": "erased"
       },
       "sources": [
+        "components/workflow-grid/services/index.ts:120",
         "services/api/workflow-overview.service.ts:166",
         "services/ErrorNotificationService.ts:43",
         "workflows/50-runtime/error-notifications.md:35",
@@ -30090,6 +30230,88 @@
       },
       "sources": [
         "workflows/20-api/03-endpoints.md:390"
+      ]
+    },
+    {
+      "id": "backend--grid-layout",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/grid-layout",
+      "path": "/workflow/{locationId}/grid-layout",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "typeName": "unknown",
+        "properties": null,
+        "confidence": "primitive"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "primitive"
+      },
+      "sources": [
+        "components/workflow-grid/services/index.ts:172"
+      ]
+    },
+    {
+      "id": "backend--grid-layout--put-location-id-grid-layout",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/grid-layout",
+      "path": "/workflow/{locationId}/grid-layout",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "GridLayoutSnapshotPayload",
+        "properties": null,
+        "confidence": "erased"
+      },
+      "returns": {
+        "typeName": "unknown",
+        "properties": null,
+        "confidence": "primitive"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "erased",
+        "returns": "primitive"
+      },
+      "sources": [
+        "components/workflow-grid/services/index.ts:195"
       ]
     },
     {
@@ -32022,7 +32244,7 @@
       "sources": [
         "services/SplitService.ts:33",
         "workflows/10-anatomy/advanced-canvas.md:59",
-        "workflows/30-types/steps/workflow_split.md:147"
+        "workflows/30-types/steps/workflow_split.md:148"
       ]
     },
     {
@@ -32505,10 +32727,13 @@
       ]
     },
     {
-      "id": "workflows--workflow-update-workflow-note",
+      "id": "backend--update-workflow-note",
+      "aka": [
+        "/workflow/{locationId}/update-workflow-note/{wid}"
+      ],
       "method": "PUT",
-      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/update-workflow-note/{wid}",
-      "path": "/workflow/{locationId}/update-workflow-note/{wid}",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/update-workflow-note/{workflowId}",
+      "path": "/workflow/{locationId}/update-workflow-note/{workflowId}",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
@@ -32520,25 +32745,43 @@
       "extraHeaders": [],
       "operation": null,
       "service": "workflows",
-      "tree": "documented",
+      "tree": "workflow-builder",
       "pathParams": [
         {
           "name": "locationId"
         },
         {
-          "name": "wid"
+          "name": "workflowId"
         }
       ],
       "query": [],
-      "body": null,
+      "body": {
+        "typeName": "UpdateWorkflowNotePayload",
+        "properties": [
+          {
+            "name": "content",
+            "type": "string",
+            "optional": false,
+            "doc": "Note text as typed on the grid. Empty clears the note."
+          },
+          {
+            "name": "updatedByName",
+            "type": "string",
+            "optional": false,
+            "doc": "Display name of whoever is making this change."
+          }
+        ],
+        "confidence": "resolved"
+      },
       "returns": null,
       "confidence": {
-        "path": "documented",
+        "path": "resolved",
         "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
+        "body": "resolved",
+        "returns": "none-observed"
       },
       "sources": [
+        "components/workflow-grid/services/index.ts:224",
         "workflows/10-anatomy/06-fields-glossary.md:137"
       ]
     },
@@ -32841,7 +33084,7 @@
             "doc": "Returns a list of values in the list."
           },
           {
-            "name": "__@iterator@694",
+            "name": "__@iterator@746",
             "type": "() => FormDataIterator<[string, FormDataEntryValue]>",
             "optional": false
           }
@@ -33017,7 +33260,7 @@
       },
       "sources": [
         "services/api/workflow-asset-validation.ts:33",
-        "workflows/30-types/steps/email.md:160",
+        "workflows/30-types/steps/email.md:161",
         "workflows/30-types/steps/if_else.md:31",
         "workflows/40-rules/server-side-validation.md:246"
       ]
@@ -38239,6 +38482,45 @@
       ]
     },
     {
+      "id": "backend--linked-assets",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/workflows/es/linked-assets",
+      "path": "/workflows/es/linked-assets",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [],
+      "query": [],
+      "body": {
+        "typeName": "Record<string, unknown>",
+        "properties": null,
+        "confidence": "erased"
+      },
+      "returns": {
+        "typeName": "WorkflowGridLinkedAssetsListResponse",
+        "properties": null,
+        "confidence": "erased"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "erased",
+        "returns": "erased"
+      },
+      "sources": [
+        "components/workflow-grid/services/index.ts:81"
+      ]
+    },
+    {
       "id": "workflow-marketplace-service--get-workflows-from-es",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/workflows/es/search",
@@ -38443,7 +38725,7 @@
       ]
     },
     {
-      "id": "workflow-marketplace-service--get-logs",
+      "id": "backend--v2",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/workflows/logs/v2",
       "path": "/workflows/logs/v2",
@@ -38464,45 +38746,332 @@
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
-      "operation": "getLogs",
+      "operation": null,
       "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
         {
-          "name": "workflowId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
+          "name": "action",
+          "type": "\"first\"",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "dateType",
+          "type": "\"custom\"",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "eventType",
+          "type": "string[]",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "fromDate",
+          "type": "number",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": true,
+          "source": "params"
         },
         {
           "name": "locationId",
           "type": "string",
-          "required": false,
-          "source": "documented"
+          "required": true,
+          "source": "params"
         },
         {
-          "name": "limit",
+          "name": "toDate",
+          "type": "number",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "workflowId",
           "type": "string",
-          "required": false,
-          "source": "documented"
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "executionId",
+          "type": "string",
+          "required": true,
+          "source": "params"
         }
       ],
       "body": null,
-      "returns": null,
+      "returns": {
+        "typeName": "WorkflowLog[]",
+        "properties": [
+          {
+            "name": "length",
+            "type": "number",
+            "optional": false,
+            "doc": "Gets or sets the length of the array. This is a number one higher than the highest index in the array."
+          },
+          {
+            "name": "toString",
+            "type": "() => string",
+            "optional": false,
+            "doc": "Returns a string representation of an array."
+          },
+          {
+            "name": "toLocaleString",
+            "type": "{ (): string; (locales: string | string[], options?: NumberFormatOptions & Da...",
+            "optional": false,
+            "doc": "Returns a string representation of an array. The elements are converted to string using their toLocaleString methods."
+          },
+          {
+            "name": "pop",
+            "type": "() => WorkflowLog",
+            "optional": false,
+            "doc": "Removes the last element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+          },
+          {
+            "name": "push",
+            "type": "(...items: WorkflowLog[]) => number",
+            "optional": false,
+            "doc": "Appends new elements to the end of an array, and returns the new length of the array."
+          },
+          {
+            "name": "concat",
+            "type": "{ (...items: ConcatArray<WorkflowLog>[]): WorkflowLog[]; (...items: (Workflow...",
+            "optional": false,
+            "doc": "Combines two or more arrays.\nThis method returns a new array without modifying any existing arrays."
+          },
+          {
+            "name": "join",
+            "type": "(separator?: string) => string",
+            "optional": false,
+            "doc": "Adds all the elements of an array into a string, separated by the specified separator string."
+          },
+          {
+            "name": "reverse",
+            "type": "() => WorkflowLog[]",
+            "optional": false,
+            "doc": "Reverses the elements in an array in place.\nThis method mutates the array and returns a reference to the same array."
+          },
+          {
+            "name": "shift",
+            "type": "() => WorkflowLog",
+            "optional": false,
+            "doc": "Removes the first element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+          },
+          {
+            "name": "slice",
+            "type": "(start?: number, end?: number) => WorkflowLog[]",
+            "optional": false,
+            "doc": "Returns a copy of a section of an array.\nFor both start and end, a negative index can be used to indicate an offset from the end of the array.\nFor example, -2 refers to the second to last element of the array."
+          },
+          {
+            "name": "sort",
+            "type": "(compareFn?: (a: WorkflowLog, b: WorkflowLog) => number) => WorkflowLog[]",
+            "optional": false,
+            "doc": "Sorts an array in place.\nThis method mutates the array and returns a reference to the same array."
+          },
+          {
+            "name": "splice",
+            "type": "{ (start: number, deleteCount?: number): WorkflowLog[]; (start: number, delet...",
+            "optional": false,
+            "doc": "Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements."
+          },
+          {
+            "name": "unshift",
+            "type": "(...items: WorkflowLog[]) => number",
+            "optional": false,
+            "doc": "Inserts new elements at the start of an array, and returns the new length of the array."
+          },
+          {
+            "name": "indexOf",
+            "type": "(searchElement: WorkflowLog, fromIndex?: number) => number",
+            "optional": false,
+            "doc": "Returns the index of the first occurrence of a value in an array, or -1 if it is not present."
+          },
+          {
+            "name": "lastIndexOf",
+            "type": "(searchElement: WorkflowLog, fromIndex?: number) => number",
+            "optional": false,
+            "doc": "Returns the index of the last occurrence of a specified value in an array, or -1 if it is not present."
+          },
+          {
+            "name": "every",
+            "type": "{ <S extends WorkflowLog>(predicate: (value: WorkflowLog, index: number, arra...",
+            "optional": false,
+            "doc": "Determines whether all the members of an array satisfy the specified test."
+          },
+          {
+            "name": "some",
+            "type": "(predicate: (value: WorkflowLog, index: number, array: WorkflowLog[]) => unkn...",
+            "optional": false,
+            "doc": "Determines whether the specified callback function returns true for any element of an array."
+          },
+          {
+            "name": "forEach",
+            "type": "(callbackfn: (value: WorkflowLog, index: number, array: WorkflowLog[]) => voi...",
+            "optional": false,
+            "doc": "Performs the specified action for each element in an array."
+          },
+          {
+            "name": "map",
+            "type": "<U>(callbackfn: (value: WorkflowLog, index: number, array: WorkflowLog[]) => ...",
+            "optional": false,
+            "doc": "Calls a defined callback function on each element of an array, and returns an array that contains the results."
+          },
+          {
+            "name": "filter",
+            "type": "{ <S extends WorkflowLog>(predicate: (value: WorkflowLog, index: number, arra...",
+            "optional": false,
+            "doc": "Returns the elements of an array that meet the condition specified in a callback function."
+          },
+          {
+            "name": "reduce",
+            "type": "{ (callbackfn: (previousValue: WorkflowLog, currentValue: WorkflowLog, curren...",
+            "optional": false,
+            "doc": "Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+          },
+          {
+            "name": "reduceRight",
+            "type": "{ (callbackfn: (previousValue: WorkflowLog, currentValue: WorkflowLog, curren...",
+            "optional": false,
+            "doc": "Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+          },
+          {
+            "name": "find",
+            "type": "{ <S extends WorkflowLog>(predicate: (value: WorkflowLog, index: number, obj:...",
+            "optional": false,
+            "doc": "Returns the value of the first element in the array where predicate is true, and undefined\notherwise."
+          },
+          {
+            "name": "findIndex",
+            "type": "(predicate: (value: WorkflowLog, index: number, obj: WorkflowLog[]) => unknow...",
+            "optional": false,
+            "doc": "Returns the index of the first element in the array where predicate is true, and -1\notherwise."
+          },
+          {
+            "name": "fill",
+            "type": "(value: WorkflowLog, start?: number, end?: number) => WorkflowLog[]",
+            "optional": false,
+            "doc": "Changes all array elements from `start` to `end` index to a static `value` and returns the modified array"
+          },
+          {
+            "name": "copyWithin",
+            "type": "(target: number, start: number, end?: number) => WorkflowLog[]",
+            "optional": false,
+            "doc": "Returns the this object after copying a section of the array identified by start and end\nto the same array starting at position target"
+          },
+          {
+            "name": "entries",
+            "type": "() => ArrayIterator<[number, WorkflowLog]>",
+            "optional": false,
+            "doc": "Returns an iterable of key, value pairs for every entry in the array"
+          },
+          {
+            "name": "keys",
+            "type": "() => ArrayIterator<number>",
+            "optional": false,
+            "doc": "Returns an iterable of keys in the array"
+          },
+          {
+            "name": "values",
+            "type": "() => ArrayIterator<WorkflowLog>",
+            "optional": false,
+            "doc": "Returns an iterable of values in the array"
+          },
+          {
+            "name": "includes",
+            "type": "(searchElement: WorkflowLog, fromIndex?: number) => boolean",
+            "optional": false,
+            "doc": "Determines whether an array includes a certain element, returning true or false as appropriate."
+          },
+          {
+            "name": "flatMap",
+            "type": "<U, This = undefined>(callback: (this: This, value: WorkflowLog, index: numbe...",
+            "optional": false,
+            "doc": "Calls a defined callback function on each element of an array. Then, flattens the result into\na new array.\nThis is identical to a map followed by flat with depth 1."
+          },
+          {
+            "name": "flat",
+            "type": "<A, D extends number = 1>(this: A, depth?: D) => FlatArray<A, D>[]",
+            "optional": false,
+            "doc": "Returns a new array with all sub-array elements concatenated into it recursively up to the\nspecified depth."
+          },
+          {
+            "name": "at",
+            "type": "(index: number) => WorkflowLog",
+            "optional": false,
+            "doc": "Returns the item located at the specified index."
+          },
+          {
+            "name": "findLast",
+            "type": "{ <S extends WorkflowLog>(predicate: (value: WorkflowLog, index: number, arra...",
+            "optional": false,
+            "doc": "Returns the value of the last element in the array where predicate is true, and undefined\notherwise."
+          },
+          {
+            "name": "findLastIndex",
+            "type": "(predicate: (value: WorkflowLog, index: number, array: WorkflowLog[]) => unkn...",
+            "optional": false,
+            "doc": "Returns the index of the last element in the array where predicate is true, and -1\notherwise."
+          },
+          {
+            "name": "toReversed",
+            "type": "() => WorkflowLog[]",
+            "optional": false,
+            "doc": "Returns a copy of an array with its elements reversed."
+          },
+          {
+            "name": "toSorted",
+            "type": "(compareFn?: (a: WorkflowLog, b: WorkflowLog) => number) => WorkflowLog[]",
+            "optional": false,
+            "doc": "Returns a copy of an array with its elements sorted."
+          },
+          {
+            "name": "toSpliced",
+            "type": "{ (start: number, deleteCount: number, ...items: WorkflowLog[]): WorkflowLog[...",
+            "optional": false,
+            "doc": "Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."
+          },
+          {
+            "name": "with",
+            "type": "(index: number, value: WorkflowLog) => WorkflowLog[]",
+            "optional": false,
+            "doc": "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
+          },
+          {
+            "name": "__@iterator@746",
+            "type": "() => ArrayIterator<WorkflowLog>",
+            "optional": false,
+            "doc": "Iterator"
+          },
+          {
+            "name": "__@unscopables@748",
+            "type": "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
+            "optional": false,
+            "doc": "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
+          }
+        ],
+        "confidence": "resolved"
+      },
       "confidence": {
         "path": "resolved",
-        "query": "open-map",
+        "query": "resolved",
         "body": "none-observed",
-        "returns": "none-observed"
+        "returns": "resolved"
       },
       "sources": [
+        "services/api/workflow-logs-service.ts:43",
+        "services/api/workflow-logs-service.ts:72",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:166",
         "workflows/50-runtime/11-runtime-logs.md:37",
         "workflows/50-runtime/11-runtime-logs.md:113",
-        "workflows/50-runtime/11-runtime-logs.md:251",
-        "workflows/50-runtime/forcing-and-removing-contacts.md:81",
-        "workflows/50-runtime/observed-query-shapes.md:19"
+        "workflows/50-runtime/11-runtime-logs.md:251"
       ]
     },
     {
@@ -38650,6 +39219,96 @@
         "workflows/50-runtime/11-runtime-logs.md:256",
         "workflows/70-research/RAIL.md:134",
         "workflows/70-research/RUNTIME-DATA-2.md:70"
+      ]
+    },
+    {
+      "id": "backend--contact-executions",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/workflows/status/search/contact-executions",
+      "path": "/workflows/status/search/contact-executions",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "action",
+          "type": "\"first\" | \"next\"",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "contactId",
+          "type": "string",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "referenceCreatedAt",
+          "type": "string",
+          "required": false,
+          "source": "params"
+        },
+        {
+          "name": "referenceId",
+          "type": "string",
+          "required": false,
+          "source": "params"
+        },
+        {
+          "name": "referenceSid",
+          "type": "string",
+          "required": false,
+          "source": "params"
+        }
+      ],
+      "body": null,
+      "returns": {
+        "typeName": "WorkflowStatusSearchResponse",
+        "properties": [
+          {
+            "name": "isLocationRateLimited",
+            "type": "boolean",
+            "optional": true
+          },
+          {
+            "name": "statuses",
+            "type": "WorkflowExecutionStatus[]",
+            "optional": false,
+            "doc": "Enrollment records matching the filter, newest first."
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "resolved",
+        "body": "none-observed",
+        "returns": "resolved"
+      },
+      "sources": [
+        "services/api/workflow-status-service.ts:122"
       ]
     },
     {
@@ -39067,13 +39726,13 @@
             "doc": "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
           },
           {
-            "name": "__@iterator@694",
+            "name": "__@iterator@746",
             "type": "() => ArrayIterator<EnrollStat>",
             "optional": false,
             "doc": "Iterator"
           },
           {
-            "name": "__@unscopables@696",
+            "name": "__@unscopables@748",
             "type": "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
             "optional": false,
             "doc": "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -39096,7 +39755,7 @@
       ]
     },
     {
-      "id": "workflow-marketplace-service--get-enrollment-stats--get-search-enroll-stats-cache",
+      "id": "backend--enroll-stats-cache",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/workflows/status/search/enroll-stats-cache",
       "path": "/workflows/status/search/enroll-stats-cache",
@@ -39113,20 +39772,20 @@
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
-      "operation": "getEnrollmentStats",
+      "operation": null,
       "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
         {
-          "name": "workflowIds",
-          "type": "any",
+          "name": "locationId",
+          "type": "unknown",
           "required": true,
           "source": "params"
         },
         {
-          "name": "locationId",
-          "type": "unknown",
+          "name": "workflowIds",
+          "type": "any",
           "required": true,
           "source": "params"
         }
@@ -39370,13 +40029,13 @@
             "doc": "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
           },
           {
-            "name": "__@iterator@694",
+            "name": "__@iterator@746",
             "type": "() => ArrayIterator<EnrollStat>",
             "optional": false,
             "doc": "Iterator"
           },
           {
-            "name": "__@unscopables@696",
+            "name": "__@unscopables@748",
             "type": "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
             "optional": false,
             "doc": "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -39391,6 +40050,7 @@
         "returns": "resolved"
       },
       "sources": [
+        "components/workflow-grid/services/index.ts:148",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
         "workflows/20-api/03-endpoints.md:365",
         "workflows/50-runtime/11-runtime-logs.md:189",
@@ -39399,7 +40059,7 @@
       ]
     },
     {
-      "id": "workflow-marketplace-service--get-statuses",
+      "id": "backend--workflow-with-filter",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/workflows/status/search/workflow-with-filter",
       "path": "/workflows/status/search/workflow-with-filter",
@@ -39419,51 +40079,73 @@
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
-      "operation": "getStatuses",
+      "operation": null,
       "service": "workflows",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
         {
-          "name": "workflowId",
+          "name": "action",
+          "type": "\"first\"",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "contactId",
           "type": "string",
-          "required": false,
-          "source": "documented"
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": true,
+          "source": "params"
         },
         {
           "name": "locationId",
           "type": "string",
-          "required": false,
-          "source": "documented"
+          "required": true,
+          "source": "params"
         },
         {
-          "name": "action",
+          "name": "workflowId",
           "type": "string",
-          "required": false,
-          "source": "documented"
-        },
-        {
-          "name": "limit",
-          "type": "string",
-          "required": false,
-          "source": "documented"
+          "required": true,
+          "source": "params"
         }
       ],
       "body": null,
-      "returns": null,
+      "returns": {
+        "typeName": "WorkflowStatusSearchResponse",
+        "properties": [
+          {
+            "name": "isLocationRateLimited",
+            "type": "boolean",
+            "optional": true
+          },
+          {
+            "name": "statuses",
+            "type": "WorkflowExecutionStatus[]",
+            "optional": false,
+            "doc": "Enrollment records matching the filter, newest first."
+          }
+        ],
+        "confidence": "resolved"
+      },
       "confidence": {
         "path": "resolved",
-        "query": "open-map",
+        "query": "resolved",
         "body": "none-observed",
-        "returns": "none-observed"
+        "returns": "resolved"
       },
       "sources": [
+        "services/api/workflow-status-service.ts:91",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
         "workflows/50-runtime/11-runtime-logs.md:159",
         "workflows/50-runtime/11-runtime-logs.md:253",
         "workflows/50-runtime/observed-query-shapes.md:44",
-        "workflows/70-research/ENDPOINTS.md:195",
-        "workflows/70-research/VERSIONS-STATS-LOGS.md:549"
+        "workflows/70-research/ENDPOINTS.md:195"
       ]
     },
     {
@@ -59795,7 +60477,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:62"
+        "pipelines-opportunities/20-api/forecast.md:63"
       ]
     },
     {
@@ -59807,9 +60489,7 @@
       "rail": "ai",
       "kind": "write",
       "reach": "proven",
-      "coveredBy": [
-        "get_pipeline_forecast"
-      ],
+      "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -59828,7 +60508,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:63"
+        "pipelines-opportunities/20-api/forecast.md:64"
       ]
     },
     {
@@ -59861,7 +60541,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:64"
+        "pipelines-opportunities/20-api/forecast.md:65"
       ]
     },
     {
@@ -59894,7 +60574,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:61"
+        "pipelines-opportunities/20-api/forecast.md:62"
       ]
     },
     {
@@ -59956,7 +60636,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:142",
+        "pipelines-opportunities/20-api/forecast.md:156",
         "pipelines-opportunities/20-api/pipelines.md:42"
       ]
     },
@@ -59992,7 +60672,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:154",
+        "pipelines-opportunities/20-api/forecast.md:168",
         "pipelines-opportunities/20-api/pipelines.md:43",
         "pipelines-opportunities/20-api/pipelines.md:169"
       ]
@@ -60036,8 +60716,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:150",
-        "pipelines-opportunities/20-api/forecast.md:164"
+        "pipelines-opportunities/20-api/forecast.md:164",
+        "pipelines-opportunities/20-api/forecast.md:178"
       ]
     },
     {
@@ -60083,7 +60763,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:143"
+        "pipelines-opportunities/20-api/forecast.md:157"
       ]
     },
     {
@@ -60118,7 +60798,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:163"
+        "pipelines-opportunities/20-api/forecast.md:177"
       ]
     },
     {
@@ -60568,7 +61248,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:144",
+        "pipelines-opportunities/20-api/forecast.md:158",
         "pipelines-opportunities/20-api/pipelines.md:39"
       ]
     },
@@ -60586,7 +61266,8 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
-        "edit_pipeline"
+        "edit_pipeline",
+        "get_pipeline_forecast"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -60606,7 +61287,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:112",
+        "pipelines-opportunities/20-api/forecast.md:15",
+        "pipelines-opportunities/20-api/forecast.md:122",
         "pipelines-opportunities/20-api/opportunities.md:32"
       ]
     },
@@ -67448,6 +68130,51 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:390"
+      ]
+    },
+    {
+      "id": "services--get-feature-flags",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/workflow/{locationId}/feature-flags",
+      "path": "/workflow/{locationId}/feature-flags",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "getFeatureFlags",
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "typeName": "IFeatureFlags",
+        "properties": [
+          {
+            "name": "workflowGrid",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "resolved"
+      },
+      "sources": [
+        "services/api/feature-flags.ts:13"
       ]
     },
     {

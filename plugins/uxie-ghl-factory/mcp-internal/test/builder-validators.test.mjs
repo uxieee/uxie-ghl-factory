@@ -19,7 +19,9 @@ test('every recovered validator compiles into ONE shared scope', () => {
   // first time (bl-125 — sync-generated.mjs had been copying the May file for four months because
   // recapture.mjs writes bundle-<date>/ and nothing ever wrote sniffs/bundle/ again). The 43 extra
   // are the TRIGGER validators, which the May extractor never produced.
-  assert.equal(Object.keys(bag).length, 110);
+  // 112 since the 2026-09-29 capture: the fixed extractor also emits the SplitCondition and GoalCondition values
+  // (workflowSplitValidator now compiles and runs instead of throwing).
+  assert.equal(Object.keys(bag).length, 112);
   assert.equal(typeof bag.waitValidator, 'function');
   assert.equal(typeof bag.validateTimeWait, 'function', 'the dispatch target must share the scope');
 });
