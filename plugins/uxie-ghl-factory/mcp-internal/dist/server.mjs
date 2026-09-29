@@ -200042,6 +200042,19 @@ function expandFilter(f, rows, extra = {}) {
       const { on: _on, ...rest } = f;
       return { ...rest, field: seen.field, ...operator2 ? { operator: operator2 } : {}, title: f.title ?? seen.title, type: f.type ?? seen.type, ...seen.id ? { id: f.id ?? seen.id } : {} };
     }
+    const meta3 = extra?.meta;
+    const schema2 = meta3?.workflowsTriggerType === "INTERNAL" && Array.isArray(meta3?.schemaFilters) ? meta3.schemaFilters : [];
+    if (schema2.length && !rows.length) {
+      const s = schema2.find((r) => r.field === key || norm3(r.field) === norm3(key) || norm3(r.title) === norm3(key));
+      if (!s) {
+        extra?.ctx?.warn?.(`\u{1F534} TRIGGER_FILTER_UNKNOWN: filter '${key}' (operator '${f.operator ?? "none"}') is not a filter the '${triggerType}' drawer offers \u2014 it is sent AS AUTHORED and GHL stores it without complaint. Filters this trigger offers: ${schema2.map((r) => `${r.field} (${r.title}, ${r.fieldType})`).join(", ")}.`);
+        return f;
+      }
+      if (/^multiselect/.test(String(s.fieldType)) && !extra?.ctx?.marketplace?.get?.(triggerType, "trigger"))
+        extra?.ctx?.warn?.(`TRIGGER_FILTER_ARRAY_MODE_UNKNOWN: filter '${s.field}' on '${triggerType}' is a multiselect, and without the live asset read the engine cannot tell whether the drawer compares it array-to-array (contains-any) or by member (is-any-of). Author the trigger with marketplace:true so the asset is read.`);
+      const { on: _on, ...rest } = f;
+      return { ...rest, field: s.field, title: f.title ?? s.title, id: f.id ?? s.field, type: f.type ?? s.fieldType };
+    }
     if (rows.length > 0 || (observed_trigger_filters_default[triggerType] ?? []).length > 0)
       extra?.ctx?.warn?.(`\u{1F534} TRIGGER_FILTER_UNKNOWN: filter '${key}' (operator '${f.operator ?? "none"}') is not a row the '${triggerType}' drawer offers \u2014 it is sent AS AUTHORED, with no title/type, and GHL accepts a filter it does not understand without complaint. Rows this trigger offers: ${[.../* @__PURE__ */ new Set([...rows.map((r) => `${r.value ?? r.id} (${r.label})`), ...(observed_trigger_filters_default[triggerType] ?? []).map((r) => `${r.field} (${r.title})`)])].join(", ")}. describe_step_type has the operators.`);
     else
@@ -200175,7 +200188,8 @@ function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
     conditions = conditions.map((c) => {
       const model = table ? marketplaceOperatorModel(entry, c.field, table) : null;
       const ftype = model?.ftype ?? marketplaceFilterType(entry, c.field);
-      const title = c.title ?? entry?.filters?.find((x) => x.field === c.field || x.reference === c.field)?.name ?? entry?.customVars?.find((v) => v.reference === c.field)?.name;
+      const assetFilter = entry?.filters?.find((x) => x.field === c.field || x.reference === c.field);
+      const title = c.title ?? assetFilter?.title ?? assetFilter?.name ?? entry?.customVars?.find((v) => v.reference === c.field)?.name;
       return {
         ...c,
         id: c.id ?? c.field,
@@ -202823,6 +202837,9 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     }
   };
 }
+function hasAssetLabelledStep(templates) {
+  return (templates ?? []).some((t) => typeof t?.workflowsActionType === "string");
+}
 
 // ../skills/create-ghl-workflow/engine/asset-preflight.mjs
 init_define_BUILDER_VALIDATORS();
@@ -204860,6 +204877,7 @@ async function orchestrate(ir, gw, opts = {}) {
     { warn: (m) => report.warnings.push(m), skipGraphContextRules: opts.skipGraphContextRules }
   );
   for (const f of checkFieldCaps(built.autoSaveBody?.workflowData?.templates)) report.warnings.push(`FIELD_CAP: ${describeCap(f)}`);
+  const gateMarketplaceTypes = usesMarketplace ? marketplace.actionTypes?.() ?? null : hasAssetLabelledStep(built.autoSaveBody?.workflowData?.templates) ? buildMarketplaceIndex(await fetchMarketplace(call, loc, ir)).actionTypes?.() ?? null : /* @__PURE__ */ new Set();
   const offline = validateDocument({
     intent: "build",
     templates: built.autoSaveBody?.workflowData?.templates ?? [],
@@ -204867,7 +204885,7 @@ async function orchestrate(ir, gw, opts = {}) {
     settings: { senderAddress: built.autoSaveBody?.senderAddress ?? ir.settings?.senderAddress },
     status: opts.publish === true ? "published" : "draft",
     catalog,
-    marketplaceTypes: usesMarketplace ? marketplace.actionTypes?.() ?? null : /* @__PURE__ */ new Set(),
+    marketplaceTypes: gateMarketplaceTypes,
     skipWorkflowRules: opts.skipWorkflowRules
   });
   report.validation = {
@@ -205004,7 +205022,7 @@ ${offline.summary}`;
     settings: { senderAddress: sent.senderAddress },
     status: opts.publish === true ? "published" : "draft",
     catalog,
-    marketplaceTypes: usesMarketplace ? marketplace.actionTypes?.() ?? null : /* @__PURE__ */ new Set(),
+    marketplaceTypes: gateMarketplaceTypes,
     skipWorkflowRules: opts.skipWorkflowRules
   });
   const serverGate = gate.server;
@@ -217628,9 +217646,13 @@ var TOOLS2 = [
           triggers: gateTriggers,
           scope: editTouchedIds,
           catalog: ctx.catalog,
-          assets: marketplaceRaw?.assets,
           allow: args.allowValidationFailure === true,
           warnings,
+          // An op with no marketplace:true can still write an asset-labelled step (a Find company container
+          // compiles to one): read the list when a step THIS edit touches carries the label, or its own keys
+          // draw a false ATTRIBUTE_KEY (bl-315). The gate judges touched steps only, so an edit that merely
+          // passes a labelled step stays network-identical.
+          assets: marketplaceRaw?.assets ?? (hasAssetLabelledStep((commitBody.workflowData?.templates ?? []).filter((t) => editTouchedIds.has(t?.id))) ? await gateAssetsFor(gw, args.locationId, fresh, commitBody.workflowData?.templates, ctx.catalog) : null),
           intent: "edit",
           status: fresh.status,
           skipWorkflowRules: args.skipWorkflowRules,
@@ -220139,7 +220161,7 @@ var TOOLS2 = [
   },
   {
     name: "fast_forward_contacts",
-    description: describe3("fast_forward_contacts", "Preview or confirm moving parked workflow enrollments past one step (proof: documented)."),
+    description: describe3("fast_forward_contacts", "Preview or confirm moving parked workflow enrollments past one step. \u{1F534} `moved` counts the enrollments GHL ACCEPTED, not a read-back: on a DRAFT workflow GHL answers 200 and moves nobody (reported, bl-314). After a confirm, read the step again with get_contacts_at_step before relying on the move. (proof: documented)."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
