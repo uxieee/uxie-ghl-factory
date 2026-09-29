@@ -40534,7 +40534,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_agent_session"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

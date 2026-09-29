@@ -40723,7 +40723,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_agent_session"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -188699,6 +188701,22 @@ var walkSessions = async (gw, body2, { maxRows = 1e3, maxHops = 200 } = {}) => {
   }
   return { rows, meta: meta3, hops, dupes, error: error51 };
 };
+var FEEDBACK_PRODUCT_TYPE = { superagents: "super_agents" };
+var sessionFeedback = (sessionId, interactionCount, states) => {
+  const mine = (Array.isArray(states) ? states : []).filter((s) => typeof s?.responseKey === "string" && (s.responseKey === sessionId || s.responseKey.startsWith(`${sessionId}#`)));
+  const activity = mine.find((s) => s.responseKey === sessionId);
+  const turns = mine.filter((s) => s.responseKey !== sessionId).map((s) => {
+    const n = Number(s.responseKey.slice(sessionId.length + 1));
+    return { responseKey: s.responseKey, turn: Number.isInteger(n) && n > 0 ? n : null, sentiment: s.sentiment ?? null };
+  }).sort((a, b) => (a.turn ?? Infinity) - (b.turn ?? Infinity));
+  const byTurn = new Map(turns.filter((t) => t.turn !== null).map((t) => [t.turn, t]));
+  const perInteraction = Array.from({ length: interactionCount }, (_, i) => {
+    const t = byTurn.get(i + 1);
+    return t ? { responseKey: t.responseKey, sentiment: t.sentiment } : null;
+  });
+  const unplaced = turns.filter((t) => t.turn === null || t.turn > interactionCount);
+  return { activity: activity ? { sentiment: activity.sentiment ?? null } : null, turns, perInteraction, unplaced, locationRatings: Array.isArray(states) ? states.length : 0 };
+};
 
 // core/ai-call-logs.mjs
 init_define_BUILDER_VALIDATORS();
@@ -197332,7 +197350,7 @@ var TOOLS2 = [
     name: "get_agent_session",
     description: describe3(
       "get_agent_session",
-      `One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries userQueries[] and aiResponses[] \u2014 every message of the turn, as the Conversation view shows them (the singular userQuery / aiResponse can hold only one, and is "" on a voice call's greeting turn) \u2014 and the traceId that get_agent_message_trace expands.`
+      `One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries userQueries[] and aiResponses[] \u2014 every message of the turn, as the Conversation view shows them (the singular userQuery / aiResponse can hold only one, and is "" on a voice call's greeting turn) \u2014 and the traceId that get_agent_message_trace expands. A managed-agent (superagents) session id works here too (the Run page embeds this same detail); for those, each interaction also carries feedback {responseKey, sentiment} | null and the output a feedback block (the Activity-row rating, every chat-turn rating) \u2014 sentiment only, the reason/comment is one raw GET /agent-logs/feedback?responseKey. Other products carry no feedback field.`
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -197345,7 +197363,8 @@ var TOOLS2 = [
     capabilities: [
       { method: "GET", path: "/agent-logs/logs/{sessionId}/summary" },
       { method: "GET", path: "/agent-logs/logs/{sessionId}/interactions" },
-      { method: "GET", path: "/agent-logs/logs/{sessionId}/metrics" }
+      { method: "GET", path: "/agent-logs/logs/{sessionId}/metrics" },
+      { method: "GET", path: "/agent-logs/feedback/states" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
@@ -197413,6 +197432,30 @@ var TOOLS2 = [
         const m = await gw.call("GET", `/agent-logs/logs/${sid}/metrics?${lq}`);
         out.metrics = m.ok ? { overview: m.json?.overview ?? null, perInteraction: m.json?.perInteraction ?? [] } : null;
         if (!m.ok) out.metricsError = { status: m.status };
+      }
+      const fbType = FEEDBACK_PRODUCT_TYPE[summary.productName];
+      if (fbType) {
+        const fq = new URLSearchParams({ locationId: args.locationId, productType: fbType });
+        let f;
+        try {
+          f = await gw.call("GET", `/agent-logs/feedback/states?${fq}`);
+        } catch (e) {
+          f = { ok: false, status: null, thrown: String(e?.message ?? e).slice(0, 200) };
+        }
+        if (f.ok) {
+          const fb = sessionFeedback(args.agentSessionId, interactions.length, f.json?.states);
+          fb.perInteraction.forEach((v, i) => {
+            interactions[i].feedback = v;
+          });
+          out.feedback = {
+            activity: fb.activity,
+            turns: fb.turns,
+            ...fb.unplaced.length ? { unplaced: fb.unplaced } : {},
+            note: "Sentiment only; the reasons and comment of a rating are GET /agent-logs/feedback?productType=super_agents&responseKey=<key> (raw_request). activity = the rating on the agent page's Activity row (key = the session id); turns = chat-turn ratings, key <session>#<n>, n = the chat's bot-message count from 1 (one per send), placed on interaction n. A turn that called tools may count differently in a reloaded chat, so any key that does not fit is listed under unplaced. /feedback/states is one unpaged, location-wide list (no cursor or total); a server cap on a very long list has not been measured."
+          };
+        } else {
+          out.feedbackError = { status: f.status, ...f.thrown ? { thrown: f.thrown } : {}, detail: "the ratings read (/agent-logs/feedback/states) failed; the session read is unaffected" };
+        }
       }
       out.note = "Each interaction is one inbound message; its traceId IS that message's CRM id. Expand it with get_agent_message_trace.";
       return ok(out);

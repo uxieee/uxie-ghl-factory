@@ -490,6 +490,11 @@
     "path": "/agent-logs/logs/{sessionId}/metrics"
   },
   {
+    "tool": "get_agent_session",
+    "method": "GET",
+    "path": "/agent-logs/feedback/states"
+  },
+  {
     "tool": "get_agent_log_filter_values",
     "method": "POST",
     "path": "/agent-logs/filter-values"
