@@ -10779,6 +10779,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/webinars.md:130",
         "funnels/70-research/2026-09-29-route-census.md:62"
       ]
     },
@@ -11973,7 +11974,8 @@
       "kind": "write",
       "reach": "source-only",
       "coveredBy": [
-        "create_funnel"
+        "create_funnel",
+        "get_funnel"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -11993,7 +11995,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/webinars.md:69"
+        "funnels/20-api/webinars.md:69",
+        "funnels/20-api/webinars.md:162",
+        "funnels/40-rules/silent-failures.md:1434"
       ]
     },
     {
@@ -16817,7 +16821,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "reached",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -16914,6 +16920,7 @@
       },
       "sources": [
         "services/marketplaceServices/MediaService.ts:11",
+        "funnels/20-api/webinars.md:156",
         "workflows/70-research/ENDPOINTS.md:156"
       ]
     },
@@ -24455,7 +24462,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/webinars.md:106"
+        "funnels/20-api/webinars.md:106",
+        "funnels/20-api/webinars.md:155"
       ]
     },
     {
@@ -24489,7 +24497,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/webinars.md:107"
+        "funnels/20-api/webinars.md:107",
+        "funnels/20-api/webinars.md:130"
       ]
     },
     {

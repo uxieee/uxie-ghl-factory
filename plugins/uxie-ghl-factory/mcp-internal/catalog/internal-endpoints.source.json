@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-29T21:09:24.422Z",
+      "capturedAt": "2026-09-29T21:38:26.296Z",
       "hash": "corpus",
       "fileCount": 1326,
       "endpoints": 1326
@@ -8491,6 +8491,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/webinars.md:130",
         "funnels/70-research/2026-09-29-route-census.md:62"
       ],
       "serviceBasis": "declared"
@@ -9470,7 +9471,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/webinars.md:69"
+        "funnels/20-api/webinars.md:69",
+        "funnels/20-api/webinars.md:162",
+        "funnels/40-rules/silent-failures.md:1434"
       ],
       "serviceBasis": "declared"
     },
@@ -13370,6 +13373,7 @@
       },
       "sources": [
         "services/marketplaceServices/MediaService.ts:11",
+        "funnels/20-api/webinars.md:156",
         "workflows/70-research/ENDPOINTS.md:156"
       ],
       "serviceClass": "MediaService",
@@ -19264,7 +19268,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/webinars.md:106"
+        "funnels/20-api/webinars.md:106",
+        "funnels/20-api/webinars.md:155"
       ],
       "serviceBasis": "declared"
     },
@@ -19290,7 +19295,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/webinars.md:107"
+        "funnels/20-api/webinars.md:107",
+        "funnels/20-api/webinars.md:130"
       ],
       "serviceBasis": "declared"
     },

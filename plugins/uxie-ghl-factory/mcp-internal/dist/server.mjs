@@ -10956,6 +10956,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/webinars.md:130",
             "funnels/70-research/2026-09-29-route-census.md:62"
           ]
         },
@@ -12150,7 +12151,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "write",
           reach: "source-only",
           coveredBy: [
-            "create_funnel"
+            "create_funnel",
+            "get_funnel"
           ],
           rawCallable: true,
           transport: "json",
@@ -12170,7 +12172,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/webinars.md:69"
+            "funnels/20-api/webinars.md:69",
+            "funnels/20-api/webinars.md:162",
+            "funnels/40-rules/silent-failures.md:1434"
           ]
         },
         {
@@ -16994,7 +16998,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "reached",
-          coveredBy: [],
+          coveredBy: [
+            "create_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -17091,6 +17097,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/MediaService.ts:11",
+            "funnels/20-api/webinars.md:156",
             "workflows/70-research/ENDPOINTS.md:156"
           ]
         },
@@ -24632,7 +24639,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/webinars.md:106"
+            "funnels/20-api/webinars.md:106",
+            "funnels/20-api/webinars.md:155"
           ]
         },
         {
@@ -24666,7 +24674,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/webinars.md:107"
+            "funnels/20-api/webinars.md:107",
+            "funnels/20-api/webinars.md:130"
           ]
         },
         {
@@ -130921,7 +130930,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var KINDS = Object.freeze(["funnel", "website", "store", "webinar", "blog"]);
-var BLANK_TEMPLATES = Object.freeze({ store: "6841a9953740196dc6e4031a", webinar: "684001d9bd9f6a3e0b118e89" });
+var BLANK_TEMPLATES = Object.freeze({ store: "6841a9953740196dc6e4031a", webinar: "684001d9bd9f6a3e0b118e89", webinarOnDemand: "683fff83bd9f6ac22b118e81" });
 var DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
 var INSTANT = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(:\d{2})?([+-]\d{2}:\d{2}|Z)$/;
 function wallParts(ms, timeZone) {
@@ -130966,7 +130975,7 @@ function webinarStartUtc({ timezone, date: date5, startTime }) {
 }
 var STORE_DANGLING_FORM_NOTE = `The blank store's "Contact Us" page embeds a form that lives in GHL's template account, not on this location: it renders no working form until you bind one of yours (build_funnel_page edit mode, set the form element's formId). audit_site reports it as a dangling reference.`;
 var HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
-function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName }) {
+function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName, video, now }) {
   if (!KINDS.includes(kind)) return { refuse: `kind must be one of ${KINDS.join(", ")}` };
   if (typeof name !== "string" || !name.trim()) return { refuse: "name is required" };
   const n = name.trim();
@@ -130978,46 +130987,153 @@ function planCreateFunnel({ kind, name, locationId, companyId, description, webi
       return { method: "POST", path: "/blogs/site", body: { locationId, title: n, description: description ?? "" } };
     case "store":
       return { method: "POST", path: "/templates/template/load", body: { templateId: BLANK_TEMPLATES.store, locationId, product: "stores", extras: { name: n } } };
-    case "webinar": {
-      const w = webinar ?? {};
-      const missing = ["timezone", "date", "startTime", "endTime", "formId"].filter((k) => !w[k]);
-      if (missing.length) return { refuse: `a webinar needs webinar.{${missing.join(", ")}} \u2014 the New webinar wizard requires them (the registration form must be one of this location's forms)` };
-      if (!HHMM.test(w.startTime) || !HHMM.test(w.endTime)) return { refuse: 'webinar.startTime and webinar.endTime are "HH:mm" (24h)' };
-      const start = webinarStartUtc(w);
-      if (start.refuse) return { refuse: start.refuse };
-      if (!companyId) return { refuse: "this credential carries no company id, and the webinar template load sends one" };
-      return {
-        method: "POST",
-        path: "/templates/template/load",
-        sessionStart: start.utc,
-        body: {
-          companyId,
-          templateId: BLANK_TEMPLATES.webinar,
-          locationId,
-          product: "webinars",
-          subProduct: "live",
-          parentId: "",
-          extras: { name: n, webinarProperties: {
-            timezone: w.timezone,
-            endDate: start.utc,
-            endTime: w.startTime,
-            webinarEndTime: w.endTime,
-            recurring: false,
-            recurringSettings: {},
-            webinarType: "live",
-            formId: w.formId,
-            formName: formName ?? "",
-            videoUrl: w.videoUrl ?? "",
-            videoName: "",
-            videoId: "",
-            templateName: 1
-          } }
-        }
-      };
-    }
+    case "webinar":
+      return planWebinar({ name: n, locationId, companyId, webinar: webinar ?? {}, formName, video, now });
     default:
       return { refuse: `unknown kind ${kind}` };
   }
+}
+var RECURRENCE = Object.freeze(["DAILY", "WEEKLY", "MONTHLY"]);
+var WEEKDAYS = Object.freeze(["SU", "MO", "TU", "WE", "TH", "FR", "SA"]);
+var MAX_OCCURRENCES = 50;
+var isHttpUrl = (u) => {
+  try {
+    return /^https?:$/.test(new URL(u).protocol);
+  } catch {
+    return false;
+  }
+};
+function planRecurrence(rec, { timezone, day, startTime }) {
+  if (!rec || typeof rec !== "object" || Array.isArray(rec)) return { refuse: "webinar.recurring is {frequency: DAILY|WEEKLY|MONTHLY, repeat?, occurrences | endDate, weeklyDays | monthlyDay | monthlyWeek+monthlyWeekDay}" };
+  const f = String(rec.frequency ?? "").toUpperCase();
+  if (f === "NO_FIXED_TIME") return { refuse: 'webinar.recurring NO_FIXED_TIME is not offered: its stored shape was never measured. Create a DAILY / WEEKLY / MONTHLY series, or set "No fixed time" on the Edit webinar screen' };
+  if (!RECURRENCE.includes(f)) return { refuse: `webinar.recurring.frequency must be one of ${RECURRENCE.join(", ")}` };
+  const repeat = f === "DAILY" ? 1 : rec.repeat ?? 1;
+  if (!Number.isInteger(repeat) || repeat < 1 || repeat > 12) return { refuse: "webinar.recurring.repeat is a whole number of weeks / months, 1 to 12 (a daily series always repeats every day)" };
+  if (rec.occurrences !== void 0 && rec.endDate !== void 0) return { refuse: "name the end of the series ONE way: webinar.recurring.occurrences (After) or webinar.recurring.endDate (By), not both" };
+  const out = { frequency: f, repeat };
+  if (rec.endDate !== void 0) {
+    if (!DAY.test(rec.endDate)) return { refuse: 'webinar.recurring.endDate is the last day of the series, "YYYY-MM-DD"' };
+    if (rec.endDate < day) return { refuse: `webinar.recurring.endDate ${rec.endDate} is before the first session (${day})` };
+    const ms = zonedToUtc(rec.endDate, startTime, timezone);
+    if (ms === null) return { refuse: `${rec.endDate} ${startTime} does not exist in ${timezone} (a daylight-saving gap); pick another end day` };
+    out.endDate = new Date(ms).toISOString().replace(".000Z", "Z");
+  } else {
+    const occ = rec.occurrences ?? 7;
+    if (!Number.isInteger(occ) || occ < 1 || occ > MAX_OCCURRENCES) return { refuse: `webinar.recurring.occurrences is a whole number, 1 to ${MAX_OCCURRENCES}` };
+    out.occurrences = occ;
+  }
+  Object.assign(out, { weeklyDays: [], monthlyDays: [], monthlyOccurenceWeeks: [], monthlyOccurenceWeekDays: [] });
+  if (f === "WEEKLY") {
+    const d = rec.weeklyDays;
+    if (!Array.isArray(d) || !d.length || d.some((x) => !WEEKDAYS.includes(x)) || new Set(d).size !== d.length) return { refuse: `webinar.recurring.weeklyDays is one or more of ${WEEKDAYS.join(", ")} (no repeats)` };
+    out.weeklyDays = d;
+  } else if (f === "MONTHLY") {
+    const custom2 = rec.monthlyWeek !== void 0 || rec.monthlyWeekDay !== void 0;
+    if (custom2 && rec.monthlyDay !== void 0) return { refuse: "MONTHLY is a day of the month (monthlyDay) OR a weekday of a week (monthlyWeek + monthlyWeekDay), not both" };
+    if (custom2) {
+      if (!Number.isInteger(rec.monthlyWeek) || rec.monthlyWeek < 1 || rec.monthlyWeek > 4 || !WEEKDAYS.includes(rec.monthlyWeekDay)) return { refuse: `webinar.recurring.monthlyWeek is 1 to 4 (First to Fourth) and monthlyWeekDay one of ${WEEKDAYS.join(", ")} ("Last" was never measured)` };
+      Object.assign(out, { monthlyOccurenceWeeks: [rec.monthlyWeek], monthlyOccurenceWeekDays: [rec.monthlyWeekDay], monthlyOccurenceType: "custom" });
+    } else {
+      const md = rec.monthlyDay ?? 1;
+      if (!Number.isInteger(md) || md < 1 || md > 31) return { refuse: "webinar.recurring.monthlyDay is the day of the month, 1 to 31" };
+      Object.assign(out, { monthlyDays: [md], monthlyOccurenceType: "day" });
+    }
+  } else if (rec.weeklyDays !== void 0 || rec.monthlyDay !== void 0 || rec.monthlyWeek !== void 0) return { refuse: "weeklyDays / monthlyDay / monthlyWeek do not apply to a DAILY series" };
+  return { settings: out };
+}
+function planWebinar({ name, locationId, companyId, webinar: w, formName, video, now = Date.now() }) {
+  const type = w.type ?? "live";
+  if (!["live", "onDemand"].includes(type)) return { refuse: 'webinar.type is "live" or "onDemand"' };
+  if (!w.formId) return { refuse: "a webinar needs webinar.formId \u2014 the New webinar wizard requires a registration form (one of this location's forms)" };
+  if (!companyId) return { refuse: "this credential carries no company id, and the webinar template load sends one" };
+  const timezone = w.timezone ?? (type === "onDemand" ? "America/New_York" : void 0);
+  if (type === "onDemand") {
+    const stray = ["date", "startTime", "endTime", "recurring", "videoUrl"].filter((k) => w[k] !== void 0);
+    if (stray.length) return { refuse: `an on-demand webinar has no schedule or live link: drop webinar.{${stray.join(", ")}} (the recording is webinar.video, a Media Storage file)` };
+    if (!w.video) return { refuse: "an on-demand webinar needs webinar.video \u2014 a video file in this location's Media Storage (its id, or its exact name)" };
+    if (!video?.url) return { refuse: `webinar.video ${JSON.stringify(w.video)} was not resolved to a Media Storage video` };
+    try {
+      new Intl.DateTimeFormat("en-US", { timeZone: timezone });
+    } catch {
+      return { refuse: `webinar.timezone ${JSON.stringify(timezone)} is not an IANA timezone (e.g. America/New_York)` };
+    }
+    return {
+      method: "POST",
+      path: "/templates/template/load",
+      body: {
+        companyId,
+        templateId: BLANK_TEMPLATES.webinarOnDemand,
+        locationId,
+        product: "webinars",
+        subProduct: "onDemand",
+        parentId: "",
+        extras: { name, webinarProperties: {
+          timezone,
+          endDate: "",
+          endTime: "",
+          webinarEndTime: "",
+          recurring: false,
+          recurringSettings: {},
+          webinarType: "demand",
+          formId: w.formId,
+          formName: formName ?? "",
+          videoUrl: video.url,
+          videoName: video.name ?? "",
+          videoId: video.id ?? "",
+          templateName: 1
+        } }
+      }
+    };
+  }
+  const missing = ["timezone", "date", "startTime", "endTime", "videoUrl"].filter((k) => !w[k]);
+  if (missing.length) return { refuse: `a live webinar needs webinar.{${missing.join(", ")}} \u2014 the New webinar wizard requires them (videoUrl is the live link)` };
+  if (w.video !== void 0) return { refuse: "webinar.video is the on-demand recording; a live webinar takes its live link as webinar.videoUrl" };
+  if (!HHMM.test(w.startTime) || !HHMM.test(w.endTime)) return { refuse: 'webinar.startTime and webinar.endTime are "HH:mm" (24h)' };
+  if (w.endTime <= w.startTime) return { refuse: `webinar.endTime ${w.endTime} must be after startTime ${w.startTime} on the same day` };
+  if (!isHttpUrl(w.videoUrl)) return { refuse: "webinar.videoUrl is the live webinar link, an http(s) URL" };
+  const start = webinarStartUtc(w);
+  if (start.refuse) return { refuse: start.refuse };
+  if (Date.parse(start.utc) <= now) return { refuse: `the webinar starts ${start.utc}, which is not in the future \u2014 the wizard's date picker does not offer past days` };
+  let recurringSettings = {};
+  let recurring = false;
+  let series = null;
+  if (w.recurring !== void 0) {
+    const r = planRecurrence(w.recurring, { timezone: w.timezone, day: start.day, startTime: w.startTime });
+    if (r.refuse) return { refuse: r.refuse };
+    recurring = true;
+    recurringSettings = r.settings;
+    series = { frequency: r.settings.frequency, occurrences: r.settings.occurrences ?? null, endDate: r.settings.endDate ?? null };
+  }
+  return {
+    method: "POST",
+    path: "/templates/template/load",
+    sessionStart: start.utc,
+    ...series ? { series } : {},
+    body: {
+      companyId,
+      templateId: BLANK_TEMPLATES.webinar,
+      locationId,
+      product: "webinars",
+      subProduct: "live",
+      parentId: "",
+      extras: { name, webinarProperties: {
+        timezone: w.timezone,
+        endDate: start.utc,
+        endTime: w.startTime,
+        webinarEndTime: w.endTime,
+        recurring,
+        recurringSettings,
+        webinarType: "live",
+        formId: w.formId,
+        formName: formName ?? "",
+        videoUrl: w.videoUrl,
+        videoName: "",
+        videoId: "",
+        templateName: 1
+      } }
+    }
+  };
 }
 function createdId(kind, json2) {
   if (kind === "funnel" || kind === "website") return json2?.id ?? null;
@@ -131039,6 +131155,72 @@ async function listAllDocuments(gw, locationId, { pageSize = 100, maxPages = 50 
     if (!page.length || page.length < pageSize || count != null && byId.size >= count || byId.size === before) return { res: r, rows: [...byId.values()], count: count ?? byId.size, pages: i + 1 };
   }
   return { res: null, rows: [...byId.values()], count: count ?? byId.size, truncated: true };
+}
+async function findMediaVideo(gw, locationId, ref, { pageSize = 20, maxPages = 50 } = {}) {
+  const hits = [];
+  for (let offset = 0, i = 0; i < maxPages; i++) {
+    const r = await gw.call("GET", `/medias/files?altId=${encodeURIComponent(locationId)}&altType=location&type=file&limit=${pageSize}&offset=${offset}&sortBy=createdAt&sortOrder=desc`);
+    if (!r.ok) return { res: r, hits: null };
+    const files = r.json?.files ?? [];
+    for (const f of files) if (!f.deleted && String(f.contentType ?? "").startsWith("video/") && (f._id === ref || f.name === ref)) hits.push({ id: f._id, url: f.url, name: f.name });
+    if (files.length < pageSize) break;
+    offset += files.length;
+  }
+  return { hits };
+}
+var WEBINAR_RECIPE_TEMPLATE_ID = "5c1dabb4-d31d-46dd-b455-fdcf719560b3";
+function webinarView(funnel, sessions, locationId, now = Date.now()) {
+  const wp = funnel.webinarProperties ?? {};
+  const rs = wp.recurringSettings ?? {};
+  const rows = Array.isArray(wp.notifications) ? wp.notifications : [];
+  const list = (sessions ?? []).map((x) => ({ start: x.sessionStart, end: x.sessionEnd, timezone: x.timezone })).sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
+  const onDemand = wp.webinarType === "demand";
+  const base = "https://app.gohighlevel.com/v2/location";
+  return {
+    type: onDemand ? "onDemand" : wp.webinarType ?? null,
+    timezone: wp.timezone ?? null,
+    stored: { endDate: wp.endDate ?? null, endTime: wp.endTime ?? null, webinarEndTime: wp.webinarEndTime ?? null },
+    recurring: wp.recurring === true ? {
+      frequency: rs.frequency ?? null,
+      repeat: rs.repeat ?? null,
+      occurrences: rs.occurrences ?? null,
+      endDate: rs.endDate ?? null,
+      weeklyDays: rs.weeklyDays ?? [],
+      monthlyDays: rs.monthlyDays ?? [],
+      monthlyOccurenceType: rs.monthlyOccurenceType ?? null,
+      monthlyOccurenceWeeks: rs.monthlyOccurenceWeeks ?? [],
+      monthlyOccurenceWeekDays: rs.monthlyOccurenceWeekDays ?? [],
+      rrule: rs.rrule ?? null
+    } : null,
+    form: { id: wp.formId ?? null, name: wp.formName ?? null },
+    ...onDemand ? { video: { url: wp.videoUrl ?? null, name: wp.videoName ?? null, id: wp.videoId ?? null } } : { liveUrl: wp.videoUrl ?? null },
+    sessions: { count: list.length, next: list.find((x) => Date.parse(x.start) > now) ?? null, all: list },
+    notifications: {
+      sender: { name: wp.senderName ?? null, email: wp.senderEmailAddress ?? null },
+      templateFolderId: wp.templateFolderId ?? null,
+      rows: rows.map((r) => ({ type: r.type, action: r.action, enabled: r.enabled === true, offset: r.offset ?? null, templateId: r.templateId ?? null }))
+    },
+    links: {
+      edit: "Sites \u2192 Webinars \u2192 \u22EE \u2192 Edit (schedule, recurrence, live link, notifications are saved there)",
+      guests: wp.formId ? `${base}/${locationId}/form-builder/submissions?id=${wp.formId}&page=1&limit=25` : null,
+      workflowRecipe: {
+        templateId: WEBINAR_RECIPE_TEMPLATE_ID,
+        title: "Recipe - Webinar Registration Confirmation & Reminders",
+        url: `${base}/${locationId}/automation/new-workflow?highlightedCardId=${WEBINAR_RECIPE_TEMPLATE_ID}`,
+        note: `The Edit webinar screen's "Webinar recipe" button opens this URL in a new tab; GHL redirects it to the Workflows list with the recipe id kept in the query. The recipe is a workflow TEMPLATE (list_workflow_templates lists it), not a workflow on this account: nothing is installed until you create one from it, and a published copy emails registrants.`
+      }
+    },
+    note: "endDate + endTime store the FIRST SESSION's START (webinarEndTime is its end); the sessions list is what GHL runs. A one-off webinar saved from the Edit screen carries the browser's UTC offset in endDate, not the webinar timezone (rule 47)."
+  };
+}
+function sessionWarnings(sessions, { timezone, startTime, startUtc }) {
+  const out = [];
+  if (!sessions.length) return out;
+  const first = Date.parse(sessions[0].start);
+  if (first > Date.parse(startUtc)) out.push(`The first session is ${sessions[0].start}, not the start date you gave (${startUtc}): a series starts at the first day matching its rule on or after the start day.`);
+  const drift = sessions.filter((x) => wallParts(Date.parse(x.start), timezone).hhmm !== startTime);
+  if (drift.length) out.push(`${drift.length} of ${sessions.length} sessions run at ${wallParts(Date.parse(drift[0].start), timezone).hhmm} ${timezone}, not ${startTime}: GHL keeps the first session's UTC time, so the series drifts an hour across a daylight-saving change (first drifted session ${drift[0].start}). Split the series at the clock change to keep the local time.`);
+  return out;
 }
 
 // core/page-edit.mjs
@@ -203798,6 +203980,12 @@ var DEPENDENT_TRIGGER_ROWS = {
   pipeline_stage_updated: [PIPELINE_STAGE_ROW],
   opportunity_status_changed: [PIPELINE_STAGE_ROW],
   opportunity_changed: [PIPELINE_STAGE_ROW],
+  // scheduler_trigger, Daily: the drawer's "At what time" row is `scheduler.daily.times` (15-minute HH:MM grid, a list). The catalogue models
+  // the weekly one and not the daily one, so a Daily interval written with a time went out with no operator, title or type — the drawer then
+  // shows the Interval and NO time row (live-W30-f-render-scheduler_trigger*.json; corpus scheduler_trigger.md).
+  scheduler_trigger: [
+    { field: "scheduler.daily.times", title: "At what time", type: "multiselect", operator: "==", operators: ["=="], requires: "scheduler.interval", requiresValue: "daily" }
+  ],
   payment_received: [
     paymentRow("payment.funnel.sub_source", "Sub-Source", "funnel"),
     paymentRow("payment.website.sub_source", "Sub-Source", "website"),
@@ -204058,6 +204246,14 @@ function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
     const empty2 = !row || row.value == null || row.value === "" || Array.isArray(row.value) && !row.value.length;
     const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` \u2014 GHL: "${ctx.catalog.i18n[r.i18n]}"` : "";
     if (empty2) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) \u2014 GHL requires filter '${r.field}'${r.beDedupeAssetType ? " (the SERVER blocks the save without it)" : ""}${ghlText}`);
+  }
+  if (typeof objectKey === "string" && objectKey.startsWith("custom_objects.")) {
+    conditions = conditions.map((c) => {
+      if (!c || typeof c.field !== "string" || c.field.startsWith("custom_objects.") || /^(contact|opportunity|business)\./.test(c.field)) return c;
+      const slug = c.field.trim().toLowerCase().replace(/[\s-]+/g, "_");
+      ctx?.warn?.(`TRIGGER_FILTER_OBJECT_FIELD: filter '${c.field}' on '${t.type}' is not a full field key \u2014 the drawer shows such a row as "Select" with no field. Written as '${objectKey}.${slug}' (assumed from the label; author the full key '${objectKey}.<fieldKey>' if the field's key differs).`);
+      return { ...c, field: `${objectKey}.${slug}` };
+    });
   }
   for (const c of conditions) {
     if (!c || c.operator === "has-changed" || c.operator === "has_value" || c.operator === "has_no_value" || c.field === "facebook.pageId" || c.field === "facebook.formId") continue;
@@ -227076,19 +227272,31 @@ var TOOLS2 = [
   },
   {
     name: "create_funnel",
-    description: `${describe3("create_funnel", "Create a funnel, website, store, webinar or blog document on a location")}. The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs screen's own list). Refuses a name already used by any document on the location. Each kind sends exactly what GHL's own "New \u2026" screen sends: funnel and website are created empty (no steps, no domain); a store and a webinar are GHL's BLANK TEMPLATE installs \u2014 that is the UI's own blank path (store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, broadcast and expired pages, bound to the registration form you name, which must be one of this location's forms; webinar.date is the calendar day and the start is converted from webinar.timezone to UTC \u2014 GHL's own one-off wizard uses the browser's offset instead \u2014 and the session is read back); a blog gets a Blog Home and a Blog Post step. The blank store's Contact Us page embeds a form from GHL's template account that does not exist here \u2014 rebind it. Other templates are not offered: an install can bring side assets. The funnels list's "Build with AI" (the AI builder; it creates a funnel on click) is left to the UI \u2014 this tool plus build_funnel_page is the deterministic path. Next steps: edit_funnel settings (domain) \u2192 create-step \u2192 build_funnel_page.`,
+    description: `${describe3("create_funnel", "Create a funnel, website, store, webinar or blog document on a location")}. The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs screen's own list). Refuses a name already used by any document on the location. Each kind sends exactly what GHL's own "New \u2026" screen sends: funnel and website are created empty (no steps, no domain); a store and a webinar are GHL's BLANK TEMPLATE installs \u2014 that is the UI's own blank path (store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, broadcast and expired pages, bound to the registration form you name, which must be one of this location's forms. webinar.type live (default: date + startTime/endTime in webinar.timezone, converted to UTC \u2014 GHL's own one-off wizard uses the browser's offset instead \u2014 the live link videoUrl, and optionally a DAILY/WEEKLY/MONTHLY recurring series) or onDemand (a Media Storage video by id/name, no schedule); the sessions are read back. A new webinar sends NO emails: notifications stay off until you enable one with a template on the Edit webinar screen); a blog gets a Blog Home and a Blog Post step. The blank store's Contact Us page embeds a form from GHL's template account that does not exist here \u2014 rebind it. Other templates are not offered: an install can bring side assets. The funnels list's "Build with AI" (the AI builder; it creates a funnel on click) is left to the UI \u2014 this tool plus build_funnel_page is the deterministic path. Next steps: edit_funnel settings (domain) \u2192 create-step \u2192 build_funnel_page.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       kind: external_exports.enum(KINDS),
       name: external_exports.string(),
       description: external_exports.string().optional(),
       webinar: external_exports.object({
-        timezone: external_exports.string().describe("IANA timezone the webinar runs in, e.g. America/New_York"),
-        date: external_exports.string().describe('the session\'s calendar day "YYYY-MM-DD"; startTime on that day in `timezone` is converted to UTC for you'),
-        startTime: external_exports.string(),
-        endTime: external_exports.string(),
+        type: external_exports.enum(["live", "onDemand"]).optional().describe("live (default) or onDemand \u2014 a pre-recorded webinar with no schedule"),
+        timezone: external_exports.string().optional().describe("IANA timezone the webinar runs in, e.g. America/New_York (required for live; on-demand defaults to America/New_York)"),
+        date: external_exports.string().optional().describe('live: the first session\'s calendar day "YYYY-MM-DD"; startTime on that day in `timezone` is converted to UTC for you'),
+        startTime: external_exports.string().optional(),
+        endTime: external_exports.string().optional(),
         formId: external_exports.string(),
-        videoUrl: external_exports.string().optional()
+        videoUrl: external_exports.string().optional().describe("live: the live webinar link (required)"),
+        video: external_exports.string().optional().describe("onDemand: the recording \u2014 a video file in this location's Media Storage, by id or exact name"),
+        recurring: external_exports.object({
+          frequency: external_exports.enum(["DAILY", "WEEKLY", "MONTHLY"]),
+          repeat: external_exports.number().int().optional().describe("every N weeks / months (a daily series repeats every day)"),
+          occurrences: external_exports.number().int().optional().describe("After: the number of sessions, 1-50 (default 7)"),
+          endDate: external_exports.string().optional().describe('By: the last day "YYYY-MM-DD" (instead of occurrences)'),
+          weeklyDays: external_exports.array(external_exports.enum(["SU", "MO", "TU", "WE", "TH", "FR", "SA"])).optional(),
+          monthlyDay: external_exports.number().int().optional(),
+          monthlyWeek: external_exports.number().int().optional(),
+          monthlyWeekDay: external_exports.enum(["SU", "MO", "TU", "WE", "TH", "FR", "SA"]).optional()
+        }).optional().describe("live only: a recurring series")
       }).optional(),
       confirm: external_exports.boolean().default(false)
     }),
@@ -227098,6 +227306,7 @@ var TOOLS2 = [
       { method: "GET", path: "/funnels/funnel/blog/list/" },
       { method: "GET", path: "/forms/{id}" },
       { method: "GET", path: "/locations/{locationId}" },
+      { method: "GET", path: "/medias/files" },
       { method: "POST", path: "/funnels/funnel/create" },
       { method: "POST", path: "/templates/template/load" },
       { method: "POST", path: "/blogs/site" },
@@ -227118,16 +227327,22 @@ var TOOLS2 = [
             { existing: clash.map((f2) => ({ id: f2._id ?? f2.id, name: f2.name, type: f2.type })) }
           );
         }
-        let formName, companyId;
+        let formName, companyId, video;
         if (args.kind === "webinar") {
           if (args.webinar?.formId) {
             const fr = await gw.call("GET", `/forms/${encodeURIComponent(args.webinar.formId)}`);
             if (!fr.ok) return fail(CODES.VALIDATION_FAILED, `webinar.formId ${args.webinar.formId} does not read on this location (${fr.status})`, "Name one of this location's forms (list_forms). Nothing was sent.");
             formName = fr.json?.form?.name ?? fr.json?.name ?? "";
           }
+          if (args.webinar?.type === "onDemand" && args.webinar.video) {
+            const m = await findMediaVideo(gw, args.locationId, args.webinar.video);
+            if (!m.hits) return fromHttp(m.res?.status, m.res?.json);
+            if (m.hits.length !== 1) return fail(CODES.VALIDATION_FAILED, m.hits.length ? `webinar.video ${JSON.stringify(args.webinar.video)} matches ${m.hits.length} video files in Media Storage` : `webinar.video ${JSON.stringify(args.webinar.video)} is not a video file in this location's Media Storage`, m.hits.length ? "Pass the file id instead. Nothing was sent." : "Upload the recording in Media Storage first (the New webinar wizard's Browse picks from there). Nothing was sent.");
+            video = m.hits[0];
+          }
           companyId = await resolveCompanyId(gw, args.locationId);
         }
-        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName });
+        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.() });
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, "Nothing was sent.");
         const preview = { kind: args.kind, request: { method: plan.method, path: plan.path, body: plan.body } };
         if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `create_funnel ${args.kind} preview is ready; no write was sent.`, "Repeat with confirm:true to send exactly this request."), { preview });
@@ -227162,17 +227377,39 @@ var TOOLS2 = [
           ...args.kind === "store" ? { note: STORE_DANGLING_FORM_NOTE } : {}
         };
         if (args.kind === "webinar" && id) {
-          const want = Date.parse(plan.sessionStart);
-          const got = await reread(
-            async () => (await gw.call("POST", "/funnels/funnel/webinar/sessions", { webinarId: id, locationId: args.locationId, includeDeleted: false })).json?.webinarSessions ?? [],
-            (rows) => rows.length > 0,
-            deps.rereadOptions ?? {}
-          );
-          const sessions = got.value.map((x) => ({ start: x.sessionStart, end: x.sessionEnd, timezone: x.timezone }));
-          out.sessions = sessions;
-          out.sessionStart = { sent: plan.sessionStart, wall: `${args.webinar.startTime} ${args.webinar.timezone}` };
-          if (!sessions.some((x) => Date.parse(x.start) === want)) {
-            return withFailureData(fail(CODES.VERIFY_FAILED, `the webinar was created but its session does not start at ${plan.sessionStart} (${out.sessionStart.wall})`, "Open Sites \u2192 Webinars \u2192 \u22EE \u2192 Edit and check the date and time; do not create again."), out);
+          const wp = f?.webinarProperties ?? {};
+          const rows = Array.isArray(wp.notifications) ? wp.notifications : [];
+          out.webinar = {
+            type: wp.webinarType === "demand" ? "onDemand" : wp.webinarType ?? null,
+            timezone: wp.timezone ?? null,
+            recurring: wp.recurring === true,
+            rrule: wp.recurringSettings?.rrule ?? null,
+            formId: wp.formId ?? null,
+            videoUrl: wp.videoUrl ?? null,
+            notifications: { rows: rows.length, enabled: rows.filter((r) => r.enabled === true).length }
+          };
+          out.note = "No webinar email is set up by this create: registrants are emailed only after you enable a notification row WITH an email template on Sites \u2192 Webinars \u2192 \u22EE \u2192 Edit \u2192 Notifications. Check the template has a subject (a library template copy sent an empty one).";
+          if (wp.webinarType === "demand") {
+            const got = await gw.call("POST", "/funnels/funnel/webinar/sessions", { webinarId: id, locationId: args.locationId, includeDeleted: false });
+            out.sessions = (got.json?.webinarSessions ?? []).map((x) => ({ start: x.sessionStart, end: x.sessionEnd, timezone: x.timezone }));
+          } else {
+            const want = Date.parse(plan.sessionStart);
+            const expected = plan.series?.occurrences ?? (plan.series ? null : 1);
+            const got = await reread(
+              async () => (await gw.call("POST", "/funnels/funnel/webinar/sessions", { webinarId: id, locationId: args.locationId, includeDeleted: false })).json?.webinarSessions ?? [],
+              (rows2) => rows2.length > 0 && (expected === null || rows2.length === expected),
+              deps.rereadOptions ?? {}
+            );
+            const sessions = got.value.map((x) => ({ start: x.sessionStart, end: x.sessionEnd, timezone: x.timezone })).sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
+            out.sessions = sessions;
+            out.sessionStart = { sent: plan.sessionStart, wall: `${args.webinar.startTime} ${args.webinar.timezone}` };
+            const lastOk = !plan.series?.endDate || sessions.every((x) => Date.parse(x.start) <= Date.parse(plan.series.endDate));
+            const firstOk = sessions.length > 0 && (plan.series && plan.series.frequency !== "DAILY" ? Date.parse(sessions[0].start) >= want : Date.parse(sessions[0].start) === want);
+            if (!firstOk || expected !== null && sessions.length !== expected || !lastOk) {
+              return withFailureData(fail(CODES.VERIFY_FAILED, `the webinar was created but its sessions are not the ones sent (first ${plan.sessionStart}, ${expected ?? "until " + plan.series?.endDate} session(s); read back ${sessions.length}, first ${sessions[0]?.start ?? "none"})`, "Open Sites \u2192 Webinars \u2192 \u22EE \u2192 Edit and check the date, time and recurrence; do not create again."), out);
+            }
+            const warnings = sessionWarnings(sessions, { timezone: args.webinar.timezone, startTime: args.webinar.startTime, startUtc: plan.sessionStart });
+            if (warnings.length) out.warnings = warnings;
           }
         }
         const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== "store" || f.isStoreActive === true);
@@ -227185,11 +227422,11 @@ var TOOLS2 = [
   },
   {
     name: "get_funnel",
-    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the funnel's share link, if one exists: who it is shared with and the import URL \u2014 read-only; creating a share is left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page "delete" or a split-test winner, restorable with edit_funnel restore-page), step-products {stepId} (the products a step's order form lists and its sell buttons sell, with product and price names \u2014 add one with edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default the last 30 days} (the funnel's Stats tab per step \u2014 page views all/unique, opt-in and sale rates, earnings per view \u2014 with step names, plus the totals the Sites Analytics cards show: page views, opt-ins, sales and their value, opt-in rate, and hosted-video plays/completion; \u{1F534} only a HOSTED video (a Media Storage file) reports analytics \u2014 YouTube, Vimeo, Wistia and embeds send nothing; RESETTING stats is not offered: it is irreversible, applies asynchronously (~30 s) and clears the Sites Analytics numbers too \u2014 funnel \u2192 Stats \u2192 Reset). Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole site for dangling references and publish drift \u2014 this tool does not repeat that audit. Read-only.`,
+    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the funnel's share link, if one exists: who it is shared with and the import URL \u2014 read-only; creating a share is left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page "delete" or a split-test winner, restorable with edit_funnel restore-page), step-products {stepId} (the products a step's order form lists and its sell buttons sell, with product and price names \u2014 add one with edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default the last 30 days} (the funnel's Stats tab per step \u2014 page views all/unique, opt-in and sale rates, earnings per view \u2014 with step names, plus the totals the Sites Analytics cards show: page views, opt-ins, sales and their value, opt-in rate, and hosted-video plays/completion; \u{1F534} only a HOSTED video (a Media Storage file) reports analytics \u2014 YouTube, Vimeo, Wistia and embeds send nothing; RESETTING stats is not offered: it is irreversible, applies asynchronously (~30 s) and clears the Sites Analytics numbers too \u2014 funnel \u2192 Stats \u2192 Reset). webinar (type, schedule, recurrence, form, live link/video, sessions, notification rows, guests + workflow-recipe links). Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole site for dangling references and publish drift \u2014 this tool does not repeat that audit. Read-only.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
-      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent", "share", "archived-pages", "step-products", "stats"]).default("summary"),
+      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent", "share", "archived-pages", "step-products", "stats", "webinar"]).default("summary"),
       pageId: external_exports.string().optional(),
       stepId: external_exports.string().optional(),
       from: external_exports.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -227208,7 +227445,8 @@ var TOOLS2 = [
       { method: "GET", path: "/stats/" },
       { method: "GET", path: "/stats/count" },
       { method: "GET", path: "/stats/optin/conversion-rate" },
-      { method: "GET", path: "/stats/video/stats" }
+      { method: "GET", path: "/stats/video/stats" },
+      { method: "POST", path: "/funnels/funnel/webinar/sessions" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -227322,6 +227560,12 @@ var TOOLS2 = [
       }
       const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
       if (!res.ok) return fromHttp(res.status, res.json);
+      if (view === "webinar") {
+        if (funnel.type !== "webinar") return fail(CODES.VALIDATION_FAILED, `${JSON.stringify(funnel.name)} is a ${funnel.type}, not a webinar`, 'view "webinar" reads a webinar document (find_ghl_site list:true type:"webinar").');
+        const sr = await gw.call("POST", "/funnels/funnel/webinar/sessions", { webinarId: args.funnelId, locationId: args.locationId, includeDeleted: false });
+        if (!sr.ok) return fromHttp(sr.status, sr.json);
+        return ok({ funnelId: args.funnelId, name: funnel.name, webinar: webinarView(funnel, sr.json?.webinarSessions ?? [], args.locationId) });
+      }
       if (view === "settings") return ok({ funnelId: args.funnelId, settings: settingsFrom(funnel), securityHeaders: funnel.securityHeaders ?? [], cookieConsentUrl: funnel.cookieConsent ?? null });
       if (view === "lookups") {
         const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);
