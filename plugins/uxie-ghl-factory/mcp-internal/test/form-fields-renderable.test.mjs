@@ -7,6 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
 import { renderableFields, blankSubmitWarning, STANDARD_ELEMENTS } from '../core/form-fields.mjs';
+import { addressGroup, carries, ADDRESS_CHILDREN } from '../core/form-fields.mjs';
 
 const tool = (n) => TOOLS.find((t) => t.name === n);
 const deps = (gw) => ({ state: { tokenFile: '/fixture/token.txt' }, makeGw: () => gw });
@@ -68,7 +69,7 @@ test('a custom-field question without type, an unknown type, and select off coun
 });
 
 test('every built-in renderer is one the check accepts', () => {
-  const { problems } = renderableFields(Object.entries(STANDARD_ELEMENTS).map(([tag, d]) => ({ tag, type: d.type })));
+  const { problems } = renderableFields(Object.entries(STANDARD_ELEMENTS).map(([tag, d]) => ({ tag, type: d.type, ...(d.type === 'img' ? { url: 'https://x.test/a.png' } : {}) })));
   assert.deepEqual(problems, []);
 });
 
@@ -120,4 +121,41 @@ test('update_form_data refuses an unrenderable field before reading or writing',
   const r = await tool('update_form_data').handler({ locationId: 'LOC', formId: 'F1', fields: [{ tag: 'city', type: 'select' }], confirm: true }, deps(gw));
   assert.equal(r.code, 'VALIDATION_FAILED');
   assert.equal(calls.length, 0);
+});
+
+// f3 (2026-09-29): the builder's own types (formBuilder src/util/methods.ts standardFields), not the corpus table's.
+test('image, country and the address group complete to the builder\'s types', () => {
+  const { fields, problems } = renderableFields([{ tag: 'image', url: 'https://x.test/a.png' }, { tag: 'country' }, { tag: 'group_address' }]);
+  assert.deepEqual(problems, []);
+  assert.deepEqual(fields.map((f) => f.type), ['img', 'select', 'group']);
+  assert.equal(fields[2].hiddenFieldQueryKey, 'addressId');
+  assert.equal(fields[0].hiddenFieldQueryKey, 'image_1');
+});
+
+test('an image without a url, type "image" and type "group_address" are refused by name', () => {
+  const { problems } = renderableFields([{ tag: 'image' }, { tag: 'image', type: 'image', url: 'u' }, { tag: 'group_address', type: 'group_address' }]);
+  assert.equal(problems.length, 3);
+  assert.match(problems.join(' '), /url/); assert.match(problems.join(' '), /img/); assert.match(problems.join(' '), /"group"/);
+});
+
+test('the builder\'s own large_text, phone, number and img renderers are accepted; score needs dataType SCORE', () => {
+  const ok = renderableFields([{ tag: 'cf1', type: 'large_text' }, { tag: 'cf2', type: 'phone' }, { tag: 'cf3', type: 'number' }, { tag: 'cf4', type: 'score', dataType: 'SCORE' }]);
+  assert.deepEqual(ok.problems, []);
+  assert.match(renderableFields([{ tag: 'cf5', type: 'score' }]).problems.join(' '), /SCORE/);
+});
+
+test('an address group is saved the builder\'s way: children after it, settings in form.address, caller copies win', () => {
+  const { fields, address } = addressGroup([{ tag: 'first_name' }, { tag: 'city', label: 'Town' }, { tag: 'group_address', type: 'group' }, { tag: 'email' }]);
+  assert.deepEqual(fields.map((f) => f.tag), ['first_name', 'group_address', 'address', 'city', 'state', 'country', 'postal_code', 'email']);
+  assert.equal(fields.find((f) => f.tag === 'city').label, 'Town');
+  assert.equal(address.children.length, ADDRESS_CHILDREN.length);
+  assert.equal(address.children.find((c) => c.tag === 'country').type, 'select');
+  assert.deepEqual(addressGroup([{ tag: 'email' }]), { fields: [{ tag: 'email' }], address: null });
+});
+
+test('the read-back compares VALUES under GHL\'s stored names, not key presence', () => {
+  assert.equal(carries({ formAction: { redirect_url: 'https://a' } }, { formAction: { redirectUrl: 'https://a', extra: 1 } }), true);
+  assert.equal(carries({ formAction: { redirect_url: 'https://NEW' } }, { formAction: { redirectUrl: 'https://old' } }), false, 'a stale value fails');
+  assert.equal(carries({ fields: [{ tag: 'a', label: 'New' }] }, { fields: [{ tag: 'a', label: 'Old' }] }), false, 'a label-only edit is compared');
+  assert.equal(carries({ fields: [{ tag: 'a' }] }, { fields: [{ tag: 'a' }, { tag: 'b' }] }), false, 'an extra stored element fails');
 });
