@@ -130,6 +130,18 @@ what's proven, but confirm with the user before any action that would make an ag
 **Verify** every write by reading the agent back (GET) and reporting exactly what changed —
 never assume a write succeeded because the response was 200.
 
+**Reading what an agent did** (all read-only, live 2026-09-29):
+- Every AI product, with the span trace of each turn → Agent Logs: `list_agent_sessions` (rows carry `messageCount`;
+  products include `ai_studio`), `get_agent_session` (each turn's `userQueries[]` / `aiResponses[]`),
+  `get_agent_message_trace`, `list_agent_contacts`, `get_agent_metrics`. For the exact agentName / channel / contact /
+  voice spellings to filter on, `get_agent_log_filter_values`. 🔴 Agent Logs does not validate `products`, and a
+  wrong channel or product returns 0 rows, not an error.
+- Conversation AI's own dashboard table and its per-contact summaries → `get_convai_conversation_logs` (view `logs`
+  needs presetPeriod or from+to; view `summaries` is the table's View Transcript / Summary for one contact).
+- Voice AI calls → `get_voice_call_logs` (view `calls` with callType LIVE|TRIAL, dates, actions, sort; view `call` for
+  one call's transcript with tool calls; view `pending` for the outbound queue). There is no text search on calls.
+- Conversation AI Test-panel chats are logged nowhere; a Voice AI Test Audio call is logged (TRIAL).
+
 Delegate never-hand-roll: don't call these endpoints ad hoc — drive them through the
 `engine/` compilers so behavior stays traced to the captures.
 

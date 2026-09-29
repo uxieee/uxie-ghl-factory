@@ -29,8 +29,13 @@ export const UNRELIABLE_SORTS = {
 };
 export const sortNote = (sortBy) => UNRELIABLE_SORTS[sortBy] ?? null;
 export const TIME_RANGES = ['1_day', '7_days', '14_days', '30_days', '90_days', 'custom'];
-export const PRODUCTS = ['agent_studio', 'voice_ai', 'conversation_ai', 'superagents', 'ask_ai', 'agent_logs_assistant'];
+// The seventh, `ai_studio`, is the AI Studio site builder's own sessions (live 2026-09-29: 2 rows over 90 days, agent
+// "BL197 Studio", channel web). The server filters on the value but does not validate it — a made-up product answers 201
+// with 0 rows — so the enum is this tool's check that a product name is real.
+export const PRODUCTS = ['agent_studio', 'voice_ai', 'conversation_ai', 'superagents', 'ask_ai', 'agent_logs_assistant', 'ai_studio'];
 export const MAX_OFFSET = 500;
+// POST /agent-logs/filter-values `field` — the server's enum, quoted from its 422 (2026-09-29).
+export const FILTER_FIELDS = ['agentName', 'contactName', 'channel', 'voiceName'];
 
 export const parseMeta = (raw) => {
   if (raw == null) return null;
@@ -193,7 +198,7 @@ export const SESSION_FILTER_KEYS = [
 export const sessionRow = (r) => ({
   agentSessionId: r.conversationId ?? null, contactId: r.contactId ?? null, contactName: r.contactName ?? null,
   product: r.aiProduct ?? null, channel: r.channel ?? null, agentId: r.agentId ?? null, agentName: r.agentName ?? null,
-  status: r.status ?? null, totalTokens: r.totalTokens ?? null, latencyMs: r.latencyMs ?? null,
+  status: r.status ?? null, messageCount: r.messageCount ?? null, totalTokens: r.totalTokens ?? null, latencyMs: r.latencyMs ?? null,
   durationMs: r.durationMs ?? null, timestamp: r.timestamp ?? null,
 });
 

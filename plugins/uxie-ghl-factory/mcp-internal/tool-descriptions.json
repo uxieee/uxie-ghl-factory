@@ -765,9 +765,9 @@
     ]
   },
   "get_agent_session": {
-    "description": "One agent session: summary, customConfigs, every interaction and its metrics — proof: live-runtime (2026-09-25); risk: read",
+    "description": "One agent session: summary, customConfigs, every interaction and its metrics — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-09-03)",
     "proofRows": [
       "ai-agents--logs-summary",
@@ -1306,9 +1306,9 @@
     ]
   },
   "list_agent_sessions": {
-    "description": "Agent Logs sessions — the AI Agents log table, filterable and cursor-paged — proof: live-runtime (2026-09-28); risk: read",
+    "description": "Agent Logs sessions — the AI Agents log table, filterable and cursor-paged — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-09-03)",
     "proofRows": [
       "ai-agents--agent-logs-logs"
@@ -2317,6 +2317,68 @@
       "ai-agents--routing-config-configs-post",
       "ai-agents--routing-config-configs-patch",
       "ai-agents--routing-config-configs-get"
+    ]
+  },
+  "get_agent_log_filter_values": {
+    "description": "Read Agent Logs filter values — proof: live-runtime (2026-09-29); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-09-29)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "ai-agents--agent-logs-filter-values"
+    ],
+    "proofFloorRows": [
+      "ai-agents--agent-logs-filter-values"
+    ],
+    "riskRows": [
+      "ai-agents--agent-logs-filter-values"
+    ],
+    "rows": [
+      "ai-agents--agent-logs-filter-values"
+    ]
+  },
+  "get_voice_call_logs": {
+    "description": "Read Voice AI call logs — proof: live-runtime (2026-09-29); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-09-29)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "ai-agents--dashboard-call-logs",
+      "ai-agents--voice-ai-call"
+    ],
+    "proofFloorRows": [
+      "ai-agents--dashboard-call-logs",
+      "ai-agents--voice-ai-call"
+    ],
+    "riskRows": [
+      "ai-agents--dashboard-call-logs",
+      "ai-agents--voice-ai-call"
+    ],
+    "rows": [
+      "ai-agents--dashboard-call-logs",
+      "ai-agents--voice-ai-call"
+    ]
+  },
+  "get_convai_conversation_logs": {
+    "description": "Read Conversation AI conversation logs — proof: live-runtime (2026-09-29); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-09-29)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "ai-agents--employees-conversation-logs",
+      "ai-agents--summary-contact"
+    ],
+    "proofFloorRows": [
+      "ai-agents--employees-conversation-logs",
+      "ai-agents--summary-contact"
+    ],
+    "riskRows": [
+      "ai-agents--employees-conversation-logs",
+      "ai-agents--summary-contact"
+    ],
+    "rows": [
+      "ai-agents--employees-conversation-logs",
+      "ai-agents--summary-contact"
     ]
   }
 }
