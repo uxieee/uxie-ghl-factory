@@ -199,7 +199,7 @@ target. Read them with **`find_ghl_site`** `includeRedirects:true` (domains, eve
 | Content AI in the text editor (improve / fix / shorten / generate text, AI images) | page builder → select text → AI menu | GHL's paid Content AI add-on; the menu only appears when it is enabled on the sub-account |
 | schema markup (JSON-LD) | page builder → SEO panel → Schema markup → Add schema (form view, or AI) | its own object (`/schema-markup/schemas/save`, `ownerType:"funnel_page"`), rendered in `<head>` |
 | button themes gallery (Quick Add → Buttons, 18 presets) | page builder → Quick Add → Buttons | presets of ordinary styles; 🔴 a theme's own radius class loses to the compiled rule (the "radius15" theme renders 5px) — set `styles` directly |
-| brand-board palette colours (`var(--red)`) | page builder colour picker → Brand / Global colours | an API-composed page has no builder `:root` palette, so a palette var resolves to nothing there; the tool writes literal colours |
+| brand-board palette colours (`var(--red)`) | page builder colour picker → Brand / Global colours | an API-composed page has no builder `:root` palette, so a palette var resolves to nothing there — write literal colours. 🔴 The tool's own fallback defaults still use palette vars (`var(--blue)`, `var(--white)`…), so name every colour you want to see |
 | column layout knobs (content direction, spacing, alignment, "same layout on mobile") | page builder → column → General | the builder writes them per column; widths are set with `widthPct` |
 | saved assets: section / element templates, universal sections and elements, global sections | page builder → Save Section / Save Element; Quick Add → Saved Assets | builder-owned synced assets; inserting one is a drag in the builder |
 | share a funnel (a link anyone can import) | Sites → Funnels → row ⋮ → Share | 🔴 merely OPENING the Share modal creates a link shared with ALL; narrowing it to the agency or removing it needs the $497 plan. Read one with `get_funnel view share` |
@@ -328,8 +328,8 @@ routing and headers on the exact path, after the cache window.
 
 ## Scope
 
-**IN:** funnel / step / page creation, native-element authoring (all 57 leaf kinds build from
-scratch), art direction, custom HTML, tracking code, page `meta`, public-path and domain routing,
+**IN:** funnel / step / page creation, native-element authoring (56 of the builder's 68 leaf kinds
+compose from scratch; the 12 newest — `instagram-feed`, 11 `store-pdp-v2-*` — are edit-in-place only), art direction, custom HTML, tracking code, page `meta`, public-path and domain routing,
 calendar and product bindings, chat widget, split tests, publishing, site audit. Store pages need a
 step of `type:"store"`; blog pages need a `blog-post` step in a `type:"blog"` funnel, which
 `create_funnel` `kind:"blog"` makes (with a Blog Home step).

@@ -10,10 +10,9 @@ live-proven 2026-09-06 across 133 saved probes.
 
 **Three products, two collections.** Forms and quizzes share `/forms/*` and differ only by
 `productType`; surveys have their own `/surveys/*` collection but call the **forms** routes for
-delete, duplicate, share, folders and move-to-folder. So the survey-shaped spellings of duplicate,
-folder and move-to-folder are paths nothing in the product calls, and whether they exist
-server-side is unknown — written out in prose here on purpose, because writing them as paths mints
-catalogue rows for endpoints that may not exist.
+delete, duplicate, share, folders and move-to-folder — and the survey list app ALSO calls the survey spellings of
+duplicate, share, delete, folders and move-to-folder directly (mined 2026-09-08 and again 2026-09-29; see the forms
+corpus page on surveys and quizzes). Both families exist; neither is run by a typed tool.
 
 **Five typed tools cover the rail** — `list_forms`, `get_form`, `create_form`,
 `update_form_data`, `list_form_submissions` — all live-fired on the sandbox 2026-09-07, thirteen
@@ -50,7 +49,7 @@ A verifier that compares on what it sent reports a mismatch on a perfectly good 
 | **There is no draft state** | A form is live at its public widget URL the moment it is created. Nothing is staged, nothing is published. |
 | **`formData` is world-readable** | `GET /forms/data/{id}` answers with **no credentials at all** — it is what the widget renders from. Every `versionHistory[].formDataDownloadUrl` is public too. Never put anything private in a form document. |
 | **Unknown id → 400, not 404** | `{"message": "Form does not exist"}`. On the save path the same cause answers 404 with different wording — two validators, one cause. |
-| **`type=form` is the row-kind switch** | Any other value, including omitting it, returns forms **and folders** in one array. `type` selects the row kind, not the `productType`. |
+| **`type=form` is the row-kind switch** | Any other value, including omitting it, returns forms **and folders** in one array. `type` selects the row kind, not the `productType` — and the UI never sends one without the other: forms go as `type:"form"` + `productType:"form"`, quizzes as `type:"quiz"` + `productType:"quiz"`. `list_forms` sends `type=form` only, so it cannot list just quizzes. |
 | **`count` counts folders too** | Three forms plus one folder answers 4. It will not agree with the number of rows you listed. |
 | **Nothing inside `formData` is validated** | An invented key is stored and read back. The only guard is the widget: what it cannot render, it ignores. Validate on your side. |
 | **A field with no `type` is saved and never shown** | The widget renders each element by `type`. `{tag, label}` reads back fine and renders no label and no input; a form left with only its typed button shows the button alone. `create_form` and `update_form_data` complete a built-in tag sent without `type` the builder's way (listed under `completed`) and refuse any other untyped or unknown-type field by name. |
@@ -90,5 +89,5 @@ Never executed on any account, so no tool exposes them and the corpus marks them
 `POST /forms/image` (multipart); `POST /forms/schedule-form-export`. Quiz and survey **saves** were
 never executed either — their `formData` carries `slides[]`, `logic`, `resultTemplate`, `category`
 and `categoryCustomFields` instead of `form.fields[]`, read from the builder's source and never
-written. A submission through the widget creates a contact and fires `form_submitted` triggers on
+written. A submission through the widget creates a contact and fires `form_submission` triggers on
 any published workflow filtered to that form, so never submit on a client account to test.

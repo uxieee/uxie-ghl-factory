@@ -94,8 +94,9 @@ Anything else stores and does nothing.
 
 ## Coverage
 
-60 element kinds exist (a closed set in the page-builder bundle). **All 57 leaf kinds build
-from scratch.** Five of the six that used to fail were never shape problems — they needed the right
+The page builder has 72 element kinds (68 leaves). The tool's catalogue holds the 60 of the 2026-09-09 registry, and
+**its 56 leaf kinds build from scratch**; the 12 added since (`instagram-feed`, 11 `store-pdp-v2-*`) are refused by
+compose and editable in place only. Five of the six that used to fail were never shape problems — they needed the right
 **step type**, found by installing GHL's own store and blog templates and reading the real nodes.
 
 | Kind | Needs | Status |
