@@ -28,6 +28,7 @@ import {
   readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS, planAddStepProduct, STEP_PRODUCT_NOTE, readStepProducts, stepProductView,
   CLONE_FUNNEL_NOTE, IMPORT_PAGE_NOTE, BILLING_FIELDS_NOTE, BILLING_ON_SAVE_NOTE, billingCheckouts,
 } from './funnel-ops.mjs';
+import { planAdvancedFilters, videoFilters, videoView, filterQuery, ordersView, FILTER_FIELDS as ANALYTICS_FILTER_FIELDS, SALES_NOTE } from './funnel-analytics.mjs';
 import { planCreateFunnel, createdId, findMediaVideo, webinarView, sessionWarnings, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
@@ -12368,27 +12369,29 @@ export const TOOLS = [
       + 'settings (the funnel-settings fields as update-settings names them), versions (one page: '
       + 'live vs drafts, sorted by timestamp, not by array position), security (custom response headers), '
       + 'events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the '
-      + 'funnel\'s share link, if one exists: who it is shared with and the import URL — read-only; creating a share is '
-      + 'left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page '
-      + '"delete" or a split-test winner, restorable with edit_funnel restore-page), step-products {stepId} (the '
-      + 'products a step\'s order form lists and its sell buttons sell, with product and price names — add one with '
-      + 'edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default the last 30 days} (the funnel\'s Stats tab per step '
-      + '— page views all/unique, opt-in and sale rates, earnings per view — with step names, plus the totals the Sites Analytics '
-      + 'cards show: page views, opt-ins, sales and their value, opt-in rate, and hosted-video plays/completion; 🔴 only a HOSTED '
-      + 'video (a Media Storage file) reports analytics — YouTube, Vimeo, Wistia and embeds send nothing; RESETTING stats is not '
-      + 'offered: it is irreversible, applies asynchronously (~30 s) and clears the Sites Analytics numbers too — funnel → Stats → Reset). '
-      + 'webinar (type, schedule, recurrence, form, live link/video, sessions, notification rows, guests + workflow-recipe links). '
-      + 'Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole '
-      + 'site for dangling references and publish drift — this tool does not repeat that audit. '
+      + 'funnel\'s share link if one exists — read-only; creating one is left to the UI: it cannot be removed below the $497 plan), '
+      + 'archived-pages (restorable with edit_funnel restore-page), step-products {stepId} (a step\'s order-form and sell-button '
+      + 'products with names; add one with edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default 30 days; filters?} '
+      + '(per-step page views, opt-in and sale rates, earnings per view, plus the Analytics cards: page views, opt-ins, sales and value, '
+      + 'opt-in rate, hosted-video plays, pauses, completion, drop-off spike and progress graph; filters = the Advanced filter, groups of '
+      + 'field is/is not values; 🔴 only a HOSTED video reports; RESETTING stats is not offered: irreversible, ~30 s async, clears Sites '
+      + 'Analytics too — funnel → Stats → Reset), filter-values {field} (the values a filter can pick), sales (the Sales tab: '
+      + 'version-1 order forms only), webinar (type, schedule, recurrence, form, link/video, sessions, notification rows, guests + recipe links). '
+      + 'Siblings: find_ghl_site resolves a domain/name to the id first; audit_site sweeps a whole site for dangling references and publish drift. '
       + 'Read-only.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
-      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages', 'step-products', 'stats', 'webinar']).default('summary'),
+      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages', 'step-products', 'stats', 'webinar', 'filter-values', 'sales']).default('summary'),
       pageId: z.string().optional(),
       stepId: z.string().optional(),
       from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
       to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      filters: z.object({ group: z.enum(['OR', 'AND']).optional(), filters: z.array(z.object({ group: z.enum(['OR', 'AND']).optional(),
+        filters: z.array(z.object({ field: z.enum(ANALYTICS_FILTER_FIELDS), operator: z.enum(['in', 'not_in']).optional(), value: z.array(z.string()) })) })) }).optional()
+        .describe('stats: the Analytics screen\'s Advanced filter — groups of conditions (field is/is not values). Top group OR, nested groups AND by default; ≤5 groups, ≤5 conditions each'),
+      field: z.enum(ANALYTICS_FILTER_FIELDS).optional().describe('filter-values: the field whose values exist in the range'),
+      search: z.string().optional(), limit: z.number().int().min(1).max(100).optional(), offset: z.number().int().min(0).optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },
@@ -12404,6 +12407,8 @@ export const TOOLS = [
       { method: 'GET', path: '/stats/count' },
       { method: 'GET', path: '/stats/optin/conversion-rate' },
       { method: 'GET', path: '/stats/video/stats' },
+      { method: 'GET', path: '/stats/filter-values' },
+      { method: 'GET', path: '/funnels/order' },
       { method: 'POST', path: '/funnels/funnel/webinar/sessions' },
     ],
     handler: async (args, deps) => guard(async () => {
@@ -12431,7 +12436,7 @@ export const TOOLS = [
         if (!r.ok) return fromHttp(r.status, r.json);
         return ok({ funnelId: args.funnelId, stepId: args.stepId, stepProducts: rows.map(stepProductView), note: STEP_PRODUCT_NOTE });
       }
-      if (view === 'stats') {
+      if (view === 'stats' || view === 'filter-values') {
         const { res: fr, funnel: f } = await readFunnel(gw, args.locationId, args.funnelId);
         if (!fr.ok) return fromHttp(fr.status, fr.json);
         const day = (d) => d.toISOString().slice(0, 10);
@@ -12439,10 +12444,23 @@ export const TOOLS = [
         const from = args.from ?? day(new Date(Date.parse(`${to}T00:00:00Z`) - 30 * 86400000));
         const type = f?.type === 'website' ? 'website' : f?.type === 'webinar' ? 'webinar' : 'funnel';
         const q = `locationId=${L}&fromDate=${from}&toDate=${to}&funnelId=${F}&type=${type}`;
+        if (view === 'filter-values') {
+          if (!args.field) return fail(CODES.VALIDATION_FAILED, 'view "filter-values" needs field', `One of ${ANALYTICS_FILTER_FIELDS.join(', ')}.`);
+          const lim = args.limit ?? 20;
+          if (lim > 20) return fail(CODES.VALIDATION_FAILED, 'filter-values returns at most 20 values per call (GHL answers 422 above that)', 'Page with offset, or narrow with search.');
+          const r = await gw.call('GET', `/stats/filter-values?${q}&field=${args.field}&limit=${lim}&offset=${args.offset ?? 0}&search=${encodeURIComponent(args.search ?? '')}`);
+          if (!r.ok) return fromHttp(r.status, r.json);
+          return ok({ funnelId: args.funnelId, name: f?.name ?? null, from, to, field: args.field, values: (r.json?.values ?? []).map((v) => ({ value: v.value, ...(v.label !== undefined ? { label: v.label } : {}) })),
+            note: 'These are the values seen in the range: pass them as filters.filters[].filters[].value in view "stats". pageId values are page ids with "funnel / page" labels.' });
+        }
+        const plan = planAdvancedFilters(args.filters);
+        if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was read.');
+        const fq = filterQuery(plan.filters);
+        const vf = videoFilters(plan.filters);
         const reads = {
-          steps: `/stats/?funnelId=${F}&fromDate=${from}&toDate=${to}&locationId=${L}`,
-          pageViews: `/stats/count?${q}&eventType=page_view`, optins: `/stats/count?${q}&eventType=optin`, sales: `/stats/count?${q}&eventType=sale`,
-          optinRate: `/stats/optin/conversion-rate?${q}&eventType=optin_conversion_rate`, video: `/stats/video/stats?${q}&eventType=video&includeGraphData=false`,
+          steps: `/stats/?funnelId=${F}&fromDate=${from}&toDate=${to}&locationId=${L}${fq}`,
+          pageViews: `/stats/count?${q}&eventType=page_view${fq}`, optins: `/stats/count?${q}&eventType=optin${fq}`, sales: `/stats/count?${q}&eventType=sale${fq}`,
+          optinRate: `/stats/optin/conversion-rate?${q}&eventType=optin_conversion_rate${fq}`, video: `/stats/video/stats?${q}&eventType=video&includeGraphData=true${filterQuery(vf.filters)}`,
         };
         const got = {};
         for (const [k, p] of Object.entries(reads)) { const r = await gw.call('GET', p); if (!r.ok) return fromHttp(r.status, r.json); got[k] = r.json; }
@@ -12450,13 +12468,29 @@ export const TOOLS = [
         const steps = (Array.isArray(got.steps) ? got.steps : []).map((st) => ({ stepId: st.stepId, name: names.get(st.stepId) ?? null,
           pageViewsAll: st.pageViewsAll ?? 0, pageViewsUnique: st.pageViewsUnique ?? 0, optinsRate: st.optinsRate ?? null, saleRate: st.saleRate ?? null,
           earningsPerPageViewAll: st.earningsPerPageViewAll ?? 0, pages: (st.pageStats ?? []).map((pg) => ({ pageId: pg.pageId, pageViewsAll: pg.pageViewsAll ?? 0, pageViewsUnique: pg.pageViewsUnique ?? 0 })) }));
-        const vd = got.video?.data ?? {};
+        const video = videoView(got.video?.data);
         return ok({ funnelId: args.funnelId, name: f?.name ?? null, from, to,
+          ...(plan.filters ? { filters: plan.filters } : {}),
           totals: { pageViews: got.pageViews?.totalCount ?? 0, optins: got.optins?.totalCount ?? 0, sales: got.sales?.totalCount ?? 0, saleValue: got.sales?.saleValue ?? 0,
-            optinRate: got.optinRate?.totalCount ?? 0, hostedVideo: { plays: vd.videoPlay ?? 0, completionPct: vd.completion ?? null, averageWatchedPct: vd.averageTime ?? null } },
+            optinRate: got.optinRate?.totalCount ?? 0,
+            hostedVideo: { plays: video.plays, pauses: video.pauses, completionPct: video.completionPct, averageWatchedPct: video.averageWatchedPct, dropOffSpikePct: video.dropOffSpikePct, progress: video.progress } },
           steps,
           notes: ['Views are counted from public page loads (POST /stats/event); a Stats reset (UI only, not offered here) clears them asynchronously.',
-            'Only a HOSTED video (a Media Storage file) reports plays; YouTube, Vimeo, Wistia and embeds send nothing.'] });
+            'Only a HOSTED video (a Media Storage file) reports plays; YouTube, Vimeo, Wistia and embeds send nothing.',
+            'hostedVideo: averageWatchedPct and completionPct are percent of the video; dropOffSpikePct is the progress point with the biggest drop-off; progress is the "Video engagement" graph (users per progress bucket).',
+            ...(plan.filters ? [`Filters apply to the totals and the per-step rows. Video takes only page and device filters${vf.dropped.length ? ` — ${vf.dropped.join(', ')} ${vf.dropped.length > 1 ? 'were' : 'was'} not applied to the video numbers` : ''}${vf.filters ? '' : ' (none of yours applies, so the video numbers are unfiltered)'}. "is not" leaves out events with no value for the field. A page filter selects whole sessions that touched the page (the video numbers by page can add up to more than the total).`] : [])] });
+      }
+      if (view === 'sales') {
+        const { res: fr, funnel: f } = await readFunnel(gw, args.locationId, args.funnelId);
+        if (!fr.ok) return fromHttp(fr.status, fr.json);
+        const day = (d) => d.toISOString().slice(0, 10);
+        const to = args.to ?? day(new Date());
+        const from = args.from ?? day(new Date(Date.parse(`${to}T00:00:00Z`) - 30 * 86400000));
+        const lim = args.limit ?? 10;
+        const r = await gw.call('GET', `/funnels/order?locationId=${L}&funnelId=${F}&startDate=${from}&endDate=${to}&limit=${lim}&skip=${args.offset ?? 0}`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const products = Object.fromEntries((f?.steps ?? []).flatMap((st) => st.products ?? []).filter((x) => x?.id).map((x) => [x.id, x]));
+        return ok({ funnelId: args.funnelId, name: f?.name ?? null, from, to, count: r.json?.count ?? 0, orders: ordersView(r.json?.data, { steps: f?.steps ?? [], products }), note: SALES_NOTE });
       }
       if (view === 'versions') {
         if (!args.pageId) return fail(CODES.VALIDATION_FAILED, 'view "versions" needs pageId', 'Pass the pageId (view "summary" lists each step\'s pages).');

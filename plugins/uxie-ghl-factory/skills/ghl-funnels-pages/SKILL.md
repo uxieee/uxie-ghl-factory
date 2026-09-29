@@ -158,7 +158,14 @@ currency, hasVariants, label, value: <product id>, …}`), not a step product. I
 `saleAction` as for order forms. The purchase itself charges a card saved by an earlier order in the funnel.
 
 **Analytics:** `get_funnel` view `stats` gives a funnel's per-step views, opt-in and sale rates and earnings per view,
-with step names, plus the totals the Sites Analytics cards show. Location-wide dashboard reads (`/stats/count`,
+with step names, plus the totals the Sites Analytics cards show and the hosted video's plays, pauses, completion, average
+watched, drop-off spike and progress graph (percent fields are percent of the video). `filters` is the Analytics **Advanced
+filter**: groups of conditions `{field, operator in|not_in, value[]}` over city, region, country, pageId, browser, deviceType,
+trafficSource, trafficChannel (top group OR, nested AND by default; ≤ 5 groups, ≤ 5 conditions). It filters the totals and the
+per-step rows; the video takes only page and device filters (the result says what was not applied); `not_in` leaves out events
+with no value. View `filter-values {field}` lists the values a filter can pick (20 per call). View `sales` is the Sales tab —
+🔴 **version 1 order forms only**: a funnel on version 2 order forms lists nothing there even with sales; read those in
+Payments → Orders and Transactions. Location-wide dashboard reads (`/stats/count`,
 `/stats/graph/data`, `/stats/count/split`, `/stats/device/split`, `/stats/video/stats`, `/stats/count/webinar`) go through
 `raw_request` — see the catalogue rows.
 
