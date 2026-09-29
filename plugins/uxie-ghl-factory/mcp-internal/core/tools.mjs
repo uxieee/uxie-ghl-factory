@@ -10645,7 +10645,9 @@ export const TOOLS = [
       + 'the first stage. Removing a stage that holds cards is refused unless you name moveCardsTo; the cards are '
       + 'then moved there first, one by one (each move fires opportunity stage-change workflow triggers), and the '
       + 'stage is removed only once none are left. Every stage must end with a stageWinProbability, since one '
-      + 'missing value makes GHL rewrite them all. expectedName must match the pipeline\'s current name. Previews by '
+      + 'missing value makes GHL rewrite them all. The pipeline-level Funnel / Pie-chart switches are recomputed from the stages '
+      + '(on when any stage is on), as the GHL UI does; dashboards read only those, so a stale pair hides the pipeline. '
+      + 'New stages start with both charts on and colour #64748B, like the UI. expectedName must match the pipeline\'s current name. Previews by '
       + 'default; confirm:true writes, then reads the pipeline back and fails on any difference. Does not create or '
       + 'delete pipelines, change sharing permissions, or edit opportunities (except the moves above). '
       + 'Read pipelines with list_account_entities. No tool changes the account-wide opportunity settings (owner '
@@ -10658,8 +10660,6 @@ export const TOOLS = [
       name: z.string().optional(),
       colorRenderMode: z.enum(COLOR_RENDER_MODES).optional(),
       useOpportunityProbability: z.boolean().optional(),
-      showInFunnel: z.boolean().optional(),
-      showInPieChart: z.boolean().optional(),
       updateStages: z.array(z.object({
         id: z.string(), name: z.string().optional(), stageWinProbability: z.number().optional(),
         color: z.string().optional(), showInFunnel: z.boolean().optional(), showInPieChart: z.boolean().optional(),
