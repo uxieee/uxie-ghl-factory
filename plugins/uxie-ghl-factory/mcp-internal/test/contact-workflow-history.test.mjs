@@ -4,7 +4,7 @@ import { TOOLS } from '../core/tools.mjs';
 
 const tool = () => TOOLS.find((t) => t.name === 'get_contact_workflow_history');
 // Newest first, as the status search answers. r3 has no sid (the reference omits it then).
-const RUNS = ['r1', 'r2', 'r3', 'r4', 'r5'].map((id, i) => ({ _id: id, sid: id === 'r3' ? undefined : `s${i}`, workflowId: i % 2 ? 'W2' : 'W1',
+const RUNS = ['r1', 'r2', 'r3', 'r4', 'r5'].map((id, i) => ({ _id: id, sid: `s${i}`, workflowId: i % 2 ? 'W2' : 'W1',
   status: 'finished', createdAt: `2026-09-29T05:0${9 - i}:00.000Z`, updatedAt: `2026-09-29T05:0${9 - i}:30.000Z`, currentStepName: `step ${id}`, currentStepType: 'wait' }));
 
 // inclusive: action=next re-returns the reference row first (measured). exclusive: starts after it (control).
@@ -16,8 +16,11 @@ function gateway({ inclusive = true } = {}) {
     if (p === '/workflows/status/search/contact-executions' || p === '/workflows/status/search/workflow-with-filter') {
       let rows = q.get('workflowId') ? RUNS.filter((r) => r.workflowId === q.get('workflowId')) : RUNS;
       if (q.get('action') === 'next') {
-        const at = rows.findIndex((r) => r._id === q.get('referenceId'));
-        rows = rows.slice(inclusive ? at : at + 1);
+        const exec = p.endsWith('contact-executions');
+        // measured 2026-09-29: contact-executions refuses the id/createdAt reference and pages by sid, exclusively
+        if (exec && (q.has('referenceId') || q.has('referenceCreatedAt'))) return { ok: false, status: 422, json: { message: ['property referenceCreatedAt should not exist'] } };
+        const at = rows.findIndex((r) => (exec ? r.sid === q.get('referenceSid') : r._id === q.get('referenceId')));
+        rows = rows.slice(exec ? at + 1 : (inclusive ? at : at + 1));
       }
       return { ok: true, status: 200, json: { statuses: structuredClone(rows.slice(0, Number(q.get('limit')))), count: rows.length } };
     }
@@ -48,17 +51,18 @@ test('CONTROL: an endpoint that starts AFTER the reference loses nothing either'
   assert.deepEqual((await walk(gateway({ inclusive: false }))).map((r) => r.runId), ['r1', 'r2', 'r3', 'r4', 'r5']);
 });
 
-test('the reference triple is sent back (sid only when the row had one)', async () => {
+test('unnarrowed pages send ONLY referenceSid; narrowed pages send the id/createdAt tuple', async () => {
   const g = gateway(); await walk(g);
   const next = g.calls.filter((c) => c.includes('action=next'));
   assert.ok(next.length >= 2);
-  assert.match(next[0], /referenceId=r2/); assert.match(next[0], /referenceSid=s1/);
-  assert.ok(next.some((c) => /referenceId=r4/.test(c)));
+  assert.match(next[0], /referenceSid=s1/); assert.doesNotMatch(next[0], /referenceId|referenceCreatedAt/);
+  const g2 = gateway(); await walk(g2, { workflowId: 'W1' });
+  assert.ok(g2.calls.filter((c) => c.includes('action=next')).every((c) => /referenceId=/.test(c) && /referenceCreatedAt=/.test(c)));
 });
 
-test('workflowId narrows through workflow-with-filter', async () => {
-  const g = gateway(); const runs = await walk(g, { workflowId: 'W2' });
-  assert.deepEqual(runs.map((r) => r.runId), ['r2', 'r4']);
+test('workflowId narrows through workflow-with-filter, and pages across the inclusive reference', async () => {
+  const g = gateway(); const runs = await walk(g, { workflowId: 'W1' });
+  assert.deepEqual(runs.map((r) => r.runId), ['r1', 'r3', 'r5']);
   assert.ok(g.calls.every((c) => !c.includes('contact-executions')));
 });
 

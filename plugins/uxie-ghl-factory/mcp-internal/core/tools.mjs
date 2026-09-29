@@ -4121,20 +4121,24 @@ export const TOOLS = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const limit = args.limit ?? 20;
-      // THE CURSOR is the reference triple of the LAST run this tool returned — (createdAt, _id, sid), the tuple the map
-      // itself sends back (services/api/workflow-status-service.ts: action=next&referenceCreatedAt&referenceId&referenceSid).
-      // The status search is measured INCLUSIVE of the reference row (it re-returns it first), so a next page drops a
-      // leading row equal to the cursor; if a page ever starts after it instead, nothing is dropped and nothing is lost.
+      // THE CURSOR is the reference of the LAST run this tool returned. The two routes page differently (live 2026-09-29):
+      //  - contact-executions takes ONLY referenceSid and starts AFTER it; referenceCreatedAt / referenceId answer 422
+      //    "property … should not exist", although the map's own source still sends all three
+      //    (services/api/workflow-status-service.ts) — knowledge sniffs/workflows-wave1-2026-09-25/live-W24-history.json.
+      //  - workflow-with-filter takes referenceId + referenceCreatedAt (+ referenceSid) and is INCLUSIVE of the
+      //    reference row (measured 2026-08-02).
+      // Either way a next page drops a leading row equal to the cursor, so both semantics lose nothing.
       let ref = null;
       if (args.cursor) {
         try { ref = JSON.parse(Buffer.from(args.cursor, 'hex').toString('utf8')); } catch { ref = null; }
-        if (!ref?.i || !ref?.c || (ref.w ?? null) !== (args.workflowId ?? null) || ref.k !== args.contactId)
+        if (!ref?.i || !ref?.c || (!args.workflowId && !ref.s) || (ref.w ?? null) !== (args.workflowId ?? null) || ref.k !== args.contactId)
           return fail(CODES.VALIDATION_FAILED, 'cursor is not a nextCursor this tool returned for the same contact and workflowId',
             'Pass back nextCursor exactly as returned, with the same contactId and workflowId; omit it for the first page.');
       }
       const q = new URLSearchParams({ action: ref ? 'next' : 'first', contactId: args.contactId, limit: String(limit + (ref ? 2 : 1)), locationId: args.locationId });
       if (args.workflowId) q.set('workflowId', args.workflowId);
-      if (ref) { q.set('referenceCreatedAt', ref.c); q.set('referenceId', ref.i); if (ref.s) q.set('referenceSid', ref.s); }
+      if (ref && args.workflowId) { q.set('referenceCreatedAt', ref.c); q.set('referenceId', ref.i); if (ref.s) q.set('referenceSid', ref.s); }
+      else if (ref) q.set('referenceSid', ref.s);
       const path = args.workflowId ? '/workflows/status/search/workflow-with-filter' : '/workflows/status/search/contact-executions';
       const r = await gw.call('GET', `${path}?${q}`);
       if (!r.ok) return fromHttp(r.status, r.json);
@@ -4149,7 +4153,7 @@ export const TOOLS = [
         names.set(wid, w.ok ? (w.json?.name ?? null) : null);
       }
       const last = page.at(-1);
-      const nextCursor = more && last
+      const nextCursor = more && last && (args.workflowId || last.sid)
         // HEX, not base64: base64 of a JSON object starts `eyJ`, which the result scrubber reads as a JWT and redacts.
         ? Buffer.from(JSON.stringify({ c: last.createdAt, i: last._id, s: last.sid ?? null, w: args.workflowId ?? null, k: args.contactId })).toString('hex')
         : null;
