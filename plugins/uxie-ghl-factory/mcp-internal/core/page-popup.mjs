@@ -25,7 +25,7 @@ const PREFIX = '.hl_page-preview--content';
 /**
  * spec: {name, width?: full|medium|small (medium), showOn?: 'exit' | 'none' | {delay: seconds} (none),
  *        closeOnOutsideClick? (true), position?: center|left|right (center), background? ('#ffffff'),
- *        overlayColor? ('rgba(0, 0, 0, 0.5)'), padding? (20), columns: [{elements, widthPct?}]}
+ *        overlayColor? ('rgba(0, 0, 0, 0.5)'), padding? (20), disabled? (false), columns: [{elements, widthPct?}]}
  * composeLeaf(elementSpec, salt) → {leaf, css} — the page composer's own leaf builder, so a popup's
  * elements take exactly the shapes a section's do.
  */
@@ -65,7 +65,7 @@ export function makePopup(spec, i, composeLeaf, saltBase = 'P', label = `popups[
     id, meta: 'hl_main_popup', title: spec.name, tag: '', child: [rowId], class: {}, wrapper: {}, customCss: [],
     extra: {
       bgImage: BG_IMAGE, overlayColor: val(spec.overlayColor ?? 'rgba(0, 0, 0, 0.5)'), left: { value: 50, unit: '%' },
-      popupDisabled: val(false), popupHide: val(spec.closeOnOutsideClick ?? true), minWidth: val(minWidth),
+      popupDisabled: val(spec.disabled === true), popupHide: val(spec.closeOnOutsideClick ?? true), minWidth: val(minWidth),
       showPopupOnMouseOut: trigger, customClass: val([]), position: val(position),
     },
     styles: {

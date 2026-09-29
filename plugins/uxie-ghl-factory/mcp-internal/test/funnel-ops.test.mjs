@@ -136,6 +136,24 @@ test('reorder demands a full permutation — the route replaces the whole steps 
   assert.equal(writes(d.calls)[0].body.steps.length, 2);
 });
 
+test('reorder sends each step\'s FULL stored object (a split step keeps its split keys), sequence renumbered', async () => {
+  const f = FUNNEL(); f.steps[1] = { ...f.steps[1], split: true, split_started_at: '2026-09-01T00:00:00Z', route_all_requests: true, additional_routes: [{ id: 'S9' }], key: 'custom' };
+  const p = planReorder({ funnel: f, order: ['S2', 'S1'] });
+  assert.equal(p.refuse, undefined);
+  assert.deepEqual(p.body.steps.map((s) => [s.id, s.sequence]), [['S2', 1], ['S1', 2]]);
+  const [s2, s1] = p.body.steps;
+  for (const k of ['split_started_at', 'route_all_requests', 'additional_routes', 'key']) assert.deepEqual(s2[k], f.steps[1][k], k);
+  assert.equal(s2.controlTraffic, 100); assert.equal('control_traffic' in s2, false);
+  assert.deepEqual(Object.keys(s1).sort(), ['controlTraffic', 'id', 'name', 'pages', 'sequence', 'split', 'type', 'url'], 'a plain step is still the eight keys');
+});
+
+test('reorder is refused on a funnel with store pages: they follow a fixed order', async () => {
+  const f = FUNNEL(); f.steps[0] = { ...f.steps[0], type: 'store', key: 'store-product-detail' };
+  assert.match(planReorder({ funnel: f, order: ['S2', 'S1'] }).refuse, /store pages follow a fixed order/);
+  const g = FUNNEL(); g.type = 'store';
+  assert.match(planReorder({ funnel: g, order: ['S2', 'S1'] }).refuse, /cannot be reordered/);
+});
+
 test('delete-step is behind a target check on id AND current name', async () => {
   assert.match(planDeleteStep({ funnel: FUNNEL(), stepId: 'S2', expectName: 'Wrong' }).refuse, /target check failed/);
   assert.match(planDeleteStep({ funnel: FUNNEL(), stepId: 'S9', expectName: 'Thanks' }).refuse, /not on this funnel/);

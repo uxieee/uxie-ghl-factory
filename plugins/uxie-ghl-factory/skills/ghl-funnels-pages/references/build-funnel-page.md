@@ -94,12 +94,29 @@ Autosave answers `201` to all of these:
 - **Ops:**
   - `set`: merges `extra` / `styles` / `wrapper` / the tablet and mobile maps into one node by id, and compiles them
     into the public stylesheet. On a section id, `set` takes the section keys below (not `extra`).
-  - `append-section`: a section spec, in the same shape as `sections[i]`.
+  - `append-section`: a section spec, in the same shape as `sections[i]`. At the end by default, or at a position
+    among the sections: `index` | `after` | `before` (a section id).
+  - `insert`: a new element into an existing column: `element` (the shape of a column's element) plus `parentId`
+    (the column) with an optional `index` | `after` | `before`, or just `after` / `before` a sibling. The node joins the
+    section's element bag, its id goes into the column's `child[]`, its rules into the section's sheet.
+  - `move`: a section (`sections[]` order, `sequence` renumbered), a row, a column or an element among its siblings:
+    `direction` up | down | top | bottom, or a position (`index` | `after` | `before`). An element may go to another
+    column of ITS section with `parentId` + a position. Only `child[]` changes; the flat element bag keeps its order,
+    as the builder's own save does.
+  - `clone`: a section, row, column or element, put right after the original. Every id is new
+    (`<kind>-<10 random chars>`, `extra.nodeId` = `c` + id), the copy has no `element` copy and no `updated`, the rules
+    that name the original ids are copied under the new ids (a cloned section gets its own compiled sheet). The report
+    names `cloneId` and the `ids` map.
   - `remove-node`: a node and its descendants, or a whole section.
   - `page`: `trackingCode {headerCode, footerCode}`; `customCss`, which is kept in `general.general.pageStyles`
     AND appended to the compiled `pageStyles` the public page serves; `background {imageUrl, color}`;
     `typography`.
   - `append-popup`.
+  - `set-popup` (`popupId` = the popup's id or its name): `disabled` (the builder's Disable Popup switch:
+    `extra.popupDisabled` on the popup's root node), `closeOnOutsideClick`, `showOn`. `remove-popup` takes a popup and
+    its page-level rules out (refused while a button opens it). `order-popups` (`order` = ids or names) sets the order
+    of `popupsList`, which the builder documents as the popups' priority (the z-index hierarchy); unlisted popups follow.
+    Content INSIDE an existing popup is not editable here (`set` on it says so): remove and append the popup.
 - **`seo`** takes `{title, description, keywords, author, imageUrl, language, customMeta, canonicalMeta}`. Only the
   keys you pass change. SEO is written twice, as the builder does:
   1. to the page RECORD (`GET /funnels/page/{pageId}`) through `POST /funnels/funnel/funnel-page/{pageId}`. That
@@ -137,7 +154,7 @@ Both the class knobs AND the builder's compiled rules are written, byte-equal to
 ## Popups
 
 - A popup spec is `{name, width full|medium|small, showOn 'exit'|'none'|{delay}, closeOnOutsideClick, position,
-  background, columns}`. In edit mode, use `append-popup`.
+  background, disabled, columns}`. In edit mode, use `append-popup`.
 - An element's `openPopup: "<popup name>"` wires a button, image, image-feature or svg to a popup. 🔴 An svg's click
   listener is on the inner `<svg>`: the click lands only on the graphic itself, not its padding.
 - 🔴 **Trap:** the builder's first save of an API-composed page adds an empty popup. Opening an empty-action

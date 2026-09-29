@@ -187,6 +187,11 @@ export function planUpdateStep({ funnel, stepId, name, url, domainName }) {
   return { method: 'PUT', path: `/funnels/funnel/step/${enc(funnel._id ?? funnel.id)}`, body: b };
 }
 
+// Store pages follow a fixed order: the builder does not let them be dragged ("Store pages cannot be reordered"; the funnel list's
+// reorderNotAllowedTitle), so the tool does not send that PATCH for a funnel that has one. The server's own enforcement is unmeasured —
+// the refusal mirrors the product's, it is not a proven server rule.
+const isStoreStep = (s) => s?.type === 'store' || /^store-/.test(s?.key ?? '');
+
 export function planReorder({ funnel, order }) {
   const steps = funnel.steps ?? [];
   const ids = steps.map((s) => s.id);
@@ -194,12 +199,18 @@ export function planReorder({ funnel, order }) {
   if (!same) {
     return { refuse: `order must name EVERY step exactly once (${ids.length} on this funnel). The route replaces the whole steps array; a subset would drop steps.` };
   }
+  if (funnel.type === 'store' || steps.some(isStoreStep)) {
+    return { refuse: 'store pages follow a fixed order and cannot be reordered (the page builder refuses the drag: "Store pages cannot be reordered"). Nothing was sent.' };
+  }
   const byId = Object.fromEntries(steps.map((s) => [s.id, s]));
+  // The UI sends each step's FULL stored object with `sequence` set; a step that carries more than the plain eight keys (a split test's
+  // split_started_at / route_all_requests / additional_routes, a custom product page's key / products) keeps them — the PATCH replaces the
+  // whole array, so a key left out is a key dropped.
   return {
     method: 'PATCH', path: `/funnels/funnel/update/${enc(funnel._id ?? funnel.id)}`,
     body: { steps: order.map((id, i) => {
-      const s = byId[id];
-      return { controlTraffic: s.control_traffic ?? s.controlTraffic ?? 100, id: s.id, name: s.name, pages: s.pages ?? [], sequence: i + 1, split: s.split === true, type: s.type, url: s.url };
+      const { control_traffic, ...rest } = byId[id];
+      return { ...rest, controlTraffic: control_traffic ?? rest.controlTraffic ?? 100, pages: rest.pages ?? [], split: rest.split === true, sequence: i + 1 };
     }) },
   };
 }
