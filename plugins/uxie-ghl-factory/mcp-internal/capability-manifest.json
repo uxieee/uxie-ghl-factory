@@ -2251,6 +2251,16 @@
   },
   {
     "tool": "get_funnel",
+    "method": "GET",
+    "path": "/stats/filter-values"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/order"
+  },
+  {
+    "tool": "get_funnel",
     "method": "POST",
     "path": "/funnels/funnel/webinar/sessions"
   },
