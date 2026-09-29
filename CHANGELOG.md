@@ -11,6 +11,23 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.27.1] — 2026-09-30
+
+**Fix: `check_workflow` silently skipped most of its checks, and `repair_workflow` aborted, on some workflows.
+Executed live on the test account.**
+
+### Fixed
+- 🔴 On any workflow holding a flagged contact-field write (an empty *Update contact field*, for example),
+  `check_workflow` reported "platform crashed" and skipped every platform check after it: entry step, publish rules,
+  opportunity writes, trigger rows, name length. `repair_workflow` aborted on the same workflows. Live on one draft:
+  the released core crashed; the fix runs every check, flags the bad write and leaves a clean draft clean.
+
+### Docs — ghl-pipeline-specialist
+- Bulk edit clears a field you add and leave empty.
+- Dragging a card to Lost and cancelling the reason prompt still marks it lost; a card with a stored reason loses it.
+- Swapping or adding a contact on an opportunity can be refused silently by the duplicate rule.
+- A blank Opportunities board can be a third-party script loaded on the agency (GoGHL was measured doing it).
+
 ## [1.27.0] — 2026-09-30
 
 **Workflows: `fast_forward_contacts` reports what really moved, and the account overview filters trigger counts.
