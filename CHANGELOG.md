@@ -11,6 +11,51 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.23.0] — 2026-09-29
+
+**Forms show every field, AI agent and Google Sheets steps stop being refused, and a full AI agents docs pass.
+Executed live on the test account.**
+
+### Fixed — forms (`create_form`, `update_form_data`, `list_forms`)
+- An image is saved as the builder saves it (`img` with its URL), and it shows on the form. It used to be dropped.
+- A bare `group_address` becomes the builder's address block: a search box, then street, city, state, a country
+  dropdown and postal code. Before, the whole block was missing from the form.
+- The builder's own field types (`large_text`, `phone`, `number`) are accepted. They used to be refused.
+- Edits are confirmed by reading back the values you sent. An edit that only changes a label is no longer reported
+  done before it lands.
+- `list_forms` lists quizzes with `productType: "quiz"`.
+
+### Fixed — workflows
+- 🔴 A workflow whose AI agent step used a template, MCP connections, the output guard or a Skill was refused by
+  `publish_workflow` and `edit_workflow` ("unknown attribute key"). Those keys are now known.
+  - `build_workflow` can attach Skills (up to 10). It warns that GHL hides Skills in the builder until 2026-10-25, and
+    Skills were not runnable on the test account.
+- A Google Sheets lookup, from-lookup or format step made in the builder was refused the same way. It now passes.
+  - GHL's own save rules are enforced: account, drive, spreadsheet and sheet ids, and the per-action fields.
+  - `{{sheet.N.*}}` and `{{sheetLookupResult.N.result}}` are checked against the step that produces them.
+- ⚠️ Routers and loop bodies are refused by name. Both are allowlisted GHL features, and a router used to compile into
+  a single broken step that GHL's validator accepted.
+- `integrationAccountId` is accepted on third-party integration steps only. A missing one warns with GHL's own
+  wording, "Choose a connected account before publishing".
+- The advanced-canvas reference covers step delete and order, selection, version view-only and the errors rail.
+
+### Docs — AI agents
+- 🔴 GHL ignores `triggers: []` in a Managed Agent config write: the stored triggers stay enabled.
+- 🔴 Agent Templates: a marketplace template install is an app install. Its actions are bound to the template
+  author's own workflow and calendar ids, so they likely point at nothing in your account. [inferred, not installed]
+- Covered too:
+  - working hours (their own resource);
+  - form bots;
+  - the Conversation AI control gates;
+  - the test-chat vote, which has no read-back;
+  - Voice AI generate-with-ai (201 always; read `success`; active calendars only);
+  - GHL-native web-call setup;
+  - the voice MCP writes;
+  - the voiceAI flags;
+  - the Industry Agents and flow Template Library pointers.
+
+Catalogue: +28 routes; one corrected (the voice description stream is a POST).
+
 ## [1.22.0] — 2026-09-29
 
 **Fix: `edit_funnel` settings no longer change fields you didn't name, and a domain change handles running split
