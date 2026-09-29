@@ -108354,7 +108354,7 @@ var CODES = Object.freeze({
 });
 var TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
 var TOKENISH_SCAN = /\bey[A-Za-z0-9._-]{20,}/;
-var SECRET_LABEL = "(?:token(?:[-_ ]?id)?|(?:access|refresh|auth|id|oauth|csrf|xsrf)[-_ ]?token|authorization|proxy[-_ ]?authorization|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|secret[-_ ]?access[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|password|credentials?|cookies?|set[-_ ]?cookie|session(?:[-_ ]?(?:id|token|key|secret|cookie|credentials?))?)";
+var SECRET_LABEL = "(?:token(?:[-_ ]?id)?|(?:access|refresh|auth|id|oauth|csrf|xsrf)[-_ ]?token|authorization|proxy[-_ ]?authorization|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|secret[-_ ]?access[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|password|credentials?|cookies?|set[-_ ]?cookie|session[-_ ]?(?:id|token|key|secret|cookie|credentials?)|session(?=\\s*[:=/]\\s*(?:Bearer\\s+)?[^\\s,;&#/]{16,}))";
 var NOT_DATA_ATTR = "(?<!\\bdata-[\\w-]*)";
 var LABELED_SECRET = new RegExp(`${NOT_DATA_ATTR}\\b(${SECRET_LABEL})\\s*([:=/])\\s*(?:Bearer\\s+)?([^\\s,;&#/]+)`, "gi");
 var LABELED_SECRET_SCAN = new RegExp(`${NOT_DATA_ATTR}\\b${SECRET_LABEL}\\s*[:=/]\\s*(?:Bearer\\s+)?[^\\s,;&#/]+`, "i");
