@@ -6791,7 +6791,7 @@ export const TOOLS = [
         return fail(CODES.ENGINE_ABORT, `repair rejected (${error.code ?? 'ENGINE_ABORT'}): ${error.message}`,
           'The document was rejected before any request was sent — nothing was written.');
       }
-      lintContactFieldTemplates(args.templates, [...diff.createdSteps, ...diff.modifiedSteps], { warn });
+      lintContactFieldTemplates(args.templates, [...diff.createdSteps, ...diff.modifiedSteps], warn); // the function, not { warn } (it threw on any flagged contact-field write)
 
       // WORKFLOW-level rules (GHL's WorkflowValidator) — the description promised these since
       // the tool shipped, but only the commit guards actually ran until 0.48.0. Trigger-aware, so
