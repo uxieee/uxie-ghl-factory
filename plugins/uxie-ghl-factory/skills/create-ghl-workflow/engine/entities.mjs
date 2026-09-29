@@ -122,7 +122,14 @@ export const ENTITY_REGISTRY = [
   // lostReasonId is required by an update_opportunity whose status is 'lost' — the builder
   // DELETES the entry when the status is anything else, so an id that matches nothing is a step
   // that saves and records no reason.
-  { key: 'lostReasons', path: (loc) => `/opportunities/lost-reason?${q(loc)}`,
+  //
+  // PAGED, defensively. The UI reads `getCount=true&skip=0&limit=100`; the envelope is
+  // {lostReasons, total} and `skip` pages (measured 2026-09-29: skip 0 and skip 2 at limit 2 were
+  // disjoint). A bare read with no paging keys returned all 21 on the sandbox, so no truncation has
+  // been seen; the walk only guarantees that a longer list is not cut at whatever the default is.
+  { key: 'lostReasons',
+    path: (loc, { offset = 0, limit = 100 } = {}) => `/opportunities/lost-reason?${q(loc, { getCount: 'true', skip: String(offset), limit: String(limit) })}`,
+    page: { limit: 100, total: (j) => j?.total },
     pick: (j) => recordsFrom(j?.data, j?.lostReasons, j),
     project: (x) => ({ id: x.id || x._id, name: x.name ?? x.reason }),
     resolver: { name: 'lostReasonId', match: (r) => [r.name], value: (r) => r.id } },
