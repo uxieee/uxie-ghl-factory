@@ -61275,7 +61275,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/opportunities.md:228",
-            "pipelines-opportunities/20-api/pipelines.md:270"
+            "pipelines-opportunities/20-api/pipelines.md:280"
           ]
         },
         {
@@ -61358,7 +61358,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/opportunities.md:173",
-            "pipelines-opportunities/20-api/forecast.md:115",
+            "pipelines-opportunities/20-api/forecast.md:116",
             "pipelines-opportunities/20-api/opportunities.md:132",
             "pipelines-opportunities/20-api/opportunities.md:154",
             "pipelines-opportunities/20-api/opportunities.md:332"
@@ -61706,7 +61706,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:168",
+            "pipelines-opportunities/20-api/forecast.md:169",
             "pipelines-opportunities/20-api/pipelines.md:42"
           ]
         },
@@ -61742,7 +61742,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:180",
+            "pipelines-opportunities/20-api/forecast.md:181",
             "pipelines-opportunities/20-api/pipelines.md:43",
             "pipelines-opportunities/20-api/pipelines.md:169"
           ]
@@ -61786,8 +61786,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:176",
-            "pipelines-opportunities/20-api/forecast.md:190"
+            "pipelines-opportunities/20-api/forecast.md:177",
+            "pipelines-opportunities/20-api/forecast.md:191"
           ]
         },
         {
@@ -61833,7 +61833,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:169"
+            "pipelines-opportunities/20-api/forecast.md:170"
           ]
         },
         {
@@ -61868,7 +61868,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:189"
+            "pipelines-opportunities/20-api/forecast.md:190"
           ]
         },
         {
@@ -61993,7 +61993,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/pipelines.md:38",
-            "pipelines-opportunities/20-api/pipelines.md:267"
+            "pipelines-opportunities/20-api/pipelines.md:277"
           ]
         },
         {
@@ -62236,7 +62236,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/pipelines.md:277"
+            "pipelines-opportunities/20-api/pipelines.md:287"
           ]
         },
         {
@@ -62353,7 +62353,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:170",
+            "pipelines-opportunities/20-api/forecast.md:171",
             "pipelines-opportunities/20-api/pipelines.md:39"
           ]
         },
@@ -62393,7 +62393,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/forecast.md:15",
-            "pipelines-opportunities/20-api/forecast.md:134",
+            "pipelines-opportunities/20-api/forecast.md:135",
             "pipelines-opportunities/20-api/opportunities.md:32"
           ]
         },
@@ -108694,6 +108694,18 @@ var RULES = [
     refuses: (wire) => !(isPlainObject3(wire) && Number.isInteger(wire.targetPosition)),
     message: "PATCH /opportunities/pipelines/{pipelineId}/position with no integer `targetPosition` is accepted (200) and MOVES the pipeline: an empty body minted a new board position. The endpoint validates nothing.",
     hint: "Send the board's reorder body {prevPipelineId, nextPipelineId, initialPosition, targetPosition}; positions are 1-based. Read the pipeline list back to verify the order."
+  },
+  {
+    // Measured 2026-09-25 on the sandbox (knowledge pipelines.md, "One stage missing stageWinProbability silently
+    // rewrites them ALL"): with every stage carrying stageWinProbability the values are stored verbatim; with ANY
+    // stage missing it, every supplied value is discarded and the whole array is recomputed as (i+1)/(n+1)*100.
+    // The app always sends all of them, so a stages array with a gap has no legitimate version.
+    rule: "pipeline-stages-need-every-probability",
+    method: "PUT",
+    path: /^\/opportunities\/pipelines\/[^/]+$/,
+    refuses: (wire) => isPlainObject3(wire) && Array.isArray(wire.stages) && wire.stages.length > 0 && wire.stages.some((st) => !isPlainObject3(st) || typeof st.stageWinProbability !== "number"),
+    message: "PUT /opportunities/pipelines/{pipelineId} with a stage that has no numeric `stageWinProbability` is accepted (200), and GHL then REWRITES EVERY stage's probability to an even ramp ((i+1)/(n+1)\xD7100), discarding the values you did send.",
+    hint: "Use edit_pipeline, which carries every stage's probability for you. For a raw call, give every stage its stageWinProbability (read the current values with an edit_pipeline preview) and read the pipeline back."
   }
 ];
 function refuseRawRequest({ method, path, body: body2 }) {
@@ -196123,6 +196135,19 @@ function verifyPipeline(body2, row) {
   });
   return bad;
 }
+function strayArrivals({ snapshotIds, landingCards, writeStartedAt }) {
+  const seen = new Set(snapshotIds);
+  const t0 = Date.parse(writeStartedAt);
+  return (landingCards ?? []).filter((c) => {
+    if (!c?.id || seen.has(c.id)) return false;
+    const added = Date.parse(c.dateAdded ?? c.createdAt ?? "");
+    return !Number.isFinite(added) || !Number.isFinite(t0) || added <= t0;
+  }).map((c) => ({ id: c.id, name: c.name, dateAdded: c.dateAdded ?? c.createdAt ?? null }));
+}
+function cardsInRemovedStages(rows, removedStageIds) {
+  const gone = new Set(removedStageIds);
+  return (rows ?? []).filter((c) => c && gone.has(c.pipelineStageId));
+}
 
 // core/forecast.mjs
 init_define_BUILDER_VALIDATORS();
@@ -196149,6 +196174,8 @@ function forecastBody(view, a) {
   switch (view) {
     case "summary": {
       const b = { locationId: a.locationId, groupBy: a.groupBy ?? "status" };
+      if (a.pipelineId) b.pipelineId = a.pipelineId;
+      const own = [...a.filters ?? []];
       if (b.groupBy === "close_date") {
         if (a.closeDateBucket) b.closeDateBucket = a.closeDateBucket;
         if (a.closeDateMode) b.closeDateMode = a.closeDateMode;
@@ -196156,7 +196183,7 @@ function forecastBody(view, a) {
       } else if (a.closeDateBucket || a.closeDateMode) {
         return { error: 'closeDateBucket and closeDateMode apply only with groupBy:"close_date"' };
       }
-      return { body: withFilters(b) };
+      return { body: own.length ? { ...b, filters: own } : b };
     }
     case "timeline": {
       const b = { locationId: a.locationId };
@@ -211234,7 +211261,7 @@ var TOOLS2 = [
   // pipelines.mjs.
   {
     name: "edit_pipeline",
-    description: `${describe3("edit_pipeline", "Edit a pipeline and its stages safely \u2014 risk: write")}. Rename a pipeline, set its colour mode or probability switch, and add, rename, reorder, recolour, re-weight or remove stages. It reads the pipeline, merges your change onto the whole row and sends the full body, because the stages array REPLACES: a stage left out is deleted and its cards silently land in the first stage. Removing a stage that holds cards is refused unless you name moveCardsTo; the cards are then moved there first, one by one (each move fires opportunity stage-change workflow triggers), and the stage is removed only once none are left. Every stage must end with a stageWinProbability, since one missing value makes GHL rewrite them all. The pipeline-level Funnel / Pie-chart switches are recomputed from the stages (on when any stage is on), as the GHL UI does; dashboards read only those, so a stale pair hides the pipeline. New stages start with both charts on and colour #64748B, like the UI. expectedName must match the pipeline's current name. Previews by default; confirm:true writes, then reads the pipeline back and fails on any difference. Does not create or delete pipelines, change sharing permissions, or edit opportunities (except the moves above). Read pipelines with list_account_entities. No tool changes the account-wide opportunity settings (owner decoupling, follower sync, allowing two cards per contact): GHL does them in Settings > Opportunities & Pipelines and Settings > Objects > Opportunities.`,
+    description: `${describe3("edit_pipeline", "Edit a pipeline and its stages safely \u2014 risk: write")}. Rename a pipeline, set its colour mode or probability switch, and add, rename, reorder, recolour, re-weight or remove stages. It reads the pipeline, merges your change onto the whole row and sends the full body, because the stages array REPLACES: a stage left out is deleted and its cards silently land in the first stage. Removing a stage that holds cards is refused unless you name moveCardsTo; the cards are then moved there first, one by one (each move fires opportunity stage-change workflow triggers), and the stage is removed only once none are left. Card counts come from a search index that lags by seconds, so a stage removal re-counts right before the write and afterwards checks the first stage: a card the counts never saw that GHL moved there fails the call (VERIFY_FAILED) with the card named. Every stage must end with a stageWinProbability, since one missing value makes GHL rewrite them all. The pipeline-level Funnel / Pie-chart switches are recomputed from the stages (on when any stage is on), as the GHL UI does; dashboards read only those, so a stale pair hides the pipeline. New stages start with both charts on and colour #64748B, like the UI. expectedName must match the pipeline's current name. Previews by default; confirm:true writes, then reads the pipeline back and fails on any difference. Does not create or delete pipelines, change sharing permissions, or edit opportunities (except the moves above). Read pipelines with list_account_entities (ids and names; current probabilities and colours show in this tool's preview). No tool changes the account-wide opportunity settings (owner decoupling, follower sync, allowing two cards per contact): GHL does them in Settings > Opportunities & Pipelines and Settings > Objects > Opportunities.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       pipelineId: external_exports.string(),
@@ -211367,6 +211394,29 @@ var TOOLS2 = [
           ), { moved });
         }
       }
+      const removing = affected.length > 0;
+      const pipelineIds = [];
+      if (removing) {
+        await new Promise((r) => setTimeout(r, 3e3));
+        const removedIds = new Set(affected.map((a) => a.id));
+        const late2 = [];
+        for (let page = 1; page <= 20; page++) {
+          const res = await search([pipeFilter], 100, page);
+          if (!res.ok) return fromHttp(res.status, res.json);
+          const rows = res.json?.opportunities ?? [];
+          pipelineIds.push(...rows.map((c) => c.id));
+          late2.push(...cardsInRemovedStages(rows, removedIds));
+          if (rows.length < 100) break;
+        }
+        if (late2.length) {
+          return withFailureData(fail(
+            CODES.VERIFY_FAILED,
+            `${late2.length} card(s) reached a stage being removed after the count: ${late2.map((c) => `"${c.name}" (${c.id}) in "${stageName(c.pipelineStageId)}"`).join(", ")}; the pipeline was NOT changed`,
+            "Re-run the edit so they are counted (and moved with moveCardsTo)."
+          ), { moved, late: late2.map((c) => ({ id: c.id, name: c.name, stage: stageName(c.pipelineStageId) })) });
+        }
+      }
+      const writeStartedAt = (/* @__PURE__ */ new Date()).toISOString();
       const write = await gw.call("PUT", `/opportunities/pipelines/${encodeURIComponent(args.pipelineId)}?${new URLSearchParams({ locationId: loc })}`, plan.body);
       if (!write.ok) return withFailureData(fromHttp(write.status, write.json), { moved });
       const after = await readRow();
@@ -211384,6 +211434,24 @@ var TOOLS2 = [
           `the pipeline read back differently: ${mismatches.join("; ")}`,
           "The write was sent; inspect data.stages for what GHL stored."
         ), result);
+      }
+      if (removing) {
+        const landing = [...after.row?.stages ?? []].sort((x, y) => (x.position ?? 0) - (y.position ?? 0))[0];
+        let strays = [];
+        for (let i = 0; i < 6 && landing; i++) {
+          const res = await search([pipeFilter, stageFilter(landing.id)], 100);
+          if (res.ok) strays = strayArrivals({ snapshotIds: pipelineIds, landingCards: res.json?.opportunities, writeStartedAt });
+          if (strays.length) break;
+          await new Promise((r) => setTimeout(r, 2e3));
+        }
+        result.landingCheck = { stage: landing?.name, cardsCountedBeforeWrite: pipelineIds.length, strays };
+        if (strays.length) {
+          return withFailureData(fail(
+            CODES.VERIFY_FAILED,
+            `the pipeline was changed, but ${strays.length} card(s) the counts never saw now sit in "${landing.name}": ${strays.map((c) => `"${c.name}" (${c.id})`).join(", ")} \u2014 GHL moves a removed stage's cards to the first stage, and these were not yet in the search index`,
+            "Check each named card: if it belonged to the removed stage, move it with the public opportunity update. (A card created in the first stage during the same seconds is named too.)"
+          ), result);
+        }
       }
       return ok(result);
     }, args)
