@@ -11,6 +11,25 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.21.0] — 2026-09-29
+
+**Fix: pages built by `build_funnel_page` keep their look after anyone saves them in the page builder. Executed live
+on the test account, checked on the builder's own saved bytes and on the rendered page.**
+
+- 🔴 Text and button sizes and weights now live on each element, where the builder reads them, at its own 767/768 px
+  breakpoints. A builder save used to replace them with `font-size:undefined`: 64 times on one tool-built page.
+- Unset element settings take the builder's own defaults instead of guessed empties. That covers store-list page size
+  and wishlist, the timer expiry action, link and file shapes, nav defaults and image shadow.
+- An image, image feature or SVG told to open a popup or a URL now does it: the action is written where the page
+  reads it (`imageActions` / `svgImageActions`).
+- Palette colours (`var(--white)`, `var(--cobalt)`, …) are declared on the page the way GHL's own pages declare them,
+  so they show before and after a builder save. A default button is now cobalt; before, it had no background.
+- A CSS-styled button keeps its font after a builder save.
+- Known and open: non-text elements (nav menu, image feature, store lists) get no compiled CSS from the tool, so their
+  mobile look can change after a builder save. Their values survive, and desktop is identical.
+
+Catalogue: +3 routes.
+
 ## [1.20.0] — 2026-09-29
 
 **Agent Logs you can read, workflow edits that no longer damage what they don't touch, and fixes from a full
