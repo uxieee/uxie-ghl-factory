@@ -127,7 +127,9 @@ POST /bulk-actions/request
 - `documentIds` are **contact** ids. List them explicitly and show the user the count first. The app sends a
   filter (`documentSourceQuery`) for "select all", and that runs against whatever matches when the job starts.
 - 🔴 **It is an upsert.** A contact that already has a card in that pipeline has that card updated; it does
-  not get a second card. Say so before running it on contacts that already have cards.
+  not get a second card. Say so before running it on contacts that already have cards. This was
+  proven with "Allow more than one opportunity per contact in the same pipeline" off (Settings › Objects ›
+  Opportunities). With it on, the result is untested: read the setting first.
 - Other fields go in `opSpecs` by their own key: assignedTo, followers, source, lostReasonId. Custom fields
   go in `customFields:[{id, field_value}]`.
 - It answers `201 {bulkRequest:{id, status:"processing"}}`. Poll `GET /bulk-actions/request/{id}` until
