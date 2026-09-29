@@ -1755,9 +1755,19 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // in the same call. An unnamed path still gets a fresh id.
       const pathIds = n.paths.map((p) => idForRef(refMap, ctx, p.ref));
       const weighted = n.mode === 'weighted' || n.mode === 'random';
-      const even = Math.round(100 / n.paths.length);
+      // The drawer's rules (models/Split/Split.ts): at most 5 paths (MAX_TRANSITION_COUNT), only `random-split` is
+      // offered, and the weights must total exactly 100 (randomSplitWeightageInvalid, one-decimal rounding). An even
+      // default of Math.round(100/3) = 33 each totalled 99 and opened red; the remainder now goes to the last path.
+      if (n.paths.length > 5) throw new IRError('SPLIT_ARITY', `split '${n.ref}' has ${n.paths.length} paths; the builder allows at most 5.`);
+      if ((n.condition ?? 'random-split') !== 'random-split')
+        throw new IRError('SPLIT_MODE', `split '${n.ref}' condition '${n.condition}': the builder offers only 'random-split' (Split.ts splitConditionOptions).`);
+      const evenShare = Math.floor(100 / n.paths.length);
+      const even = (pi) => (pi === n.paths.length - 1 ? 100 - evenShare * (n.paths.length - 1) : evenShare);
       const weightDistribution = {};
-      n.paths.forEach((p, pi) => { weightDistribution[pathIds[pi]] = weighted ? (p.weight ?? even) : even; });
+      n.paths.forEach((p, pi) => { weightDistribution[pathIds[pi]] = weighted && typeof p.weight === 'number' ? p.weight : even(pi); });
+      const total = Math.round(Object.values(weightDistribution).reduce((a, b) => a + b, 0) * 10) / 10;
+      if (total !== 100)
+        throw new IRError('SPLIT_WEIGHT', `split '${n.ref}' weights total ${total}; the builder requires exactly 100 and marks the step invalid otherwise.`);
       const container = {
         id, type: 'workflow_split', name: n.name ?? 'Split', order: i, parentKey, cat: 'multi-path', next: pathIds,
         attributes: {

@@ -933,3 +933,25 @@ test('CONTROL: a particular-user email notification carries no owner/follower ke
   const a = notifOf(notifIR('email', { userType: 'user', selectedUser: ['U1'], subject: 's', html: '<p>h</p>' }));
   for (const k of ['assignedOwners', 'alsoNotifyContactFollowers', 'bcc']) assert.equal(k in a.email, false, k);
 });
+
+// wave22 (completeness sweep 2026-09-29 §3 #9): a 3-path split defaulted to 33/33/33 = 99, which the drawer marks red
+// (Split.ts randomSplitWeightageInvalid: the total must be exactly 100); no 5-path cap (MAX_TRANSITION_COUNT); stale
+// modes accepted though the drawer offers only random-split.
+const splitIR = (paths, extra = {}) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 's', kind: 'split', name: 'Split', paths: paths.map((p, i) => ({ ref: `p${i}`, name: `Path ${i}`, then: [], ...p })), ...extra }] });
+const weightsOf = (ir) => { const c = compile(ir, ctx()).autoSaveBody.workflowData.templates.find((t) => t.type === 'workflow_split');
+  return c.attributes.paths.map((p) => c.attributes.extras.weightDistribution[p.id]); };
+test('split: default weights total exactly 100 (remainder on the last path)', () => {
+  assert.deepEqual(weightsOf(splitIR([{}, {}, {}])), [33, 33, 34]);
+  assert.deepEqual(weightsOf(splitIR([{}, {}])), [50, 50]);
+  assert.equal(weightsOf(splitIR([{}, {}, {}, {}, {}, ])).reduce((a, b) => a + b, 0), 100);
+});
+test('split: more than 5 paths, a stale mode, or authored weights not totalling 100 are refused', () => {
+  assert.throws(() => compile(splitIR([{}, {}, {}, {}, {}, {}]), ctx()), /5/);
+  assert.throws(() => compile(splitIR([{}, {}], { condition: 'even-split' }), ctx()), /random-split/);
+  assert.throws(() => compile(splitIR([{ weight: 60 }, { weight: 30 }], { mode: 'weighted' }), ctx()), /100/);
+});
+test('CONTROL: authored weights totalling 100 compile as written', () => {
+  assert.deepEqual(weightsOf(splitIR([{ weight: 70 }, { weight: 30 }], { mode: 'weighted' })), [70, 30]);
+  assert.deepEqual(weightsOf(splitIR([{ weight: 33.3 }, { weight: 33.3 }, { weight: 33.4 }], { mode: 'weighted' })), [33.3, 33.3, 33.4]);
+});
