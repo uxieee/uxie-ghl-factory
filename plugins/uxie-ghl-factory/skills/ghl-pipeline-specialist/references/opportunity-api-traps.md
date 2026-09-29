@@ -43,6 +43,10 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
   public status route: `status:"lost"` with `lostReasonId`.
 - A second opportunity for the same contact in the same pipeline is refused while duplicates are
   off (`OPPORTUNITY_NO_DUPLICATE`, with the blocking card's id in `meta.existingId`).
+- **The edit form's Business name, Primary email and Primary phone belong to the CONTACT.** A save sends
+  `PUT /contacts/{contactId}` with just those keys, so the change shows everywhere that contact appears. The
+  public opportunity update never touches them. To change them from a script, update the contact
+  (the public contacts tools) and say it changes the contact, not only this deal.
 - **Additional contacts are association relations, not a field.** The relation reads from the
   CONTACT side only: `relations/record/{opportunityId}` answers empty, and the edit form's
   Associated objects tab shows "No association found" for a card that has two contacts. To list an
