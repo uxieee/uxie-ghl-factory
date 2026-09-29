@@ -48,6 +48,7 @@ export function extractAgentId(kind, response) {
 
 const actionId = (body) => responseId(body);
 
+export const STUDIO_TERMINAL_EVENTS = ['done', 'agent_saved', 'awaiting_input'];
 const MAX_OPTIONS_SHOWN = 20;
 /** The builder's pause, with its questions, or null when the stream did not stop for input. */
 export function awaitingInput(events) {
@@ -64,8 +65,10 @@ export function awaitingInput(events) {
       ...(options.length > MAX_OPTIONS_SHOWN || q.hasMore ? { moreOptions: true, totalCount: q.totalCount ?? options.length } : {}),
     };
   });
+  const started = list.find((e) => e?.event === 'conversation_started');
   return { sessionId: wait.data?.sessionId ?? null, count: Number(wait.data?.count ?? questions.length), questions,
-    stale: list.some((e) => e?.event === 'answers_stale') };
+    stale: list.some((e) => e?.event === 'answers_stale'),
+    inlineQuestionsEnabled: typeof started?.data?.inlineQuestionsEnabled === 'boolean' ? started.data.inlineQuestionsEnabled : null };
 }
 
 // The server's own words, whole. GHL answers a refused action with `{message: [..every rule it
@@ -219,8 +222,11 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
 
   let created;
   try {
+    // awaiting_input ENDS a paused build's stream: no done, no agent_saved. The gateway throws SSE_INCOMPLETE on a stream
+    // that closes without a terminal event, so a pause surfaced as a bare failure with the questions lost (live
+    // 2026-09-29: a build that asked for a calendar closed with no done and saved no agent). It is a terminal here.
     created = kind === 'studio'
-      ? await gw.stream('POST', plan.create.path, plan.create.body, { base: AI_BASE })
+      ? await gw.stream('POST', plan.create.path, plan.create.body, { base: AI_BASE, terminalEvents: STUDIO_TERMINAL_EVENTS })
       : await gw.call(plan.create.method, plan.create.path, plan.create.body, { base: AI_BASE });
   } catch (error) {
     return failure(error?.code ?? 'AGENT_CREATE_FAILED', 'create', report);

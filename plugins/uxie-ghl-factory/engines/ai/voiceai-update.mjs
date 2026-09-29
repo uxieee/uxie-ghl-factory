@@ -82,7 +82,7 @@ export const WRITABLE = new Set([
   'voiceSpeed', 'voiceTemperature', 'voiceVolume', 'voicemailOption', 'welcomeMessage', 'welcomeMessageMode',
   ...NESTED_WHOLE, 'sessionVariables', 's2sBehaviour', 'prompts', 'disabledPrompts',
   // the builder's save sends these too (voiceAiApp 2cd393ea@118300–121361)
-  'languages', 'patienceLevel', 'beginAfterUserSilenceMs', 'spamConfig',
+  'languages', 'beginAfterUserSilenceMs', 'spamConfig',
 ]);
 
 // spamConfig { postCallAnalysis { enabled, blockThreshold, notifyModes admin|custom, notifyEmails } } — the after-call
@@ -104,8 +104,11 @@ export function compileSpamConfigUpdate(current, v) {
   if (!Array.isArray(p.notifyEmails) || p.notifyEmails.some((e) => typeof e !== 'string' || !e.trim())) {
     throw new IRError('SCHEMA', 'spamConfig.postCallAnalysis.notifyEmails must be an array of email addresses');
   }
-  // as the builder saves it: emails only with the custom mode
-  return { postCallAnalysis: { ...p, notifyModes: [...new Set(p.notifyModes)], notifyEmails: p.notifyModes.includes('custom') ? p.notifyEmails.map((e) => e.trim()) : [] } };
+  // as the builder saves it: its four keys only (the read adds notifyMode / notifyEnabled, which the builder never sends),
+  // emails only with the custom mode
+  const notifyModes = [...new Set(p.notifyModes)];
+  return { postCallAnalysis: { enabled: p.enabled, blockThreshold: p.blockThreshold, notifyModes,
+    notifyEmails: notifyModes.includes('custom') ? p.notifyEmails.map((e) => e.trim()) : [] } };
 }
 
 // Separate resources, or keys whose write lives elsewhere.
@@ -119,6 +122,9 @@ const ELSEWHERE = {
   inboundNumber: 'numbers are assigned on the deploy screen (location-wide)', inboundNumbers: 'numbers are assigned on the deploy screen (location-wide)',
   inboundPhoneNumber: 'numbers are assigned on the deploy screen (location-wide)', numberPoolId: 'numbers are assigned on the deploy screen (location-wide)',
   provider: 'the provider changes only through the upgrade (switch-provider) path',
+  // Measured 2026-09-29 on a test agent: the builder save still sends patienceLevel, GHL answers 200 and stores it nowhere
+  // (absent from every read, create PUT and partial PUT alike). A write that changes nothing is refused.
+  patienceLevel: 'GHL accepts patienceLevel and stores nothing (a legacy control, measured 2026-09-29); tune responsiveness / interruptionSensitivity instead',
 };
 
 // Bounds the VOICE PROVIDER enforces after GHL has already stored the value (see the header). Refused here so the
@@ -373,6 +379,8 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
   const pick = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
   const got = (k) => {
     if (k === 's2sBehaviour') return pick(readFlat(after, k), Object.keys(plan.expected[k]));
+    // the read adds notifyMode / notifyEnabled beside the four keys sent: verify the four
+    if (k === 'spamConfig') return { postCallAnalysis: pick(readFlat(after, k)?.postCallAnalysis, Object.keys(plan.expected[k].postCallAnalysis)) };
     // a section sent as null is verified by its ABSENCE from the stored overrides
     if (k === 'prompts') return Object.fromEntries(Object.keys(plan.expected.prompts).map((s) => [s, after?.prompts?.[s] ?? null]));
     return readSet(after, k);

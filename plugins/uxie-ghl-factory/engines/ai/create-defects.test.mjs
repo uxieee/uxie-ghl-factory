@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { compileConvaiAgent, compileConvaiAction, compileConvaiUpdateFromRecord, uiSaveViolations } from './convai-compiler.mjs';
 import { compileVoiceAiAgent, compileVoiceAiUpdate, compileVoiceAiS2sFollowUp } from './voiceai-compiler.mjs';
-import { compileVoiceAiPartialUpdate } from './voiceai-update.mjs';
+import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from './voiceai-update.mjs';
 import { refuseUnappliedStudioKeys } from './studio-ir.mjs';
 import { executeAgentPlan, awaitingInput } from './driver.mjs';
 
@@ -145,7 +145,7 @@ test('Voice create: user_first, all three denoising modes, and the builder-saved
   const body = compileVoiceAiUpdate(voice({
     welcomeMessageMode: 'user_first',
     voice: { denoisingMode: 'noise-and-background-speech-cancellation' },
-    callSettings: { languages: ['en-US', 'es'], patienceLevel: 'high' },
+    callSettings: { languages: ['en-US', 'es'] },
     sessionVariables: [{ name: 'session.caller_tier', dataType: 'string' }],
     endCallConfig: { instruction: '  End when done.  ', spamDetectionEnabled: true },
     spamConfig: { postCallAnalysis: { enabled: true, blockThreshold: 7 } },
@@ -157,14 +157,13 @@ test('Voice create: user_first, all three denoising modes, and the builder-saved
   assert.equal(body.denoisingMode, 'noise-and-background-speech-cancellation');
   assert.deepEqual(body.languages, ['en-US', 'es']);
   assert.equal(body.language, 'en-US');
-  assert.equal(body.patienceLevel, 'high');
   assert.deepEqual(body.sessionVariables, [{ label: 'caller_tier', dataType: 'string', defaultValue: '', name: 'session.caller_tier' }]);
   assert.deepEqual(body.endCallConfig, { instruction: 'End when done.', spamDetectionEnabled: true, spamDetectionInstruction: null });
   assert.deepEqual(body.spamConfig, { postCallAnalysis: { enabled: true, blockThreshold: 7, notifyModes: ['admin'], notifyEmails: [] } });
   assert.deepEqual(body.disabledPrompts, ['personality']);
   // CONTROL: none of them authored → none sent, and ai_custom sends no user-first keys
   const plain = compileVoiceAiUpdate(voice(), { agentId: 'a', locationId: LOC }).body;
-  for (const k of ['userFirstFallback', 'beginAfterUserSilenceMs', 'languages', 'patienceLevel', 'sessionVariables', 'endCallConfig', 'spamConfig', 'disabledPrompts']) {
+  for (const k of ['userFirstFallback', 'beginAfterUserSilenceMs', 'languages', 'sessionVariables', 'endCallConfig', 'spamConfig', 'disabledPrompts']) {
     assert.equal(k in plain, false, k);
   }
   assert.throws(() => compileVoiceAiUpdate(voice({ beginAfterUserSilenceMs: 300 }), { agentId: 'a', locationId: LOC }), code('SCHEMA'));
@@ -190,13 +189,20 @@ test('Voice create: a speech-to-speech model gets no noResponseConfig, the 60 s 
   assert.throws(() => compileVoiceAiUpdate(voice({ llmModel: 'gpt-live-1', noResponseConfig: { enabled: true } }), { agentId: 'a', locationId: LOC }), code('SPEC_KEY_UNAPPLIED'));
 });
 
-test('Voice update: languages, patienceLevel, spamConfig (merged over the stored one) and beginAfterUserSilenceMs (user_first only)', () => {
-  const current = { locationId: LOC, welcomeMessageMode: 'ai_custom', agentSettings: {
-    spamConfig: { postCallAnalysis: { enabled: false, blockThreshold: 5, notifyModes: ['admin'], notifyEmails: [] } } } };
-  const plan = compileVoiceAiPartialUpdate(current, { languages: ['en-US', 'fr'], patienceLevel: 'low', spamConfig: { postCallAnalysis: { enabled: true } } },
+test('patienceLevel is refused by create and update: GHL answers 200 and stores nothing (measured 2026-09-29)', () => {
+  assert.throws(() => compileVoiceAiAgent(voice({ callSettings: { patienceLevel: 'high' } }), { locationId: LOC }),
+    (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /stores nothing/.test(e.message));
+  assert.throws(() => compileVoiceAiPartialUpdate({ locationId: LOC }, { patienceLevel: 'low' }, { agentId: 'a', locationId: LOC }),
+    (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /stores nothing/.test(e.message));
+});
+
+test('Voice update: languages, spamConfig (merged over the stored one, the four builder keys) and beginAfterUserSilenceMs (user_first only)', () => {
+  // the read carries notifyMode / notifyEnabled beside the four keys (live 2026-09-29); they are not echoed
+  const current = { locationId: LOC, welcomeMessageMode: 'ai_custom',
+    spamConfig: { postCallAnalysis: { enabled: false, blockThreshold: 5, notifyMode: 'admin', notifyModes: ['admin'], notifyEmails: [], notifyEnabled: true } } };
+  const plan = compileVoiceAiPartialUpdate(current, { languages: ['en-US', 'fr'], spamConfig: { postCallAnalysis: { enabled: true } } },
     { agentId: 'a', locationId: LOC });
   assert.deepEqual(plan.body.languages, ['en-US', 'fr']);
-  assert.equal(plan.body.patienceLevel, 'low');
   assert.deepEqual(plan.body.spamConfig, { postCallAnalysis: { enabled: true, blockThreshold: 5, notifyModes: ['admin'], notifyEmails: [] } });
   assert.throws(() => compileVoiceAiPartialUpdate(current, { beginAfterUserSilenceMs: 300 }, { agentId: 'a', locationId: LOC }), code('SPEC_KEY_UNAPPLIED'));
   const withMode = compileVoiceAiPartialUpdate(current, { welcomeMessageMode: 'user_first', beginAfterUserSilenceMs: 300 }, { agentId: 'a', locationId: LOC });
@@ -213,17 +219,17 @@ const buildEvents = [
 ];
 
 test('awaitingInput names the questions and the session; null without the pause', () => {
-  assert.deepEqual(awaitingInput(buildEvents), { sessionId: 'sess-9', count: 1, stale: false, questions: [
+  assert.deepEqual(awaitingInput(buildEvents), { sessionId: 'sess-9', count: 1, stale: false, inlineQuestionsEnabled: true, questions: [
     { id: 'q1', prompt: 'Which calendar should it book into?', allowMultiple: false,
       options: [{ value: 'cal-1', label: 'Intro call' }, { value: 'cal-2', label: 'Demo' }] }] });
   assert.equal(awaitingInput(buildEvents.slice(0, 2)), null);
 });
 
 test('a studio build that stops for input fails STUDIO_BUILD_AWAITING_INPUT and sends nothing after the build', async () => {
-  const calls = [];
+  const calls = []; let streamOpts = null;
   const gw = {
     loc: LOC,
-    stream: async () => ({ ok: true, status: 200, events: buildEvents, terminal: buildEvents.at(-1) }),
+    stream: async (_m, _p, _b, opts) => { streamOpts = opts; return { ok: true, status: 200, events: buildEvents, terminal: buildEvents.at(-1) }; },
     call: async (method, path) => { calls.push({ method, path }); return { ok: true, status: 200, json: {} }; },
   };
   const plan = { create: { method: 'POST', path: '/agent-studio/super-agents/build', body: {} },
@@ -232,10 +238,26 @@ test('a studio build that stops for input fails STUDIO_BUILD_AWAITING_INPUT and 
   assert.equal(result.code, 'STUDIO_BUILD_AWAITING_INPUT');
   assert.equal(result.awaitingInput.questions[0].prompt, 'Which calendar should it book into?');
   assert.equal(calls.length, 0, 'no config PUT and no verification read');
+  // the pause ends the stream without done/agent_saved; the gateway must be told it is terminal or it throws SSE_INCOMPLETE
+  assert.ok(streamOpts.terminalEvents.includes('awaiting_input'));
   // CONTROL: the same stream finishing with agent_saved proceeds to the config PUT
   const done = [...buildEvents.slice(0, 1), { event: 'agent_saved', data: { id: 'ag-1' } }, { event: 'done', data: {} }];
   const ok = await executeAgentPlan({ plan: { ...plan, verifyExpected: { x: 1 } },
     gw: { ...gw, stream: async () => ({ ok: true, status: 200, events: done, terminal: done.at(-1) }) } });
   assert.notEqual(ok.code, 'STUDIO_BUILD_AWAITING_INPUT');
   assert.equal(calls[0].method, 'PUT');
+});
+
+test('Voice update: a spamConfig write verifies against a read that adds notifyMode / notifyEnabled in its own key order', async () => {
+  const before = { locationId: LOC, agentName: 'v', spamConfig: { postCallAnalysis: { enabled: true, blockThreshold: 7, notifyMode: 'admin', notifyModes: ['admin'], notifyEmails: [], notifyEnabled: true } } };
+  const plan = compileVoiceAiPartialUpdate(before, { spamConfig: { postCallAnalysis: { blockThreshold: 6 } } }, { agentId: 'a', locationId: LOC });
+  const after = { ...before, spamConfig: { postCallAnalysis: { enabled: true, blockThreshold: 6, notifyMode: 'admin', notifyModes: ['admin'], notifyEmails: [], notifyEnabled: true } } };
+  const gw = { call: async (method) => (method === 'GET' ? { ok: true, status: 200, json: { agent: after } } : { ok: true, status: 200, json: {} }) };
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage: () => null });
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.verification.confirmed, ['spamConfig']);
+  // CONTROL: a threshold the read does not carry is a mismatch
+  const wrong = { ...before, spamConfig: { postCallAnalysis: { ...after.spamConfig.postCallAnalysis, blockThreshold: 7 } } };
+  const r2 = await executeVoiceAiUpdate({ plan, before, gw: { call: async (m) => (m === 'GET' ? { ok: true, status: 200, json: { agent: wrong } } : { ok: true, status: 200, json: {} }) }, serverMessage: () => null });
+  assert.equal(r2.code, 'AGENT_VERIFY_MISMATCH');
 });

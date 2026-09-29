@@ -186,7 +186,6 @@ function buildUpdateBody(ir, { locationId } = {}) {
     ...(postCall.saveCallSummaryAsNote !== undefined ? { saveCallSummaryAsNote: postCall.saveCallSummaryAsNote } : {}),
     agentWorkingHours: ir.agentWorkingHours ?? DEFAULTS.agentWorkingHours,
     maxCallDuration: callSettings.maxCallDuration ?? DEFAULTS.maxCallDuration,
-    ...(callSettings.patienceLevel !== undefined ? { patienceLevel: callSettings.patienceLevel } : {}),
     voiceTemperature: voice.voiceTemperature ?? DEFAULTS.voiceTemperature,
     voiceSpeed: voice.voiceSpeed ?? DEFAULTS.voiceSpeed,
     voiceVolume: voice.voiceVolume ?? DEFAULTS.voiceVolume,

@@ -123,7 +123,6 @@ function checkCallSettings(cs) {
     || cs.languages.some((x) => typeof x !== 'string' || !x.trim()))) {
     throw new IRError('SCHEMA', 'callSettings.languages must be a non-empty array of language codes (the builder\'s multi-select)');
   }
-  assertStringIfPresent(cs.patienceLevel, 'callSettings.patienceLevel');
   assertBooleanIfPresent(cs.sendUserIdleReminders, 'callSettings.sendUserIdleReminders');
   assertNumberIfPresent(cs.reminderAfterIdleTimeSeconds, 'callSettings.reminderAfterIdleTimeSeconds');
   assertNumberIfPresent(cs.reminderFrequency, 'callSettings.reminderFrequency');
@@ -191,7 +190,7 @@ export const SECTION_KEYS = {
   behavior: ['responsiveness', 'interruptionSensitivity', 'modelTemperature', 'enableBackchannel', 'backchannelFrequency',
     'backchannelWords', 'enableDynamicResponsiveness'],
   transcription: ['sttMode', 'customSttConfig', 'vocabSpecialization', 'boostedKeywords', 'pronunciationDictionary'],
-  callSettings: ['maxCallDuration', 'language', 'languages', 'patienceLevel', 'sendUserIdleReminders', 'reminderAfterIdleTimeSeconds',
+  callSettings: ['maxCallDuration', 'language', 'languages', 'sendUserIdleReminders', 'reminderAfterIdleTimeSeconds',
     'reminderFrequency', 'endCallAfterSilenceMs', 'ringDurationSeconds'],
   postCall: ['callEndWorkflowIds', 'sendPostCallNotificationTo', 'saveCallSummaryAsNote'],
   outbound: ['voicemailOption', 'ivrOption', 'aiDisclaimerConfiguration'],
@@ -208,6 +207,7 @@ const ELSEWHERE = {
   provider: 'the provider follows llmModel (a speech-to-speech model makes GHL switch it to "lc")',
   inboundPhoneNumber: NUMBERS, inboundNumbers: NUMBERS, numberPoolId: NUMBERS,
   mcpServers: 'MCP servers are their own resource (/voice-ai/mcp/*)',
+  patienceLevel: 'GHL accepts patienceLevel and stores nothing (a legacy control the builder still sends; measured 2026-09-29)',
 };
 const WHERE = Object.fromEntries(Object.entries(SECTION_KEYS).flatMap(([sec, keys]) => keys.map((k) => [k, sec])));
 
@@ -224,7 +224,7 @@ function refuseUnapplied(ir) {
     if (!v || typeof v !== 'object' || Array.isArray(v)) continue;
     for (const k of Object.keys(v)) {
       if (keys.includes(k)) continue;
-      if (sec === 'outbound' && k in ELSEWHERE) problems.push(`outbound.${k}: ${ELSEWHERE[k]}`);
+      if (k in ELSEWHERE) problems.push(`${sec}.${k}: ${ELSEWHERE[k]}`);
       else problems.push(`${sec}.${k}: not a field this tool writes (${sec} takes ${keys.join(', ')})`);
     }
   }

@@ -116,6 +116,7 @@ import { compileConvaiAgent } from '../../engines/ai/convai-compiler.mjs';
 import { compileVoiceAiAgent, compileVoiceAiUpdate, compileVoiceAiS2sFollowUp } from '../../engines/ai/voiceai-compiler.mjs';
 import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/ai/studio-compiler.mjs';
 import { refuseUnappliedStudioKeys } from '../../engines/ai/studio-ir.mjs';
+import { IRError } from '../../engines/ai/convai-ir.mjs';
 import { executeAgentPlan, executeAgentUpdate, serverMessage } from '../../engines/ai/driver.mjs';
 import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from '../../engines/ai/voiceai-update.mjs';
 import { compileDeploymentIntent, executeDeployment, DEPLOY_PATH, CHANNELS } from '../../engines/ai/deployment.mjs';
@@ -568,6 +569,16 @@ function readProjectLintPack(state, locationId) {
     const p = join(dir, String(locationId), 'lint-pack.json');
     return existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : null;
   } catch { return null; }
+}
+
+// A spec the compiler refuses is reported the way the update tools report it: ENGINE_ABORT naming the IR code
+// (SPEC_KEY_UNAPPLIED, FULLPROMPT_OWNS_PROMPT, MISSING_FIELD, …), before anything is sent.
+function aiPlanOrRefusal(kind, args) {
+  try { return { plan: compileAiAgentPlan(kind, args) }; } catch (error) {
+    if (!(error instanceof IRError)) throw error;
+    return { refusal: withFailureData(fail(CODES.ENGINE_ABORT, `create rejected (${error.code}): ${error.message}`,
+      'The spec was rejected before any request was sent — nothing was created.'), { irCode: error.code }) };
+  }
 }
 
 export function compileAiAgentPlan(kind, args) {
@@ -2270,7 +2281,8 @@ export const TOOLS = [
       { method: 'GET', path: '/ai-employees/employees/{agentId}' },
     ],
     handler: async (args, deps) => guard(async () => {
-      const plan = compileAiAgentPlan('convai', args);
+      const { plan, refusal } = aiPlanOrRefusal('convai', args);
+      if (refusal) return refusal;
       const preview = aiPlanPreview(plan);
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
@@ -2371,7 +2383,7 @@ export const TOOLS = [
   },
   {
     name: 'create_voiceai_agent',
-    description: `${describe('create_voiceai_agent', 'Create Voice AI agent')}. POST {locationId, folderId?}, then the builder's save PUT, then a verified re-read. spec (sections): agentName, agentPrompt, businessName, timezone, llmModel (a speech-to-speech model — gpt-realtime-2, gpt-realtime-2.1, gpt-live-1, gemini-3.1-flash-live-preview — makes GHL switch the provider to lc, and s2sBehaviour then goes in a second PUT), welcomeMessage, welcomeMessageMode ai_custom|user_first (+ userFirstFallback, beginAfterUserSilenceMs), folderId, voice{… denoisingMode no-denoise|noise-cancellation|noise-and-background-speech-cancellation}, behavior{}, transcription{}, callSettings{language, languages[], patienceLevel, …}, postCall{}, outbound{voicemailOption, ivrOption, aiDisclaimerConfiguration}, knowledgeBase{}, translation{}, noResponseConfig{} (text models), prompts, disabledPrompts, sessionVariables, endCallConfig, spamConfig{postCallAnalysis}, actions[]. Any other key — flat names such as voiceId included, and phone numbers (the deploy screen's, location-wide) — is refused before anything is sent. To change an existing agent use update_voiceai_agent. 🔴 Post-call defaults: unless spec.postCall says otherwise, every call summary is saved as a NOTE on the caller's contact (GHL default) and ALL admins get an email after every call — set postCall.saveCallSummaryAsNote:false and postCall.sendPostCallNotificationTo to change them; the preview names what applies. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_voiceai_agent', 'Create Voice AI agent')}. POST {locationId, folderId?}, then the builder's save PUT, then a verified re-read. spec (sections): agentName, agentPrompt, businessName, timezone, llmModel (a speech-to-speech model — gpt-realtime-2, gpt-realtime-2.1, gpt-live-1, gemini-3.1-flash-live-preview — makes GHL switch the provider to lc, and s2sBehaviour then goes in a second PUT), welcomeMessage, welcomeMessageMode ai_custom|user_first (+ userFirstFallback, beginAfterUserSilenceMs), folderId, voice{… denoisingMode no-denoise|noise-cancellation|noise-and-background-speech-cancellation}, behavior{}, transcription{}, callSettings{language, languages[], …}, postCall{}, outbound{voicemailOption, ivrOption, aiDisclaimerConfiguration}, knowledgeBase{}, translation{}, noResponseConfig{} (text models), prompts, disabledPrompts, sessionVariables, endCallConfig, spamConfig{postCallAnalysis}, actions[]. Any other key — flat names such as voiceId included, and phone numbers (the deploy screen's, location-wide) — is refused before anything is sent. To change an existing agent use update_voiceai_agent. 🔴 Post-call defaults: unless spec.postCall says otherwise, every call summary is saved as a NOTE on the caller's contact (GHL default) and ALL admins get an email after every call — set postCall.saveCallSummaryAsNote:false and postCall.sendPostCallNotificationTo to change them; the preview names what applies. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'POST', path: '/voice-ai/agents' },
@@ -2380,7 +2392,8 @@ export const TOOLS = [
       { method: 'GET', path: '/voice-ai/agents/{agentId}' },
     ],
     handler: async (args, deps) => guard(async () => {
-      const plan = compileAiAgentPlan('voiceai', args);
+      const { plan, refusal } = aiPlanOrRefusal('voiceai', args);
+      if (refusal) return refusal;
       const preview = { ...aiPlanPreview(plan), defaults: voiceDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
@@ -2408,7 +2421,7 @@ export const TOOLS = [
       + 'prompts {section: text|null} MERGES by section (null resets it to Default); GHL stores only personality, '
       + 'appointmentBooking, dateAndTimeAwareness, numericAndEmailHandling, emailConfirmationProcess (the hangup/spam '
       + 'prompts are endCallConfig). disabledPrompts replaces the list; an empty list is refused (clearing is unmeasured). '
-      + 'languages[] (the multi-select) and patienceLevel are written flat; spamConfig {postCallAnalysis} is merged over the stored one; '
+      + 'languages[] (the multi-select) is written flat; patienceLevel is refused (GHL stores nothing); spamConfig {postCallAnalysis} is merged over the stored one; '
       + 'beginAfterUserSilenceMs only with welcomeMessageMode user_first. '
       + 'Refuses action arrays, numbers and unknown keys. '
       + 'A rename makes GHL rewrite the old name inside agentPrompt: reported as collateral.retemplated, not a failure. '
@@ -2524,7 +2537,8 @@ export const TOOLS = [
       { method: 'GET', path: '/agent-studio/super-agent/agents/{agentId}' },
     ],
     handler: async (args, deps) => guard(async () => {
-      const plan = compileAiAgentPlan('studio', args);
+      const { plan, refusal } = aiPlanOrRefusal('studio', args);
+      if (refusal) return refusal;
       const preview = { ...aiPlanPreview(plan), defaults: studioDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,

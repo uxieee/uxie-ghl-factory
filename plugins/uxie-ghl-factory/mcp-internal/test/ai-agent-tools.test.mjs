@@ -127,3 +127,24 @@ test('create_studio_agent does not verify a triggerMessage it did not write, and
   const p = await tool('create_studio_agent').handler({ locationId: 'L', companyId: 'A', spec: { name: 'S', systemPrompt: 'p', plugins: [], triggers: [{ type: 'chat' }] } }, deps);
   assert.match(p.data.preview.defaults.triggerMessage, /per-type default/);
 });
+
+test('t22: every AI create tool refuses an unapplied spec key with confirm:true, naming the IR code, and builds no gateway', async () => {
+  let gatewayConstructed = false;
+  const deps = { state: {}, makeGw: () => { gatewayConstructed = true; throw new Error('a refusal must not create a gateway'); } };
+  const cases = [
+    ['create_convai_agent', { locationId: 'L', confirm: true, spec: { ...convai, emailSettings: {} } }],
+    ['create_voiceai_agent', { locationId: 'L', confirm: true, spec: { ...voiceai, voiceId: 'v' } }],
+    ['create_studio_agent', { locationId: 'L', companyId: 'A', confirm: true, spec: { ...studio, folderId: 'f' } }],
+  ];
+  for (const [name, args] of cases) {
+    const result = await tool(name).handler(args, deps);
+    assert.equal(result.ok, false, name);
+    assert.equal(result.code, 'ENGINE_ABORT', name);
+    assert.match(result.detail, /create rejected \(SPEC_KEY_UNAPPLIED\)/, name);
+    assert.equal(result.data.irCode, 'SPEC_KEY_UNAPPLIED', name);
+  }
+  assert.equal(gatewayConstructed, false);
+  // CONTROL: the same specs without the stray key reach the confirm gate
+  const ok = await tool('create_convai_agent').handler({ locationId: 'L', spec: convai }, deps);
+  assert.equal(ok.code, 'CONFIRM_REQUIRED');
+});
