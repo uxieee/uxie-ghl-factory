@@ -2438,12 +2438,6 @@ export const KIND_BUILDER_EXTRA = Object.freeze({
   }
  },
  "store-pdp-v2-add-to-cart": {
-  "itemsAddedHeadline": {},
-  "viewCartButtonText": {},
-  "continueShopping": {},
-  "cartEmptyHeadline": {},
-  "cartEmptySubHeadline": {},
-  "outOfStockText": {},
   "viewDetailsModalButtonText": {
    "value": "View full details"
   },
@@ -2514,13 +2508,11 @@ export const KIND_BUILDER_EXTRA = Object.freeze({
   "descriptionMobileFontSize": {
    "value": 14,
    "unit": "px"
-  },
-  "descriptionShowMoreText": {},
-  "descriptionShowLessText": {}
+  }
  },
  "store-pdp-v2-related-products": {
   "relatedProductsHeadingText": {
-   "value": "productDetailPage.relatedProductsHeading"
+   "value": "You may also like"
   },
   "showReviewsAndRatings": {
    "value": false

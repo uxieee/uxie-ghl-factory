@@ -388,5 +388,923 @@ export const KIND_DEFAULT_EXTRA = Object.freeze({
         "bgColor": "#101828"
       }
     }
+  },
+  // 🔴 The 11 product-page (PDP v2) blocks, verbatim from the extras of GHL's own store "Product details" page as its
+  // migration wrote them (knowledge sniffs/funnels-wave29-kinds-2026-09-29/live-read.pdp-page.json). They win over the
+  // builder's registry table, which disagrees on some mobile sizes (price 32px there, 16px on the real page) and carries
+  // no drawer labels at all. variantsStyling is a RAW object of {value} groups; customText is {value: {section: labels}}.
+  "store-pdp-v2-images": {
+    "mediaLayout": {
+      "value": "stack-gallery"
+    },
+    "imageZoom": {
+      "value": "noZoom"
+    },
+    "enableWishlisting": {
+      "value": false
+    }
+  },
+  "store-pdp-v2-title": {
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-review-stars": {
+    "showRatingsCount": {
+      "value": true
+    },
+    "reviewStarsDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "singleReviewCountText": {
+      "value": "review"
+    },
+    "multipleReviewCountText": {
+      "value": "reviews"
+    }
+  },
+  "store-pdp-v2-price": {
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-variants": {
+    "variantsStyling": {
+      "variantPickerStyle": {
+        "value": "dropdown"
+      },
+      "pillColors": {
+        "value": {
+          "selectedText": "#155EEF",
+          "selectedBg": "#EFF4FF",
+          "selectedBorder": "#155EEF",
+          "unselectedText": "#667085",
+          "unselectedBg": "#FFFFFF",
+          "unselectedBorder": "#D0D5DD"
+        }
+      },
+      "dropdownColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      },
+      "labelColor": {
+        "value": "#344054"
+      }
+    }
+  },
+  "store-pdp-v2-quantity": {
+    "quantityLabelText": {
+      "value": "Quantity"
+    }
+  },
+  "store-pdp-v2-add-to-cart": {
+    "text": {
+      "value": "Add to Cart"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "typography": {
+      "value": "var(--headlinefont)"
+    },
+    "itemsAddedHeadline": {
+      "value": "item(s) added"
+    },
+    "viewCartButtonText": {
+      "value": "View Cart"
+    },
+    "continueShopping": {
+      "value": "Continue Shopping"
+    },
+    "cartEmptyHeadline": {
+      "value": "Your cart is empty"
+    },
+    "cartEmptySubHeadline": {
+      "value": "Add items to your cart to continue shopping"
+    },
+    "outOfStockText": {
+      "value": "Out of Stock"
+    },
+    "viewDetailsModalButtonText": {
+      "value": "View full details"
+    },
+    "viewCartButtonColor": {
+      "value": "var(--secondary)"
+    },
+    "viewCartButtonTextColor": {
+      "value": "var(--white)"
+    },
+    "continueShoppingTextColor": {
+      "value": "#188bf6"
+    },
+    "drawerHeadlineColor": {
+      "value": "#101828"
+    },
+    "drawerProductTitleColor": {
+      "value": "var(--black)"
+    },
+    "drawerItemTextColor": {
+      "value": "#101828"
+    },
+    "drawerPriceColor": {
+      "value": "#101828"
+    },
+    "drawerHeadlineFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "drawerHeadlineFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "drawerProductTitleFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "drawerProductTitleFontFamily": {
+      "value": "var(--contentfont)"
+    }
+  },
+  "store-pdp-v2-buy-now": {
+    "text": {
+      "value": "Buy now"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "typography": {
+      "value": "var(--headlinefont)"
+    }
+  },
+  "store-pdp-v2-description": {
+    "descriptionDesktopFontSize": {
+      "unit": "px",
+      "value": 16
+    },
+    "descriptionMobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "descriptionShowMoreText": {
+      "value": "Show more"
+    },
+    "descriptionShowLessText": {
+      "value": "Show less"
+    }
+  },
+  "store-pdp-v2-related-products": {
+    "relatedProductsHeadingText": {
+      "value": "You may also like"
+    },
+    "showReviewsAndRatings": {
+      "value": true
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "reviewStarsDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "itemsPerPage": {
+      "value": 6
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "typography": {
+      "value": "var(--contentfont)"
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "relatedProductsDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "relatedProductsMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-reviews": {
+    "customText": {
+      "value": {
+        "reviewsAndRatingsSection": {
+          "reviewsRatingsHeadline": "Customer Reviews",
+          "averageRatingText": "Average Ratings",
+          "reviewButtonText": "Write a review",
+          "noReviewsText": "Be the first one to review this product",
+          "noReviewsMatchText": "Sorry, no reviews match your current selections.",
+          "tryClearingFiltersText": "Try clearing or changing some filters.",
+          "clearFiltersButtonText": "Clear Filters",
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page"
+        },
+        "sortAndFilterSectionReviews": {
+          "dateNewToOld": "Date, New to Old",
+          "dateOldToNew": "Date, Old to New",
+          "ratingLowToHigh": "Rating, Low to High",
+          "ratingHighToLow": "Rating, High to Low",
+          "allStars": "All Stars",
+          "multipleStarsText": "stars",
+          "oneStarText": "star"
+        },
+        "reviewSubmissionSection": {
+          "headline": "Write a review",
+          "overallRatingText": "Overall Rating",
+          "name": "Name",
+          "email": "Email",
+          "contactNumber": "Contact Number",
+          "addAHeadline": "Add a headline",
+          "addADetailedReview": "Add a detailed review",
+          "cancelButtonText": "Cancel",
+          "submitButtonText": "Submit",
+          "reviewSuccessHeadline": "Review submitted successfully!",
+          "reviewSuccessSubHeadline": "Thank you for submitting your review. Your review will be published soon after we approve it.",
+          "closeButtonText": "Close"
+        }
+      }
+    }
+  }
+});
+
+// 🔴 The product-page blocks' STYLES. The builder's style compiler reads them unguarded — generatePdpV2RelatedProductsStyles
+// → generateProductListStyles reads styles.productNameFontFamily.value — so a block without them makes the page
+// UNSAVEABLE in the builder ("Error while saving page", nothing sent) while it renders in public (knowledge
+// sniffs/funnels-wave29-kinds-2026-09-29 driver log, first builder save). Values are the builder's own element factories
+// (getConfigForPdpV2*$1, page builder index.e1b163ff.js): the registry table plus the container background
+// (var(--transparent)) and the two action buttons (getConfigForPdpV2ActionButton$1). GHL's own migrated store page
+// carries the same keys with values copied from its v1 node (#c77529-style backgrounds), which are not defaults.
+export const KIND_PDP_STYLES = Object.freeze({
+  "store-pdp-v2-images": {
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "width": {
+      "value": 100,
+      "unit": "%"
+    },
+    "textAlign": {
+      "value": "center"
+    },
+    "borderColor": {
+      "value": "#000000"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-title": {
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-review-stars": {
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-price": {
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-variants": {
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-quantity": {
+    "quantityLabelColor": {
+      "value": "#101828"
+    },
+    "color": {
+      "value": "#101828"
+    },
+    "quantityBackgroundColor": {
+      "value": "#FFFFFF"
+    },
+    "quantityBorderColor": {
+      "value": "#D0D5DD"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-description": {
+    "descriptionFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "descriptionFontColor": {
+      "value": "#000000"
+    },
+    "descriptionBackgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "descriptionFontWeight": {
+      "desktop": "400"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "showMoreButtonColor": {
+      "value": "#8f8585ff"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-related-products": {
+    "relatedProductsHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "relatedProductsHeadingFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "reviewsAndRatingsFontFamily": {
+      "value": ""
+    },
+    "reviewsAndRatingsFontWeight": {
+      "desktop": "400"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-reviews": {
+    "writeButtonBgColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "#004EEB"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "paddingTop": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-buy-now": {
+    "backgroundColor": {
+      "value": "transparent"
+    },
+    "color": {
+      "value": "var(--secondary)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "500"
+    },
+    "borderColor": {
+      "value": "var(--secondary)"
+    },
+    "borderWidth": {
+      "value": "1"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "5px"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingTop": {
+      "value": 12,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 12,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-add-to-cart": {
+    "backgroundColor": {
+      "value": "var(--secondary)"
+    },
+    "color": {
+      "value": "var(--white)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "500"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "5px"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingTop": {
+      "value": 12,
+      "unit": "px"
+    },
+    "paddingBottom": {
+      "value": 12,
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "drawerHeadlineFontWeight": {
+      "desktop": "700"
+    },
+    "drawerProductTitleFontWeight": {
+      "desktop": "400"
+    }
   }
 });

@@ -20,9 +20,15 @@ public. The tool emits the nodes AND the compiled stylesheet together.
 
 Autosave answers `201` to all of these:
 
-- `meta` must be one of the 60 kinds in the tool's element catalogue. The page builder now has 72: the 12 added since
-  (`instagram-feed` and 11 `store-pdp-v2-*` blocks) are refused by compose, and can only be changed in place (edit `set`)
-  on a node the builder inserted.
+- `meta` must be one of the 72 kinds in the tool's element catalogue (the page builder's own registry).
+  **Product-page blocks** (the 11 `store-pdp-v2-*`) compose only on a step whose `key` is `store-product-detail` (the
+  store's "Product details" step) or `store-custom-product-detail` (a custom product page), inside a section spec with
+  `pdp: true` — or `pdp: {products: [<product id>]}` on a custom product page, where the first id is the product shown.
+  Each block finds its product through that section (`extra.pdpV2Section`); on the store's step the product comes from
+  the URL (`/<step path>/product/<product id>`). Both rules are refused by name before anything is sent. They render
+  with the product's data but UNSTYLED (native buttons and select) until the page is saved once in the builder, which
+  compiles their CSS — the tool compiles none for these kinds yet (console bl-298). Every preview and result that writes
+  them lists them under `pdpStyling` with that warning. Edit mode's `append-section` is held to the same two rules.
 - Every declared `extra` property must be present. The renderer reads `extra.<prop>.value` unguarded, so a
   missing one 500s the whole page.
 - `col.extra.bgImage`, `general.general.fontsToLoad` and `colors` must be present.
@@ -88,6 +94,7 @@ Autosave answers `201` to all of these:
   - `sticky`: `none` | `top` | `bottom`
   - `width`: `full` | `wide` | `midWide` | `small`
   - `fullWidthRows`, which cannot be combined with `maxWidth`
+  - `pdp`: `true` | `{products: [<product id>]}` — the product-page section the `store-pdp-v2-*` blocks need (above)
 - **`entranceAnimation`** `{name, duration, delay, scale, easing}` goes on heading, sub-heading, paragraph,
   rich-text, bulletList, button and image.
 - **`hoverAnimation`** goes on a button: `{name, duration, delay, easing}` plus the effect's own knob, which is

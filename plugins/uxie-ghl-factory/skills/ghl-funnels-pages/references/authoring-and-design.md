@@ -98,14 +98,16 @@ download-file) — and the public renderer reads `imageActions` for all three.
 
 ## Coverage
 
-The page builder has 72 element kinds (68 leaves). The tool's catalogue holds the 60 of the 2026-09-09 registry, and
-**its 56 leaf kinds build from scratch**; the 12 added since (`instagram-feed`, 11 `store-pdp-v2-*`) are refused by
-compose and editable in place only. Five of the six that used to fail were never shape problems — they needed the right
+The page builder has 72 element kinds (68 leaves), and the tool's catalogue holds all 72: **every leaf kind builds from
+scratch**. The 11 product-page blocks (`store-pdp-v2-*`) need the store's product-detail step and a `pdp` section
+(references/build-funnel-page.md). Five of the six that used to fail were never shape problems — they needed the right
 **step type**, found by installing GHL's own store and blog templates and reading the real nodes.
 
 | Kind | Needs | Status |
 |---|---|---|
 | `store-cart` / `store-checkout` / `store-thank-you` | a step of `type: "store"` | ✅ build and render |
+| `store-pdp-v2-*` (11 product-page blocks) | a step keyed `store-product-detail` / `store-custom-product-detail` + a section with `pdp` | ✅ build, render with the product's data, survive a builder save; unstyled until that save (bl-298) |
+| `instagram-feed` | a connected Instagram account to show posts | ✅ builds; renders nothing without an account |
 | `photo-video-gallery` | a real `galleryLayout.value.layout` string (`"grid"`) | ✅ builds on an ordinary page |
 | `blog-content` | a `blog-post` step of a `type: "blog"` funnel | ✅ builds (verify in the BUILDER) |
 | `social-share-blog` | `socialShareStyle` sent RAW, not `{value:…}` | ✅ |

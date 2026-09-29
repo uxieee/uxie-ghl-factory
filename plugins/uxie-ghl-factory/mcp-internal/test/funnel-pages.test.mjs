@@ -19,8 +19,8 @@ const page = (over = {}) => {
   return { leaf, col, section, data: buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [section], ...over }) };
 };
 
-test('the element vocabulary is the closed set of 60', () => {
-  assert.equal(ELEMENT_KINDS.length, 60);
+test('the element vocabulary is the closed set of 72', () => {
+  assert.equal(ELEMENT_KINDS.length, 72);
   assert.ok(ELEMENTS['two-setp-order'], 'the misspelling is the stored value and must survive');
   assert.equal(ELEMENTS['two-setp-order'].tagName, 'c-order');
   assert.equal(ELEMENTS['one-step-order'].tagName, 'c-order', 'tagName does not identify a kind');
@@ -391,4 +391,26 @@ test('every action the builder menu offers passes the audit (the list once held 
     d.sections[0].elements.find((n) => n.type === 'element').extra.action = { value: v };
     assert.deepEqual(auditPageData(d).filter((p) => /action/.test(p)), [], v);
   }
+});
+
+test('a pdp section carries the builder\'s buildV2SectionExtra; PDP blocks take the real store page\'s values', () => {
+  resetIds();
+  const s = makeSection({ columns: [], pdp: { products: ['PR1'] }, salt: 'x' });
+  const ex = s.metaData.extra;
+  assert.deepEqual([ex.selectedProducts, ex.manageProducts, ex.typography, ex.pdpV2Section], [{ value: ['PR1'] }, { value: '' }, { value: 'var(--contentfont)' }, true]);
+  assert.deepEqual(makeSection({ columns: [], pdp: true, salt: 'y' }).metaData.extra.selectedProducts, { value: [] });
+  assert.equal(makeSection({ columns: [], salt: 'z' }).metaData.extra.pdpV2Section, undefined);
+  const price = makeLeaf({ meta: 'store-pdp-v2-price' });
+  assert.deepEqual(price.extra.mobileFontSize, { value: 16, unit: 'px' }, 'the real node (16px) wins over the builder table (32px)');
+  assert.equal(makeLeaf({ meta: 'store-pdp-v2-variants' }).extra.variantsStyling.variantPickerStyle.value, 'dropdown', 'variantsStyling is RAW');
+  assert.equal(makeLeaf({ meta: 'store-pdp-v2-add-to-cart' }).extra.viewCartButtonText.value, 'View Cart');
+  assert.equal(makeLeaf({ meta: 'instagram-feed' }).meta, 'instagram-feed');
+});
+
+test('PDP blocks carry every style key the builder\'s compiler reads unguarded (a missing one makes the page unsaveable)', () => {
+  const rel = makeLeaf({ meta: 'store-pdp-v2-related-products' }).styles;
+  for (const k of ['productNameColor', 'productPriceColor', 'productNameFontFamily', 'productPriceFontFamily']) assert.ok(rel[k] && 'value' in rel[k], k);
+  const buy = makeLeaf({ meta: 'store-pdp-v2-buy-now' }).styles;
+  assert.deepEqual([buy.backgroundColor, buy.color, buy.paddingTop], [{ value: 'transparent' }, { value: 'var(--secondary)' }, { value: 12, unit: 'px' }]);
+  assert.equal(makeLeaf({ meta: 'store-pdp-v2-add-to-cart' }).styles.backgroundColor.value, 'var(--secondary)');
 });

@@ -1,7 +1,7 @@
 {
- "_source": "knowledge/corpus/funnels/_data/elements.json + sniffs/funnel-element-registry-2026-09-09/defaults.json",
- "_note": "meta is a CLOSED set of 60; extraProps must all be present on a node or the public render 500s.",
- "count": 60,
+ "_source": "knowledge/corpus/funnels/_data/elements.json (editableProps.extra)",
+ "_note": "meta is a CLOSED set of 72; extraProps must all be present on a node or the public render 500s.",
+ "count": 72,
  "elements": {
   "section": {
    "tagName": "c-section",
@@ -632,6 +632,7 @@
     "blogMainTitle",
     "blogType",
     "blogCategories",
+    "blogAuthor",
     "blogShowOption",
     "visibility",
     "customClass",
@@ -681,6 +682,7 @@
     "featureHeadlineTabletFontSize",
     "enableSorting",
     "enableFiltering",
+    "sortFilterLayout",
     "addToCart",
     "filterByAvailability",
     "filterByPrice",
@@ -696,7 +698,17 @@
     "desktopColumns",
     "mobileColumns",
     "tabletColumns",
+    "desktopColumnGap",
+    "tabletColumnGap",
+    "mobileColumnGap",
+    "desktopRowGap",
+    "tabletRowGap",
+    "mobileRowGap",
     "enableWishlisting",
+    "productCardShowSecondImageOnHover",
+    "productCardZoomImageOnHover",
+    "productCardPriceConfiguration",
+    "productCardStartingAtText",
     "customClass",
     "visibility"
    ]
@@ -817,6 +829,10 @@
     "featureHeadlineTabletFontSize",
     "desktopFontSize",
     "mobileFontSize",
+    "productCardShowSecondImageOnHover",
+    "productCardZoomImageOnHover",
+    "productCardPriceConfiguration",
+    "productCardStartingAtText",
     "customClass",
     "visibility"
    ]
@@ -846,6 +862,10 @@
     "desktopFontSize",
     "mobileFontSize",
     "enableWishlisting",
+    "productCardShowSecondImageOnHover",
+    "productCardZoomImageOnHover",
+    "productCardPriceConfiguration",
+    "productCardStartingAtText",
     "addToCart",
     "customText",
     "customClass",
@@ -1183,6 +1203,194 @@
     "customClass",
     "visibility",
     "elementVersion"
+   ]
+  },
+  "instagram-feed": {
+   "tagName": "c-instagram-feed",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "igGeneralSource",
+    "igGeneralLayout",
+    "igPostStyleGroup",
+    "igPostElements",
+    "igPostAdvanced",
+    "igStyleColorScheme",
+    "igStyleCustomize",
+    "visibility",
+    "customClass",
+    "elementVersion"
+   ]
+  },
+  "store-pdp-v2-title": {
+   "tagName": "c-store-pdp-v2-title",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-pdp-v2-price": {
+   "tagName": "c-store-pdp-v2-price",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "desktopFontSize",
+    "mobileFontSize",
+    "tabletFontSize",
+    "priceDiscountDesktopFontSize",
+    "priceDiscountMobileFontSize",
+    "priceDiscountTabletFontSize",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-pdp-v2-images": {
+   "tagName": "c-store-pdp-v2-images",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "mediaLayout",
+    "imageZoom",
+    "enableWishlisting",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-pdp-v2-variants": {
+   "tagName": "c-store-pdp-v2-variants",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "variantsStyling",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-pdp-v2-quantity": {
+   "tagName": "c-store-pdp-v2-quantity",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "quantityLabelText",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-pdp-v2-add-to-cart": {
+   "tagName": "c-store-pdp-v2-add-to-cart",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "itemsAddedHeadline",
+    "viewCartButtonText",
+    "continueShopping",
+    "cartEmptyHeadline",
+    "cartEmptySubHeadline",
+    "outOfStockText",
+    "viewDetailsModalButtonText",
+    "viewCartButtonColor",
+    "viewCartButtonTextColor",
+    "continueShoppingTextColor",
+    "drawerHeadlineColor",
+    "drawerProductTitleColor",
+    "drawerItemTextColor",
+    "drawerPriceColor",
+    "drawerHeadlineFontSize",
+    "drawerHeadlineFontFamily",
+    "drawerProductTitleFontSize",
+    "drawerProductTitleFontFamily"
+   ]
+  },
+  "store-pdp-v2-buy-now": {
+   "tagName": "c-store-pdp-v2-buy-now",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": []
+  },
+  "store-pdp-v2-review-stars": {
+   "tagName": "c-store-pdp-v2-review-stars",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "showRatingsCount",
+    "reviewStarsDesktopFontSize",
+    "reviewStarsMobileFontSize",
+    "reviewStarsTabletFontSize",
+    "singleReviewCountText",
+    "multipleReviewCountText",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-pdp-v2-description": {
+   "tagName": "c-store-pdp-v2-description",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "descriptionDesktopFontSize",
+    "descriptionMobileFontSize",
+    "descriptionShowMoreText",
+    "descriptionShowLessText",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-pdp-v2-related-products": {
+   "tagName": "c-store-pdp-v2-related-products",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "relatedProductsHeadingText",
+    "showReviewsAndRatings",
+    "showRatingsCount",
+    "reviewStarsDesktopFontSize",
+    "reviewStarsMobileFontSize",
+    "reviewStarsTabletFontSize",
+    "itemsPerPage",
+    "desktopColumns",
+    "mobileColumns",
+    "tabletColumns",
+    "typography",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "tabletFontSize",
+    "priceDiscountDesktopFontSize",
+    "priceDiscountMobileFontSize",
+    "priceDiscountTabletFontSize",
+    "relatedProductsDesktopFontSize",
+    "relatedProductsMobileFontSize",
+    "relatedProductsTabletFontSize",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-pdp-v2-reviews": {
+   "tagName": "c-store-pdp-v2-reviews",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "customText",
+    "customClass",
+    "visibility"
    ]
   }
  }
