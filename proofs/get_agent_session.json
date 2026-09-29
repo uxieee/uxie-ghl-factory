@@ -26,10 +26,19 @@
         "row:ai-agents--logs-metrics"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:e02cf7a7"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-25",
+    "hashedAt": "2026-09-29",
     "endpoints": {
       "GET https://services.leadconnectorhq.com /agent-logs/logs/{}/interactions": "f5cc92baa78c90a9cbc77eb5015c52826b9dc24a1a52049a9e005e6489e4309d",
       "GET https://services.leadconnectorhq.com /agent-logs/logs/{}/metrics": "8a7a877fa325b0f9fb751d0f27058a9e598bbe0dda188dd568b2369b7634bafe",
@@ -37,18 +46,18 @@
     },
     "builds": {
       "agentLogsApp": 693,
-      "agentStudioApp": 701,
-      "aiEmployeesApp": 2603,
-      "aiGrowthApp": 697,
+      "agentStudioApp": 710,
+      "aiEmployeesApp": 2631,
+      "aiGrowthApp": 708,
       "superagentsApp": 703,
-      "voiceAiApp": 701
+      "voiceAiApp": 707
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_agent_session": "526e4a8d9c486235374e8e4397b8dd0035223bf2c26c8dbb110f3980959ebb11",
-      "plugins/uxie-ghl-factory/mcp-internal/core/agent-logs.mjs": "66be641f68392b70517d7ad6c3065ec3f4907bd66b19633242b3fa1ddb2af606",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_agent_session": "cd00ca6213c38747c2d452e1184c8e28278d864833c8537e86632beed8112495",
+      "plugins/uxie-ghl-factory/mcp-internal/core/agent-logs.mjs": "08ce651b9e9a863c10b94cd7818105521b6bfc4197d7207fc829ed72efbc1e6c",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "aace93819a562eb4c84c691a3a50601282afbaeda75c49c253799595154fc1e4"
     }
   }
 }
