@@ -998,3 +998,53 @@ test('CONTROL: an ai_agent with none of the four keys compiles without them and 
   for (const k of ['skills', 'mcpConnections', 'templateId', 'disableToolOutputGuards']) assert.equal(k in a, false, k);
   assert.equal(w.filter((m) => /skill/i.test(m)).length, 0);
 });
+
+// wave23 W23-2 (completeness sweep 2026-09-29 §4 #25-26): lookup/from-lookup/format_row keys were refused as invented,
+// and the only "required" check was oAuthId — a key the builder never writes — so a Sheets step with no account compiled
+// clean. The engine now enforces GoogleSheetsApi.hasErrors (GoogleSheetsApi.ts:193-386).
+const G = { account: { id: 'acc1', name: 'A' }, drive: { id: 'd1', name: 'D' }, spreadsheet: { id: 's1', name: 'S' }, sheet: { id: 'sh1', name: 'Sh' } };
+const sheetsIR = (attrs) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+  { ref: 'g', kind: 'action', type: 'google_sheets', name: 'Sheet', attributes: { ...G, ...attrs } }] });
+const sheetsOf = (ir, c = ctx()) => compile(ir, c).autoSaveBody.workflowData.templates.find((s) => s.type === 'google_sheets').attributes;
+const act = (id) => ({ action: { id, name: id } });
+test('google_sheets: complete lookup, from-lookup and format_row steps compile with their keys', () => {
+  const lk = sheetsOf(sheetsIR({ ...act('lookup_row'), lookupColumns: { main: { column: 'A', value: '{{contact.email}}' }, extra: { column: 'B', value: 'x' } },
+    options: { lookupSearchMethod: 'bottom_to_top', lookupCaseSensitive: false }, sheetHeaders: ['Email', 'Name'] }));
+  assert.deepEqual(lk.lookupColumns.extra, { column: 'B', value: 'x' });
+  const fl = sheetsOf(sheetsIR({ ...act('update_row_from_lookup'), lookupStep: { label: '#1 L', value: 'L1', id: 'L1', stepIndex: 1 }, columnRange: ['A', 'B'], values: ['1', ''] }));
+  assert.equal(fl.lookupStep.stepIndex, 1);
+  const fr = sheetsOf(sheetsIR({ ...act('format_row'), targetRow: '2, 4-6', formatting: { bold: true, backgroundColor: '#FFF2CC', fontSize: 12 } }));
+  assert.deepEqual(fr.formatting, { bold: true, backgroundColor: '#FFF2CC', fontSize: 12 });
+});
+test('google_sheets: each GHL save rule refuses (SHEETS_INCOMPLETE) with the failing field named', () => {
+  const cases = [
+    [{ ...act('create_row'), account: { id: '', name: '' }, columnRange: ['A', 'B'], values: ['x'] }, /account\.id is empty/],
+    [{ ...act('create_row'), sheet: undefined, columnRange: ['A', 'B'], values: ['x'] }, /sheet\.id is empty/],
+    [{ action: { id: '' }, columnRange: ['A', 'B'], values: ['x'] }, /action\.id is empty/],
+    [{ ...act('create_row'), columnRange: ['A'], values: ['x'] }, /columnRange/],
+    [{ ...act('create_row'), columnRange: ['A', 'B'], values: ['', ''] }, /values needs/],
+    [{ ...act('lookup_row'), options: { createOnEmptyLookup: true }, lookupColumns: { main: { column: 'A', value: 'v' } } }, /columnRange/],
+    [{ ...act('update_row'), columnRange: ['A', 'B'], values: ['x'], targetRow: '2-3' }, /not a row number/],
+    [{ ...act('remove_row'), targetRow: '1' }, /data row above 1/],
+    [{ ...act('lookup_multiple_rows'), lookupColumns: { main: { column: 'A', value: 'v' } } }, /rowCount/],
+    [{ ...act('lookup_row'), lookupColumns: { main: { column: 'A' } } }, /Lookup Value is missing/],
+    [{ ...act('lookup_row'), lookupColumns: { main: { column: 'A', value: 'v' }, extra: { column: 'A', value: 'w' } } }, /cannot be the same/],
+    [{ ...act('format_row'), targetRow: '2', formatting: {} }, /at least one option/],
+    [{ ...act('format_row'), targetRow: '2', formatting: { fontSize: 401 } }, /1-400/],
+    [{ ...act('format_row'), targetRow: '2', formatting: { textColor: 'red' } }, /theme token/],
+  ];
+  for (const [attrs, re] of cases)
+    assert.throws(() => sheetsOf(sheetsIR(attrs)), (e) => e.code === 'SHEETS_INCOMPLETE' && re.test(e.message), JSON.stringify(attrs));
+});
+test('google_sheets: merge tags satisfy row/count/colour rules (they resolve at runtime, as in GHL)', () => {
+  assert.doesNotThrow(() => sheetsOf(sheetsIR({ ...act('format_row'), targetRow: '{{contact.row}}', formatting: { textColor: '{{custom_values.c}}' } })));
+  assert.doesNotThrow(() => sheetsOf(sheetsIR({ ...act('lookup_multiple_rows'), rowCount: '{{contact.n}}', lookupColumns: { main: { column: 'A', value: 'v' } } })));
+});
+test('google_sheets: an invented key is still refused; oAuthId is no longer a "known" key', () => {
+  assert.throws(() => sheetsOf(sheetsIR({ ...act('create_row'), columnRange: ['A', 'B'], values: ['x'], oAuthId: 'x' })), (e) => e.code === 'ATTR_KEY' && /oAuthId/.test(e.message));
+});
+test('CONTROL: a complete create_row compiles exactly as before (no lookup/format keys added)', () => {
+  const a = sheetsOf(sheetsIR({ ...act('create_row'), columnRange: ['A', 'C'], values: ['{{contact.email}}', '', 'x'] }));
+  for (const k of ['lookupColumns', 'lookupStep', 'formatting']) assert.equal(k in a, false, k);
+  assert.deepEqual(a.columnRange, ['A', 'C']);
+});

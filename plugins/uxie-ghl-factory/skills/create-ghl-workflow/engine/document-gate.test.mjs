@@ -228,3 +228,12 @@ test('ai_agent: the drawer keys pass the gate; an invented key on the same step 
   const bad = keyErr(agent({ templateId: 'tpl', agentName: 'x' }));
   assert.equal(bad.length, 1); assert.match(bad[0].message, /\[agentName\]/);
 });
+
+// wave23 W23-2: a builder-made Sheets lookup / from-lookup / format_row blocked publish and in-scope edits.
+test('google_sheets: lookupColumns, lookupStep and formatting pass the gate; an invented key still errors', () => {
+  const step = (extra) => [{ id: 'g1', name: 'Sheet', type: 'google_sheets', order: 0, attributes: { type: 'google_sheets', action: { id: 'lookup_row', name: 'x' },
+    account: { id: 'a' }, drive: { id: 'd' }, spreadsheet: { id: 's' }, sheet: { id: 'h' }, ...extra } }];
+  const keyErr = (tpl) => gateDocument(tpl, { catalog, marketplaceTypes: new Set() }).errors.filter((f) => f.check === 'ATTRIBUTE_KEY');
+  assert.deepEqual(keyErr(step({ lookupColumns: { main: { column: 'A', value: 'v' } }, lookupStep: { id: 'x', label: 'x', value: 'x', stepIndex: 1 }, formatting: { bold: true } })), []);
+  assert.equal(keyErr(step({ lookupColumn: {} })).length, 1);
+});

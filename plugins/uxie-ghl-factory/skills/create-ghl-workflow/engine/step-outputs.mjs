@@ -32,9 +32,34 @@ export const STEP_OUTPUTS = Object.freeze({
   // live 2026-09-28: all three rendered in a later field write (knowledge live-3Q-generate-image.json)
   workflow_ai_generate_image: { ns: 'workflow_ai_generate_image', fields: ['image_url', 'image_file.path', 'image_file.name'], kind: 'fixed' },
   'task-notification':{ ns: '[task-notification]',fields: ['id', 'title', 'body', 'bodyRawText', 'dueDate', 'assignedTo'], kind: 'fixed', note: 'bracketed namespace' },
+  // Two namespaces, and WHICH action produces each matters (utils/premium-actions-helpers/google_sheets_helpers.ts:66-137):
+  // lookup_row #N → {{sheet.N.<column letter>}} (one per sheetHeaders entry, A, B, … AA) and {{sheet.N.rowNumber}};
+  // lookup_multiple_rows #N → {{sheet.N.rowCount}} and {{sheetLookupResult.N.result}}. Other Sheets actions produce nothing.
+  google_sheets:      { ns: 'sheet', alsoNs: ['sheetLookupResult'], fields: ['<column letter>', 'rowNumber', 'rowCount'], kind: 'per-instance',
+    from: 'lookup_row: column letters + rowNumber; lookup_multiple_rows: rowCount + sheetLookupResult.N.result' },
 });
 
-const NS_TO_TYPE = Object.freeze(Object.fromEntries(Object.entries(STEP_OUTPUTS).map(([ty, v]) => [v.ns.replace(/^\[|\]$/g, ''), ty])));
+const NS_TO_TYPE = Object.freeze(Object.fromEntries(Object.entries(STEP_OUTPUTS).flatMap(([ty, v]) =>
+  [v.ns, ...(v.alsoNs ?? [])].map((ns) => [ns.replace(/^\[|\]$/g, '').toLowerCase(), ty]))));
+
+// Column letters as the builder mints them from a header's index (getColumnLetters: 0 → A, 25 → Z, 26 → AA).
+const columnIndex = (letters) => [...letters.toUpperCase()].reduce((n, ch) => n * 26 + (ch.charCodeAt(0) - 64), 0) - 1;
+/** Why a Sheets reference does not match what its producer step emits, or null when it does. */
+function sheetsRefMismatch(ref, step) {
+  const action = step.attributes?.action?.id;
+  const ns = ref.ns.toLowerCase();
+  if (ns === 'sheetlookupresult') return action === 'lookup_multiple_rows' && ref.field === 'result' ? null
+    : `only a lookup_multiple_rows step produces {{sheetLookupResult.N.result}} (step #${ref.n} is ${action || 'no action'})`;
+  if (ref.field === 'rowCount') return action === 'lookup_multiple_rows' ? null
+    : `rowCount comes only from lookup_multiple_rows (step #${ref.n} is ${action || 'no action'})`;
+  if (action !== 'lookup_row') return `{{sheet.N.${ref.field}}} comes only from lookup_row (step #${ref.n} is ${action || 'no action'})`;
+  if (ref.field === 'rowNumber') return null;
+  if (!/^[A-Z]+$/i.test(ref.field)) return `'${ref.field}' is not a column letter or rowNumber`;
+  const headers = step.attributes?.sheetHeaders;
+  if (Array.isArray(headers) && headers.length && columnIndex(ref.field) >= headers.length)
+    return `column ${ref.field} is past the step's ${headers.length} sheetHeaders`;
+  return null;
+}
 const REF_RE = /\{\{\s*\[?([a-z_][a-z0-9_-]*)\]?\.(\d+)\.([^}\s]+)\s*\}\}/gi;
 
 /** Every {{ns.N.field}} step-output reference in a string. */
@@ -92,6 +117,10 @@ export function checkStepOutputRefs(templates, ctx = {}) {
         findings.push(ref);
         warn(`step output ${ref.raw} on '${t.name ?? t.id}': no ${ref.type} step answers to ${ref.n} in this workflow — the reference renders literally/empty at runtime. N is the producer's stored stepIndex; a producer with no stepIndex answers to its occurrence position (see references/step-outputs).`);
         continue;
+      }
+      if (ref.type === 'google_sheets') {
+        const why = sheetsRefMismatch(ref, hit.step);
+        if (why) { findings.push(ref); warn(`step output ${ref.raw} on '${t.name ?? t.id}': ${why} — it renders empty at runtime.`); }
       }
       if (ref.type === 'custom_webhook' && hit.step.attributes?.saveResponse !== true) {
         findings.push(ref);

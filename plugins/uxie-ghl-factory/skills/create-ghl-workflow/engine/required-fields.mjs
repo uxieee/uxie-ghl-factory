@@ -320,6 +320,31 @@ export const CATALOG_CORRECTIONS = {
       + 'edit and passes them through verbatim, but does not author templates or MCP connections — attach those in '
       + 'the builder.',
   },
+  // The example is a create/update row, so the lookup, from-lookup and format_row keys were "invented" to the
+  // ATTR_KEY guard and the gate — every builder-made lookup blocked publish and edits. And the generated
+  // requiredFields ['oAuthId'] named a key the builder never writes (oAuthId is only the validator's WARNING
+  // field name, utils/validators/integration-validators.ts:12-46), so it checked nothing: a step with no account
+  // compiled clean. The real save rules are GoogleSheetsApi.hasErrors, enforced by checkGoogleSheetsAttrs.
+  google_sheets: {
+    reason: 'lookupColumns / lookupStep / formatting are IGoogleSheetsApi keys (models/actions/premium-actions/'
+      + 'GoogleSheetsApi.ts:12-55, bundle-2026-09-29-2) absent from the create-row example; requiredFields oAuthId '
+      + 'is not a stored key — the account is attributes.account.id',
+    attrKeys: ['type', 'action', 'account', 'drive', 'spreadsheet', 'sheet', 'columnRange', 'values', 'sheetHeaders',
+      'options', 'targetRow', 'rowCount', 'lookupColumns', 'lookupStep', 'formatting'],
+    requiredFields: [],
+    docNote: 'GHL refuses to save (hasErrors) unless `action.id`, `account.id` (the Google connection: its altId or id '
+      + 'from GET /integrations/google/connections), `drive.id`, `spreadsheet.id` and `sheet.id` are all set; the engine '
+      + 'refuses the same. Per action: create/update rows (and createOnEmptyLookup) need `columnRange` [from, to] and at '
+      + 'least one non-empty `values`; update/delete/format/remove need `targetRow` (format_row and remove_row take a '
+      + 'row spec `2, 4-6`, which must include a data row above 1); lookup_multiple_rows needs `rowCount`; lookup_row / '
+      + 'lookup_multiple_rows need `lookupColumns.main {column, value}` (an `extra` pair must name a different column); '
+      + 'format_row needs `formatting` with at least one of backgroundColor / textColor (hex, merge tag or theme token) / '
+      + 'bold / italic / strikethrough / fontSize (whole number 1-400). `*_from_lookup` actions take `lookupStep` '
+      + '{label, value, id, stepIndex} naming an earlier lookup_row and copy its account/drive/spreadsheet/sheet. '
+      + 'Outputs: `{{sheet.N.<column letter>}}` and `{{sheet.N.rowNumber}}` from lookup_row #N; `{{sheet.N.rowCount}}` '
+      + 'and `{{sheetLookupResult.N.result}}` from lookup_multiple_rows #N. The Google account must be connected in the '
+      + 'sub-account first; the engine cannot connect one.',
+  },
 };
 
 // How "supplied" is decided per field. `presence` fields are satisfied by ANY value

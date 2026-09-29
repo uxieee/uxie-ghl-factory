@@ -332,7 +332,88 @@ function normalizeAttrs(node, attrs, ctx) {
   }
   checkAttrKeys(node, out, meta);
   if (node.type === 'ai_agent') checkAiAgentAttrs(node, out, ctx);
+  if (node.type === 'google_sheets') checkGoogleSheetsAttrs(node, out);
   return out;
+}
+
+// GHL's own save rules for a Sheets step: GoogleSheetsApi.hasErrors (models/actions/premium-actions/GoogleSheetsApi.ts:
+// 367-386) and the per-action getters it reads (:193-363); isValidNumeric / isValidRowSpec (utils/validation.ts:84-150);
+// isValidGoogleSheetsColor (constants/google-sheets-colors.ts:28-97). A step failing any of these is saved with the
+// builder's error badge and blocks publish, so the engine refuses it instead of writing it.
+const SHEETS_TARGET_ROW_ACTIONS = new Set(['update_row', 'update_multiple_rows', 'delete_row', 'format_row', 'remove_row']);
+const SHEETS_ROW_SPEC_ACTIONS = new Set(['format_row', 'remove_row']);
+const SHEETS_COLUMN_RANGE_ACTIONS = new Set(['create_row', 'create_multiple_rows', 'update_row', 'update_multiple_rows', 'update_row_from_lookup']);
+const SHEETS_LOOKUP_ACTIONS = new Set(['lookup_row', 'lookup_multiple_rows']);
+const SHEETS_THEME_COLORS = new Set(['TEXT', 'BACKGROUND', 'ACCENT1', 'ACCENT2', 'ACCENT3', 'ACCENT4', 'ACCENT5', 'ACCENT6', 'LINK']);
+const sheetsNumeric = (v) => {
+  if (!v && v !== 0) return false;
+  if (typeof v === 'string') return v.includes('{{') || /^\d{1,}(\.\d{1,})?$/.test(v);
+  return true;
+};
+const sheetsRowSpec = (v) => {
+  if (!v && v !== 0) return false;
+  const spec = String(v).trim();
+  if (!spec) return false;
+  if (spec.includes('{{')) return true;
+  const tokens = spec.split(',').map((x) => x.trim()).filter(Boolean);
+  if (!tokens.length) return false;
+  let dataRow = false;
+  for (const tok of tokens) {
+    if (/^\d+$/.test(tok)) { const r = Number(tok); if (r < 1) return false; if (r > 1) dataRow = true; continue; }
+    const m = tok.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (!m) return false;
+    const [a, b] = [Number(m[1]), Number(m[2])];
+    if (a < 1 || a > b) return false;
+    if (b > 1) dataRow = true;
+  }
+  return dataRow;
+};
+const sheetsColor = (v) => !v || v.includes('{{') || SHEETS_THEME_COLORS.has(v.trim().toUpperCase())
+  || /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v.trim());
+export function checkGoogleSheetsAttrs(node, a) {
+  const where = `google_sheets '${node.ref ?? node.name ?? node.id}'`;
+  const bad = [];
+  const action = a.action?.id;
+  for (const k of ['action', 'account', 'drive', 'spreadsheet', 'sheet'])
+    if (!a[k]?.id) bad.push(`${k}.id is empty${k === 'account' ? ' (the connected Google account: connect one in the sub-account, then use its id from GET /integrations/google/connections)' : ''}`);
+  const hasColumnRange = SHEETS_COLUMN_RANGE_ACTIONS.has(action) || a.options?.createOnEmptyLookup === true;
+  if (hasColumnRange) {
+    const cr = a.columnRange;
+    if (!Array.isArray(cr) || cr.length !== 2 || cr.some((x) => !x)) bad.push('columnRange must be [from, to], both set');
+    const vals = a.values;
+    const empty = !vals || (Array.isArray(vals) ? (!vals.length || vals.every((x) => !x)) : (typeof vals === 'object' && !Object.keys(vals).length));
+    if (empty) bad.push('values needs at least one non-empty cell');
+  }
+  if (SHEETS_TARGET_ROW_ACTIONS.has(action)) {
+    const ok = SHEETS_ROW_SPEC_ACTIONS.has(action) ? sheetsRowSpec(a.targetRow) : sheetsNumeric(a.targetRow);
+    if (!ok) bad.push(SHEETS_ROW_SPEC_ACTIONS.has(action)
+      ? `targetRow '${a.targetRow ?? ''}' is not a row spec (5, 2, 4-6) that includes a data row above 1`
+      : `targetRow '${a.targetRow ?? ''}' is not a row number`);
+  }
+  if (action === 'lookup_multiple_rows' && !sheetsNumeric(a.rowCount)) bad.push('rowCount is required for lookup_multiple_rows');
+  if (SHEETS_LOOKUP_ACTIONS.has(action)) {
+    const lc = a.lookupColumns;
+    if (!lc?.main?.column) bad.push('Lookup Column is missing (lookupColumns.main.column)');
+    if (!lc?.main?.value) bad.push('Lookup Value is missing (lookupColumns.main.value)');
+    if (lc?.extra) {
+      if (!lc.extra.column) bad.push('Extra Lookup Column is missing');
+      else if (lc.extra.column === lc.main?.column) bad.push('Extra Lookup Column cannot be the same as the Lookup Column');
+      if (!lc.extra.value) bad.push('Extra Lookup Value is missing');
+    }
+  }
+  if (action === 'format_row') {
+    const f = a.formatting ?? {};
+    const size = f.fontSize;
+    if (!(f.backgroundColor || f.textColor || f.bold != null || f.italic != null || f.strikethrough != null || (size != null && String(size).trim() !== '')))
+      bad.push('formatting needs at least one option (backgroundColor, textColor, bold, italic, strikethrough, fontSize)');
+    if (size != null && String(size).trim() !== '' && (!/^\d+$/.test(String(size).trim()) || Number(size) < 1 || Number(size) > 400))
+      bad.push(`formatting.fontSize ${JSON.stringify(size)} must be a whole number 1-400`);
+    if (!sheetsColor(f.backgroundColor) || !sheetsColor(f.textColor))
+      bad.push('formatting colours are #RGB / #RRGGBB, a merge tag or a theme token (TEXT, BACKGROUND, ACCENT1-6, LINK)');
+  }
+  if (bad.length)
+    throw new IRError('SHEETS_INCOMPLETE', `${where} (${action || 'no action'}): ${bad.join('; ')}. GHL's builder saves this `
+      + 'step with an error badge and refuses to publish it (GoogleSheetsApi.hasErrors).');
 }
 
 // ai_agent keys the drawer writes beyond the example's seven (catalogue correction in required-fields.mjs).
