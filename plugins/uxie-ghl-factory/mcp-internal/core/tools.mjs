@@ -5871,6 +5871,8 @@ export const TOOLS = [
         idGen,
         catalog: loadCatalog(),
         marketplace,
+        // an object-based workflow's triggers carry its schema key as objectKey (buildTrigger, bl-311)
+        ...(typeof fresh?.customObjectType === 'string' ? { customObjectType: fresh.customObjectType } : {}),
         ...(customFields !== undefined ? { customFields } : {}),
         ...(customValues !== undefined ? { customValues } : {}),
         ...(args.strictMergeTags === false ? { strictMergeTags: false } : {}),

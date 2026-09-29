@@ -300,7 +300,7 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         // that is already published.
         {
           const { conditions: verbatim, ...authored } = op.trigger;
-          const built = buildTrigger(authored, ctx, wid, refMapFrom(ctx?.externalRefs));
+          const built = buildTrigger(authored, ctx, wid, refMapFrom(ctx?.externalRefs), { objectKey: ctx?.customObjectType ?? null });
           // STORED-SHAPE rows (each carrying its own title/type/operator, as export_workflow
           // returns them) go on the wire verbatim: this is how a trigger is cloned across
           // workflows without re-authoring its rows, and the shape the per-trigger PUT already
@@ -402,7 +402,7 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
               ? { target: op.trigger.target }
               : { targetActionId: op.trigger?.targetActionId ?? t.targetActionId }),
             ...(op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}) },
-          ctx, wid, refMapFrom(ctx?.externalRefs),
+          ctx, wid, refMapFrom(ctx?.externalRefs), { objectKey: t.objectKey ?? ctx?.customObjectType ?? null },
         );
         // buildTrigger hardcodes `status:'draft'` (correct ONLY on the BUILD path — see
         // compiler.mjs's own comment). Left in `merged`, that 'draft' would ride EVERY
