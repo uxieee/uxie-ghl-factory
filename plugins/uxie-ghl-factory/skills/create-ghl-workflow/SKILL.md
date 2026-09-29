@@ -207,8 +207,9 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   mixed-case row NEVER MATCHES (live 2026-09-30: two published `contact_tag` workflows, same tag, only the lower-case row enrolled the
   contact; two if/else workflows on the same contact, the lower-case condition took Yes and the mixed-case one took Else). The engine
   lower-cases what it writes; a workflow built earlier, by hand or by API can still carry one. `check_workflow` reports
-  `TRIGGER_TAG_CASE` / `IFELSE_TAG_CASE`, `find_workflows_using {problems:"mixed-case-tag-rows"}` lists them account-wide (NOT covered:
-  the tags add/remove-tag STEPS write), and `edit_workflow {op:"replaceTag", oldTag, newTag, allowNoop:true}` fixes one.
+  `TRIGGER_TAG_CASE` / `IFELSE_TAG_CASE`, `find_workflows_using {problems:"mixed-case-tag-rows"}` lists them account-wide, and
+  `edit_workflow {op:"replaceTag", oldTag, newTag, allowNoop:true}` fixes one. Add/remove-tag STEPS are NOT affected (GHL lower-cases their
+  value at write, measured); the tag rows of trigger types other than `contact_tag` were not fired.
 - **A `trigger_link` click only fires for a browser-like client.** The tracked short URL answers a `302` to `/r/2/<token>` and the
   second request registers the click, but with `curl`'s own User-Agent neither request enrolled the contact (live 2026-09-30). Link
   scanners and scripted clickers will not trigger it; test with a browser or a browser User-Agent.

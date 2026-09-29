@@ -39,7 +39,7 @@ test('lists trigger rows and if/else tag conditions with workflow name, status, 
   assert.equal(r.data.hits[2].branch, 'Yes'); assert.equal(r.data.hits[2].stepName, 'Check VIP');
   assert.equal(r.data.hits[0].workflowName, 'name-W1'); assert.equal(r.data.hits[0].workflowStatus, 'published'); assert.equal(r.data.publishedWithHits, 1);
   assert.match(r.data.hits[0].fix, /replaceTag.*oldTag: 'VIP Lead'.*newTag: 'vip lead'/);
-  assert.match(r.data.note, /NOT COVERED: the tag values that add\/remove-tag STEPS write/);
+  assert.match(r.data.note, /Checked and NOT affected: add\/remove-tag STEPS/); assert.match(r.data.note, /NOT fired: the tag rows of other trigger types/);
 });
 
 test('one call per index slice (trigger docs; if_else step docs), offset 0, no searchAfter, plus one GET per hit workflow', async () => {

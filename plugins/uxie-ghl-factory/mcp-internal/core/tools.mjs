@@ -7854,7 +7854,7 @@ export const TOOLS = [
       + 'problems:"mixed-case-tag-rows" (no types) is the exception: trigger docs and if/else step docs carry their stored '
       + 'conditions, so it lists every trigger row and if/else tag condition naming a tag with a CAPITAL letter — such a row NEVER '
       + 'MATCHES (GHL stores tags lower case; measured live 2026-09-30) — with workflow, value and the edit_workflow replaceTag '
-      + 'fix. One call per index slice, one GET per hit. NOT covered (says so): the tags add/remove-tag steps write.',
+      + 'fix. One call per index slice, one GET per hit. Add/remove-tag STEPS are not affected (measured); the tag rows of other trigger types were not fired (says so).',
     inputSchema: schema({
       locationId: z.string(),
       types: z.array(z.string()).min(1).optional(),
