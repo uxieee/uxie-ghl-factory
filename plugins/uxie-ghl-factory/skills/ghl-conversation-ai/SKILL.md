@@ -105,8 +105,8 @@ never make live calls; the caller/executor attaches auth and issues the HTTP req
 | Product | Base path | Create | Update semantics | Compiler |
 |---|---|---|---|---|
 | Conversation AI | `/ai-employees/*` | `POST /ai-employees/employees` | `PUT` takes a partial body; omitted agent-level booleans RESET (merge unproven) | `convai-compiler.mjs` |
-| Voice AI | `/voice-ai/*` | `POST /voice-ai/agents` (near-empty; server auto-generates a default) | `PUT ...?publishAgent=true&mode=update` **full-replace** | `voiceai-compiler.mjs` |
-| Agent Studio | `/agent-studio/super-agent/*` | `POST /agent-studio/super-agents/build` (NL-prompt, SSE) | `PUT /agent-studio/super-agent/agents/:id` **full-replace** | `studio-compiler.mjs` |
+| Voice AI | `/voice-ai/*` | `POST /voice-ai/agents` `{locationId, folderId?}` (server generates a default; the first Save PUT configures it) | `PUT …/:id` (with or without `?publishAgent=true&mode=update`) **merges a partial body at the top level**; nested objects are validated whole | `voiceai-compiler.mjs` / `voiceai-update.mjs` |
+| Agent Studio | `/agent-studio/super-agent/*` | `POST /agent-studio/super-agents/build` (NL-prompt, SSE; may pause for questions) | `PUT /agent-studio/super-agent/agents/:id` **full-replace** (whole `config`) | `studio-compiler.mjs` |
 | Knowledge Base (rich-text) | `/knowledge-base/rich-text/` | `POST` (async — response is `status:"training"`; poll until `"trained"`) | — | `kb-compiler.mjs` |
 
 **Auth is `token-id`** (a Google `securetoken` JWT) **alongside** the Bearer — the dual-credential
@@ -166,6 +166,9 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 | Selling a bot on the Marketplace, or installing a marketplace bot | agent row menu → **Sell on Marketplace** / **Copy URL for Marketplace**; Create agent → **Marketplace Templates** | publishing to the public Marketplace needs a developer profile and is outward-facing |
 | Brand voice records (what a form bot's `brandId` names) | Marketing → Brand Boards → Brand Voice; form bot editor → Brand Voice tab | a Brand Boards object, raw only (`POST /brand-boards/voices/`, corpus `10-anatomy/conversation-ai-agent-shape.md`); its effect on replies is style, not measurable |
 | AI Suite billing, usage limits, rebilling | Agency → AI Suite | agency billing, account-wide |
+| Making an agent the location's **primary** bot (`isPrimary`) | Conversation AI → agent menu → Set as Primary (hidden when channel management is on) | location-wide: it hands the location's inbound messages to that agent and can unseat the current primary; `create_convai_agent` refuses `isPrimary:true` |
+| Appointment Booking in **Services** mode (book one of the location's calendar services) | agent → Actions → Appointment Booking → Services (flag `servicesCalendarsAppointmentBooking`) | never executed live (no calendar service to test against); `create_convai_agent` refuses it — raw `POST /ai-employees/actions` with `calendarIds [{id: serviceId, triggerCondition: ""}]` + `aiDescription` (corpus `30-types/conversation-ai-actions.md`) |
+| Answering the Managed Agent builder's questions | AI Agents → Managed Agents → build chat (the question cards) | `create_studio_agent` stops at the questions (`STUDIO_BUILD_AWAITING_INPUT`) and names them; put the answers in `buildPrompt` |
 
 **Treat the first real use of any capture-verified type as a validation run** — small,
 throwaway, verified, cleaned up. A failed configuration step leaves a real, unconfigured agent

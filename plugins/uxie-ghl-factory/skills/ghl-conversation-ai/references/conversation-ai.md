@@ -86,6 +86,8 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   - the bot answers from `fullPrompt` (a trial reply carried the `fullPrompt` marker while `instructions` held another);
   - a PUT that changes `personality` / `goal` / `instructions` is accepted and ignored — the read-back is unchanged;
   - an agent made over the API with no `fullPrompt` still answers from the three fields.
+  `create_convai_agent` takes `spec.fullPrompt` too — the builder's own create: the three fields go as `""` (they then
+  read back absent), `llm.primary` defaults to `gpt-4.1`, and the agent updates normally afterwards (live 2026-09-29).
   `update_convai_agent` takes `spec.fullPrompt` (the whole text, verified on read-back; it switches the agent to
   `fullPrompt` for good) and refuses the three fields on a `fullPrompt` agent, or together with `fullPrompt`, with
   `FULLPROMPT_OWNS_PROMPT` before any write, returning `currentFullPrompt`. What `fullPrompt: ""` does is not measured,
@@ -158,8 +160,13 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
 - `responseLength` (`concise` | `balanced` | `detailed`, server enum) with `aiResponseLengthEnabled` (the editor's
   "Enable Response Style Settings" switch) — settable on create and update. Naming a style turns its switch on unless
   you pass `aiResponseLengthEnabled` yourself; a style with the switch off is inert.
-- `knowledgeBaseTriggers` — settable on update only (create sends `[]`). `isPrimary` is location-wide and not
-  settable through these tools.
+- `knowledgeBaseTriggers` — settable on create and update (≤ 4; the create renumbers `priority` 1..n and mints the
+  `kbt_…` ids, live 2026-09-29). `isPrimary` is location-wide and not settable through these tools:
+  `create_convai_agent` refuses `true` by name (set the primary in the Conversation AI UI).
+- `cancelEnabled` / `rescheduleEnabled` — agent-level on a FLOW bot only (create and update, live 2026-09-29); on a
+  prompt bot they belong on the appointmentBooking action and both tools refuse them with that pointer.
+- **Every other spec key is refused before anything is sent** (`create rejected (SPEC_KEY_UNAPPLIED)`), naming where
+  it lives: email settings, working hours, folders, form bots and the `service` booking mode are raw_request.
 - **Actions on create:** the agent exists before its first action is posted. If the server refuses an action,
   `create_convai_agent` still attempts the rest and fails with `AGENT_PARTIAL_BUILD`, naming the agent id, the
   actions that attached, and each refused action with the server's own message. Fix and attach the refused ones
