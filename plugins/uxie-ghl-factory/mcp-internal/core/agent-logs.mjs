@@ -242,3 +242,30 @@ export const walkSessions = async (gw, body, { maxRows = 1000, maxHops = 200 } =
   }
   return { rows, meta, hops, dupes, error };
 };
+
+// Ratings on a managed-agent (superagents) session — measured on the designated test sub-account 2026-09-29
+// (knowledge/sniffs/ai-agents-t24-feedback-2026-09-29/):
+//  - `GET /agent-logs/feedback/states?locationId&productType=super_agents` returns [{responseKey, sentiment}] for the WHOLE
+//    location. conversationId / correlationId are ignored (a bogus id returns the same rows), and so are limit / page /
+//    pageSize / skip / offset. The envelope has no cursor or total. The builder calls it the same way and filters client-side.
+//  - Keys: a chat turn is `${sessionId}#${n}`. The chat counts its bot messages from 1, one per send. The Activity row's
+//    rating is the bare session id.
+//  - Sentiment only. Reasons and comment come from `GET /agent-logs/feedback?productType&responseKey`, one call per key.
+// Only superagents sessions carry these: no voice or Conversation AI host mounts the feedback modal.
+export const FEEDBACK_PRODUCT_TYPE = { superagents: 'super_agents' };
+
+export const sessionFeedback = (sessionId, interactionCount, states) => {
+  const mine = (Array.isArray(states) ? states : []).filter((s) => typeof s?.responseKey === 'string'
+    && (s.responseKey === sessionId || s.responseKey.startsWith(`${sessionId}#`)));
+  const activity = mine.find((s) => s.responseKey === sessionId);
+  const turns = mine.filter((s) => s.responseKey !== sessionId).map((s) => {
+    const n = Number(s.responseKey.slice(sessionId.length + 1));
+    return { responseKey: s.responseKey, turn: Number.isInteger(n) && n > 0 ? n : null, sentiment: s.sentiment ?? null };
+  }).sort((a, b) => (a.turn ?? Infinity) - (b.turn ?? Infinity));
+  const byTurn = new Map(turns.filter((t) => t.turn !== null).map((t) => [t.turn, t]));
+  const perInteraction = Array.from({ length: interactionCount }, (_, i) => {
+    const t = byTurn.get(i + 1); return t ? { responseKey: t.responseKey, sentiment: t.sentiment } : null;
+  });
+  const unplaced = turns.filter((t) => t.turn === null || t.turn > interactionCount);
+  return { activity: activity ? { sentiment: activity.sentiment ?? null } : null, turns, perInteraction, unplaced, locationRatings: Array.isArray(states) ? states.length : 0 };
+};

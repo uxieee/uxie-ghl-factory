@@ -51,6 +51,9 @@ detail page shows Activity and a **Memory** tab marked "SOON".
 | `DELETE` | `/agent-studio/plugins/custom-skills/:uuid?locationId=` | delete a custom skill (its id key is `uuid`) → 200, then 404; a skill keeps deleted agents in `agentIds` (proven live) |
 | `DELETE` | `/agent-studio/agents/:agentId?locationId=` | delete a **flow** agent, no body → "Agent and all associated versions deleted successfully." (proven live). 🔴 Deleting its Voice AI agent does NOT delete it |
 | `GET` | `/agent-studio/super-agent/agents?locationId=&page=&pageSize=` | List |
+| `POST` | `/agent-logs/feedback` | rate a reply (the thumbs on a chat turn, or on an Activity row) → `201 {feedbackId}`; body below (proven live 2026-09-29) |
+| `GET` | `/agent-logs/feedback?locationId&productType=super_agents&responseKey=` | one rating in full (sentiment, reasons, comment, input, output) or `feedback: null`; `responseKey` is required (proven live) |
+| `GET` | `/agent-logs/feedback/states?locationId&productType=super_agents` | EVERY rating's `{responseKey, sentiment}` at the location — no session filter, no paging (proven live); `get_agent_session` joins it for you |
 | `GET` | `/agent-studio/plugins/default?locationId=&product=Superagents` | the built-in Default plugin (`authKind: crm_internal`): 540 skills in 31 groups (contacts, opportunities, workflows, calendars…), offered to Superagents, Voice AI, Conversation AI and both flow builders; an agent carries it as `plugins: [{slug: "default", allSkills: true}]`, and `plugins: []` removes it (proven live 2026-09-28) |
 | `GET` | `/agent-execution/actions` | the Actions Platform catalogue — 22 action names in 9 entities; send it **without** a `locationId` query (one answers 422). Saved actions are what a **flow** agent's action nodes carry; a Managed Agent stores none (proven live) |
 | `GET` | `/agent-execution/actions/{actionId}?locationId=` | read one saved action (an OpenAPI-style operation + your values); 400 without the query (proven live) |
@@ -140,6 +143,34 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
 - **A trigger with no `triggerMessage` gets a per-type default** from GHL (chat: "A new chat conversation has started
   with a contact. Begin the intake flow."). `create_studio_agent` leaves it to GHL and does not verify it.
 - **The test panel does not need a publish** — keep test agents as drafts.
+
+## Ratings (feedback) on chat turns and Activity rows (proven live 2026-09-29)
+
+The thumbs under an agent-view chat reply and on an Activity row open a server-configured modal
+(`GET /agent-logs/feedback/config?productType=super_agents`) and POST `/agent-logs/feedback`. The two hosts differ:
+
+| | chat turn | Activity row |
+|---|---|---|
+| `responseKey` | `<sessionId>#<n>`: n counts the chat's agent replies from 1, one per send | the bare `<sessionId>` |
+| `correlationType` / `correlationId` | `execution_id` / the session id | `conversation_id` / the session id |
+| `source` | `super_agents` | `super_agents_activity` |
+| `input` / `output` | the turn's message and reply | absent |
+
+Both also carry `locationId, productType:"super_agents", sentiment ("up"|"down"), conversationId (= the session id),
+reasons[] (ids such as did_not_follow_instructions, refused, accurate), comment, configVersion, imageIssues[],
+reasonDetails{}, chunkVerdicts[], actionVerdicts[], metadata.answers`. A chat-turn body also carries `messageId`
+(a client-made `b-<ms>`).
+
+- **Reading ratings:** `get_agent_session` on a `superagents` session puts `feedback {responseKey, sentiment}` on each
+  interaction, and adds `feedback.activity` for the Activity-row rating. It is sentiment only. The reasons and comment
+  of one rating come from the `?responseKey=` read.
+- **`/feedback/states`:** it ignores `conversationId`, `correlationId`, `limit`, `page` and `offset`, and it has no
+  cursor or total. A cap on a very long list has not been measured.
+- **Reloaded chats:** a reload rebuilds the turns from history, one agent reply per non-user entry. A turn that called
+  tools may therefore number differently after a reload. `get_agent_session` lists any key it cannot place under
+  `feedback.unplaced`.
+- **The Run page:** `…/super-agents/agent/:agentId/run/:runId`, with runId = the session id, embeds the Agent Logs
+  detail. "View in Agent Logs" opens `/ai-agents/agent-logs/log/:sessionId`.
 
 ## PUT is whole-object replace (like Voice AI; unlike Conversation AI's merge)
 
