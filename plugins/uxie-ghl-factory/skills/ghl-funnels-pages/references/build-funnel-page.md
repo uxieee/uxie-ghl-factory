@@ -28,12 +28,24 @@ Autosave answers `201` to all of these:
   the URL (`/<step path>/product/<product id>`). Both rules are refused by name before anything is sent. They render
   with the product's data but UNSTYLED (native buttons and select) until the page is saved once in the builder, which
   compiles their CSS. Edit mode's `append-section` is held to the same two rules.
-- **`builderStyling`: kinds that look different until a builder save.** 43 kinds compile their look only in the page
-  builder: the 11 product-page blocks, the order forms, nav menus, store lists and details, blog kinds, faq, map,
-  pricing table, testimonial, image slider and others (measured: every kind rendered before and after a builder save).
+- **Per-kind CSS, compiled here (f4b-2).** The builder writes a second layer of rules for every kind — an order form's button
+  gradient, a product-page block's sizes and weights, a store list's grid. This tool now compiles that layer for the two order
+  forms, the eleven product-page blocks, `collection-list`, `featured-products` and `store-product-list`, so a page it writes and
+  the page the builder saves carry the same rules (core/kind-css.mjs; measured black box from the builder's own output — every
+  kind reproduced it on 500 random combinations of its inputs with 0 mismatches, then live: the builder-saved sheet equals the
+  tool's per node). The order forms read the page palette (`colors`); pass it on the same call.
+  A node whose `extra` / `styles` carry an input outside what was measured (a key nobody probed, a value class no probe covered,
+  `tabletStyles` / `mobileStyles` on these kinds) is **refused for CSS, not guessed**: no per-kind rule is written and the node
+  comes back under `builderStyling` with a `reason`. In edit mode a `set` that puts such a value on a ported node is refused
+  whole (nothing is written); a `set` that changes a ported node's inputs takes the rules of its old state out of the section's
+  sheet and writes those of the new one.
+- **`builderStyling`: kinds that still look different until a builder save.** 27 kinds compile their look only in the page
+  builder: the nav menus, `store-product-detail` / `store-custom-product-detail` / `featured-product`, blog kinds, faq, map,
+  pricing table, testimonial, image slider, `image-feature` (the builder's own output for its list bullets is malformed CSS,
+  so a declaration comparison is not possible) and others (measured: every kind rendered before and after a builder save).
   Every preview and result that writes one lists its nodes under `builderStyling` with that sentence: open the page in
-  the builder and save it once before sharing it. (`pdpStyling`, the product-page subset, is kept for 1.24.0 callers and
-  deprecated.)
+  the builder and save it once before sharing it. (`pdpStyling`, the product-page subset, is kept for 1.24.0 callers and is
+  now always absent: every product-page block is compiled here.)
 - Every declared `extra` property must be present. The renderer reads `extra.<prop>.value` unguarded, so a
   missing one 500s the whole page.
 - `col.extra.bgImage`, `general.general.fontsToLoad` and `colors` must be present.

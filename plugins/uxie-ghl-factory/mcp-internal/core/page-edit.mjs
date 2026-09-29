@@ -40,13 +40,14 @@ const mergeInto = (node, key, patch) => {
  *  { op: 'remove-node', nodeId }                           a leaf (and its id in its parent's child[]) or a whole section
  * `compileStyles(nodeId, meta, styles)` returns a CSS rule string for the public stylesheet (or '').
  */
-export function applyPageEdits(pageData, ops, { compileStyles = () => '', compileSizes = () => '' } = {}) {
+export function applyPageEdits(pageData, ops, { compileStyles = () => '', compileSizes = () => '', kindLayer = null } = {}) {
   const next = structuredClone(pageData);
   const report = [];
   for (const [i, o] of ops.entries()) {
     if (o.op === 'set') {
       const hit = findNode(next, o.nodeId);
       if (!hit) { report.push({ i, op: 'set', nodeId: o.nodeId, error: 'no node with this id on the page' }); continue; }
+      const beforeNode = !hit.isSection && kindLayer ? structuredClone(hit.node) : null;
       if (hit.isSection) {
         // A section takes its General-tab knobs and its styling (styles, wrapper, tablet / mobile maps, visibility, custom
         // classes, background image, entrance animation); its content is edited node by node.
@@ -124,7 +125,8 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       if (o.extra && Object.keys(o.extra).length) { mergeInto(hit.node, 'extra', o.extra); changed.push(...Object.keys(o.extra).map((k) => `extra.${k}`)); }
       if (o.styles && Object.keys(o.styles).length) {
         mergeInto(hit.node, 'styles', o.styles); changed.push(...Object.keys(o.styles).map((k) => `styles.${k}`));
-        const rule = compileStyles(hit.node.id, hit.node.meta, hit.node.styles);
+        // a ported kind's sheet is regenerated whole below (generic + per-kind layer); the flat compile would add a wrapper rule
+        const rule = beforeNode && kindLayer.handles(hit.node.meta) ? '' : compileStyles(hit.node.id, hit.node.meta, hit.node.styles);
         if (rule) {
           hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: `${hit.section.general?.sectionStyles ?? ''}${rule}` };
           changed.push('section.general.sectionStyles');
@@ -140,17 +142,39 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       for (const [layer, patch] of Object.entries(layerPatch)) { mergeInto(hit.node, layer, patch); changed.push(...Object.keys(patch).map((k) => `${layer}.${k}`)); }
       // Only the wrapper and per-device parts are appended here: appended after the page's per-kind rules, the node's
       // generic STYLES would win over them (the builder writes generic rules first); `styles` keep their own compile above.
-      if (Object.keys(layerPatch).length) {
+      if (Object.keys(layerPatch).length && !(beforeNode && kindLayer.handles(hit.node.meta))) {
         const { styles: _drop, ...rest } = hit.node;
         hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: `${hit.section.general?.sectionStyles ?? ''}${nodeLayerCss({ ...rest, styles: {} })}` };
         if (!changed.includes('section.general.sectionStyles')) changed.push('section.general.sectionStyles');
       }
       // A size or weight change is recompiled from the node, the way the builder compiles it; the later rule wins.
       const sized = Object.keys(o.extra ?? {}).some((k) => /FontSize$/.test(k)) || Object.keys(o.styles ?? {}).some((k) => /^fontWeight/.test(k));
-      const sizeRule = sized ? compileSizes(hit.node) : '';
+      const sizeRule = sized && !(beforeNode && kindLayer.handles(hit.node.meta)) ? compileSizes(hit.node) : '';
       if (sizeRule) {
         hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: `${hit.section.general?.sectionStyles ?? ''}${sizeRule}` };
         changed.push('section.general.sectionStyles');
+      }
+      // A node of a kind whose per-kind rules are compiled here: BOTH layers the builder writes for it (generic + per-kind) are
+      // regenerated — the rules of its old state are taken out of the section's sheet and those of its new state written (a value
+      // that no longer switches a rule on must not leave the old rule behind). A new state the measurements do not cover refuses
+      // the edit — the builder alone could compile it. On a page the builder has saved, the old rules are minified and cannot be
+      // found verbatim: the new ones are appended (later wins) and the report says the old ones may remain until the next save.
+      if (beforeNode && kindLayer.handles(hit.node.meta)) {
+        const palette = next.general?.general?.colors;
+        const why = kindLayer.refusal(hit.node, palette);
+        if (why) { report.push({ i, op: 'set', nodeId: o.nodeId, error: `${hit.node.meta}: ${why}; the builder compiles this kind's CSS on its next save — nothing was written` }); continue; }
+        const { styles: _s, ...noStyles } = hit.node;
+        const layers = (n) => [nodeLayerCss(n), kindLayer.css(n, palette)];
+        const oldL = layers(beforeNode), newL = layers(hit.node);
+        let cur = hit.section.general?.sectionStyles ?? ''; let stale = false;
+        for (let k = 0; k < 2; k++) if (oldL[k] !== newL[k]) { if (oldL[k] && cur.includes(oldL[k])) cur = cur.replace(oldL[k], ''); else if (oldL[k]) stale = true; }
+        // the generic layer of the NEW state (all of it, not only the wrapper and per-device parts) then the per-kind layer
+        const add = (oldL[0] !== newL[0] ? newL[0] : '') + (oldL[1] !== newL[1] ? newL[1] : '');
+        if (add || cur !== (hit.section.general?.sectionStyles ?? '')) {
+          hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: `${cur}${add}` };
+          if (!changed.includes('section.general.sectionStyles')) changed.push('section.general.sectionStyles');
+        }
+        if (stale) changed.push('note: the old rules of this node were not found verbatim (a builder-saved sheet is minified); they stay until the page is next saved in the builder');
       }
       hit.node.updated = true;
       report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...layerPatch } });
