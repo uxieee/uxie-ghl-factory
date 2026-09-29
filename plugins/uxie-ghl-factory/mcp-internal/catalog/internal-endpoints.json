@@ -12727,7 +12727,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -23920,7 +23922,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

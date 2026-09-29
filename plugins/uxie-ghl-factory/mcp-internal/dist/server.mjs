@@ -12904,7 +12904,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -24097,7 +24099,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -130922,6 +130926,88 @@ function billingCheckouts(pageData) {
   return out;
 }
 
+// core/funnel-analytics.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var FILTER_FIELDS = Object.freeze(["city", "region", "country", "pageId", "browser", "deviceType", "trafficSource", "trafficChannel"]);
+var FILTER_OPERATORS = Object.freeze(["in", "not_in"]);
+var MAX_FILTER_GROUPS = 5;
+var MAX_FILTER_CONDITIONS = 5;
+var VIDEO_FILTER_FIELDS = Object.freeze({ pageId: "pageId", deviceType: "device" });
+var isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
+function planAdvancedFilters(spec) {
+  if (spec === void 0 || spec === null) return { filters: null };
+  if (!isObj(spec) || !Array.isArray(spec.filters)) return { refuse: 'filters is {group?: "OR"|"AND", filters: [{group?: "AND"|"OR", filters: [{field, operator?: "in"|"not_in", value: [..]}]}]}' };
+  const top = spec.group ?? "OR";
+  if (!["OR", "AND"].includes(top)) return { refuse: 'filters.group is "OR" or "AND"' };
+  if (spec.filters.length === 0) return { filters: null };
+  if (spec.filters.length > MAX_FILTER_GROUPS) return { refuse: `at most ${MAX_FILTER_GROUPS} filter groups (GHL answers 422 above that)` };
+  const groups = [];
+  for (const [gi, g] of spec.filters.entries()) {
+    if (!isObj(g) || !Array.isArray(g.filters) || g.filters.length === 0) return { refuse: `filters.filters[${gi}] needs a non-empty filters list` };
+    const group = g.group ?? "AND";
+    if (!["OR", "AND"].includes(group)) return { refuse: `filters.filters[${gi}].group is "OR" or "AND"` };
+    if (g.filters.length > MAX_FILTER_CONDITIONS) return { refuse: `at most ${MAX_FILTER_CONDITIONS} conditions per group (filters.filters[${gi}] has ${g.filters.length})` };
+    const conds = [];
+    for (const [ci, c] of g.filters.entries()) {
+      const at = `filters.filters[${gi}].filters[${ci}]`;
+      if (!isObj(c) || !FILTER_FIELDS.includes(c.field)) return { refuse: `${at}.field is one of ${FILTER_FIELDS.join(", ")}` };
+      const operator = c.operator ?? "in";
+      if (!FILTER_OPERATORS.includes(operator)) return { refuse: `${at}.operator is "in" (is) or "not_in" (is not)` };
+      if (!Array.isArray(c.value) || c.value.length === 0 || c.value.some((v) => typeof v !== "string" || !v)) return { refuse: `${at}.value is a non-empty list of strings (GHL answers 422 for an empty list) \u2014 filter_values lists the values that exist` };
+      conds.push({ field: c.field, operator, value: c.value });
+    }
+    groups.push({ group, filters: conds });
+  }
+  return { filters: { group: top, filters: groups } };
+}
+function videoFilters(filters) {
+  if (!filters) return { filters: null, dropped: [] };
+  const dropped = /* @__PURE__ */ new Set();
+  const groups = filters.filters.map((g) => ({
+    ...g,
+    filters: g.filters.filter((c) => {
+      if (VIDEO_FILTER_FIELDS[c.field]) return true;
+      dropped.add(c.field);
+      return false;
+    }).map((c) => ({ ...c, field: VIDEO_FILTER_FIELDS[c.field] }))
+  })).filter((g) => g.filters.length > 0);
+  return { filters: groups.length ? { group: filters.group, filters: groups } : null, dropped: [...dropped] };
+}
+var filterQuery = (filters) => filters ? `&advancedFilters=${encodeURIComponent(JSON.stringify(filters))}` : "";
+function videoView(data2) {
+  const d = data2 ?? {};
+  const xs = d.graphData?.xAxis ?? [], ys = d.graphData?.yAxis ?? [];
+  return {
+    plays: d.videoPlay ?? 0,
+    pauses: d.videoPauses ?? 0,
+    completionPct: d.completion ?? null,
+    averageWatchedPct: d.averageTime ?? null,
+    dropOffSpikePct: d.dropOffSpike ?? null,
+    progress: xs.map((x, i) => ({ atPct: x, users: ys[i] ?? 0 }))
+  };
+}
+function ordersView(rows, { steps = [], products = {} } = {}) {
+  const stepName = new Map(steps.map((s) => [s.id, s.name]));
+  return (rows ?? []).map((o) => ({
+    orderId: o._id ?? o.id ?? null,
+    contactId: o.contactId ?? null,
+    stepId: o.stepId ?? null,
+    stepName: stepName.get(o.stepId) ?? null,
+    productId: o.productId ?? null,
+    productName: products[o.productId]?.productName ?? null,
+    amount: o.amount ?? null,
+    currency: o.currency ?? null,
+    chargeId: o.chargeId ?? null,
+    dateAdded: o.dateAdded ?? null
+  }));
+}
+var SALES_NOTE = 'The Sales tab is VERSION 1 order forms only (its own banner: "All orders/sales on version 2 of the funnel are available in Payments \u2192 Orders and Transactions"). A funnel on version 2 order forms \u2014 every new one \u2014 lists nothing here even when it has sales; read those in Payments (orders / transactions). Customer names and emails are not joined: contactId is returned.';
+
 // core/funnel-create.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -211128,7 +211214,7 @@ var sortNote = (sortBy) => UNRELIABLE_SORTS[sortBy] ?? null;
 var TIME_RANGES = ["1_day", "7_days", "14_days", "30_days", "90_days", "custom"];
 var PRODUCTS = ["agent_studio", "voice_ai", "conversation_ai", "superagents", "ask_ai", "agent_logs_assistant", "ai_studio"];
 var MAX_OFFSET = 500;
-var FILTER_FIELDS = ["agentName", "contactName", "channel", "voiceName"];
+var FILTER_FIELDS2 = ["agentName", "contactName", "channel", "voiceName"];
 var parseMeta = (raw) => {
   if (raw == null) return null;
   if (typeof raw === "object") return raw;
@@ -214492,8 +214578,8 @@ var NESTED_WHOLE = [
 ];
 var READ_ONLY_INNER = { aiDisclaimerConfiguration: ["isGreetingMessageDynamic"] };
 var writable = (key, v) => {
-  if (key === "s2sBehaviour" && isObj(v)) return Object.fromEntries(Object.entries(v).filter(([k]) => S2S_KEYS.includes(k)));
-  return isObj(v) && READ_ONLY_INNER[key] ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v;
+  if (key === "s2sBehaviour" && isObj2(v)) return Object.fromEntries(Object.entries(v).filter(([k]) => S2S_KEYS.includes(k)));
+  return isObj2(v) && READ_ONLY_INNER[key] ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v;
 };
 var S2S_KEYS = ["responseDepth", "vadEagerness", "languages"];
 var S2S_ENUMS = { responseDepth: ["minimal", "low", "medium", "high", "xhigh"], vadEagerness: ["auto", "low", "medium", "high"] };
@@ -214502,7 +214588,7 @@ function compileS2sBehaviour(current, v) {
   if (provider !== "lc") {
     throw new IRError2("SPEC_KEY_UNAPPLIED", `s2sBehaviour applies only to a speech-to-speech agent; the stored agent's provider is ${JSON.stringify(provider)}. Switch it with llmModel (an s2s model such as gpt-realtime-2.1) in its own call first, or tune a text agent with responsiveness / interruptionSensitivity / modelTemperature and voiceModel. Nothing was sent.`);
   }
-  if (!isObj(v) || !Object.keys(v).length) throw new IRError2("SCHEMA", `s2sBehaviour must be an object with any of ${S2S_KEYS.join(", ")}`);
+  if (!isObj2(v) || !Object.keys(v).length) throw new IRError2("SCHEMA", `s2sBehaviour must be an object with any of ${S2S_KEYS.join(", ")}`);
   const other = Object.keys(v).filter((k) => !S2S_KEYS.includes(k));
   if (other.length) throw new IRError2("SPEC_KEY_UNAPPLIED", `s2sBehaviour.${other.join(", ")} is not written by this tool (writable: ${S2S_KEYS.join(", ")}; the s2s voice and model follow llmModel). Nothing was sent.`);
   const out = {};
@@ -214580,13 +214666,13 @@ var WRITABLE = /* @__PURE__ */ new Set([
 ]);
 var SPAM_KEYS = ["enabled", "blockThreshold", "notifyModes", "notifyEmails"];
 function compileSpamConfigUpdate(current, v) {
-  if (!isObj(v) || Object.keys(v).some((k) => k !== "postCallAnalysis") || !isObj(v.postCallAnalysis)) {
+  if (!isObj2(v) || Object.keys(v).some((k) => k !== "postCallAnalysis") || !isObj2(v.postCallAnalysis)) {
     throw new IRError2("SCHEMA", "spamConfig must be { postCallAnalysis: { enabled?, blockThreshold?, notifyModes?, notifyEmails? } }");
   }
   const other = Object.keys(v.postCallAnalysis).filter((k) => !SPAM_KEYS.includes(k));
   if (other.length) throw new IRError2("SPEC_KEY_UNAPPLIED", `spamConfig.postCallAnalysis.${other.join(", ")} is not a field (it takes ${SPAM_KEYS.join(", ")}). Nothing was sent.`);
   const stored = readFlat(current, "spamConfig")?.postCallAnalysis;
-  const p2 = { enabled: false, blockThreshold: 5, notifyModes: ["admin"], notifyEmails: [], ...isObj(stored) ? stored : {}, ...v.postCallAnalysis };
+  const p2 = { enabled: false, blockThreshold: 5, notifyModes: ["admin"], notifyEmails: [], ...isObj2(stored) ? stored : {}, ...v.postCallAnalysis };
   if (typeof p2.enabled !== "boolean") throw new IRError2("SCHEMA", "spamConfig.postCallAnalysis.enabled must be a boolean");
   if (typeof p2.blockThreshold !== "number") throw new IRError2("SCHEMA", "spamConfig.postCallAnalysis.blockThreshold must be a number");
   if (!Array.isArray(p2.notifyModes) || !p2.notifyModes.length || p2.notifyModes.some((m) => m !== "admin" && m !== "custom")) {
@@ -214628,11 +214714,11 @@ var PROVIDER_BOUNDS = {
   // Measured 2026-09-28: 1.5 answered 400 "backchannel_frequency must be within [0,1]" and was stored.
   backchannelFrequency: [0, 1, "backchannel_frequency must be within [0,1]"]
 };
-var isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+var isObj2 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 function readFlat(record2, key) {
   const s = record2?.agentSettings ?? {};
   if (key === "voiceId") return (record2?.provider === "lc" ? s.s2sBehaviour?.voiceId : void 0) ?? s.voice?.voiceId ?? record2?.voiceId;
-  if (key === "language") return isObj(s.language) ? s.language.code : s.language ?? record2?.language;
+  if (key === "language") return isObj2(s.language) ? s.language.code : s.language ?? record2?.language;
   if (key === "ringDurationSeconds") return typeof s.ringDurationMs === "number" ? s.ringDurationMs / 1e3 : record2?.ringDurationSeconds;
   if (key === "welcomeMessage") return record2?.welcomeMessage ?? record2?.agentWelcomeMessage;
   if (key in (record2 ?? {})) return record2[key];
@@ -214647,7 +214733,7 @@ function mergeSessionVariables(stored, entries) {
   const out = (Array.isArray(stored) ? stored : []).map((v) => ({ ...v }));
   const seen = /* @__PURE__ */ new Set();
   for (const e of entries) {
-    if (!isObj(e) || typeof e.name !== "string") throw new IRError2("SCHEMA", "each sessionVariables entry needs a string name");
+    if (!isObj2(e) || typeof e.name !== "string") throw new IRError2("SCHEMA", "each sessionVariables entry needs a string name");
     if (seen.has(e.name)) throw new IRError2("SCHEMA", `sessionVariables names ${e.name} twice (the server refuses duplicates: 400 "Duplicate session variable name")`);
     seen.add(e.name);
     const i = out.findIndex((v) => v.name === e.name);
@@ -214674,7 +214760,7 @@ var PROMPT_ELSEWHERE = {
   greetingRule: "GHL does not store it: a prompts write answered 200 and dropped it"
 };
 function compilePrompts(v) {
-  if (!isObj(v) || !Object.keys(v).length) throw new IRError2("SCHEMA", "prompts must be an object of { section: text | null }");
+  if (!isObj2(v) || !Object.keys(v).length) throw new IRError2("SCHEMA", "prompts must be an object of { section: text | null }");
   const elsewhere = Object.keys(v).filter((k) => k in PROMPT_ELSEWHERE);
   if (elsewhere.length) {
     throw new IRError2("SPEC_KEY_UNAPPLIED", elsewhere.map((k) => `prompts.${k}: ${PROMPT_ELSEWHERE[k]}`).join("; ") + ". Nothing was sent.");
@@ -214692,8 +214778,8 @@ function compilePrompts(v) {
 }
 function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError2("MISSING_FIELD", "update_voiceai_agent requires agentId");
-  if (!isObj(current)) throw new IRError2("SCHEMA", "the CURRENT agent record is required \u2014 read it first");
-  if (!isObj(spec) || !Object.keys(spec).length) throw new IRError2("SCHEMA", "spec must name at least one field to change");
+  if (!isObj2(current)) throw new IRError2("SCHEMA", "the CURRENT agent record is required \u2014 read it first");
+  if (!isObj2(spec) || !Object.keys(spec).length) throw new IRError2("SCHEMA", "spec must name at least one field to change");
   const elsewhere = Object.keys(spec).filter((k) => k in ELSEWHERE2);
   if (elsewhere.length) {
     throw new IRError2("SPEC_KEY_UNAPPLIED", `update_voiceai_agent does not write [${elsewhere.join(", ")}]: ` + elsewhere.map((k) => `${k} \u2014 ${ELSEWHERE2[k]}`).join("; ") + ". Nothing was sent.");
@@ -214718,13 +214804,13 @@ function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}
   const expected = {};
   for (const [k, v] of Object.entries(spec)) {
     if (NESTED_WHOLE.includes(k)) {
-      if (!isObj(v)) throw new IRError2("SCHEMA", `${k} must be an object (it is sent whole, merged over the stored one)`);
+      if (!isObj2(v)) throw new IRError2("SCHEMA", `${k} must be an object (it is sent whole, merged over the stored one)`);
       const refused = Object.keys(v).filter((x) => READ_ONLY_INNER[k]?.includes(x));
       if (refused.length) {
         throw new IRError2("SPEC_KEY_UNAPPLIED", `${k}.${refused.join(", ")} is read-only: the agent read carries it but the write refuses it (422 "should not exist"). Drop it from the spec. Nothing was sent.`);
       }
       const stored = readFlat(current, k);
-      body2[k] = writable(k, { ...isObj(stored) ? stored : {}, ...v });
+      body2[k] = writable(k, { ...isObj2(stored) ? stored : {}, ...v });
     } else if (k === "prompts") {
       body2[k] = compilePrompts(v);
     } else if (k === "disabledPrompts") {
@@ -214773,7 +214859,7 @@ function fields(record2) {
   const out = {};
   for (const [k, v] of Object.entries(record2 ?? {})) if (!IGNORE.has(k) && k !== "agentSettings") out[k] = v;
   for (const [k, v] of Object.entries(record2?.agentSettings ?? {})) out[`agentSettings.${k}`] = v;
-  if (isObj(out["agentSettings.s2sBehaviour"])) {
+  if (isObj2(out["agentSettings.s2sBehaviour"])) {
     const { totalTokens, ...rest } = out["agentSettings.s2sBehaviour"];
     out["agentSettings.s2sBehaviour"] = rest;
   }
@@ -214838,7 +214924,7 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
   }
   const confirmed = [];
   const mismatches = [];
-  const pick3 = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
+  const pick3 = (o, keys) => Object.fromEntries(keys.filter((x) => isObj2(o) && x in o).map((x) => [x, o[x]]));
   const got = (k) => {
     if (k === "s2sBehaviour") return pick3(readFlat(after, k), Object.keys(plan.expected[k]));
     if (k === "spamConfig") return { postCallAnalysis: pick3(readFlat(after, k)?.postCallAnalysis, Object.keys(plan.expected[k].postCallAnalysis)) };
@@ -214863,7 +214949,7 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
   for (const k of /* @__PURE__ */ new Set([...Object.keys(b), ...Object.keys(a)])) {
     if (setNames.has(k)) continue;
     if (k === "agentSettings.s2sBehaviour" && plan.setKeys.includes("voiceId")) {
-      const omitVoice = (o) => isObj(o) ? Object.fromEntries(Object.entries(o).filter(([x]) => x !== "voiceId")) : o;
+      const omitVoice = (o) => isObj2(o) ? Object.fromEntries(Object.entries(o).filter(([x]) => x !== "voiceId")) : o;
       if (same2(omitVoice(b[k]), omitVoice(a[k]))) continue;
     }
     if (kbChange && k === "actions" && nonKb(b[k]) === nonKb(a[k])) continue;
@@ -214873,7 +214959,7 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
       retemplated.push({ key: k, from: oldName, to: newName });
       continue;
     }
-    if (b[k] === void 0 && isObj(a[k]) && !Object.keys(a[k]).length) continue;
+    if (b[k] === void 0 && isObj2(a[k]) && !Object.keys(a[k]).length) continue;
     if (modelChange && MODEL_CASCADE.has(k)) {
       cascade.push({ key: k, before: b[k], after: a[k] });
       continue;
@@ -216678,7 +216764,7 @@ var scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   if (endpointWords(e).reach === "refused") score -= 60;
   return score;
 };
-var FILTER_FIELDS2 = null;
+var FILTER_FIELDS3 = null;
 var VALIDATOR_BAG;
 var builderValidatorBag = () => {
   if (VALIDATOR_BAG !== void 0) return VALIDATOR_BAG;
@@ -216688,17 +216774,17 @@ var builderValidatorBag = () => {
   return VALIDATOR_BAG;
 };
 var staticFilterFields = () => {
-  if (FILTER_FIELDS2) return FILTER_FIELDS2;
+  if (FILTER_FIELDS3) return FILTER_FIELDS3;
   if (true) {
-    FILTER_FIELDS2 = define_CONTACT_FILTER_FIELDS_default;
-    return FILTER_FIELDS2;
+    FILTER_FIELDS3 = define_CONTACT_FILTER_FIELDS_default;
+    return FILTER_FIELDS3;
   }
   try {
-    FILTER_FIELDS2 = JSON.parse(readFileSync3(resolve3(HERE2, "../catalog/contact-filter-fields.json"), "utf8"));
+    FILTER_FIELDS3 = JSON.parse(readFileSync3(resolve3(HERE2, "../catalog/contact-filter-fields.json"), "utf8"));
   } catch {
-    FILTER_FIELDS2 = null;
+    FILTER_FIELDS3 = null;
   }
-  return FILTER_FIELDS2;
+  return FILTER_FIELDS3;
 };
 var endpointStub = (e, callerClass = null) => {
   const w = endpointWords(e);
@@ -220591,7 +220677,7 @@ var TOOLS2 = [
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
-      field: external_exports.enum(FILTER_FIELDS),
+      field: external_exports.enum(FILTER_FIELDS2),
       search: external_exports.string().optional(),
       limit: external_exports.number().int().positive().max(100).default(100)
     }),
@@ -227471,15 +227557,23 @@ var TOOLS2 = [
   },
   {
     name: "get_funnel",
-    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the funnel's share link, if one exists: who it is shared with and the import URL \u2014 read-only; creating a share is left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page "delete" or a split-test winner, restorable with edit_funnel restore-page), step-products {stepId} (the products a step's order form lists and its sell buttons sell, with product and price names \u2014 add one with edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default the last 30 days} (the funnel's Stats tab per step \u2014 page views all/unique, opt-in and sale rates, earnings per view \u2014 with step names, plus the totals the Sites Analytics cards show: page views, opt-ins, sales and their value, opt-in rate, and hosted-video plays/completion; \u{1F534} only a HOSTED video (a Media Storage file) reports analytics \u2014 YouTube, Vimeo, Wistia and embeds send nothing; RESETTING stats is not offered: it is irreversible, applies asynchronously (~30 s) and clears the Sites Analytics numbers too \u2014 funnel \u2192 Stats \u2192 Reset). webinar (type, schedule, recurrence, form, live link/video, sessions, notification rows, guests + workflow-recipe links). Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole site for dangling references and publish drift \u2014 this tool does not repeat that audit. Read-only.`,
+    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the funnel's share link if one exists \u2014 read-only; creating one is left to the UI: it cannot be removed below the $497 plan), archived-pages (restorable with edit_funnel restore-page), step-products {stepId} (a step's order-form and sell-button products with names; add one with edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default 30 days; filters?} (per-step page views, opt-in and sale rates, earnings per view, plus the Analytics cards: page views, opt-ins, sales and value, opt-in rate, hosted-video plays, pauses, completion, drop-off spike and progress graph; filters = the Advanced filter, groups of field is/is not values; \u{1F534} only a HOSTED video reports; RESETTING stats is not offered: irreversible, ~30 s async, clears Sites Analytics too \u2014 funnel \u2192 Stats \u2192 Reset), filter-values {field} (the values a filter can pick), sales (the Sales tab: version-1 order forms only), webinar (type, schedule, recurrence, form, link/video, sessions, notification rows, guests + recipe links). Siblings: find_ghl_site resolves a domain/name to the id first; audit_site sweeps a whole site for dangling references and publish drift. Read-only.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
-      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent", "share", "archived-pages", "step-products", "stats", "webinar"]).default("summary"),
+      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent", "share", "archived-pages", "step-products", "stats", "webinar", "filter-values", "sales"]).default("summary"),
       pageId: external_exports.string().optional(),
       stepId: external_exports.string().optional(),
       from: external_exports.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-      to: external_exports.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()
+      to: external_exports.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      filters: external_exports.object({ group: external_exports.enum(["OR", "AND"]).optional(), filters: external_exports.array(external_exports.object({
+        group: external_exports.enum(["OR", "AND"]).optional(),
+        filters: external_exports.array(external_exports.object({ field: external_exports.enum(FILTER_FIELDS), operator: external_exports.enum(["in", "not_in"]).optional(), value: external_exports.array(external_exports.string()) }))
+      })) }).optional().describe("stats: the Analytics screen's Advanced filter \u2014 groups of conditions (field is/is not values). Top group OR, nested groups AND by default; \u22645 groups, \u22645 conditions each"),
+      field: external_exports.enum(FILTER_FIELDS).optional().describe("filter-values: the field whose values exist in the range"),
+      search: external_exports.string().optional(),
+      limit: external_exports.number().int().min(1).max(100).optional(),
+      offset: external_exports.number().int().min(0).optional()
     }),
     capabilities: [
       { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
@@ -227495,6 +227589,8 @@ var TOOLS2 = [
       { method: "GET", path: "/stats/count" },
       { method: "GET", path: "/stats/optin/conversion-rate" },
       { method: "GET", path: "/stats/video/stats" },
+      { method: "GET", path: "/stats/filter-values" },
+      { method: "GET", path: "/funnels/order" },
       { method: "POST", path: "/funnels/funnel/webinar/sessions" }
     ],
     handler: async (args, deps) => guard(async () => {
@@ -227528,7 +227624,7 @@ var TOOLS2 = [
         if (!r.ok) return fromHttp(r.status, r.json);
         return ok({ funnelId: args.funnelId, stepId: args.stepId, stepProducts: rows.map(stepProductView), note: STEP_PRODUCT_NOTE });
       }
-      if (view === "stats") {
+      if (view === "stats" || view === "filter-values") {
         const { res: fr, funnel: f } = await readFunnel(gw, args.locationId, args.funnelId);
         if (!fr.ok) return fromHttp(fr.status, fr.json);
         const day = (d) => d.toISOString().slice(0, 10);
@@ -227536,13 +227632,33 @@ var TOOLS2 = [
         const from = args.from ?? day(new Date(Date.parse(`${to}T00:00:00Z`) - 30 * 864e5));
         const type = f?.type === "website" ? "website" : f?.type === "webinar" ? "webinar" : "funnel";
         const q3 = `locationId=${L}&fromDate=${from}&toDate=${to}&funnelId=${F}&type=${type}`;
+        if (view === "filter-values") {
+          if (!args.field) return fail(CODES.VALIDATION_FAILED, 'view "filter-values" needs field', `One of ${FILTER_FIELDS.join(", ")}.`);
+          const lim = args.limit ?? 20;
+          if (lim > 20) return fail(CODES.VALIDATION_FAILED, "filter-values returns at most 20 values per call (GHL answers 422 above that)", "Page with offset, or narrow with search.");
+          const r = await gw.call("GET", `/stats/filter-values?${q3}&field=${args.field}&limit=${lim}&offset=${args.offset ?? 0}&search=${encodeURIComponent(args.search ?? "")}`);
+          if (!r.ok) return fromHttp(r.status, r.json);
+          return ok({
+            funnelId: args.funnelId,
+            name: f?.name ?? null,
+            from,
+            to,
+            field: args.field,
+            values: (r.json?.values ?? []).map((v) => ({ value: v.value, ...v.label !== void 0 ? { label: v.label } : {} })),
+            note: 'These are the values seen in the range: pass them as filters.filters[].filters[].value in view "stats". pageId values are page ids with "funnel / page" labels.'
+          });
+        }
+        const plan = planAdvancedFilters(args.filters);
+        if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, "Nothing was read.");
+        const fq = filterQuery(plan.filters);
+        const vf = videoFilters(plan.filters);
         const reads = {
-          steps: `/stats/?funnelId=${F}&fromDate=${from}&toDate=${to}&locationId=${L}`,
-          pageViews: `/stats/count?${q3}&eventType=page_view`,
-          optins: `/stats/count?${q3}&eventType=optin`,
-          sales: `/stats/count?${q3}&eventType=sale`,
-          optinRate: `/stats/optin/conversion-rate?${q3}&eventType=optin_conversion_rate`,
-          video: `/stats/video/stats?${q3}&eventType=video&includeGraphData=false`
+          steps: `/stats/?funnelId=${F}&fromDate=${from}&toDate=${to}&locationId=${L}${fq}`,
+          pageViews: `/stats/count?${q3}&eventType=page_view${fq}`,
+          optins: `/stats/count?${q3}&eventType=optin${fq}`,
+          sales: `/stats/count?${q3}&eventType=sale${fq}`,
+          optinRate: `/stats/optin/conversion-rate?${q3}&eventType=optin_conversion_rate${fq}`,
+          video: `/stats/video/stats?${q3}&eventType=video&includeGraphData=true${filterQuery(vf.filters)}`
         };
         const got = {};
         for (const [k, p2] of Object.entries(reads)) {
@@ -227561,26 +227677,41 @@ var TOOLS2 = [
           earningsPerPageViewAll: st.earningsPerPageViewAll ?? 0,
           pages: (st.pageStats ?? []).map((pg) => ({ pageId: pg.pageId, pageViewsAll: pg.pageViewsAll ?? 0, pageViewsUnique: pg.pageViewsUnique ?? 0 }))
         }));
-        const vd = got.video?.data ?? {};
+        const video = videoView(got.video?.data);
         return ok({
           funnelId: args.funnelId,
           name: f?.name ?? null,
           from,
           to,
+          ...plan.filters ? { filters: plan.filters } : {},
           totals: {
             pageViews: got.pageViews?.totalCount ?? 0,
             optins: got.optins?.totalCount ?? 0,
             sales: got.sales?.totalCount ?? 0,
             saleValue: got.sales?.saleValue ?? 0,
             optinRate: got.optinRate?.totalCount ?? 0,
-            hostedVideo: { plays: vd.videoPlay ?? 0, completionPct: vd.completion ?? null, averageWatchedPct: vd.averageTime ?? null }
+            hostedVideo: { plays: video.plays, pauses: video.pauses, completionPct: video.completionPct, averageWatchedPct: video.averageWatchedPct, dropOffSpikePct: video.dropOffSpikePct, progress: video.progress }
           },
           steps,
           notes: [
             "Views are counted from public page loads (POST /stats/event); a Stats reset (UI only, not offered here) clears them asynchronously.",
-            "Only a HOSTED video (a Media Storage file) reports plays; YouTube, Vimeo, Wistia and embeds send nothing."
+            "Only a HOSTED video (a Media Storage file) reports plays; YouTube, Vimeo, Wistia and embeds send nothing.",
+            'hostedVideo: averageWatchedPct and completionPct are percent of the video; dropOffSpikePct is the progress point with the biggest drop-off; progress is the "Video engagement" graph (users per progress bucket).',
+            ...plan.filters ? [`Filters apply to the totals and the per-step rows. Video takes only page and device filters${vf.dropped.length ? ` \u2014 ${vf.dropped.join(", ")} ${vf.dropped.length > 1 ? "were" : "was"} not applied to the video numbers` : ""}${vf.filters ? "" : " (none of yours applies, so the video numbers are unfiltered)"}. "is not" leaves out events with no value for the field. A page filter selects whole sessions that touched the page (the video numbers by page can add up to more than the total).`] : []
           ]
         });
+      }
+      if (view === "sales") {
+        const { res: fr, funnel: f } = await readFunnel(gw, args.locationId, args.funnelId);
+        if (!fr.ok) return fromHttp(fr.status, fr.json);
+        const day = (d) => d.toISOString().slice(0, 10);
+        const to = args.to ?? day(/* @__PURE__ */ new Date());
+        const from = args.from ?? day(new Date(Date.parse(`${to}T00:00:00Z`) - 30 * 864e5));
+        const lim = args.limit ?? 10;
+        const r = await gw.call("GET", `/funnels/order?locationId=${L}&funnelId=${F}&startDate=${from}&endDate=${to}&limit=${lim}&skip=${args.offset ?? 0}`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const products = Object.fromEntries((f?.steps ?? []).flatMap((st) => st.products ?? []).filter((x) => x?.id).map((x) => [x.id, x]));
+        return ok({ funnelId: args.funnelId, name: f?.name ?? null, from, to, count: r.json?.count ?? 0, orders: ordersView(r.json?.data, { steps: f?.steps ?? [], products }), note: SALES_NOTE });
       }
       if (view === "versions") {
         if (!args.pageId) return fail(CODES.VALIDATION_FAILED, 'view "versions" needs pageId', `Pass the pageId (view "summary" lists each step's pages).`);
