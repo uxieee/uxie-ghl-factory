@@ -2217,6 +2217,16 @@
   {
     "tool": "edit_funnel",
     "method": "GET",
+    "path": "/locations/{id}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/lookup/redirect/regex/bulk"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
     "path": "/funnels/lookup/list"
   },
   {

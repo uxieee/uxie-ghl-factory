@@ -78,20 +78,57 @@ export function settingsFrom(funnel) {
   return out;
 }
 
-// The UI's own update-settings body, from a fresh read, with the caller's overrides applied.
-export function settingsBody(locationId, funnel, overrides = {}) {
+// The UI's own update-settings body, from a fresh read, with the caller's overrides applied. Every derived value is
+// derived the way the Settings page derives it (funnelWebsiteApp funnels.da6ddfb… onMounted + the `ti` watcher, body
+// `tR`), never defaulted by this tool — a default the UI does not use changes a field the caller never named
+// (knowledge sniffs/funnels-completeness-2026-09-29 notes-B, B-D1/B-D2/B-D3):
+//  - autoGenerateSchema: the UI reads an ABSENT key as false (`=== true`). This tool wrote `?? true`, so any settings
+//    edit on a document that never stored it turned ON "auto-generate schema on publish".
+//  - allowPaymentModeOption / paymentMode: the Live/Test option is offered when the funnel already stores
+//    isLivePaymentMode, or when the location has NO Stripe publishable key (then the mode is
+//    `location.stripeConnectMode || true`). Otherwise the UI sends allowPaymentModeOption:false and no paymentMode.
+//    A caller who names paymentMode asks for the option, so it is sent with allowPaymentModeOption:true.
+//  - stopAllSplitTestsAndReset: null, except when the caller confirmed a domain change of a funnel that has one — then
+//    the object the UI's ConfirmDomainUpdateModal sends, {locationId, funnelId, userId}.
+// `ctx.location` is the location record (GET /locations/{id}); it is only read when the derivation needs it.
+export function paymentModeFields(funnel, location, overrides = {}) {
+  if ('paymentMode' in overrides) return { allowPaymentModeOption: true, paymentMode: overrides.paymentMode };
+  if (funnel.isLivePaymentMode !== undefined && funnel.isLivePaymentMode !== null) return { allowPaymentModeOption: true, paymentMode: funnel.isLivePaymentMode };
+  const offered = !location?.stripe?.publishable_key;
+  return offered ? { allowPaymentModeOption: true, paymentMode: location?.stripeConnectMode || true } : { allowPaymentModeOption: false };
+}
+export const needsLocationForSettings = (funnel, overrides = {}) => !('paymentMode' in overrides) && (funnel.isLivePaymentMode === undefined || funnel.isLivePaymentMode === null);
+
+export function settingsBody(locationId, funnel, overrides = {}, ctx = {}) {
+  const funnelId = funnel._id ?? funnel.id;
   return {
-    locationId, funnelId: funnel._id ?? funnel.id,
+    locationId, funnelId,
     funnelPath: funnel.url, funnelName: funnel.name, domainId: funnel.domainId ?? '',
     faviconUrl: funnel.faviconUrl ?? '', headTrackingCode: funnel.trackingCodeHead ?? '', bodyTrackingCode: funnel.trackingCodeBody ?? '',
-    allowPaymentModeOption: true, paymentMode: funnel.isLivePaymentMode ?? true, chatWidgetId: funnel.chatWidgetId ?? '',
+    ...paymentModeFields(funnel, ctx.location, overrides), chatWidgetId: funnel.chatWidgetId ?? '',
     imageOptimization: funnel.imageOptimization ?? true, isGdprCompliant: funnel.isGdprCompliant ?? false,
-    isOptimisePageLoad: funnel.isOptimisePageLoad ?? true, stopAllSplitTestsAndReset: null,
+    isOptimisePageLoad: funnel.isOptimisePageLoad ?? true,
+    stopAllSplitTestsAndReset: ctx.resetSplitTests ? { locationId, funnelId, userId: ctx.userId } : null,
     requireCreditCard: funnel.requireCreditCard ?? true, storeCurrencyFormatting: funnel.storeCurrencyFormatting ?? false,
-    autoGenerateSchema: funnel.autoGenerateSchema ?? true,
-    ...overrides,
+    autoGenerateSchema: funnel.autoGenerateSchema === true,
+    ...Object.fromEntries(Object.entries(overrides).filter(([k]) => k !== 'paymentMode')),
   };
 }
+
+// A DOMAIN CHANGE on a funnel that already has one is what the UI guards with ConfirmDomainUpdateModal: "this will stop
+// and delete any variation step in split testing / delete stats associated with split testing". Websites and webinars
+// skip the modal. Returns why a confirm is needed, or null.
+export function domainChangeGuard(funnel, overrides = {}) {
+  if (!('domainId' in overrides)) return null;
+  const was = funnel.domainId ?? ''; const next = overrides.domainId ?? '';
+  if (!was || next === was) return null;
+  if (funnel.type === 'website' || funnel.type === 'webinar') return null;
+  return next ? 'changing' : 'removing';
+}
+
+// The Settings page LISTS no domain that carries a regex/wildcard redirect (getBulkRegexRedirects → the domain select
+// drops every domain in the answer). `rows` is GET /funnels/lookup/redirect/regex/bulk's answer.
+export const regexRedirectOn = (domainUrl, rows) => (Array.isArray(rows) ? rows : rows?.data ?? []).filter((r) => r?.domain === domainUrl);
 
 // Compare what was asked for against what read back. A key the server normalised (e.g. a path
 // given without its leading slash) is reported, never silently accepted as a match.
@@ -102,6 +139,21 @@ export function settingsDiff(requested, after) {
     const same = k === 'funnelPath' ? normPath(have) === normPath(want) : JSON.stringify(have ?? '') === JSON.stringify(want ?? '');
     return { key: k, requested: want, readBack: have, applied: same };
   });
+}
+
+// "Only the named fields change", checked rather than claimed: every settings key the caller did NOT name, before vs
+// after. A key the document never stored that now reads back as exactly what the UI's body sent is a DEFAULT the save
+// materialised (the UI's own save does the same); anything else is an unrequested change.
+export function settingsSideEffects(requested, before, after, sentBody) {
+  const was = settingsFrom(before); const now = settingsFrom(after);
+  const materialised = []; const changed = [];
+  for (const k of Object.keys(SETTINGS_KEYS)) {
+    if (k in requested) continue;
+    if (JSON.stringify(was[k] ?? null) === JSON.stringify(now[k] ?? null)) continue;
+    if (was[k] == null && JSON.stringify(now[k]) === JSON.stringify(sentBody?.[k])) materialised.push({ key: k, readBack: now[k] });
+    else changed.push({ key: k, before: was[k], after: now[k] });
+  }
+  return { materialised, changed };
 }
 
 export const normPath = (p) => (p == null ? p : `/${String(p).replace(/^\/+/, '')}`);

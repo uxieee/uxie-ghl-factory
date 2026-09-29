@@ -9,7 +9,7 @@ One op per call. Preview by default; `confirm: true` writes and reads back on a 
 
 | op | arguments | what to know |
 |---|---|---|
-| `settings` | `settings {…}` — only the fields to change | always sends the UI's FULL `update-settings` body built from a fresh read, so only the fields you name change. The read-back is diffed |
+| `settings` | `settings {…}` — only the fields to change; `resetSplitTests: true` for a domain change | sends the UI's FULL `update-settings` body from a fresh read, every unnamed value DERIVED as the Settings page derives it (an absent `autoGenerateSchema` is `false`; the Live/Test payment option only when the funnel stores a mode or the location has no Stripe key). After the write EVERY settings key is re-read: a field you did not name that changed fails the call (`unrequestedChanges`). 🔴 Changing or removing the domain of a FUNNEL that has one stops every split test, ARCHIVES the variation pages and clears split stats — refused unless `resetSplitTests: true` (the page builder asks the same). Without it GHL would leave a split running on a funnel with no domain. A domain carrying a regex/wildcard redirect, or not on the location, is refused |
 | `create-step` | `step {name, url}` | refused when the funnel has no domain: such a step gets no lookup row and 404s |
 | `update-step` | `stepId`, `name?`, `url?` | one PUT moves the live route, and renames the step's page record as the UI does. Cloudflare may serve the old path for minutes, so it never retries |
 | `reorder-steps` | `order` — every step id, in the new order | the route replaces the steps array, so a partial list is refused |
