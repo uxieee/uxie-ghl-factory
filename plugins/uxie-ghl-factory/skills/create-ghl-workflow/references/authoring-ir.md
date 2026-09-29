@@ -288,6 +288,13 @@ reference has no matching producer. Rules that bite:
 - **`custom_webhook` outputs only exist when `saveResponse: true`** and a successful test
   request was saved (the drawer blocks Save on that) — the engine warns otherwise. Same idea
   for `custom_code` (fields = keys of its run-test `output`).
+  ⚠ **No tool runs that test.** build_workflow writes `saveResponse: false` with an unset
+  `webhookResponse` (a known gap). The drawer's "Send test request" is
+  `POST /workflow/{loc}/run-single-action` `{type: "custom_webhook", contactId | recordId,
+  recordType, contactLess, locationId, attributes}` — in a company workflow `recordType:
+  "business"` and the company id. It SENDS the request (a premium execution). The route and
+  measured body are on the corpus card `30-types/steps/custom_webhook.md`; run it with
+  raw_request only when a saved response is really needed.
 - Outputs are offered from ANCESTOR steps only (never sibling branches).
 - ⚠ Deleting the highest-numbered step of a type REBASES GHL's counter — a later step of the
   same type reuses that `N`, and stale references silently rebind to it.
