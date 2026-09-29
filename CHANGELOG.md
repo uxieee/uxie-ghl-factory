@@ -11,6 +11,23 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.27.2] — 2026-09-30
+
+**Security fix: webhook secrets no longer come back in plain text. Executed live on the test account.**
+
+### Fixed
+- 🔴 `export_workflow` and `get_workflow_logs` returned the VALUES of a webhook step's secret headers and parameters
+  (an `X-Hook-Secret` header, an `api_key` or `key` parameter) verbatim. The scrubber matched secrets by property
+  name, and a header row's names are the generic `key` and `value`. Pair rows and header maps are now redacted by the
+  pair's name (secret, token, password, signature, authorization, api-key, key, auth, jwt, hmac, session…) and by the
+  shape of the value (Bearer / Basic credentials, JWTs, Stripe, GHL private-integration, Google, GitHub and Slack
+  keys). Opaque identifiers such as `Idempotency-Key` and `Content-Type` are left alone. Proven live on the released
+  core (both secrets read back in clear) and on the fix (both read back redacted).
+- Writing a redacted export back is still refused, so the real stored secrets are never overwritten.
+
+⚠️ If you exported or read the logs of a workflow with authenticated webhooks before this release, those secrets
+are in that session's transcript. Rotate them.
+
 ## [1.27.1] — 2026-09-30
 
 **Fix: `check_workflow` silently skipped most of its checks, and `repair_workflow` aborted, on some workflows.
