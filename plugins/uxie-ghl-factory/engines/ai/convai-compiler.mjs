@@ -75,6 +75,9 @@ function buildCreateBody(ir, { locationId }) {
     summary: mergeSummary(defaultSummary(), ir.summary),
     respondToImages: ir.respondToImages ?? false,
     respondToAudio: ir.respondToAudio ?? false,
+    // Email channel (only when authored; checkEmailCreate requires channels to include "Email").
+    ...(ir.emailWaitTime !== undefined ? { emailWaitTime: ir.emailWaitTime, emailWaitTimeUnit: ir.emailWaitTimeUnit } : {}),
+    ...(ir.emailSettings !== undefined ? { emailSettings: ir.emailSettings } : {}),
     // Flow-Based Builder linkage. A FLOW_BUILDER_BOT's logic lives in a workflow whose
     // conv_ai_trigger is bound to this agent; once that workflow exists, the agent is
     // linked via objectiveBuilderWorkflowId + isObjectiveBuilderEnabled:true (usually a
@@ -111,16 +114,13 @@ export const CREATE_KEYS = new Set(['name', 'businessName', 'mode', 'channels', 
   'actions', 'personality', 'goal', 'instructions', 'fullPrompt', 'tones', 'botType', 'knowledgeBaseIds',
   'knowledgeBaseTriggers', 'summary', 'respondToImages', 'respondToAudio', 'objectiveBuilderWorkflowId',
   'isObjectiveBuilderEnabled', 'responseLength', 'aiResponseLengthEnabled', 'llm', 'isPrimary', 'cancelEnabled',
-  'rescheduleEnabled']);
+  'rescheduleEnabled', 'emailWaitTime', 'emailWaitTimeUnit', 'emailSettings']);
 // Keys a caller plausibly reaches for, and where each one is written instead.
 const CREATE_ELSEWHERE = {
   employeeName: 'the agent name is spec.name',
   flow: "a flow bot's logic is a workflow: create the agent with botType FLOW_BUILDER_BOT, build the workflow with "
     + 'build_workflow (a conv_ai_trigger bound to the agent), then link it with update_convai_agent '
     + '{isObjectiveBuilderEnabled:true, objectiveBuilderWorkflowId}',
-  emailSettings: 'Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record',
-  emailWaitTime: 'Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record',
-  emailWaitTimeUnit: 'Email-channel settings are not written by this tool: raw_request PUT /ai-employees/employees/{id} with the whole record',
   workingHours: 'working hours are their own resource: raw_request POST /ai-employees/employees/{id}/working-hours',
   folderId: 'folders are set after create: raw_request on the /ai-employees/employees/folders routes',
   brandId: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
@@ -129,6 +129,43 @@ const CREATE_ELSEWHERE = {
   skipIfAlreadyFilled: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
   notificationSettings: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
 };
+
+// Email-channel settings AT CREATE — the current builder's own create body carries them whenever `channels` includes
+// "Email" (agentBuilderApp AB/853927@544724 deletes them otherwise), and the server stores them from the create
+// (live 2026-09-29, knowledge/sniffs/ai-agents-t25-create-2026-09-29/live-t25.probe3-cai-email-at-create.json). The
+// ranges are the editor's (the server itself stored a 361-minute wait, 09-26): enforced here so the agent stays
+// saveable from the UI.
+export const EMAIL_WAIT_RANGES = { seconds: [1, 21600], minutes: [1, 360], hours: [1, 6] };
+const EMAIL_SETTINGS_KEYS = ['senderDetails', 'replyBehavior', 'emailFormat', 'signature', 'templateId'];
+export const EMAIL_FORMATS = ['plain_text', 'design_editor'];
+export function checkEmailCreate(spec) {
+  const has = ['emailWaitTime', 'emailWaitTimeUnit', 'emailSettings'].filter((k) => spec?.[k] !== undefined);
+  if (!has.length) return;
+  if (!(spec.channels ?? []).includes('Email')) {
+    throw new IRError('SPEC_KEY_UNAPPLIED', `[${has.join(', ')}] are the Email channel's settings, and channels does not include "Email" `
+      + '(the builder drops them then). Add "Email" to channels, or leave them out. Nothing was sent.');
+  }
+  if ((spec.emailWaitTime === undefined) !== (spec.emailWaitTimeUnit === undefined)) {
+    throw new IRError('SCHEMA', 'emailWaitTime and emailWaitTimeUnit go together (the email wait is required once either is set). Nothing was sent.');
+  }
+  if (spec.emailWaitTime !== undefined) {
+    const range = EMAIL_WAIT_RANGES[spec.emailWaitTimeUnit];
+    if (!range) throw new IRError('SCHEMA', `emailWaitTimeUnit must be one of ${Object.keys(EMAIL_WAIT_RANGES).join(', ')}. Nothing was sent.`);
+    if (!Number.isInteger(spec.emailWaitTime) || spec.emailWaitTime < range[0] || spec.emailWaitTime > range[1]) {
+      throw new IRError('SCHEMA', `emailWaitTime must be a whole number ${range[0]}–${range[1]} ${spec.emailWaitTimeUnit} (the editor's range). Nothing was sent.`);
+    }
+  }
+  const es = spec.emailSettings;
+  if (es === undefined) return;
+  if (!es || typeof es !== 'object' || Array.isArray(es)) throw new IRError('SCHEMA', 'emailSettings must be an object. Nothing was sent.');
+  const extra = Object.keys(es).filter((k) => !EMAIL_SETTINGS_KEYS.includes(k));
+  if (extra.length) throw new IRError('SCHEMA', `emailSettings has unknown key(s) [${extra.join(', ')}]; its keys are ${EMAIL_SETTINGS_KEYS.join(', ')}. Nothing was sent.`);
+  if (es.emailFormat !== undefined && !EMAIL_FORMATS.includes(es.emailFormat)) {
+    throw new IRError('SCHEMA', `emailSettings.emailFormat must be one of ${EMAIL_FORMATS.join(', ')} (the server stores anything; the editor offers these). Nothing was sent.`);
+  }
+  const g = es.replyBehavior?.greetingPersonalization;
+  if (g !== undefined && typeof g !== 'string') throw new IRError('SCHEMA', 'emailSettings.replyBehavior.greetingPersonalization must be a string (a non-string is refused field by field). Nothing was sent.');
+}
 
 export function refuseUnappliedCreateKeys(spec) {
   const unapplied = Object.keys(spec ?? {}).filter((k) => !CREATE_KEYS.has(k));
@@ -495,6 +532,7 @@ const FATAL_FOR_FLOW_BOT = new Set(['toneEmpty', 'errorMaxTones', 'selectChannel
 
 export function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
   refuseUnappliedCreateKeys(ir);
+  checkEmailCreate(ir);
   const norm = parseConvaiIR(ir);
   // THE PRIMARY AGENT IS LOCATION-WIDE. The builder's "Set as Primary" hands the location's inbound messages to this
   // agent and moves the old primary's contacts to it, and it is hidden when channelManagement is on. It is never

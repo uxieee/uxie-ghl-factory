@@ -15,8 +15,8 @@ const voice = (extra = {}) => ({ agentName: 'TEST voice', agentPrompt: 'You answ
 // --- (a) unknown / unapplied keys ------------------------------------------------------------------------------------
 
 test('CAI create: an unknown spec key is refused before anything is compiled, with where it lives', () => {
-  assert.throws(() => compileConvaiAgent(cai({ emailSettings: {} }), { locationId: LOC }),
-    (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /emailSettings: Email-channel settings/.test(e.message));
+  assert.throws(() => compileConvaiAgent(cai({ workingHours: {} }), { locationId: LOC }),
+    (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /workingHours: working hours are their own resource/.test(e.message));
   assert.throws(() => compileConvaiAgent(cai({ folderId: 'f1', bogus: 1 }), { locationId: LOC }),
     (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /\[folderId, bogus\]/.test(e.message));
   // control: every key it lists as applicable compiles
@@ -34,10 +34,10 @@ test('Voice create: unknown top-level and section keys are refused; number keys 
   assert.doesNotThrow(() => compileVoiceAiAgent(voice({ voice: { voiceId: 'v1' } }), { locationId: LOC }));
 });
 
-test('Studio create: an unknown spec key is refused, with the folder pointer', () => {
-  assert.throws(() => refuseUnappliedStudioKeys({ name: 'x', buildPrompt: 'y', folderId: 'f' }),
-    (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /folderId: folder placement/.test(e.message));
-  assert.doesNotThrow(() => refuseUnappliedStudioKeys({ name: 'x', buildPrompt: 'y', tools: [], triggers: [] }));
+test('Studio create: an unknown spec key is refused, with where it lives (t25a: folderId / templateId / customApiEnabled now apply)', () => {
+  assert.throws(() => refuseUnappliedStudioKeys({ name: 'x', buildPrompt: 'y', publish: true }),
+    (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /publish: this tool never publishes/.test(e.message));
+  assert.doesNotThrow(() => refuseUnappliedStudioKeys({ name: 'x', buildPrompt: 'y', tools: [], triggers: [], folderId: 'f', customApiEnabled: true }));
 });
 
 // --- (b) Conversation AI ---------------------------------------------------------------------------------------------
