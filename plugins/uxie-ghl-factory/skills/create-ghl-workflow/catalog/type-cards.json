@@ -28774,7 +28774,7 @@
    "family": "triggers",
    "title": "user_log_in",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-29",
    "summary": "Fires on each successful client-portal login. It is now an INTERNAL marketplace trigger (section \"Client Portal\"), not a native builder trigger. [source-derived 2026-09-26 — sniffs/workflows-domain-recon-2026-09-25/marketplace-assets-2026-09-25.json (`key: user_log_in`)]",
    "meta": {
     "Trigger value": "`user_log_in`",

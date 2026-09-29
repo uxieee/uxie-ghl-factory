@@ -72878,13 +72878,36 @@ var init_define_FUNNEL_ELEMENTS = __esm({
           type: "element",
           insertable: true,
           extraProps: [
-            "showRelatedProducts",
-            "itemsPerPage",
-            "desktopColumns",
-            "mobileColumns",
-            "relatedProductsDesktopFontSize",
-            "relatedProductsMobileFontSize",
-            "customText"
+            "selectedProducts",
+            "manageProducts",
+            "desktopMediaWidth",
+            "alignImage",
+            "mediaLayout",
+            "showAddToCartButton",
+            "showBuyNowButton",
+            "showDescription",
+            "showReviewsAndRatings",
+            "showRatingsCount",
+            "tabletColumns",
+            "imageZoom",
+            "typography",
+            "variantsStyling",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "priceDiscountDesktopFontSize",
+            "priceDiscountMobileFontSize",
+            "priceDiscountTabletFontSize",
+            "relatedProductsTabletFontSize",
+            "overrideDescriptionStyles",
+            "descriptionDesktopFontSize",
+            "descriptionMobileFontSize",
+            "customText",
+            "enableWishlisting",
+            "customClass",
+            "visibility"
           ]
         },
         "store-custom-product-detail": {
@@ -77162,12 +77185,12 @@ var require_applicability = __commonJS({
     }
     exports.schemaHasRulesForType = schemaHasRulesForType;
     function shouldUseGroup(schema2, group) {
-      return group.rules.some((rule) => shouldUseRule(schema2, rule));
+      return group.rules.some((rule2) => shouldUseRule(schema2, rule2));
     }
     exports.shouldUseGroup = shouldUseGroup;
-    function shouldUseRule(schema2, rule) {
+    function shouldUseRule(schema2, rule2) {
       var _a3;
-      return schema2[rule.keyword] !== void 0 || ((_a3 = rule.definition.implements) === null || _a3 === void 0 ? void 0 : _a3.some((kwd) => schema2[kwd] !== void 0));
+      return schema2[rule2.keyword] !== void 0 || ((_a3 = rule2.definition.implements) === null || _a3 === void 0 ? void 0 : _a3.some((kwd) => schema2[kwd] !== void 0));
     }
     exports.shouldUseRule = shouldUseRule;
   }
@@ -78273,9 +78296,9 @@ var require_validate = __commonJS({
       if (useDefaults)
         (0, defaults_1.assignDefaults)(it, group.type);
       gen.block(() => {
-        for (const rule of group.rules) {
-          if ((0, applicability_1.shouldUseRule)(schema2, rule)) {
-            keywordCode(it, rule.keyword, rule.definition, group.type);
+        for (const rule2 of group.rules) {
+          if ((0, applicability_1.shouldUseRule)(schema2, rule2)) {
+            keywordCode(it, rule2.keyword, rule2.definition, group.type);
           }
         }
       });
@@ -78310,9 +78333,9 @@ var require_validate = __commonJS({
     function checkKeywordTypes(it, ts) {
       const rules = it.self.RULES.all;
       for (const keyword in rules) {
-        const rule = rules[keyword];
-        if (typeof rule == "object" && (0, applicability_1.shouldUseRule)(it.schema, rule)) {
-          const { type } = rule.definition;
+        const rule2 = rules[keyword];
+        if (typeof rule2 == "object" && (0, applicability_1.shouldUseRule)(it.schema, rule2)) {
+          const { type } = rule2.definition;
           if (type.length && !type.some((t) => hasApplicableType(ts, t))) {
             strictTypesError(it, `missing type "${type.join(",")}" for keyword "${keyword}"`);
           }
@@ -80086,8 +80109,8 @@ var require_core = __commonJS({
         return this;
       }
       getKeyword(keyword) {
-        const rule = this.RULES.all[keyword];
-        return typeof rule == "object" ? rule.definition : !!rule;
+        const rule2 = this.RULES.all[keyword];
+        return typeof rule2 == "object" ? rule2.definition : !!rule2;
       }
       // Remove keyword
       removeKeyword(keyword) {
@@ -80095,7 +80118,7 @@ var require_core = __commonJS({
         delete RULES2.keywords[keyword];
         delete RULES2.all[keyword];
         for (const group of RULES2.rules) {
-          const i = group.rules.findIndex((rule) => rule.keyword === keyword);
+          const i = group.rules.findIndex((rule2) => rule2.keyword === keyword);
           if (i >= 0)
             group.rules.splice(i, 1);
         }
@@ -80122,10 +80145,10 @@ var require_core = __commonJS({
           for (const seg of segments)
             keywords = keywords[seg];
           for (const key in rules) {
-            const rule = rules[key];
-            if (typeof rule != "object")
+            const rule2 = rules[key];
+            if (typeof rule2 != "object")
               continue;
-            const { $data } = rule.definition;
+            const { $data } = rule2.definition;
             const schema2 = keywords[key];
             if ($data && schema2)
               keywords[key] = schemaOrData(schema2);
@@ -80289,7 +80312,7 @@ var require_core = __commonJS({
       RULES2.keywords[keyword] = true;
       if (!definition)
         return;
-      const rule = {
+      const rule2 = {
         keyword,
         definition: {
           ...definition,
@@ -80298,18 +80321,18 @@ var require_core = __commonJS({
         }
       };
       if (definition.before)
-        addBeforeRule.call(this, ruleGroup, rule, definition.before);
+        addBeforeRule.call(this, ruleGroup, rule2, definition.before);
       else
-        ruleGroup.rules.push(rule);
-      RULES2.all[keyword] = rule;
+        ruleGroup.rules.push(rule2);
+      RULES2.all[keyword] = rule2;
       (_a3 = definition.implements) === null || _a3 === void 0 ? void 0 : _a3.forEach((kwd) => this.addKeyword(kwd));
     }
-    function addBeforeRule(ruleGroup, rule, before) {
+    function addBeforeRule(ruleGroup, rule2, before) {
       const i = ruleGroup.rules.findIndex((_rule) => _rule.keyword === before);
       if (i >= 0) {
-        ruleGroup.rules.splice(i, 0, rule);
+        ruleGroup.rules.splice(i, 0, rule2);
       } else {
-        ruleGroup.rules.push(rule);
+        ruleGroup.rules.push(rule2);
         this.logger.warn(`rule ${before} is not defined`);
       }
     }
@@ -109088,8 +109111,8 @@ function judge({ scans, known, locationId }) {
     }
     for (const loc of s.locations) {
       if (loc === locationId) continue;
-      const media = s.mediaLocations?.includes(loc);
-      add(media ? {
+      const media2 = s.mediaLocations?.includes(loc);
+      add(media2 ? {
         severity: "info",
         check: "foreign-location",
         value: loc,
@@ -110861,6 +110884,98 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
   return { call, callWithMeta, stream, readBackUntil, loc, rail, uid: creds.uid, companyId: creds.companyId ?? null, capabilities: { unauthenticatedRawUpload: true } };
 }
 
+// core/style-layer.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var STYLE_LAYER_SOURCE = Object.freeze({ chunk: "pageBuilder index.e1b163ff.js", measured: "2026-09-29" });
+var PAGE_SCOPE = "hl_page-preview--content";
+var TABLET_QUERY = "@media screen and (min-width:768px) and (max-width:1024px)";
+var MOBILE_QUERY = "@media screen and (min-width:0px) and (max-width:767px)";
+var TEXT_KINDS = /* @__PURE__ */ new Set(["heading", "sub-heading", "paragraph", "rich-text", "bulletList"]);
+var STRUCTURE = /* @__PURE__ */ new Set(["section", "row", "col"]);
+var TEXT_DESKTOP_DROPPED = /* @__PURE__ */ new Set(["boldTextColor", "italicTextColor", "underlineTextColor", "linkTextColor", "marginTop", "marginBottom"]);
+var BORDER = ["borderColor", "borderWidth", "borderStyle", "borderRadius"];
+var PADDING = ["paddingTop", "paddingRight", "paddingBottom", "paddingLeft"];
+var ROUTING = {
+  image: { route: /* @__PURE__ */ new Set(["boxShadow", "width", "height", ...BORDER]), target: " .image-container img", alwaysTarget: true },
+  "image-feature": { route: new Set(BORDER), target: " .img-container img" },
+  "qr-code": { drop: /* @__PURE__ */ new Set(["width", "height", "boxShadow", ...BORDER]) },
+  "store-pdp-v2-images": { drop: /* @__PURE__ */ new Set(["boxShadow", "marginLeft", "marginRight", ...BORDER]) },
+  "store-pdp-v2-quantity": { drop: /* @__PURE__ */ new Set(["quantityLabelColor", "color", "quantityBackgroundColor", "quantityBorderColor"]) },
+  "store-pdp-v2-add-to-cart": { only: /* @__PURE__ */ new Set(["boxShadow", ...PADDING]), route: /* @__PURE__ */ new Set(["boxShadow", ...PADDING]), target: " .pdp-v2-add-to-cart__btn" },
+  "store-pdp-v2-buy-now": { only: /* @__PURE__ */ new Set(["boxShadow", ...PADDING]), route: /* @__PURE__ */ new Set(["boxShadow", ...PADDING]), target: " .pdp-v2-buy-now__btn" }
+};
+var STRUCTURE_DEVICE_IMPORTANT = /* @__PURE__ */ new Set(["paddingLeft", "paddingRight", "marginLeft", "marginRight"]);
+var kebab = (k) => k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
+var cssValue = (v) => {
+  if (!v || v.value === void 0 || v.value === null || v.value === "") return void 0;
+  const x = `${v.value}${v.unit || ""}`;
+  return x === "" ? void 0 : x;
+};
+function declarations(map2 = {}, important = null) {
+  const out = [];
+  for (const [k, v] of Object.entries(map2 ?? {})) {
+    const x = cssValue(v);
+    if (x === void 0 || k === "background" && x === "none") continue;
+    out.push(`${kebab(k)}:${x}${important?.has(k) ? "!important" : ""}`);
+  }
+  return out;
+}
+var rule = (sel, decls) => decls.length ? `${sel}{${decls.join(";")}}` : "";
+var media = (q3, body2) => body2 ? `${q3}{${body2}}` : "";
+function nodeLayerCss(node, scope = PAGE_SCOPE) {
+  if (!node) return "";
+  const P = `.${scope}`;
+  const meta3 = node.meta ?? node.type;
+  const structure = STRUCTURE.has(meta3) || STRUCTURE.has(node.type);
+  const colInner = meta3 === "col" && !((Number(node.extra?.elementVersion?.value) || 0) >= 2);
+  const boxSel = `${P} .${structure ? node.id : node.extra?.nodeId ?? node.id}${colInner ? " >.inner" : ""}`;
+  const wrapSel = TEXT_KINDS.has(meta3) ? `${P} #${node.id}` : `${P} .${node.id}${colInner ? " >.inner" : ""}`;
+  const wrapperDecls = (w, device) => {
+    const d = declarations(w, structure && device ? STRUCTURE_DEVICE_IMPORTANT : null);
+    const width = cssValue(w?.width);
+    if (width !== void 0 && width !== "auto" && meta3 !== "col") d.push("flex:0 0 auto!important");
+    return d;
+  };
+  const styleRules = (styles, device) => {
+    const r = ROUTING[meta3] ?? {};
+    let map2 = { ...styles ?? {} };
+    if (!device && TEXT_KINDS.has(meta3)) for (const k of TEXT_DESKTOP_DROPPED) delete map2[k];
+    if (r.only) map2 = Object.fromEntries(Object.entries(map2).filter(([k]) => r.only.has(k)));
+    if (r.drop) for (const k of r.drop) delete map2[k];
+    const routed = r.route ? Object.fromEntries(Object.entries(map2).filter(([k]) => r.route.has(k))) : {};
+    const own = r.route ? Object.fromEntries(Object.entries(map2).filter(([k]) => !r.route.has(k))) : map2;
+    const typography = !structure && !device && node.extra?.typography?.value ? [`font-family:${node.extra.typography.value}`] : [];
+    let css2 = "";
+    if (r.target && (Object.keys(routed).length || r.alwaysTarget && styles)) css2 += rule(`${P} .${node.id}${r.target}`, declarations(routed));
+    css2 += rule(boxSel, [...typography, ...declarations(own, structure && device ? STRUCTURE_DEVICE_IMPORTANT : null)]);
+    return css2;
+  };
+  let css = meta3 === "col" ? rule(`${P} .${node.id}`, declarations({ width: node.styles?.width })) + styleRules(node.styles, false) + rule(wrapSel, wrapperDecls(node.wrapper, false)) : rule(wrapSel, wrapperDecls(node.wrapper, false)) + styleRules(node.styles, false);
+  if (meta3 === "row") {
+    const rw = cssValue(node.extra?.rowWidth);
+    if (rw !== void 0) css += rule(`${P} .${node.id}`, [`width:${rw}`]);
+    const tw = cssValue(node.tabletExtra?.rowWidth);
+    if (tw !== void 0) css += media(TABLET_QUERY, rule(`${P} .${node.id}`, [`width:${tw}`]));
+  }
+  for (const [q3, st, w] of [[TABLET_QUERY, node.tabletStyles, node.tabletWrapper], [MOBILE_QUERY, node.mobileStyles, node.mobileWrapper]]) {
+    const hasStyles = st && Object.keys(st).length;
+    css += media(q3, rule(wrapSel, wrapperDecls(w, true)) + (hasStyles ? styleRules(st, true) : ""));
+  }
+  if (meta3 !== "col") for (const c of node.customCss ?? []) css += rule(`${P} .${node.id} ${c.selector}`, Object.entries(c.styles ?? {}).map(([k, v]) => `${kebab(k)}:${v}`));
+  return css;
+}
+function storedMap(map2) {
+  if (map2 === void 0) return void 0;
+  if (!map2 || typeof map2 !== "object" || Array.isArray(map2)) throw new Error("a style / wrapper map must be an object of {prop: number | string | {value, unit}}");
+  return Object.fromEntries(Object.entries(map2).map(([k, v]) => [k, typeof v === "number" ? { value: v, unit: "px" } : typeof v === "string" ? { value: v } : v]));
+}
+var LAYER_SPEC_KEYS = Object.freeze(["wrapper", "tabletStyles", "mobileStyles", "tabletWrapper", "mobileWrapper"]);
+
 // core/funnel-pages.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -112176,6 +112291,8304 @@ var KIND_PDP_STYLES = Object.freeze({
     }
   }
 });
+var BUILDER_NATIVE_UNDEFINED = Object.freeze({
+  "blog-post": ["blog_style"],
+  "blog-pined-post": ["blogPinedPostStyle"],
+  "blog-content": ["blogContentPostStyle"],
+  "social-share-blog": ["socialShareStyle"]
+});
+var TEXT_FIELD_INITIALS = Object.freeze({ textDecoration: "none", textTransform: "inherit", fontFamily: "inherit" });
+function fillTextFieldInitials(meta3, extra) {
+  for (const prop of BUILDER_NATIVE_UNDEFINED[meta3] ?? []) {
+    const obj = extra?.[prop];
+    if (!obj || typeof obj !== "object") continue;
+    for (const part of Object.values(obj)) {
+      if (!part || typeof part !== "object" || Array.isArray(part) || !("fontSize" in part || "fontWeight" in part || "fontFamily" in part)) continue;
+      for (const [k, v] of Object.entries(TEXT_FIELD_INITIALS)) if (part[k] === void 0) part[k] = v;
+    }
+  }
+  return extra;
+}
+
+// core/kind-factory-defaults.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var FACTORY_SOURCE = Object.freeze({ "chunk": "pageBuilder index.e1b163ff.js", "sha256": "f3a597367033415b11587d0e841e4cd56ca546ebb578c406ddaefe28fc10dc1f", "generated": "2026-09-29" });
+var KIND_FACTORY_EXTRA = Object.freeze({
+  "heading": {
+    "mobileFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    }
+  },
+  "sub-heading": {
+    "mobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    }
+  },
+  "paragraph": {
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    }
+  },
+  "rich-text": {
+    "itemSpacing": {
+      "value": 0,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    }
+  },
+  "bulletList": {
+    "itemSpacing": {
+      "value": 0,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "icon": {
+      "value": {
+        "unicode": "f058",
+        "name": "check-circle",
+        "fontFamily": "Font Awesome 5 Free"
+      }
+    },
+    "inlineTypographies": {
+      "value": []
+    }
+  },
+  "button": {
+    "subText": {
+      "value": ""
+    },
+    "mobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "iconStart": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    },
+    "iconEnd": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "productId": {
+      "value": ""
+    },
+    "storeProductId": {
+      "value": ""
+    },
+    "storeProductPriceId": {
+      "value": "all"
+    },
+    "storeCollectionId": {
+      "value": ""
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "saleAction": {
+      "value": "go-to-next-funnel-step"
+    }
+  },
+  "video": {
+    "playBackControls": {
+      "autoplay": true,
+      "allowPlayPause": false,
+      "playBackSpeed": false,
+      "showPendingTime": false,
+      "showProgressBar": true,
+      "showFullScreenToggle": true,
+      "loop": false
+    },
+    "leadVideoOptions": {
+      "isLeadGenVideo": false,
+      "isVideoPlayAllowed": false,
+      "timeStamp": 0,
+      "formElement": null
+    },
+    "checkStep": {
+      "checkStep": false,
+      "step": {}
+    }
+  },
+  "image": {
+    "imageActions": {
+      "value": "none"
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "stepPath": {
+      "value": ""
+    }
+  },
+  "divider": {
+    "dividerProperties": {
+      "value": {
+        "width": "100%",
+        "height": "1px",
+        "borderStyle": "solid",
+        "align": "center",
+        "color": "var(--gray)"
+      }
+    }
+  },
+  "countdown": {
+    "useWebinarSettings": {
+      "value": false
+    },
+    "timerType": {
+      "value": "countdown",
+      "disabled": true
+    },
+    "startTime": {
+      "value": "00:00"
+    },
+    "timerLoop": {
+      "value": 0
+    },
+    "timerDuration": {
+      "value": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    "timerTrigger": {
+      "value": "",
+      "disabled": true
+    },
+    "endTime": {
+      "value": "00:00"
+    },
+    "translate": {
+      "value": "English"
+    },
+    "expireAction": {
+      "value": "url"
+    },
+    "webinarExpireAction": {
+      "value": "url"
+    },
+    "redirectUrl": {
+      "value": "#"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "countdownTimerId": {
+      "value": ""
+    },
+    "mobileFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    }
+  },
+  "marketing-countdown": {
+    "timerType": {
+      "value": "countdown",
+      "disabled": true
+    },
+    "startTime": {
+      "value": "00:00"
+    },
+    "timerLoop": {
+      "value": 0
+    },
+    "timerDuration": {
+      "value": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    "timerTrigger": {
+      "value": "",
+      "disabled": true
+    },
+    "endTime": {
+      "value": "00:00"
+    },
+    "expireAction": {
+      "value": "url"
+    },
+    "redirectUrl": {
+      "value": "#"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "countdownTimerId": {
+      "value": ""
+    }
+  },
+  "minute-timer": {
+    "hours": {
+      "value": 0
+    },
+    "minutes": {
+      "value": 45
+    },
+    "seconds": {
+      "value": 0
+    },
+    "translate": {
+      "value": "English"
+    },
+    "expireAction": {
+      "value": "url"
+    },
+    "redirectUrl": {
+      "value": "#"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "revisitAction": {
+      "value": "auto-expire-x-day"
+    },
+    "showElementsOnRevisit": {
+      "value": []
+    },
+    "cookieDate": {
+      "value": "30"
+    },
+    "mobileFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    }
+  },
+  "day-timer": {
+    "endTime": {
+      "value": "00:00"
+    },
+    "expireAction": {
+      "value": "url"
+    },
+    "redirectUrl": {
+      "value": "#"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "mobileFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    }
+  },
+  "two-setp-order": {
+    "activeMode": {
+      "value": "step1"
+    },
+    "step1": {
+      "value": {
+        "shippingHeadline": "Shipping",
+        "headline": "Shipping",
+        "subHeadline": "Where Should We Ship It?",
+        "fullName": "Full Name...",
+        "companyName": "Company Name..",
+        "email": "Email Address...",
+        "phone": "Phone Number...",
+        "searchAddress": "Search",
+        "address": "Street Address...",
+        "city": "City Name...",
+        "state": "State / Province...",
+        "zipCode": "Zip Code...",
+        "btnText": "Go To Step #2",
+        "btnSubText": "",
+        "footerText": "We Respect Your Privacy & Information.",
+        "showPhone": true,
+        "showShipping": true,
+        "showCompanyName": "mandatory",
+        "enableCountryPicker": false,
+        "fullNameValidation": true,
+        "enableAutoCompleteAddress": true
+      }
+    },
+    "step2": {
+      "value": {
+        "headline": "Your info",
+        "subHeadline": "Upgrade Your Order & Save!",
+        "itemText": "Item",
+        "priceText": "Price",
+        "summaryItemText": "Item",
+        "summaryPriceText": "amount",
+        "btnText": "Complete Order",
+        "btnSubText": "",
+        "footerText": "* 100% Secure & Safe Payments *",
+        "linkText": "Edit Shipping Details",
+        "enableMultiProductSelect": true,
+        "enableMainProductDescription": false,
+        "enableProductDescription": true,
+        "showOrderBump": true,
+        "enableCouponCodes": true,
+        "btnIcon": "fas fa-shopping-cart",
+        "stripeLayout": "classic",
+        "enablePostalCode": false
+      }
+    },
+    "enableMultiProductSelect": {
+      "value": true
+    },
+    "enableMainProductDescription": {
+      "value": false
+    },
+    "enableProductDescription": {
+      "value": true
+    },
+    "showOrderBump": {
+      "value": false
+    },
+    "enableCouponCodes": {
+      "value": true
+    },
+    "stickyContact": {
+      "value": false
+    },
+    "forceContactCreate": {
+      "value": false
+    },
+    "saleAction": {
+      "value": "go-to-next-funnel-step"
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "validateEmail": {
+      "value": false
+    }
+  },
+  "one-step-order": {
+    "step1": {
+      "value": {
+        "shippingHeadline": "Shipping",
+        "paymentHeadline": "Payment",
+        "headline": "Shipping & Your Info",
+        "subHeadline": "Upgrade Your Order & Save!",
+        "fullName": "Full Name...",
+        "companyName": "Company Name..",
+        "email": "Email Address...",
+        "phone": "Phone Number...",
+        "searchAddress": "Search",
+        "address": "Street Address...",
+        "city": "City Name...",
+        "state": "State / Province...",
+        "zipCode": "Zip Code...",
+        "showPhone": true,
+        "fullNameValidation": true,
+        "showShipping": true,
+        "showCompanyName": "mandatory",
+        "itemText": "Item",
+        "priceText": "Price",
+        "summaryItemText": "Item",
+        "summaryPriceText": "amount",
+        "btnText": "Complete Order",
+        "btnSubText": "",
+        "footerText": "* 100% Secure & Safe Payments *",
+        "linkText": "Edit Shipping Details",
+        "enableMultiProductSelect": true,
+        "enableMainProductDescription": false,
+        "enableProductDescription": true,
+        "showOrderBump": true,
+        "enableCouponCodes": true,
+        "btnIcon": "fas fa-shopping-cart",
+        "stripeLayout": "classic",
+        "enablePostalCode": false,
+        "enableCountryPicker": false,
+        "enableAutoCompleteAddress": true
+      }
+    },
+    "enableMultiProductSelect": {
+      "value": true
+    },
+    "enableMainProductDescription": {
+      "value": false
+    },
+    "enableProductDescription": {
+      "value": true
+    },
+    "showOrderBump": {
+      "value": false
+    },
+    "enableCouponCodes": {
+      "value": true
+    },
+    "stickyContact": {
+      "value": false
+    },
+    "forceContactCreate": {
+      "value": false
+    },
+    "saleAction": {
+      "value": "go-to-next-funnel-step"
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "validateEmail": {
+      "value": false
+    }
+  },
+  "nav-menu": {
+    "showCartIcon": {
+      "value": true
+    },
+    "showSearchbar": {
+      "value": false
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "bars",
+        "unicode": "f0c9",
+        "fontFamily": "Font Awesome 5 Free",
+        "color": "var(--black)"
+      }
+    },
+    "includeLogoInMenu": {
+      "value": true
+    },
+    "imageActions": {
+      "value": "none"
+    },
+    "includeHeadlineInMenu": {
+      "value": true
+    },
+    "menuLayout": {
+      "value": "default"
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    }
+  },
+  "nav-menu-v2": {
+    "enableCustomerLogin": {
+      "value": false
+    },
+    "imageActions": {
+      "value": "none"
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "includeLogoInMenu": {
+      "value": true
+    },
+    "includeHeadlineInMenu": {
+      "value": true
+    },
+    "menuLayout": {
+      "value": "default"
+    },
+    "menuWrap": {
+      "value": "nowrap"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "icon": {
+      "value": {
+        "name": "bars",
+        "unicode": "f0c9",
+        "fontFamily": "Font Awesome 5 Free",
+        "color": "var(--black)"
+      }
+    },
+    "iconEnd": {
+      "value": {
+        "name": "chevron-down",
+        "unicode": "f078",
+        "fontFamily": "Font Awesome 5 Free",
+        "color": "var(--black)"
+      }
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "showCartIcon": {
+      "value": true
+    },
+    "showSearchbar": {
+      "value": false
+    }
+  },
+  "map": {
+    "mapScale": {
+      "value": true
+    },
+    "mapMarkerColor": {
+      "value": "var(--red)"
+    },
+    "mapZoom": {
+      "value": 13
+    },
+    "mapType": {
+      "value": "roadmap"
+    },
+    "mapWidth": {
+      "value": 550
+    },
+    "mapHeight": {
+      "value": 300
+    },
+    "newTab": {
+      "value": false
+    }
+  },
+  "svg": {
+    "svgImageActions": {
+      "value": "none"
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    }
+  },
+  "progress-bar": {
+    "percentWidth": {
+      "value": "progress50"
+    },
+    "progressBarSize": {
+      "value": "progressbarSmall"
+    },
+    "offsetColor": {
+      "value": "progressbarOffsetWhite"
+    }
+  },
+  "image-feature": {
+    "inlineTypographies": {
+      "value": []
+    },
+    "imageActions": {
+      "value": "none"
+    },
+    "downloadFile": {
+      "value": {
+        "fileUrl": "",
+        "fileName": ""
+      }
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "featureImageShadow": {
+      "value": "img-shadow-none"
+    },
+    "featureImageEffects": {
+      "value": "img-effects-none"
+    },
+    "icon": {
+      "value": {
+        "name": "",
+        "unicode": "",
+        "fontFamily": ""
+      }
+    },
+    "hideElements": {
+      "value": []
+    },
+    "showElements": {
+      "value": []
+    },
+    "scrollToElement": {
+      "value": ""
+    },
+    "phoneNumber": {
+      "value": ""
+    },
+    "emailAddress": {
+      "value": ""
+    },
+    "stepPath": {
+      "value": ""
+    }
+  },
+  "order-confirmation": {
+    "desktopFontSize": {
+      "value": 20,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 20,
+      "unit": "px"
+    },
+    "subTextDesktopFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "subTextMobileFontSize": {
+      "value": 15,
+      "unit": "px"
+    }
+  },
+  "faq": {
+    "faqType": {
+      "value": "separated"
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "faqCustomOptions": {
+      "value": {
+        "openIcon": {
+          "color": "var(--black)",
+          "fontFamily": "Font Awesome 5 Free",
+          "name": "chevron-down",
+          "unicode": "f078"
+        },
+        "closeIcon": {
+          "color": "var(--black)",
+          "fontFamily": "Font Awesome 5 Free",
+          "name": "chevron-up",
+          "unicode": "f077"
+        },
+        "iconPosition": "right",
+        "lineHeight": "1.5",
+        "showImagePopup": true,
+        "expandAllToggle": false,
+        "expandAll": true,
+        "firstItemOpen": false
+      }
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 12,
+      "unit": "px"
+    }
+  },
+  "blog": {
+    "blogType": {
+      "value": "standard",
+      "column": 2,
+      "layoutStyle": "classic",
+      "postsPerPage": 12,
+      "sortBy": "recent-post",
+      "useSampleData": false
+    },
+    "blogFilter": {
+      "filter": null,
+      "blogId": null,
+      "isDefaultBlog": false,
+      "blogsData": null
+    },
+    "blogCategories": {
+      "value": []
+    },
+    "blogAuthor": {
+      "value": []
+    },
+    "buttonText": {
+      "value": "More stories"
+    },
+    "paginationOverride": {
+      "value": 6,
+      "min": 0
+    },
+    "compression": {
+      "value": true
+    }
+  },
+  "blog-post": {
+    "blogType": {
+      "value": "standard",
+      "column": 2,
+      "layoutStyle": "classic",
+      "postsPerPage": 12,
+      "sortBy": "recent-post",
+      "useSampleData": false
+    },
+    "blogCategories": {
+      "value": []
+    },
+    "blogAuthor": {
+      "value": []
+    },
+    "blogShowOption": {
+      "value": [
+        "image",
+        "author",
+        "tags",
+        "title",
+        "publishDate",
+        "description"
+      ]
+    },
+    "compression": {
+      "value": true
+    },
+    "blog_style": {
+      "post": {
+        "backgroundColor": "#FFFFFFFF"
+      },
+      "image": {
+        "cornerRadius": 13
+      },
+      "tags": {
+        "backgroundColor": "#BA7C7CFF",
+        "paddingLeft": {
+          "unit": "px",
+          "value": 10
+        },
+        "paddingRight": {
+          "unit": "px",
+          "value": 10
+        },
+        "fontColor": "#FFFFFFFF",
+        "fontFamily": "var(--headlinefont)",
+        "textTransform": "capitalize",
+        "fontSize": 14,
+        "paddingBottom": {
+          "unit": "px",
+          "value": 5
+        },
+        "paddingTop": {
+          "unit": "px",
+          "value": 5
+        }
+      },
+      "heading": {
+        "fontColor": "#232222FF",
+        "fontSize": 24,
+        "fontWeight": 100,
+        "fontFamily": "var(--headlinefont)",
+        "textStyle": "bold",
+        "textTransform": "uppercase"
+      },
+      "title": {
+        "fontFamily": "var(--headlinefont)",
+        "fontSize": 16,
+        "fontWeight": 100,
+        "textStyle": "italic",
+        "textTransform": "capitalize"
+      },
+      "author": {
+        "cornerRadius": 22,
+        "fontColor": "#060606FF",
+        "fontFamily": "var(--headlinefont)",
+        "fontWeight": 400
+      },
+      "button": {
+        "backgroundColor": "#FFFFFFFF",
+        "fontFamily": "var(--headlinefont)",
+        "fontSize": 13,
+        "fontWeight": 500,
+        "textTransform": "capitalize"
+      },
+      "description": {
+        "fontFamily": "var(--headlinefont)",
+        "fontWeight": 400,
+        "textTransform": "lowercase"
+      },
+      "publishDate": {
+        "fontFamily": "var(--headlinefont)",
+        "fontWeight": 400
+      }
+    }
+  },
+  "blog-content": {
+    "blogAuthorLayout": {
+      "value": "classic"
+    },
+    "blogContentShowOption": {
+      "value": [
+        "photo",
+        "social",
+        "name",
+        "role",
+        "description"
+      ]
+    },
+    "blogShowTagLinks": {
+      "value": true
+    },
+    "blogContentPostStyle": {
+      "coverImage": {
+        "width": null,
+        "height": null,
+        "showCoverImage": true
+      },
+      "title": {
+        "fontFamily": "var(--headlinefont)",
+        "fontSize": 16,
+        "fontWeight": 100,
+        "textStyle": "italic",
+        "textTransform": "capitalize"
+      },
+      "author": {
+        "enableAuthor": true,
+        "displayType": "icon",
+        "authorLayout": {
+          "value": "classic"
+        }
+      }
+    }
+  },
+  "category-navigation": {
+    "includeSearchBar": {
+      "placeholder": "Search",
+      "value": true
+    },
+    "blogShowHome": {
+      "value": true
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    }
+  },
+  "store-product-list": {
+    "itemsPerPage": {
+      "value": 6
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "enableSorting": {
+      "value": false
+    },
+    "enableFiltering": {
+      "value": false
+    },
+    "sortFilterLayout": {
+      "value": "horizontal"
+    },
+    "addToCart": {
+      "value": false
+    },
+    "filterByAvailability": {
+      "value": true
+    },
+    "filterByPrice": {
+      "value": true
+    },
+    "defaultSortingOption": {
+      "value": "id_desc",
+      "label": ""
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "customText": {
+      "value": {
+        "sortAndFilterSection": {
+          "filterHeadline": "Filter: ",
+          "availabilityFilterText": "Availability",
+          "selectedCountText": "selected",
+          "inStockOptionText": "In Stock",
+          "outOfStockOptionText": "Out of Stock",
+          "resetText": "Reset",
+          "removeAllText": "Remove all",
+          "priceFilterText": "Price",
+          "fromPriceText": "From",
+          "toPriceText": "To",
+          "sortHeadline": "Sort",
+          "featured": "Featured",
+          "dateOldToNew": "Date, Old to New",
+          "dateNewToOld": "Date, New to Old",
+          "alphabeticalAscending": "Alphabetical, A-Z",
+          "alphabeticalDescending": "Alphabetical, Z-A",
+          "priceLowToHigh": "Price, Low to High",
+          "priceHighToLow": "Price, High to Low",
+          "productsCountText": "products",
+          "applyFiltersText": "Apply",
+          "clearFiltersText": "Clear Filters",
+          "horizontal": {
+            "filterHeadline": "Filter: ",
+            "availabilityFilterText": "Availability",
+            "selectedCountText": "selected",
+            "inStockOptionText": "In Stock",
+            "outOfStockOptionText": "Out of Stock",
+            "resetText": "Reset",
+            "removeAllText": "Remove all",
+            "priceFilterText": "Price",
+            "fromPriceText": "From",
+            "toPriceText": "To",
+            "sortHeadline": "Sort",
+            "featured": "Featured",
+            "dateNewToOld": "Date, New to Old",
+            "dateOldToNew": "Date, Old to New",
+            "alphabeticalAscending": "Alphabetical, A-Z",
+            "alphabeticalDescending": "Alphabetical, Z-A",
+            "priceLowToHigh": "Price, Low to High",
+            "priceHighToLow": "Price, High to Low"
+          },
+          "vertical": {
+            "filterAndSortHeadline": "Filter & sort",
+            "availabilityFilterText": "Availability",
+            "selectedCountText": "selected",
+            "inStockOptionText": "In Stock",
+            "outOfStockOptionText": "Out of Stock",
+            "removeAllText": "Remove all",
+            "priceFilterText": "Price",
+            "fromPriceText": "From",
+            "toPriceText": "To",
+            "sortLabelVertical": "Sort by",
+            "featured": "Featured",
+            "dateNewToOld": "Date, New to Old",
+            "dateOldToNew": "Date, Old to New",
+            "alphabeticalAscending": "Alphabetical, A-Z",
+            "alphabeticalDescending": "Alphabetical, Z-A",
+            "priceLowToHigh": "Price, Low to High",
+            "priceHighToLow": "Price, High to Low"
+          }
+        },
+        "productListSection": {
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page",
+          "searchResultsEmptyHeadline": "No results found",
+          "searchResultsEmptySubHeadline": "could not be found. Check the spelling or use a different word or phrase."
+        },
+        "productVariantModal": {
+          "addToCartButtonText": "Add to cart",
+          "chooseOptionsButtonText": "Choose options",
+          "soldOutButtonText": "Sold out"
+        }
+      }
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "desktopColumnGap": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileColumnGap": {
+      "value": 12,
+      "unit": "px"
+    },
+    "desktopRowGap": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileRowGap": {
+      "value": 12,
+      "unit": "px"
+    },
+    "enableWishlisting": {
+      "value": false
+    },
+    "productCardShowSecondImageOnHover": {
+      "value": false
+    },
+    "productCardZoomImageOnHover": {
+      "value": true
+    },
+    "productCardPriceConfiguration": {
+      "value": "minm"
+    },
+    "productCardStartingAtText": {
+      "value": ""
+    }
+  },
+  "store-product-detail": {
+    "desktopMediaWidth": {
+      "value": "medium"
+    },
+    "alignImage": {
+      "value": "left"
+    },
+    "mediaLayout": {
+      "value": "stack-gallery"
+    },
+    "showAddToCartButton": {
+      "value": true
+    },
+    "showBuyNowButton": {
+      "value": false
+    },
+    "showDescription": {
+      "value": true
+    },
+    "showRelatedProducts": {
+      "value": false
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "itemsPerPage": {
+      "value": 6
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "imageZoom": {
+      "value": "noZoom"
+    },
+    "variantsStyling": {
+      "variantPickerStyle": {
+        "value": "dropdown"
+      },
+      "pillColors": {
+        "value": {
+          "selectedText": "#155EEF",
+          "selectedBg": "#EFF4FF",
+          "selectedBorder": "#155EEF",
+          "unselectedText": "#667085",
+          "unselectedBg": "#FFFFFF",
+          "unselectedBorder": "#D0D5DD"
+        }
+      },
+      "dropdownColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      },
+      "labelColor": {
+        "value": "#344054"
+      },
+      "quantityColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      }
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "relatedProductsDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "relatedProductsMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "overrideDescriptionStyles": {
+      "value": false
+    },
+    "descriptionDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "descriptionMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "productDetailSection": {
+          "addToCartButtonText": "Add to cart",
+          "buyNowButtonText": "Buy now",
+          "quantityLabelText": "Quantity",
+          "descriptionShowMoreText": "Show more",
+          "descriptionShowLessText": "Show less",
+          "viewDetailsModalButtonText": "View full details",
+          "relatedProductsHeading": "You may also like"
+        },
+        "reviewsAndRatingsSection": {
+          "oneReviewCountText": "review",
+          "multipleReviewsCountText": "reviews",
+          "reviewsRatingsHeadline": "Customer reviews",
+          "averageRatingText": "Average ratings",
+          "reviewButtonText": "Write a review",
+          "noReviewsText": "Be the first one to review this product",
+          "noReviewsMatchText": "Sorry, no reviews match your current selections.",
+          "tryClearingFiltersText": "Try clearing or changing some filters.",
+          "clearFiltersButtonText": "Clear filters",
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page"
+        },
+        "sortAndFilterSectionReviews": {
+          "dateNewToOld": "Date, New to Old",
+          "dateOldToNew": "Date, Old to New",
+          "ratingLowToHigh": "Rating, Low to High",
+          "ratingHighToLow": "Rating, High to Low",
+          "allStars": "All Stars",
+          "multipleStarsText": "stars",
+          "oneStarText": "star"
+        },
+        "reviewSubmissionSection": {
+          "headline": "Write a review",
+          "overallRatingText": "Overall Rating",
+          "name": "Name",
+          "email": "Email",
+          "contactNumber": "Contact Number",
+          "addAHeadline": "Add a headline",
+          "addADetailedReview": "Add a detailed review",
+          "cancelButtonText": "Cancel",
+          "submitButtonText": "Submit",
+          "reviewSuccessHeadline": "Review submitted successfully!",
+          "reviewSuccessSubHeadline": "Thank you for submitting your review. Your review will be published soon after we approve it.",
+          "closeButtonText": "Close"
+        },
+        "cartDetailsDrawer": {
+          "itemsAddedHeadline": "item(s) added",
+          "viewCartButtonText": "View Cart",
+          "continueShopping": "Continue Shopping",
+          "cartEmptyHeadline": "Your Cart is empty",
+          "cartEmptySubHeadline": "Add items to your cart to continue shopping",
+          "outOfStockText": "Out of Stock"
+        }
+      }
+    },
+    "enableWishlisting": {
+      "value": false
+    }
+  },
+  "store-cart": {
+    "featureHeadlineDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "headline": "My cart",
+        "subtotalColumnHeading": "Subtotal",
+        "totalColumnHeading": "Total",
+        "checkoutButtonText": "Checkout",
+        "emptyCartText": "Your Cart is empty",
+        "continueShopping": "Continue Shopping"
+      }
+    }
+  },
+  "upsell": {
+    "variantsStyling": {
+      "variantPickerStyle": {
+        "value": "dropdown"
+      },
+      "pillColors": {
+        "value": {
+          "selectedText": "#155EEF",
+          "selectedBg": "#EFF4FF",
+          "selectedBorder": "#155EEF",
+          "unselectedText": "#667085",
+          "unselectedBg": "#FFFFFF",
+          "unselectedBorder": "#D0D5DD"
+        }
+      },
+      "dropdownColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      },
+      "labelColor": {
+        "value": "#344054"
+      },
+      "quantityColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      }
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "enableShipping": {
+      "value": true
+    },
+    "saleAction": {
+      "value": "go-to-next-funnel-step"
+    },
+    "customText": {
+      "value": {
+        "priceColumnHeading": "Price",
+        "quantityColumnHeading": "Quantity",
+        "shippingHeading": "Shipping",
+        "totalColumnHeading": "Total",
+        "subtotalColumnHeading": "Subtotal",
+        "pickupChargesHeading": "Pickup charges",
+        "pickupTaxesHeading": "Pickup taxes",
+        "buyNowButtonText": "Buy now"
+      }
+    },
+    "stepPath": {
+      "value": ""
+    }
+  },
+  "collection-list": {
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 32,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "productCardShowSecondImageOnHover": {
+      "value": false
+    },
+    "productCardZoomImageOnHover": {
+      "value": true
+    },
+    "productCardPriceConfiguration": {
+      "value": "minm"
+    },
+    "productCardStartingAtText": {
+      "value": ""
+    }
+  },
+  "featured-products": {
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 32,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "productNameDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "productNameMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "enableWishlisting": {
+      "value": false
+    },
+    "productCardShowSecondImageOnHover": {
+      "value": false
+    },
+    "productCardZoomImageOnHover": {
+      "value": true
+    },
+    "productCardPriceConfiguration": {
+      "value": "minm"
+    },
+    "productCardStartingAtText": {
+      "value": ""
+    },
+    "addToCart": {
+      "value": false
+    },
+    "customText": {
+      "value": {
+        "productVariantModal": {
+          "addToCartButtonText": "Add to cart",
+          "chooseOptionsButtonText": "Choose options",
+          "soldOutButtonText": "Sold out"
+        }
+      }
+    }
+  },
+  "store-checkout": {
+    "manageShipping": {
+      "value": ""
+    },
+    "step1": {
+      "value": {
+        "checkoutLayout": "oneStep",
+        "showShipping": true,
+        "btnIcon": "fas fa-shopping-cart",
+        "enablePostalCode": false,
+        "enableCountryPicker": false,
+        "enableCouponCodes": true,
+        "enableBillingAddress": true,
+        "enableNote": true,
+        "shipToCountries": "all",
+        "countryList": [],
+        "defaultLocation": "none",
+        "fieldOptions": {
+          "phoneNumber": "mandatory",
+          "address": "mandatory",
+          "country": "mandatory",
+          "stateProvince": "mandatory",
+          "city": "mandatory",
+          "zipPostalCode": "mandatory"
+        },
+        "enableAutoCompleteAddress": false
+      }
+    },
+    "enableCouponCodes": {
+      "value": true
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "stickyContact": {
+      "value": false
+    },
+    "forceContactCreate": {
+      "value": false
+    },
+    "validateEmail": {
+      "value": false
+    },
+    "saleAction": {
+      "value": "go-to-next-funnel-step"
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "customText": {
+      "value": {
+        "breadcrumbSection": {
+          "step1Label": "Contact & shipping",
+          "step2Label": "Payment",
+          "continueToPaymentText": "Continue to payment",
+          "returnToContactShippingText": "Return to contact & shipping"
+        },
+        "contactDetailsSection": {
+          "headline": "Contact",
+          "email": "Email Address"
+        },
+        "shippingDetailsSection": {
+          "headline": "Shipping Details",
+          "fullName": "Full Name",
+          "phoneNumber": "Phone Number",
+          "searchBoxPlaceholder": "Search your address",
+          "fullAddress": "Full Address",
+          "country": "Country",
+          "state": "State / Province",
+          "cityName": "City Name",
+          "zipCode": "Zip Code",
+          "notesHeadingLabelText": "Add notes to your order",
+          "notesTextBoxPlaceholder": "Add notes about your order or special notes for delivery",
+          "shippingMethodsHeadline": "Shipping methods",
+          "freeShippingLabelText": "FREE",
+          "shipToHeadline": "Ship to",
+          "useDifferentAddressLink": "Use a different address",
+          "enterNewAddressLink": "Enter a new address"
+        },
+        "billingDetailsSection": {
+          "headline": "Billing Details",
+          "checkboxText": "Billing address same as shipping address",
+          "billToHeadline": "Bill to"
+        },
+        "savedAddressCard": {
+          "defaultPillText": "Default",
+          "useSavedAddressInsteadLink": "Use a saved address instead",
+          "saveAddressCheckboxLabel": "Save this address to my account",
+          "setAsDefaultLinkLabel": "Set as default",
+          "signInNudgeLabel": "Log in to use your saved addresses",
+          "savedAddressDropdownPlaceholder": "Select a saved address",
+          "editAddressMenuItem": "Edit",
+          "unavailableAddressNote": "Not available for this store",
+          "noShippableAddressesNote": "This store does not ship to any of your saved addresses. Enter a new address to continue."
+        },
+        "paymentSection": {
+          "headline": "Payment",
+          "checkoutButtonText": "Continue",
+          "footerText": " * 100% Secure & Safe Payments *"
+        },
+        "deliverySection": {
+          "headline": "Delivery",
+          "shipOption": "Ship",
+          "pickupOption": "Pickup in store",
+          "storeLocationsHeadline": "Store locations",
+          "storeLocationsSubtext": "store(s) with stock close to your location",
+          "showMoreLocationsText": "Show more locations",
+          "hideLocationsText": "Hide locations"
+        },
+        "cartSummarySection": {
+          "headline": "Cart Summary",
+          "editCartButtonText": "Edit Cart",
+          "quantityColumnHeading": "Qty",
+          "couponHeadline": "Coupon",
+          "couponCodePlaceholder": "Enter Coupon Code",
+          "applyCouponButtonText": "Apply",
+          "subtotalColumnHeading": "Subtotal",
+          "discountHeading": "Discount (coupon)",
+          "removeCouponButtonText": "Remove",
+          "shippingHeading": "Shipping",
+          "taxesHeading": "Taxes",
+          "pickupChargesHeading": "Pickup charges",
+          "pickupTaxesHeading": "Pickup taxes",
+          "totalColumnHeading": "Total",
+          "shippingTaxHeading": "Shipping tax"
+        }
+      }
+    }
+  },
+  "store-thank-you": {
+    "downloadDigitalProducts": {
+      "value": true
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 26,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 20,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "thankYouSection": {
+          "headline": "Thank you",
+          "subHeadline": "You'll receive a confirmation email for your order",
+          "shippingAddressHeadline": "Shipping address",
+          "billingAddressHeadline": "Billing address",
+          "pickupAddressHeadline": "Pickup details",
+          "continueShopping": "Continue Shopping"
+        },
+        "summaryTableSection": {
+          "itemColumnHeading": "Item",
+          "priceColumnHeading": "Price",
+          "quantityColumnHeading": "Qty",
+          "subtotalColumnHeading": "Subtotal",
+          "discountHeading": "Discount (coupon)",
+          "shippingHeading": "Shipping",
+          "pickupChargesText": "Pickup charges (including taxes)",
+          "freeShippingLabelText": "FREE",
+          "totalColumnHeading": "Total"
+        },
+        "downloadButton": {
+          "buttonName": "Download",
+          "accessURL": "Access URL"
+        }
+      }
+    }
+  },
+  "social-icons": {
+    "displayType": {
+      "value": "icon"
+    },
+    "theme": {
+      "value": "square"
+    },
+    "align": {
+      "value": "center"
+    },
+    "iconSize": {
+      "value": {
+        "height": 40,
+        "width": 40
+      }
+    }
+  },
+  "image-slider": {
+    "sliderSize": {
+      "value": {
+        "height": 600
+      }
+    },
+    "sliderPagination": {
+      "value": {
+        "enable": true,
+        "style": "circle",
+        "activeColor": "#FFFFFF",
+        "inActiveColor": "#000000",
+        "size": 10
+      }
+    },
+    "sliderArrow": {
+      "value": {
+        "enable": true,
+        "color": "#FFFFFF",
+        "animationEffect": "none"
+      }
+    },
+    "sliderAnimation": {
+      "value": {
+        "animationEffect": "slide",
+        "autoAnimationEnable": true,
+        "interval": 5,
+        "infiniteLoop": true,
+        "pauseOnHover": true
+      }
+    }
+  },
+  "searchbar": {
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    }
+  },
+  "photo-video-gallery": {
+    "galleryHeading": {
+      "value": {
+        "headingText": "",
+        "activeColor": "#000",
+        "fontSize": 40
+      }
+    },
+    "galleryInfo": {
+      "value": {
+        "overlayColor": "#ffffff00",
+        "textColor": "#000000",
+        "toggleTitle": false,
+        "toggleDescription": false,
+        "titleFontsize": 20,
+        "descriptionFontsize": 16
+      }
+    },
+    "galleryLayout": {
+      "value": {
+        "layout": "grid",
+        "columns": 4,
+        "spacing": 0
+      }
+    },
+    "gallerySettings": {
+      "value": {
+        "clickAction": "nothing",
+        "showTitle": false,
+        "showDescription": false
+      }
+    },
+    "galleryWatermark": {
+      "value": {
+        "type": "logo",
+        "text": "",
+        "position": "Top Left",
+        "fontSize": 10
+      }
+    }
+  },
+  "web-widget": {
+    "webWidgetState": {
+      "show": false
+    }
+  },
+  "social-share-blog": {
+    "socialShareOption": {
+      "value": [
+        "mail",
+        "facebook",
+        "linkedin",
+        "twitter",
+        "pinterest"
+      ]
+    },
+    "socialShareStyle": {
+      "socialIcon": {
+        "cornerRadius": 0,
+        "displayType": "icon",
+        "iconStyle": "sqaure",
+        "iconAlign": "center",
+        "fontColor": "#000000",
+        "fontSize": 12,
+        "fontWeight": 300,
+        "fontFamily": "var(--headlinefont)",
+        "textStyle": "bold",
+        "textTransform": "capitalize"
+      },
+      "labelText": {
+        "text": "Share This",
+        "fontColor": "#000000",
+        "fontSize": 16,
+        "fontWeight": 300,
+        "fontFamily": "var(--headlinefont)",
+        "textStyle": "bold",
+        "textTransform": "capitalize"
+      },
+      "background": {
+        "selectedOption": "color",
+        "bgColor": "#ffffff",
+        "bgImage": ""
+      },
+      "highlightedShare": {
+        "bgColor": "#101828"
+      }
+    }
+  },
+  "blog-pined-post": {
+    "blogPinedPost": {
+      "value": null
+    },
+    "blogPinedLayout": {
+      "value": "imageOnLeft"
+    },
+    "blogPinedOption": {
+      "value": [
+        "image",
+        "author",
+        "tags",
+        "title",
+        "publishDate",
+        "description",
+        "button"
+      ]
+    },
+    "blogPinedPostStyle": {
+      "title": {
+        "fontFamily": "var(--headlinefont)",
+        "fontSize": 32,
+        "fontWeight": 700,
+        "textStyle": "none",
+        "textTransform": "capitalize"
+      },
+      "description": {
+        "fontFamily": "var(--headlinefont)",
+        "fontWeight": 400,
+        "fontSize": 18,
+        "textTransform": "none",
+        "textStyle": "none"
+      },
+      "publishDate": {
+        "fontSize": 12,
+        "fontFamily": "var(--headlinefont)",
+        "fontWeight": 400,
+        "paddingLeft": {
+          "unit": "px",
+          "value": 10
+        }
+      },
+      "button": {
+        "backgroundColor": "#FFFFFFFF",
+        "fontFamily": "var(--headlinefont)",
+        "fontSize": 16,
+        "fontWeight": 500,
+        "textTransform": "capitalize",
+        "paddingBottom": {
+          "unit": "px",
+          "value": 5
+        },
+        "paddingTop": {
+          "unit": "px",
+          "value": 5
+        },
+        "buttonText": "Read More"
+      },
+      "author": {
+        "cornerRadius": 22,
+        "fontSize": 12,
+        "fontColor": "#060606FF",
+        "fontFamily": "var(--headlinefont)",
+        "fontWeight": 400
+      },
+      "tags": {
+        "backgroundColor": "#D1FADF",
+        "paddingLeft": {
+          "unit": "px",
+          "value": 10
+        },
+        "paddingRight": {
+          "unit": "px",
+          "value": 10
+        },
+        "fontColor": "#060606FF",
+        "fontFamily": "var(--headlinefont)",
+        "textTransform": "capitalize",
+        "fontSize": 14,
+        "paddingBottom": {
+          "unit": "px",
+          "value": 5
+        },
+        "paddingTop": {
+          "unit": "px",
+          "value": 5
+        }
+      }
+    }
+  },
+  "blog-subscribe-form": {
+    "blogSubscribeLayout": {
+      "value": "iconOnRight"
+    },
+    "blogSubscribeOption": {
+      "value": [
+        "icon",
+        "title",
+        "description"
+      ],
+      "backgroundColor": "#344054"
+    },
+    "blogSubscribeFormStyle": {
+      "title": {
+        "text": "Subscribe to our Mailing List",
+        "fontColor": "#ffffff",
+        "fontFamily": "var(--headlinefont)",
+        "fontSize": 24,
+        "fontWeight": "600",
+        "textAlign": "left"
+      },
+      "description": {
+        "text": "And that's just a peek at what we offer. Get more marketing tips straight to your inbox.",
+        "fontColor": "#ffffff",
+        "fontFamily": "var(--headlinefont)",
+        "fontSize": 16,
+        "fontWeight": "400",
+        "textAlign": "left",
+        "marginBottom": {
+          "unit": "px",
+          "value": 20
+        }
+      },
+      "button": {
+        "buttonText": "Subscribe Now!",
+        "fontColor": "#ffffff",
+        "backgroundColor": "#2970FF",
+        "fontFamily": "var(--headlinefont)",
+        "fontSize": 16,
+        "fontWeight": "600",
+        "borderRadius": 12,
+        "paddingBottom": {
+          "unit": "px",
+          "value": 10
+        },
+        "paddingTop": {
+          "unit": "px",
+          "value": 10
+        },
+        "paddingLeft": {
+          "unit": "px",
+          "value": 28
+        },
+        "paddingRight": {
+          "unit": "px",
+          "value": 28
+        }
+      },
+      "form": {
+        "fontFamily": "var(--headlinefont)",
+        "fontSize": 16,
+        "fontWeight": "400",
+        "textAlign": "left",
+        "placeholder": "Enter your Email...",
+        "fontColor": "#333333",
+        "borderRadius": 12,
+        "paddingBottom": {
+          "unit": "px",
+          "value": 16
+        },
+        "paddingTop": {
+          "unit": "px",
+          "value": 16
+        },
+        "paddingLeft": {
+          "unit": "px",
+          "value": 20
+        },
+        "paddingRight": {
+          "unit": "px",
+          "value": 20
+        }
+      },
+      "background": {
+        "selectedOption": "color",
+        "bgColor": "#475467",
+        "bgImage": ""
+      }
+    }
+  },
+  "featured-product": {
+    "desktopMediaWidth": {
+      "value": "medium"
+    },
+    "alignImage": {
+      "value": "left"
+    },
+    "mediaLayout": {
+      "value": "stack-gallery"
+    },
+    "showAddToCartButton": {
+      "value": true
+    },
+    "showBuyNowButton": {
+      "value": false
+    },
+    "showDescription": {
+      "value": true
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "imageZoom": {
+      "value": "noZoom"
+    },
+    "variantsStyling": {
+      "variantPickerStyle": {
+        "value": "dropdown"
+      },
+      "pillColors": {
+        "value": {
+          "selectedText": "#155EEF",
+          "selectedBg": "#EFF4FF",
+          "selectedBorder": "#155EEF",
+          "unselectedText": "#667085",
+          "unselectedBg": "#FFFFFF",
+          "unselectedBorder": "#D0D5DD"
+        }
+      },
+      "dropdownColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      },
+      "labelColor": {
+        "value": "#344054"
+      },
+      "quantityColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      }
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "overrideDescriptionStyles": {
+      "value": false
+    },
+    "descriptionDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "descriptionMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "productDetailSection": {
+          "addToCartButtonText": "Add to cart",
+          "buyNowButtonText": "Buy now",
+          "quantityLabelText": "Quantity",
+          "descriptionShowMoreText": "Show more",
+          "descriptionShowLessText": "Show less",
+          "viewDetailsModalButtonText": "View full details"
+        },
+        "reviewsAndRatingsSection": {
+          "oneReviewCountText": "review",
+          "multipleReviewsCountText": "reviews",
+          "reviewsRatingsHeadline": "Customer reviews",
+          "averageRatingText": "Average ratings",
+          "reviewButtonText": "Write a review",
+          "noReviewsText": "Be the first one to review this product",
+          "noReviewsMatchText": "Sorry, no reviews match your current selections.",
+          "tryClearingFiltersText": "Try clearing or changing some filters.",
+          "clearFiltersButtonText": "Clear filters",
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page"
+        },
+        "sortAndFilterSectionReviews": {
+          "dateNewToOld": "Date, New to Old",
+          "dateOldToNew": "Date, Old to New",
+          "ratingLowToHigh": "Rating, Low to High",
+          "ratingHighToLow": "Rating, High to Low",
+          "allStars": "All Stars",
+          "multipleStarsText": "stars",
+          "oneStarText": "star"
+        },
+        "reviewSubmissionSection": {
+          "headline": "Write a review",
+          "overallRatingText": "Overall Rating",
+          "name": "Name",
+          "email": "Email",
+          "contactNumber": "Contact Number",
+          "addAHeadline": "Add a headline",
+          "addADetailedReview": "Add a detailed review",
+          "cancelButtonText": "Cancel",
+          "submitButtonText": "Submit",
+          "reviewSuccessHeadline": "Review submitted successfully!",
+          "reviewSuccessSubHeadline": "Thank you for submitting your review. Your review will be published soon after we approve it.",
+          "closeButtonText": "Close"
+        },
+        "cartDetailsDrawer": {
+          "itemsAddedHeadline": "item(s) added",
+          "viewCartButtonText": "View Cart",
+          "continueShopping": "Continue Shopping",
+          "cartEmptyHeadline": "Your Cart is empty",
+          "cartEmptySubHeadline": "Add items to your cart to continue shopping",
+          "outOfStockText": "Out of Stock"
+        }
+      }
+    },
+    "enableWishlisting": {
+      "value": false
+    }
+  },
+  "store-custom-product-detail": {
+    "desktopMediaWidth": {
+      "value": "medium"
+    },
+    "alignImage": {
+      "value": "left"
+    },
+    "mediaLayout": {
+      "value": "stack-gallery"
+    },
+    "showAddToCartButton": {
+      "value": true
+    },
+    "showBuyNowButton": {
+      "value": false
+    },
+    "showDescription": {
+      "value": true
+    },
+    "showRelatedProducts": {
+      "value": false
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "itemsPerPage": {
+      "value": 6
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "imageZoom": {
+      "value": "noZoom"
+    },
+    "variantsStyling": {
+      "variantPickerStyle": {
+        "value": "dropdown"
+      },
+      "pillColors": {
+        "value": {
+          "selectedText": "#155EEF",
+          "selectedBg": "#EFF4FF",
+          "selectedBorder": "#155EEF",
+          "unselectedText": "#667085",
+          "unselectedBg": "#FFFFFF",
+          "unselectedBorder": "#D0D5DD"
+        }
+      },
+      "dropdownColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      },
+      "labelColor": {
+        "value": "#344054"
+      },
+      "quantityColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      }
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "relatedProductsDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "relatedProductsMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "overrideDescriptionStyles": {
+      "value": false
+    },
+    "descriptionDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "descriptionMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "productDetailSection": {
+          "addToCartButtonText": "Add to cart",
+          "buyNowButtonText": "Buy now",
+          "quantityLabelText": "Quantity",
+          "descriptionShowMoreText": "Show more",
+          "descriptionShowLessText": "Show less",
+          "viewDetailsModalButtonText": "View full details",
+          "relatedProductsHeading": "You may also like"
+        },
+        "reviewsAndRatingsSection": {
+          "oneReviewCountText": "review",
+          "multipleReviewsCountText": "reviews",
+          "reviewsRatingsHeadline": "Customer reviews",
+          "averageRatingText": "Average ratings",
+          "reviewButtonText": "Write a review",
+          "noReviewsText": "Be the first one to review this product",
+          "noReviewsMatchText": "Sorry, no reviews match your current selections.",
+          "tryClearingFiltersText": "Try clearing or changing some filters.",
+          "clearFiltersButtonText": "Clear filters",
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page"
+        },
+        "sortAndFilterSectionReviews": {
+          "dateNewToOld": "Date, New to Old",
+          "dateOldToNew": "Date, Old to New",
+          "ratingLowToHigh": "Rating, Low to High",
+          "ratingHighToLow": "Rating, High to Low",
+          "allStars": "All Stars",
+          "multipleStarsText": "stars",
+          "oneStarText": "star"
+        },
+        "reviewSubmissionSection": {
+          "headline": "Write a review",
+          "overallRatingText": "Overall Rating",
+          "name": "Name",
+          "email": "Email",
+          "contactNumber": "Contact Number",
+          "addAHeadline": "Add a headline",
+          "addADetailedReview": "Add a detailed review",
+          "cancelButtonText": "Cancel",
+          "submitButtonText": "Submit",
+          "reviewSuccessHeadline": "Review submitted successfully!",
+          "reviewSuccessSubHeadline": "Thank you for submitting your review. Your review will be published soon after we approve it.",
+          "closeButtonText": "Close"
+        },
+        "cartDetailsDrawer": {
+          "itemsAddedHeadline": "item(s) added",
+          "viewCartButtonText": "View Cart",
+          "continueShopping": "Continue Shopping",
+          "cartEmptyHeadline": "Your Cart is empty",
+          "cartEmptySubHeadline": "Add items to your cart to continue shopping",
+          "outOfStockText": "Out of Stock"
+        }
+      }
+    },
+    "enableWishlisting": {
+      "value": false
+    }
+  },
+  "number-counter": {
+    "counterColumnGap": {
+      "value": 32,
+      "unit": "px"
+    },
+    "counterMobileColumnGap": {
+      "value": 24,
+      "unit": "px"
+    },
+    "counterDesktopColumns": {
+      "value": 1
+    },
+    "counterMobileColumns": {
+      "value": 1
+    },
+    "counterImageDesktopSize": {
+      "value": 32,
+      "unit": "px"
+    },
+    "counterImageMobileSize": {
+      "value": 28,
+      "unit": "px"
+    },
+    "counterDuration": {
+      "value": 2e3
+    },
+    "inlineTypographies": {
+      "value": []
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 36,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "counterNumberFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "counterCaptionFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "counterShowAnimationOnce": {
+      "value": false
+    }
+  },
+  "logo-showcase": {
+    "logoShowcaseMode": {
+      "value": "ticker"
+    },
+    "imagesPerSlide": {
+      "value": 3
+    },
+    "sliderPagination": {
+      "value": {
+        "enable": true,
+        "style": "circle",
+        "activeColor": "#9CA3AF",
+        "inActiveColor": "#E5E7EB",
+        "size": 10
+      }
+    },
+    "sliderArrow": {
+      "value": {
+        "enable": true,
+        "color": "#000000",
+        "animationEffect": "none"
+      }
+    },
+    "sliderAnimation": {
+      "value": {
+        "animationEffect": "slide",
+        "autoAnimationEnable": true,
+        "interval": 5,
+        "infiniteLoop": true,
+        "pauseOnHover": true
+      }
+    },
+    "tickerSpeed": {
+      "value": 3
+    },
+    "pauseOnHover": {
+      "value": true
+    },
+    "logoSpacing": {
+      "value": 77,
+      "unit": "px"
+    }
+  },
+  "pricing-table": {
+    "pricingTableLayout": {
+      "value": "grid"
+    },
+    "pricingTableGap": {
+      "value": 20,
+      "unit": "px"
+    },
+    "pricingTableNumberOfColumns": {
+      "value": 3
+    },
+    "pricingTableImageDesktopSize": {
+      "value": 48,
+      "unit": "px"
+    },
+    "pricingTableImageMobileSize": {
+      "value": 40,
+      "unit": "px"
+    },
+    "pricingTableTitleDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "pricingTableTitleMobileFontSize": {
+      "value": 20,
+      "unit": "px"
+    },
+    "pricingTableTitleCaptionDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "pricingTableTitleCaptionMobileFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "pricingTableHighlightLabelDesktopFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "pricingTableHighlightLabelMobileFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "pricingTableButtonTextDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "pricingTableButtonTextMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "pricingTableButtonCaptionDesktopFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "pricingTableButtonCaptionMobileFontSize": {
+      "value": 11,
+      "unit": "px"
+    },
+    "pricingTableFeaturesDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "pricingTableFeaturesMobileFontSize": {
+      "value": 13,
+      "unit": "px"
+    },
+    "pricingTablePriceDesktopFontSize": {
+      "value": 40,
+      "unit": "px"
+    },
+    "pricingTablePriceMobileFontSize": {
+      "value": 28,
+      "unit": "px"
+    },
+    "pricingTableDiscountDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "pricingTableDiscountMobileFontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "pricingTableStrikeOffDesktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "pricingTableStrikeOffMobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "sliderPagination": {
+      "value": {
+        "enable": true,
+        "style": "circle",
+        "activeColor": "#8d38ff",
+        "inActiveColor": "#E5E7EB",
+        "size": 10
+      }
+    },
+    "sliderArrow": {
+      "value": {
+        "enable": true,
+        "color": "#8d38ff",
+        "animationEffect": "none"
+      }
+    },
+    "sliderAnimation": {
+      "value": {
+        "animationEffect": "slide",
+        "autoAnimationEnable": true,
+        "interval": 5,
+        "infiniteLoop": true,
+        "pauseOnHover": true
+      }
+    },
+    "pricingTableColumns": {
+      "value": [
+        {
+          "id": "dQIbp",
+          "title": "<h3>Basic</h3>",
+          "caption": "Perfect for individuals",
+          "highlightLabel": "",
+          "featured": false,
+          "active": true,
+          "showTitle": true,
+          "showCaption": true,
+          "features": [
+            {
+              "id": "xuBSd",
+              "text": "Basic Feature 1",
+              "active": true
+            },
+            {
+              "id": "__TuL",
+              "text": "Basic Feature 2",
+              "active": false
+            },
+            {
+              "id": "AtgDN",
+              "text": "Basic Feature 3",
+              "active": false
+            }
+          ],
+          "price": {
+            "pricingModel": "fixed",
+            "currency": "USD",
+            "currencySymbol": "$",
+            "value": "9",
+            "period": "month",
+            "minPrice": "0",
+            "maxPrice": "100",
+            "unitType": "item",
+            "customText": ""
+          },
+          "button": {
+            "text": "Get Started",
+            "caption": "",
+            "action": "none",
+            "actionData": {},
+            "showButton": true,
+            "showButtonCaption": false
+          },
+          "image": "",
+          "showDiscountText": false
+        },
+        {
+          "id": "l68xK",
+          "title": "<h3>Pro</h3>",
+          "caption": "Best for small teams",
+          "highlightLabel": "Most Popular",
+          "featured": true,
+          "active": false,
+          "showTitle": true,
+          "showCaption": true,
+          "features": [
+            {
+              "id": "q52Zl",
+              "text": "Pro Feature 1",
+              "active": false
+            },
+            {
+              "id": "Gcp17",
+              "text": "Pro Feature 2",
+              "active": false
+            },
+            {
+              "id": "xBwc6",
+              "text": "Pro Feature 3",
+              "active": false
+            },
+            {
+              "id": "MXJ18",
+              "text": "Pro Feature 4",
+              "active": false
+            }
+          ],
+          "price": {
+            "pricingModel": "fixed",
+            "currency": "USD",
+            "currencySymbol": "$",
+            "value": "29",
+            "period": "month",
+            "minPrice": "0",
+            "maxPrice": "100",
+            "unitType": "item",
+            "customText": ""
+          },
+          "button": {
+            "text": "Choose Pro",
+            "caption": "",
+            "action": "none",
+            "actionData": {},
+            "showButton": true,
+            "showButtonCaption": false
+          },
+          "image": "",
+          "showDiscountText": false
+        },
+        {
+          "id": "8NXfS",
+          "title": "<h3>Enterprise</h3>",
+          "caption": "For large organizations",
+          "highlightLabel": "",
+          "featured": false,
+          "active": false,
+          "showTitle": true,
+          "showCaption": true,
+          "features": [
+            {
+              "id": "FuKKR",
+              "text": "Enterprise Feature 1",
+              "active": false
+            },
+            {
+              "id": "gaNc8",
+              "text": "Enterprise Feature 2",
+              "active": false
+            },
+            {
+              "id": "lKvzJ",
+              "text": "Enterprise Feature 3",
+              "active": false
+            },
+            {
+              "id": "rDCfd",
+              "text": "Enterprise Feature 4",
+              "active": false
+            },
+            {
+              "id": "HlS9r",
+              "text": "Enterprise Feature 5",
+              "active": false
+            }
+          ],
+          "price": {
+            "pricingModel": "fixed",
+            "currency": "USD",
+            "currencySymbol": "$",
+            "value": "99",
+            "period": "month",
+            "minPrice": "0",
+            "maxPrice": "100",
+            "unitType": "item",
+            "customText": ""
+          },
+          "button": {
+            "text": "Contact Sales",
+            "caption": "",
+            "action": "none",
+            "actionData": {},
+            "showButton": true,
+            "showButtonCaption": false
+          },
+          "image": "",
+          "showDiscountText": false
+        }
+      ]
+    },
+    "showHeadColumnTitle": {
+      "value": true
+    },
+    "showHeadColumnSubtitle": {
+      "value": true
+    }
+  },
+  "testimonial": {
+    "testimonialSettings": {
+      "value": {
+        "showProfilePic": true,
+        "showStarRating": true,
+        "showName": true,
+        "showDate": false,
+        "showCaption": true,
+        "showLogo": true
+      }
+    },
+    "testimonialLayout": {
+      "value": {
+        "layout": "carousel",
+        "columns": 3,
+        "spacing": 10
+      }
+    },
+    "testimonialCardStyle": {
+      "value": {
+        "style": "default",
+        "cornerRadius": {
+          "value": 8,
+          "unit": "px"
+        },
+        "ratingSize": {
+          "value": 16,
+          "unit": "px"
+        },
+        "contentFontSize": {
+          "value": 16,
+          "unit": "px"
+        },
+        "authorFontSize": {
+          "value": 14,
+          "unit": "px"
+        },
+        "contentFontStyle": "italic",
+        "contentFontFamily": "var(--contentfont)",
+        "authorFontFamily": "var(--contentfont)"
+      }
+    },
+    "sliderAnimation": {
+      "value": {
+        "animationEffect": "slide",
+        "autoAnimationEnable": true,
+        "interval": 3,
+        "infiniteLoop": true,
+        "pauseOnHover": true
+      }
+    },
+    "sliderArrow": {
+      "value": {
+        "enable": true,
+        "color": "#000000",
+        "animationEffect": "none"
+      }
+    },
+    "sliderPagination": {
+      "value": {
+        "enable": true,
+        "style": "circle",
+        "activeColor": "#9CA3AF",
+        "inActiveColor": "#E5E7EB",
+        "size": 10
+      }
+    }
+  },
+  "instagram-feed": {
+    "igAccountId": {
+      "value": ""
+    },
+    "oldId": {
+      "value": ""
+    },
+    "profileId": {
+      "value": ""
+    },
+    "igGeneralSource": {
+      "value": true
+    },
+    "igGeneralLayout": {
+      "value": true
+    },
+    "igPostStyleGroup": {
+      "value": true
+    },
+    "igPostElements": {
+      "value": true
+    },
+    "igPostAdvanced": {
+      "value": true
+    },
+    "igStyleColorScheme": {
+      "value": true
+    },
+    "igStyleCustomize": {
+      "value": true
+    }
+  },
+  "store-pdp-v2-title": {
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-price": {
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-images": {
+    "mediaLayout": {
+      "value": "stack-gallery"
+    },
+    "imageZoom": {
+      "value": "noZoom"
+    },
+    "enableWishlisting": {
+      "value": false
+    }
+  },
+  "store-pdp-v2-variants": {
+    "variantsStyling": {
+      "variantPickerStyle": {
+        "value": "dropdown"
+      },
+      "pillColors": {
+        "value": {
+          "selectedText": "#155EEF",
+          "selectedBg": "#EFF4FF",
+          "selectedBorder": "#155EEF",
+          "unselectedText": "#667085",
+          "unselectedBg": "#FFFFFF",
+          "unselectedBorder": "#D0D5DD"
+        }
+      },
+      "dropdownColors": {
+        "value": {
+          "text": "#101828",
+          "background": "#FFFFFF",
+          "border": "#D0D5DD"
+        }
+      },
+      "labelColor": {
+        "value": "#344054"
+      }
+    }
+  },
+  "store-pdp-v2-quantity": {
+    "quantityLabelText": {
+      "value": "Quantity"
+    }
+  },
+  "store-pdp-v2-add-to-cart": {
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "itemsAddedHeadline": {
+      "value": "item(s) added"
+    },
+    "viewCartButtonText": {
+      "value": "View Cart"
+    },
+    "continueShopping": {
+      "value": "Continue Shopping"
+    },
+    "cartEmptyHeadline": {
+      "value": "Your Cart is empty"
+    },
+    "cartEmptySubHeadline": {
+      "value": "Add items to your cart to continue shopping"
+    },
+    "outOfStockText": {
+      "value": "Out of Stock"
+    },
+    "viewDetailsModalButtonText": {
+      "value": "View full details"
+    },
+    "viewCartButtonColor": {
+      "value": "var(--secondary)"
+    },
+    "viewCartButtonTextColor": {
+      "value": "var(--white)"
+    },
+    "continueShoppingTextColor": {
+      "value": "#188bf6"
+    },
+    "drawerHeadlineColor": {
+      "value": "#101828"
+    },
+    "drawerProductTitleColor": {
+      "value": "#188bf6"
+    },
+    "drawerItemTextColor": {
+      "value": "#101828"
+    },
+    "drawerPriceColor": {
+      "value": "#101828"
+    },
+    "drawerHeadlineFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "drawerHeadlineFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "drawerProductTitleFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "drawerProductTitleFontFamily": {
+      "value": "var(--contentfont)"
+    }
+  },
+  "store-pdp-v2-buy-now": {
+    "desktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-review-stars": {
+    "showRatingsCount": {
+      "value": true
+    },
+    "reviewStarsDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "singleReviewCountText": {
+      "value": "review"
+    },
+    "multipleReviewCountText": {
+      "value": "reviews"
+    }
+  },
+  "store-pdp-v2-description": {
+    "descriptionDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "descriptionMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "descriptionShowMoreText": {
+      "value": "Show more"
+    },
+    "descriptionShowLessText": {
+      "value": "Show less"
+    }
+  },
+  "store-pdp-v2-related-products": {
+    "relatedProductsHeadingText": {
+      "value": "You may also like"
+    },
+    "showReviewsAndRatings": {
+      "value": false
+    },
+    "showRatingsCount": {
+      "value": true
+    },
+    "reviewStarsDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "reviewStarsMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "itemsPerPage": {
+      "value": 6
+    },
+    "desktopColumns": {
+      "value": 3
+    },
+    "mobileColumns": {
+      "value": 2
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 18,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "relatedProductsDesktopFontSize": {
+      "value": 24,
+      "unit": "px"
+    },
+    "relatedProductsMobileFontSize": {
+      "value": 18,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-reviews": {
+    "customText": {
+      "value": {
+        "reviewsAndRatingsSection": {
+          "reviewsRatingsHeadline": "Customer reviews",
+          "averageRatingText": "Average ratings",
+          "reviewButtonText": "Write a review",
+          "noReviewsText": "Be the first one to review this product",
+          "noReviewsMatchText": "Sorry, no reviews match your current selections.",
+          "tryClearingFiltersText": "Try clearing or changing some filters.",
+          "clearFiltersButtonText": "Clear filters",
+          "previousButtonText": "Previous",
+          "nextButtonText": "Next",
+          "paginationText": "Page"
+        },
+        "sortAndFilterSectionReviews": {
+          "dateNewToOld": "Date, New to Old",
+          "dateOldToNew": "Date, Old to New",
+          "ratingLowToHigh": "Rating, Low to High",
+          "ratingHighToLow": "Rating, High to Low",
+          "allStars": "All Stars",
+          "multipleStarsText": "stars",
+          "oneStarText": "star"
+        },
+        "reviewSubmissionSection": {
+          "headline": "Write a review",
+          "overallRatingText": "Overall Rating",
+          "name": "Name",
+          "email": "Email",
+          "contactNumber": "Contact Number",
+          "addAHeadline": "Add a headline",
+          "addADetailedReview": "Add a detailed review",
+          "cancelButtonText": "Cancel",
+          "submitButtonText": "Submit",
+          "reviewSuccessHeadline": "Review submitted successfully!",
+          "reviewSuccessSubHeadline": "Thank you for submitting your review. Your review will be published soon after we approve it.",
+          "closeButtonText": "Close"
+        }
+      }
+    }
+  }
+});
+var KIND_FACTORY_STYLES = Object.freeze({
+  "heading": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "inlineColors": {
+      "value": []
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "iconColor": {
+      "value": "var(--text-color)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "700"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "opacity": {
+      "value": "1"
+    },
+    "textShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "lineHeight": {
+      "value": 1.3,
+      "unit": "em"
+    },
+    "textTransform": {
+      "value": "none"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "textAlign": {
+      "value": "center"
+    }
+  },
+  "sub-heading": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "inlineColors": {
+      "value": []
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "iconColor": {
+      "value": "var(--text-color)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "opacity": {
+      "value": "1"
+    },
+    "textShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "lineHeight": {
+      "value": 1.3,
+      "unit": "em"
+    },
+    "textTransform": {
+      "value": "none"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "textAlign": {
+      "value": "center"
+    }
+  },
+  "paragraph": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "inlineColors": {
+      "value": []
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "iconColor": {
+      "value": "var(--text-color)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "medium",
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "opacity": {
+      "value": "1"
+    },
+    "textShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "lineHeight": {
+      "value": 1.3,
+      "unit": "em"
+    },
+    "textTransform": {
+      "value": "none"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "textAlign": {
+      "value": "center"
+    }
+  },
+  "rich-text": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "inlineColors": {
+      "value": []
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "medium",
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 5
+    },
+    "paddingRight": {
+      "value": 5,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "opacity": {
+      "value": "1"
+    },
+    "textShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "lineHeight": {
+      "value": 1.5,
+      "unit": "em"
+    },
+    "textTransform": {
+      "value": "none"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "textAlign": {
+      "value": "left"
+    }
+  },
+  "bulletList": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "inlineColors": {
+      "value": []
+    },
+    "iconColor": {
+      "value": "var(--cobalt)"
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "opacity": {
+      "value": "1"
+    },
+    "textShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "lineHeight": {
+      "value": 2,
+      "unit": "em"
+    },
+    "textTransform": {
+      "value": "none"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "textAlign": {
+      "value": "left"
+    }
+  },
+  "button": {
+    "backgroundColor": {
+      "value": "var(--cobalt)"
+    },
+    "color": {
+      "value": "var(--white)"
+    },
+    "secondaryColor": {
+      "value": "var(--white)"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 16
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 16
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 32
+    },
+    "paddingRight": {
+      "value": 32,
+      "unit": "px"
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "500"
+    },
+    "fontWeightSub": {
+      "desktop": "400",
+      "value": ""
+    },
+    "borderColor": {
+      "value": "var(--white)"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "5px"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "textTransform": {
+      "value": "none"
+    },
+    "width": {
+      "value": "auto",
+      "unit": "%"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "textShadow": {
+      "value": "none"
+    },
+    "iconColor": {
+      "value": "var(--white)"
+    }
+  },
+  "form": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    }
+  },
+  "survey": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    }
+  },
+  "calendar": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    }
+  },
+  "video": {
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "videoPlayerAccentColor": {
+      "value": "#FFFFFF"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    }
+  },
+  "image": {
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "opacity": {
+      "value": "1"
+    },
+    "textAlign": {
+      "value": "center"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    }
+  },
+  "divider": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 5
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 5
+    }
+  },
+  "countdown": {
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "justifyContent": {
+      "value": "center"
+    },
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "700"
+    },
+    "fontWeightSub": {
+      "desktop": "300"
+    }
+  },
+  "minute-timer": {
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "justifyContent": {
+      "value": "center"
+    },
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "700"
+    },
+    "fontWeightSub": {
+      "desktop": "300"
+    }
+  },
+  "day-timer": {
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "justifyContent": {
+      "value": "center"
+    },
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "700"
+    },
+    "fontWeightSub": {
+      "desktop": "300"
+    }
+  },
+  "two-setp-order": {
+    "textAlign": {
+      "value": "left"
+    },
+    "buttonColor": {
+      "value": "var(--cobalt)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "buttonSize": {
+      "value": "1rem"
+    },
+    "buttonStyle": {
+      "value": "none"
+    },
+    "formBgColor": {
+      "value": "#ffffff"
+    },
+    "formRadius": {
+      "value": "5",
+      "unit": "px"
+    }
+  },
+  "one-step-order": {
+    "textAlign": {
+      "value": "left"
+    },
+    "buttonColor": {
+      "value": "var(--cobalt)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "buttonSize": {
+      "value": "1rem"
+    },
+    "buttonStyle": {
+      "value": "none"
+    },
+    "formBgColor": {
+      "value": "#ffffff"
+    },
+    "formRadius": {
+      "value": "5",
+      "unit": "px"
+    }
+  },
+  "nav-menu": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "mobileBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "inlineColors": {
+      "value": []
+    },
+    "cartIconColor": {
+      "value": "#000000"
+    },
+    "cartIconActiveColor": {
+      "value": "#155EEF"
+    },
+    "boldTextColor": {
+      "value": "var(--text-color)"
+    },
+    "italicTextColor": {
+      "value": "var(--text-color)"
+    },
+    "underlineTextColor": {
+      "value": "var(--text-color)"
+    },
+    "iconColor": {
+      "value": "var(--text-color)"
+    },
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "navMenuItemHoverBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "lineHeight": {
+      "value": 1.3,
+      "unit": "em"
+    },
+    "textTransform": {
+      "value": "none"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "textAlign": {
+      "value": "center"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "navMenuItemSpacingX": {
+      "value": 5,
+      "unit": "px"
+    },
+    "navMenuItemSpacingY": {
+      "value": 5,
+      "unit": "px"
+    },
+    "dropdownBackground": {
+      "value": "var(--white)"
+    },
+    "dropdownTextColor": {
+      "value": "var(--black)"
+    },
+    "dropdownHoverColor": {
+      "value": "var(--black)"
+    },
+    "dropdownItemSpacing": {
+      "value": 10,
+      "unit": "px"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "700"
+    }
+  },
+  "nav-menu-v2": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 8
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 8
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemPaddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemPaddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemPaddingLeft": {
+      "unit": "px",
+      "value": 16
+    },
+    "itemPaddingRight": {
+      "value": 16,
+      "unit": "px"
+    },
+    "itemMarginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemMarginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemMarginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemMarginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "lineHeight": {
+      "value": 1.3,
+      "unit": "em"
+    },
+    "textTransform": {
+      "value": "none"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "400"
+    },
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "mobileBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "popupBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "mobilePopupBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "inlineColors": {
+      "value": []
+    },
+    "hoverBackgroundColor": {
+      "value": "var(--cobalt)"
+    },
+    "hoverTextColor": {
+      "value": "var(--white)"
+    },
+    "boldTextColor": {
+      "value": "var(--black)"
+    },
+    "italicTextColor": {
+      "value": "var(--black)"
+    },
+    "underlineTextColor": {
+      "value": "var(--black)"
+    },
+    "iconColor": {
+      "value": "var(--black)"
+    },
+    "cartIconColor": {
+      "value": "var(--black)"
+    },
+    "userIconColor": {
+      "value": "var(--black)"
+    },
+    "cartIconActiveColor": {
+      "value": "var(--black)"
+    },
+    "submenuBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "submenuMobileBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "submenuColor": {
+      "value": "var(--text-color)"
+    },
+    "submenuHoverBackgroundColor": {
+      "value": "var(--black)"
+    },
+    "submenuHoverTextColor": {
+      "value": "var(--white)"
+    },
+    "navMenuItemSpacingX": {
+      "value": 12,
+      "unit": "px"
+    },
+    "navMenuItemSpacingY": {
+      "value": 0,
+      "unit": "px"
+    },
+    "navMenuAlign": {
+      "value": "left"
+    },
+    "subMenuAlign": {
+      "value": "right"
+    },
+    "subMenuStyle": {
+      "value": "popover"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "itemBorderColor": {
+      "value": "#000000"
+    },
+    "itemBorderStyle": {
+      "value": "solid"
+    },
+    "itemBorderWidth": {
+      "value": "1px"
+    },
+    "itemBorderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "itemBoxShadow": {
+      "value": "none"
+    }
+  },
+  "map": {
+    "textAlign": {
+      "value": "center"
+    }
+  },
+  "svg": {
+    "textAlign": {
+      "value": "center"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 40
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 40
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "progress-bar": {
+    "backgroundColor": {
+      "value": "var(--cobalt)"
+    },
+    "borderColor": {
+      "value": "var(--white)"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "100px"
+    },
+    "textShadow": {
+      "value": "none"
+    },
+    "textStyle": {
+      "value": "none"
+    },
+    "textAlign": {
+      "value": "center"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "image-feature": {
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "700"
+    },
+    "featureHeadlineColor": {
+      "value": "var(--black)"
+    },
+    "featureTextColor": {
+      "value": "var(--black)"
+    },
+    "textShadow": {
+      "value": "none"
+    },
+    "lineHeight": {
+      "value": 1.3,
+      "unit": "em"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "linkTextColor": {
+      "value": "var(--link-color)"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "inlineColors": {
+      "value": []
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    }
+  },
+  "order-confirmation": {
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "featureHeadlineColor": {
+      "value": "var(--black)"
+    },
+    "color": {
+      "value": "var(--black)"
+    },
+    "secondaryColor": {
+      "value": "var(--black)"
+    },
+    "boldTextColor": {
+      "value": "var(--black)"
+    },
+    "featureTextColor": {
+      "value": "var(--black)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "normal",
+      "desktop": "400"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    }
+  },
+  "faq": {
+    "faqOpenTitleTextColor": {
+      "value": "var(--black)"
+    },
+    "faqOpenTitleBackgroundColor": {
+      "value": "var(--smoke)"
+    },
+    "faqDividerColor": {
+      "value": "var(--smoke)"
+    },
+    "faqContentTextColor": {
+      "value": "var(--black)"
+    },
+    "faqOpenBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "faqClosedTitleTextColor": {
+      "value": "var(--black)"
+    },
+    "faqClosedTitleBackgroundColor": {
+      "value": "var(--smoke)"
+    },
+    "faqExpandAllButtonTextColor": {
+      "value": "var(--cobalt)"
+    },
+    "faqExpandAllButtonBorderColor": {
+      "value": "var(--cobalt)"
+    },
+    "faqExpandAllButtonBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "linkTextColor": {
+      "value": "var(--cobalt)"
+    },
+    "faqHeadingFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "faqContentFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "inlineColors": {
+      "value": []
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "500"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    }
+  },
+  "blog": {
+    "buttonColor": {
+      "value": "var(--cobalt)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "buttonBorderColor": {
+      "value": "var(--white)"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 40
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "blog-post": {
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "blog-content": {
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "category-navigation": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "color": {
+      "value": "var(--text-color)"
+    },
+    "secondaryColor": {
+      "value": "var(--blue)"
+    },
+    "lineHeight": {
+      "value": 1.3,
+      "unit": "em"
+    },
+    "textTransform": {
+      "value": "none"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "textAlign": {
+      "value": "center"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "navMenuItemSpacingX": {
+      "value": 5,
+      "unit": "px"
+    },
+    "navMenuItemSpacingY": {
+      "value": 5,
+      "unit": "px"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-product-list": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "productCardImageRatio": {
+      "value": "square"
+    },
+    "productCardBorderWidth": {
+      "value": 0,
+      "unit": "px"
+    },
+    "productCardBorderColor": {
+      "value": "#000000"
+    },
+    "productCardCornerRadius": {
+      "value": 0,
+      "unit": "px"
+    },
+    "productCardBorderStyle": {
+      "value": "solid"
+    },
+    "productCardBoxShadow": {
+      "value": "none"
+    },
+    "productCardInfoAlignment": {
+      "value": "left"
+    },
+    "sortFilterTextColor": {
+      "value": "var(--black)"
+    },
+    "sortFilterPillColor": {
+      "value": "#F2F4F7"
+    },
+    "sortFilterPillTextColor": {
+      "value": "#101828"
+    },
+    "sortFilterBarBgColor": {
+      "value": "#FFFFFF"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "removeAllColor": {
+      "value": "#475467"
+    },
+    "sortFilterVerticalHeadlineColor": {
+      "value": "#000000"
+    },
+    "sortFilterVerticalLabelColor": {
+      "value": "#101828"
+    },
+    "sortFilterVerticalSelectedCheckboxColor": {
+      "value": "#EFF4FF"
+    },
+    "sortFilterVerticalSelectedCheckboxBorderColor": {
+      "value": "#155EEF"
+    },
+    "sortFilterVerticalUnselectedCheckboxColor": {
+      "value": "#FFFFFF"
+    },
+    "sortFilterVerticalUnselectedCheckboxBorderColor": {
+      "value": "#D0D5DD"
+    },
+    "sortFilterVerticalRemoveAllColor": {
+      "value": "#475467"
+    },
+    "sortFilterApplyBtnColor": {
+      "value": "#155EEF"
+    },
+    "sortFilterApplyBtnTextColor": {
+      "value": "#FFFFFF"
+    },
+    "sortFilterApplyBtnBorderColor": {
+      "value": "#155EEF"
+    },
+    "sortFilterClearBtnColor": {
+      "value": "#FFFFFF"
+    },
+    "sortFilterClearBtnTextColor": {
+      "value": "#155EEF"
+    },
+    "sortFilterClearBtnBorderColor": {
+      "value": "#155EEF"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "buttonColor": {
+      "value": "transparent"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--secondary)"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "var(--secondary)"
+    },
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "productCardDesktopSidePadding": {
+      "unit": "px",
+      "value": 0
+    },
+    "productCardTabletSidePadding": {
+      "unit": "px",
+      "value": 0
+    },
+    "productCardMobileSidePadding": {
+      "unit": "px",
+      "value": 0
+    },
+    "productCardDesktopVerticalPadding": {
+      "unit": "px",
+      "value": 0
+    },
+    "productCardTabletVerticalPadding": {
+      "unit": "px",
+      "value": 0
+    },
+    "productCardMobileVerticalPadding": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-product-detail": {
+    "relatedProductsHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonColor": {
+      "value": "transparent"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--secondary)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "relatedProductsHeadingFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "descriptionFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "descriptionFontColor": {
+      "value": "#000000"
+    },
+    "descriptionBackgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "descriptionFontWeight": {
+      "desktop": "400"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "selectorsTextColor": {
+      "value": "#000000"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "writeButtonBgColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "#004EEB"
+    },
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "showMoreButtonColor": {
+      "value": "#8f8585ff"
+    }
+  },
+  "store-cart": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    }
+  },
+  "nav-cart": {
+    "cartIconColor": {
+      "value": "#000000"
+    },
+    "cartIconActiveColor": {
+      "value": "#155EEF"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "upsell": {
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "buttonColor": {
+      "value": "#155EEF"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "buttonTextColor": {
+      "value": "white"
+    },
+    "borderColor": {
+      "value": "#D0D5DD"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingRight": {
+      "value": 20,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "blockShippingErrorBgColor": {
+      "value": "#FFFBFA"
+    },
+    "blockShippingErrorBorderColor": {
+      "value": "#FDA29B"
+    },
+    "blockShippingErrorTextColor": {
+      "value": "#B42318"
+    }
+  },
+  "collection-list": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "collectionHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "collectionNameTextColor": {
+      "value": "#000000"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "productCardImageRatio": {
+      "value": "square"
+    },
+    "productCardBorderWidth": {
+      "value": 0,
+      "unit": "px"
+    },
+    "productCardBorderColor": {
+      "value": "#000000"
+    },
+    "productCardCornerRadius": {
+      "value": 0,
+      "unit": "px"
+    },
+    "productCardBorderStyle": {
+      "value": "solid"
+    },
+    "productCardBoxShadow": {
+      "value": "none"
+    },
+    "productCardInfoAlignment": {
+      "value": "left"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "collectionHeadingFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "collectionNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    }
+  },
+  "featured-products": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "featureHeadlineColor": {
+      "value": "var(--black)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "productCardImageRatio": {
+      "value": "square"
+    },
+    "productCardBorderWidth": {
+      "value": 0,
+      "unit": "px"
+    },
+    "productCardBorderColor": {
+      "value": "#000000"
+    },
+    "productCardCornerRadius": {
+      "value": 0,
+      "unit": "px"
+    },
+    "productCardBorderStyle": {
+      "value": "solid"
+    },
+    "productCardBoxShadow": {
+      "value": "none"
+    },
+    "productCardInfoAlignment": {
+      "value": "left"
+    },
+    "featuredProductsHeadingFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "buttonColor": {
+      "value": "transparent"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--secondary)"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "var(--secondary)"
+    },
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    }
+  },
+  "store-checkout": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "checkoutHeadlineTextColor": {
+      "value": "var(--black)"
+    },
+    "breadcrumbActiveTextColor": {
+      "value": "#004EEB"
+    },
+    "breadcrumbIdleTextColor": {
+      "value": "#475467"
+    },
+    "savedAddressCardBgColor": {
+      "value": "#ffffff"
+    },
+    "savedAddressBorderColor": {
+      "value": "#d1d5db"
+    },
+    "savedAddressTextColor": {
+      "value": "#111315"
+    },
+    "savedAddressPillBgColor": {
+      "value": "#eff4ff"
+    },
+    "savedAddressAccentColor": {
+      "value": "#1860f0"
+    },
+    "cartSummaryTextColor": {
+      "value": "var(--black)"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": ""
+    },
+    "billingTextFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "cartSummaryTextFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "blockShippingErrorBgColor": {
+      "value": "#FFFBFA"
+    },
+    "blockShippingErrorBorderColor": {
+      "value": "#FDA29B"
+    },
+    "blockShippingErrorTextColor": {
+      "value": "#B42318"
+    },
+    "blockShippingErrorCtaColor": {
+      "value": "#B42318"
+    }
+  },
+  "store-thank-you": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "checkoutHeadlineTextColor": {
+      "value": "var(--black)"
+    },
+    "shippingTextColor": {
+      "value": "var(--black)"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "var(--white)"
+    },
+    "writeButtonBgColor": {
+      "value": "#155EEF"
+    },
+    "buttonTextColor": {
+      "value": "#004EEB"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": ""
+    },
+    "billingTextFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "shippingFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    }
+  },
+  "social-icons": {
+    "fontFamily": {
+      "value": "Inter"
+    },
+    "fontSize": {
+      "value": 12,
+      "unit": "px"
+    },
+    "fontWeight": {
+      "value": 500,
+      "desktop": "Normal"
+    },
+    "color": {
+      "value": "#000000"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "image-slider": {
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "searchbar": {
+    "dropdownBackground": {
+      "value": "#ffffff"
+    },
+    "formBgColor": {
+      "value": "#00ffff00"
+    },
+    "buttonColor": {
+      "value": "#00ffff00"
+    },
+    "dropdownTextColor": {
+      "value": "#000000"
+    },
+    "color": {
+      "value": "#000000"
+    },
+    "iconColor": {
+      "value": "#667085"
+    },
+    "fontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "inputBorderWidth": {
+      "value": "2px"
+    },
+    "inputBorderColor": {
+      "value": "#cacaca"
+    },
+    "inputBorderStyle": {
+      "value": "solid"
+    },
+    "inputBorderRadius": {
+      "value": "8px"
+    },
+    "dropdownBorderWidth": {
+      "value": "2px"
+    },
+    "dropdownBorderColor": {
+      "value": "#cacaca"
+    },
+    "dropdownBorderStyle": {
+      "value": "solid"
+    },
+    "dropdownBorderRadius": {
+      "value": "8px"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    }
+  },
+  "photo-video-gallery": {
+    "height": {
+      "value": "auto",
+      "unit": ""
+    },
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "social-share-blog": {
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "blog-pined-post": {
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 20
+    }
+  },
+  "blog-subscribe-form": {
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "featured-product": {
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonColor": {
+      "value": "transparent"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--secondary)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "descriptionFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "descriptionFontColor": {
+      "value": "#000000"
+    },
+    "descriptionBackgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "descriptionFontWeight": {
+      "desktop": "400"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "selectorsTextColor": {
+      "value": "#000000"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "writeButtonBgColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "#004EEB"
+    },
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "showMoreButtonColor": {
+      "value": "#8f8585ff"
+    }
+  },
+  "store-custom-product-detail": {
+    "relatedProductsHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "secondaryColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonColor": {
+      "value": "transparent"
+    },
+    "buttonTextColor": {
+      "value": "var(--white)"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "var(--secondary)"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--secondary)"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "relatedProductsHeadingFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "descriptionFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "descriptionFontColor": {
+      "value": "#000000"
+    },
+    "descriptionBackgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "descriptionFontWeight": {
+      "desktop": "400"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "selectorsTextColor": {
+      "value": "#000000"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "writeButtonBgColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "#004EEB"
+    },
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "showMoreButtonColor": {
+      "value": "#8f8585ff"
+    }
+  },
+  "number-counter": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 40
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 40
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingRight": {
+      "value": 20,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "counterNumberColor": {
+      "value": "var(--cobalt)"
+    },
+    "counterCaptionColor": {
+      "value": "#000000"
+    },
+    "counterBackgroundColor": {
+      "value": "#FFFFFF"
+    },
+    "backgroundColor": {
+      "value": "#FFFFFF"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "logo-showcase": {
+    "width": {
+      "value": "100",
+      "unit": "%"
+    },
+    "logoWidth": {
+      "value": "100",
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 40
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 40
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingRight": {
+      "value": 20,
+      "unit": "px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    }
+  },
+  "qr-code": {
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingRight": {
+      "value": 10,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "textAlign": {
+      "value": "center"
+    },
+    "width": {
+      "value": 200,
+      "unit": "px"
+    },
+    "height": {
+      "value": 200,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "pricing-table": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingRight": {
+      "value": 20,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemPaddingTop": {
+      "unit": "px",
+      "value": 20
+    },
+    "itemPaddingBottom": {
+      "unit": "px",
+      "value": 20
+    },
+    "itemPaddingLeft": {
+      "unit": "px",
+      "value": 20
+    },
+    "itemPaddingRight": {
+      "value": 20,
+      "unit": "px"
+    },
+    "itemMarginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemMarginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemMarginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "itemMarginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "backgroundColor": {
+      "value": "transparent"
+    },
+    "counterBackgroundColor": {
+      "value": "#ffffff"
+    },
+    "buttonColor": {
+      "value": "var(--cobalt)"
+    },
+    "formBgColor": {
+      "value": "#f8fafc"
+    },
+    "featureHeadlineColor": {
+      "value": "#111827"
+    },
+    "secondaryButtonBorderColor": {
+      "value": "#6b7280"
+    },
+    "featureTextColor": {
+      "value": "#374151"
+    },
+    "productPriceColor": {
+      "value": "#111827"
+    },
+    "priceDiscountColor": {
+      "value": "#059669"
+    },
+    "secondaryButtonTextColor": {
+      "value": "var(--black)"
+    },
+    "checkoutHeadlineTextColor": {
+      "value": "#111827"
+    },
+    "cartSummaryTextColor": {
+      "value": "#64748b"
+    },
+    "shippingTextColor": {
+      "value": "#374151"
+    },
+    "buttonTextColor": {
+      "value": "#ffffff"
+    },
+    "buttonBorderColor": {
+      "value": "transparent"
+    },
+    "color": {
+      "value": "#ffffff"
+    },
+    "secondaryColor": {
+      "value": "var(--cobalt)"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "borderColor": {
+      "value": "#304E62FF"
+    },
+    "itemBorderWidth": {
+      "value": "1px"
+    },
+    "itemBorderStyle": {
+      "value": "dashed"
+    },
+    "itemBorderRadius": {
+      "value": "16px"
+    },
+    "itemBorderColor": {
+      "value": "#E4E4E4FF"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "itemBoxShadow": {
+      "value": "none"
+    }
+  },
+  "testimonial": {
+    "backgroundColor": {
+      "value": "var(--white)"
+    },
+    "cardBackgroundColor": {
+      "value": "#fff"
+    },
+    "nameColor": {
+      "value": "#1f2937"
+    },
+    "captionColor": {
+      "value": "#6b7280"
+    },
+    "contentColor": {
+      "value": "#4b5563"
+    },
+    "ratingColor": {
+      "value": "#fbbf24"
+    },
+    "dateColor": {
+      "value": "#9ca3af"
+    },
+    "readMoreColor": {
+      "value": "#4b5563"
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingRight": {
+      "value": 20,
+      "unit": "px"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 20
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 20
+    },
+    "width": {
+      "value": "100",
+      "unit": "%"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderStyle": {
+      "value": "none"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "borderColor": {
+      "value": "var(--black)"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-title": {
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-price": {
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-images": {
+    "wishlistIconColor": {
+      "value": "var(--red)"
+    },
+    "wishlistBackgroundColor": {
+      "value": "var(--white)"
+    },
+    "width": {
+      "value": 100,
+      "unit": "%"
+    },
+    "textAlign": {
+      "value": "center"
+    },
+    "borderColor": {
+      "value": "#000000"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderWidth": {
+      "value": "0px"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    }
+  },
+  "store-pdp-v2-variants": {
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-quantity": {
+    "quantityLabelColor": {
+      "value": "#101828"
+    },
+    "color": {
+      "value": "#101828"
+    },
+    "quantityBackgroundColor": {
+      "value": "#FFFFFF"
+    },
+    "quantityBorderColor": {
+      "value": "#D0D5DD"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-add-to-cart": {
+    "backgroundColor": {
+      "value": "var(--secondary)"
+    },
+    "color": {
+      "value": "var(--white)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "500"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "5px"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 12
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 12
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "drawerHeadlineFontWeight": {
+      "desktop": "700"
+    },
+    "drawerProductTitleFontWeight": {
+      "desktop": "400"
+    }
+  },
+  "store-pdp-v2-buy-now": {
+    "backgroundColor": {
+      "value": "transparent"
+    },
+    "color": {
+      "value": "var(--secondary)"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "",
+      "desktop": "500"
+    },
+    "borderColor": {
+      "value": "var(--secondary)"
+    },
+    "borderWidth": {
+      "value": "1"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "5px"
+    },
+    "letterSpacing": {
+      "value": "0",
+      "unit": "px"
+    },
+    "boxShadow": {
+      "value": "none"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 12
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 12
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    }
+  },
+  "store-pdp-v2-review-stars": {
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "fontFamily": {
+      "value": ""
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-description": {
+    "descriptionFontFamily": {
+      "value": "var(--contentfont)"
+    },
+    "descriptionFontColor": {
+      "value": "#000000"
+    },
+    "descriptionBackgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "descriptionFontWeight": {
+      "desktop": "400"
+    },
+    "textAlign": {
+      "value": "left"
+    },
+    "showMoreButtonColor": {
+      "value": "#8f8585ff"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-related-products": {
+    "relatedProductsHeadingTextColor": {
+      "value": "var(--black)"
+    },
+    "relatedProductsHeadingFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productNameColor": {
+      "value": "var(--black)"
+    },
+    "productPriceColor": {
+      "value": "var(--black)"
+    },
+    "priceDiscountColor": {
+      "value": "#12B76A"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "subscriptionPillBackgroundColor": {
+      "value": "#FFF4ED"
+    },
+    "subscriptionPillTextColor": {
+      "value": "#E62E05"
+    },
+    "productNameFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "productPriceFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "priceDiscountFontFamily": {
+      "value": "var(--headlinefont)"
+    },
+    "fontWeight": {
+      "value": "bold",
+      "desktop": "400"
+    },
+    "fontWeightSub": {
+      "desktop": "400"
+    },
+    "fontWeightExtra": {
+      "desktop": "400"
+    },
+    "reviewsAndRatingsFontFamily": {
+      "value": ""
+    },
+    "reviewsAndRatingsFontWeight": {
+      "desktop": "400"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  },
+  "store-pdp-v2-reviews": {
+    "writeButtonBgColor": {
+      "value": "#EFF4FF"
+    },
+    "writeButtonColor": {
+      "value": "#004EEB"
+    },
+    "reviewsAndRatingsStarColor": {
+      "value": "#FDB022"
+    },
+    "reviewsAndRatingsColor": {
+      "value": "#000"
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingRight": {
+      "value": 0,
+      "unit": "px"
+    },
+    "backgroundColor": {
+      "value": "var(--transparent)"
+    },
+    "borderColor": {
+      "value": "transparent"
+    },
+    "borderWidth": {
+      "value": "1px"
+    },
+    "borderStyle": {
+      "value": "solid"
+    },
+    "borderRadius": {
+      "value": "0px"
+    },
+    "boxShadow": {
+      "value": "none"
+    }
+  }
+});
+var KIND_FACTORY_WRAPPER = Object.freeze({
+  "heading": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "sub-heading": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "paragraph": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "rich-text": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "bulletList": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "button": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "textAlign": {
+      "value": "center"
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "form": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "survey": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "calendar": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "video": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "image": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "custom-code": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "divider": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "paddingTop": {
+      "unit": "px",
+      "value": 10
+    },
+    "paddingBottom": {
+      "unit": "px",
+      "value": 10
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "countdown": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "marketing-countdown": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "minute-timer": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "day-timer": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "nav-menu": {
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "nav-menu-v2": {
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "map": {
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "svg": {
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "progress-bar": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "image-feature": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "review-widget": {
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "order-confirmation": {
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "web-widget": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    },
+    "width": {
+      "value": "auto",
+      "unit": ""
+    },
+    "height": {
+      "value": "auto",
+      "unit": ""
+    }
+  },
+  "store-pdp-v2-title": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-pdp-v2-price": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-pdp-v2-variants": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-pdp-v2-quantity": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-pdp-v2-add-to-cart": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-pdp-v2-buy-now": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-pdp-v2-review-stars": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-pdp-v2-description": {
+    "marginTop": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-pdp-v2-related-products": {
+    "marginTop": {
+      "unit": "px",
+      "value": 24
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  },
+  "store-pdp-v2-reviews": {
+    "marginTop": {
+      "unit": "px",
+      "value": 24
+    },
+    "marginBottom": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginLeft": {
+      "unit": "px",
+      "value": 0
+    },
+    "marginRight": {
+      "unit": "px",
+      "value": 0
+    }
+  }
+});
+
+// core/page-animation.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var EASE_OUT_CUBIC = "cubic-bezier(0.215, 0.61, 0.355, 1)";
+var kf = (percentage, opacity, transform2, timingFunction) => ({ percentage, opacity, transform: transform2, timingFunction });
+var KEYFRAMES = {
+  fadeIn: (s) => [kf("0%", 0, { scale: `${s}` }), kf("100%", 1, { scale: "1" })],
+  fadeInUp: (s) => [kf("0%", 0, { translate3d: "0, 100%, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
+  fadeInDown: (s) => [kf("0%", 0, { translate3d: "0, -100%, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
+  fadeInLeft: (s) => [kf("0%", 0, { translate3d: "-100%, 0, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
+  fadeInRight: (s) => [kf("0%", 0, { translate3d: "100%, 0, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
+  slideInUp: (s) => [kf("0%", 0, { translate3d: "0, 100%, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
+  slideInDown: (s) => [kf("0%", 0, { translate3d: "0, -100%, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
+  slideInLeft: (s) => [kf("0%", 0, { translate3d: "-100%, 0, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
+  slideInRight: (s) => [kf("0%", 0, { translate3d: "100%, 0, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
+  bounceIn: (s) => [
+    kf("0%", 0, { scale3d: `${0.3 * s}, ${0.3 * s}, ${0.3 * s}` }, EASE_OUT_CUBIC),
+    kf("20%", void 0, { scale3d: `${1.1 * s}, ${1.1 * s}, ${1.1 * s}` }, EASE_OUT_CUBIC),
+    kf("40%", void 0, { scale3d: `${0.9 * s}, ${0.9 * s}, ${0.9 * s}` }, EASE_OUT_CUBIC),
+    kf("60%", 1, { scale3d: `${1.03 * s}, ${1.03 * s}, ${1.03 * s}` }, EASE_OUT_CUBIC),
+    kf("80%", void 0, { scale3d: `${0.97 * s}, ${0.97 * s}, ${0.97 * s}` }, EASE_OUT_CUBIC),
+    kf("100%", 1, { scaleX: "1" }, EASE_OUT_CUBIC)
+  ],
+  bounceInUp: (s) => [
+    kf("0%", 0, { translate3d: "0, 3000px, 0", scaleY: "5", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("60%", 1, { translate3d: "0, -20px, 0", scaleY: "0.9", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("75%", void 0, { translate3d: "0, 10px, 0", scaleY: "0.95", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("90%", void 0, { translate3d: "0, -5px, 0", scaleY: "0.985", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("100%", void 0, { translateZ: "0" }, EASE_OUT_CUBIC)
+  ],
+  bounceInDown: (s) => [
+    kf("0%", 0, { translate3d: "0, -3000px, 0", scaleY: "3", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("60%", 1, { translate3d: "0, 25px, 0", scaleY: "0.9", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("75%", void 0, { translate3d: "0, -10px, 0", scaleY: "0.95", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("90%", void 0, { translate3d: "0, 5px, 0", scaleY: "0.985", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("100%", void 0, { translateZ: "0" }, EASE_OUT_CUBIC)
+  ],
+  bounceInLeft: (s) => [
+    kf("0%", 0, { translate3d: "-3000px, 0, 0", scaleX: "3" }, EASE_OUT_CUBIC),
+    kf("60%", 1, { translate3d: "25px, 0, 0", scaleX: "1" }, EASE_OUT_CUBIC),
+    kf("75%", void 0, { translate3d: "-10px, 0, 0", scaleX: "0.98", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("90%", void 0, { translate3d: "5px, 0, 0", scaleX: "0.995", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("100%", void 0, { translateZ: "0" }, EASE_OUT_CUBIC)
+  ],
+  bounceInRight: (s) => [
+    kf("0%", 0, { translate3d: "3000px, 0, 0", scaleX: "3" }, EASE_OUT_CUBIC),
+    kf("60%", 1, { translate3d: "-25px, 0, 0", scaleX: "1" }, EASE_OUT_CUBIC),
+    kf("75%", void 0, { translate3d: "10px, 0, 0", scaleX: "0.98", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("90%", void 0, { translate3d: "-5px, 0, 0", scaleX: "0.995", scale: `${s}` }, EASE_OUT_CUBIC),
+    kf("100%", void 0, { translateZ: "0" }, EASE_OUT_CUBIC)
+  ],
+  flip: (s) => [
+    kf("0%", 0, { perspective: "400px", scaleX: "1", scale: `${s}`, translateZ: "0", rotateY: "-1turn" }, "ease-out"),
+    kf("40%", void 0, { perspective: "400px", scaleX: "1", scale: `${s}`, translateZ: "150px", rotateY: "-190deg" }, "ease-out"),
+    kf("50%", void 0, { perspective: "400px", scaleX: "1", scale: `${s}`, translateZ: "150px", rotateY: "-170deg" }, "ease-in"),
+    kf("80%", void 0, { perspective: "400px", scale3d: "0.95, 0.95, 0.95", translateZ: "0", rotateY: "0deg" }, "ease-in"),
+    kf("100%", 1, { perspective: "400px", scaleX: "1", scale: "1", translateZ: "0", rotateY: "0deg" }, "ease-in")
+  ],
+  flipInX: (s) => [
+    kf("0%", 0, { perspective: "400px", rotateX: "90deg", scale: `${s}` }, "ease-in"),
+    kf("40%", void 0, { perspective: "400px", rotateX: "-20deg", scale: `${s}` }, "ease-in"),
+    kf("60%", 1, { perspective: "400px", rotateX: "10deg", scale: `${s}` }),
+    kf("80%", void 0, { perspective: "400px", rotateX: "-5deg", scale: `${s}` }),
+    kf("100%", void 0, { perspective: "400px", rotateX: "0deg", scale: "1" })
+  ],
+  flipInY: (s) => [
+    kf("0%", 0, { perspective: "400px", rotateY: "90deg", scale: `${s}` }, "ease-in"),
+    kf("40%", void 0, { perspective: "400px", rotateY: "-20deg", scale: `${s}` }, "ease-in"),
+    kf("60%", 1, { perspective: "400px", rotateY: "10deg", scale: `${s}` }),
+    kf("80%", void 0, { perspective: "400px", rotateY: "-5deg", scale: `${s}` }),
+    kf("100%", void 0, { perspective: "400px", rotateY: "0deg", scale: "1" })
+  ],
+  rollIn: (s) => [kf("0%", 0, { translate3d: "-100%, 0, 0", rotate: "-120deg", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
+  zoomIn: (s) => [kf("0%", 0, { scale3d: "0.3, 0.3, 0.3", scale: `${s}` }), kf("50%", 1, { scale: "1" })],
+  lightSpeedInLeft: (s) => [kf("0%", 0, { translate3d: "-100%, 0, 0", skewX: "30deg", scale: `${s}` }), kf("60%", 1, { skewX: "-20deg" }), kf("80%", void 0, { skewX: "5deg" }), kf("100%", void 0, { translateZ: "0" })],
+  lightSpeedInRight: (s) => [kf("0%", 0, { translate3d: "100%, 0, 0", skewX: "-30deg", scale: `${s}` }), kf("60%", 1, { skewX: "20deg" }), kf("80%", void 0, { skewX: "-5deg" }), kf("100%", void 0, { translateZ: "0" })]
+};
+var ENTRANCE_ANIMATIONS = Object.freeze(Object.keys(KEYFRAMES));
+function transformOf(t) {
+  const out = [];
+  for (const [k, v] of Object.entries(t)) {
+    if (!v) continue;
+    switch (k) {
+      case "translateX":
+      case "translateY":
+      case "translateZ":
+        if (!t.translate3d && k === "translateX" && !out.some((x) => x.startsWith("translate"))) out.push(`translate3d(${t.translateX ?? "0"}, ${t.translateY ?? "0"}, ${t.translateZ ?? "0"})`);
+        break;
+      default:
+        out.push(`${k}(${v})`);
+    }
+  }
+  return out.join(" ");
+}
+var cssoValue = (v) => v.replace(/,\s+/g, ",").replace(/(^|[\s,(-])0\.(\d)/g, "$1.$2");
+function keyframesCss(name, frames) {
+  const body2 = frames.map((f) => {
+    const t = f.transform ? transformOf(f.transform) : "";
+    const decls = [];
+    if (f.opacity !== void 0) decls.push(`opacity:${f.opacity}`);
+    if (t) decls.push(`-webkit-transform:${cssoValue(t)}`, `transform:${cssoValue(t)}`);
+    if (f.timingFunction) decls.push(`-webkit-animation-timing-function:${cssoValue(f.timingFunction)}`, `animation-timing-function:${cssoValue(f.timingFunction)}`);
+    return decls.length ? `${f.percentage === "100%" ? "to" : f.percentage}{${decls.join(";")}}` : "";
+  }).join("");
+  return `@-webkit-keyframes ${name}{${body2}}@keyframes ${name}{${body2}}`;
+}
+var EASINGS = Object.freeze(["linear", "ease-in", "ease-out", "ease-in-out"]);
+var knob = (v, { min = -Infinity, exclusiveMin = false } = {}) => {
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return !Number.isFinite(n) || (exclusiveMin ? n <= min : n < min) ? null : n;
+};
+var num = (n) => cssoValue(String(n));
+function entranceCss(id, cls, parentOffset = 0) {
+  const v = cls?.entranceAnimation?.value;
+  if (typeof v !== "string" || !v.includes("animate__animated")) return "";
+  const scale = cls.animationScale?.value, dur = cls.animationDuration?.value, delay = cls.animationDelay?.value, easing = cls.animationEasing?.value;
+  if (!scale && !dur && !delay && !easing) return "";
+  const name = v.split(" ").pop()?.replace("animate__", "");
+  if (!name || !KEYFRAMES[name]) return "";
+  const s = knob(scale, { min: 0, exclusiveMin: true });
+  const d = knob(dur, { min: 0, exclusiveMin: true });
+  const e = typeof easing === "string" && EASINGS.includes(easing) ? easing : "linear";
+  const total = (Number(delay) || 0) + (parentOffset || 0);
+  const kn = `${name}-${id}`;
+  const rule2 = `.animate__${kn}{animation:${kn} ${num(d ?? 1)}s ${e} ${num(total || 0)}s forwards!important;-webkit-animation-name:${kn};animation-name:${kn}}`;
+  return rule2 + keyframesCss(kn, KEYFRAMES[name](s ?? 1));
+}
+var HOVER_EFFECT_CATEGORY = Object.freeze({
+  "hvr-grow": "scale",
+  "hvr-shrink": "scale",
+  "hvr-pulse": "scale",
+  "hvr-bounce-in": "scale",
+  "hvr-rotate": "rotation",
+  "hvr-skew-forward": "rotation",
+  "hvr-float": "movement",
+  "hvr-wobble-horizontal": "movement",
+  "hvr-buzz": "movement",
+  hoverElevate: "movement",
+  "hvr-fade": "background",
+  "hvr-sweep-to-right": "background",
+  "hvr-sweep-to-bottom": "background",
+  "hvr-radial-in": "background",
+  "hvr-bounce-to-top": "background",
+  "hvr-ripple-out": "border",
+  "hvr-outline-in": "border",
+  "hvr-underline-from-center": "border",
+  "hvr-shadow": "shadow",
+  "hvr-glow": "shadow",
+  "hvr-box-shadow-outset": "shadow"
+});
+var HOVER_ANIMATIONS = Object.freeze(Object.keys(HOVER_EFFECT_CATEGORY));
+var CATEGORY_KEYS = { scale: ["hoverScale"], rotation: ["hoverAngle"], movement: ["hoverDistance"], background: [], border: ["hoverBorderThickness"], shadow: ["hoverBlur", "hoverSpread"] };
+var hoverKeysFor = (name) => ["hoverDuration", "hoverDelay", "hoverEasing", ...CATEGORY_KEYS[HOVER_EFFECT_CATEGORY[name]] ?? []];
+function hoverCss(id, cls) {
+  const name = cls?.hoverAnimation?.value;
+  if (!name || !HOVER_EFFECT_CATEGORY[name]) return "";
+  const allowed = new Set(hoverKeysFor(name));
+  const vars = [];
+  const dur = knob(cls.hoverDuration?.value, { min: 0 }) ?? 0.3;
+  const delay = knob(cls.hoverDelay?.value, { min: 0 }) ?? 0;
+  const e = cls.hoverEasing?.value;
+  vars.push(`--hover-duration:${dur}s`, `--hover-delay:${delay}s`, `--hover-easing:${typeof e === "string" && EASINGS.includes(e) ? e : "ease-in-out"}`);
+  const scale = knob(cls.hoverScale?.value, { min: 0, exclusiveMin: true });
+  if (allowed.has("hoverScale") && scale != null) vars.push(`--hover-scale:${scale}`);
+  if (allowed.has("hoverAngle")) {
+    const a = cls.hoverAngle?.value;
+    const m = typeof a === "string" ? a.trim().match(/^(-?[\d.]+)\s*deg$/i) : null;
+    const n = typeof a === "number" ? a : m ? Number(m[1]) : a == null || a === "" ? null : Number(a);
+    if (n != null && Number.isFinite(n)) vars.push(`--hover-angle:${n}`);
+  }
+  const dist = knob(cls.hoverDistance?.value);
+  if (allowed.has("hoverDistance") && dist != null) vars.push(`--hover-distance:${dist}`);
+  const thick = knob(cls.hoverBorderThickness?.value, { min: 0 });
+  if (allowed.has("hoverBorderThickness") && thick != null) vars.push(`--hover-border-thickness:${thick}px`);
+  const blur = knob(cls.hoverBlur?.value, { min: 0 });
+  if (allowed.has("hoverBlur") && blur != null) vars.push(`--hover-blur:${blur}px`);
+  const spread = knob(cls.hoverSpread?.value, { min: 0 });
+  if (allowed.has("hoverSpread") && spread != null) vars.push(`--hover-spread:${spread}px`);
+  return `.${id},.c${id}{${vars.join(";")}}`;
+}
+function entranceClass(spec) {
+  if (!spec) return {};
+  const { name, duration: duration3, delay, scale, easing } = spec;
+  if (!ENTRANCE_ANIMATIONS.includes(name)) throw new Error(`entranceAnimation.name must be one of: ${ENTRANCE_ANIMATIONS.join(", ")}`);
+  if (easing !== void 0 && !EASINGS.includes(easing)) throw new Error(`entranceAnimation.easing must be one of: ${EASINGS.join(", ")}`);
+  const out = { entranceAnimation: { value: `animate__animated animate__${name}` } };
+  if (scale !== void 0) out.animationScale = { value: scale };
+  if (duration3 !== void 0) out.animationDuration = { value: duration3 };
+  if (delay !== void 0) out.animationDelay = { value: delay };
+  if (easing !== void 0) out.animationEasing = { value: easing };
+  return out;
+}
+var HOVER_SPEC_KEYS = { duration: "hoverDuration", delay: "hoverDelay", easing: "hoverEasing", scale: "hoverScale", angle: "hoverAngle", distance: "hoverDistance", borderThickness: "hoverBorderThickness", blur: "hoverBlur", spread: "hoverSpread" };
+function hoverClass(spec) {
+  if (!spec) return {};
+  const { name, ...knobs } = spec;
+  if (!HOVER_EFFECT_CATEGORY[name]) throw new Error(`hoverAnimation.name must be one of: ${HOVER_ANIMATIONS.join(", ")}`);
+  const allowed = new Set(hoverKeysFor(name));
+  const out = { hoverAnimation: { value: name } };
+  const snapshot = {};
+  for (const [k, v] of Object.entries(knobs)) {
+    const key = HOVER_SPEC_KEYS[k];
+    if (!key) throw new Error(`hoverAnimation.${k} is not a knob here (${Object.keys(HOVER_SPEC_KEYS).join(", ")}; colour knobs are set in the builder)`);
+    if (!allowed.has(key)) throw new Error(`hoverAnimation ${name} does not take ${k} (it takes ${[...allowed].map((x) => Object.keys(HOVER_SPEC_KEYS).find((s) => HOVER_SPEC_KEYS[s] === x)).join(", ")})`);
+    if (k === "easing" && !EASINGS.includes(v)) throw new Error(`hoverAnimation.easing must be one of: ${EASINGS.join(", ")}`);
+    out[key] = { value: v };
+    snapshot[key] = { value: v };
+  }
+  out.hoverAdjustByEffect = { value: { [name]: snapshot } };
+  return out;
+}
+function parentAnimationOffset(id, section) {
+  const nodes = [section?.metaData, ...section?.elements ?? []].filter(Boolean);
+  const parentOf = /* @__PURE__ */ new Map();
+  for (const n of nodes) for (const c of n.child ?? []) if (!parentOf.has(c)) parentOf.set(c, n);
+  let total = 0;
+  const seen = /* @__PURE__ */ new Set();
+  for (let p2 = parentOf.get(id); p2 && !seen.has(p2.id); p2 = parentOf.get(p2.id)) {
+    seen.add(p2.id);
+    const layout = ["section", "row", "col"].includes(p2.meta) && String(p2.class?.entranceAnimation?.value ?? "").includes("animate__animated");
+    if (layout) total += (Number(p2.class?.animationDuration?.value ?? 1) || 1) + (Number(p2.class?.animationDelay?.value ?? 0) || 0);
+  }
+  return total;
+}
+function stripAnimationCss(css, id) {
+  let out = css ?? "";
+  const esc2 = id.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
+  const at = new RegExp(`@(?:-webkit-)?keyframes [A-Za-z]+-${esc2}\\{`, "g");
+  for (let m = at.exec(out); m; m = at.exec(out)) {
+    let depth = 0, i = m.index + m[0].length - 1;
+    for (; i < out.length; i++) {
+      if (out[i] === "{") depth++;
+      else if (out[i] === "}" && --depth === 0) break;
+    }
+    out = out.slice(0, m.index) + out.slice(i + 1);
+    at.lastIndex = m.index;
+  }
+  out = out.replace(new RegExp(`\\.animate__[A-Za-z]+-${esc2}\\{[^}]*\\}`, "g"), "");
+  out = out.replace(new RegExp(`\\.${esc2},\\.c${esc2}\\{--hover-[^}]*\\}`, "g"), "");
+  return out;
+}
+var ENTRANCE_METAS = Object.freeze(["heading", "sub-heading", "paragraph", "rich-text", "bulletList", "button", "image", "section", "row", "col"]);
+var HOVER_METAS = Object.freeze(["button"]);
 
 // core/kind-builder-defaults.mjs
 init_define_BUILDER_VALIDATORS();
@@ -118088,9 +126501,65 @@ function pdpNodeProblems(n, section, opts = {}) {
   }
   return out;
 }
+var BUILDER_STYLED_KINDS = Object.freeze(/* @__PURE__ */ new Set([
+  "video",
+  "divider",
+  "two-setp-order",
+  "one-step-order",
+  "nav-menu",
+  "nav-menu-v2",
+  "map",
+  "progress-bar",
+  "image-feature",
+  "order-confirmation",
+  "faq",
+  "blog",
+  "blog-post",
+  "category-navigation",
+  "store-product-list",
+  "store-product-detail",
+  "nav-cart",
+  "upsell",
+  "collection-list",
+  "featured-products",
+  "social-icons",
+  "image-slider",
+  "searchbar",
+  "photo-video-gallery",
+  "social-share-blog",
+  "blog-subscribe-form",
+  "featured-product",
+  "store-custom-product-detail",
+  "logo-showcase",
+  "qr-code",
+  "testimonial",
+  // pricing-table rendered nothing bare on 1.24.0; with the builder's factory defaults it renders its table, and a builder
+  // save relays it on mobile (530 → 1362 px; knowledge sniffs/funnels-wave31-styles-live-2026-09-29 live-render-diff.json)
+  "pricing-table",
+  "store-pdp-v2-title",
+  "store-pdp-v2-price",
+  "store-pdp-v2-images",
+  "store-pdp-v2-variants",
+  "store-pdp-v2-quantity",
+  "store-pdp-v2-add-to-cart",
+  "store-pdp-v2-buy-now",
+  "store-pdp-v2-review-stars",
+  "store-pdp-v2-description",
+  "store-pdp-v2-related-products",
+  "store-pdp-v2-reviews"
+]));
+var BUILDER_STYLING_WARNING = "these render differently until the page is saved once in the page builder, which compiles their CSS (bl-298); open and save it there before sharing the page";
 var PDP_STYLING_WARNING = "these blocks render unstyled until the page is opened and saved once in the page builder (bl-298); do that before sharing the page";
-function pdpStylingWarning(pageData, sectionIds = null) {
-  const nodes = (pageData?.sections ?? []).filter((sec) => !sectionIds || sectionIds.has(sec.id)).flatMap((sec) => (sec.elements ?? []).filter((n) => n.type === "element" && isPdpKind(n.meta)).map((n) => ({ id: n.id, kind: n.meta })));
+var styledNodes = (pageData, pred, { sectionIds = null, popupIds = null } = {}) => [
+  ...(pageData?.sections ?? []).filter((sec) => !sectionIds || sectionIds.has(sec.id)).flatMap((sec) => sec.elements ?? []),
+  ...(pageData?.popupsList ?? []).filter((p2) => sectionIds ? popupIds?.has(p2.id) : true).flatMap((p2) => p2.elements ?? [])
+].filter((n) => n?.type === "element" && pred(n.meta)).map((n) => ({ id: n.id, kind: n.meta }));
+function builderStylingWarning(pageData, scope) {
+  const nodes = styledNodes(pageData, (m) => BUILDER_STYLED_KINDS.has(m), scope);
+  return nodes.length ? { nodes, warning: BUILDER_STYLING_WARNING } : null;
+}
+function pdpStylingWarning(pageData, scope) {
+  const nodes = styledNodes(pageData, isPdpKind, scope);
   return nodes.length ? { nodes, warning: PDP_STYLING_WARNING } : null;
 }
 var TAG_IS_TAGNAME = Object.freeze(/* @__PURE__ */ new Set([
@@ -118134,13 +126603,15 @@ var envelope = (id, type, meta3, tagName, extra, styles, cls, wrapper) => ({
 var completeExtra = (meta3, given = {}) => {
   const declared = ELEMENTS[meta3]?.extraProps ?? [];
   const known = { ...KIND_CONFIG_EXTRA[meta3] ?? {}, ...KIND_DEFAULT_EXTRA[meta3] ?? {} };
-  const builder = KIND_BUILDER_EXTRA[meta3] ?? {};
+  const factory = KIND_FACTORY_EXTRA[meta3] ?? {};
+  const builder = { ...KIND_BUILDER_EXTRA[meta3] ?? {}, ...factory };
   const out = {};
   for (const prop of declared) {
     if ((prop === "visibility" || prop === "customClass") && !Object.prototype.hasOwnProperty.call(given, prop)) continue;
     out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : Object.prototype.hasOwnProperty.call(known, prop) ? known[prop] : Object.prototype.hasOwnProperty.call(builder, prop) ? builder[prop] : emptyFor(prop, meta3);
   }
   for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
+  for (const [prop, v] of Object.entries(factory)) if (!(prop in out) && !(prop in given)) out[prop] = v;
   for (const [prop, v] of Object.entries(out)) {
     if (!/FontSize$/.test(prop) || Object.prototype.hasOwnProperty.call(given, prop) || isSize(v)) continue;
     const sib = prop.replace(/(Tablet|Mobile)FontSize$/, "DesktopFontSize").replace(/^(tablet|mobile)FontSize$/, "desktopFontSize");
@@ -118208,12 +126679,14 @@ function videoSourceProblems(pageData, onlyIds = null) {
   for (const p2 of pageData.popupsList ?? []) walk3(p2.elements);
   return out;
 }
-var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt }) => {
+var TOOL_COMPILED_KINDS = Object.freeze(/* @__PURE__ */ new Set(["heading", "sub-heading", "paragraph", "rich-text", "bulletList", "button"]));
+var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt, wrapper, tabletStyles, mobileStyles, tabletWrapper, mobileWrapper }) => {
   if (!ELEMENTS[meta3]) throw new Error(`unknown element meta '${meta3}' \u2014 the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta3, salt);
   const builderStyles = KIND_BUILDER_STYLES[meta3] ?? {};
   const weights = Object.fromEntries(Object.entries(builderStyles).filter(([k]) => /^fontWeight|^boxShadow$/.test(k)));
-  const base = { ...weights, ...KIND_DEFAULT_STYLES[meta3] ?? {}, ...KIND_PDP_STYLES[meta3] ?? {}, ...STYLE_DEFAULTS[meta3] ?? {} };
+  const factoryStyles = TOOL_COMPILED_KINDS.has(meta3) ? {} : KIND_FACTORY_STYLES[meta3] ?? {};
+  const base = { ...factoryStyles, ...weights, ...KIND_DEFAULT_STYLES[meta3] ?? {}, ...KIND_PDP_STYLES[meta3] ?? {}, ...STYLE_DEFAULTS[meta3] ?? {} };
   for (const [k, w] of Object.entries(base)) if (/^fontWeight/.test(k) && w && typeof w === "object" && w.desktop !== void 0 && w.mobile === void 0) base[k] = { ...w, mobile: w.desktop };
   for (const [k, v] of Object.entries(base)) if (/var\(--color-/.test(JSON.stringify(v)) && builderStyles[k]) base[k] = builderStyles[k];
   for (const [k, v] of Object.entries(base)) {
@@ -118221,7 +126694,9 @@ var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt
   }
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
   const routed = routeClickAction(meta3, meta3 === "video" ? normalizeVideoExtra(extra) : extra);
-  const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, completeExtra(meta3, routed), withDefaults, cls);
+  const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, fillTextFieldInitials(meta3, structuredClone(completeExtra(meta3, routed))), withDefaults, cls, TOOL_COMPILED_KINDS.has(meta3) ? void 0 : KIND_FACTORY_WRAPPER[meta3]);
+  if (wrapper) node.wrapper = { ...node.wrapper, ...storedMap(wrapper) };
+  for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) node[k] = storedMap(v);
   node.tag = tag || (TAG_IS_TAGNAME.has(meta3) ? ELEMENTS[meta3].tagName : "");
   return node;
 };
@@ -118271,7 +126746,78 @@ function sectionKnobs({ sticky, width, fullWidthRows, pdp } = {}) {
   if (fullWidthRows !== void 0) extra.allowRowMaxWidth = val(fullWidthRows === true);
   return { extra, cls };
 }
-var makeSection = ({ columns, background = "transparent", padY = 60, maxWidth = 1100, elementCss = "", pageId, funnelId, locationId, salt, sticky, width, fullWidthRows, pdp }) => {
+var SECTION_SPEC_KEYS = Object.freeze([
+  "columns",
+  "background",
+  "padY",
+  "maxWidth",
+  "sticky",
+  "width",
+  "fullWidthRows",
+  "pdp",
+  "styles",
+  "wrapper",
+  "tabletStyles",
+  "mobileStyles",
+  "tabletWrapper",
+  "mobileWrapper",
+  "visibility",
+  "customClass",
+  "bgImage",
+  "entranceAnimation"
+]);
+var BG_OPTIONS = Object.freeze(["bgCover", "bgContain", "bgNoRepeat", "bgRepeat", "bgFixed"]);
+function sectionBgImage(spec) {
+  if (spec === void 0) return BG_IMAGE;
+  if (!spec || typeof spec !== "object" || typeof spec.url !== "string" || !/^https?:\/\//.test(spec.url)) throw Object.assign(new Error('section bgImage must be {url: "https://\u2026", options?, opacity?}'), { remediation: `options: ${BG_OPTIONS.join(" | ")} (default bgCover); opacity 0\u20131 (default 1).` });
+  if (spec.options !== void 0 && !BG_OPTIONS.includes(spec.options)) throw new Error(`section bgImage.options must be one of ${BG_OPTIONS.join(", ")}`);
+  return { value: { ...BG_IMAGE.value, url: spec.url, options: spec.options ?? "bgCover", opacity: String(spec.opacity ?? 1) } };
+}
+var sectionClasses = (c) => {
+  const list = Array.isArray(c) ? c : [c];
+  if (list.some((x) => typeof x !== "string" || !/^[A-Za-z_][\w-]*$/.test(x))) throw new Error("section customClass must be class names (letters, digits, - and _)");
+  return list;
+};
+function sectionStylingPatch(o = {}) {
+  const merge2 = {};
+  const replace = {};
+  if (o.styles) merge2.styles = storedMap(o.styles);
+  if (o.wrapper) merge2.wrapper = storedMap(o.wrapper);
+  const extra = {};
+  if (o.visibility) extra.visibility = val({ hideDesktop: !!o.visibility.hideDesktop, hideTablet: !!o.visibility.hideTablet, hideMobile: !!o.visibility.hideMobile });
+  if (o.customClass) extra.customClass = val(sectionClasses(o.customClass));
+  if (o.bgImage) extra.bgImage = sectionBgImage(o.bgImage);
+  if (Object.keys(extra).length) merge2.extra = extra;
+  if (o.entranceAnimation) merge2.class = entranceClass(o.entranceAnimation);
+  for (const k of ["tabletStyles", "mobileStyles", "tabletWrapper", "mobileWrapper"]) if (o[k]) replace[k] = storedMap(o[k]);
+  return { merge: merge2, replace, touchesCss: !!(o.styles || o.wrapper || o.entranceAnimation || Object.keys(replace).length) };
+}
+var makeSection = ({
+  columns,
+  background = "transparent",
+  padY = 60,
+  maxWidth = BUILDER_INNER_MAX_WIDTH,
+  elementCss = "",
+  pageId,
+  funnelId,
+  locationId,
+  salt,
+  sticky,
+  width,
+  fullWidthRows,
+  pdp,
+  styles,
+  wrapper,
+  tabletStyles,
+  mobileStyles,
+  tabletWrapper,
+  mobileWrapper,
+  visibility,
+  customClass,
+  bgImage,
+  cls: extraCls,
+  sectionCss = ""
+}) => {
   const widths = columns.map((c) => Number(c.widthPct)).filter((n) => Number.isFinite(n));
   const total = widths.reduce((a, b) => a + b, 0);
   if (widths.length === columns.length && columns.length > 0 && Math.abs(total - 100) > 1) {
@@ -118298,18 +126844,28 @@ var makeSection = ({ columns, background = "transparent", padY = 60, maxWidth = 
     "section",
     "section",
     "c-section",
-    { sticky: val("noneSticky"), bgImage: BG_IMAGE, allowRowMaxWidth: val(false), ...knobs.extra },
-    { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20) },
-    knobs.cls
+    {
+      sticky: val("noneSticky"),
+      bgImage: sectionBgImage(bgImage),
+      allowRowMaxWidth: val(false),
+      ...knobs.extra,
+      ...visibility ? { visibility: val({ hideDesktop: !!visibility.hideDesktop, hideTablet: !!visibility.hideTablet, hideMobile: !!visibility.hideMobile }) } : {},
+      ...customClass ? { customClass: val(sectionClasses(customClass)) } : {}
+    },
+    { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20), ...storedMap(styles) ?? {} },
+    { ...knobs.cls, ...extraCls ?? {} },
+    storedMap(wrapper)
   );
+  for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) meta3[k] = storedMap(v);
   meta3._id = sid;
   meta3.child = [rid];
   meta3.isGlobal = false;
   const scaffold = [
-    `${PREFIX} .${sid}{box-shadow:none;padding:${padY}px 20px;margin:0;background-color:${background};border:0}`,
+    nodeLayerCss({ ...meta3, id: sid }),
     sectionInnerRule(sid, { fullWidthRows: fullWidthRows === true, maxWidth }),
-    `${PREFIX} .${rid}{margin:0 auto;padding:0;width:100%;background-color:transparent;box-shadow:none;border:0}`,
-    ...columns.map(({ col, widthPct }) => `${PREFIX} .${col.id}{padding:0 20px;width:${widthPct}%;margin:0;background-color:transparent;box-shadow:none;border:0}#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`)
+    sectionCss,
+    nodeLayerCss(row),
+    ...columns.map(({ col }) => nodeLayerCss(col) + `#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`)
   ].join("");
   return {
     id: sid,
@@ -119274,255 +127830,6 @@ async function resolveCustomFont(gw, locationId, id) {
   return { res: r, count: rows.length, font: hit ? { custom: true, id: hit._id ?? hit.id, name: hit.name, url: hit.url, format: hit.format } : null };
 }
 
-// core/page-animation.mjs
-init_define_BUILDER_VALIDATORS();
-init_define_CONTACT_FILTER_FIELDS();
-init_define_ENDPOINT_CATALOG();
-init_define_ENDPOINT_OVERLAY();
-init_define_FUNNEL_ELEMENTS();
-init_define_TOOL_CATALOG();
-var EASE_OUT_CUBIC = "cubic-bezier(0.215, 0.61, 0.355, 1)";
-var kf = (percentage, opacity, transform2, timingFunction) => ({ percentage, opacity, transform: transform2, timingFunction });
-var KEYFRAMES = {
-  fadeIn: (s) => [kf("0%", 0, { scale: `${s}` }), kf("100%", 1, { scale: "1" })],
-  fadeInUp: (s) => [kf("0%", 0, { translate3d: "0, 100%, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
-  fadeInDown: (s) => [kf("0%", 0, { translate3d: "0, -100%, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
-  fadeInLeft: (s) => [kf("0%", 0, { translate3d: "-100%, 0, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
-  fadeInRight: (s) => [kf("0%", 0, { translate3d: "100%, 0, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
-  slideInUp: (s) => [kf("0%", 0, { translate3d: "0, 100%, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
-  slideInDown: (s) => [kf("0%", 0, { translate3d: "0, -100%, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
-  slideInLeft: (s) => [kf("0%", 0, { translate3d: "-100%, 0, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
-  slideInRight: (s) => [kf("0%", 0, { translate3d: "100%, 0, 0", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
-  bounceIn: (s) => [
-    kf("0%", 0, { scale3d: `${0.3 * s}, ${0.3 * s}, ${0.3 * s}` }, EASE_OUT_CUBIC),
-    kf("20%", void 0, { scale3d: `${1.1 * s}, ${1.1 * s}, ${1.1 * s}` }, EASE_OUT_CUBIC),
-    kf("40%", void 0, { scale3d: `${0.9 * s}, ${0.9 * s}, ${0.9 * s}` }, EASE_OUT_CUBIC),
-    kf("60%", 1, { scale3d: `${1.03 * s}, ${1.03 * s}, ${1.03 * s}` }, EASE_OUT_CUBIC),
-    kf("80%", void 0, { scale3d: `${0.97 * s}, ${0.97 * s}, ${0.97 * s}` }, EASE_OUT_CUBIC),
-    kf("100%", 1, { scaleX: "1" }, EASE_OUT_CUBIC)
-  ],
-  bounceInUp: (s) => [
-    kf("0%", 0, { translate3d: "0, 3000px, 0", scaleY: "5", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("60%", 1, { translate3d: "0, -20px, 0", scaleY: "0.9", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("75%", void 0, { translate3d: "0, 10px, 0", scaleY: "0.95", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("90%", void 0, { translate3d: "0, -5px, 0", scaleY: "0.985", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("100%", void 0, { translateZ: "0" }, EASE_OUT_CUBIC)
-  ],
-  bounceInDown: (s) => [
-    kf("0%", 0, { translate3d: "0, -3000px, 0", scaleY: "3", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("60%", 1, { translate3d: "0, 25px, 0", scaleY: "0.9", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("75%", void 0, { translate3d: "0, -10px, 0", scaleY: "0.95", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("90%", void 0, { translate3d: "0, 5px, 0", scaleY: "0.985", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("100%", void 0, { translateZ: "0" }, EASE_OUT_CUBIC)
-  ],
-  bounceInLeft: (s) => [
-    kf("0%", 0, { translate3d: "-3000px, 0, 0", scaleX: "3" }, EASE_OUT_CUBIC),
-    kf("60%", 1, { translate3d: "25px, 0, 0", scaleX: "1" }, EASE_OUT_CUBIC),
-    kf("75%", void 0, { translate3d: "-10px, 0, 0", scaleX: "0.98", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("90%", void 0, { translate3d: "5px, 0, 0", scaleX: "0.995", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("100%", void 0, { translateZ: "0" }, EASE_OUT_CUBIC)
-  ],
-  bounceInRight: (s) => [
-    kf("0%", 0, { translate3d: "3000px, 0, 0", scaleX: "3" }, EASE_OUT_CUBIC),
-    kf("60%", 1, { translate3d: "-25px, 0, 0", scaleX: "1" }, EASE_OUT_CUBIC),
-    kf("75%", void 0, { translate3d: "10px, 0, 0", scaleX: "0.98", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("90%", void 0, { translate3d: "-5px, 0, 0", scaleX: "0.995", scale: `${s}` }, EASE_OUT_CUBIC),
-    kf("100%", void 0, { translateZ: "0" }, EASE_OUT_CUBIC)
-  ],
-  flip: (s) => [
-    kf("0%", 0, { perspective: "400px", scaleX: "1", scale: `${s}`, translateZ: "0", rotateY: "-1turn" }, "ease-out"),
-    kf("40%", void 0, { perspective: "400px", scaleX: "1", scale: `${s}`, translateZ: "150px", rotateY: "-190deg" }, "ease-out"),
-    kf("50%", void 0, { perspective: "400px", scaleX: "1", scale: `${s}`, translateZ: "150px", rotateY: "-170deg" }, "ease-in"),
-    kf("80%", void 0, { perspective: "400px", scale3d: "0.95, 0.95, 0.95", translateZ: "0", rotateY: "0deg" }, "ease-in"),
-    kf("100%", 1, { perspective: "400px", scaleX: "1", scale: "1", translateZ: "0", rotateY: "0deg" }, "ease-in")
-  ],
-  flipInX: (s) => [
-    kf("0%", 0, { perspective: "400px", rotateX: "90deg", scale: `${s}` }, "ease-in"),
-    kf("40%", void 0, { perspective: "400px", rotateX: "-20deg", scale: `${s}` }, "ease-in"),
-    kf("60%", 1, { perspective: "400px", rotateX: "10deg", scale: `${s}` }),
-    kf("80%", void 0, { perspective: "400px", rotateX: "-5deg", scale: `${s}` }),
-    kf("100%", void 0, { perspective: "400px", rotateX: "0deg", scale: "1" })
-  ],
-  flipInY: (s) => [
-    kf("0%", 0, { perspective: "400px", rotateY: "90deg", scale: `${s}` }, "ease-in"),
-    kf("40%", void 0, { perspective: "400px", rotateY: "-20deg", scale: `${s}` }, "ease-in"),
-    kf("60%", 1, { perspective: "400px", rotateY: "10deg", scale: `${s}` }),
-    kf("80%", void 0, { perspective: "400px", rotateY: "-5deg", scale: `${s}` }),
-    kf("100%", void 0, { perspective: "400px", rotateY: "0deg", scale: "1" })
-  ],
-  rollIn: (s) => [kf("0%", 0, { translate3d: "-100%, 0, 0", rotate: "-120deg", scale: `${s}` }), kf("100%", 1, { translateZ: "0", scale: "1" })],
-  zoomIn: (s) => [kf("0%", 0, { scale3d: "0.3, 0.3, 0.3", scale: `${s}` }), kf("50%", 1, { scale: "1" })],
-  lightSpeedInLeft: (s) => [kf("0%", 0, { translate3d: "-100%, 0, 0", skewX: "30deg", scale: `${s}` }), kf("60%", 1, { skewX: "-20deg" }), kf("80%", void 0, { skewX: "5deg" }), kf("100%", void 0, { translateZ: "0" })],
-  lightSpeedInRight: (s) => [kf("0%", 0, { translate3d: "100%, 0, 0", skewX: "-30deg", scale: `${s}` }), kf("60%", 1, { skewX: "20deg" }), kf("80%", void 0, { skewX: "-5deg" }), kf("100%", void 0, { translateZ: "0" })]
-};
-var ENTRANCE_ANIMATIONS = Object.freeze(Object.keys(KEYFRAMES));
-function transformOf(t) {
-  const out = [];
-  for (const [k, v] of Object.entries(t)) {
-    if (!v) continue;
-    switch (k) {
-      case "translateX":
-      case "translateY":
-      case "translateZ":
-        if (!t.translate3d && k === "translateX" && !out.some((x) => x.startsWith("translate"))) out.push(`translate3d(${t.translateX ?? "0"}, ${t.translateY ?? "0"}, ${t.translateZ ?? "0"})`);
-        break;
-      default:
-        out.push(`${k}(${v})`);
-    }
-  }
-  return out.join(" ");
-}
-var cssoValue = (v) => v.replace(/,\s+/g, ",").replace(/(^|[\s,(-])0\.(\d)/g, "$1.$2");
-function keyframesCss(name, frames) {
-  const body2 = frames.map((f) => {
-    const t = f.transform ? transformOf(f.transform) : "";
-    const decls = [];
-    if (f.opacity !== void 0) decls.push(`opacity:${f.opacity}`);
-    if (t) decls.push(`-webkit-transform:${cssoValue(t)}`, `transform:${cssoValue(t)}`);
-    if (f.timingFunction) decls.push(`-webkit-animation-timing-function:${cssoValue(f.timingFunction)}`, `animation-timing-function:${cssoValue(f.timingFunction)}`);
-    return decls.length ? `${f.percentage === "100%" ? "to" : f.percentage}{${decls.join(";")}}` : "";
-  }).join("");
-  return `@-webkit-keyframes ${name}{${body2}}@keyframes ${name}{${body2}}`;
-}
-var EASINGS = Object.freeze(["linear", "ease-in", "ease-out", "ease-in-out"]);
-var knob = (v, { min = -Infinity, exclusiveMin = false } = {}) => {
-  if (v == null || v === "") return null;
-  const n = Number(v);
-  return !Number.isFinite(n) || (exclusiveMin ? n <= min : n < min) ? null : n;
-};
-var num = (n) => cssoValue(String(n));
-function entranceCss(id, cls, parentOffset = 0) {
-  const v = cls?.entranceAnimation?.value;
-  if (typeof v !== "string" || !v.includes("animate__animated")) return "";
-  const scale = cls.animationScale?.value, dur = cls.animationDuration?.value, delay = cls.animationDelay?.value, easing = cls.animationEasing?.value;
-  if (!scale && !dur && !delay && !easing) return "";
-  const name = v.split(" ").pop()?.replace("animate__", "");
-  if (!name || !KEYFRAMES[name]) return "";
-  const s = knob(scale, { min: 0, exclusiveMin: true });
-  const d = knob(dur, { min: 0, exclusiveMin: true });
-  const e = typeof easing === "string" && EASINGS.includes(easing) ? easing : "linear";
-  const total = (Number(delay) || 0) + (parentOffset || 0);
-  const kn = `${name}-${id}`;
-  const rule = `.animate__${kn}{animation:${kn} ${num(d ?? 1)}s ${e} ${num(total || 0)}s forwards!important;-webkit-animation-name:${kn};animation-name:${kn}}`;
-  return rule + keyframesCss(kn, KEYFRAMES[name](s ?? 1));
-}
-var HOVER_EFFECT_CATEGORY = Object.freeze({
-  "hvr-grow": "scale",
-  "hvr-shrink": "scale",
-  "hvr-pulse": "scale",
-  "hvr-bounce-in": "scale",
-  "hvr-rotate": "rotation",
-  "hvr-skew-forward": "rotation",
-  "hvr-float": "movement",
-  "hvr-wobble-horizontal": "movement",
-  "hvr-buzz": "movement",
-  hoverElevate: "movement",
-  "hvr-fade": "background",
-  "hvr-sweep-to-right": "background",
-  "hvr-sweep-to-bottom": "background",
-  "hvr-radial-in": "background",
-  "hvr-bounce-to-top": "background",
-  "hvr-ripple-out": "border",
-  "hvr-outline-in": "border",
-  "hvr-underline-from-center": "border",
-  "hvr-shadow": "shadow",
-  "hvr-glow": "shadow",
-  "hvr-box-shadow-outset": "shadow"
-});
-var HOVER_ANIMATIONS = Object.freeze(Object.keys(HOVER_EFFECT_CATEGORY));
-var CATEGORY_KEYS = { scale: ["hoverScale"], rotation: ["hoverAngle"], movement: ["hoverDistance"], background: [], border: ["hoverBorderThickness"], shadow: ["hoverBlur", "hoverSpread"] };
-var hoverKeysFor = (name) => ["hoverDuration", "hoverDelay", "hoverEasing", ...CATEGORY_KEYS[HOVER_EFFECT_CATEGORY[name]] ?? []];
-function hoverCss(id, cls) {
-  const name = cls?.hoverAnimation?.value;
-  if (!name || !HOVER_EFFECT_CATEGORY[name]) return "";
-  const allowed = new Set(hoverKeysFor(name));
-  const vars = [];
-  const dur = knob(cls.hoverDuration?.value, { min: 0 }) ?? 0.3;
-  const delay = knob(cls.hoverDelay?.value, { min: 0 }) ?? 0;
-  const e = cls.hoverEasing?.value;
-  vars.push(`--hover-duration:${dur}s`, `--hover-delay:${delay}s`, `--hover-easing:${typeof e === "string" && EASINGS.includes(e) ? e : "ease-in-out"}`);
-  const scale = knob(cls.hoverScale?.value, { min: 0, exclusiveMin: true });
-  if (allowed.has("hoverScale") && scale != null) vars.push(`--hover-scale:${scale}`);
-  if (allowed.has("hoverAngle")) {
-    const a = cls.hoverAngle?.value;
-    const m = typeof a === "string" ? a.trim().match(/^(-?[\d.]+)\s*deg$/i) : null;
-    const n = typeof a === "number" ? a : m ? Number(m[1]) : a == null || a === "" ? null : Number(a);
-    if (n != null && Number.isFinite(n)) vars.push(`--hover-angle:${n}`);
-  }
-  const dist = knob(cls.hoverDistance?.value);
-  if (allowed.has("hoverDistance") && dist != null) vars.push(`--hover-distance:${dist}`);
-  const thick = knob(cls.hoverBorderThickness?.value, { min: 0 });
-  if (allowed.has("hoverBorderThickness") && thick != null) vars.push(`--hover-border-thickness:${thick}px`);
-  const blur = knob(cls.hoverBlur?.value, { min: 0 });
-  if (allowed.has("hoverBlur") && blur != null) vars.push(`--hover-blur:${blur}px`);
-  const spread = knob(cls.hoverSpread?.value, { min: 0 });
-  if (allowed.has("hoverSpread") && spread != null) vars.push(`--hover-spread:${spread}px`);
-  return `.${id},.c${id}{${vars.join(";")}}`;
-}
-function entranceClass(spec) {
-  if (!spec) return {};
-  const { name, duration: duration3, delay, scale, easing } = spec;
-  if (!ENTRANCE_ANIMATIONS.includes(name)) throw new Error(`entranceAnimation.name must be one of: ${ENTRANCE_ANIMATIONS.join(", ")}`);
-  if (easing !== void 0 && !EASINGS.includes(easing)) throw new Error(`entranceAnimation.easing must be one of: ${EASINGS.join(", ")}`);
-  const out = { entranceAnimation: { value: `animate__animated animate__${name}` } };
-  if (scale !== void 0) out.animationScale = { value: scale };
-  if (duration3 !== void 0) out.animationDuration = { value: duration3 };
-  if (delay !== void 0) out.animationDelay = { value: delay };
-  if (easing !== void 0) out.animationEasing = { value: easing };
-  return out;
-}
-var HOVER_SPEC_KEYS = { duration: "hoverDuration", delay: "hoverDelay", easing: "hoverEasing", scale: "hoverScale", angle: "hoverAngle", distance: "hoverDistance", borderThickness: "hoverBorderThickness", blur: "hoverBlur", spread: "hoverSpread" };
-function hoverClass(spec) {
-  if (!spec) return {};
-  const { name, ...knobs } = spec;
-  if (!HOVER_EFFECT_CATEGORY[name]) throw new Error(`hoverAnimation.name must be one of: ${HOVER_ANIMATIONS.join(", ")}`);
-  const allowed = new Set(hoverKeysFor(name));
-  const out = { hoverAnimation: { value: name } };
-  const snapshot = {};
-  for (const [k, v] of Object.entries(knobs)) {
-    const key = HOVER_SPEC_KEYS[k];
-    if (!key) throw new Error(`hoverAnimation.${k} is not a knob here (${Object.keys(HOVER_SPEC_KEYS).join(", ")}; colour knobs are set in the builder)`);
-    if (!allowed.has(key)) throw new Error(`hoverAnimation ${name} does not take ${k} (it takes ${[...allowed].map((x) => Object.keys(HOVER_SPEC_KEYS).find((s) => HOVER_SPEC_KEYS[s] === x)).join(", ")})`);
-    if (k === "easing" && !EASINGS.includes(v)) throw new Error(`hoverAnimation.easing must be one of: ${EASINGS.join(", ")}`);
-    out[key] = { value: v };
-    snapshot[key] = { value: v };
-  }
-  out.hoverAdjustByEffect = { value: { [name]: snapshot } };
-  return out;
-}
-function parentAnimationOffset(id, section) {
-  const nodes = [section?.metaData, ...section?.elements ?? []].filter(Boolean);
-  const parentOf = /* @__PURE__ */ new Map();
-  for (const n of nodes) for (const c of n.child ?? []) if (!parentOf.has(c)) parentOf.set(c, n);
-  let total = 0;
-  const seen = /* @__PURE__ */ new Set();
-  for (let p2 = parentOf.get(id); p2 && !seen.has(p2.id); p2 = parentOf.get(p2.id)) {
-    seen.add(p2.id);
-    const layout = ["section", "row", "col"].includes(p2.meta) && String(p2.class?.entranceAnimation?.value ?? "").includes("animate__animated");
-    if (layout) total += (Number(p2.class?.animationDuration?.value ?? 1) || 1) + (Number(p2.class?.animationDelay?.value ?? 0) || 0);
-  }
-  return total;
-}
-function stripAnimationCss(css, id) {
-  let out = css ?? "";
-  const esc2 = id.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
-  const at = new RegExp(`@(?:-webkit-)?keyframes [A-Za-z]+-${esc2}\\{`, "g");
-  for (let m = at.exec(out); m; m = at.exec(out)) {
-    let depth = 0, i = m.index + m[0].length - 1;
-    for (; i < out.length; i++) {
-      if (out[i] === "{") depth++;
-      else if (out[i] === "}" && --depth === 0) break;
-    }
-    out = out.slice(0, m.index) + out.slice(i + 1);
-    at.lastIndex = m.index;
-  }
-  out = out.replace(new RegExp(`\\.animate__[A-Za-z]+-${esc2}\\{[^}]*\\}`, "g"), "");
-  out = out.replace(new RegExp(`\\.${esc2},\\.c${esc2}\\{--hover-[^}]*\\}`, "g"), "");
-  return out;
-}
-var ENTRANCE_METAS = Object.freeze(["heading", "sub-heading", "paragraph", "rich-text", "bulletList", "button", "image", "section", "row", "col"]);
-var HOVER_METAS = Object.freeze(["button"]);
-
 // core/page-edit.mjs
 function findNode(pageData, nodeId) {
   for (const [si, s] of (pageData.sections ?? []).entries()) {
@@ -119547,23 +127854,41 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
         continue;
       }
       if (hit.isSection) {
-        if (o.extra || o.styles || o.entranceAnimation || o.hoverAnimation) {
-          report.push({ i, op: "set", nodeId: o.nodeId, error: "a section takes sticky, width and fullWidthRows here; set its rows, columns and leaves by their own ids, or replace the section" });
+        const SECTION_SET = ["sticky", "width", "fullWidthRows", "styles", "visibility", "customClass", "bgImage", "entranceAnimation", ...LAYER_SPEC_KEYS];
+        if (o.extra || o.hoverAnimation) {
+          report.push({ i, op: "set", nodeId: o.nodeId, error: `a section takes ${SECTION_SET.join(", ")} here; set its rows, columns and leaves by their own ids` });
           continue;
         }
-        if (o.sticky === void 0 && o.width === void 0 && o.fullWidthRows === void 0) {
-          report.push({ i, op: "set", nodeId: o.nodeId, error: "set on a section needs sticky, width or fullWidthRows" });
+        if (!SECTION_SET.some((k) => o[k] !== void 0)) {
+          report.push({ i, op: "set", nodeId: o.nodeId, error: `set on a section needs one of ${SECTION_SET.join(", ")}` });
           continue;
         }
         let knobs;
+        let styling;
         try {
           knobs = sectionKnobs(o);
+          styling = sectionStylingPatch(o);
         } catch (e) {
           report.push({ i, op: "set", nodeId: o.nodeId, error: e.message });
           continue;
         }
         const meta3 = hit.node;
         const changed2 = [];
+        for (const [layer, patch] of Object.entries(styling.merge)) {
+          mergeInto(meta3, layer, patch);
+          changed2.push(...Object.keys(patch).map((k) => `${layer}.${k}`));
+        }
+        for (const [k, v] of Object.entries(styling.replace)) {
+          meta3[k] = v;
+          changed2.push(k);
+        }
+        if (styling.touchesCss) {
+          const sid = hit.section.id;
+          let css = `${hit.section.general?.sectionStyles ?? ""}${nodeLayerCss({ ...meta3, id: sid })}`;
+          if (o.entranceAnimation) css = stripAnimationCss(css, sid) + entranceCss(sid, meta3.class);
+          hit.section.general = { ...hit.section.general ?? {}, sectionStyles: css };
+          changed2.push("section.general.sectionStyles");
+        }
         if (Object.keys(knobs.extra).length) {
           mergeInto(meta3, "extra", knobs.extra);
           changed2.push(...Object.keys(knobs.extra).map((k) => `extra.${k}`));
@@ -119580,7 +127905,7 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
           changed2.push("section.general.sectionStyles");
         }
         meta3.updated = true;
-        report.push({ i, op: "set", nodeId: o.nodeId, meta: "section", changed: changed2, expect: { extra: knobs.extra, class: knobs.cls } });
+        report.push({ i, op: "set", nodeId: o.nodeId, meta: "section", changed: changed2, expect: { extra: { ...knobs.extra, ...styling.merge.extra ?? {} }, class: { ...knobs.cls, ...styling.merge.class ?? {} }, styles: styling.merge.styles ?? {}, wrapper: styling.merge.wrapper ?? {}, ...styling.replace } });
         continue;
       }
       const changed = [];
@@ -119640,11 +127965,28 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
       if (o.styles && Object.keys(o.styles).length) {
         mergeInto(hit.node, "styles", o.styles);
         changed.push(...Object.keys(o.styles).map((k) => `styles.${k}`));
-        const rule = compileStyles(hit.node.id, hit.node.meta, hit.node.styles);
-        if (rule) {
-          hit.section.general = { ...hit.section.general ?? {}, sectionStyles: `${hit.section.general?.sectionStyles ?? ""}${rule}` };
+        const rule2 = compileStyles(hit.node.id, hit.node.meta, hit.node.styles);
+        if (rule2) {
+          hit.section.general = { ...hit.section.general ?? {}, sectionStyles: `${hit.section.general?.sectionStyles ?? ""}${rule2}` };
           changed.push("section.general.sectionStyles");
         }
+      }
+      const layerPatch = {};
+      try {
+        if (o.wrapper) layerPatch.wrapper = storedMap(o.wrapper);
+        for (const k of ["tabletStyles", "mobileStyles", "tabletWrapper", "mobileWrapper"]) if (o[k]) layerPatch[k] = storedMap(o[k]);
+      } catch (e) {
+        report.push({ i, op: "set", nodeId: o.nodeId, error: e.message });
+        continue;
+      }
+      for (const [layer, patch] of Object.entries(layerPatch)) {
+        mergeInto(hit.node, layer, patch);
+        changed.push(...Object.keys(patch).map((k) => `${layer}.${k}`));
+      }
+      if (Object.keys(layerPatch).length) {
+        const { styles: _drop, ...rest } = hit.node;
+        hit.section.general = { ...hit.section.general ?? {}, sectionStyles: `${hit.section.general?.sectionStyles ?? ""}${nodeLayerCss({ ...rest, styles: {} })}` };
+        if (!changed.includes("section.general.sectionStyles")) changed.push("section.general.sectionStyles");
       }
       const sized = Object.keys(o.extra ?? {}).some((k) => /FontSize$/.test(k)) || Object.keys(o.styles ?? {}).some((k) => /^fontWeight/.test(k));
       const sizeRule = sized ? compileSizes(hit.node) : "";
@@ -119653,7 +127995,7 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
         changed.push("section.general.sectionStyles");
       }
       hit.node.updated = true;
-      report.push({ i, op: "set", nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch } });
+      report.push({ i, op: "set", nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...layerPatch } });
     } else if (o.op === "append-section") {
       next.sections = [...next.sections ?? [], { ...o.section, sequence: (next.sections ?? []).length }];
       report.push({ i, op: "append-section", sectionId: o.section.id, nodes: (o.section.elements ?? []).length });
@@ -119752,7 +128094,7 @@ function verifyEdits(stored, report) {
     if (r.op === "set") {
       const hit = findNode(stored, r.nodeId);
       const wrong = [];
-      for (const key of ["extra", "styles", "class"]) {
+      for (const key of ["extra", "styles", "class", "wrapper", "tabletStyles", "mobileStyles", "tabletWrapper", "mobileWrapper"]) {
         for (const [k, v] of Object.entries(r.expect?.[key] ?? {})) {
           if (JSON.stringify(hit?.node?.[key]?.[k]) !== JSON.stringify(v)) wrong.push(`${key}.${k}`);
         }
@@ -119842,8 +128184,15 @@ var ELEMENT_SPEC_KEYS = Object.freeze({
   tag: () => true,
   entranceAnimation: (meta3) => ENTRANCE_METAS.includes(meta3),
   hoverAnimation: (meta3) => HOVER_METAS.includes(meta3),
-  openPopup: (meta3) => props(meta3).includes("popupId")
+  openPopup: (meta3) => props(meta3).includes("popupId"),
   // becomes extra.action openPopup + popupId
+  // The node's wrapper (margins, padding, width) and its tablet / mobile overrides, compiled by core/style-layer.mjs as the
+  // builder compiles them on save.
+  wrapper: () => true,
+  tabletStyles: () => true,
+  mobileStyles: () => true,
+  tabletWrapper: () => true,
+  mobileWrapper: () => true
 });
 var DID_YOU_MEAN = Object.freeze({
   text: "html",
@@ -119863,7 +128212,12 @@ var DID_YOU_MEAN = Object.freeze({
   fontFamily: 'css.font (or font: "headline" | "content")',
   typography: "font",
   type: "meta",
-  kind: "meta"
+  kind: "meta",
+  margin: "wrapper: {marginTop, \u2026}",
+  margins: "wrapper: {marginTop, \u2026}",
+  mobile: "mobileStyles / mobileWrapper",
+  tablet: "tabletStyles / tabletWrapper",
+  responsive: "mobileStyles / tabletStyles"
 });
 var elementSpecKeys = (meta3) => Object.keys(ELEMENT_SPEC_KEYS).filter((k) => ELEMENT_SPEC_KEYS[k](meta3));
 function elementSpecProblem(e) {
@@ -122938,10 +131292,10 @@ var STANDARD_OPP_FIELDS = /* @__PURE__ */ new Set([
 ]);
 function defaultOppFieldShape(filterField) {
   const corpus = opp_field_shapes_default.fields[filterField];
-  const rule = opp_field_rulebook_default.fields[filterField];
+  const rule2 = opp_field_rulebook_default.fields[filterField];
   return {
-    valueFieldType: corpus?.valueFieldType?.allowed?.[0] ?? rule?.valueFieldType,
-    dataType: corpus?.dataType?.allowed?.[0] ?? rule?.dataType
+    valueFieldType: corpus?.valueFieldType?.allowed?.[0] ?? rule2?.valueFieldType,
+    dataType: corpus?.dataType?.allowed?.[0] ?? rule2?.dataType
   };
 }
 function checkOppFieldShape(field, { ref, warn } = {}) {
@@ -122949,27 +131303,27 @@ function checkOppFieldShape(field, { ref, warn } = {}) {
   if (!spec) return checkAgainstRulebook(field, ref);
   const { throw: throwAt, warn: warnAt } = opp_field_shapes_default._threshold;
   for (const key of ["valueFieldType", "dataType"]) {
-    const rule = spec[key];
-    if (!rule) continue;
+    const rule2 = spec[key];
+    if (!rule2) continue;
     const val3 = field[key];
     if (val3 === void 0) continue;
-    if (rule.allowed.includes(val3)) continue;
-    const support = `set: [${rule.allowed.join(", ")}], n=${rule.n}, ${rule.accounts} accounts`;
+    if (rule2.allowed.includes(val3)) continue;
+    const support = `set: [${rule2.allowed.join(", ")}], n=${rule2.n}, ${rule2.accounts} accounts`;
     const msg = `OPP_SHAPE: ${field.filterField} ${key} '${val3}' not attested (${support})${ref ? ` on '${ref}'` : ""} \u2014 verify against a live step`;
-    if (rule.accounts >= throwAt) throw new IRError("OPP_SHAPE", msg);
-    if (rule.accounts >= warnAt) warn?.(msg);
+    if (rule2.accounts >= throwAt) throw new IRError("OPP_SHAPE", msg);
+    if (rule2.accounts >= warnAt) warn?.(msg);
   }
 }
 function checkAgainstRulebook(field, ref) {
-  const rule = opp_field_rulebook_default.fields[field.filterField];
-  if (!rule) return;
+  const rule2 = opp_field_rulebook_default.fields[field.filterField];
+  if (!rule2) return;
   for (const key of ["valueFieldType", "dataType"]) {
     const val3 = field[key];
     if (val3 === void 0) continue;
-    if (val3 === rule[key]) continue;
+    if (val3 === rule2[key]) continue;
     throw new IRError(
       "OPP_SHAPE",
-      `OPP_SHAPE: ${field.filterField} ${key} '${val3}' contradicts the builder's own field picker, which defines this field as ${key} '${rule[key]}' (source: ${opp_field_rulebook_default._source.split(" \u2014 ")[0]}, ${opp_field_rulebook_default._captured})${ref ? ` on '${ref}'` : ""}.`
+      `OPP_SHAPE: ${field.filterField} ${key} '${val3}' contradicts the builder's own field picker, which defines this field as ${key} '${rule2[key]}' (source: ${opp_field_rulebook_default._source.split(" \u2014 ")[0]}, ${opp_field_rulebook_default._captured})${ref ? ` on '${ref}'` : ""}.`
     );
   }
 }
@@ -122999,8 +131353,8 @@ function lintBtn(line) {
     return F;
   }
   if (!parts[1] || parts[1] === "undefined") F.push(`#btn title (segment 2) is required`);
-  const media = parts[3];
-  if (media !== "undefined" && !/^\w+\*\S+/.test(media)) F.push(`#btn media slot must be 'undefined' or 'mediaType*mediaUrl' (e.g. image*https://\u2026) \u2014 got '${media}'`);
+  const media2 = parts[3];
+  if (media2 !== "undefined" && !/^\w+\*\S+/.test(media2)) F.push(`#btn media slot must be 'undefined' or 'mediaType*mediaUrl' (e.g. image*https://\u2026) \u2014 got '${media2}'`);
   const buttons = parts.slice(4);
   if (!buttons.length) F.push(`#btn has no buttons`);
   for (const b of buttons) {
@@ -188464,19 +196818,19 @@ function rowsMissingValue(attrs) {
   return (attrs.fields ?? []).filter((f) => f && f.value !== false && !f.value && f.date !== "currentDate" && f.value !== 0).map((f) => f.field ?? "(unnamed)");
 }
 function checkCoupledFields(node, attrs, ctx) {
-  for (const rule of COUPLED_FIELDS[node?.type] ?? []) {
-    if (!rule.when(attrs)) continue;
+  for (const rule2 of COUPLED_FIELDS[node?.type] ?? []) {
+    if (!rule2.when(attrs)) continue;
     let problem = null;
-    if (rule.require) {
-      const missing = rule.require.filter((k) => !suppliedNonEmpty(attrs, k));
+    if (rule2.require) {
+      const missing = rule2.require.filter((k) => !suppliedNonEmpty(attrs, k));
       if (missing.length) problem = `is missing [${missing.join(", ")}]`;
-    } else if (rule.check) {
-      const found = rule.check(attrs);
+    } else if (rule2.check) {
+      const found = rule2.check(attrs);
       if (found) problem = found;
     }
     if (!problem) continue;
-    const msg = `${node.type} '${node.ref ?? node.name ?? "?"}' ${problem}. ${rule.why}`;
-    if (rule.severity === "warn") ctx?.warn?.(`COUPLED_SOFT: ${msg}`);
+    const msg = `${node.type} '${node.ref ?? node.name ?? "?"}' ${problem}. ${rule2.why}`;
+    if (rule2.severity === "warn") ctx?.warn?.(`COUPLED_SOFT: ${msg}`);
     else throw new IRError("REQUIRED_FIELD", msg);
   }
 }
@@ -188634,17 +196988,17 @@ function missingForStep(step, schema2) {
 var LEN_RULE = /^\(\s*\w+\s*\)\s*=>\s*\w+\??\.length\s*(<=|<|>=|>)\s*(\d+)\s*$/;
 var NUM_RULE = /^\(\s*\w+\s*\)\s*=>\s*\w+\s*(<=|<|>=|>)\s*(\d+)\s*$/;
 var CMP = { "<=": (a, b) => a <= b, "<": (a, b) => a < b, ">=": (a, b) => a >= b, ">": (a, b) => a > b };
-function parseValidationRule(rule) {
-  if (typeof rule !== "string" || !rule.trim()) return null;
-  const len = rule.match(LEN_RULE);
+function parseValidationRule(rule2) {
+  if (typeof rule2 !== "string" || !rule2.trim()) return null;
+  const len = rule2.match(LEN_RULE);
   if (len) return (v) => v == null || CMP[len[1]](String(v).length, Number(len[2]));
-  const num2 = rule.match(NUM_RULE);
+  const num2 = rule2.match(NUM_RULE);
   if (num2) return (v) => v == null || v === "" || !Number.isFinite(Number(v)) || CMP[num2[1]](Number(v), Number(num2[2]));
-  if (/^\s*\w+\s*=>/.test(rule) || rule.startsWith("(")) return null;
-  if (/^[A-Za-z_]\w*$/.test(rule)) return NAMED_RULES[rule] ?? null;
-  const literal2 = rule.match(/^\/(.+)\/([a-z]*)$/s);
+  if (/^\s*\w+\s*=>/.test(rule2) || rule2.startsWith("(")) return null;
+  if (/^[A-Za-z_]\w*$/.test(rule2)) return NAMED_RULES[rule2] ?? null;
+  const literal2 = rule2.match(/^\/(.+)\/([a-z]*)$/s);
   try {
-    const re = literal2 ? new RegExp(literal2[1], literal2[2].replace(/[^imsu]/g, "")) : new RegExp(rule);
+    const re = literal2 ? new RegExp(literal2[1], literal2[2].replace(/[^imsu]/g, "")) : new RegExp(rule2);
     return (v) => v == null || v === "" || re.test(String(v));
   } catch {
     return null;
@@ -188824,9 +197178,9 @@ function evaluate(ast, attrs, item) {
       throw new Error(`unknown op ${ast.op}`);
   }
 }
-function fires(rule, attrs) {
+function fires(rule2, attrs) {
   try {
-    return rule.ast.outer.every((o) => !!evaluate(o, attrs)) && !!evaluate(rule.ast.guard, attrs);
+    return rule2.ast.outer.every((o) => !!evaluate(o, attrs)) && !!evaluate(rule2.ast.guard, attrs);
   } catch {
     return false;
   }
@@ -195100,9 +203454,9 @@ function evaluateWorkflowRules(doc, rules) {
   const T = doc.templates ?? [];
   const TR = doc.triggers ?? [];
   const F = [], A = [];
-  const fire = (rule, message, { atPublish = false } = {}) => {
-    if (!atPublish || doc.publishing) F.push({ rule, message });
-    else A.push({ rule, message: `${message} (a draft cannot run; this is refused when the workflow is published)` });
+  const fire = (rule2, message, { atPublish = false } = {}) => {
+    if (!atPublish || doc.publishing) F.push({ rule: rule2, message });
+    else A.push({ rule: rule2, message: `${message} (a draft cannot run; this is refused when the workflow is published)` });
   };
   const types = (list) => new Set(list ?? []);
   const hasTrigger = (t) => TR.some((x) => x?.type === t);
@@ -199336,7 +207690,7 @@ function runDoctrine(doc, rules) {
   if (!rules) return [];
   const out = [];
   const templates = doc?.templates ?? [];
-  const add = (rule, severity, msg, ids = {}) => out.push({ pack: "doctrine", rule, severity, msg, ...ids });
+  const add = (rule2, severity, msg, ids = {}) => out.push({ pack: "doctrine", rule: rule2, severity, msg, ...ids });
   if (rules.sendWindow) {
     const { start, end } = rules.sendWindow;
     for (const t of templates) {
@@ -199393,7 +207747,7 @@ function runLints(doc, {
   const out = { platform: [], hygiene: [], doctrine: [], notEvaluable: [] };
   const T = Array.isArray(doc?.templates) ? doc.templates.filter(Boolean) : [];
   const triggers = Array.isArray(doc?.triggers) ? doc.triggers.filter(Boolean) : [];
-  const F = (pack, rule, severity, msg, ids = {}) => out[pack].push({ pack, rule, severity, msg, ...ids });
+  const F = (pack, rule2, severity, msg, ids = {}) => out[pack].push({ pack, rule: rule2, severity, msg, ...ids });
   if (packs.includes("platform")) {
     try {
       if (catalog?.workflowRules) {
@@ -201421,7 +209775,7 @@ function compileConvaiAction(action, { agentId = null, locationId } = {}) {
 var WAIT_BOUNDS = { seconds: [1, 21600], minutes: [1, 360], hours: [1, 6] };
 function uiSaveViolations(body2, botType) {
   const v = [];
-  const push = (field, rule, msg) => v.push({ field, rule, msg });
+  const push = (field, rule2, msg) => v.push({ field, rule: rule2, msg });
   if (!Array.isArray(body2.channels) || !body2.channels.length) push("channels", "selectChannel", "Please select at least one channel");
   for (const f of nonEmpty(body2.fullPrompt) ? [] : ["personality", "goal", "instructions"]) {
     if (typeof body2[f] !== "string" || !body2[f].trim()) {
@@ -205499,6 +213853,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   const stepKey2 = (funnel?.steps ?? []).find((st) => st.id === args.stepId)?.key;
   const pdpBad = pageData.sections.filter((sec) => appendedIds.has(sec.id)).flatMap((sec) => sec.elements.flatMap((n) => pdpNodeProblems(n, sec, { stepKey: stepKey2 })));
   if (pdpBad.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${pdpBad.length} product-page block(s) this call appends are misplaced; nothing was written`, "Append them in a section with pdp:true, on the store's product-detail step (or a custom product page)."), { problems: pdpBad, report });
+  const appendedScope = { sectionIds: appendedIds, popupIds: new Set(report.filter((r) => r.op === "append-popup").map((r) => r.popupId)) };
   const problems = auditPageData(pageData);
   const preview = {
     mode: "edit",
@@ -205511,7 +213866,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     ...problems.length ? { preexistingProblems: problems } : {},
     ...billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {},
     ...submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {},
-    ...pdpStylingWarning(pageData, appendedIds) ? { pdpStyling: pdpStylingWarning(pageData, appendedIds) } : {},
+    ...builderStylingWarning(pageData, appendedScope) ? { builderStyling: builderStylingWarning(pageData, appendedScope) } : {},
+    ...pdpStylingWarning(pageData, appendedScope) ? { pdpStyling: pdpStylingWarning(pageData, appendedScope) } : {},
     willPublish: args.publish === true,
     note: args.publish === true ? "Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes." : "Writes a DRAFT through autosave. Nothing outside the named ops changes. A published page shows neither content nor SEO changes until it is published again (publish:true)."
   };
@@ -214162,7 +222518,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, popups?, typography?): writes the nodes AND the compiled stylesheet \u2014 the builder canvas reads node styles, the public page the compiled CSS; both are needed. Sizes, weights, click actions and builder defaults sit on the nodes, so a builder save keeps them. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (refused by name: text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, remove-node, page (trackingCode, customCss, background, typography), append-popup; seo writes the page record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages \u2192 references/build-funnel-page.md. Siblings: edit_funnel, get_funnel, create_funnel.`,
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, popups?, typography?): writes the nodes AND the compiled stylesheet. Sizes, margins, tablet/mobile styles and defaults sit on the nodes and compile as the builder compiles them; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (refused by name: text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, remove-node, page (trackingCode, customCss, background, typography), append-popup; seo writes the page record AND the version. Target checked first (pageId must be on stepId, stepName exact); every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages \u2192 references/build-funnel-page.md. Siblings: edit_funnel, get_funnel, create_funnel.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -214184,6 +222540,14 @@ var TOOLS2 = [
         sticky: external_exports.enum(["none", "top", "bottom"]).optional(),
         width: external_exports.enum(["full", "wide", "midWide", "small"]).optional(),
         fullWidthRows: external_exports.boolean().optional(),
+        wrapper: external_exports.record(external_exports.any()).optional(),
+        tabletStyles: external_exports.record(external_exports.any()).optional(),
+        mobileStyles: external_exports.record(external_exports.any()).optional(),
+        tabletWrapper: external_exports.record(external_exports.any()).optional(),
+        mobileWrapper: external_exports.record(external_exports.any()).optional(),
+        visibility: external_exports.object({ hideDesktop: external_exports.boolean().optional(), hideTablet: external_exports.boolean().optional(), hideMobile: external_exports.boolean().optional() }).optional(),
+        customClass: external_exports.union([external_exports.string(), external_exports.array(external_exports.string())]).optional(),
+        bgImage: external_exports.object({ url: external_exports.string(), options: external_exports.string().optional(), opacity: external_exports.number().min(0).max(1).optional() }).optional(),
         section: external_exports.record(external_exports.any()).optional(),
         popup: external_exports.record(external_exports.any()).optional(),
         trackingCode: external_exports.object({ headerCode: external_exports.string().optional(), footerCode: external_exports.string().optional() }).optional(),
@@ -214274,16 +222638,27 @@ var TOOLS2 = [
           styles: { ...e.css ? nodeStylesFromCss(e.meta, e.css) : {}, ...e.styles ?? {} },
           cls,
           tag: e.tag ?? "",
-          salt
+          salt,
+          wrapper: e.wrapper,
+          tabletStyles: e.tabletStyles,
+          mobileStyles: e.mobileStyles,
+          tabletWrapper: e.tabletWrapper,
+          mobileWrapper: e.mobileWrapper
         });
         let css = e.css ? e.meta === "button" ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css) : leafStyleCss(leaf.id, e.styles);
         css += elementSizeCss(leaf);
         if (e.meta === "button" && !e.css) css += buttonColourCss(leaf);
         css += entranceCss(leaf.id, leaf.class) + hoverCss(leaf.id, leaf.class);
         if (e.font) css += typographyRule(leaf.id, e.font);
-        return { leaf, css };
+        return { leaf, css: nodeLayerCss(leaf) + css };
       };
       const composeSection = (spec, si, saltBase = "S") => {
+        const unknown2 = Object.keys(spec ?? {}).filter((k) => !SECTION_SPEC_KEYS.includes(k));
+        if (unknown2.length) throw Object.assign(new Error(`section: unknown key(s) ${unknown2.map((k) => `\`${k}\``).join(", ")} \u2014 a section takes ${SECTION_SPEC_KEYS.join(", ")}`), { remediation: "Nothing was written. Element keys go on the elements inside columns[].elements." });
+        let secCls;
+        if (spec.entranceAnimation) {
+          secCls = entranceClass(spec.entranceAnimation);
+        }
         if (spec.fullWidthRows === true && spec.maxWidth !== void 0) throw Object.assign(new Error("a section takes fullWidthRows OR maxWidth, not both: fullWidthRows makes the rows' container 100% wide"), { remediation: "Drop one of them." });
         const css = [];
         const columns = (spec.columns ?? []).map((c, ci) => {
@@ -214295,21 +222670,33 @@ var TOOLS2 = [
           const widthPct = c.widthPct ?? Math.round(1e4 / (spec.columns.length || 1)) / 100;
           return { col: makeColumn({ children: leaves2, widthPct, padX: c.padX ?? 20, salt: `${saltBase}${si}C${ci}` }), leaves: leaves2, widthPct };
         });
-        return makeSection({
+        const built = makeSection({
           columns,
           background: spec.background ?? "transparent",
           padY: spec.padY ?? 60,
-          maxWidth: spec.maxWidth ?? 1100,
+          maxWidth: spec.maxWidth ?? BUILDER_INNER_MAX_WIDTH,
           elementCss: css.join(""),
           sticky: spec.sticky,
           width: spec.width,
           fullWidthRows: spec.fullWidthRows,
           pdp: spec.pdp,
+          styles: spec.styles,
+          wrapper: spec.wrapper,
+          tabletStyles: spec.tabletStyles,
+          mobileStyles: spec.mobileStyles,
+          tabletWrapper: spec.tabletWrapper,
+          mobileWrapper: spec.mobileWrapper,
+          visibility: spec.visibility,
+          customClass: spec.customClass,
+          bgImage: spec.bgImage,
+          cls: secCls,
           pageId: args.pageId,
           funnelId: args.funnelId,
           locationId: args.locationId,
           salt: `${saltBase}${si}`
         });
+        if (secCls) built.general.sectionStyles += entranceCss(built.id, built.metaData.class);
+        return built;
       };
       if (args.edits || args.seo) return editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts });
       if (!args.sections) return fail(CODES.VALIDATION_FAILED, "pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)", "See the tool description for both shapes.");
@@ -214382,6 +222769,7 @@ var TOOLS2 = [
         compiledCssBytes: cssBytes,
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === "element").map((e) => e.meta)))],
         audit: "clean",
+        ...builderStylingWarning(pageData) ? { builderStyling: builderStylingWarning(pageData) } : {},
         ...pdpStylingWarning(pageData) ? { pdpStyling: pdpStylingWarning(pageData) } : {},
         ...billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {},
         ...submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {},
