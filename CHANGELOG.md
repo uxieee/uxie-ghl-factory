@@ -11,6 +11,32 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.32.0] — 2026-09-30
+
+**Webinars: create live and on-demand webinars, including recurring series, and read them back. Daily scheduler
+triggers can carry their time. Executed live on the test account.**
+
+### Added
+- `create_funnel` `kind:"webinar"` creates a one-off live webinar, a daily / weekly / monthly recurring series, or
+  an on-demand webinar from a Media Storage video (by id or exact name). The sessions are read back. Live: five
+  webinars created, and the builder's own Edit screen opens the tool-made weekly series exactly as authored. The
+  wizard sets up no notifications, and neither does the tool.
+- `get_funnel` `view:"webinar"`: type, schedule, recurrence rule, form, live link or video, sessions, notification
+  rows, and the guest and workflow-recipe links.
+
+### Changed
+- ⚠️ A live webinar needs `videoUrl`, an end after its start, and a start in the future, as the wizard requires.
+- ⚠️ `create_funnel` warns about two traps of GHL's series:
+  - every session keeps the FIRST session's UTC time, so after a clock change they run an hour off local time;
+  - the first session is the first day matching the rule on or after the start. "First Monday" from a Wednesday
+    starts next month.
+
+### Fixed
+- A *Daily* scheduler trigger with a time could not be built: GHL's own validator refused the row. It now carries
+  "At what time", as the builder writes it.
+- Custom-object trigger filters accept a field by its label and store the full field key. A bare label showed as an
+  empty filter in the builder.
+
 ## [1.31.0] — 2026-09-30
 
 **Find workflows that never fire because of a capitalised tag, and edit a site's headers, pixel events and
