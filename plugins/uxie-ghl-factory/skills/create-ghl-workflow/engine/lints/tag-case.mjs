@@ -6,7 +6,8 @@
 //
 // Measured on `tagsAdded` (contact_tag) and, in wave31 (2026-09-30), on an if/else TAG CONDITION: same own contact, same tag — the
 // lower-case condition took Yes, the mixed-case one took Else (live-W31-ifelse-tag-result.json). NOT MEASURED, and not claimed: the tag
-// values a STEP writes (add/remove tag) and the other tag rows listed below.
+// values a STEP writes: measured wave33 (2026-09-30), NOT affected — a mixed-case add_contact_tag stored the lower-case tag and a mixed-case
+// remove_contact_tag removed it (live-W32-steptag-result.json). Other trigger types' tag rows were not fired.
 export const TAG_ROW_FIELDS = new Set(['tagsAdded', 'tagsRemoved', 'contact.tags']);
 
 // A value with a capital letter, that is not a merge tag (merge tags resolve at run time and keep their case).
@@ -25,7 +26,7 @@ export function mixedCaseTagRows(conditions) {
 
 // The message a reader acts on. One place, so the lint, the sweep and the tests say the same thing.
 export const tagCaseFix = (value) => `edit_workflow { op: 'replaceTag', oldTag: '${value}', newTag: '${value.toLowerCase()}', allowNoop: true }`;
-export const TAG_CASE_NOT_COVERED = 'NOT COVERED: the tag values that add/remove-tag STEPS write — how GHL treats their case was not measured.';
+export const TAG_CASE_NOT_COVERED = 'Checked and NOT affected: add/remove-tag STEPS (GHL lower-cases their value at write: a mixed-case add stored the lower-case tag, a mixed-case remove removed it). NOT fired: the tag rows of other trigger types (customer_reply, appointment, invoice, note_add, custom_date_reminder), which compare the same stored name.';
 
 // The mixed-case tag values in ONE if/else step's stored attributes: [{ branch, values }].
 export function mixedCaseIfElseTags(attributes) {
