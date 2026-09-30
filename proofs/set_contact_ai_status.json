@@ -40,6 +40,15 @@
         "commit:afe9223b"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:7b2cb168"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -57,7 +66,7 @@
       "voiceAiApp": 719
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#set_contact_ai_status": "22d771b726f21ab57dc456fd0d40dc7c1d6cb54e342dd73baae15d5fdabc11a5",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#set_contact_ai_status": "29d9dc954df310ec5841c5bb1dae8dd3327b4ac51a1246a357cc1374c7337831",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
