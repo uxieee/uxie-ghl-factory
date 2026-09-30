@@ -630,9 +630,9 @@
     ]
   },
   "find_ghl_site": {
-    "description": "Find ghl site — proof: live-runtime (2026-09-29); risk: read",
+    "description": "Find ghl site — proof: live-runtime (2026-09-30); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-29)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects",
