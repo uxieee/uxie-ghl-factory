@@ -54,7 +54,7 @@ test('senderAddress: empty keys dropped like the UI; From name requires From ema
 
 test('workflowNote: a string is promoted to the stored IWorkflowNote shape; an object passes through', () => {
   const { body } = normalizeSettings({ workflowNote: 'why this exists' }, ctx);
-  assert.deepEqual(body.workflowNote, { content: 'why this exists', createdBy: 'U1', createdAt: '2026-08-22T00:00:00.000Z', updatedBy: 'U1', updatedAt: '2026-08-22T00:00:00.000Z' });
+  assert.deepEqual(body.workflowNote, { content: 'why this exists', createdBy: 'U1', createdByName: 'uxie-ghl-factory', createdAt: '2026-08-22T00:00:00.000Z', updatedBy: 'U1', updatedByName: 'uxie-ghl-factory', updatedAt: '2026-08-22T00:00:00.000Z' });
   assert.equal(normalizeSettings({ workflowNote: '' }, ctx).body.workflowNote, null);
   assert.equal(normalizeSettings({ workflowNote: { content: 'x', createdByName: 'Xander' } }, ctx).body.workflowNote.createdByName, 'Xander');
   assert.throws(() => normalizeSettings({ workflowNote: { content: 'x', color: 'red' } }, ctx), (e) => e.code === 'SETTINGS_KEY');

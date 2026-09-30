@@ -1146,6 +1146,8 @@ function internalNotificationAttributes(a, ctx) {
 // blank and those three controls never appear, so the step can carry neither a method
 // nor a body — while round-tripping clean. Live-confirmed 2026-07-25 on AU. 'CUSTOM' is
 // the only value attested in the corpus or the reference.
+const WINDOW_CONDITION_FIELDS = new Set(['', 'day_month', 'month', 'year']);
+const WINDOW_CONDITION_OPERATORS = new Set(['', '==', '!=']);
 const WEBHOOK_EVENTS = new Set(['CUSTOM']);
 // The drawer's Method select offers seven (models/actions/Webhook.ts): the five below plus HEAD and OPTIONS.
 const WEBHOOK_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']);
@@ -1278,7 +1280,16 @@ function waitAttributes(node, ctx) {
       base.window = w.condition === 'exact'
         ? { condition: 'exact', days: w.days ?? [], start: w.start }
         : { condition: 'when', days: w.days ?? [0, 1, 2, 3, 4, 5, 6], start: w.start, end: w.end };
-      base.windowCondition = { field: '', operator: '', value: '' };
+      // "Additional filter" of the Advance window: a field (Current Day of month / month / year), an operator and a value. Authored
+      // on the node, its window or its attributes; the empty triple is the drawer's default. (An authored value used to be overwritten.)
+      const wc = node.windowCondition ?? w.windowCondition ?? a.windowCondition;
+      if (wc !== undefined && (wc === null || typeof wc !== 'object' || Array.isArray(wc)))
+        throw new IRError('WAIT_WINDOW_CONDITION', `wait '${node.ref}': windowCondition must be {field, operator, value}.`);
+      // The field/operator lists come from the completeness sweep's reading of the drawer (Current Day of month / month / year with == and !=);
+      // the stored value shape has not been read from a builder save, so an unlisted one is passed through with a warning, not refused.
+      if (wc && !WINDOW_CONDITION_FIELDS.has(wc.field ?? '')) ctx?.warn?.(`WAIT_WINDOW_CONDITION: wait '${node.ref}' windowCondition.field '${wc.field}' is not one of ${[...WINDOW_CONDITION_FIELDS].filter(Boolean).join(', ')} (the drawer offers Current Day of month, Current month, Current year); sent as authored.`);
+      if (wc && !WINDOW_CONDITION_OPERATORS.has(wc.operator ?? '')) ctx?.warn?.(`WAIT_WINDOW_CONDITION: wait '${node.ref}' windowCondition.operator '${wc.operator}' is not '==' or '!='; sent as authored.`);
+      base.windowCondition = { field: wc?.field ?? '', operator: wc?.operator ?? '', value: wc?.value ?? '' };
     }
     return base;
   }
@@ -1316,7 +1327,8 @@ function waitAttributes(node, ctx) {
         : { specificDate: a.specificDate,
             ...(a.specificTimeHour !== undefined ? { specificTimeHour: a.specificTimeHour } : {}),
             ...(a.specificTimeMinute !== undefined ? { specificTimeMinute: a.specificTimeMinute } : {}),
-            ...(a.specificTimePeriod !== undefined ? { specificTimePeriod: a.specificTimePeriod } : {}) }),
+            ...(a.specificTimePeriod !== undefined ? { specificTimePeriod: a.specificTimePeriod } : {}),
+            ...(a.specificTimeSecond !== undefined ? { specificTimeSecond: a.specificTimeSecond } : {}) }),
       // setInitialSpecificDate()'s own defaults, verbatim.
       specificDateProceed: a.specificDateProceed ?? 'on',
       specificDateOffsetDays: a.specificDateOffsetDays ?? 0,
@@ -3079,10 +3091,59 @@ function seedRefMap(norm, externalRefs) {
   return refMap;
 }
 
+// Builder rules for the trigger list that the API does not enforce (measured 2026-09-30, sandbox, own drafts, all 200 and stored):
+//  - `inbound_webhook` and `ivr_incoming_call` may appear once per workflow (trigger-filters.ts:33). The API stored two inbound
+//    webhooks on one draft; the picker greys the type out and the canvas flags one card with an error badge.
+//  - a Company (`workflowType: business`, or any non-agent config type) or custom-object workflow is only offered its own trigger
+//    set (TriggerMain.ts:240-292). The API stored a contact `contact_tag` trigger in a Company workflow; the picker never offers it.
+//  - the 14 triggers in NEW_TRIGGERS hide the string operators `matches_intent` and `string-matches-any-of` (trigger.ts:1131-1160);
+//    a stored one renders as "Select operator" and is kept on re-save.
+const UNIQUE_ONLY_TRIGGERS = new Set(['inbound_webhook', 'ivr_incoming_call']);
+const DEPRECATED_TRIGGER_OPERATORS = new Set(['matches_intent', 'string-matches-any-of']);
+const DEPRECATED_OPERATOR_TRIGGERS = new Set(['tik_tok_form_submitted', 'order_submission', 'product_started', 'category_started', 'lesson_started',
+  'lesson_completed', 'payment_received', 'affiliate_created', 'opportunity_decay', 'opportunity_status_changed', 'opportunity_created',
+  'opportunity_changed', 'pipeline_stage_updated', 'ivr_incoming_call']);
+const CONFIG_KIND_TRIGGERS = new Set(['inbound_webhook', 'custom_date_reminder']);
+const OBJECT_KIND_TRIGGERS = new Set(['custom_object_created', 'custom_object_changed', 'inbound_webhook', 'custom_date_reminder']);
+function checkTriggerRules(norm, ctx) {
+  const list = norm.triggers ?? [];
+  for (const type of UNIQUE_ONLY_TRIGGERS) {
+    const n = list.filter((t) => t.type === type).length;
+    const hatch = ctx?.skipWorkflowRules === true || (Array.isArray(ctx?.skipWorkflowRules) && ctx.skipWorkflowRules.includes('TRIGGER_UNIQUE_ONLY'));
+    if (n > 1 && !hatch) {
+      throw new IRError('TRIGGER_UNIQUE_ONLY',
+        `TRIGGER_UNIQUE_ONLY: ${n} '${type}' triggers on one workflow. The builder allows one ("Each workflow can only have one instance of this trigger, and one has already been created"): `
+        + 'the picker greys the type out and the canvas flags the extra card with an error badge. The API stores them all (measured), so this would save and then not work in the editor. '
+        + 'Keep one trigger, or pass skipWorkflowRules (true, or ["TRIGGER_UNIQUE_ONLY"]) to build it anyway.');
+    }
+  }
+  const configKind = Boolean(norm.workflowType && norm.workflowType !== 'agent');
+  const objectKind = Boolean(norm.customObjectType);
+  if (configKind || objectKind) {
+    const allowed = configKind ? CONFIG_KIND_TRIGGERS : OBJECT_KIND_TRIGGERS;
+    for (const t of list) {
+      if (t.marketplace === true || allowed.has(t.type)) continue;
+      const cat = ctx?.catalog?.trigger?.(t.type)?.category ?? null;
+      if (!cat || cat === 'events' || cat === 'company' || cat === 'custom_object') continue;
+      ctx?.warn?.(`TRIGGER_KIND_MISMATCH: '${t.name ?? t.type}' (${t.type}, ${cat}) is not offered by the builder's trigger picker for a ${configKind ? `'${norm.workflowType}'` : 'custom-object'} workflow `
+        + `(it offers ${configKind ? 'the app/marketplace triggers, Inbound webhook and Custom date reminder' : 'the two custom-object triggers, Inbound webhook, Custom date reminder and the app triggers'}). The API stores it anyway (measured), so it saves but cannot be edited or re-added in the builder.`);
+    }
+  }
+  for (const t of list) {
+    if (!DEPRECATED_OPERATOR_TRIGGERS.has(t.type)) continue;
+    for (const f of t.filters ?? []) {
+      if (DEPRECATED_TRIGGER_OPERATORS.has(f.operator)) {
+        ctx?.warn?.(`TRIGGER_OPERATOR_DEPRECATED: '${t.name ?? t.type}' filter '${f.field ?? f.on}' uses '${f.operator}', which the builder no longer offers for ${t.type}: the row loads with an empty operator ("Select operator") and the stored value is kept on re-save. Use 'string-contains-any-of' or 'has_value'.`);
+      }
+    }
+  }
+}
+
 export function compile(ir, ctx) {
   const norm = parseIR(ir, { externalRefs: ctx.externalRefs });
   checkMarketplaceFilters(norm.triggers, ctx);
   checkFlowTriggers(norm.triggers, ctx);
+  checkTriggerRules(norm, ctx);
   // update_opportunity needs an associated opportunity at runtime — enforce the
   // invariant with the catalog-derived set of opportunity-attaching triggers.
   const oppTriggerTypes = new Set(
@@ -3348,7 +3409,10 @@ export function compile(ir, ctx) {
       'datetime_formatter', 'number_formatter', 'text_formatter', 'math_operation', 'custom_code',
       'add_to_workflow', 'remove_from_workflow', 'remove_from_all_workflows', 'array_functions',
       'drip', 'add_notes', 'create_custom_object', 'update_custom_object', 'clear_custom_object_fields', 'transition']);
-    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type));
+    // Marketplace steps: the orchestrator fetches the asset index FOR this workflow's kind (assetWorkflowTypes), so a step the index lists is
+    // one the object workflow's picker offers (find_object_record: the asset's workflowTypes is ['custom_object']). They are not refused here.
+    const objectMarketplace = (t) => Boolean(ctx?.marketplace?.get?.(t.type, 'action'));
+    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type) && !objectMarketplace(t));
     if (bad.length)
       throw new IRError('OBJECT_STEP',
         `OBJECT_STEP: ${bad.length} step(s) not available in an object-based workflow (customObjectType ${norm.customObjectType}): `
@@ -3398,5 +3462,16 @@ export function compile(ir, ctx) {
 
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, _triggerRefs: triggerRefs, authored, compiled: templates.length };
   casingLint(result);
+  // The builder's drawer refuses to save a step or trigger name outside 1..100 characters ("Name should be between 1-100 characters. 101/100");
+  // the API stores any length (measured 2026-09-30: a 101-character step built, read back and ran), so an over-long name builds a workflow
+  // nobody can save from the editor. Advisory, like check_workflow's NAME_LENGTH.
+  for (const t of templates) {
+    const n = typeof t?.name === 'string' ? t.name : null;
+    if (n && n.length > 100) ctx?.warn?.(`NAME_LENGTH: step '${n.slice(0, 40)}…' is ${n.length} characters; the builder's drawer refuses to save a name over 100 (\"Name should be between 1-100 characters\"), so this step could not be edited there. The API stores it.`);
+  }
+  for (const tb of triggerBodies ?? []) {
+    const n = typeof tb?.name === 'string' ? tb.name : null;
+    if (n && n.length > 100) ctx?.warn?.(`NAME_LENGTH: trigger '${n.slice(0, 40)}…' is ${n.length} characters; the builder refuses to save a trigger name over 100.`);
+  }
   return result;
 }

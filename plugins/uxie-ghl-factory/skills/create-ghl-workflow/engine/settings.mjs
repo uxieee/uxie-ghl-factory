@@ -31,6 +31,10 @@ import { IRError } from './ir.mjs';
 export const TIMEZONES = ['account', 'contact'];               // WindowTimezone — NOT an IANA zone
 export const WINDOW_CONDITIONS = ['when'];                     // the global window always stores 'when'
 export const SENDER_KEYS = ['from_name', 'from_email', 'from_number'];
+// The Notes panel shows a note's author and age from createdByName/updatedByName; a note written without them shows neither
+// (measured 2026-09-29/30: a build-path note had only the ids, the update-workflow-note route stamps the names). Same default author
+// as the edit path's setWorkflowNote.
+const NOTE_AUTHOR = (ctx, now) => ({ createdBy: ctx.uid ?? undefined, createdByName: 'uxie-ghl-factory', createdAt: now, updatedBy: ctx.uid ?? undefined, updatedByName: 'uxie-ghl-factory', updatedAt: now });
 export const NOTE_KEYS = ['content', 'createdBy', 'createdByName', 'createdOn', 'createdAt', 'updatedBy', 'updatedByName', 'updatedOn', 'updatedAt'];
 
 // key → { ui label, default the UI would store, brief }
@@ -143,12 +147,12 @@ export function normalizeSettings(settings, ctx = {}) {
   if (s.workflowNote != null && s.workflowNote !== '') {
     const now = (ctx.now ? new Date(ctx.now) : new Date()).toISOString();
     if (typeof s.workflowNote === 'string') {
-      workflowNote = { content: s.workflowNote, createdBy: ctx.uid ?? undefined, createdAt: now, updatedBy: ctx.uid ?? undefined, updatedAt: now };
+      workflowNote = { content: s.workflowNote, ...NOTE_AUTHOR(ctx, now) };
     } else if (typeof s.workflowNote === 'object' && !Array.isArray(s.workflowNote)) {
       const extra = Object.keys(s.workflowNote).filter((k) => !NOTE_KEYS.includes(k));
       if (extra.length) refuse('SETTINGS_KEY', `settings.workflowNote has unknown key(s) [${extra.join(', ')}] — IWorkflowNote is ${NOTE_KEYS.join(', ')}`);
       if (typeof s.workflowNote.content !== 'string') refuse('SETTINGS_VALUE', `settings.workflowNote.content must be a string`);
-      workflowNote = { content: String(s.workflowNote.content ?? ''), createdBy: ctx.uid ?? undefined, createdAt: now, updatedBy: ctx.uid ?? undefined, updatedAt: now, ...s.workflowNote };
+      workflowNote = { content: String(s.workflowNote.content ?? ''), ...NOTE_AUTHOR(ctx, now), ...s.workflowNote };
     } else refuse('SETTINGS_VALUE', `settings.workflowNote must be a string or {content, …}`);
     if (workflowNote) for (const k of Object.keys(workflowNote)) if (workflowNote[k] === undefined) delete workflowNote[k];
     // the Notes panel's workflow note is a PLAIN-TEXT textarea with maxlength 5000 (Setting/Notes page) — longer is unreachable in the UI
@@ -157,7 +161,7 @@ export function normalizeSettings(settings, ctx = {}) {
 
   let eventStartDate = s.eventStartDate ?? '';
   if (typeof eventStartDate !== 'string') { refuse('SETTINGS_VALUE', `settings.eventStartDate must be a string ('' = unset; deprecated in favour of the event_start_date step)`); eventStartDate = ''; }
-  if (eventStartDate) warn(`settings.eventStartDate is deprecated in the builder (the Settings tab no longer shows it) — prefer an event_start_date step`);
+  if (eventStartDate) warn(`settings.eventStartDate is deprecated in the builder (the Settings tab still shows the field, labelled "[Deprecated]: please use event start date action") — prefer an event_start_date step`);
 
   let scheduledPauseDates = s.scheduledPauseDates ?? [];
   if (!Array.isArray(scheduledPauseDates)) { refuse('SETTINGS_VALUE', `settings.scheduledPauseDates must be an array`); scheduledPauseDates = []; }
