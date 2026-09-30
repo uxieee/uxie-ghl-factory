@@ -60,9 +60,9 @@
     ]
   },
   "build_course": {
-    "description": "Build course — proof: live-runtime (2026-09-25), floor: documented; risk: write",
+    "description": "Build course — proof: live-runtime (2026-09-30), floor: documented; risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "documented",
     "proofRows": [
       "memberships-assessment-assignment-create",
@@ -404,9 +404,9 @@
     ]
   },
   "create_snapshot": {
-    "description": "Capture a sub-account into an agency snapshot — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Capture a sub-account into an agency snapshot — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -1615,9 +1615,9 @@
     ]
   },
   "push_snapshot": {
-    "description": "Load a snapshot into sub-accounts — proof: live-runtime (2026-09-25); risk: destructive",
+    "description": "Load a snapshot into sub-accounts — proof: live-runtime (2026-09-30); risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "platform--v2-set-assets-to-locations",
@@ -1657,9 +1657,9 @@
     ]
   },
   "refresh_snapshot": {
-    "description": "Re-capture a snapshot without losing its curation — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Re-capture a snapshot without losing its curation — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -2053,9 +2053,9 @@
     ]
   },
   "edit_pipeline": {
-    "description": "Edit a pipeline and its stages safely — proof: live-runtime (2026-09-29); risk: write",
+    "description": "Edit a pipeline and its stages safely — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-29)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "pipelines-opportunities--opportunities-pipelines",
