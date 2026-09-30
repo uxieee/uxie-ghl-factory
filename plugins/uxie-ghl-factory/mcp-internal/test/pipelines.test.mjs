@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { planPipelineEdit, verifyPipeline, strayArrivals, cardsInRemovedStages } from '../core/pipelines.mjs';
+import { planPipelineEdit, verifyPipeline, strayArrivals, cardsInRemovedStages, isReadBackLag, readBackWithBackoff, readBaseWithBackoff, READBACK_DELAYS_MS, RECENT_WRITE_MS } from '../core/pipelines.mjs';
 
 // The GET row shape, trimmed to what matters (sandbox capture 2026-09-28).
 const row = () => ({
@@ -125,4 +125,72 @@ test('cardsInRemovedStages: the last snapshot stops the edit when a card reached
   assert.deepEqual(cardsInRemovedStages(rows, new Set(['L2'])).map((c) => c.id), ['late']);
   // CONTROL: no card in a removed stage.
   assert.deepEqual(cardsInRemovedStages(rows, ['L3']), []);
+});
+
+// ── read-back lag: the pipeline list can trail a PUT (a real edit answered "sent 8, read back 7" though the write had landed)
+const lagBody = { name: 'P', stages: [{ id: 'a', name: 'A', position: 0 }, { id: 'b', name: 'B', position: 1 }, { name: 'C', position: 2 }] };
+const stored = (n) => ({ name: 'P', stages: [{ id: 'a', name: 'A', position: 0 }, { id: 'b', name: 'B', position: 1 }, { id: 'c', name: 'C', position: 2 }].slice(0, n) });
+const noSleep = async () => {};
+
+test('a short read-back is a lag, but only when nothing else is wrong', () => {
+  assert.equal(isReadBackLag(lagBody, stored(2), verifyPipeline(lagBody, stored(2))), true);
+  // CONTROL: a wrong name on a short read is a real mismatch
+  const wrong = { ...stored(2), name: 'Q' };
+  assert.equal(isReadBackLag(lagBody, wrong, verifyPipeline(lagBody, wrong)), false);
+  // CONTROL: a wrong probability on a stored stage is a real mismatch even when short
+  const body = { ...lagBody, stages: lagBody.stages.map((x, i) => (i === 0 ? { ...x, stageWinProbability: 50 } : x)) };
+  const st = stored(2); st.stages[0].stageWinProbability = 10;
+  assert.equal(isReadBackLag(body, st, verifyPipeline(body, st)), false);
+  // CONTROL: the right count is never a lag; MORE stages than sent is never a lag
+  assert.equal(isReadBackLag(lagBody, stored(3), []), false);
+  const extra = { name: 'P', stages: [...stored(3).stages, { id: 'z', name: 'Z', position: 3 }] };
+  assert.equal(isReadBackLag(lagBody, extra, verifyPipeline(lagBody, extra)), false);
+  assert.equal(isReadBackLag(lagBody, null, ['the pipeline is missing from the list after the write']), false);
+});
+
+test('readBackWithBackoff: a read that catches up on the 3rd try verifies', async () => {
+  const sizes = [2, 2, 3]; let i = 0; const slept = [];
+  const r = await readBackWithBackoff({ read: async () => ({ row: stored(sizes[Math.min(i++, 2)]) }), body: lagBody, sleep: async (ms) => { slept.push(ms); } });
+  assert.deepEqual(r.mismatches, []); assert.equal(r.lag, false); assert.equal(r.attempts, 3); assert.deepEqual(slept, [500, 1000]);
+});
+
+test('readBackWithBackoff: an exact first read is one attempt and no waiting', async () => {
+  const slept = []; let n = 0;
+  const r = await readBackWithBackoff({ read: async () => { n++; return { row: stored(3) }; }, body: lagBody, sleep: async (ms) => slept.push(ms) });
+  assert.equal(n, 1); assert.equal(r.attempts, 1); assert.equal(r.lag, false); assert.deepEqual(slept, []);
+});
+
+test('readBackWithBackoff: still short after every try is a lag (not a failure), bounded to ~3 s', async () => {
+  let n = 0; const slept = [];
+  const r = await readBackWithBackoff({ read: async () => { n++; return { row: stored(2) }; }, body: lagBody, sleep: async (ms) => slept.push(ms) });
+  assert.equal(r.lag, true); assert.equal(n, READBACK_DELAYS_MS.length); assert.ok(slept.reduce((a, b) => a + b, 0) <= 3000);
+});
+
+test('readBackWithBackoff CONTROL: a real mismatch is returned at once, with no re-reads', async () => {
+  let n = 0; const wrong = { ...stored(3), name: 'Q' };
+  const r = await readBackWithBackoff({ read: async () => { n++; return { row: wrong }; }, body: lagBody, sleep: noSleep });
+  assert.equal(n, 1); assert.equal(r.lag, false); assert.ok(r.mismatches.some((m) => /^name:/.test(m)));
+});
+
+test('readBackWithBackoff passes a read failure straight back', async () => {
+  const r = await readBackWithBackoff({ read: async () => ({ failure: { ok: false, code: 'X' } }), body: lagBody, sleep: noSleep });
+  assert.deepEqual(r.failure, { ok: false, code: 'X' });
+});
+
+test('readBaseWithBackoff: a list that trails the last edit is re-read; a stale base is reported, not planned from', async () => {
+  const lastWrite = { count: 3, at: 1000 }; const slept = [];
+  let i = 0; const sizes = [2, 2, 3];
+  const ok = await readBaseWithBackoff({ read: async () => ({ row: stored(sizes[Math.min(i++, 2)]) }), lastWrite, now: 1500, sleep: async (ms) => slept.push(ms) });
+  assert.equal(ok.stale, false); assert.equal(ok.attempts, 3);
+  const stale = await readBaseWithBackoff({ read: async () => ({ row: stored(2) }), lastWrite, now: 1500, sleep: noSleep });
+  assert.equal(stale.stale, true); assert.equal(stale.attempts, READBACK_DELAYS_MS.length);
+});
+
+test('readBaseWithBackoff CONTROLS: no recent write, an old write, or a list that is not short costs no extra reads', async () => {
+  for (const [lastWrite, now, n] of [[undefined, 5000, 2], [{ count: 3, at: 0 }, RECENT_WRITE_MS + 1, 2], [{ count: 3, at: 1000 }, 1500, 3], [{ count: 3, at: 1000 }, 1500, 5]]) {
+    let reads = 0; const r = await readBaseWithBackoff({ read: async () => { reads++; return { row: stored(Math.min(n, 3)) }; }, lastWrite, now, sleep: noSleep });
+    assert.equal(r.stale, false); assert.equal(reads, 1);
+  }
+  const f = await readBaseWithBackoff({ read: async () => ({ failure: { ok: false } }), lastWrite: { count: 3, at: 1 }, now: 2, sleep: noSleep });
+  assert.deepEqual(f.failure, { ok: false });
 });

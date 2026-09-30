@@ -99,7 +99,7 @@ import {
   isGroup,
   leaves as filterLeaves,
 } from './smart-lists.mjs';
-import { planPipelineEdit, verifyPipeline, COLOR_RENDER_MODES, strayArrivals, cardsInRemovedStages } from './pipelines.mjs';
+import { planPipelineEdit, readBackWithBackoff, readBaseWithBackoff, COLOR_RENDER_MODES, strayArrivals, cardsInRemovedStages } from './pipelines.mjs';
 import { CLOSE_DATE_BUCKETS, DRILLDOWN_BY, FORECAST_VIEWS, GROUP_BY, PATHS as FORECAST_PATHS, forecastBody, nameMaps, shapeForecast } from './forecast.mjs';
 import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId } from './snapshots.mjs';
 import {
@@ -1733,6 +1733,9 @@ async function readWorkflowStatus(gw, loc, wid) {
 
 // Re-read the parked roster after a requeue and report which attempted ids have LEFT the step (bl-314). Polled up to
 // four times, 1.5 s apart, because the requeue is processed asynchronously.
+/** pipelineId → { count, at } of the last whole-pipeline PUT edit_pipeline sent in this process (see readBaseWithBackoff). */
+const LAST_PIPELINE_WRITE = new Map();
+
 async function readBackRequeue(ff, wid, stepId, statusIds, sleep = (ms) => new Promise((r) => setTimeout(r, ms))) {
   let stillParked = statusIds; let polls = 0;
   try {
@@ -11263,10 +11266,14 @@ export const TOOLS = [
         if (!r.ok) return { failure: fromHttp(r.status, r.json) };
         return { row: (r.json?.pipelines ?? []).find((p) => p.id === args.pipelineId) ?? null };
       };
-      const first = await readRow();
+      const first = await readBaseWithBackoff({ read: readRow, lastWrite: LAST_PIPELINE_WRITE.get(args.pipelineId) });
       if (first.failure) return first.failure;
       const row = first.row;
       if (!row) return fail(CODES.VALIDATION_FAILED, `no pipeline ${args.pipelineId} in this location`, 'Check the id with list_account_entities. Nothing was written.');
+      if (first.stale) {
+        return fail(CODES.VALIDATION_FAILED, `the pipeline list still shows ${row.stages?.length ?? 0} stages but the last edit from this session sent ${LAST_PIPELINE_WRITE.get(args.pipelineId).count}; it is catching up`,
+          'Wait a few seconds and run the edit again. Writing now would build the whole pipeline from the old list and drop that edit. Nothing was written.');
+      }
       if (String(row.name).trim() !== String(args.expectedName).trim()) {
         return fail(CODES.VALIDATION_FAILED, `target check failed: pipeline ${args.pipelineId} is named "${row.name}", not "${args.expectedName}"`,
           'Re-read the pipeline and pass its current name as expectedName. Nothing was written.');
@@ -11368,14 +11375,21 @@ export const TOOLS = [
       const writeStartedAt = new Date().toISOString();
       const write = await gw.call('PUT', `/opportunities/pipelines/${encodeURIComponent(args.pipelineId)}?${new URLSearchParams({ locationId: loc })}`, plan.body);
       if (!write.ok) return withFailureData(fromHttp(write.status, write.json), { moved });
-      const after = await readRow();
+      // The pipeline list can trail a PUT by a moment: a short read is re-read a few times (about 3 s) before it is called anything.
+      LAST_PIPELINE_WRITE.set(args.pipelineId, { count: plan.body.stages.length, at: Date.now() });
+      const after = await readBackWithBackoff({ read: readRow, body: plan.body });
       if (after.failure) return after.failure;
-      const mismatches = verifyPipeline(plan.body, after.row);
+      const mismatches = after.mismatches;
       const result = { pipeline: { id: args.pipelineId, name: after.row?.name }, changes: plan.diff, moved,
-        stages: (after.row?.stages ?? []).map((s) => ({ id: s.id, name: s.name, position: s.position, stageWinProbability: s.stageWinProbability })) };
-      if (mismatches.length) {
+        stages: (after.row?.stages ?? []).map((s) => ({ id: s.id, name: s.name, position: s.position, stageWinProbability: s.stageWinProbability })),
+        readBackAttempts: after.attempts };
+      if (mismatches.length && !after.lag) {
         return withFailureData(fail(CODES.VERIFY_FAILED, `the pipeline read back differently: ${mismatches.join('; ')}`,
           'The write was sent; inspect data.stages for what GHL stored.'), result);
+      }
+      if (after.lag) {
+        result.verified = false;
+        result.note = `The write was sent and accepted, but the pipeline list still showed ${after.row?.stages?.length ?? 0} of ${plan.body.stages.length} stages after ${after.attempts} reads over about 3 s (${mismatches.join('; ')}). The read-back is catching up, not failed: re-read the pipeline (list_account_entities) before deciding anything.`;
       }
       // 5. Nothing the counts missed may have landed in the first stage. Polled: the index catches up in seconds.
       if (removing) {
