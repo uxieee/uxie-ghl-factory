@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T04:29:40.247Z",
+      "capturedAt": "2026-09-30T04:46:58.298Z",
       "hash": "corpus",
-      "fileCount": 1331,
-      "endpoints": 1331
+      "fileCount": 1333,
+      "endpoints": 1333
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1827,
+  "discoveredCallSites": 1829,
   "skippedCallSites": 713,
-  "count": 1582,
+  "count": 1584,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2544,6 +2544,32 @@
         "calendars/20-api/events-and-appointments.md:23",
         "calendars/20-api/events-and-appointments.md:63",
         "calendars/20-api/events-and-appointments.md:77"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--contacts-notes-put",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/contacts/{contactId}/notes/{noteId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/triggers/note_changed.md:78"
       ],
       "serviceBasis": "declared"
     },
@@ -24727,7 +24753,7 @@
       "sources": [
         "services/BaseService.ts:50",
         "workflows/10-anatomy/04-workflow-anatomy.md:31",
-        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
+        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:236",
         "workflows/40-rules/09-gotchas.md:225",
         "workflows/70-research/2026-08-26-flow-bot-probe.md:171"
       ],
@@ -25746,7 +25772,7 @@
       "sources": [
         "services/BaseService.ts:46",
         "workflows/10-anatomy/advanced-canvas.md:38",
-        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
+        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:236",
         "workflows/50-runtime/flow-bot-four-node-certification.md:58"
       ],
       "serviceClass": "TriggerService",
@@ -26280,7 +26306,7 @@
       },
       "sources": [
         "services/api/workflow-asset-validation.ts:33",
-        "workflows/30-types/steps/email.md:176",
+        "workflows/30-types/steps/email.md:177",
         "workflows/30-types/steps/if_else.md:31",
         "workflows/40-rules/server-side-validation.md:246"
       ],
@@ -34892,8 +34918,8 @@
       "sources": [
         "ai-agents/20-api/conversation-ai-boundary.md:80",
         "ai-agents/30-types/conversation-ai-actions.md:134",
-        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
-        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
+        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:115",
+        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:267",
         "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
       ],
       "serviceBasis": "declared"
@@ -35476,6 +35502,39 @@
       },
       "sources": [
         "ai-agents/00-overview/index.md:88"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--employees-list",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/ai-employees/employees/list",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/triggers/conv_ai_trigger.md:141"
       ],
       "serviceBasis": "declared"
     },
@@ -39778,7 +39837,8 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/20-api/forms.md:33",
-        "forms/20-api/forms.md:54"
+        "forms/20-api/forms.md:54",
+        "forms/20-api/forms.md:245"
       ],
       "serviceBasis": "declared"
     },
@@ -39877,7 +39937,7 @@
         "forms/10-anatomy/form-object.md:90",
         "forms/20-api/forms.md:35",
         "forms/20-api/forms.md:69",
-        "forms/40-rules/validators-and-quirks.md:73",
+        "forms/20-api/forms.md:245",
         "forms/40-rules/validators-and-quirks.md:165"
       ],
       "serviceBasis": "declared",
@@ -40601,7 +40661,7 @@
         "forms/00-overview/forms-surveys-quizzes.md:54",
         "forms/20-api/forms.md:47",
         "forms/20-api/forms.md:232",
-        "forms/20-api/public-renderer-and-submit.md:102"
+        "forms/20-api/forms.md:247"
       ],
       "serviceBasis": "declared"
     },
@@ -40776,6 +40836,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "forms/20-api/forms.md:249",
         "forms/40-rules/validators-and-quirks.md:162"
       ],
       "serviceBasis": "declared"

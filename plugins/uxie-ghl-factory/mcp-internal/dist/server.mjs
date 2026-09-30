@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1591,
+      count: 1593,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -3444,6 +3444,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "calendars/20-api/events-and-appointments.md:23",
             "calendars/20-api/events-and-appointments.md:63",
             "calendars/20-api/events-and-appointments.md:77"
+          ]
+        },
+        {
+          id: "workflows--contacts-notes-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/contacts/{contactId}/notes/{noteId}",
+          path: "/contacts/{contactId}/notes/{noteId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "contactId"
+            },
+            {
+              name: "noteId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/triggers/note_changed.md:78"
           ]
         },
         {
@@ -31639,7 +31677,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/BaseService.ts:50",
             "workflows/10-anatomy/04-workflow-anatomy.md:31",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:236",
             "workflows/40-rules/09-gotchas.md:225",
             "workflows/70-research/2026-08-26-flow-bot-probe.md:171"
           ]
@@ -33015,7 +33053,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/BaseService.ts:46",
             "workflows/10-anatomy/advanced-canvas.md:38",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:236",
             "workflows/50-runtime/flow-bot-four-node-certification.md:58"
           ]
         },
@@ -33689,7 +33727,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/email.md:176",
+            "workflows/30-types/steps/email.md:177",
             "workflows/30-types/steps/if_else.md:31",
             "workflows/40-rules/server-side-validation.md:246"
           ]
@@ -44037,8 +44075,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:80",
             "ai-agents/30-types/conversation-ai-actions.md:134",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:115",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:267",
             "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
           ]
         },
@@ -44783,6 +44821,44 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/00-overview/index.md:88"
+          ]
+        },
+        {
+          id: "workflows--employees-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/list",
+          path: "/ai-employees/employees/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/triggers/conv_ai_trigger.md:141"
           ]
         },
         {
@@ -50246,7 +50322,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/20-api/forms.md:33",
-            "forms/20-api/forms.md:54"
+            "forms/20-api/forms.md:54",
+            "forms/20-api/forms.md:245"
           ]
         },
         {
@@ -50375,7 +50452,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "forms/10-anatomy/form-object.md:90",
             "forms/20-api/forms.md:35",
             "forms/20-api/forms.md:69",
-            "forms/40-rules/validators-and-quirks.md:73",
+            "forms/20-api/forms.md:245",
             "forms/40-rules/validators-and-quirks.md:165"
           ]
         },
@@ -51253,7 +51330,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "forms/00-overview/forms-surveys-quizzes.md:54",
             "forms/20-api/forms.md:47",
             "forms/20-api/forms.md:232",
-            "forms/20-api/public-renderer-and-submit.md:102"
+            "forms/20-api/forms.md:247"
           ]
         },
         {
@@ -51464,6 +51541,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "forms/20-api/forms.md:249",
             "forms/40-rules/validators-and-quirks.md:162"
           ]
         },
@@ -74584,9 +74662,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_form: {
-        description: "Read one form and its stored document \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Read one form and its stored document \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-detail",
@@ -75020,9 +75098,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_form_submissions: {
-        description: "List form submissions \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "List form submissions \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-submissions"
@@ -207155,11 +207233,11 @@ function duplicateStep(templates, stepId, idGen, { afterId } = {}) {
   }
   const marked = tpls.find((t) => t.id === stepId);
   const { comments, id: _id, next: _n, parentKey: _p, parent: _pa, order: _o, ...rest } = marked;
-  const clone3 = { ...JSON.parse(JSON.stringify(rest)), id: idGen() };
-  if (src.advanceCanvasMeta) clone3.advanceCanvasMeta = JSON.parse(JSON.stringify(src.advanceCanvasMeta));
-  const r = insertAfter(tpls, clone3, afterId ?? stepId);
+  const clone4 = { ...JSON.parse(JSON.stringify(rest)), id: idGen() };
+  if (src.advanceCanvasMeta) clone4.advanceCanvasMeta = JSON.parse(JSON.stringify(src.advanceCanvasMeta));
+  const r = insertAfter(tpls, clone4, afterId ?? stepId);
   if (!r.diff.createdSteps?.length) throw new Error(`duplicateStep: insert anchor '${afterId ?? stepId}' not found`);
-  return { templates: r.templates, diff: { ...r.diff, modifiedSteps: [.../* @__PURE__ */ new Set([...r.diff.modifiedSteps ?? [], ...modified])] }, newId: clone3.id };
+  return { templates: r.templates, diff: { ...r.diff, modifiedSteps: [.../* @__PURE__ */ new Set([...r.diff.modifiedSteps ?? [], ...modified])] }, newId: clone4.id };
 }
 var TAG_CONDITION_SUBTYPES = /* @__PURE__ */ new Set(["tags"]);
 function swapInArray(arr, oldTag, newTag) {
@@ -216570,7 +216648,7 @@ var STANDARD_ELEMENTS = Object.freeze({
   phone: { type: "text", required: true },
   email: { type: "email", required: true },
   button: { type: "submit" },
-  group_address: { type: "group", key: "addressId", label: "Address", placeholder: "Street Address" },
+  group_address: { type: "group", label: "Address", placeholder: "Street Address" },
   address: { type: "text" },
   city: { type: "text" },
   state: { type: "text" },
@@ -216618,11 +216696,11 @@ var RENDERERS = Object.freeze([
   "select"
 ]);
 var ADDRESS_CHILDREN = Object.freeze([
-  { label: "Street Address", tag: "address", hiddenFieldQueryKey: "address", type: "text", placeholder: "Enter your full address", required: false, standard: true },
-  { label: "City", tag: "city", hiddenFieldQueryKey: "city", type: "text", placeholder: "Enter your city", required: false, standard: true },
-  { label: "State", tag: "state", hiddenFieldQueryKey: "state", type: "text", placeholder: "Enter your state", required: false, standard: true },
-  { label: "Country", tag: "country", hiddenFieldQueryKey: "country", type: "select", placeholder: "Enter your country", required: false, standard: true },
-  { label: "Postal Code", tag: "postal_code", hiddenFieldQueryKey: "postal_code", type: "text", placeholder: "ZIP or postal code", required: false, standard: true }
+  { label: "Street Address", tag: "address", hiddenFieldQueryKey: "address", type: "text", typeLabel: "Text", placeholder: "Enter your full address", required: false, standard: true, category: "address", title: "Address", hideInLeftSideBar: true },
+  { label: "City", tag: "city", hiddenFieldQueryKey: "city", type: "text", typeLabel: "Text", placeholder: "Enter your city", required: false, standard: true, category: "address", title: "City" },
+  { label: "State", tag: "state", hiddenFieldQueryKey: "state", type: "text", typeLabel: "Text", placeholder: "Enter your state", required: false, standard: true, category: "address", title: "State" },
+  { label: "Country", tag: "country", hiddenFieldQueryKey: "country", type: "select", typeLabel: "Select", placeholder: "Enter your country", required: false, standard: true, category: "address", title: "Country" },
+  { label: "Postal Code", tag: "postal_code", hiddenFieldQueryKey: "postal_code", type: "text", typeLabel: "Text", placeholder: "ZIP or postal code", required: false, standard: true, category: "address", title: "Postal Code" }
 ].map(Object.freeze));
 var CHILD_TAGS = new Set(ADDRESS_CHILDREN.map((c) => c.tag));
 function addressGroup(fields2) {
@@ -216696,6 +216774,51 @@ function carries(sent, stored) {
     return Object.entries(sent).every(([k, v]) => v === void 0 || carries(v, stored[RENAMED[k] ?? k] ?? stored[k]));
   }
   return sent === stored;
+}
+
+// core/form-builder-shapes.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var BUILDER_FIELD_SHAPES = Object.freeze({
+  "full_name": { "label": "Full Name", "tag": "full_name", "hiddenFieldQueryKey": "full_name", "type": "text", "typeLabel": "Text", "placeholder": "Enter your full name", "required": false, "standard": true, "active": false, "fieldWidthPercentage": 100 },
+  "first_name": { "active": false, "fieldWidthPercentage": 100, "hiddenFieldQueryKey": "first_name", "label": "First Name", "placeholder": "Enter your first name", "standard": true, "tag": "first_name", "type": "text", "typeLabel": "Text" },
+  "last_name": { "label": "Last Name", "tag": "last_name", "hiddenFieldQueryKey": "last_name", "type": "text", "typeLabel": "Text", "placeholder": "Enter your last name", "required": false, "standard": true, "active": false, "fieldWidthPercentage": 100 },
+  "date_of_birth": { "label": "Date of birth", "tag": "date_of_birth", "type": "date", "typeLabel": "Date", "format": "YYYY-MM-DD", "separator": "-", "placeholder": "DD / MM / YYYY", "standard": true, "hiddenFieldQueryKey": "date_of_birth", "active": false, "fieldWidthPercentage": 100 },
+  "phone": { "active": false, "fieldWidthPercentage": 100, "hiddenFieldQueryKey": "phone", "label": "Phone", "placeholder": "Enter your phone", "required": true, "standard": true, "tag": "phone", "type": "text", "typeLabel": "Text" },
+  "email": { "active": false, "fieldWidthPercentage": 100, "hiddenFieldQueryKey": "email", "label": "Email", "placeholder": "Enter your email", "required": true, "standard": true, "tag": "email", "type": "email", "typeLabel": "Email" },
+  "organization": { "label": "Organization", "tag": "organization", "hiddenFieldQueryKey": "organization", "type": "text", "typeLabel": "Text", "placeholder": "Enter your organization", "required": false, "standard": true, "title": "Organization", "active": false, "fieldWidthPercentage": 100 },
+  "website": { "label": "Website", "tag": "website", "hiddenFieldQueryKey": "website", "type": "text", "typeLabel": "Text", "placeholder": "https://yourwebsite.com", "standard": true, "title": "Website", "active": false, "fieldWidthPercentage": 100 },
+  "image": { "label": "Image 1", "tag": "image", "hiddenFieldQueryKey": "image_1", "type": "img", "placeholder": "", "standard": true, "active": false },
+  "header": { "label": '<h1 style="padding-left: 0px!important;">Text</h1>', "tag": "header", "hiddenFieldQueryKey": "header_1", "type": "h1", "placeholder": "header", "typeLabel": "Text", "weight": 400, "bgColor": "FFFFFF00", "align": "left", "shadow": { "horizontal": 0, "vertical": 0, "blur": 0, "spread": 0, "color": "FFFFFF" }, "padding": { "top": 0, "bottom": 0, "left": 0, "right": 0 }, "border": { "border": 0, "radius": 0, "color": "FFFFFF", "type": "none" }, "standard": true, "active": false },
+  "html": { "label": "HTML 1", "tag": "html", "hiddenFieldQueryKey": "html_1", "type": "html", "placeholder": "The Custom HTML goes here", "html": "", "standard": true, "active": false },
+  "captcha": { "label": "Bot protection", "tag": "captcha", "hiddenFieldQueryKey": "captcha", "type": "captcha", "standard": true, "invisible": false, "active": false },
+  "source": { "label": "Source", "tag": "source", "hiddenFieldQueryKey": "source", "type": "source", "value": "", "standard": true, "active": false },
+  "terms_and_conditions": { "label": "T & C", "tag": "terms_and_conditions", "type": "terms_and_conditions", "required": true, "hiddenFieldQueryKey": "terms_and_conditions", "textColor": "000000", "linkColor": "188bf6", "placeholder": "<p style='font-family: Inter; font-size: 16px; font-weight: 400; color: #344054FF;'>I agree to terms & conditions provided by the company. By providing my phone number, I agree to receive text messages from the business.</p>", "preview": "<p style='font-family: Inter; font-size: 16px; font-weight: 400; color: #000000;'>I agree to terms & conditions provided by the company. By providing my phone number, I agree to receive text messages from the business.</p>", "standard": true, "active": false },
+  "group_address": { "label": "Address", "tag": "group_address", "hiddenFieldQueryKey": "group_address", "type": "group", "placeholder": "Street Address", "required": false, "standard": true, "title": "Street Address", "active": false },
+  "button": { "label": "Submit", "tag": "button", "hiddenFieldQueryKey": "button", "type": "submit", "placeholder": "Button", "submitSubText": "", "bgColor": "155EEFFF", "padding": { "top": 9, "bottom": 9, "left": 10, "right": 10 }, "border": 0, "borderType": "none", "borderColor": "FFFFFF", "borderRadius": 6, "shadow": { "horizontal": 0, "vertical": 0, "blur": 0, "spread": 0, "color": "FFFFFF" }, "fullwidth": true, "color": "FFFFFF", "weight": 500, "radius": 4, "subTextColor": "000000", "subTextWeight": 200, "align": "center", "standard": true, "active": false, "fieldWidthPercentage": 100 }
+});
+var clone3 = (v) => structuredClone(v);
+function shapeForBuilder(input) {
+  const added = [];
+  const fields2 = (input ?? []).map((f, index) => {
+    const shape = f && typeof f === "object" ? BUILDER_FIELD_SHAPES[f.tag] : void 0;
+    if (!shape) return f;
+    const out = { ...f };
+    const keys = [];
+    for (const [k, v] of Object.entries(shape)) {
+      if (out[k] !== void 0) continue;
+      if (k === "typeLabel" && out.type !== shape.type) continue;
+      out[k] = clone3(v);
+      keys.push(k);
+    }
+    if (keys.length) added.push({ index, tag: f.tag, keys });
+    return out;
+  });
+  return { fields: fields2, added };
 }
 
 // core/ai-studio.mjs
@@ -224270,20 +224393,20 @@ var TOOLS2 = [
         );
       }
       const cloneResponse = await getWorkflow(gw, args.locationId, newId);
-      const clone3 = cloneResponse.ok ? cloneResponse.json : null;
+      const clone4 = cloneResponse.ok ? cloneResponse.json : null;
       const cloneTriggers = await listWorkflowTriggers(gw, args.locationId, newId);
       const cloneTriggerList = cloneTriggers.response.ok ? cloneTriggers.triggers : [];
       return ok({
         workflowId: newId,
         preview,
-        workflow: clone3 ? {
+        workflow: clone4 ? {
           id: newId,
-          name: clone3.name,
-          status: clone3.status,
-          version: clone3.version,
-          parentId: clone3.parentId ?? null,
-          originType: clone3.originType ?? null,
-          steps: clone3.workflowData?.templates?.length ?? null
+          name: clone4.name,
+          status: clone4.status,
+          version: clone4.version,
+          parentId: clone4.parentId ?? null,
+          originType: clone4.originType ?? null,
+          steps: clone4.workflowData?.templates?.length ?? null
         } : null,
         triggers: {
           source: sourceTriggerCount,
@@ -224292,7 +224415,7 @@ var TOOLS2 = [
           inactive: cloneTriggerList.filter((trigger) => trigger.active !== true).length,
           note: "Cloned triggers land active:false. They fire only after the clone is published."
         },
-        verified: Boolean(clone3),
+        verified: Boolean(clone4),
         builderUrl: `https://app.gohighlevel.com/v2/location/${loc}/automation/workflow/${encodeURIComponent(newId)}`
       });
     }, args)
@@ -226159,7 +226282,8 @@ var TOOLS2 = [
           "Give each element a renderer `type`. Built-in tags (first_name, email, phone, button, \u2026) get the builder's shape when type is left out."
         );
       }
-      const grouped = addressGroup(fields2);
+      const builderShaped = shapeForBuilder(fields2);
+      const grouped = addressGroup(builderShaped.fields);
       const blank = blankSubmitWarning(grouped.fields);
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const document = {
@@ -226175,6 +226299,7 @@ var TOOLS2 = [
         document,
         fieldTags: grouped.fields.map((f) => f.tag),
         ...filled.length ? { completed: filled } : {},
+        ...builderShaped.added.length ? { builderShape: builderShaped.added.map((a) => ({ tag: a.tag, keysAdded: a.keys.length })) } : {},
         warning: "The form is PUBLIC the moment it is created \u2014 there is no draft state, and formData is readable with no credentials.",
         ...blank ? { blankSubmit: blank } : {}
       };
@@ -226234,6 +226359,7 @@ var TOOLS2 = [
         fieldTags: back.hit ?? want,
         widgetUrl: `https://api.leadconnectorhq.com/widget/form/${formId}`,
         ...filled.length ? { completed: filled } : {},
+        ...builderShaped.added.length ? { builderShape: builderShaped.added.map((a) => ({ tag: a.tag, keysAdded: a.keys.length })) } : {},
         ...blank ? { blankSubmit: blank } : {},
         ...back.hit ? {} : { note: `Saved, but the document had not appeared after ${back.attempts} read-backs. Reads lag writes by seconds \u2014 read it again with get_form before assuming it is wrong.` }
       });
@@ -226272,7 +226398,8 @@ var TOOLS2 = [
           "Give each element a renderer `type`. Built-in tags (first_name, email, phone, button, \u2026) get the builder's shape when type is left out."
         );
       }
-      const grouped = shaped ? addressGroup(shaped.fields) : null;
+      const builderShaped = shaped ? shapeForBuilder(shaped.fields) : null;
+      const grouped = shaped ? addressGroup(builderShaped.fields) : null;
       if (shaped) args = { ...args, fields: grouped.fields };
       const blank = shaped ? blankSubmitWarning(grouped.fields) : null;
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -226305,6 +226432,7 @@ var TOOLS2 = [
         ...args.name !== void 0 && args.name !== form.name ? { rename: { from: form.name, to: args.name } } : {},
         preservedKeys: Object.keys(before).filter((k) => !patch.includes(k)),
         ...shaped?.filled.length ? { completed: shaped.filled } : {},
+        ...builderShaped?.added.length ? { builderShape: builderShaped.added.map((a) => ({ tag: a.tag, keysAdded: a.keys.length })) } : {},
         ...blank ? { blankSubmit: blank } : {},
         note: "Keys under preservedKeys are re-sent verbatim. Without that they would be DELETED \u2014 the save replaces the document."
       };
@@ -226346,12 +226474,16 @@ var TOOLS2 = [
   },
   {
     name: "list_form_submissions",
-    description: `${describe3("list_form_submissions", "List form submissions \u2014 risk: read")}. Submissions for one form, or for the whole sub-account when formId is omitted. This endpoint pages with \`page\`, NOT \`skip\` \u2014 sending skip is a 422. The separate count endpoint takes a date range and refuses formId, so a per-form count is the length of these rows.`,
+    description: `${describe3("list_form_submissions", "List form submissions \u2014 risk: read")}. Submissions for one form, or for the whole sub-account when formId is omitted. This endpoint pages with \`page\`, NOT \`skip\` \u2014 sending skip is a 422. The separate count endpoint takes a date range and refuses formId, so a per-form count is the length of these rows. The Submissions tab's own filters: \`startAt\` / \`endAt\` (ISO time, e.g. 2026-09-01T00:00:00+00:00 \u2014 a window that excludes a submission drops it), \`q\` (search; a string nothing matches returns 0), \`productType\` form | survey | quiz (quiz returned 0 on a form's rows while survey returned the same rows as form).`,
     inputSchema: schema({
       locationId: external_exports.string(),
       formId: external_exports.string().optional(),
       page: external_exports.number().default(1),
-      limit: external_exports.number().default(20)
+      limit: external_exports.number().default(20),
+      startAt: external_exports.string().optional().describe("window start, ISO time with offset (the tab sends 2026-08-29T23:00:00+00:00)"),
+      endAt: external_exports.string().optional().describe("window end, ISO time with offset"),
+      q: external_exports.string().optional().describe("search text"),
+      productType: external_exports.enum(["form", "survey", "quiz"]).optional()
     }),
     capabilities: [{ method: "GET", path: "/forms/submissions" }],
     handler: async (args, deps) => guard(async () => {
@@ -226362,6 +226494,7 @@ var TOOLS2 = [
         limit: String(args.limit ?? 20)
       });
       if (args.formId) q3.set("formId", args.formId);
+      for (const k of ["startAt", "endAt", "q", "productType"]) if (args[k] !== void 0) q3.set(k, args[k]);
       const r = await gw.call("GET", `/forms/submissions?${q3}`);
       if (!r.ok) return fromHttp(r.status, r.json);
       const rows = r.json?.submissions ?? r.json?.data ?? [];
@@ -228588,8 +228721,8 @@ var TOOLS2 = [
         }
         let pageRename = null;
         if (args.op === "split-test" && args.action === "add-variation") {
-          const [clone3, putPages, mkLookup] = plan.steps;
-          const c = await gw.call(clone3.method, clone3.path, clone3.body);
+          const [clone4, putPages, mkLookup] = plan.steps;
+          const c = await gw.call(clone4.method, clone4.path, clone4.body);
           if (!c.ok) return fromHttp(c.status, c.json);
           const vid = c.json?.pageId;
           if (!vid) return fail(CODES.VERIFY_FAILED, "clone-control-page answered 2xx without a pageId", "Nothing else was sent. Read the step with get_funnel: an unattached clone may exist.");
