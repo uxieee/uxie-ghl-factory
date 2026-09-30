@@ -192,6 +192,15 @@ const NAME_HASHES = new Set([
   'e9db02674de84594e916dc84eac9dcf6d99f0ed3589770de82452d25339dfdf9',  // harvested-account spelling variant (2026-09-23, bl-107 sweep)
   // bl-107 (2026-09-23): synced with knowledge's list EXCEPT the GROM family (grom, grom au, grom uk,
   // grom digital, gromdigital): this repo names the agency's own accounts in provenance on purpose.
+
+  // One harvested project's vocabulary that sat in hand-curated step examples for months (found 2026-09-30): its product
+  // name (one word and two), a custom-field title, a merge-tag stem and a routing-schema field. The scanner joins at most
+  // three adjacent words, so each entry is a 1-3 gram. Same five hashes as knowledge/scripts/check-privacy.mjs.
+  'd934dd1d7a70ef2c30959ffb62ec7f81ffef520824b15bdf52e26145931b4f42',
+  'e1839bc29f08189b7876e7acf8ff3954951b5efbf951dfa80db16f8d01b8e58d',
+  'd47bf56312ee8eb99b7f945306a7c804d6dc35726391c54af7cb75cf98119fc5',
+  'af56a0419031ae138a3f3a88256ec97aa34e77ea85c12556bdf6d063a48a10a7',
+  '327b59e7f26ffe855ebbc5e65687bbe0cb32eafee7732d7d5dc80782a7dff066',
 ]);
 
 // Normalize a candidate the way the hashes were generated: lowercase, collapse any

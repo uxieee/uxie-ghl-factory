@@ -13,7 +13,7 @@
             {
               "field": "<field>",
               "value": "",
-              "title": "HB Timezone",
+              "title": "Timezone",
               "type": "string",
               "date": ""
             }
@@ -36,7 +36,7 @@
             {
               "field": "<field>",
               "value": "{{message.body}}",
-              "title": "HB Timezone",
+              "title": "Timezone",
               "type": "string",
               "date": ""
             }
@@ -59,7 +59,7 @@
       {
         "field": "<field>",
         "value": "",
-        "title": "HB Timezone",
+        "title": "Timezone",
         "type": "string",
         "date": ""
       }

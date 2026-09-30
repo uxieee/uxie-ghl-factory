@@ -56,7 +56,7 @@
   "attributes": {
     "event": "CUSTOM",
     "method": "POST",
-    "url": "https://habitbuddy-bot-services.xanderjohnrazontest.workers.dev/reminders/{{inboundWebhookRequest.reminder_id}}/delivery-result",
+    "url": "https://example.com/hooks/{{inboundWebhookRequest.reminder_id}}/delivery-result",
     "body": {
       "contentType": "application/json",
       "rawData": "{\n  \"delivery_id\":\"{{inboundWebhookRequest.delivery_id}}\",\n  \"status\":\"delivered\"\n}",
