@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1636,
+      count: 1656,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -655,8 +655,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--agents",
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}",
-          path: "/agents/{pa}",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}",
+          path: "/agents/{perfAgentId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -671,7 +671,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             }
           ],
           query: [],
@@ -690,8 +690,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--auto-supervise-stop",
           method: "POST",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}/auto-supervise/{runId}/stop",
-          path: "/agents/{pa}/auto-supervise/{runId}/stop",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}/auto-supervise/{runId}/stop",
+          path: "/agents/{perfAgentId}/auto-supervise/{runId}/stop",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -706,7 +706,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             },
             {
               name: "runId"
@@ -728,8 +728,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--auto-supervise-run",
           method: "POST",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}/auto-supervise/run",
-          path: "/agents/{pa}/auto-supervise/run",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}/auto-supervise/run",
+          path: "/agents/{perfAgentId}/auto-supervise/run",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -744,7 +744,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             }
           ],
           query: [],
@@ -763,8 +763,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--agents-eval-prompt",
           method: "PATCH",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}/eval-prompt",
-          path: "/agents/{pa}/eval-prompt",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}/eval-prompt",
+          path: "/agents/{perfAgentId}/eval-prompt",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -779,7 +779,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             }
           ],
           query: [],
@@ -798,8 +798,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--agents-iterations",
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}/iterations",
-          path: "/agents/{pa}/iterations",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}/iterations",
+          path: "/agents/{perfAgentId}/iterations",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -814,7 +814,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             }
           ],
           query: [],
@@ -833,8 +833,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--agents-iterations-post",
           method: "POST",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}/iterations",
-          path: "/agents/{pa}/iterations",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}/iterations",
+          path: "/agents/{perfAgentId}/iterations",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -849,7 +849,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             }
           ],
           query: [],
@@ -868,8 +868,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--optimization-runtime-prepare",
           method: "POST",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}/optimization-runtime/prepare",
-          path: "/agents/{pa}/optimization-runtime/prepare",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}/optimization-runtime/prepare",
+          path: "/agents/{perfAgentId}/optimization-runtime/prepare",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -884,7 +884,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             }
           ],
           query: [],
@@ -903,8 +903,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--agents-scenarios",
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}/scenarios",
-          path: "/agents/{pa}/scenarios",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}/scenarios",
+          path: "/agents/{perfAgentId}/scenarios",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -919,7 +919,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             }
           ],
           query: [],
@@ -938,8 +938,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--agents-scenarios-post",
           method: "POST",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}/scenarios",
-          path: "/agents/{pa}/scenarios",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}/scenarios",
+          path: "/agents/{perfAgentId}/scenarios",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -954,7 +954,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             }
           ],
           query: [],
@@ -973,8 +973,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "ai-agents--scenarios-generate",
           method: "POST",
-          url: "https://backend.leadconnectorhq.com/agents/{pa}/scenarios/generate",
-          path: "/agents/{pa}/scenarios/generate",
+          url: "https://backend.leadconnectorhq.com/agents/{perfAgentId}/scenarios/generate",
+          path: "/agents/{perfAgentId}/scenarios/generate",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -989,7 +989,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "pa"
+              name: "perfAgentId"
             }
           ],
           query: [],
@@ -4333,6 +4333,38 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "events/20-api/events-management-api.md:291"
+          ]
+        },
+        {
+          id: "workflows--ids-es",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/contacts/search/ids/es",
+          path: "/contacts/search/ids/es",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/50-runtime/11-runtime-logs.md:294",
+            "workflows/50-runtime/11-runtime-logs.md:295"
           ]
         },
         {
@@ -15174,7 +15206,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:522"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:541"
           ]
         },
         {
@@ -17788,7 +17820,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:514",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:533",
             "ai-agents/20-api/agent-templates.md:25",
             "ai-agents/20-api/agent-templates.md:33"
           ]
@@ -17821,7 +17853,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:526"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:545"
           ]
         },
         {
@@ -18076,6 +18108,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--medias-delete-files",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/medias/delete-files",
+          path: "/medias/delete-files",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:211"
+          ]
+        },
+        {
           id: "media-service--search-videos",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/medias/files",
@@ -18097,7 +18160,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "searchVideos",
-          service: null,
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -19988,7 +20051,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "setFirebaseAuth",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -20036,7 +20099,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "postOAuthAuthorize",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -20071,7 +20134,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:527",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:546",
             "ai-agents/20-api/agent-templates.md:53",
             "workflows/70-research/ENDPOINTS.md:243"
           ]
@@ -20091,7 +20154,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateBasicAuthentication",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20129,7 +20192,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "listExternalAccounts",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20182,7 +20245,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "createExternalAccount",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20246,7 +20309,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "deleteLocationAccount",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20288,7 +20351,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchOAuthUrl",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20409,7 +20472,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchWhiteLabelConfig",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23525,9 +23588,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/SaasService.ts:12",
             "services/marketplaceServices/SaasService.ts:16",
             "workflows/20-api/agency-premium-features.md:51",
-            "workflows/20-api/agency-premium-features.md:181",
+            "workflows/20-api/agency-premium-features.md:183",
             "services/marketplaceServices/SaasService.ts:29",
-            "workflows/20-api/agency-premium-features.md:119"
+            "workflows/20-api/agency-premium-features.md:121"
           ]
         },
         {
@@ -23621,8 +23684,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/agency-premium-features.md:85",
-            "workflows/20-api/agency-premium-features.md:137"
+            "workflows/20-api/agency-premium-features.md:87",
+            "workflows/20-api/agency-premium-features.md:139"
           ]
         },
         {
@@ -23666,7 +23729,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/20-api/agency-premium-features.md:54",
-            "workflows/20-api/agency-premium-features.md:135"
+            "workflows/20-api/agency-premium-features.md:137"
           ]
         },
         {
@@ -29816,9 +29879,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "states/app.ts:586",
             "hooks/use-note-image-upload.ts:49",
             "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
+            "workflows/20-api/rich-text-editor.md:43",
             "workflows/20-api/uploads-and-dynamic-sources.md:21",
-            "workflows/30-types/steps/voicemail.md:77",
-            "workflows/30-types/steps/voicemail.md:117"
+            "workflows/30-types/steps/voicemail.md:77"
           ]
         },
         {
@@ -33103,7 +33166,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/PremiumTierUsageService.ts:21",
-            "workflows/20-api/agency-premium-features.md:119",
+            "workflows/20-api/agency-premium-features.md:121",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:72"
           ]
         },
@@ -42799,7 +42862,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/flow-agent-shape.md:154",
-            "ai-agents/20-api/actions-and-plugins.md:24"
+            "ai-agents/20-api/actions-and-plugins.md:24",
+            "ai-agents/20-api/custom-api-and-mcp.md:83"
           ]
         },
         {
@@ -42839,11 +42903,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           returns: null,
           confidence: {
             path: "documented",
-            query: "documented",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:90",
             "ai-agents/30-types/voice-ai-actions.md:87",
             "ai-agents/30-types/voice-ai-actions.md:94"
           ]
@@ -42933,6 +42998,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/actions-and-plugins.md:27",
             "ai-agents/20-api/actions-and-plugins.md:61"
+          ]
+        },
+        {
+          id: "ai-agents--actions-custom-api-test-webhook",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-execution/actions/custom-api-test-webhook",
+          path: "/agent-execution/actions/custom-api-test-webhook",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:66"
           ]
         },
         {
@@ -44315,6 +44411,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--agents-retrieve-mcp-tools",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents/retrieve-mcp-tools",
+          path: "/agent-studio/agents/retrieve-mcp-tools",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:49"
+          ]
+        },
+        {
           id: "ai-agents--agents-versions",
           method: "PATCH",
           url: "https://services.leadconnectorhq.com/agent-studio/agents/versions/{versionId}",
@@ -44347,7 +44474,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/flow-agent-shape.md:57",
-            "ai-agents/10-anatomy/flow-agent-shape.md:66"
+            "ai-agents/10-anatomy/flow-agent-shape.md:66",
+            "ai-agents/20-api/custom-api-and-mcp.md:50"
           ]
         },
         {
@@ -44383,6 +44511,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/flow-agent-shape.md:183"
+          ]
+        },
+        {
+          id: "ai-agents--plugins-connection-status",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-studio/plugins/{slug}/connection-status",
+          path: "/agent-studio/plugins/{slug}/connection-status",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "slug"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:98"
           ]
         },
         {
@@ -44542,6 +44705,75 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:252",
             "ai-agents/20-api/actions-and-plugins.md:74"
+          ]
+        },
+        {
+          id: "ai-agents--plugins-skill-instances",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-studio/plugins/skill-instances",
+          path: "/agent-studio/plugins/skill-instances",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "product",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:69"
+          ]
+        },
+        {
+          id: "ai-agents--plugins-skill-instances-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/plugins/skill-instances",
+          path: "/agent-studio/plugins/skill-instances",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:67"
           ]
         },
         {
@@ -44839,7 +45071,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:254",
             "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
             "ai-agents/10-anatomy/managed-agent-shape.md:84",
-            "ai-agents/20-api/12-ai-agents-api.md:393"
+            "ai-agents/20-api/12-ai-agents-api.md:393",
+            "ai-agents/20-api/custom-api-and-mcp.md:99"
           ]
         },
         {
@@ -44992,7 +45225,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:104"
+            "ai-agents/10-anatomy/managed-agent-shape.md:104",
+            "ai-agents/10-anatomy/managed-agent-shape.md:205"
           ]
         },
         {
@@ -45026,7 +45260,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/managed-agent-shape.md:162",
-            "ai-agents/10-anatomy/managed-agent-shape.md:207"
+            "ai-agents/10-anatomy/managed-agent-shape.md:213"
           ]
         },
         {
@@ -45596,7 +45830,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:132",
-            "ai-agents/40-rules/labs-feature-flags.md:60"
+            "ai-agents/40-rules/labs-feature-flags.md:65"
           ]
         },
         {
@@ -45670,7 +45904,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
-            "ai-agents/00-overview/index.md:86"
+            "ai-agents/00-overview/index.md:90"
           ]
         },
         {
@@ -45766,6 +46000,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:384",
             "ai-agents/20-api/conversation-ai-boundary.md:31",
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
+            "ai-agents/20-api/custom-api-and-mcp.md:74",
             "ai-agents/40-rules/builder-vs-server.md:33"
           ]
         },
@@ -46206,7 +46441,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:88"
+            "ai-agents/00-overview/index.md:92"
           ]
         },
         {
@@ -46279,7 +46514,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:87"
+            "ai-agents/00-overview/index.md:91"
           ]
         },
         {
@@ -46549,11 +46784,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           returns: null,
           confidence: {
             path: "documented",
-            query: "documented",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:75",
             "ai-agents/30-types/conversation-ai-actions.md:62",
             "ai-agents/30-types/conversation-ai-actions.md:68"
           ]
@@ -46590,7 +46826,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:92"
+            "ai-agents/00-overview/index.md:96"
           ]
         },
         {
@@ -49647,7 +49883,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:535"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:554"
           ]
         },
         {
@@ -49708,7 +49944,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:537",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:556",
             "ai-agents/20-api/agent-deployment-routing.md:186",
             "ai-agents/20-api/agent-deployment-routing.md:411"
           ]
@@ -50454,7 +50690,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:91"
+            "ai-agents/00-overview/index.md:95"
           ]
         },
         {
@@ -50489,7 +50725,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:87"
+            "ai-agents/00-overview/index.md:91"
           ]
         },
         {
@@ -50678,6 +50914,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/agent-deployment-routing.md:437",
             "ai-agents/20-api/agent-deployment-routing.md:472"
+          ]
+        },
+        {
+          id: "ai-agents--ask-ai-stream",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/copilot/ask-ai/stream",
+          path: "/copilot/ask-ai/stream",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/ask-ai-agent-building.md:19"
           ]
         },
         {
@@ -51552,6 +51819,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "conversations/20-api/email-sending-domains.md:86"
+          ]
+        },
+        {
+          id: "ai-agents--set-status",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/email-isv/set/status",
+          path: "/email-isv/set/status",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/ask-ai-agent-building.md:28"
           ]
         },
         {
@@ -55240,6 +55538,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:329",
+            "ai-agents/20-api/ask-ai-agent-building.md:28",
             "ai-agents/20-api/conversation-ai-boundary.md:82",
             "ai-agents/20-api/knowledge-base.md:63",
             "ai-agents/20-api/knowledge-base.md:81",
@@ -55659,7 +55958,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:90",
+            "ai-agents/00-overview/index.md:94",
             "ai-agents/20-api/knowledge-base.md:203",
             "ai-agents/20-api/knowledge-base.md:265"
           ]
@@ -63052,6 +63351,152 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--locations-accounts",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/oauth/clients/{appId}/authentication/locations/{locationId}/accounts",
+          path: "/oauth/clients/{appId}/authentication/locations/{locationId}/accounts",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "appId"
+            },
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:97"
+          ]
+        },
+        {
+          id: "ai-agents--locations-mcp-apps",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/oauth/locations/{locationId}/mcp-apps",
+          path: "/oauth/locations/{locationId}/mcp-apps",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:96"
+          ]
+        },
+        {
+          id: "ai-agents--locations-mcp-apps-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/oauth/locations/{locationId}/mcp-apps",
+          path: "/oauth/locations/{locationId}/mcp-apps",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:95"
+          ]
+        },
+        {
+          id: "ai-agents--locations-mcp-apps-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/oauth/locations/{locationId}/mcp-apps/{appId}",
+          path: "/oauth/locations/{locationId}/mcp-apps/{appId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "appId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:100"
+          ]
+        },
+        {
           id: "forms--objects",
           method: "GET",
           url: "https://services.leadconnectorhq.com/objects/",
@@ -64999,6 +65444,305 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:462"
+          ]
+        },
+        {
+          id: "ai-agents--phone-system-number-pools",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/phone-system/number-pools",
+          path: "/phone-system/number-pools",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "inboundCallService",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:140",
+            "ai-agents/20-api/logs-deployment-email.md:141"
+          ]
+        },
+        {
+          id: "ai-agents--phone-system-numbers",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/phone-system/numbers/",
+          path: "/phone-system/numbers/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:164"
+          ]
+        },
+        {
+          id: "ai-agents--numbers-location",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/phone-system/numbers/location/{id}",
+          path: "/phone-system/numbers/location/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [
+            {
+              name: "pageSize",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:139"
+          ]
+        },
+        {
+          id: "ai-agents--location-available",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/phone-system/numbers/location/{locationId}/available",
+          path: "/phone-system/numbers/location/{locationId}/available",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "countryCode",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "numberTypes",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:152"
+          ]
+        },
+        {
+          id: "ai-agents--location-purchase",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/phone-system/numbers/location/{locationId}/purchase",
+          path: "/phone-system/numbers/location/{locationId}/purchase",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:155"
+          ]
+        },
+        {
+          id: "ai-agents--v2-location",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/phone-system/numbers/v2/location/{locationId}",
+          path: "/phone-system/numbers/v2/location/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "pageSize",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "searchFilter",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:159"
+          ]
+        },
+        {
+          id: "ai-agents--phone-system-twilio-accounts",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/phone-system/twilio-accounts",
+          path: "/phone-system/twilio-accounts",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:161"
           ]
         },
         {
@@ -68673,7 +69417,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:234"
+            "ai-agents/20-api/logs-deployment-email.md:266"
           ]
         },
         {
@@ -68704,7 +69448,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:232"
+            "ai-agents/20-api/logs-deployment-email.md:264"
           ]
         },
         {
@@ -68735,7 +69479,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:237"
+            "ai-agents/20-api/logs-deployment-email.md:269"
           ]
         },
         {
@@ -68766,7 +69510,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:239"
+            "ai-agents/20-api/logs-deployment-email.md:271"
           ]
         },
         {
@@ -68797,7 +69541,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:235"
+            "ai-agents/20-api/logs-deployment-email.md:267"
           ]
         },
         {
@@ -68860,7 +69604,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:243",
+            "ai-agents/20-api/logs-deployment-email.md:275",
             "ai-agents/30-types/voice-ai-actions.md:84",
             "ai-agents/30-types/voice-ai-actions.md:92"
           ]
@@ -69125,7 +69869,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         {
           id: "ai-agents--voice-ai-agents-patch",
           aka: [
-            "/voice-ai/agents/{id}"
+            "/voice-ai/agents/{id}",
+            "/voice-ai/agents/{voiceId}"
           ],
           method: "PATCH",
           url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
@@ -69166,7 +69911,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
             "ai-agents/10-anatomy/flow-agent-shape.md:67",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:283"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:283",
+            "ai-agents/20-api/custom-api-and-mcp.md:56"
           ]
         },
         {
@@ -69226,9 +69972,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:165",
             "ai-agents/20-api/12-ai-agents-api.md:175",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:505",
             "ai-agents/20-api/12-ai-agents-api.md:389",
-            "ai-agents/20-api/prompt-optimizer.md:69",
-            "ai-agents/10-anatomy/flow-agent-shape.md:63"
+            "ai-agents/20-api/custom-api-and-mcp.md:87"
           ]
         },
         {
@@ -69380,7 +70126,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:167"
+            "ai-agents/20-api/logs-deployment-email.md:199"
           ]
         },
         {
@@ -69425,8 +70171,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:539",
-            "ai-agents/20-api/logs-deployment-email.md:166"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:558",
+            "ai-agents/20-api/logs-deployment-email.md:198"
           ]
         },
         {
@@ -69471,7 +70217,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:538"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:557"
           ]
         },
         {
@@ -69713,7 +70459,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:161"
+            "ai-agents/20-api/logs-deployment-email.md:193"
           ]
         },
         {
@@ -70162,7 +70908,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:152"
+            "ai-agents/20-api/logs-deployment-email.md:184"
           ]
         },
         {
@@ -70197,7 +70943,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:153"
+            "ai-agents/20-api/logs-deployment-email.md:185"
           ]
         },
         {
@@ -70228,7 +70974,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:154"
+            "ai-agents/20-api/logs-deployment-email.md:186"
           ]
         },
         {
@@ -70263,7 +71009,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:155"
+            "ai-agents/20-api/logs-deployment-email.md:187"
           ]
         },
         {
@@ -70301,7 +71047,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:156"
+            "ai-agents/20-api/logs-deployment-email.md:188"
           ]
         },
         {
@@ -70336,7 +71082,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:157"
+            "ai-agents/20-api/logs-deployment-email.md:189"
           ]
         },
         {
@@ -70374,7 +71120,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:158"
+            "ai-agents/20-api/logs-deployment-email.md:190"
           ]
         },
         {
@@ -70405,7 +71151,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:151"
+            "ai-agents/20-api/logs-deployment-email.md:183"
           ]
         },
         {
@@ -70444,7 +71190,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:173",
-            "ai-agents/20-api/logs-deployment-email.md:150",
+            "ai-agents/20-api/logs-deployment-email.md:182",
             "ai-agents/20-api/voice-ai-boundary.md:73",
             "ai-agents/30-types/voice-ai-actions.md:115"
           ]
@@ -70478,7 +71224,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
-            "ai-agents/20-api/logs-deployment-email.md:160"
+            "ai-agents/20-api/logs-deployment-email.md:192"
           ]
         },
         {
@@ -70509,7 +71255,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:159"
+            "ai-agents/20-api/logs-deployment-email.md:191"
           ]
         },
         {
@@ -70906,6 +71652,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:37",
             "ai-agents/30-types/voice-ai-actions.md:97",
             "ai-agents/30-types/voice-ai-actions.md:103"
           ]
@@ -70938,6 +71685,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:32",
             "ai-agents/30-types/voice-ai-actions.md:95"
           ]
         },
@@ -71013,7 +71761,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:545"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:564",
+            "ai-agents/20-api/custom-api-and-mcp.md:33"
           ]
         },
         {
@@ -71044,6 +71793,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:34",
             "ai-agents/30-types/voice-ai-actions.md:98"
           ]
         },
@@ -71075,6 +71825,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/20-api/custom-api-and-mcp.md:35",
             "ai-agents/30-types/voice-ai-actions.md:99",
             "ai-agents/30-types/voice-ai-actions.md:104"
           ]
@@ -71142,7 +71893,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:241"
+            "ai-agents/20-api/logs-deployment-email.md:273"
           ]
         },
         {
@@ -71173,7 +71924,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:242"
+            "ai-agents/20-api/logs-deployment-email.md:274"
           ]
         },
         {
@@ -71236,7 +71987,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:244"
+            "ai-agents/20-api/logs-deployment-email.md:276"
           ]
         },
         {

@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T15:16:51.479Z",
+      "capturedAt": "2026-09-30T17:08:54.109Z",
       "hash": "corpus",
-      "fileCount": 1393,
-      "endpoints": 1393
+      "fileCount": 1414,
+      "endpoints": 1414
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1889,
+  "discoveredCallSites": 1910,
   "skippedCallSites": 720,
-  "count": 1627,
+  "count": 1647,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -433,7 +433,7 @@
       "id": "ai-agents--agents",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}",
+      "path": "/agents/{perfAgentId}",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -459,7 +459,7 @@
       "id": "ai-agents--auto-supervise-stop",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}/auto-supervise/{runId}/stop",
+      "path": "/agents/{perfAgentId}/auto-supervise/{runId}/stop",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -485,7 +485,7 @@
       "id": "ai-agents--auto-supervise-run",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}/auto-supervise/run",
+      "path": "/agents/{perfAgentId}/auto-supervise/run",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -511,7 +511,7 @@
       "id": "ai-agents--agents-eval-prompt",
       "method": "PATCH",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}/eval-prompt",
+      "path": "/agents/{perfAgentId}/eval-prompt",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -537,7 +537,7 @@
       "id": "ai-agents--agents-iterations",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}/iterations",
+      "path": "/agents/{perfAgentId}/iterations",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -563,7 +563,7 @@
       "id": "ai-agents--agents-iterations-post",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}/iterations",
+      "path": "/agents/{perfAgentId}/iterations",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -589,7 +589,7 @@
       "id": "ai-agents--optimization-runtime-prepare",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}/optimization-runtime/prepare",
+      "path": "/agents/{perfAgentId}/optimization-runtime/prepare",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -615,7 +615,7 @@
       "id": "ai-agents--agents-scenarios",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}/scenarios",
+      "path": "/agents/{perfAgentId}/scenarios",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -641,7 +641,7 @@
       "id": "ai-agents--agents-scenarios-post",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}/scenarios",
+      "path": "/agents/{perfAgentId}/scenarios",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -667,7 +667,7 @@
       "id": "ai-agents--scenarios-generate",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/agents/{pa}/scenarios/generate",
+      "path": "/agents/{perfAgentId}/scenarios/generate",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -3253,6 +3253,33 @@
       },
       "sources": [
         "events/20-api/events-management-api.md:291"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--ids-es",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/contacts/search/ids/es",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/50-runtime/11-runtime-logs.md:294",
+        "workflows/50-runtime/11-runtime-logs.md:295"
       ],
       "serviceBasis": "declared"
     },
@@ -11836,7 +11863,7 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:522"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:541"
       ],
       "serviceClass": "WorkflowMarketplaceService",
       "serviceBasis": "inferred-from-path"
@@ -13851,7 +13878,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:514",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:533",
         "ai-agents/20-api/agent-templates.md:25",
         "ai-agents/20-api/agent-templates.md:33"
       ],
@@ -13879,7 +13906,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:526"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:545"
       ],
       "serviceBasis": "declared"
     },
@@ -14093,6 +14120,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--medias-delete-files",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/medias/delete-files",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:211"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "media-service--search-videos",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -14107,7 +14160,7 @@
         "Version"
       ],
       "operation": "searchVideos",
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "altType",
@@ -14190,7 +14243,7 @@
         "workflows/70-research/ENDPOINTS.md:156"
       ],
       "serviceClass": "MediaService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "memberships-courses--categories",
@@ -15556,7 +15609,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "setFirebaseAuth",
-      "service": "platform",
+      "service": "ai-agents",
       "query": [
         {
           "name": "version",
@@ -15600,7 +15653,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "postOAuthAuthorize",
-      "service": "platform",
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": {
@@ -15633,7 +15686,7 @@
       "sources": [
         "services/api/slack-marketplace-install-service.ts:129",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:527",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:546",
         "ai-agents/20-api/agent-templates.md:53",
         "workflows/70-research/ENDPOINTS.md:243"
       ],
@@ -15651,7 +15704,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "updateBasicAuthentication",
-      "service": "platform",
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": null,
@@ -15678,7 +15731,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "listExternalAccounts",
-      "service": "platform",
+      "service": "ai-agents",
       "query": [
         {
           "name": "page",
@@ -15720,7 +15773,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "createExternalAccount",
-      "service": "platform",
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": {
@@ -15773,7 +15826,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "deleteLocationAccount",
-      "service": "platform",
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": null,
@@ -15801,7 +15854,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchOAuthUrl",
-      "service": "platform",
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": null,
@@ -15893,7 +15946,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchWhiteLabelConfig",
-      "service": "platform",
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": null,
@@ -18318,9 +18371,9 @@
         "services/marketplaceServices/SaasService.ts:12",
         "services/marketplaceServices/SaasService.ts:16",
         "workflows/20-api/agency-premium-features.md:51",
-        "workflows/20-api/agency-premium-features.md:181",
+        "workflows/20-api/agency-premium-features.md:183",
         "services/marketplaceServices/SaasService.ts:29",
-        "workflows/20-api/agency-premium-features.md:119"
+        "workflows/20-api/agency-premium-features.md:121"
       ],
       "serviceClass": "SaasService",
       "serviceBasis": "reviewed",
@@ -18398,8 +18451,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/20-api/agency-premium-features.md:85",
-        "workflows/20-api/agency-premium-features.md:137"
+        "workflows/20-api/agency-premium-features.md:87",
+        "workflows/20-api/agency-premium-features.md:139"
       ],
       "serviceBasis": "reviewed",
       "serviceReason": "OWNED: agency roster of the workflow_ai product"
@@ -18427,7 +18480,7 @@
       },
       "sources": [
         "workflows/20-api/agency-premium-features.md:54",
-        "workflows/20-api/agency-premium-features.md:135"
+        "workflows/20-api/agency-premium-features.md:137"
       ],
       "serviceBasis": "reviewed",
       "serviceReason": "OWNED: agency roster of the workflow_premium_actions product"
@@ -23227,9 +23280,9 @@
         "states/app.ts:586",
         "hooks/use-note-image-upload.ts:49",
         "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
+        "workflows/20-api/rich-text-editor.md:43",
         "workflows/20-api/uploads-and-dynamic-sources.md:21",
-        "workflows/30-types/steps/voicemail.md:77",
-        "workflows/30-types/steps/voicemail.md:117"
+        "workflows/30-types/steps/voicemail.md:77"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -25841,7 +25894,7 @@
       },
       "sources": [
         "services/PremiumTierUsageService.ts:21",
-        "workflows/20-api/agency-premium-features.md:119",
+        "workflows/20-api/agency-premium-features.md:121",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:72"
       ],
       "serviceClass": "PremiumTierUsageService",
@@ -33947,7 +34000,8 @@
       },
       "sources": [
         "ai-agents/10-anatomy/flow-agent-shape.md:154",
-        "ai-agents/20-api/actions-and-plugins.md:24"
+        "ai-agents/20-api/actions-and-plugins.md:24",
+        "ai-agents/20-api/custom-api-and-mcp.md:83"
       ],
       "serviceBasis": "declared"
     },
@@ -34044,11 +34098,12 @@
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "documented",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:90",
         "ai-agents/30-types/voice-ai-actions.md:87",
         "ai-agents/30-types/voice-ai-actions.md:94"
       ],
@@ -34056,6 +34111,32 @@
       "aka": [
         "/agent-execution/actions/{capActionId}"
       ]
+    },
+    {
+      "id": "ai-agents--actions-custom-api-test-webhook",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-execution/actions/custom-api-test-webhook",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:66"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "ai-agents--actions-spec",
@@ -35089,6 +35170,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--agents-retrieve-mcp-tools",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/agents/retrieve-mcp-tools",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:49"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--agents-versions",
       "method": "PATCH",
       "origin": "https://services.leadconnectorhq.com",
@@ -35111,7 +35218,8 @@
       },
       "sources": [
         "ai-agents/10-anatomy/flow-agent-shape.md:57",
-        "ai-agents/10-anatomy/flow-agent-shape.md:66"
+        "ai-agents/10-anatomy/flow-agent-shape.md:66",
+        "ai-agents/20-api/custom-api-and-mcp.md:50"
       ],
       "serviceBasis": "declared"
     },
@@ -35138,6 +35246,32 @@
       },
       "sources": [
         "ai-agents/10-anatomy/flow-agent-shape.md:183"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--plugins-connection-status",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/plugins/{slug}/connection-status",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:98"
       ],
       "serviceBasis": "declared"
     },
@@ -35270,6 +35404,65 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:252",
         "ai-agents/20-api/actions-and-plugins.md:74"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--plugins-skill-instances",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/plugins/skill-instances",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "product",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:69"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--plugins-skill-instances-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/plugins/skill-instances",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:67"
       ],
       "serviceBasis": "declared"
     },
@@ -35470,7 +35663,8 @@
         "ai-agents/20-api/12-ai-agents-api.md:254",
         "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
         "ai-agents/10-anatomy/managed-agent-shape.md:84",
-        "ai-agents/20-api/12-ai-agents-api.md:393"
+        "ai-agents/20-api/12-ai-agents-api.md:393",
+        "ai-agents/20-api/custom-api-and-mcp.md:99"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -35622,7 +35816,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:104"
+        "ai-agents/10-anatomy/managed-agent-shape.md:104",
+        "ai-agents/10-anatomy/managed-agent-shape.md:205"
       ],
       "serviceBasis": "declared"
     },
@@ -35649,7 +35844,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/managed-agent-shape.md:162",
-        "ai-agents/10-anatomy/managed-agent-shape.md:207"
+        "ai-agents/10-anatomy/managed-agent-shape.md:213"
       ],
       "serviceBasis": "declared"
     },
@@ -36147,6 +36342,7 @@
         "ai-agents/20-api/12-ai-agents-api.md:384",
         "ai-agents/20-api/conversation-ai-boundary.md:31",
         "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
+        "ai-agents/20-api/custom-api-and-mcp.md:74",
         "ai-agents/40-rules/builder-vs-server.md:33"
       ],
       "serviceBasis": "declared",
@@ -36214,7 +36410,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/conversation-ai-agent-shape.md:132",
-        "ai-agents/40-rules/labs-feature-flags.md:60"
+        "ai-agents/40-rules/labs-feature-flags.md:65"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -36270,7 +36466,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
-        "ai-agents/00-overview/index.md:86"
+        "ai-agents/00-overview/index.md:90"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -36581,7 +36777,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:88"
+        "ai-agents/00-overview/index.md:92"
       ],
       "serviceBasis": "declared"
     },
@@ -36640,7 +36836,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:87"
+        "ai-agents/00-overview/index.md:91"
       ],
       "serviceBasis": "declared"
     },
@@ -36853,11 +37049,12 @@
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "documented",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:75",
         "ai-agents/30-types/conversation-ai-actions.md:62",
         "ai-agents/30-types/conversation-ai-actions.md:68"
       ],
@@ -36885,7 +37082,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:92"
+        "ai-agents/00-overview/index.md:96"
       ],
       "serviceBasis": "declared"
     },
@@ -39255,7 +39452,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:535"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:554"
       ],
       "serviceBasis": "declared"
     },
@@ -39306,7 +39503,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:537",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:556",
         "ai-agents/20-api/agent-deployment-routing.md:186",
         "ai-agents/20-api/agent-deployment-routing.md:411"
       ],
@@ -39919,7 +40116,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:91"
+        "ai-agents/00-overview/index.md:95"
       ],
       "serviceBasis": "declared"
     },
@@ -39945,7 +40142,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:87"
+        "ai-agents/00-overview/index.md:91"
       ],
       "serviceBasis": "declared"
     },
@@ -40104,6 +40301,32 @@
       "sources": [
         "ai-agents/20-api/agent-deployment-routing.md:437",
         "ai-agents/20-api/agent-deployment-routing.md:472"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--ask-ai-stream",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/copilot/ask-ai/stream",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/ask-ai-agent-building.md:19"
       ],
       "serviceBasis": "declared"
     },
@@ -40799,6 +41022,32 @@
       },
       "sources": [
         "conversations/20-api/email-sending-domains.md:86"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--set-status",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/set/status",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/ask-ai-agent-building.md:28"
       ],
       "serviceBasis": "declared"
     },
@@ -43813,6 +44062,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:329",
+        "ai-agents/20-api/ask-ai-agent-building.md:28",
         "ai-agents/20-api/conversation-ai-boundary.md:82",
         "ai-agents/20-api/knowledge-base.md:63",
         "ai-agents/20-api/knowledge-base.md:81",
@@ -44151,7 +44401,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:90",
+        "ai-agents/00-overview/index.md:94",
         "ai-agents/20-api/knowledge-base.md:203",
         "ai-agents/20-api/knowledge-base.md:265"
       ],
@@ -49882,6 +50132,110 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--locations-accounts",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/oauth/clients/{appId}/authentication/locations/{locationId}/accounts",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:97"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--locations-mcp-apps",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/oauth/locations/{locationId}/mcp-apps",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:96"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--locations-mcp-apps-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/oauth/locations/{locationId}/mcp-apps",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:95"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--locations-mcp-apps-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/oauth/locations/{locationId}/mcp-apps/{appId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:100"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "forms--objects",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -51346,6 +51700,256 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:462"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--phone-system-number-pools",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/phone-system/number-pools",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "inboundCallService",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/logs-deployment-email.md:140",
+        "ai-agents/20-api/logs-deployment-email.md:141"
+      ],
+      "serviceBasis": "reviewed",
+      "serviceClass": "ai-agents",
+      "serviceReason": "MOVED to its owning surface: phone number pools; generic telephony"
+    },
+    {
+      "id": "ai-agents--phone-system-numbers",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/phone-system/numbers/",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/logs-deployment-email.md:164"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--numbers-location",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/phone-system/numbers/location/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "pageSize",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/logs-deployment-email.md:139"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--location-available",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/phone-system/numbers/location/{locationId}/available",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "countryCode",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "numberTypes",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/logs-deployment-email.md:152"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--location-purchase",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/phone-system/numbers/location/{locationId}/purchase",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/logs-deployment-email.md:155"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--v2-location",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/phone-system/numbers/v2/location/{locationId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "pageSize",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "searchFilter",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/logs-deployment-email.md:159"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--phone-system-twilio-accounts",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/phone-system/twilio-accounts",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/logs-deployment-email.md:161"
       ],
       "serviceBasis": "declared"
     },
@@ -54193,7 +54797,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:234"
+        "ai-agents/20-api/logs-deployment-email.md:266"
       ],
       "serviceBasis": "declared"
     },
@@ -54219,7 +54823,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:232"
+        "ai-agents/20-api/logs-deployment-email.md:264"
       ],
       "serviceBasis": "declared"
     },
@@ -54245,7 +54849,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:237"
+        "ai-agents/20-api/logs-deployment-email.md:269"
       ],
       "serviceBasis": "declared"
     },
@@ -54271,7 +54875,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:239"
+        "ai-agents/20-api/logs-deployment-email.md:271"
       ],
       "serviceBasis": "declared"
     },
@@ -54297,7 +54901,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:235"
+        "ai-agents/20-api/logs-deployment-email.md:267"
       ],
       "serviceBasis": "declared"
     },
@@ -54350,7 +54954,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:243",
+        "ai-agents/20-api/logs-deployment-email.md:275",
         "ai-agents/30-types/voice-ai-actions.md:84",
         "ai-agents/30-types/voice-ai-actions.md:92"
       ],
@@ -54597,11 +55201,13 @@
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
         "ai-agents/10-anatomy/flow-agent-shape.md:67",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:283"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:283",
+        "ai-agents/20-api/custom-api-and-mcp.md:56"
       ],
       "serviceBasis": "declared",
       "aka": [
-        "/voice-ai/agents/{id}"
+        "/voice-ai/agents/{id}",
+        "/voice-ai/agents/{voiceId}"
       ]
     },
     {
@@ -54644,9 +55250,9 @@
         "ai-agents/20-api/12-ai-agents-api.md:165",
         "ai-agents/20-api/12-ai-agents-api.md:175",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:505",
         "ai-agents/20-api/12-ai-agents-api.md:389",
-        "ai-agents/20-api/prompt-optimizer.md:69",
-        "ai-agents/10-anatomy/flow-agent-shape.md:63"
+        "ai-agents/20-api/custom-api-and-mcp.md:87"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -54766,7 +55372,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:167"
+        "ai-agents/20-api/logs-deployment-email.md:199"
       ],
       "serviceBasis": "declared"
     },
@@ -54799,8 +55405,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:539",
-        "ai-agents/20-api/logs-deployment-email.md:166"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:558",
+        "ai-agents/20-api/logs-deployment-email.md:198"
       ],
       "serviceBasis": "declared"
     },
@@ -54833,7 +55439,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:538"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:557"
       ],
       "serviceBasis": "declared"
     },
@@ -55024,7 +55630,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:161"
+        "ai-agents/20-api/logs-deployment-email.md:193"
       ],
       "serviceBasis": "declared"
     },
@@ -55387,7 +55993,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:152"
+        "ai-agents/20-api/logs-deployment-email.md:184"
       ],
       "serviceBasis": "declared"
     },
@@ -55413,7 +56019,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:153"
+        "ai-agents/20-api/logs-deployment-email.md:185"
       ],
       "serviceBasis": "declared"
     },
@@ -55439,7 +56045,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:154"
+        "ai-agents/20-api/logs-deployment-email.md:186"
       ],
       "serviceBasis": "declared"
     },
@@ -55465,7 +56071,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:155"
+        "ai-agents/20-api/logs-deployment-email.md:187"
       ],
       "serviceBasis": "declared"
     },
@@ -55491,7 +56097,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:156"
+        "ai-agents/20-api/logs-deployment-email.md:188"
       ],
       "serviceBasis": "declared"
     },
@@ -55517,7 +56123,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:157"
+        "ai-agents/20-api/logs-deployment-email.md:189"
       ],
       "serviceBasis": "declared"
     },
@@ -55543,7 +56149,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:158"
+        "ai-agents/20-api/logs-deployment-email.md:190"
       ],
       "serviceBasis": "declared"
     },
@@ -55569,7 +56175,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:151"
+        "ai-agents/20-api/logs-deployment-email.md:183"
       ],
       "serviceBasis": "declared"
     },
@@ -55596,7 +56202,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:173",
-        "ai-agents/20-api/logs-deployment-email.md:150",
+        "ai-agents/20-api/logs-deployment-email.md:182",
         "ai-agents/20-api/voice-ai-boundary.md:73",
         "ai-agents/30-types/voice-ai-actions.md:115"
       ],
@@ -55625,7 +56231,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
-        "ai-agents/20-api/logs-deployment-email.md:160"
+        "ai-agents/20-api/logs-deployment-email.md:192"
       ],
       "serviceBasis": "declared"
     },
@@ -55651,7 +56257,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:159"
+        "ai-agents/20-api/logs-deployment-email.md:191"
       ],
       "serviceBasis": "declared"
     },
@@ -55973,6 +56579,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:37",
         "ai-agents/30-types/voice-ai-actions.md:97",
         "ai-agents/30-types/voice-ai-actions.md:103"
       ],
@@ -56000,6 +56607,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:32",
         "ai-agents/30-types/voice-ai-actions.md:95"
       ],
       "serviceBasis": "declared"
@@ -56065,7 +56673,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:545"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:564",
+        "ai-agents/20-api/custom-api-and-mcp.md:33"
       ],
       "serviceBasis": "declared"
     },
@@ -56091,6 +56700,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:34",
         "ai-agents/30-types/voice-ai-actions.md:98"
       ],
       "serviceBasis": "declared"
@@ -56117,6 +56727,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/20-api/custom-api-and-mcp.md:35",
         "ai-agents/30-types/voice-ai-actions.md:99",
         "ai-agents/30-types/voice-ai-actions.md:104"
       ],
@@ -56170,7 +56781,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:241"
+        "ai-agents/20-api/logs-deployment-email.md:273"
       ],
       "serviceBasis": "declared"
     },
@@ -56196,7 +56807,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:242"
+        "ai-agents/20-api/logs-deployment-email.md:274"
       ],
       "serviceBasis": "declared"
     },
@@ -56249,7 +56860,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/logs-deployment-email.md:244"
+        "ai-agents/20-api/logs-deployment-email.md:276"
       ],
       "serviceBasis": "declared"
     },
