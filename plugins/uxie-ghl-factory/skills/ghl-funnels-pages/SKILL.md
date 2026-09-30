@@ -88,6 +88,11 @@ say so when a page has such a checkout.
 **`find_ghl_site`** `list:true` — every funnel, website, store, webinar and blog on the location, walked
 to the list's `count` (the list honours `limit` exactly, so a single page silently drops the rest),
 filtered by `type` (store = a website with `isStoreActive`) and a name `search`.
+`folders:true` also lists the folders (Funnels tab and Websites tab — the two do not share folders) with the number of documents in each, and `folderId` scopes the documents to one folder.
+`route {domain, path}` answers "which page serves this exact URL": the route row (page / step / redirect, publish status, redirect target) and the funnel, step and page that own it (the path needs its leading
+slash). `countdownTimers:true` lists the location's saved Countdown Timer assets (Marketing → Countdown Timers) and `countdownTimerId` reads one — a `marketing-countdown` element binds one by id (compose resolves
+it, copies its type / end / timezone onto the node the way the builder does and refuses an unknown id; an EXPIRED fixed timer renders empty and is not offered by the builder's panel; `audit_site` checks the binding).
+**`create_funnel` `folderId`** files a new funnel or website in a folder (an id from `folders:true`; a funnel needs a Funnels-tab folder, a website a Websites-tab folder).
 
 **`build_funnel_page` edit mode** — change an EXISTING page's content in place: pass `edits` and
 `stepName` instead of `sections`. Ops: `set` (merge `extra`/`styles` into one node by id — styles are
@@ -219,7 +224,7 @@ YYYY-MM-DD, with the previous period and each row's per-interval series).
 
 | capability | where in GHL | why no tool |
 |---|---|---|
-| funnel folders (create, rename, move a funnel into one) | Sites → Funnels → Create folder / row Actions → Move to folder | organisational only; `find_ghl_site list:true` shows each document's `folderId` |
+| funnel folders (create, rename, delete, move a funnel into one) | Sites → Funnels / Websites → Create folder / row Actions → Move to folder | organisational only; `find_ghl_site list:true folders:true` lists them, each document carries its `folderId`, and `create_funnel folderId` files a NEW funnel or website in one |
 | a bare extra page on a step | — | `POST /funnels/page/create-page` makes an ORPHAN page on no step (measured); `create-step` makes a step with its page, `split-test add-variation` adds a second |
 | the builder's autosave on/off switch | page builder toolbar | a browser-local preference (`localStorage`); every tool write is already one explicit autosave |
 | Build with AI (funnels list) | Sites → Funnels → Build with AI | the AI builder; 🔴 it creates a funnel and a step the moment it is clicked. Use `create_funnel` + `build_funnel_page` |
