@@ -11,6 +11,26 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.37.0] — 2026-09-30
+
+**Pages: element names and dynamic text from URL parameters; courses can carry a certificate or badge. Executed
+live on the test account.**
+
+### Added
+- `build_funnel_page` / `edit_funnel` set an element's name (the builder's *Element name*) through `set {title}`, or
+  `title` on a composed or inserted element. Before, `set` answered `changed: []` and did nothing. Live: it reads back,
+  shows in the builder, and survives a builder save.
+- `dynamicText` fills a paragraph from a URL parameter, with a default and a case transform. `{{query_param.x}}` in
+  the text becomes the builder's own dynamic-text pill. Live: the public page renders it, and a builder save keeps it
+  byte for byte.
+- `build_course` attaches a certificate or badge template through `spec.award {title, type}`. The input guard refused
+  the `credential` key as a secret before. Live: a course built with a certificate attached, with no verification
+  problems.
+
+### Docs
+- `update_form_data` repairs a form made before 1.36.0 when you pass its fields back.
+- A merge field such as `{{contact.first_name}}` on a page renders empty when no contact is known.
+
 ## [1.36.0] — 2026-09-30
 
 **Forms: a form made by the tool now opens correctly in GHL's form builder, and submissions can be filtered.
