@@ -56,6 +56,15 @@ const STATED = {
     'styles.fontWeight': 'as countdown',
   },
   blog: { 'extra.visibility': 'as countdown' },
+  // f8 (knowledge sniffs/funnels-wave45-f8-2026-09-30): a Countdown Timer ASSET dragged from the Add Elements panel. A bare tool node names no asset; the
+  // values below are what the builder copies from the asset it binds — assetBindingExtra writes them when compose names countdownTimerId (test/marketing-countdown.test.mjs).
+  'marketing-countdown': {
+    'extra.visibility': 'as countdown',
+    'extra.timerType': 'ASSET: the builder copies the bound asset\'s type (fixed here), disabled',
+    'extra.startDate': 'ASSET / CLOCK: the moment of binding', 'extra.endDate': 'ASSET: the asset\'s end', 'extra.endTime': 'ASSET: the end\'s wall clock (the builder wrote its browser\'s zone)',
+    'extra.expireAction': 'ASSET: the same value, marked disabled', 'extra.redirectUrl': 'ASSET: the same value, marked disabled',
+    'extra.timezone': 'ASSET: the asset\'s timezone and adaptToContactTimezone, disabled', 'extra.countdownTimerId': 'the caller names the asset',
+  },
 };
 
 const cases = [...Object.entries(FIX.builderCreated), ...Object.entries(FIX.systemTemplate)];

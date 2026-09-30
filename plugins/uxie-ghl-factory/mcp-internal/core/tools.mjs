@@ -34,6 +34,7 @@ import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { elementSpecProblem } from './element-spec.mjs';
 import { planCookieConsent, cookieConsentNotApplied } from './cookie-consent.mjs';
+import { assetBindingExtra } from './kind-oracle-defaults.mjs';
 import { applyDynamicText } from './dynamic-text.mjs';
 import { makePopup, popupRefProblems } from './page-popup.mjs';
 import { normalizeStyles } from './style-values.mjs';
@@ -2225,7 +2226,7 @@ const siteRow = (f) => ({ id: f._id ?? f.id, name: f.name, type: f.type, ...(f.i
 
 // find_ghl_site countdownTimers / countdownTimerId: the saved Countdown Timer assets (leadgen countdown-timer app). Measured 2026-09-30
 // (sniffs/funnels-wave45-f8): GET /countdown-timer/?locationId answers {countdownTimers:[…], total} (a `skip` param is refused 422), and
-// GET /countdown-timer/{locationId}/{id} answers the asset. A fixed timer whose endDate has passed renders EMPTY on a page (wave42).
+// GET /countdown-timer/fetch/{locationId}/{id} (and /countdown-timer/{locationId}/{id}) answers the asset. A fixed timer whose endDate has passed renders EMPTY on a page (wave42).
 const timerRow = (t, now = Date.now()) => ({ id: t._id, name: t.name, templateId: t.templateId ?? null, timerType: t.timerType ?? null, status: t.status ?? null,
   ...(t.timerType === 'fixed' || t.endDate ? { endDate: t.endDate ?? null, ...(t.timerType === 'fixed' && t.endDate ? { expired: Date.parse(t.endDate) < now } : {}) } : {}),
   timezone: t.timezone ?? null, adaptToContactTimezone: t.adaptToContactTimezone ?? null, hideTimerForAppleMail: t.hideTimerForAppleMail ?? null, updatedAt: t.updatedAt ?? null, previewUrl: t.previewUrl ?? null });
@@ -2233,7 +2234,7 @@ async function countdownTimerAssets(args, deps) {
   const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
   const L = encodeURIComponent(args.locationId);
   if (args.countdownTimerId) {
-    const r = await gw.call('GET', `/countdown-timer/${L}/${encodeURIComponent(args.countdownTimerId)}`);
+    const r = await gw.call('GET', `/countdown-timer/fetch/${L}/${encodeURIComponent(args.countdownTimerId)}`);
     if (r.status === 404 || (r.ok && !r.json?._id)) return { checked: true, found: false, countdownTimerId: args.countdownTimerId };
     if (!r.ok) return { checked: false, status: r.status, warning: `The countdown-timer read failed (${r.status}); this is NOT "no such timer".` };
     return { checked: true, found: true, timer: { ...timerRow(r.json, deps.nowMs?.()), design: r.json.designMeta ?? null, integrations: r.json.integrations ?? [], deleted: r.json.deleted === true } };
@@ -9673,7 +9674,7 @@ export const TOOLS = [
       { method: 'GET', path: '/vibe-ai/projects' },
       { method: 'GET', path: '/funnels/funnel/list' },
       { method: 'GET', path: '/countdown-timer/' },
-      { method: 'GET', path: '/countdown-timer/{locationId}/{id}' },
+      { method: 'GET', path: '/countdown-timer/fetch/{locationId}/{id}' },
       { method: 'GET', path: '/funnels/lookup/domain-and-path' },
       { method: 'GET', path: '/funnels/funnel/fetch/{id}' },
       { method: 'GET', path: '/funnels/domain' },
@@ -11940,6 +11941,7 @@ export const TOOLS = [
       { method: 'GET', path: '/funnels/builder/get-versions' },
       { method: 'POST', path: '/funnels/builder/publish-version' },
       { method: 'GET', path: '/funnels/custom-fonts' },
+      { method: 'GET', path: '/countdown-timer/fetch/{locationId}/{id}' },
     ],
     handler: async (args, deps) => guard(async () => {
       resetIds();
@@ -11966,6 +11968,23 @@ export const TOOLS = [
         const swap = (t) => { for (const k of ['headlineFont', 'contentFont']) if (t[k] && typeof t[k] === 'object') t[k] = byId.get(t[k].customFontId); };
         args = { ...args, typography: args.typography ? { ...args.typography } : args.typography, edits: args.edits?.map((e) => (e.op === 'page' && e.typography ? { ...e, typography: { ...e.typography } } : e)) };
         for (const t of [args.typography, ...(args.edits ?? []).filter((e) => e.op === 'page').map((e) => e.typography)].filter(Boolean)) swap(t);
+      }
+      // A marketing-countdown binds a saved Countdown Timer asset by id: resolve every id before composing, so a wrong one is refused (not written as a
+      // dead widget) and the node carries the asset's settings the way the builder writes them (assetBindingExtra).
+      const timerAssets = new Map();
+      {
+        const want = new Set();
+        const scan = (x) => { if (Array.isArray(x)) x.forEach(scan); else if (x && typeof x === 'object') { if (x.meta === 'marketing-countdown') { const v = x.extra?.countdownTimerId; const id = typeof v === 'object' ? v?.value : v; if (typeof id === 'string' && id) want.add(id); } Object.values(x).forEach(scan); } };
+        scan(args.sections); scan(args.popups); scan(args.edits);
+        if (want.size) {
+          const gwT = deps.makeGw({ loc: args.locationId, state: deps.state });
+          for (const id of want) {
+            const r = await gwT.call('GET', `/countdown-timer/fetch/${encodeURIComponent(args.locationId)}/${encodeURIComponent(id)}`);
+            if (r.status === 404 || (r.ok && !r.json?._id) || r.json?.deleted === true) return fail(CODES.VALIDATION_FAILED, `countdownTimerId ${id} is not a Countdown Timer asset of this location`, 'List them with find_ghl_site countdownTimers:true (Marketing → Countdown Timers creates one). Nothing was written.');
+            if (!r.ok) return fromHttp(r.status, r.json);
+            timerAssets.set(id, r.json);
+          }
+        }
       }
       const fonts = { reg: fontRegistry(args.fonts ?? DEFAULT_FONTS), typography: { headline: args.typography?.headlineFont ?? null, content: args.typography?.contentFont ?? null } };
       const viaVar = (st) => {
@@ -12002,7 +12021,13 @@ export const TOOLS = [
           const d = applyDynamicText(e.html, e.dynamicText);
           dtrExtra = { text: val(d.html), dtr: d.dtr };
         }
-        let extra = { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}), ...dtrExtra, ...(e.font ? { typography: val(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {}) };
+        let timerExtra = {};
+        if (e.meta === 'marketing-countdown') {
+          const v = e.extra?.countdownTimerId; const tid = typeof v === 'object' ? v?.value : v;
+          const asset = tid ? timerAssets.get(tid) : null;
+          if (asset) timerExtra = assetBindingExtra(asset, new Date(deps.nowMs?.() ?? Date.now()).toISOString());
+        }
+        let extra = { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...timerExtra, ...(e.extra ?? {}), ...dtrExtra, ...(e.font ? { typography: val(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {}) };
         if (e.openPopup !== undefined) {
           const pid = popupIds.get(e.openPopup) ?? ([...popupIds.values()].includes(e.openPopup) ? e.openPopup : null);
           if (!pid) throw Object.assign(new Error(`openPopup "${e.openPopup}" names no popup on this page (${[...popupIds.keys()].join(', ') || 'it has none'})`), { remediation: 'Name a popup from `popups` (or an append-popup in the same call) by its name.' });
@@ -12683,9 +12708,9 @@ export const TOOLS = [
       + 'while a page serves) · clone-funnel {name} (this location; no domain, no paths) · archive-page / '
       + 'restore-page (restore mints a NEW path) · import-page · add-store (🔴 a builder save of the checkout creates '
       + '7 location-wide billing fields) · add-step-product {stepId, expectName, productId, priceId; quantity.max 1-999} · edit-step-product / delete-step-product {stepId, stepProductId, expectName = the step product\'s name} (returns '
-      + 'stepProductId, what a sell-product button stores) · set-cookie-consent {cookieConsent: {enabled, acknowledged, complianceType ask-opt-in | do-not-ask, message, consentExpiration, position bottom-banner | top-banner | center-floating, buttons}} (the FUNNEL-level banner; turning it on needs acknowledged:true, the panel\'s disclaimer; colours, fonts and the cookie list stay on the builder panel). Not offered: sharing (opening Share creates a link anyone '
+      + 'stepProductId, what a sell-product button stores) · set-cookie-consent {cookieConsent} (funnel banner; ON needs acknowledged:true). Not offered: sharing (opening Share creates a link anyone '
       + 'can import, not removable below the $497 plan — read one with get_funnel view share), a bare orphan page, '
-      + 'creating / renaming / deleting folders (create_funnel folderId files a new funnel or website in one); page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps '
+      + 'folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps '
       + 'per op: ghl-funnels-pages SKILL → references/edit-funnel.md. Siblings: create_funnel, get_funnel, '
       + 'build_funnel_page, audit_site.',
     inputSchema: schema({

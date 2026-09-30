@@ -1240,6 +1240,108 @@
    },
    "wrapper": {},
    "class": {}
+  },
+  "marketing-countdown": {
+   "meta": "marketing-countdown",
+   "tagName": "c-marketing-countdown",
+   "extra": {
+    "nodeId": "marketing-countdown-ID",
+    "visibility": {
+     "value": {
+      "hideDesktop": false,
+      "hideTablet": false,
+      "hideMobile": false
+     }
+    },
+    "timerType": {
+     "value": "fixed",
+     "disabled": true
+    },
+    "startDate": {
+     "value": "2026-09-30T05:56:39.477Z"
+    },
+    "startTime": {
+     "value": "00:00"
+    },
+    "timerLoop": {
+     "value": 0
+    },
+    "timerDuration": {
+     "value": {
+      "days": 0,
+      "hours": 0,
+      "minutes": 0,
+      "seconds": 0
+     }
+    },
+    "timerTrigger": {
+     "value": "",
+     "disabled": true
+    },
+    "endDate": {
+     "value": "2026-10-01T05:55:15.000Z",
+     "disabled": true
+    },
+    "endTime": {
+     "value": "13:55",
+     "disabled": true
+    },
+    "expireAction": {
+     "value": "url",
+     "disabled": true
+    },
+    "redirectUrl": {
+     "value": "#",
+     "disabled": true
+    },
+    "hideElements": {
+     "value": []
+    },
+    "showElements": {
+     "value": []
+    },
+    "timezone": {
+     "value": "Europe/London",
+     "adaptToContactTimezone": false,
+     "disabled": true
+    },
+    "countdownTimerId": {
+     "value": "TIMER_ASSET_ID"
+    },
+    "customClass": {
+     "value": []
+    },
+    "theme": {}
+   },
+   "styles": {},
+   "wrapper": {
+    "marginTop": {
+     "unit": "px",
+     "value": 0
+    },
+    "marginBottom": {
+     "unit": "px",
+     "value": 0
+    },
+    "marginLeft": {
+     "unit": "px",
+     "value": 0
+    },
+    "marginRight": {
+     "unit": "px",
+     "value": 0
+    },
+    "width": {
+     "value": "auto",
+     "unit": ""
+    },
+    "height": {
+     "value": "auto",
+     "unit": ""
+    }
+   },
+   "class": {},
+   "title": "Countdown"
   }
  },
  "systemTemplate": {
@@ -1520,5 +1622,6 @@
    }
   }
  },
- "source2": "knowledge sniffs/funnels-wave42-f7-defaults-2026-09-30: countdown, day-timer, minute-timer, nav-menu-v2, blog made by Quick Add + one builder Save (GROM Sandbox scratch page); tagName kept"
+ "source2": "knowledge sniffs/funnels-wave42-f7-defaults-2026-09-30: countdown, day-timer, minute-timer, nav-menu-v2, blog made by Quick Add + one builder Save (GROM Sandbox scratch page); tagName kept",
+ "source3": "knowledge sniffs/funnels-wave45-f8-2026-09-30: marketing-countdown — a Countdown Timer asset dragged from Add Elements → Countdown Timers + a builder Save (the asset id replaced by a placeholder)"
 }

@@ -19,6 +19,15 @@ export const KIND_OMIT_EXTRA = Object.freeze({ countdown: /^webinar/ });
 
 export const KIND_TAGNAME = Object.freeze({ 'day-timer': 'c-countdown', 'minute-timer': 'c-countdown' });
 
+// f8 (knowledge sniffs/funnels-wave45-f8-2026-09-30): a Countdown Timer ASSET dragged from the Add Elements → Countdown Timers panel.
+//  - the node's title is "Countdown" (the registry says the meta);
+//  - its class carries no borders / borderRadius / radiusEdge (every other kind's BOX has them; a builder Save keeps this one without);
+//  - extra.theme is {}.
+export const KIND_TITLE = Object.freeze({ 'marketing-countdown': 'Countdown' });
+/** Keys the builder's fresh node carries that the catalogue does not list for the kind: written even though `k in filled` is false. */
+export const KIND_ORACLE_NEW_KEYS = Object.freeze({ 'marketing-countdown': ['theme'] });
+export const KIND_OMIT_CLASS = Object.freeze({ 'marketing-countdown': ['borders', 'borderRadius', 'radiusEdge'] });
+
 const val = (v) => ({ value: v });
 const TIMER_TYPOGRAPHY = { typography: val('var(--contentfont)') };
 
@@ -34,6 +43,7 @@ export const KIND_ORACLE_EXTRA = Object.freeze({
     iconEnd: val({ name: 'chevron-down', unicode: 'f078', fontFamily: 'Font Awesome 5 Free', color: 'var(--black)' }),
   }),
   blog: () => ({ paginationOverride: { value: 6, min: 0 } }),
+  'marketing-countdown': () => ({ theme: {} }),
 });
 
 /** Style props by kind (written under the caller's own styles). */
@@ -53,3 +63,29 @@ export const KIND_ORACLE_STYLES = Object.freeze({
     borderWidth: val('0px'), borderStyle: val('none'),
   }),
 });
+
+/**
+ * What the builder writes into a marketing-countdown's extra when it binds a FIXED timer asset (measured: a builder-made node and the asset it
+ * was made from, wave45): the asset's type, end and timezone, each `disabled: true` (the asset drives them), a start at the moment of binding,
+ * expireAction url / redirectUrl "#". `endTime` is the end's wall clock; the builder wrote its BROWSER's zone (13:55 for 05:55Z on a UTC+8
+ * machine), which the tool cannot know — it writes the asset timezone's wall clock, and the field is disabled either way. Recurring and dynamic
+ * assets were not measured: only `countdownTimerId` and the asset's type are set for them.
+ */
+export function assetBindingExtra(asset, nowIso) {
+  const out = { timerType: { value: asset.timerType, disabled: true } };
+  if (asset.timerType !== 'fixed' || !asset.endDate) return out;
+  let wall = '00:00';
+  try {
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: asset.timezone || 'UTC', hourCycle: 'h23', hour: '2-digit', minute: '2-digit' }).formatToParts(new Date(asset.endDate)).filter((x) => x.type !== 'literal').map((x) => [x.type, x.value]));
+    wall = `${p.hour}:${p.minute}`;
+  } catch { /* an unknown zone name: keep 00:00 */ }
+  return {
+    ...out,
+    startDate: { value: nowIso },
+    endDate: { value: asset.endDate, disabled: true },
+    endTime: { value: wall, disabled: true },
+    expireAction: { value: 'url', disabled: true },
+    redirectUrl: { value: '#', disabled: true },
+    timezone: { value: asset.timezone ?? 'UTC', adaptToContactTimezone: asset.adaptToContactTimezone === true, disabled: true },
+  };
+}
