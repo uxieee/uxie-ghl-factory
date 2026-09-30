@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1660,
+      count: 1668,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -459,6 +459,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--affiliate-manager-affiliates",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/affiliate-manager/{locationId}/affiliates",
+          path: "/affiliate-manager/{locationId}/affiliates",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps/add_to_affiliate_manager.md:63"
+          ]
+        },
+        {
           id: "affiliate-service--get-affiliate-by-id",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/affiliate-manager/{locationId}/affiliates/{id}",
@@ -477,7 +512,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAffiliateById",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -522,7 +557,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAffiliateCampaigns",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -550,6 +585,76 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--affiliate-manager-campaigns",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/affiliate-manager/{locationId}/campaigns",
+          path: "/affiliate-manager/{locationId}/campaigns",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps/add_to_affiliate_manager.md:61"
+          ]
+        },
+        {
+          id: "workflows--affiliate-manager-skip-onboarding",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/affiliate-manager/{locationId}/skip-onboarding",
+          path: "/affiliate-manager/{locationId}/skip-onboarding",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps/add_to_affiliate_manager.md:61"
+          ]
+        },
+        {
           id: "affiliate-service--get-affiliates",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/affiliate-manager/affiliates/workflow-filters",
@@ -572,7 +677,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAffiliates",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -2368,7 +2473,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "calendars",
+          service: null,
           tree: "documented",
           pathParams: [
             {
@@ -2411,7 +2516,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "calendars",
+          service: null,
           tree: "documented",
           pathParams: [
             {
@@ -2494,7 +2599,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getCalendarConfiguration",
-          service: "calendars",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -2757,6 +2862,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/30-types/conversation-ai-actions.md:110"
+          ]
+        },
+        {
+          id: "workflows--services-catalog",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/calendars/services/catalog",
+          path: "/calendars/services/catalog",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/conversation-ai.md:157"
           ]
         },
         {
@@ -15336,6 +15472,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--estimate-send",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/invoices/estimate/{estimateId}/send",
+          path: "/invoices/estimate/{estimateId}/send",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "estimateId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/triggers-marketplace/estimate_update.md:120"
+          ]
+        },
+        {
           id: "workflows--estimate-list",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/invoices/estimate/list",
@@ -15394,7 +15565,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps-marketplace/payment.md:114"
+            "workflows/30-types/steps-marketplace/payment.md:114",
+            "workflows/30-types/triggers-marketplace/estimate_update.md:120"
           ]
         },
         {
@@ -19722,6 +19894,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "workflows/30-types/steps-marketplace/membership_course_grant_access.md:20",
             "workflows/40-rules/marketplace-asset-publisher-classes.md:107"
           ]
         },
@@ -19828,7 +20001,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/30-types/triggers/membership_contact_created.md:79",
             "workflows/30-types/triggers/offer_access_granted.md:77",
             "workflows/30-types/triggers/product_access_granted.md:77",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:111"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:111",
+            "workflows/40-rules/merge-tag-rendering.md:134"
           ]
         },
         {
@@ -23030,6 +23204,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--proposals-document",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/proposals/document",
+          path: "/proposals/document",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/payment.md:133"
+          ]
+        },
+        {
           id: "workflows--proposals-templates",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/proposals/templates",
@@ -23062,6 +23267,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: false,
               source: "documented"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -23074,7 +23285,74 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/10-anatomy/07-id-resolution.md:215",
-            "workflows/10-anatomy/07-id-resolution.md:224"
+            "workflows/10-anatomy/07-id-resolution.md:224",
+            "workflows/30-types/steps-marketplace/payment.md:131"
+          ]
+        },
+        {
+          id: "workflows--proposals-templates-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/proposals/templates",
+          path: "/proposals/templates",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/payment.md:131"
+          ]
+        },
+        {
+          id: "workflows--proposals-templates-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/proposals/templates/{id}",
+          path: "/proposals/templates/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/payment.md:134"
           ]
         },
         {
@@ -227827,11 +228105,11 @@ var TOOLS2 = [
       const target = String(args.targetLocationId ?? "").trim();
       if (!target) return fail(CODES.VALIDATION_FAILED, "targetLocationId is required", "Name the sub-account to copy into.");
       const allowed = deps.state?.allowedLocations ?? null;
-      if (args.confirm === true && (!allowed || !allowed.has(target))) {
+      if (!allowed || !allowed.has(target)) {
         return fail(
           CODES.LOCATION_FORBIDDEN,
           `this registration is not permitted to write into ${target}: the copy lands there`,
-          "Copy only into an account this registration is bound to (GHL_INTERNAL_LOCATIONS), or rebind it with /uxie-ghl-factory:internal-connect (bind mode). Nothing was sent."
+          "Copy only into an account this registration is bound to (GHL_INTERNAL_LOCATIONS), or rebind it with /uxie-ghl-factory:internal-connect (bind mode). Nothing was read or sent."
         );
       }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });

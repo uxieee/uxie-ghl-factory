@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T17:58:52.841Z",
+      "capturedAt": "2026-09-30T19:05:38.717Z",
       "hash": "corpus",
-      "fileCount": 1418,
-      "endpoints": 1418
+      "fileCount": 1426,
+      "endpoints": 1426
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1914,
+  "discoveredCallSites": 1922,
   "skippedCallSites": 720,
-  "count": 1651,
+  "count": 1659,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -278,6 +278,32 @@
       "serviceBasis": "unattributed"
     },
     {
+      "id": "workflows--affiliate-manager-affiliates",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/affiliate-manager/{locationId}/affiliates",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps/add_to_affiliate_manager.md:63"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "affiliate-service--get-affiliate-by-id",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -292,7 +318,7 @@
         "Version"
       ],
       "operation": "getAffiliateById",
-      "service": null,
+      "service": "workflows",
       "query": [],
       "body": null,
       "returns": null,
@@ -306,7 +332,7 @@
         "services/marketplaceServices/AffiliateService.ts:36"
       ],
       "serviceClass": "AffiliateService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "affiliate-service--get-affiliate-campaigns",
@@ -323,7 +349,7 @@
         "Version"
       ],
       "operation": "getAffiliateCampaigns",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "limit",
@@ -344,7 +370,59 @@
         "services/marketplaceServices/AffiliateService.ts:19"
       ],
       "serviceClass": "AffiliateService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "workflows--affiliate-manager-campaigns",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/affiliate-manager/{locationId}/campaigns",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps/add_to_affiliate_manager.md:61"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--affiliate-manager-skip-onboarding",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/affiliate-manager/{locationId}/skip-onboarding",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps/add_to_affiliate_manager.md:61"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "affiliate-service--get-affiliates",
@@ -361,7 +439,7 @@
         "Version"
       ],
       "operation": "getAffiliates",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -400,7 +478,7 @@
         "services/marketplaceServices/AffiliateService.ts:32"
       ],
       "serviceClass": "AffiliateService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows--prompt-enhance",
@@ -1757,7 +1835,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "calendars",
+      "service": null,
       "query": [],
       "body": null,
       "returns": null,
@@ -1775,7 +1853,7 @@
         "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:45"
       ],
       "serviceClass": "_shared",
-      "serviceBasis": "inferred-from-path",
+      "serviceBasis": "unattributed",
       "aka": [
         "/calendars/{id}"
       ]
@@ -1791,7 +1869,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "calendars",
+      "service": null,
       "query": [],
       "body": null,
       "returns": null,
@@ -1811,7 +1889,7 @@
         "calendars/40-rules/index.md:19"
       ],
       "serviceClass": "_shared",
-      "serviceBasis": "inferred-from-path",
+      "serviceBasis": "unattributed",
       "aka": [
         "/calendars/{id}"
       ]
@@ -1857,7 +1935,7 @@
         "Version"
       ],
       "operation": "getCalendarConfiguration",
-      "service": "calendars",
+      "service": null,
       "query": [],
       "body": null,
       "returns": null,
@@ -1871,7 +1949,7 @@
         "services/marketplaceServices/CalendarService.ts:11"
       ],
       "serviceClass": "CalendarService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "calendars--calendars-events",
@@ -2074,6 +2152,32 @@
       },
       "sources": [
         "ai-agents/30-types/conversation-ai-actions.md:110"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--services-catalog",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/calendars/services/catalog",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/conversation-ai.md:157"
       ],
       "serviceBasis": "declared"
     },
@@ -11972,6 +12076,32 @@
       "serviceBasis": "inferred-from-path"
     },
     {
+      "id": "workflows--estimate-send",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/invoices/estimate/{estimateId}/send",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/triggers-marketplace/estimate_update.md:120"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "workflows--estimate-list",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -12019,7 +12149,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/30-types/steps-marketplace/payment.md:114"
+        "workflows/30-types/steps-marketplace/payment.md:114",
+        "workflows/30-types/triggers-marketplace/estimate_update.md:120"
       ],
       "serviceBasis": "declared"
     },
@@ -15347,6 +15478,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "workflows/30-types/steps-marketplace/membership_course_grant_access.md:20",
         "workflows/40-rules/marketplace-asset-publisher-classes.md:107"
       ],
       "serviceBasis": "reviewed",
@@ -15430,7 +15562,8 @@
         "workflows/30-types/triggers/membership_contact_created.md:79",
         "workflows/30-types/triggers/offer_access_granted.md:77",
         "workflows/30-types/triggers/product_access_granted.md:77",
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:111"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:111",
+        "workflows/40-rules/merge-tag-rendering.md:134"
       ],
       "serviceBasis": "reviewed",
       "serviceClass": "workflows",
@@ -17946,6 +18079,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "workflows--proposals-document",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/proposals/document",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/payment.md:133"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "workflows--proposals-templates",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -17969,6 +18128,12 @@
           "type": "string",
           "required": false,
           "source": "documented"
+        },
+        {
+          "name": "skip",
+          "type": "string",
+          "required": false,
+          "source": "documented"
         }
       ],
       "body": null,
@@ -17981,7 +18146,60 @@
       },
       "sources": [
         "workflows/10-anatomy/07-id-resolution.md:215",
-        "workflows/10-anatomy/07-id-resolution.md:224"
+        "workflows/10-anatomy/07-id-resolution.md:224",
+        "workflows/30-types/steps-marketplace/payment.md:131"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--proposals-templates-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/proposals/templates",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/payment.md:131"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--proposals-templates-put",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/proposals/templates/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/payment.md:134"
       ],
       "serviceBasis": "declared"
     },
