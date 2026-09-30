@@ -60,6 +60,15 @@
         "commit:65dae127"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:880e2c46"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -89,7 +98,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
       "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "e643d74b3e42bddbed538584740d42f0a9e58c8de0a0bd5560867d76fd083c5f",
-      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "5161bb246496714f08e150205eaa5bed28868bd2d53dd1109b2d97c6ff8df379",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "d0d9be6077c880cd2fff42d74d348ae6c517204e8c9a7e234639dcd254dde6dc",
       "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "8ca1ae1ac9a31ed987ef26a1a5b3751ace5e3072b8efd828b9fe720e6d556629",
       "plugins/uxie-ghl-factory/mcp-internal/core/redirects.mjs": "74ca4d533864658eabbeee223790ce66a7776414fe11b237c15e862d7dce98e2"
     }
