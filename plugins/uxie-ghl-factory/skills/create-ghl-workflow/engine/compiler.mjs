@@ -2423,6 +2423,19 @@ export const DEPENDENT_TRIGGER_ROWS = {
   scheduler_trigger: [
     { field: 'scheduler.daily.times', title: 'At what time', type: 'multiselect', operator: '==', operators: ['=='], requires: 'scheduler.interval', requiresValue: 'daily' },
   ],
+  // inbound_trigger (inbound email): the recovered static model lists one row, but the drawer offers the email rows below, each with
+  // its OWN operator menu and no default (InboundTriggerFilter.ts getStandardOperatorOptions; bundle 2026-08-21). A row authored
+  // without an operator shows "Select operator". Read on a tool-built draft: "Subject / Contains / test"
+  // (live-W33-render-build-h.json + live-W29-f-render-inbound_trigger.json).
+  inbound_trigger: [
+    { field: 'email.to', title: 'Email sent to / Mailbox', type: 'string', operators: ['==', 'contains-any', 'array-matches-any-fragment', 'array-not-matches-any-fragment'] },
+    { field: 'email.cc', title: 'CC', type: 'string', operators: ['==', 'contains-any', 'array-matches-any-fragment', 'array-not-matches-any-fragment'] },
+    { field: 'email.from.address', title: 'From', type: 'string', operators: ['==', 'array-matches-any-fragment', 'array-not-matches-any-fragment'] },
+    { field: 'email.subject', title: 'Subject', type: 'string', operators: ['==', 'string-contains-any-of', 'string-contains-none-of'] },
+    { field: 'email.body_plain', title: 'Body (plain text)', type: 'string', operators: ['string-contains-any-of', 'string-contains-none-of'] },
+    { field: 'email.has_attachments', title: 'Has attachments', type: 'select', operator: '==', operators: ['=='] },
+    { field: 'email.isReply', title: 'Trigger only for new email conversations', type: 'select', operator: '==', operators: ['=='] },
+  ],
   payment_received: [
     paymentRow('payment.funnel.sub_source', 'Sub-Source', 'funnel'),
     paymentRow('payment.website.sub_source', 'Sub-Source', 'website'),
@@ -2478,8 +2491,10 @@ function expandFilter(f, rows, extra = {}) {
       if (f.operator && !menu.includes(f.operator))
         throw new IRError('FILTER_OPERATOR',
           `trigger filter '${dep.title}' on '${triggerType}' is stored by the drawer with operator ${menu.map((o) => `'${o}'`).join(' or ')} only, not '${f.operator}'.`);
+      if (!f.operator && !dep.operator && menu.length > 1)
+        extra?.ctx?.warn?.(`🔴 TRIGGER_FILTER_NO_OPERATOR: filter '${dep.title}' on '${triggerType}' names no operator and the drawer offers ${menu.map((o) => `'${o}'`).join(', ')} with no default — the drawer would show "Select operator". It is sent without one.`);
       const { on: _on, ...rest } = f;
-      return { ...rest, field: dep.field, operator: f.operator ?? dep.operator, title: f.title ?? dep.title, type: f.type ?? dep.type };
+      return { ...rest, field: dep.field, ...((f.operator ?? dep.operator) ? { operator: f.operator ?? dep.operator } : {}), title: f.title ?? dep.title, type: f.type ?? dep.type };
     }
     const seen = (OBSERVED_TRIGGER_FILTERS[triggerType] ?? []).find((r) => r.field === key || r.id === key || norm(r.title) === norm(key));
     if (seen) {
@@ -2621,6 +2636,24 @@ function expandFilter(f, rows, extra = {}) {
     if (!Number.isNaN(n)) cond.value = n;
   }
   if (cond.field === 'customTriggerDescription') cond.title = String(cond.value ?? '');
+  // birthday_reminder's Month is / Day is: the drawer stores the month as a NUMBER, its 0-based index (January = 0, May = 4), and the
+  // day as a NUMBER. A month NAME or a day STRING matches nothing and the drawer shows "Select" (picked May and 16 in the drawer,
+  // saved with writes blocked: live-W33-pick-birthday_reminder-Month_Day.json; rendered a name-authored draft: live-W33-render-build-h.json).
+  // Authors write the month as a name or as the calendar number 1-12.
+  if (cond.field === 'contact.birthMonth' && cond.value !== undefined && cond.value !== null && cond.value !== '') {
+    const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+    const raw = typeof cond.value === 'string' ? cond.value.trim().toLowerCase() : cond.value;
+    let idx = typeof raw === 'string' && /^\d+$/.test(raw) ? Number(raw) - 1 : typeof raw === 'number' ? raw - 1 : MONTHS.findIndex((m) => m === raw || m.slice(0, 3) === raw);
+    if (!Number.isInteger(idx) || idx < 0 || idx > 11)
+      throw new IRError('FILTER_VALUE', `trigger filter 'contact.birthMonth' takes a month name or the calendar number 1-12, got ${JSON.stringify(f.value)}. The drawer stores the 0-based index (January = 0).`);
+    cond.value = idx;
+  }
+  if (cond.field === 'contact.birthDay' && cond.value !== undefined && cond.value !== null && cond.value !== '') {
+    const d = Number(cond.value);
+    if (!Number.isInteger(d) || d < 1 || d > 31)
+      throw new IRError('FILTER_VALUE', `trigger filter 'contact.birthDay' takes a day number 1-31, got ${JSON.stringify(f.value)}.`);
+    cond.value = d;
+  }
   return cond;
 }
 
@@ -2698,7 +2731,7 @@ export function buildTrigger(t, ctx, wid, refMap, { objectKey = null } = {}) {
   // A dependent row exists in the drawer only under its parent row, so a trigger carrying one without
   // the parent is one the builder cannot produce (and the stage id means nothing without its pipeline).
   for (const dep of DEPENDENT_TRIGGER_ROWS[t.type] ?? []) {
-    if (!conditions.some((c) => c?.field === dep.field)) continue;
+    if (!dep.requires || !conditions.some((c) => c?.field === dep.field)) continue;
     const parent = conditions.find((c) => c?.field === dep.requires);
     if (!parent)
       throw new IRError('TRIGGER_FILTER_PARENT',
