@@ -96,6 +96,11 @@ them to where it lives in the UI. Never report it as impossible, and never build
 | **The location's default builder, who may switch builders, and the AI Builder switch** | Automation → **Global Workflow Settings** (agency users; the AI Builder switch is on the same page) | Location-wide settings with no DELETE route: once saved, a location can never go back to an unset record, only to explicit defaults. `get_workflow_settings` reads them. |
 | **The flow-bot setup page** (making a Conversation AI bot's flow workflow) | AI Agents → the Conversation AI bot → its flow setup, which opens `automation/setup-workflow` | Opening it creates a PUBLISHED workflow with an active *Chat Initiated* trigger and points the bot at it. Build a flow draft with `build_workflow` (`workflowType: agent`) instead. |
 | **A per-workflow sending domain** | The workflow's **Settings** tab → sending domain | It needs a verified sending domain on the location, which is a purchase. `raw_request` reaches `GET /workflow/{loc}/email/domain-selection`. |
+| **Save version** on the builder's Version history panel | Version history → Current version (Auto-Saved) → **Save version**. It shows only with the location's auto-save on | It commits an auto-save and is a person's checkpoint. Builds already go through the auto-save route. `list_workflow_versions` and `restore_workflow_version` cover history. |
+| **The onboarding page** for a location with no workflows, and its shortlist of starter workflows | Automation → Workflows on a location that has none | It shows only in a location with no workflows, and no sandbox is empty. It is a set of templates, not something to author. |
+| **Manage tokens** (a workflow's stored OAuth2 tokens for third-party steps) | The workflow Settings tab, when the location has stored tokens | A token comes from a third party's authorisation, which the plugin does not store. `get_ai_agent_options` lists an AI Agent step's MCP connection tokens. |
+| **The Mention tool and the trigger-links icon in a rich-text field** | The message editor of an SMS or a marketplace step (internal comment): **@** Mention, lightning icon for trigger links | A picked mention is stored as plain text, `@{{user.name}}[[uid:{{user.id}}]]` for the assigned user; write that string. The Mention list ignores paging and search. |
+| **Premium opt-in, rebilling and plans** for the workflow premium and AI features | Agency settings → Workflow premium features / external AI models; Automation Settings → View plans | Billing changes are excluded. Build and edit preflight read the opt-in gate, and `get_premium_usage` reads consumption. |
 | **Template listing settings** (a workflow's template categories and description) | The workflow's **Settings** tab, shown only on a template (snapshot-source) location | The plugin does not publish templates. Those fields do not exist on an ordinary location. |
 
 ## Before any write
@@ -122,6 +127,7 @@ them to where it lives in the UI. Never report it as impossible, and never build
 | The exact field set for one step or trigger type | **`describe_step_type`** (the tool — not a file) |
 | Build one of the recipes end to end | `references/build-recipe.md` |
 | Merge tags in step text: trigger data, `formatList`, dates, `default`, the picker, what the engine refuses | `references/merge-tags.md` |
+| The five appointment-family waits, the deprecated `eventStartDate` setting, trigger toggle rows and deprecated operators, reading logs and stats, Save version | `references/waits-settings-triggers.md` |
 | Marketplace / third-party steps and triggers | `references/marketplace-steps.md` |
 | The advanced canvas: what a person's gestures store, that our tools keep canvas layout on edit (proven 2026-09-29), and rescuing a goto that lost its target | `references/advanced-canvas.md` |
 | What a step's stored shape must look like, and why mirroring one example misleads | `references/step-shapes.md` |
