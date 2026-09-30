@@ -10,8 +10,8 @@ const tA = { id: 's1', type: 'add_contact_tag', name: 'Tag', attributes: { tags:
 const tB = { id: 's1', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['b'] } };
 const trig = { id: 'T-old', _id: 'T-old', type: 'contact_tag', name: 'On tag', workflow_id: 'W', status: 'draft', conditions: [{ field: 'tagsAdded', operator: 'index-of-true', value: 'x' }], actions: [{ type: 'add_to_workflow', workflow_id: 'W' }] };
 
-function fake({ status = 'draft', name = 'TEST wf', counts = [], version3 = { _id: 'W-3', version: 3, status: 'published', name: 'TEST wf', timezone: 'account', workflowData: { templates: [tA] }, triggersData: [trig], meta: {} } } = {}) {
-  let wf = { _id: 'W', name, status, version: 4, updatedBy: 'U', companyId: 'CO', companyAge: 9, timezone: 'account', workflowData: { templates: [tB] }, meta: null };
+function fake({ status = 'draft', name = 'TEST wf', counts = [], note = null, version3 = { _id: 'W-3', version: 3, status: 'published', name: 'TEST wf', timezone: 'account', workflowData: { templates: [tA] }, triggersData: [trig], meta: {} } } = {}) {
+  let wf = { _id: 'W', name, status, version: 4, updatedBy: 'U', companyId: 'CO', companyAge: 9, timezone: 'account', workflowData: { templates: [tB] }, meta: null, workflowNote: note };
   let triggers = [structuredClone(trig)]; let n = 0;
   const calls = [];
   const gw = { call: async (method, path, body) => {
@@ -23,7 +23,7 @@ function fake({ status = 'draft', name = 'TEST wf', counts = [], version3 = { _i
     if (method === 'GET' && /\/workflow\/LOC\/W\?/.test(path)) return { ok: true, status: 200, json: structuredClone(wf) };
     if (method === 'DELETE' && path.includes('/trigger/')) { const id = path.split('/trigger/')[1].split('?')[0]; triggers = triggers.filter((t) => t.id !== id); return { ok: true, status: 200, json: {} }; }
     if (method === 'POST' && path.endsWith('/trigger')) { const id = `T-new-${++n}`; triggers.push({ ...body, id, _id: id }); return { ok: true, status: 200, json: { id } }; }
-    if (method === 'PUT' && path === '/workflow/LOC/W') { wf = { ...wf, name: body.name, status: body.status, version: wf.version + 1, workflowData: body.workflowData, meta: body.meta }; return { ok: true, status: 200, json: {} }; }
+    if (method === 'PUT' && path === '/workflow/LOC/W') { wf = { ...wf, name: body.name, status: body.status, version: wf.version + 1, workflowData: body.workflowData, meta: body.meta, workflowNote: body.workflowNote ?? null }; return { ok: true, status: 200, json: {} }; }
     return { ok: false, status: 404, json: {} };
   } };
   return { calls, deps: { state: {}, makeGw: () => gw }, wf: () => wf, triggers: () => triggers };
@@ -80,4 +80,17 @@ test('helpers: an inbound webhook keeps its URL (predeterminedId = old id); the 
   assert.deepEqual(d.steps.added.map((s) => s.id), ['b']); assert.deepEqual(d.steps.removed.map((s) => s.id), ['a']);
   const b = restoreBody({ _id: 'V', workflowData: { templates: [] } }, { name: 'n', targetVersion: 7, userId: 'U', restoredAt: '2026-09-28T00:00:00Z' });
   for (const k of ['isRestoreRequest', 'status', 'workflowData', 'updatedBy', 'version', 'oldTriggers', 'newTriggers', 'triggersChanged', 'modifiedSteps', 'deletedSteps', 'createdSteps', 'meta']) assert.ok(k in b, k);
+});
+
+test('the restore PUT carries the current workflow note (the document PUT replaces the whole document); a workflow with no note sends none', async () => {
+  const note = { content: 'keep me', createdBy: 'U', createdByName: 'N', createdAt: 'T', updatedBy: 'U', updatedByName: 'N', updatedAt: 'T' };
+  const f = fake({ note });
+  const r = await tool().handler(args({ confirm: true }), f.deps);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(writes(f)[2].body.workflowNote, note, 'the note travels in the restore body');
+  assert.deepEqual(f.wf().workflowNote, note, 'and reads back');
+  const none = fake();
+  const r2 = await tool().handler(args({ confirm: true }), none.deps);
+  assert.equal(r2.ok, true, JSON.stringify(r2));
+  assert.equal('workflowNote' in writes(none)[2].body, false, 'control: no note, none sent');
 });
