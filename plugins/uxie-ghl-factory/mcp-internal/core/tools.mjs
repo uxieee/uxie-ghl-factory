@@ -35,7 +35,7 @@ import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER
 import { elementSpecProblem } from './element-spec.mjs';
 import { makePopup, popupRefProblems } from './page-popup.mjs';
 import { normalizeStyles } from './style-values.mjs';
-import { fontRegistry, typographyValue, typographyFamily, setRootVars, typographyRule, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, resolveCustomFont } from './page-fonts.mjs';
+import { fontRegistry, typographyValue, typographyFamily, setRootVars, typographyRule, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, resolveCustomFont, setPageColors } from './page-fonts.mjs';
 import { checkRecord, metaPost, recordDrift } from './page-seo.mjs';
 import { planCreate, planUpdate, planDelete, resolveTarget, resolveTo, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
@@ -11779,7 +11779,7 @@ export const TOOLS = [
       stepId: z.string(),
       sections: z.array(z.record(z.any())).min(1).optional(),
       popups: z.array(z.record(z.any())).optional(),
-      typography: z.object({ headlineFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional(), contentFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional() }).optional(),
+      typography: z.object({ headlineFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional(), contentFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional(), textColor: z.string().min(1).optional(), linkColor: z.string().min(1).optional() }).optional(),
       edits: z.array(z.object({
         op: z.enum(['set', 'append-section', 'insert', 'move', 'clone', 'append-popup', 'set-popup', 'remove-popup', 'order-popups', 'remove-node', 'page']),
         element: z.record(z.any()).optional().describe('insert: the new element, the same shape as an element of a column'),
@@ -11800,7 +11800,7 @@ export const TOOLS = [
         hoverAnimation: z.object({ name: z.enum(HOVER_ANIMATIONS) }).passthrough().optional(),
         openPopup: z.string().optional(),
         font: z.enum(['headline', 'content']).optional(),
-        typography: z.object({ headlineFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional(), contentFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional() }).optional(),
+        typography: z.object({ headlineFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional(), contentFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional(), textColor: z.string().min(1).optional(), linkColor: z.string().min(1).optional() }).optional(),
         sticky: z.enum(['none', 'top', 'bottom']).optional(),
         width: z.enum(['full', 'wide', 'midWide', 'small']).optional(),
         fullWidthRows: z.boolean().optional(),
@@ -12003,6 +12003,7 @@ export const TOOLS = [
         });
         pageData.popupsList = popups.map((p) => p.entry);
         applyTypography(pageData, typo, fonts.reg);
+        if (args.typography?.textColor !== undefined || args.typography?.linkColor !== undefined) setPageColors(pageData, args.typography);
         applyPalette(pageData);
         const refs = popupRefProblems(pageData);
         if (refs.length) throw Object.assign(new Error(refs.join('; ')), { remediation: 'A button whose action is openPopup must name a popup on this page — use `openPopup: "<popup name>"` on the element.' });

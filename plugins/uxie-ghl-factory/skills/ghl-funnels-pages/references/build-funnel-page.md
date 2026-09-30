@@ -175,6 +175,9 @@ Both the class knobs AND the builder's compiled rules are written, byte-equal to
 
 ## Fonts
 
+- **Page text and link colour.** `typography {textColor, linkColor}` (same places) takes a palette name (`red`, `cobalt`,
+  `var(--blue)`) or a hex colour and writes what the Typography panel writes: `colors.<slot>` and `:root --text-color /
+  --link-color`; an unknown name is refused with the palette. Naming one leaves the other as it was.
 - **Page fonts.** `typography {headlineFont, contentFont}` (compose: top-level; edit: op `page`) sets the page
   fonts the builder's way: the setting, the faces loaded, and `:root --headlinefont / --contentfont`. An
   element's `font: 'headline' | 'content'` uses them, and is refused while the page has none set.

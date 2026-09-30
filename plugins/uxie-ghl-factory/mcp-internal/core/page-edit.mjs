@@ -21,7 +21,7 @@ export function findNode(pageData, nodeId) {
 import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch, withElement } from './funnel-pages.mjs';
 import { randomId, allIds, subtreeIds, parentOf, positionIn, movedIndex, cloneSubtree, copyRulesUnderNewIds, stripRulesNaming, findPopup, popupRoot } from './page-structure.mjs';
 import { nodeLayerCss, storedMap, LAYER_SPEC_KEYS } from './style-layer.mjs';
-import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, customFamily } from './page-fonts.mjs';
+import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, customFamily, setPageColors, pageColorValue, PAGE_COLOR_SLOTS } from './page-fonts.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
 
 const mergeInto = (node, key, patch) => {
@@ -433,6 +433,10 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
         next.pageStyles = setRootVars(next.pageStyles, vars);
         changed.push('settings.settings.typography', 'general.general.fontsToLoad', 'pageStyles');
       }
+      if (o.typography && (o.typography.textColor !== undefined || o.typography.linkColor !== undefined)) {
+        setPageColors(next, o.typography);
+        changed.push('settings.settings.typography.colors', 'pageStyles');
+      }
       if (!changed.length) { report.push({ i, op: 'page', error: 'page op needs trackingCode, customCss, background or typography (SEO goes in `seo`)' }); continue; }
       report.push({ i, op: 'page', changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background, typography: o.typography } });
     } else {
@@ -519,6 +523,12 @@ export function verifyEdits(stored, report) {
         if (stored.settings?.settings?.typography?.fonts?.[key]?.value?.text !== family) wrong.push(`typography.${key}`);
         if (!(stored.general?.general?.fontsToLoad ?? []).includes(family)) wrong.push(`fontsToLoad.${family}`);
         if (!new RegExp(`--${varName}\\s*:\\s*'${family.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`).test(stored.pageStyles ?? '')) wrong.push(`pageStyles.--${varName}`);
+      }
+      for (const slot of Object.keys(PAGE_COLOR_SLOTS)) {
+        if (e.typography?.[slot] === undefined) continue;
+        const want = pageColorValue(e.typography[slot], slot); const cssVar = PAGE_COLOR_SLOTS[slot][0];
+        if (stored.settings?.settings?.typography?.colors?.[slot]?.value?.value !== want) wrong.push(`typography.colors.${slot}`);
+        if (!new RegExp(`${cssVar}\\s*:\\s*${want.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*[;}]`).test(stored.pageStyles ?? '')) wrong.push(`pageStyles.${cssVar}`);
       }
       out.push({ page: true, applied: wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}) });
     }

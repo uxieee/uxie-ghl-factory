@@ -126,3 +126,31 @@ export async function resolveCustomFont(gw, locationId, id) {
   const hit = rows.find((x) => (x._id ?? x.id) === id && x.deleted !== true);
   return { res: r, count: rows.length, font: hit ? { custom: true, id: hit._id ?? hit.id, name: hit.name, url: hit.url, format: hit.format } : null };
 }
+
+// ── Page text / link colour ── the Typography panel's two swatches (measured: knowledge sniffs/funnels-wave42-f7-defaults-2026-09-30,
+// a builder Save after picking Red / Cobalt): settings.settings.typography.colors.<slot> = {value: {label, value}} where `value` is the
+// CSS the page uses — `var(--red)` for a palette colour — and `label` keeps the slot's previous label (`var(--black)` / `var(--blue)`);
+// the page stylesheet's :root gets `--text-color` / `--link-color` set to that value.
+export const PAGE_COLOR_SLOTS = Object.freeze({ textColor: ['--text-color', 'var(--black)'], linkColor: ['--link-color', 'var(--blue)'] });
+const PALETTE_LABELS = Object.freeze(['transparent', 'primary', 'secondary', 'white', 'gray', 'black', 'red', 'orange', 'yellow', 'green', 'teal', 'malibu', 'indigo', 'purple', 'pink', 'cobalt', 'smoke', 'overlay', 'blue']);
+/** A palette colour name (`red`, `Red`, `var(--red)`) or a hex colour → the CSS value the builder stores; throws on anything else. */
+export function pageColorValue(input, which = 'textColor') {
+  const s = String(input ?? '').trim();
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s)) return s.toLowerCase();
+  const name = (/^var\(--([a-z0-9-]+)\)$/i.exec(s)?.[1] ?? s).toLowerCase();
+  if (PALETTE_LABELS.includes(name)) return `var(--${name})`;
+  throw new Error(`typography.${which}: "${s}" is neither a palette colour (${PALETTE_LABELS.join(', ')}) nor a hex colour like #1a2b3c`);
+}
+/** Write the page's text / link colour where the builder keeps it. Returns the :root variables set. */
+export function setPageColors(pageData, given = {}) {
+  const t = pageData.settings?.settings?.typography;
+  const vars = {};
+  for (const [slot, [cssVar, defLabel]] of Object.entries(PAGE_COLOR_SLOTS)) {
+    if (given[slot] === undefined) continue;
+    const value = pageColorValue(given[slot], slot);
+    if (t) { t.colors = t.colors ?? {}; t.colors[slot] = { value: { label: t.colors[slot]?.value?.label ?? defLabel, value } }; }
+    vars[cssVar] = value;
+  }
+  if (Object.keys(vars).length) pageData.pageStyles = setRootVars(pageData.pageStyles, vars);
+  return vars;
+}

@@ -245,6 +245,7 @@ export const emptyFor = (prop, meta) => {
 // obtained by installing a blogs template (`POST /templates/template/load`, product `blogs`).
 export { KIND_DEFAULT_EXTRA };
 import { KIND_DEFAULT_STYLES, KIND_CONFIG_EXTRA } from './kind-style-defaults.mjs';
+import { KIND_TAGNAME, KIND_ORACLE_EXTRA, KIND_ORACLE_STYLES, KIND_OMIT_EXTRA } from './kind-oracle-defaults.mjs';
 
 export const NEEDS_STEP_TYPE = Object.freeze({
   'store-cart': 'store', 'store-checkout': 'store', 'store-thank-you': 'store',
@@ -407,6 +408,15 @@ export const completeExtra = (meta, given = {}) => {
         : Object.prototype.hasOwnProperty.call(builder, prop) ? builder[prop]
           : emptyFor(prop, meta);
   }
+  // `customText` is a nested label table. The template-derived one (`known`) predates labels the builder's factory has since
+  // added, and a builder Save fills them in (product detail: the description show more / less and view-details button labels,
+  // knowledge sniffs/funnels-wave42-f7-defaults-2026-09-30 node-diff.pdp-after-save.json). Fill the gaps from the factory's table;
+  // what the template or the caller wrote stays.
+  if (!('customText' in given) && known.customText?.value && factory.customText?.value) {
+    const fill = (base, over) => (over && typeof over === 'object' && !Array.isArray(over) && base && typeof base === 'object' && !Array.isArray(base)
+      ? Object.fromEntries([...new Set([...Object.keys(base), ...Object.keys(over)])].map((k) => [k, k in over ? fill(base[k], over[k]) : base[k]])) : over);
+    out.customText = { ...out.customText, value: fill(factory.customText.value, known.customText.value) };
+  }
   // A kind may need a property its own registry entry does not declare — `customText` is declared,
   // but `step1` on store-checkout is not, and the renderer reads it anyway.
   for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
@@ -537,9 +547,16 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
   for (const [k, v] of Object.entries(base)) {
     if (/FontFamily$/.test(k) && typeof v?.value === 'string' && /^var\(--(?!headlinefont\)|contentfont\))/.test(v.value)) base[k] = { ...v, value: 'var(--contentfont)' };
   }
+  // What the builder writes at runtime (kind-oracle-defaults.mjs) sits over the tables, under what the caller named.
+  const oracleStyles = KIND_ORACLE_STYLES[meta];
+  if (oracleStyles) Object.assign(base, oracleStyles);
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
   const routed = routeEmbedExtra(meta, routeClickAction(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra));
-  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, fillTextFieldInitials(meta, unshare(completeExtra(meta, routed))), withDefaults, cls, TOOL_COMPILED_KINDS.has(meta) ? undefined : KIND_FACTORY_WRAPPER[meta]);
+  const oracleExtra = KIND_ORACLE_EXTRA[meta]?.(new Date().toISOString()) ?? {};
+  const filled = fillTextFieldInitials(meta, unshare(completeExtra(meta, routed)));
+  for (const [k, v] of Object.entries(oracleExtra)) if (!Object.prototype.hasOwnProperty.call(routed, k) && k in filled) filled[k] = structuredClone(v);
+  if (KIND_OMIT_EXTRA[meta]) for (const k of Object.keys(filled)) if (KIND_OMIT_EXTRA[meta].test(k) && !Object.prototype.hasOwnProperty.call(routed, k)) delete filled[k];
+  const node = envelope(id, 'element', meta, KIND_TAGNAME[meta] ?? ELEMENTS[meta].tagName, filled, withDefaults, cls, TOOL_COMPILED_KINDS.has(meta) ? undefined : KIND_FACTORY_WRAPPER[meta]);
   // The wrapper and per-device maps a caller gave (numbers are px), over the envelope's.
   if (wrapper) node.wrapper = { ...node.wrapper, ...storedMap(wrapper) };
   for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) node[k] = storedMap(v);
@@ -954,7 +971,8 @@ export const auditPageData = (pageData, opts = {}) => {
         if (n.meta === 'button' && !n.styles?.secondaryColor?.value && !n.styles?.color?.value) {
           problems.push(`node ${n.id} (button): styles has neither color nor secondaryColor — the BUILDER throws on every render and can no longer save (a 422), while the public page renders. Set styles.color.`);
         }
-        const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p) => !(p in (n.extra ?? {})));
+        // Props a kind's fresh builder node does not carry (KIND_OMIT_EXTRA) are not a defect: the builder's own countdown lacks them and renders.
+        const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p) => !(p in (n.extra ?? {})) && !KIND_OMIT_EXTRA[n.meta]?.test(p));
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(', ')} — the renderer reads extra.<prop>.value unguarded`);
       }
       // nodeId selects the CSS selector the builder recomputes for this node, so it must be present on
