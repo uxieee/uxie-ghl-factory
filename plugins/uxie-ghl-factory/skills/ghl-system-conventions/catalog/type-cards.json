@@ -9883,7 +9883,7 @@
    "family": "steps",
    "title": "AI message",
    "status": "proven-live",
-   "lastVerified": "2026-08-31",
+   "lastVerified": "2026-09-30",
    "summary": "Have the bot compose and send a message from an instruction, in its own words.",
    "fields": [
     {
@@ -9954,7 +9954,7 @@
    "family": "steps",
    "title": "Continue conversation",
    "status": "proven-live",
-   "lastVerified": "2026-08-31",
+   "lastVerified": "2026-09-30",
    "summary": "Return the contact to the bot’s general conversation, driven by the global prompt and knowledge base.",
    "fields": [
     {
@@ -9973,7 +9973,7 @@
    "family": "steps",
    "title": "Custom message",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-09-30",
    "summary": "Send an exact message, verbatim, with no model rewriting.",
    "fields": [
     {
@@ -9999,7 +9999,7 @@
    "family": "steps",
    "title": "End conversation",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-09-30",
    "summary": "Stop the bot replying to this contact for a configured period, and reset the flow.",
    "fields": [
     {
@@ -10126,7 +10126,7 @@
    "family": "steps",
    "title": "Transfer bot",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-09-30",
    "summary": "Hand the conversation to another AI employee.",
    "fields": [
     {
@@ -11660,7 +11660,7 @@
     }
    ],
    "validator": "`customCodeValidator` (length 297, result level `warning`). Per `sniffs/bundle/validators.json::customCodeValidator`:\n\n```\nif (!code.length)         push { field: \"code\",   message: \"custom_code_required\" }\nif (isEmpty(output || {})) push { field: \"output\", message: \"custom_code_must_be_tested\" }\n```\n\n`fields_referenced: [\"code\", \"output\"]`.\n\nThe `output` check forces the user to execute the code at least once before publish — the test execution writes the function's actual return value into `output`. **You cannot publish a `custom_code` step with an empty `output`**, even if `code` is valid. To publish via API without running the UI's test step, hand-populate `output` with a sample matching what your code will actually return.",
-   "notes": "- **JavaScript and Python both run, and `inputData` reaches both** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3H-code-arrays.json`: JS returned `{items, echo: inputData.k}`; Python (`language: \"python\"`) `output['doubled'] = int(inputData['v']) * 2` with `inputData.v = \"21\"` returned 42. Our build refuses a step with an empty `output` (`CODE_OUTPUT_EMPTY`, the builder's \"Code must be tested before saving\"); author a sample `output` — the build then runs the code through the builder's test endpoint and replaces the sample with the real result (`customCodeTests[].replacedOutput: true`).\n- 🔴 **HTTP is `await customRequest.get/post/put/patch/delete/head/options(url, {data, headers, params})` returning `{data, headers, status}`; `fetch`/`require`/`axios` do not exist.** A failed request throws a **string**: `JSON.parse(e)` gives `{isAxiosError, error: <body>, status: \"<code>\"}`, and `e.message` is undefined. The script is killed at 60 s, and GHL's UI states a 2 MB total response limit. Inputs are `inputData.<key>` (a bare key throws `ReferenceError`); a numeric-looking input string arrives as a number, so it loses a `+`. Outputs are `{{custom_code.N.output.<key>}}`; without `.output.` the tag renders EMPTY. Also injected: `_` (lodash), `moment` (its `.tz` did not convert in a real run — see the table), `_csv.parse/stringify`, `_base64`, `_uuid`, and `fileDownloader.downloadAndUploadFormData({downloadUrl, formDataKey, uploadUrl, filename, headers})`. 🔴 `_cache` exists but every call fails (`\"undefined\" is not valid JSON`), even in real runs. Python (`language: \"python\"`) runs RestrictedPython: `requests`, `pandas`, `numpy` and `dateutil` work; `os`, `sys`, `socket` and any `_`-prefixed name are refused. See \"Runtime behaviour\" `[proven-live 2026-09-25]`.\n- **`output` must match the function's actual return shape.** Downstream steps reference `{{custom_code.<order>.output.<key>}}`. If you hand-fill `output: { foo: \"bar\" }` but your code returns `{ baz: 1 }`, the workflow publishes but downstream references break at runtime.\n- **`code` is a function body** (no `function() { ... }` wrapper). JavaScript is wrapped in an **async** function, so top-level `await` works (the builder's own sample says \"This is wrapped in an async function / You can use await throughout the function\", and the linter wraps the code in `async() => {…}`) [source-derived 2026-09-26 — models/actions/premium-actions/CustomCode.ts:7-14; custom-code-components/hooks/use-codemirror-extensions.ts:76-81]. End with `output = {…}` or `return {…}`.\n- **`inputData` keys are read as `inputData.<key>` or `inputData['<key>']`, never as bare variables.** If `inputData: { name: \"{{contact.first_name}}\" }`, the code reads `inputData.name` (Handlebars are resolved before the code runs); a bare `name` is not defined `[source-derived 2026-09-26 — the builder's help text; a bare-name run has not been executed]`. The builder's help text says the same: \"Use inputData.keyName or inputData['keyName'] to access the values within the code\" [source-derived 2026-09-26 — i18n `property_to_include_help_text`].\n- **Premium gate.** `isPremiumAction: true` in the registry. When premium actions are off for the location, the drawer shows only a paywall (see Builder options and limits); whether publish is also refused on such a location is untested.\n- **`stepIndex` is set** in the corpus example — premium actions often carry `stepIndex` (a numeric sequence id used internally by premium runtime infra).\n- The validator emits warnings, but publish treats them as blocking.",
+   "notes": "- **JavaScript and Python both run, and `inputData` reaches both** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3H-code-arrays.json`: JS returned `{items, echo: inputData.k}`; Python (`language: \"python\"`) `output['doubled'] = int(inputData['v']) * 2` with `inputData.v = \"21\"` returned 42. Our build refuses a step with an empty `output` (`CODE_OUTPUT_EMPTY`, the builder's \"Code must be tested before saving\"); author a sample `output` — the build then runs the code through the builder's test endpoint and replaces the sample with the real result (`customCodeTests[].replacedOutput: true`).\n- 🔴 **HTTP is `await customRequest.get/post/put/patch/delete/head/options(url, {data, headers, params})` returning `{data, headers, status}`; `fetch`/`require`/`axios` do not exist.** A failed request throws a **string**: `JSON.parse(e)` gives `{isAxiosError, error: <body>, status: \"<code>\"}`, and `e.message` is undefined. The script is killed at 60 s, and GHL's UI states a 2 MB total response limit. Inputs are `inputData.<key>` (a bare key throws `ReferenceError`); a numeric-looking input string arrives as a number, so it loses a `+`. Outputs are `{{custom_code.N.output.<key>}}`; without `.output.` the tag renders EMPTY. Also injected: `_` (lodash), `moment` (its `.tz` did not convert in a real run — see the table), `_csv.parse/stringify`, `_base64`, `_uuid`, and `fileDownloader.downloadAndUploadFormData({downloadUrl, formDataKey, uploadUrl, filename, headers})`. 🔴 `_cache` exists but every call fails (`\"undefined\" is not valid JSON`), even in real runs. Python (`language: \"python\"`) runs RestrictedPython: `requests`, `pandas`, `numpy` and `dateutil` work; `os`, `sys`, `socket` and any `_`-prefixed name are refused. See \"Runtime behaviour\" `[proven-live 2026-09-25]`.\n- **The plugin's credential guard refuses code that writes a literal `Authorization:` label before a value** `[proven-live 2026-09-30]`. Name the header through a variable (`const AUTH = 'Authorization'; … { [AUTH]: 'Bearer ' + inputData.pit }`) and the step builds and reads back as a draft (`sniffs/workflows-wave1-2026-09-25/live-W39-custom-code-example.json`). This is a limitation of OUR guard, not of GHL.\n- **`output` must match the function's actual return shape.** Downstream steps reference `{{custom_code.<order>.output.<key>}}`. If you hand-fill `output: { foo: \"bar\" }` but your code returns `{ baz: 1 }`, the workflow publishes but downstream references break at runtime.\n- **`code` is a function body** (no `function() { ... }` wrapper). JavaScript is wrapped in an **async** function, so top-level `await` works (the builder's own sample says \"This is wrapped in an async function / You can use await throughout the function\", and the linter wraps the code in `async() => {…}`) [source-derived 2026-09-26 — models/actions/premium-actions/CustomCode.ts:7-14; custom-code-components/hooks/use-codemirror-extensions.ts:76-81]. End with `output = {…}` or `return {…}`.\n- **`inputData` keys are read as `inputData.<key>` or `inputData['<key>']`, never as bare variables.** If `inputData: { name: \"{{contact.first_name}}\" }`, the code reads `inputData.name` (Handlebars are resolved before the code runs); a bare `name` is not defined `[source-derived 2026-09-26 — the builder's help text; a bare-name run has not been executed]`. The builder's help text says the same: \"Use inputData.keyName or inputData['keyName'] to access the values within the code\" [source-derived 2026-09-26 — i18n `property_to_include_help_text`].\n- **Premium gate.** `isPremiumAction: true` in the registry. When premium actions are off for the location, the drawer shows only a paywall (see Builder options and limits); whether publish is also refused on such a location is untested.\n- **`stepIndex` is set** in the corpus example — premium actions often carry `stepIndex` (a numeric sequence id used internally by premium runtime infra).\n- The validator emits warnings, but publish treats them as blocking.",
    "hasCanonicalExample": true
   },
   {
