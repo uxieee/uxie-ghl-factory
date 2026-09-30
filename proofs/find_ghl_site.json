@@ -69,6 +69,15 @@
         "commit:880e2c46"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:03c8132c"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -91,7 +100,7 @@
       "redirectApp": 222
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#find_ghl_site": "69d803da5b53587890dcec6202dcacb6de7f5194a82e91909b5b151560ef74cc",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#find_ghl_site": "b5e278bbab51278b1a5efefae557a2a59ce0d35b1f8fc7a08c578d0276617f5d",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "70fe5c44b7821485a92036b762653ccbc5cbc0a5acbd782b4ed59357c24fec95",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
