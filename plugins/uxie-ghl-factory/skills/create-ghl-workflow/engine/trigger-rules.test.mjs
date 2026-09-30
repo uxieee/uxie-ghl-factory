@@ -25,6 +25,12 @@ test('a native contact trigger in a Company workflow warns (TRIGGER_KIND_MISMATC
   assert.equal(c.warnings.some((w) => /TRIGGER_KIND_MISMATCH/.test(w)), false);
 });
 
+test('TRIGGER_KIND_MISMATCH is keyed to the Company workflowType values only: business and company warn, agent and other values (control) do not', () => {
+  const native = [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }];
+  for (const wt of ['business', 'company']) { const a = mk(); compile({ name: 'W', workflowType: wt, triggers: native, graph: [] }, a.ctx); assert.ok(a.warnings.some((w) => /^TRIGGER_KIND_MISMATCH/.test(w)), `${wt}: ${JSON.stringify(a.warnings)}`); }
+  for (const wt of ['agent', 'contact', 'workflow', undefined]) { const a = mk(); compile({ name: 'W', workflowType: wt, triggers: native, graph: [] }, a.ctx); assert.equal(a.warnings.some((w) => /TRIGGER_KIND_MISMATCH/.test(w)), false, `${wt}: ${JSON.stringify(a.warnings)}`); }
+});
+
 test('a deprecated string operator on one of the 14 triggers warns (TRIGGER_OPERATOR_DEPRECATED); another trigger type does not', () => {
   const a = mk();
   try { compile({ name: 'W', triggers: [{ ref: 't', type: 'order_submission', name: 'T', filters: [{ field: 'x', operator: 'matches_intent', value: 'y' }] }], graph: [] }, a.ctx); } catch { /* the compile may refuse for other reasons; the advisory is raised first */ }
