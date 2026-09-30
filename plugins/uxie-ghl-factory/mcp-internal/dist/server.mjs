@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1594,
+      count: 1596,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -4658,7 +4658,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "find_ghl_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -4678,6 +4680,79 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/70-research/2026-09-29-route-census.md:29"
+          ]
+        },
+        {
+          id: "funnels--countdown-timer-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/countdown-timer/{id}",
+          path: "/countdown-timer/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/30-types/native-elements.md:255"
+          ]
+        },
+        {
+          id: "funnels--countdown-timer-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/countdown-timer/{locationId}/{id}",
+          path: "/countdown-timer/{locationId}/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/30-types/native-elements.md:254"
           ]
         },
         {
@@ -4713,14 +4788,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "funnels--countdown-timer-fetch-get",
+          aka: [
+            "/countdown-timer/fetch/{id}/{id2}",
+            "/countdown-timer/fetch/{locationId}/{id}"
+          ],
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/countdown-timer/fetch/{id}/{id2}",
-          path: "/countdown-timer/fetch/{id}/{id2}",
+          url: "https://backend.leadconnectorhq.com/countdown-timer/fetch/{locationId}/{id2}",
+          path: "/countdown-timer/fetch/{locationId}/{id2}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "build_funnel_page",
+            "find_ghl_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -4730,7 +4812,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "id"
+              name: "locationId"
             },
             {
               name: "id2"
@@ -4746,7 +4828,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/70-research/2026-09-29-route-census.md:28"
+            "funnels/70-research/2026-09-29-route-census.md:28",
+            "funnels/30-types/native-elements.md:254"
           ]
         },
         {
@@ -10776,6 +10859,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "source-only",
           coveredBy: [
+            "edit_funnel",
             "get_funnel"
           ],
           rawCallable: true,
@@ -10808,7 +10892,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -11113,6 +11199,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "create_funnel",
             "edit_funnel",
             "edit_redirects",
+            "find_ghl_site",
             "get_funnel"
           ],
           rawCallable: true,
@@ -12399,7 +12486,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "find_ghl_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -12418,7 +12507,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/00-overview/index.md:65",
+            "funnels/00-overview/index.md:64",
             "funnels/70-research/2026-09-29-route-census.md:79"
           ]
         },
@@ -52041,6 +52130,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/marketplaceServices/InboundWebhookRequestService.ts:20",
             "workflows/40-rules/publish-gate.md:128",
             "workflows/40-rules/validation-gate.md:97",
+            "workflows/70-research/2026-09-30-workflow-tool-reproof.md:31",
             "workflows/70-research/INBOUND-WEBHOOK.md:34",
             "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"
           ]
@@ -74425,9 +74515,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       find_ghl_site: {
-        description: "Find ghl site \u2014 proof: live-runtime (2026-09-29); risk: read",
+        description: "Find ghl site \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects",
@@ -89043,20 +89133,20 @@ var $ZodCheckMultipleOf = /* @__PURE__ */ $constructor("$ZodCheckMultipleOf", (i
 var $ZodCheckNumberFormat = /* @__PURE__ */ $constructor("$ZodCheckNumberFormat", (inst, def) => {
   $ZodCheck.init(inst, def);
   def.format = def.format || "float64";
-  const isInt = def.format?.includes("int");
-  const origin = isInt ? "int" : "number";
+  const isInt2 = def.format?.includes("int");
+  const origin = isInt2 ? "int" : "number";
   const [minimum, maximum] = NUMBER_FORMAT_RANGES[def.format];
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
     bag.format = def.format;
     bag.minimum = minimum;
     bag.maximum = maximum;
-    if (isInt)
+    if (isInt2)
       bag.pattern = integer;
   });
   inst._zod.check = (payload) => {
     const input = payload.value;
-    if (isInt) {
+    if (isInt2) {
       if (!Number.isInteger(input)) {
         payload.issues.push({
           expected: origin,
@@ -109521,7 +109611,9 @@ var REF_SOURCE = Object.freeze({
   // A sell-product button stores {value: {id: <step product id>}} (a Products-tab row of a step of the SAME funnel), and an uploaded font is named by
   // {customFontId: <_id>} in the page's typography slot (GET /funnels/custom-fonts).
   productId: "stepProducts",
-  customFontId: "customFonts"
+  customFontId: "customFonts",
+  // a marketing-countdown binds a saved Countdown Timer asset by id (GET /countdown-timer/?locationId lists the location's assets)
+  countdownTimerId: "countdownTimers"
 });
 var placeholderKind = (v) => {
   if (v === "none" || v === "" || v == null) return "empty";
@@ -109547,6 +109639,7 @@ function scanPage({ pageData, pageId, pageName = null }) {
   walk(pageData, (o) => {
     for (const [k, v] of Object.entries(o)) {
       if (k === "productId" && o.action?.value !== "sell-product") continue;
+      if (k === "countdownTimerId" && !v?.value) continue;
       if (REF_CLASS[k] && v && typeof v === "object" && "value" in v) {
         const inner = v.value && typeof v.value === "object" && !Array.isArray(v.value) ? v.value.id : v.value;
         refs.push({ prop: k, cls: REF_CLASS[k], value: String(inner ?? ""), text: v.text ?? null, pageId, pageName });
@@ -129871,6 +129964,9 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var KIND_OMIT_EXTRA = Object.freeze({ countdown: /^webinar/ });
 var KIND_TAGNAME = Object.freeze({ "day-timer": "c-countdown", "minute-timer": "c-countdown" });
+var KIND_TITLE = Object.freeze({ "marketing-countdown": "Countdown" });
+var KIND_ORACLE_NEW_KEYS = Object.freeze({ "marketing-countdown": ["theme"] });
+var KIND_OMIT_CLASS = Object.freeze({ "marketing-countdown": ["borders", "borderRadius", "radiusEdge"] });
 var val = (v) => ({ value: v });
 var TIMER_TYPOGRAPHY = { typography: val("var(--contentfont)") };
 var KIND_ORACLE_EXTRA = Object.freeze({
@@ -129884,7 +129980,8 @@ var KIND_ORACLE_EXTRA = Object.freeze({
     showSearchbar: val(false),
     iconEnd: val({ name: "chevron-down", unicode: "f078", fontFamily: "Font Awesome 5 Free", color: "var(--black)" })
   }),
-  blog: () => ({ paginationOverride: { value: 6, min: 0 } })
+  blog: () => ({ paginationOverride: { value: 6, min: 0 } }),
+  "marketing-countdown": () => ({ theme: {} })
 });
 var KIND_ORACLE_STYLES = Object.freeze({
   "nav-menu-v2": Object.freeze({
@@ -129907,6 +130004,25 @@ var KIND_ORACLE_STYLES = Object.freeze({
     borderStyle: val("none")
   })
 });
+function assetBindingExtra(asset, nowIso) {
+  const out = { timerType: { value: asset.timerType, disabled: true } };
+  if (asset.timerType !== "fixed" || !asset.endDate) return out;
+  let wall = "00:00";
+  try {
+    const p2 = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: asset.timezone || "UTC", hourCycle: "h23", hour: "2-digit", minute: "2-digit" }).formatToParts(new Date(asset.endDate)).filter((x) => x.type !== "literal").map((x) => [x.type, x.value]));
+    wall = `${p2.hour}:${p2.minute}`;
+  } catch {
+  }
+  return {
+    ...out,
+    startDate: { value: nowIso },
+    endDate: { value: asset.endDate, disabled: true },
+    endTime: { value: wall, disabled: true },
+    expireAction: { value: "url", disabled: true },
+    redirectUrl: { value: "#", disabled: true },
+    timezone: { value: asset.timezone ?? "UTC", adaptToContactTimezone: asset.adaptToContactTimezone === true, disabled: true }
+  };
+}
 
 // core/funnel-pages.mjs
 var HERE = dirname(fileURLToPath(import.meta.url));
@@ -130329,11 +130445,13 @@ var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt
   const routed = routeEmbedExtra(meta3, routeClickAction(meta3, meta3 === "video" ? normalizeVideoExtra(extra) : extra));
   const oracleExtra = KIND_ORACLE_EXTRA[meta3]?.((/* @__PURE__ */ new Date()).toISOString()) ?? {};
   const filled = fillTextFieldInitials(meta3, unshare(completeExtra(meta3, routed)));
-  for (const [k, v] of Object.entries(oracleExtra)) if (!Object.prototype.hasOwnProperty.call(routed, k) && k in filled) filled[k] = structuredClone(v);
+  for (const [k, v] of Object.entries(oracleExtra)) if (!Object.prototype.hasOwnProperty.call(routed, k) && (k in filled || KIND_ORACLE_NEW_KEYS[meta3]?.includes(k))) filled[k] = structuredClone(v);
   if (KIND_OMIT_EXTRA[meta3]) {
     for (const k of Object.keys(filled)) if (KIND_OMIT_EXTRA[meta3].test(k) && !Object.prototype.hasOwnProperty.call(routed, k)) delete filled[k];
   }
   const node = envelope(id, "element", meta3, KIND_TAGNAME[meta3] ?? ELEMENTS[meta3].tagName, filled, withDefaults, cls, TOOL_COMPILED_KINDS.has(meta3) ? void 0 : KIND_FACTORY_WRAPPER[meta3]);
+  if (KIND_TITLE[meta3]) node.title = KIND_TITLE[meta3];
+  for (const k of KIND_OMIT_CLASS[meta3] ?? []) if (!Object.prototype.hasOwnProperty.call(cls, k)) delete node.class[k];
   if (wrapper) node.wrapper = { ...node.wrapper, ...storedMap(wrapper) };
   for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) node[k] = storedMap(v);
   node.tag = tag || (TAG_IS_TAGNAME.has(meta3) ? ELEMENTS[meta3].tagName : "");
@@ -131492,6 +131610,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var KINDS = Object.freeze(["funnel", "website", "store", "webinar", "blog"]);
+var FOLDER_KINDS = Object.freeze(["funnel", "website"]);
 var BLANK_TEMPLATES = Object.freeze({ store: "6841a9953740196dc6e4031a", webinar: "684001d9bd9f6a3e0b118e89", webinarOnDemand: "683fff83bd9f6ac22b118e81" });
 var DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
 var INSTANT = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(:\d{2})?([+-]\d{2}:\d{2}|Z)$/;
@@ -131537,14 +131656,16 @@ function webinarStartUtc({ timezone, date: date5, startTime }) {
 }
 var STORE_DANGLING_FORM_NOTE = `The blank store's "Contact Us" page embeds a form that lives in GHL's template account, not on this location: it renders no working form until you bind one of yours (build_funnel_page edit mode, set the form element's formId). audit_site reports it as a dangling reference.`;
 var HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
-function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName, video, now }) {
+function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName, video, now, folderId }) {
   if (!KINDS.includes(kind)) return { refuse: `kind must be one of ${KINDS.join(", ")}` };
   if (typeof name !== "string" || !name.trim()) return { refuse: "name is required" };
+  if (folderId !== void 0 && !FOLDER_KINDS.includes(kind)) return { refuse: `folderId files a ${FOLDER_KINDS.join(" or ")} in a folder; for a ${kind} the folder scoping of its list was not measured, so it is not offered \u2014 create it and move it on the Sites screen` };
+  if (folderId !== void 0 && (typeof folderId !== "string" || !folderId.trim())) return { refuse: "folderId is a folder id (find_ghl_site list:true folders:true)" };
   const n = name.trim();
   switch (kind) {
     case "funnel":
     case "website":
-      return { method: "POST", path: "/funnels/funnel/create", body: { locationId, name: n, type: kind } };
+      return { method: "POST", path: "/funnels/funnel/create", body: { locationId, name: n, type: kind, ...folderId ? { parentId: folderId } : {} } };
     case "blog":
       return { method: "POST", path: "/blogs/site", body: { locationId, title: n, description: description ?? "" } };
     case "store":
@@ -131717,6 +131838,19 @@ async function listAllDocuments(gw, locationId, { pageSize = 100, maxPages = 50 
     if (!page.length || page.length < pageSize || count != null && byId.size >= count || byId.size === before) return { res: r, rows: [...byId.values()], count: count ?? byId.size, pages: i + 1 };
   }
   return { res: null, rows: [...byId.values()], count: count ?? byId.size, truncated: true };
+}
+async function listFolders(gw, locationId, type, { pageSize = 100, maxPages = 50 } = {}) {
+  const byId = /* @__PURE__ */ new Map();
+  for (let offset = 0, i = 0; i < maxPages; i++) {
+    const r = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(locationId)}&type=${encodeURIComponent(type)}&category=all&limit=${pageSize}&offset=${offset}`);
+    if (!r.ok) return { res: r, rows: null };
+    const page = r.json?.funnels ?? r.json?.data ?? [];
+    for (const f of page) if (f.category === "folder" && f.type === type) byId.set(f._id ?? f.id, { id: f._id ?? f.id, name: f.name, type: f.type });
+    offset += page.length;
+    const total = r.json?.count;
+    if (!page.length || page.length < pageSize || total != null && offset >= total) return { res: r, rows: [...byId.values()] };
+  }
+  return { res: null, rows: [...byId.values()], truncated: true };
 }
 async function findMediaVideo(gw, locationId, ref, { pageSize = 20, maxPages = 50 } = {}) {
   const hits = [];
@@ -132820,6 +132954,184 @@ function elementSpecProblem(e) {
     return DID_YOU_MEAN[k] ? `unknown key \`${k}\` \u2014 did you mean ${DID_YOU_MEAN[k]}?` : `unknown key \`${k}\`.`;
   });
   return `element ${e.meta}: ${why.join("; ")} Keys ${e.meta} takes: ${allowed.join(", ")}.`;
+}
+
+// core/cookie-consent.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var CC_DEFAULTS = Object.freeze({
+  "version": 2,
+  "bgColor": "#fef0c7",
+  "textColor": "#000000",
+  "customiseBtnText": "Customize",
+  "acceptAllBtnText": "Accept all",
+  "acceptEssentialBtnText": "Accept essential",
+  "primaryTextColor": "#ffffff",
+  "okBtnText": "Ok",
+  "secondaryTextColor": "#000000",
+  "customiseTextColor": "#000000",
+  "linkColor": "#000000",
+  "primaryColor": "#000000",
+  "secondaryColor": "#ffffff",
+  "customiseColor": "#ffffff",
+  "isOwnPolicyLink": false,
+  "policyLink": "",
+  "policyLinkText": "Learn more",
+  "selectedFont": "Inter",
+  "fontSize": 16,
+  "essentialCookies": [],
+  "complianceType": "ask-opt-in",
+  "showCustomise": false,
+  "msgDescription": "We use cookies to improve your experience on our site. By using our site, you consent to the use of cookies. Rejecting cookies will prevent non-essential cookies from loading.",
+  "consentExpiration": 14,
+  "cookieListSettings": {
+    "title": "Customize Consent Preferences",
+    "description": "We use cookies to ensure the basic functionalities of the website and to enhance your online experience. You can choose for each category to opt-in/out whenever you want. For more details about cookies and how I use them, read the full cookie policy.",
+    "bgColor": "#ffffff",
+    "titleTextColor": "#101828",
+    "descriptionTextColor": "#344054",
+    "savePreferencesBgColor": "#145eef",
+    "savePreferencesTextColor": "#ffffff",
+    "cancelBgColor": "#ffffff",
+    "cancelTextColor": "#354054",
+    "rejectBgColor": "#fef3f2",
+    "rejectTextColor": "#b42418",
+    "switchColor": "#155EEF",
+    "rejectBtnText": "Reject",
+    "savePreferencesBtnText": "Save preferences",
+    "cancelBtnText": "Cancel"
+  },
+  "cookieList": [
+    {
+      "category": "essential",
+      "title": "Essential",
+      "description": "Essential cookies are required to enable the basic features of this site, such as providing secure log-in or adjusting your consent preferences. These cookies do not store any personally identifiable data.",
+      "cookies": [],
+      "isEnabled": true,
+      "isDisabled": true
+    },
+    {
+      "category": "functional",
+      "title": "Functional",
+      "description": "Functional cookies help perform certain functionalities like sharing the content of the website on social media platforms, collecting feedback, and other third-party features.",
+      "cookies": [],
+      "isEnabled": false,
+      "isDisabled": false
+    },
+    {
+      "category": "analytics",
+      "title": "Analytics",
+      "description": "Analytical cookies are used to understand how visitors interact with the website. These cookies help provide information on metrics such as the number of visitors, bounce rate, traffic source, etc.",
+      "cookies": [],
+      "isEnabled": false,
+      "isDisabled": false
+    },
+    {
+      "category": "performance",
+      "title": "Performance",
+      "description": "to be filled",
+      "cookies": [],
+      "isEnabled": false,
+      "isDisabled": false
+    },
+    {
+      "category": "advertising",
+      "title": "Advertising",
+      "description": "to be filled",
+      "cookies": [],
+      "isEnabled": false,
+      "isDisabled": false
+    },
+    {
+      "category": "uncategorized",
+      "title": "Uncategorized",
+      "description": "to be filled",
+      "cookies": [],
+      "isEnabled": false,
+      "isDisabled": false
+    }
+  ],
+  "layoutSettings": {
+    "position": "bottom-banner",
+    "floatingCookie": false,
+    "floaterPosition": "right",
+    "bgColor": "#fef0c7",
+    "borderColor": "#ffffff",
+    "iconColor": "#ffffff"
+  },
+  "regionSettings": {
+    "type": "worldwide",
+    "countries": []
+  },
+  "selectedFontToLoad": "Inter",
+  "style": ".hl-cookie-consent-banner{background-color:#fef0c7}.hl-cookie-consent-banner .banner-text,.hl-cookie-consent-banner .learn-more{color:#000;font-family:Inter;font-size:16px}.hl-cookie-consent-banner .button.primary{color:#fff;background-color:#000;font-family:Inter;font-size:16px}.hl-cookie-consent-banner .button.customize,.hl-cookie-consent-banner .button.secondary{color:#000;background-color:#fff;font-family:Inter;font-size:16px}.hl-cc-preference-popup{background-color:#fff;font-family:Inter}.hl-cc-preference-popup .hl-cc-preference-popup-title{color:#101828;font-size:18px}.hl-cc-preference-popup .hl-cc-preference-popup-description{color:#344054;font-size:14px}.hl-cc-preference-popup-footer .cancel{color:#354054;background-color:#fff}.hl-cc-preference-popup-footer .save{color:#fff;background-color:#145eef}.hl-cc-preference-popup-footer .reject{color:#b42418;background-color:#fef3f2}.hl-cc-switch input:checked+.hl-slider{background-color:#155eef}.hl-cc-preference-popup-content .hl-cc-preference-category-header{color:#101828}",
+  "isCookieEnabled": true
+});
+var COMPLIANCE_TYPES = Object.freeze(["ask-opt-in", "do-not-ask"]);
+var POSITIONS = Object.freeze({ "bottom-banner": "bottom-banner", "top-banner": "top-banner", "center-floating": "popup-banner position-center" });
+var DISCLAIMER = "Cookie consent banners prevent marketing, performance and analytics cookies from loading until the visitor accepts; some external elements and essential cookies may still load. Third-party widgets and custom code (header / footer tracking, Custom JS/HTML) on the funnel are the owner's responsibility: get consent or remove them.";
+var isInt = (n, lo, hi) => Number.isInteger(n) && n >= lo && n <= hi;
+function planCookieConsent({ funnel, locationId, pageId, stored, cc }) {
+  if (!cc || typeof cc !== "object" || Array.isArray(cc)) return { refuse: "cookieConsent is {enabled?, acknowledged?, complianceType?, message?, consentExpiration?, position?, buttons?}" };
+  const known = ["enabled", "acknowledged", "complianceType", "message", "consentExpiration", "position", "buttons"];
+  const bad = Object.keys(cc).filter((k) => !known.includes(k));
+  if (bad.length) return { refuse: `cookieConsent takes ${known.join(", ")} \u2014 not ${bad.join(", ")}. Colours, fonts, the policy link, the cookie list and the regions are edited on the builder's Cookie Consent panel.` };
+  const pid = pageId ?? (funnel.steps ?? []).flatMap((s) => s.pages ?? [])[0];
+  if (!pid) return { refuse: "the funnel has no page to save the banner from (the builder saves it with the page id); create a step first, or name pageId" };
+  const body2 = { ...CC_DEFAULTS, isCookieEnabled: false, ...stored ?? {}, locationId, funnelId: funnel._id ?? funnel.id, pageId: pid };
+  const changes = [];
+  const set2 = (key, value, label2) => {
+    if (JSON.stringify(body2[key]) !== JSON.stringify(value)) {
+      changes.push({ key: label2 ?? key, from: body2[key], to: value });
+      body2[key] = value;
+    }
+  };
+  const was = stored?.isCookieEnabled === true;
+  if (cc.enabled !== void 0) {
+    if (typeof cc.enabled !== "boolean") return { refuse: "cookieConsent.enabled is true or false" };
+    if (cc.enabled && !was && cc.acknowledged !== true) return { refuse: `turning the banner ON needs cookieConsent.acknowledged: true \u2014 the panel asks the user to tick "I've read and understood" first. ${DISCLAIMER}` };
+    set2("isCookieEnabled", cc.enabled, "enabled");
+  } else if (!stored) return { refuse: "this funnel has no cookie banner yet: pass enabled:true (and acknowledged:true) to create it" };
+  if (cc.complianceType !== void 0) {
+    if (!COMPLIANCE_TYPES.includes(cc.complianceType)) return { refuse: `complianceType is one of ${COMPLIANCE_TYPES.join(", ")} ("Ask to opt in" / "Don't ask")` };
+    set2("complianceType", cc.complianceType);
+  }
+  if (cc.message !== void 0) {
+    if (typeof cc.message !== "string" || !cc.message.trim() || cc.message.length > 1e3) return { refuse: "message is the banner text, 1 to 1000 characters" };
+    set2("msgDescription", cc.message, "message");
+  }
+  if (cc.consentExpiration !== void 0) {
+    if (!isInt(cc.consentExpiration, 1, 3650)) return { refuse: "consentExpiration is a whole number of days, 1 to 3650" };
+    set2("consentExpiration", cc.consentExpiration);
+  }
+  if (cc.position !== void 0) {
+    if (!POSITIONS[cc.position]) return { refuse: `position is one of ${Object.keys(POSITIONS).join(", ")} (left / right floating are not offered: their stored strings were not measured)` };
+    set2("layoutSettings", { ...body2.layoutSettings, position: POSITIONS[cc.position] }, "position");
+  }
+  if (cc.buttons !== void 0) {
+    const map2 = { acceptAll: "acceptAllBtnText", acceptEssential: "acceptEssentialBtnText", ok: "okBtnText" };
+    for (const [k, v] of Object.entries(cc.buttons ?? {})) {
+      if (!map2[k]) return { refuse: `buttons.${k}: one of ${Object.keys(map2).join(", ")}` };
+      if (typeof v !== "string" || !v.trim() || v.length > 60) return { refuse: `buttons.${k} is the button text, 1 to 60 characters` };
+      set2(map2[k], v, `buttons.${k}`);
+    }
+  }
+  if (!changes.length) return { refuse: "nothing to change: the stored banner already has every value named" };
+  return { method: "POST", path: "/funnels/funnel/cookie-consent", body: body2, changes, enabling: body2.isCookieEnabled === true && !was };
+}
+function cookieConsentNotApplied(read, plan) {
+  const bad = [];
+  for (const c of plan.changes) {
+    const key = c.key === "enabled" ? "isCookieEnabled" : c.key === "message" ? "msgDescription" : c.key === "position" ? "layoutSettings" : c.key.startsWith("buttons.") ? { acceptAll: "acceptAllBtnText", acceptEssential: "acceptEssentialBtnText", ok: "okBtnText" }[c.key.slice(8)] : c.key;
+    const got = key === "layoutSettings" ? read?.layoutSettings?.position : read?.[key];
+    const want = key === "layoutSettings" ? c.to.position : c.to;
+    if (JSON.stringify(got) !== JSON.stringify(want)) bad.push({ key: c.key, want, got: got ?? null });
+  }
+  return bad;
 }
 
 // core/page-popup.mjs
@@ -218868,11 +219180,81 @@ var siteRow = (f) => ({
   steps: (f.steps ?? []).length,
   updatedAt: f.updatedAt ?? f.dateUpdated ?? null
 });
+var timerRow = (t, now = Date.now()) => ({
+  id: t._id,
+  name: t.name,
+  templateId: t.templateId ?? null,
+  timerType: t.timerType ?? null,
+  status: t.status ?? null,
+  ...t.timerType === "fixed" || t.endDate ? { endDate: t.endDate ?? null, ...t.timerType === "fixed" && t.endDate ? { expired: Date.parse(t.endDate) < now } : {} } : {},
+  timezone: t.timezone ?? null,
+  adaptToContactTimezone: t.adaptToContactTimezone ?? null,
+  hideTimerForAppleMail: t.hideTimerForAppleMail ?? null,
+  updatedAt: t.updatedAt ?? null,
+  previewUrl: t.previewUrl ?? null
+});
+async function countdownTimerAssets(args, deps) {
+  const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+  const L = encodeURIComponent(args.locationId);
+  if (args.countdownTimerId) {
+    const r2 = await gw.call("GET", `/countdown-timer/fetch/${L}/${encodeURIComponent(args.countdownTimerId)}`);
+    if (r2.status === 404 || r2.ok && !r2.json?._id) return { checked: true, found: false, countdownTimerId: args.countdownTimerId };
+    if (!r2.ok) return { checked: false, status: r2.status, warning: `The countdown-timer read failed (${r2.status}); this is NOT "no such timer".` };
+    return { checked: true, found: true, timer: { ...timerRow(r2.json, deps.nowMs?.()), design: r2.json.designMeta ?? null, integrations: r2.json.integrations ?? [], deleted: r2.json.deleted === true } };
+  }
+  const r = await gw.call("GET", `/countdown-timer/?locationId=${L}`);
+  if (!r.ok) return { checked: false, status: r.status, warning: `The countdown-timer list failed (${r.status}); this is NOT "no timers".` };
+  const rows = (r.json?.countdownTimers ?? []).filter((t2) => t2.deleted !== true).map((t2) => timerRow(t2, deps.nowMs?.()));
+  const t = r.json?.total;
+  return {
+    checked: true,
+    total: (Array.isArray(t) ? t[0]?.total : t) ?? rows.length,
+    returned: rows.length,
+    timers: rows,
+    note: "A marketing-countdown element binds one of these by countdownTimerId. A fixed timer whose endDate has passed renders empty on the page."
+  };
+}
+async function resolveRoute(args, deps) {
+  const { domain: domain2, path } = args.route;
+  const dom = String(domain2 ?? "").trim().replace(/^https?:\/\//i, "").replace(/\/.*$/, "");
+  let p2 = String(path ?? "").trim();
+  if (!dom) return { checked: false, warning: "route.domain is required (the custom or default domain, e.g. sites.example.com)." };
+  if (!p2.startsWith("/")) p2 = `/${p2}`;
+  const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+  const r = await gw.call("GET", `/funnels/lookup/domain-and-path?domain=${encodeURIComponent(dom)}&path=${encodeURIComponent(p2)}&locationId=${encodeURIComponent(args.locationId)}`);
+  if (r.status === 404) return { checked: true, found: false, domain: dom, path: p2, note: "No route row for this exact domain + path (paths are matched lowercased, with the leading slash). A step or page of a funnel that has a domain but was never published has no row either." };
+  if (!r.ok) return { checked: false, status: r.status, warning: `The route lookup failed (${r.status}); this is NOT "no such route".`, detail: r.json?.message ?? null };
+  const row = r.json?.data ?? r.json;
+  const funnel = row?.funnelId ? (await gw.call("GET", `/funnels/funnel/fetch/${encodeURIComponent(row.funnelId)}?locationId=${encodeURIComponent(args.locationId)}`)).json?.data ?? null : null;
+  const step = funnel && row.type === "step" ? (funnel.steps ?? []).find((x) => x.id === row.typeId) ?? null : funnel && row.type === "page" ? (funnel.steps ?? []).find((x) => (x.pages ?? []).includes(row.typeId)) ?? null : null;
+  return {
+    checked: true,
+    found: true,
+    domain: row.domain ?? dom,
+    path: row.path ?? p2,
+    route: { id: row._id ?? null, type: row.type ?? null, typeId: row.typeId ?? null, publishStatus: row.publishStatus ?? null, action: row.action ?? null, target: row.target || null, updatedAt: row.updatedAt ?? null },
+    owner: { funnelId: row.funnelId ?? null, funnel: funnel?.name ?? null, funnelType: funnel?.type ?? null, ...step ? { step: { id: step.id, name: step.name } } : {}, ...row.type === "page" ? { pageId: row.typeId } : {} }
+  };
+}
 async function listSites(args, deps) {
   const walked = await walkFunnelList(deps, args.locationId);
-  if (!walked.rows) return { locationId: args.locationId, funnelsChecked: false, warning: `The funnels list failed on BOTH rails (last status ${walked.res?.status ?? "unknown"}). Nothing is known about this location's documents.` };
+  if (!walked.rows) return { locationId: args.locationId, funnelsChecked: false, warning: `The funnels list failed on BOTH rails (last status ${walked.res?.status ?? "unknown"}). Nothing is known about this location's documents \u2014 this is NOT an empty location.` };
   const q3 = String(args.search ?? "").toLowerCase();
-  const rows = walked.rows.filter((f) => !args.type || (args.type === "store" ? f.type === "website" && f.isStoreActive === true : f.type === args.type)).filter((f) => !q3 || String(f.name ?? "").toLowerCase().includes(q3)).map(siteRow).sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  const rows = walked.rows.filter((f) => !args.type || (args.type === "store" ? f.type === "website" && f.isStoreActive === true : f.type === args.type)).filter((f) => !q3 || String(f.name ?? "").toLowerCase().includes(q3)).filter((f) => !args.folderId || f.parentId === args.folderId).map(siteRow).sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  let folders;
+  if (args.folders === true || args.folderId) {
+    const gw = deps.makeGw({ loc: args.locationId, state: deps.state, rail: walked.rail });
+    const all = [];
+    for (const t of FOLDER_KINDS) {
+      const fl = await listFolders(gw, args.locationId, t);
+      if (!fl.rows) return { locationId: args.locationId, funnelsChecked: true, foldersChecked: false, warning: `The ${t} folder list failed (status ${fl.res?.status ?? "unknown"}); the documents below are unaffected, but this is NOT "no folders".`, documents: rows };
+      all.push(...fl.rows);
+    }
+    const held = /* @__PURE__ */ new Map();
+    for (const f of walked.rows) if (f.parentId) held.set(f.parentId, (held.get(f.parentId) ?? 0) + 1);
+    folders = all.map((f) => ({ ...f, documents: held.get(f.id) ?? 0 })).sort((a, b) => `${a.type}${a.name}`.localeCompare(`${b.type}${b.name}`));
+    if (args.folderId && !folders.some((f) => f.id === args.folderId)) return { locationId: args.locationId, funnelsChecked: true, foldersChecked: true, warning: `folderId ${args.folderId} is not a folder on this location.`, folders, documents: [] };
+  }
   return {
     locationId: args.locationId,
     funnelsChecked: true,
@@ -218880,8 +219262,9 @@ async function listSites(args, deps) {
     total: walked.count,
     returned: rows.length,
     ...walked.truncated ? { truncated: true } : {},
+    ...folders ? { foldersChecked: true, folders } : {},
     documents: rows,
-    note: "Funnel folders are organisational only (create/rename/move them on the Sites screen); folderId is the folder a document is filed in."
+    note: "folderId is the folder a document is filed in. Folders themselves (create / rename / delete / move) are done on the Sites screen; folders:true lists them."
   };
 }
 var DAY2 = /^\d{4}-\d{2}-\d{2}$/;
@@ -224357,8 +224740,8 @@ var TOOLS2 = [
       const loc = encodeURIComponent(args.locationId);
       if (args.folderId) {
         if (args.parentId) return fail(CODES.VALIDATION_FAILED, "folderId renames a folder; parentId is for creating one. Pass one, not both.", "To move a folder use the builder; to rename it drop parentId.");
-        const listFolders = async () => (await gw.call("GET", `/workflow/${loc}/list?type=directory&limit=200&offset=0`)).json?.rows ?? [];
-        const target = (await listFolders()).find((row) => (row.id ?? row._id) === args.folderId);
+        const listFolders2 = async () => (await gw.call("GET", `/workflow/${loc}/list?type=directory&limit=200&offset=0`)).json?.rows ?? [];
+        const target = (await listFolders2()).find((row) => (row.id ?? row._id) === args.folderId);
         if (!target) return fail(CODES.VALIDATION_FAILED, "the folder id does not exist in this sub-account. Nothing was written.", "Run list_workflow_folders to get a real folder id.");
         if (target.name === args.name) return ok({ renamed: false, noop: true, folderId: args.folderId, name: args.name, note: "The folder already has this name. Nothing was written." });
         if (args.confirm !== true) {
@@ -224370,7 +224753,7 @@ var TOOLS2 = [
         const put = await gw.call("PUT", `/workflow/${loc}/rename-directory/${encodeURIComponent(args.folderId)}`, { name: args.name });
         if (!put.ok) return fromHttp(put.status, put.json);
         const found2 = await gw.readBackUntil(async () => {
-          const row = (await listFolders()).find((r) => (r.id ?? r._id) === args.folderId);
+          const row = (await listFolders2()).find((r) => (r.id ?? r._id) === args.folderId);
           return row?.name === args.name ? row : null;
         }, { pollMs: 1e3, maxPolls: 3 });
         return ok({
@@ -225006,7 +225389,7 @@ var TOOLS2 = [
         query: "",
         includeStandards: "true"
       });
-      const listFolders = async (forModel) => {
+      const listFolders2 = async (forModel) => {
         const response = await gw.call(
           "GET",
           `/locations/${loc}/customFields/search?${folderQuery(forModel)}`,
@@ -225015,7 +225398,7 @@ var TOOLS2 = [
         );
         return { response, folders: recordsFrom2(response.json, "customFieldFolders") };
       };
-      const existingList = await listFolders(model);
+      const existingList = await listFolders2(model);
       if (!existingList.response.ok) return fromHttp(existingList.response.status, existingList.response.json);
       const clash = existingList.folders.find((folder2) => folder2.name === args.name);
       const preview = {
@@ -225075,7 +225458,7 @@ var TOOLS2 = [
           { preview, response: created.json ?? null }
         );
       }
-      const after = await listFolders(model);
+      const after = await listFolders2(model);
       const verified = after.response.ok && after.folders.some((row) => (row.id ?? row._id) === folderId);
       return ok({
         folderId,
@@ -225566,7 +225949,7 @@ var TOOLS2 = [
     name: "find_ghl_site",
     description: describe3(
       "find_ghl_site",
-      `Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. includeRedirects:true also returns the location's domains and every URL redirect (path \u2192 target, with clicks: 30 days, or redirectClicksFrom/To + a per-row series); change redirects with edit_redirects. list:true (site optional) instead returns EVERY funnel, website, store, webinar and blog document on the location (walked to the list's count), filtered by type (store = a website with isStoreActive) and a case-insensitive name search. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.`
+      `Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. countdownTimers:true lists the location's saved Countdown Timer assets and countdownTimerId reads one (the assets a marketing-countdown element binds; audit_site checks the binding). route {domain, path} answers "which page serves this exact URL?": the route row (page / step / redirect, publish status, redirect target) and the funnel, step and page that own it (the path needs its leading slash). includeRedirects:true also returns the location's domains and every URL redirect (path \u2192 target, with clicks: 30 days, or redirectClicksFrom/To + a per-row series); change redirects with edit_redirects. list:true (site optional) instead returns EVERY funnel, website, store, webinar and blog document on the location (walked to the list's count), filtered by type (store = a website with isStoreActive), a case-insensitive name search and folderId (the documents filed in one folder); folders:true also returns the folders themselves. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.`
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -225576,17 +225959,28 @@ var TOOLS2 = [
       redirectClicksTo: external_exports.string().optional().describe("click range end, YYYY-MM-DD (default: today)"),
       list: external_exports.boolean().default(false),
       type: external_exports.enum(["funnel", "website", "store", "webinar", "blog"]).optional(),
-      search: external_exports.string().optional()
+      search: external_exports.string().optional(),
+      folders: external_exports.boolean().default(false).describe("with list:true: also return the location's FOLDERS (Funnels tab and Websites tab), each with the documents filed in it"),
+      folderId: external_exports.string().optional().describe("with list:true: only the documents filed in this folder (a folders:true id)"),
+      countdownTimers: external_exports.boolean().default(false).describe("list the location's saved Countdown Timer assets (Marketing \u2192 Countdown Timers) \u2014 the ids a marketing-countdown element binds by countdownTimerId"),
+      countdownTimerId: external_exports.string().optional().describe("read one Countdown Timer asset in full (template, type fixed / recurring / dynamic, end date, timezone, design)"),
+      route: external_exports.object({ domain: external_exports.string(), path: external_exports.string() }).optional().describe("instead of a site name: which document owns this exact public URL \u2014 reads the route row (GET /funnels/lookup/domain-and-path) and names its funnel, step and page")
     }),
     capabilities: [
       { method: "GET", path: "/vibe-ai/projects" },
       { method: "GET", path: "/funnels/funnel/list" },
+      { method: "GET", path: "/countdown-timer/" },
+      { method: "GET", path: "/countdown-timer/fetch/{locationId}/{id}" },
+      { method: "GET", path: "/funnels/lookup/domain-and-path" },
+      { method: "GET", path: "/funnels/funnel/fetch/{id}" },
       { method: "GET", path: "/funnels/domain" },
       { method: "GET", path: "/funnels/lookup/redirect/list" },
       { method: "POST", path: "/stats/url-redirect" }
     ],
     handler: async (args, deps) => guard(async () => {
-      if (args.list !== true && !args.site) return fail(CODES.VALIDATION_FAILED, "site is required unless list:true", "Pass site (a domain, slug or name) to resolve one, or list:true to list every document.");
+      if (args.route) return ok(await resolveRoute(args, deps));
+      if (args.countdownTimers === true || args.countdownTimerId) return ok(await countdownTimerAssets(args, deps));
+      if (args.list !== true && !args.site) return fail(CODES.VALIDATION_FAILED, "site is required unless list:true (or route)", "Pass site (a domain, slug or name) to resolve one, list:true to list every document, or route {domain, path} for the owner of one public URL.");
       if (args.list === true) return ok(await listSites(args, deps));
       const { api } = studioDeps(args, deps);
       const studio = (await api.listProjects()).json;
@@ -227708,7 +228102,8 @@ var TOOLS2 = [
       { method: "GET", path: "/funnels/page/{pageId}" },
       { method: "GET", path: "/funnels/builder/get-versions" },
       { method: "POST", path: "/funnels/builder/publish-version" },
-      { method: "GET", path: "/funnels/custom-fonts" }
+      { method: "GET", path: "/funnels/custom-fonts" },
+      { method: "GET", path: "/countdown-timer/fetch/{locationId}/{id}" }
     ],
     handler: async (args, deps) => guard(async () => {
       resetIds();
@@ -227730,6 +228125,33 @@ var TOOLS2 = [
         };
         args = { ...args, typography: args.typography ? { ...args.typography } : args.typography, edits: args.edits?.map((e) => e.op === "page" && e.typography ? { ...e, typography: { ...e.typography } } : e) };
         for (const t of [args.typography, ...(args.edits ?? []).filter((e) => e.op === "page").map((e) => e.typography)].filter(Boolean)) swap(t);
+      }
+      const timerAssets = /* @__PURE__ */ new Map();
+      {
+        const want = /* @__PURE__ */ new Set();
+        const scan = (x) => {
+          if (Array.isArray(x)) x.forEach(scan);
+          else if (x && typeof x === "object") {
+            if (x.meta === "marketing-countdown") {
+              const v = x.extra?.countdownTimerId;
+              const id = typeof v === "object" ? v?.value : v;
+              if (typeof id === "string" && id) want.add(id);
+            }
+            Object.values(x).forEach(scan);
+          }
+        };
+        scan(args.sections);
+        scan(args.popups);
+        scan(args.edits);
+        if (want.size) {
+          const gwT = deps.makeGw({ loc: args.locationId, state: deps.state });
+          for (const id of want) {
+            const r = await gwT.call("GET", `/countdown-timer/fetch/${encodeURIComponent(args.locationId)}/${encodeURIComponent(id)}`);
+            if (r.status === 404 || r.ok && !r.json?._id || r.json?.deleted === true) return fail(CODES.VALIDATION_FAILED, `countdownTimerId ${id} is not a Countdown Timer asset of this location`, "List them with find_ghl_site countdownTimers:true (Marketing \u2192 Countdown Timers creates one). Nothing was written.");
+            if (!r.ok) return fromHttp(r.status, r.json);
+            timerAssets.set(id, r.json);
+          }
+        }
       }
       const fonts = { reg: fontRegistry(args.fonts ?? DEFAULT_FONTS), typography: { headline: args.typography?.headlineFont ?? null, content: args.typography?.contentFont ?? null } };
       const viaVar = (st) => {
@@ -227761,7 +228183,14 @@ var TOOLS2 = [
           const d = applyDynamicText(e.html, e.dynamicText);
           dtrExtra = { text: val2(d.html), dtr: d.dtr };
         }
-        let extra = { ...e.html !== void 0 ? { text: val2(e.html) } : {}, ...e.extra ?? {}, ...dtrExtra, ...e.font ? { typography: val2(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {} };
+        let timerExtra = {};
+        if (e.meta === "marketing-countdown") {
+          const v = e.extra?.countdownTimerId;
+          const tid = typeof v === "object" ? v?.value : v;
+          const asset = tid ? timerAssets.get(tid) : null;
+          if (asset) timerExtra = assetBindingExtra(asset, new Date(deps.nowMs?.() ?? Date.now()).toISOString());
+        }
+        let extra = { ...e.html !== void 0 ? { text: val2(e.html) } : {}, ...timerExtra, ...e.extra ?? {}, ...dtrExtra, ...e.font ? { typography: val2(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {} };
         if (e.openPopup !== void 0) {
           const pid = popupIds.get(e.openPopup) ?? ([...popupIds.values()].includes(e.openPopup) ? e.openPopup : null);
           if (!pid) throw Object.assign(new Error(`openPopup "${e.openPopup}" names no popup on this page (${[...popupIds.keys()].join(", ") || "it has none"})`), { remediation: "Name a popup from `popups` (or an append-popup in the same call) by its name." });
@@ -228090,12 +228519,13 @@ var TOOLS2 = [
   },
   {
     name: "create_funnel",
-    description: `${describe3("create_funnel", "Create a funnel, website, store, webinar or blog document on a location")}. The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs screen's own list). Refuses a name already used by any document on the location. Each kind sends exactly what GHL's own "New \u2026" screen sends: funnel and website are created empty (no steps, no domain); a store and a webinar are GHL's BLANK TEMPLATE installs \u2014 that is the UI's own blank path (store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, broadcast and expired pages, bound to the registration form you name, which must be one of this location's forms. webinar.type live (default: date + startTime/endTime in webinar.timezone, converted to UTC \u2014 GHL's own one-off wizard uses the browser's offset instead \u2014 the live link videoUrl, and optionally a DAILY/WEEKLY/MONTHLY recurring series) or onDemand (a Media Storage video by id/name, no schedule); the sessions are read back. A new webinar sends NO emails: notifications stay off until you enable one with a template on the Edit webinar screen); a blog gets a Blog Home and a Blog Post step. The blank store's Contact Us page embeds a form from GHL's template account that does not exist here \u2014 rebind it. Other templates are not offered: an install can bring side assets. The funnels list's "Build with AI" (the AI builder; it creates a funnel on click) is left to the UI \u2014 this tool plus build_funnel_page is the deterministic path. Next steps: edit_funnel settings (domain) \u2192 create-step \u2192 build_funnel_page.`,
+    description: `${describe3("create_funnel", "Create a funnel, website, store, webinar or blog document on a location")}. The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs screen's own list). Refuses a name already used by any document on the location. folderId (funnel, website) files it in that folder, as the New screen does inside a folder. Each kind sends exactly what GHL's own "New \u2026" screen sends: funnel and website are created empty (no steps, no domain); a store and a webinar are GHL's BLANK TEMPLATE installs \u2014 that is the UI's own blank path (store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, broadcast and expired pages, bound to the registration form you name, which must be one of this location's forms. webinar.type live (default: date + startTime/endTime in webinar.timezone, converted to UTC \u2014 GHL's own one-off wizard uses the browser's offset instead \u2014 the live link videoUrl, and optionally a DAILY/WEEKLY/MONTHLY recurring series) or onDemand (a Media Storage video by id/name, no schedule); the sessions are read back. A new webinar sends NO emails: notifications stay off until you enable one with a template on the Edit webinar screen); a blog gets a Blog Home and a Blog Post step. The blank store's Contact Us page embeds a form from GHL's template account that does not exist here \u2014 rebind it. Other templates are not offered: an install can bring side assets. The funnels list's "Build with AI" (the AI builder; it creates a funnel on click) is left to the UI \u2014 this tool plus build_funnel_page is the deterministic path. Next steps: edit_funnel settings (domain) \u2192 create-step \u2192 build_funnel_page.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       kind: external_exports.enum(KINDS),
       name: external_exports.string(),
       description: external_exports.string().optional(),
+      folderId: external_exports.string().optional().describe("funnel / website: file it in this folder (the New screen files it in the folder you are in) \u2014 an id from find_ghl_site list:true folders:true; a funnel needs a Funnels-tab folder, a website a Websites-tab folder"),
       webinar: external_exports.object({
         type: external_exports.enum(["live", "onDemand"]).optional().describe("live (default) or onDemand \u2014 a pre-recorded webinar with no schedule"),
         timezone: external_exports.string().optional().describe("IANA timezone the webinar runs in, e.g. America/New_York (required for live; on-demand defaults to America/New_York)"),
@@ -228160,7 +228590,14 @@ var TOOLS2 = [
           }
           companyId = await resolveCompanyId(gw, args.locationId);
         }
-        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.() });
+        let folder = null;
+        if (args.folderId !== void 0 && FOLDER_KINDS.includes(args.kind)) {
+          const fl = await listFolders(gw, args.locationId, args.kind);
+          if (!fl.rows) return fromHttp(fl.res?.status, fl.res?.json);
+          folder = fl.rows.find((x) => x.id === args.folderId) ?? null;
+          if (!folder) return fail(CODES.VALIDATION_FAILED, `folderId ${args.folderId} is not a ${args.kind} folder on this location`, `${fl.rows.length ? `${args.kind} folders: ${fl.rows.map((x) => `${x.name} (${x.id})`).join(", ")}.` : `This location has no ${args.kind} folder.`} A funnel needs a Funnels-tab folder and a website a Websites-tab folder. Nothing was sent.`);
+        }
+        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.(), folderId: args.folderId });
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, "Nothing was sent.");
         const preview = { kind: args.kind, request: { method: plan.method, path: plan.path, body: plan.body } };
         if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `create_funnel ${args.kind} preview is ready; no write was sent.`, "Repeat with confirm:true to send exactly this request."), { preview });
@@ -228189,6 +228626,7 @@ var TOOLS2 = [
             ...f.isStoreActive ? { store: true } : {},
             url: f.url ?? null,
             domainId: f.domainId || null,
+            ...args.folderId !== void 0 ? { folderId: f.parentId ?? null, folder: folder?.name ?? null } : {},
             steps: (f.steps ?? []).map((s) => ({ id: s.id, name: s.name, type: s.type, url: s.url, pages: s.pages ?? [] }))
           } : null,
           ...args.kind === "blog" ? { blogList: blogRow ? { id: blogRow._id, name: blogRow.name } : null } : {},
@@ -228231,7 +228669,8 @@ var TOOLS2 = [
           }
         }
         const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== "store" || f.isStoreActive === true);
-        if (!f || f.name !== name || !typeOk || args.kind === "blog" && !blogRow) {
+        const folderOk = args.folderId === void 0 || f && f.parentId === args.folderId;
+        if (!f || f.name !== name || !typeOk || !folderOk || args.kind === "blog" && !blogRow) {
           return withFailureData(fail(CODES.VERIFY_FAILED, `create answered ${w.status} but the ${args.kind} did not read back as created`, "Do not create again: find_ghl_site list:true first."), out);
         }
         return ok(out);
@@ -228451,7 +228890,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_funnel",
-    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true; redirect 404 | url | step) \xB7 add-header / edit-header / delete-header (exact-case path only; delete needs the current value) \xB7 add-event / edit-event / delete-event (Meta pixel) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (this location; no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId; quantity.max 1-999} \xB7 edit-step-product / delete-step-product {stepId, stepProductId, expectName = the step product's name} (returns stepProductId, what a sell-product button stores). Not offered: sharing (opening Share creates a link anyone can import, not removable below the $497 plan \u2014 read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true; redirect 404 | url | step) \xB7 add-header / edit-header / delete-header (exact-case path only; delete needs the current value) \xB7 add-event / edit-event / delete-event (Meta pixel) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (this location; no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId; quantity.max 1-999} \xB7 edit-step-product / delete-step-product {stepId, stepProductId, expectName = the step product's name} (returns stepProductId, what a sell-product button stores) \xB7 set-cookie-consent {cookieConsent} (funnel banner; ON needs acknowledged:true). Not offered: sharing (opening Share creates a link anyone can import, not removable below the $497 plan \u2014 read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -228479,7 +228918,8 @@ var TOOLS2 = [
         "add-store",
         "add-step-product",
         "edit-step-product",
-        "delete-step-product"
+        "delete-step-product",
+        "set-cookie-consent"
       ]),
       action: external_exports.enum(["add-variation", "start", "declare-winner"]).optional(),
       sourceFunnelId: external_exports.string().optional(),
@@ -228507,6 +228947,15 @@ var TOOLS2 = [
         events: external_exports.array(external_exports.enum(["page_view", "view_content", "initiate_checkout", "add_payment_info", "purchase"])).optional(),
         conversionApi: external_exports.literal(false).optional()
       }).optional().describe("add-event: pixelId, level, events (+ pageIds for level page); the Conversions API stays off (its token is a credential \u2014 set it on the Events screen). edit-event / delete-event: eventId + expectPixelId (the target check); edit changes the rest; conversionApi:false turns the API off"),
+      cookieConsent: external_exports.object({
+        enabled: external_exports.boolean().optional(),
+        acknowledged: external_exports.boolean().optional().describe(`required to turn the banner ON: the panel's disclaimer ("I've read and understood") \u2014 banners block marketing / performance / analytics cookies until consent, and third-party widgets and custom code stay the owner's responsibility`),
+        complianceType: external_exports.enum(["ask-opt-in", "do-not-ask"]).optional(),
+        message: external_exports.string().optional(),
+        consentExpiration: external_exports.number().int().optional().describe("days the visitor's choice is remembered"),
+        position: external_exports.enum(["bottom-banner", "top-banner", "center-floating"]).optional(),
+        buttons: external_exports.object({ acceptAll: external_exports.string().optional(), acceptEssential: external_exports.string().optional(), ok: external_exports.string().optional() }).optional()
+      }).optional().describe("set-cookie-consent: the funnel-level banner (every page of the funnel). Colours, fonts, the policy link, the cookie list and regions stay on the builder panel"),
       productId: external_exports.string().optional(),
       priceId: external_exports.string().optional(),
       routeAdditional: external_exports.boolean().optional().describe("split-test start: when the step is also served at other domains/paths, the modal asks whether to route them through the split (true) or not (false)"),
@@ -228521,6 +228970,8 @@ var TOOLS2 = [
     capabilities: [
       { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
       { method: "GET", path: "/locations/{id}" },
+      { method: "GET", path: "/funnels/funnel/cookie-consent" },
+      { method: "POST", path: "/funnels/funnel/cookie-consent" },
       { method: "GET", path: "/funnels/lookup/redirect/regex/bulk" },
       { method: "GET", path: "/funnels/lookup/list" },
       { method: "GET", path: "/funnels/domain/" },
@@ -228679,6 +229130,18 @@ var TOOLS2 = [
             else if (!args.event.eventId) plan = { refuse: `${args.op} needs event.eventId and event.expectPixelId (read them with get_funnel view events)` };
             else if (args.op === "edit-event") plan = planEditEvent({ funnel, locationId: args.locationId, rows: ev.rows, eventId: args.event.eventId, expectPixelId: args.event.expectPixelId, event: args.event });
             else plan = planDeleteEvent({ rows: ev.rows, eventId: args.event.eventId, expectPixelId: args.event.expectPixelId });
+            break;
+          }
+          case "set-cookie-consent": {
+            if (need("cookieConsent")) {
+              plan = { refuse: need("cookieConsent") };
+              break;
+            }
+            const r = await gw.call("GET", `/funnels/funnel/cookie-consent?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
+            let stored = null;
+            if (r.ok) stored = r.json?.data ?? r.json;
+            else if (!(r.status === 404 && /data url not found/i.test(JSON.stringify(r.json ?? "")))) return fromHttp(r.status, r.json);
+            plan = planCookieConsent({ funnel, locationId: args.locationId, pageId: args.pageId, stored, cc: args.cookieConsent });
             break;
           }
           case "delete-funnel": {
@@ -228940,6 +229403,26 @@ var TOOLS2 = [
             const bad = badOf(rows);
             const out = { op: args.op, lookups: rows.map(lookupView), note: CACHE_NOTE };
             if (bad.length || rows.length !== ids.size) return withFailureData(fail(CODES.VERIFY_FAILED, "the lookup rows did not read back in the requested publish state", "Compare data.lookups."), out);
+            return ok(out);
+          }
+          case "set-cookie-consent": {
+            const r = await reread(
+              async () => (await gw.call("GET", `/funnels/funnel/cookie-consent?funnelId=${encodeURIComponent(fid)}&locationId=${encodeURIComponent(args.locationId)}`)).json ?? {},
+              (j) => cookieConsentNotApplied(j?.data ?? j, plan).length === 0,
+              deps.rereadOptions ?? {}
+            );
+            const read = r.value?.data ?? r.value;
+            const bad = cookieConsentNotApplied(read, plan);
+            const after = await fresh();
+            const out = {
+              op: "set-cookie-consent",
+              changes: plan.changes.map((c) => ({ key: c.key, from: c.from, to: c.to })),
+              enabled: read?.isCookieEnabled ?? null,
+              position: read?.layoutSettings?.position ?? null,
+              funnelBannerUrl: after?.cookieConsent ?? null,
+              note: "Cookie consent is FUNNEL-level: it applies to every page of the funnel once the pages are published (a page serves the banner with its next published version)."
+            };
+            if (bad.length) return withFailureData(fail(CODES.VERIFY_FAILED, `the cookie-consent save answered ${plan.status} but ${bad.length} field(s) did not read back as sent`, "Compare data.notApplied; the GET can lag."), { ...out, notApplied: bad });
             return ok(out);
           }
           case "add-header": {
@@ -229267,6 +229750,13 @@ var TOOLS2 = [
           known.customFonts = new Set(pick3(body2(cf), "data").filter((x) => x.deleted !== true).map((x) => x._id ?? x.id).filter(Boolean));
           coverage.push({ check: "dangling-references:customFonts", ran: true, knownIds: known.customFonts.size });
         } else coverage.push({ check: "dangling-references:customFonts", ran: false, why: `the customFonts list answered ${cf.status}` });
+      }
+      {
+        const ct = await gw.call("GET", `/countdown-timer/?locationId=${encodeURIComponent(args.locationId)}`);
+        if (ct.status === 200) {
+          known.countdownTimers = new Set((ct.json?.countdownTimers ?? []).filter((x) => x.deleted !== true).map((x) => x._id ?? x.id).filter(Boolean));
+          coverage.push({ check: "dangling-references:countdownTimers", ran: true, knownIds: known.countdownTimers.size });
+        } else coverage.push({ check: "dangling-references:countdownTimers", ran: false, why: `the countdown-timer list answered ${ct.status}` });
       }
       const cv = await gw.call("GET", `/locations/${encodeURIComponent(args.locationId)}/customValues`);
       if (cv.status === 200) {

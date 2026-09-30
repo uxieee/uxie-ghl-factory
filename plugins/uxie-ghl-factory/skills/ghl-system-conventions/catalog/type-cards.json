@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 536,
+ "count": 557,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -614,7 +614,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — affiliate",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"affiliate\"` exposes **2 actions** in `sniffs/02-assets.json::actions[0].actions[]`. `executionConfig.type` set: `CODE`. `workflowsActionType`: `INTERNAL`. `section` values: `affiliate`.",
    "fields": [
     {
@@ -655,7 +655,7 @@
    "family": "triggers-marketplace",
    "title": "affiliate_campaign_enroll (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Runs when a Affiliate will be added in the campaign.",
    "meta": {
     "App": "affiliate",
@@ -1025,7 +1025,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — Agent Studio",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "`section: \"Agent Studio\"` exposes **2 actions** in the live asset list (`GET /workflows-marketplace/location/{locationId}/assets`, captured 2026-09-25). Both are first-party: `workflowsActionType: \"INTERNAL\"`, `saveResponse: true`, `showStepIndex: true`, one output `{{<key>.<stepIndex>.response}}` (",
    "fields": [
     {
@@ -1125,6 +1125,36 @@
    "validator": "No publish validator is registered for `ai_agent` (the `ai_agent` action metadata has no `validator` key) [source-derived 2026-09-26 — utils/workflows.ts:251-262]. The only client gate is the drawer's Save: it refuses an empty `prompt` (\"instructionsRequired\") and, with `outputFormat: \"json\"`, a `structuredResponse` without properties (\"schemaRequiredForJson\") [source-derived 2026-09-26 — models/actions/AIAgent.ts:259-303]. A step written by API bypasses that Save gate.",
    "notes": "- The registry's beta flag was removed in the 09-29 builder [corrected 2026-09-29 — completeness sweep, `sniffs/workflows-completeness-2026-09-29/SWEEP.md` §4 #1]; the step is still premium (billed).\n- `tools` array contents and how they reach the runtime weren't traced. Corpus only shows `[]`.\n- `tool_terminate_agent_tool` is a built-in runtime tool (\"Execution complete — Terminates the execution of the agent\"), not a prompt convention. Other built-in system tools the trace can show: `math_calculator`, `date_calculator` (both available by default, without being added to `tools`), `load_skill`, `metadata_holder`, `get_options`, `search_options`, `getAvailableObjects`, `getObjectFields`, `get_contact_details`, `get_opportunity_details`, `get_past_conversations`, `get_call_transcripts` [source-derived 2026-09-26 — utils/tool-metadata.ts:118-246; constants/ai-agent/tool-action-mapping.ts:43-47].\n- `outputFormat: \"json\"` requires `structuredResponse` with at least one property, or the drawer refuses Save. With `text` (the default) `structuredResponse` is cleared [source-derived 2026-09-26 — models/actions/AIAgent.ts:293-301; AIAgentV2.vue:986-997].",
    "hasCanonicalExample": true
+  },
+  {
+   "type": "ai_studio_form_submitted",
+   "family": "triggers-marketplace",
+   "title": "ai_studio_form_submitted (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "Runs when a form is submitted on an AI Studio (Vibe) site",
+   "meta": {
+    "App": "events",
+    "Display name": "AI Studio Form Submitted",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`ai_studio_form_submitted`"
+   },
+   "fields": [
+    {
+     "name": "DYNAMIC",
+     "type": "DYNAMIC",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "DYNAMIC",
+     "fieldType": "DYNAMIC",
+     "required": false,
+     "title": "Dynamic AI Studio Form Filter"
+    }
+   ],
+   "hasCanonicalExample": false
   },
   {
    "type": "ai-actions",
@@ -1540,7 +1570,7 @@
    "title": "Add Leads under an Affiliate",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Adds leads under the selected affiliate campaign and affiliate",
    "fields": [
     {
@@ -1565,9 +1595,9 @@
    "family": "steps-marketplace",
    "app": "affiliate",
    "title": "Add manual sales for an Affiliate",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Adds manual sales for the selected affiliate campaign and affiliate. The commissions will be calculated as ...",
    "fields": [
     {
@@ -1591,6 +1621,10 @@
      "default": "—",
      "notes": "dynamic: `automation-am-api::affiliates/workflow-v2`"
     }
+   ],
+   "proven": [
+    "### Editor drawer — `am-add-lead` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `am-add-manual-commission` `[proven-live 2026-09-30]`"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/affiliate.md"
   },
@@ -1948,7 +1982,7 @@
    "title": "Book Appointment",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Automatically schedules appointments using standard or dynamic time slots, with the flexibility to override...",
    "fields": [
     {
@@ -1975,7 +2009,7 @@
    "title": "Appointment Booking Conversation AI Bot",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Book an appointment with conversation AI bot, click <a target=\"_blank\" href=\"https://help.leadconnectorhq.c...",
    "fields": [
     {
@@ -2008,7 +2042,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — appointments",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"appointments\"` exposes **2 actions** in `sniffs/02-assets.json::actions[1].actions[]`. `executionConfig.type` set: `CODE`, `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `appointments`.",
    "fields": [
     {
@@ -6432,7 +6466,7 @@
    "title": "Create Appointment / Booking Note",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Create note for a calendar appointment, service booking or rental booking",
    "fields": [
     {
@@ -6460,9 +6494,9 @@
    "family": "steps-marketplace",
    "app": "appointments",
    "title": "Generate One Time Booking Link",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Generate one time booking link for a calendar",
    "fields": [
     {
@@ -6472,6 +6506,10 @@
      "default": "—",
      "notes": "Calendar"
     }
+   ],
+   "proven": [
+    "### Editor drawer — `calendars_generate_one_time_booking_link` `[proven-live 2026-09-30]`",
+    "### Runs live — `calendars_generate_one_time_booking_link` `[proven-live 2026-09-30]`"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/appointments.md"
   },
@@ -8746,11 +8784,41 @@
    "hasCanonicalExample": false
   },
   {
+   "type": "client_portal_file_uploaded",
+   "family": "triggers-marketplace",
+   "title": "client_portal_file_uploaded (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "Triggers a workflow whenever any contact uploads a file to the Client Portal Shared Files section.",
+   "meta": {
+    "App": "Client Portal",
+    "Display name": "Client Portal File Uploaded",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`client_portal_file_uploaded`"
+   },
+   "fields": [
+    {
+     "name": "—",
+     "type": "—",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "—",
+     "fieldType": "—",
+     "required": false,
+     "title": "—"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
    "type": "communication",
    "family": "steps-marketplace",
    "title": "Marketplace — communication",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"communication\"` exposes **12 actions** in `sniffs/02-assets.json::actions[3].actions[]`. `executionConfig.type` set: `CODE`, `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `communication`.",
    "fields": [
     {
@@ -8861,7 +8929,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — Communities",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"Communities\"` exposes **6 actions** in `sniffs/02-assets.json::actions[12].actions[]`. `executionConfig.type` set: `PUBSUB`. `workflowsActionType`: `INTERNAL`. `section` values: `Communities`.",
    "fields": [
     {
@@ -8969,7 +9037,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — contact",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"contact\"` exposes **11 actions** in `sniffs/02-assets.json::actions[2].actions[]`. `executionConfig.type` set: `API`, `CODE`, `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `contact`.",
    "fields": [
     {
@@ -9236,11 +9304,17 @@
    "family": "steps-marketplace",
    "app": "contact",
    "title": "Email Verification",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-09-28",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Verify the email before sending",
    "configSurface": "none",
+   "proven": [
+    "### Editor drawer — `lc_merge_contact` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `contact_email_verification` `[proven-live 2026-09-30]`",
+    "### Runs live — `lc_merge_contact` `[proven-live 2026-09-30]`",
+    "### Runs live — `contact_email_verification` `[proven-live 2026-09-30]`"
+   ],
    "page": "corpus/workflows/30-types/steps-marketplace/contact.md"
   },
   {
@@ -9847,7 +9921,7 @@
    "family": "steps",
    "title": "AI capture information",
    "status": "proven-live",
-   "lastVerified": "2026-08-31",
+   "lastVerified": "2026-09-30",
    "summary": "Ask the contact for one piece of information and store the answer on a contact field.",
    "fields": [
     {
@@ -9949,6 +10023,80 @@
    "hasCanonicalExample": false
   },
   {
+   "type": "conversations_sla",
+   "family": "triggers-marketplace",
+   "title": "conversations_sla (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "Fires when a conversation's SLA status changes to due soon, overdue or dismissed based on the option selected below. Requires conversation SLAs to be set up.  <a   href=\"https://help.leadconnectorhq.com/support/solutions/articles/155000008042-how-to-setup-and-track-conversation-slas\"   class=\"text-b",
+   "meta": {
+    "App": "communication",
+    "Display name": "Conversations SLA",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`conversations_sla`"
+   },
+   "fields": [
+    {
+     "name": "slaStatus",
+     "type": "select",
+     "required": true
+    },
+    {
+     "name": "messageChannel",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "tags",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "owner",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "avoidRepeatedTriggers",
+     "type": "select",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "slaStatus",
+     "fieldType": "select",
+     "required": true,
+     "title": "SLA status"
+    },
+    {
+     "field": "messageChannel",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Message channel"
+    },
+    {
+     "field": "tags",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Tags"
+    },
+    {
+     "field": "owner",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Owner"
+    },
+    {
+     "field": "avoidRepeatedTriggers",
+     "fieldType": "select",
+     "required": false,
+     "title": "Avoid repeated triggers"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
    "type": "copy_contact_to_subaccount",
    "family": "steps",
    "title": "copy_contact_to_subaccount",
@@ -10016,7 +10164,7 @@
    "family": "triggers-marketplace",
    "title": "coupon_code_applied (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a coupon code is applied to an order during checkout, regardless of checkout completion.",
    "meta": {
     "App": "payments",
@@ -10238,7 +10386,7 @@
    "family": "triggers-marketplace",
    "title": "coupon_code_expired (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a coupon code reaches its scheduled expiration date and becomes inactive.",
    "meta": {
     "App": "payments",
@@ -10326,7 +10474,7 @@
    "family": "triggers-marketplace",
    "title": "coupon_code_redeemed (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a coupon code is successfully redeemed in a completed transaction.",
    "meta": {
     "App": "payments",
@@ -11108,9 +11256,10 @@
    "family": "steps-marketplace",
    "app": "payment",
    "title": "Send Recurring Invoice",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-30",
+   "summary": "A draft built by `build_workflow` (`marketplace: true`, `type: proposals_estimates_send_document`, the asset's required inputs authored; `sniffs/workflows-wave1-2026-09-25/live-W32-mstep-triage-real.json`) was opened in the builder and the step card clicked, every write blocked and nothing saved (`s",
    "fields": [
     {
      "name": "userId",
@@ -11238,6 +11387,9 @@
      "default": "`sms_and_email`/`email`/`sms`",
      "notes": "Channel"
     }
+   ],
+   "proven": [
+    "### Editor drawer — `proposals_estimates_send_document` `[proven-live 2026-09-30]`"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/payment.md"
   },
@@ -11688,7 +11840,7 @@
    "title": "Smart Push Notification",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Send push notifications to client-portal mobile app and browser based on triggers for real-time engagement.",
    "fields": [
     {
@@ -12186,7 +12338,7 @@
    "family": "triggers-marketplace",
    "title": "ecommerce_order_fulfilled_trigger (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Triggers when an order is fulfilled",
    "meta": {
     "App": "Ecommerce Stores",
@@ -12650,7 +12802,7 @@
    "family": "triggers-marketplace",
    "title": "estimate_update (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Estimates Trigger",
    "meta": {
     "App": "payments",
@@ -12739,6 +12891,143 @@
    "hasCanonicalExample": false
   },
   {
+   "type": "event_check_in",
+   "family": "triggers-marketplace",
+   "title": "event_check_in (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "Triggers when an attendee is checked in to an event.",
+   "meta": {
+    "App": "Events Management",
+    "Display name": "Event Checked In",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`event_check_in`"
+   },
+   "fields": [
+    {
+     "name": "eventId",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "checkIn.method",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "checkIn.checkedInBy",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "DYNAMIC",
+     "type": "DYNAMIC",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "eventId",
+     "fieldType": "select",
+     "required": false,
+     "title": "In Event"
+    },
+    {
+     "field": "checkIn.method",
+     "fieldType": "select",
+     "required": false,
+     "title": "Check-in Method"
+    },
+    {
+     "field": "checkIn.checkedInBy",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Checked In By User"
+    },
+    {
+     "field": "DYNAMIC",
+     "fieldType": "DYNAMIC",
+     "required": false,
+     "title": "DYNAMIC"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "event_registration",
+   "family": "triggers-marketplace",
+   "title": "event_registration (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "Fires when a contact registers/checks out for an event. One message per attendee (primary + one per guest).",
+   "meta": {
+    "App": "Events Management",
+    "Display name": "Event Registration",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`event_registration`"
+   },
+   "fields": [
+    {
+     "name": "eventId",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "event.type",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "registration.registrationStatus",
+     "type": "select",
+     "required": true
+    },
+    {
+     "name": "registration.bookedBy.type",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "DYNAMIC",
+     "type": "DYNAMIC",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "eventId",
+     "fieldType": "select",
+     "required": false,
+     "title": "In Event"
+    },
+    {
+     "field": "event.type",
+     "fieldType": "select",
+     "required": false,
+     "title": "Type"
+    },
+    {
+     "field": "registration.registrationStatus",
+     "fieldType": "select",
+     "required": true,
+     "title": "Registration Status"
+    },
+    {
+     "field": "registration.bookedBy.type",
+     "fieldType": "select",
+     "required": false,
+     "title": "Booked By"
+    },
+    {
+     "field": "DYNAMIC",
+     "fieldType": "DYNAMIC",
+     "required": false,
+     "title": "DYNAMIC"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
    "type": "event_start_date",
    "family": "steps",
    "title": "event_start_date",
@@ -12799,7 +13088,7 @@
    "family": "triggers-marketplace",
    "title": "external_tracking (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Runs when external tracking form is viewed/submitted",
    "meta": {
     "App": "events",
@@ -13897,7 +14186,7 @@
    "family": "triggers-marketplace",
    "title": "funnel_website_pageview (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Runs when a contact has viewed a page",
    "meta": {
     "App": "events",
@@ -13950,9 +14239,9 @@
    "family": "steps-marketplace",
    "app": "marketing",
    "title": "Generate Marketing Audit Report",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Audit reports generated by this action will appear in your Prospecting Dashboard (Marketing → Prospecting T...",
    "fields": [
     {
@@ -13962,6 +14251,9 @@
      "default": "—",
      "notes": "dynamic: `prospecting-api::workflow-action/dynamic-fields`"
     }
+   ],
+   "proven": [
+    "### Editor drawer — `generate_marketing_audit_report` `[proven-live 2026-09-30]`"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/marketing.md"
   },
@@ -14289,7 +14581,7 @@
    "family": "triggers-marketplace",
    "title": "google_lead_form_submitted (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Marketplace trigger from the Google Ads app.",
    "meta": {
     "App": "Google Ads",
@@ -15096,9 +15388,9 @@
    "family": "steps-marketplace",
    "app": "communities",
    "title": "Grant Community Group Leaderboard Points",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "This action allows you to grant points to a community group member's leaderboard. You can specify the point...",
    "fields": [
     {
@@ -15116,6 +15408,13 @@
      "notes": "Points"
     }
    ],
+   "proven": [
+    "### Editor drawer — `custom-push-notification` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `grant-group-access` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `revoke-group-access` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `grant-private-channel-access` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `revoke-private-channel-access` `[proven-live 2026-09-30]`"
+   ],
    "page": "corpus/workflows/30-types/steps-marketplace/communities.md"
   },
   {
@@ -15125,7 +15424,7 @@
    "title": "Grant Group Access",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Grant contact access to a specific membership community group",
    "fields": [
     {
@@ -15145,7 +15444,7 @@
    "title": "Grant Private Channel Access",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Grants access to a specific community group's private channel",
    "fields": [
     {
@@ -15177,7 +15476,7 @@
    "family": "triggers-marketplace",
    "title": "group_access_granted (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Community Group Access Granted trigger",
    "meta": {
     "App": "communities",
@@ -15248,6 +15547,214 @@
     }
    ],
    "notes": "- **Filter rows are stored in `conditions[]`.** The builder saves every filled row as `{operator, field, value, title, type, id}` in the trigger's `conditions[]` (`field` and `id` = the asset filter's `field`, `title` = its title, `type` = its `fieldType`) and drops empty rows. It never writes a root `filters` key. [source-derived 2026-09-26 — models/Triggers/TriggerMain.ts:888-903; models/Triggers/Filters/MarketplaceFilter.ts:717-722, 1508-1516]\n- `masterType` is null in the assets registry; the builder does not copy it. Because this asset carries `workflowsTriggerType: \"INTERNAL\"`, picking it sets `masterType: \"internal\"` and save stamps `workflowsTriggerType: \"INTERNAL\"` on the trigger. (An asset without a `workflowsTriggerType` gets `masterType: \"marketplace\"` and save stamps its `version` + `templateId` instead.) Save also writes `testResponse`, and `integrationAccountId` when one is set. [source-derived 2026-09-26 — models/Triggers/TriggerMain.ts:565-573, 907-908, 921-929]\n- One or more filter options resolve dynamically (`dynamicSource` or `fetchOptions`). The builder UI fetches option lists at edit-time using the connected app's OAuth token; when constructing the body via API you supply the resolved `value` directly (the server doesn't re-validate against the upstream).",
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "group_comment_created",
+   "family": "triggers-marketplace",
+   "title": "group_comment_created (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "When a community member comments on a community post",
+   "meta": {
+    "App": "communities",
+    "Display name": "Group Comment Created",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`group_comment_created`"
+   },
+   "fields": [
+    {
+     "name": "groupId",
+     "type": "select",
+     "required": true
+    },
+    {
+     "name": "DYNAMIC",
+     "type": "DYNAMIC",
+     "required": false
+    },
+    {
+     "name": "postTitle",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "postContent",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "commentContent",
+     "type": "string",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "groupId",
+     "fieldType": "select",
+     "required": true,
+     "title": "Group"
+    },
+    {
+     "field": "DYNAMIC",
+     "fieldType": "DYNAMIC",
+     "required": false,
+     "title": "Channel"
+    },
+    {
+     "field": "postTitle",
+     "fieldType": "string",
+     "required": false,
+     "title": "Post Title"
+    },
+    {
+     "field": "postContent",
+     "fieldType": "string",
+     "required": false,
+     "title": "Post Content"
+    },
+    {
+     "field": "commentContent",
+     "fieldType": "string",
+     "required": false,
+     "title": "Comment content"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "group_event_rsvp_created",
+   "family": "triggers-marketplace",
+   "title": "group_event_rsvp_created (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "When a community member RSVPs to a community event",
+   "meta": {
+    "App": "communities",
+    "Display name": "Member Registered for Group Event",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`group_event_rsvp_created`"
+   },
+   "fields": [
+    {
+     "name": "groupId",
+     "type": "select",
+     "required": true
+    },
+    {
+     "name": "eventTitle",
+     "type": "string",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "groupId",
+     "fieldType": "select",
+     "required": true,
+     "title": "Group"
+    },
+    {
+     "field": "eventTitle",
+     "fieldType": "string",
+     "required": false,
+     "title": "Event title"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "group_membership_rejected",
+   "family": "triggers-marketplace",
+   "title": "group_membership_rejected (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "When a community admin declines a contact’s request to join a group.",
+   "meta": {
+    "App": "communities",
+    "Display name": "Group Joining Request Rejected",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`group_membership_rejected`"
+   },
+   "fields": [
+    {
+     "name": "groupId",
+     "type": "select",
+     "required": true
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "groupId",
+     "fieldType": "select",
+     "required": true,
+     "title": "Group"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "group_post_created",
+   "family": "triggers-marketplace",
+   "title": "group_post_created (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "When a community member publishes a new post in a community group.",
+   "meta": {
+    "App": "communities",
+    "Display name": "Group Post Created",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`group_post_created`"
+   },
+   "fields": [
+    {
+     "name": "groupId",
+     "type": "select",
+     "required": true
+    },
+    {
+     "name": "DYNAMIC",
+     "type": "DYNAMIC",
+     "required": false
+    },
+    {
+     "name": "postTitle",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "postContent",
+     "type": "string",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "groupId",
+     "fieldType": "select",
+     "required": true,
+     "title": "Group"
+    },
+    {
+     "field": "DYNAMIC",
+     "fieldType": "DYNAMIC",
+     "required": false,
+     "title": "Channel"
+    },
+    {
+     "field": "postTitle",
+     "fieldType": "string",
+     "required": false,
+     "title": "Post title"
+    },
+    {
+     "field": "postContent",
+     "fieldType": "string",
+     "required": false,
+     "title": "Post content"
+    }
+   ],
    "hasCanonicalExample": false
   },
   {
@@ -15444,7 +15951,7 @@
    "family": "triggers-marketplace",
    "title": "ig_follower_added (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "To auto DM new followers, add the Instagram DM or Interactive Messenger Action to this workflow trigger and publish it.",
    "meta": {
     "App": "communication",
@@ -15844,6 +16351,15 @@
    "configSurface": "none"
   },
   {
+   "type": "internal_comment_action",
+   "family": "steps-marketplace",
+   "title": "Marketplace step — internal_comment_action",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
+  },
+  {
    "type": "internal_create_opportunity",
    "family": "steps",
    "title": "internal_create_opportunity",
@@ -16108,7 +16624,7 @@
    "title": "Delete Contact",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "This action permanently deletes the contact from this account and all workflows.",
    "configSurface": "none",
    "proven": [
@@ -16233,6 +16749,15 @@
    "validator": "`invoiceValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:99-107; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
    "notes": "- **The builder seeds an EMPTY filter row** when the trigger has none (`addMandatoryFilters()` → `addNewFilter()`, on create AND on load), so the drawer always shows one row to fill `[source-derived]` `sniffs/workflows-completeness-2026-09-29/bundle-2026-09-29/recovered-source/src/models/Triggers/TriggerMain.ts:641-687` (promoted from `70-research/SWEEP-ROUND-2.md` §1).\n- The `invoice.status` row is mandatory and seeded as `sent` on a new trigger. Its values are `sent`, `viewed`, `paid`, `partially_paid` and `void` (an `overdue` value is commented out in the enum). An optional tag row can be added. [source-derived 2026-09-26 — models/Workflow.ts:673-680; models/Triggers/Filters/InvoiceFilter.ts:15-49, 69-106]",
    "hasCanonicalExample": false
+  },
+  {
+   "type": "issue_badge_workflow",
+   "family": "steps-marketplace",
+   "title": "Marketplace step — issue_badge_workflow",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
   },
   {
    "type": "issue_certificates_workflow",
@@ -16649,6 +17174,15 @@
    "validator": "`ivrSayValidator` (per `sniffs/bundle/validators.json`):\n\n- `loop` set, else `ivr_loop_required` warning.\n- If `widgetType === \"say\"`:\n  - `language` set, else `ivr_language_required`.\n  - `message` set, else `ivr_message_required`.\n  - `voice` set, else `ivr_voice_required`.\n- If `widgetType === \"play\"`:\n  - `audioUrl` set, else (per chain — source truncated in extracted output).\n\nPer `validators-summary.json`: 5 fields referenced (audioUrl, language, loop, message, voice); result level `warning`.",
    "notes": "- 🔴 **Runtime UNPROVEN — needs an inbound call to an IVR number — the sandbox has no phone number (Xander: no purchase).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O3-blocked-drafts.json`), with the fields the builder/GHL require: `widgetType`, `message`, `language`, `voice`, `loop`. Whether it runs, what it sends and what it skips is not known.\n- `widgetType` is the branching discriminator within the validator; the same action type covers both TTS and prerecorded audio.\n- **Voices are only `man` / `woman`; language only `en-US`** — the builder offers no other TTS voice ids `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:51-67]`.\n- `loop` below 1 is raised to 1 by the builder on save `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:184]`; what the runtime does with a stored `0` is not established.",
    "hasCanonicalExample": true
+  },
+  {
+   "type": "kb_search",
+   "family": "steps-marketplace",
+   "title": "Marketplace step — kb_search",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
   },
   {
    "type": "lc_apify_run_a_actor",
@@ -20090,7 +20624,7 @@
    "title": "Merge Contact",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "Identifies duplicate contacts and merges the newer contact record into the oldest existing record. Once con...",
    "fields": [
     {
@@ -22172,7 +22706,7 @@
    "family": "triggers-marketplace",
    "title": "linkedin_form_submitted (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "LinkedIn Lead Form Submitted Trigger.",
    "meta": {
     "App": "events",
@@ -22213,7 +22747,7 @@
    "title": "Send Live Chat Message",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Automatically send response message to the live chat",
    "fields": [
     {
@@ -22236,7 +22770,7 @@
    "title": "Log External Call",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Add an external call to the conversation. If you are using Inbound Webhook Trigger to pass the call details...",
    "fields": [
     {
@@ -22539,7 +23073,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — marketing",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"marketing\"` exposes **1 action** in `sniffs/02-assets.json::actions[5].actions[]`. `executionConfig.type` set: `CODE`. `workflowsActionType`: `INTERNAL`. `section` values: `marketing`.",
    "fields": [
     {
@@ -22666,6 +23200,24 @@
    "validator": "`membershipCourseValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:125-137; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
    "notes": "- One `offer.id` row (class `MembershipOfferAccessFilter`). [source-derived 2026-09-26 — models/Triggers/TriggerMain.ts:782-785; models/Triggers/Filters/MembershipOfferAccessFilter.ts:11-36] Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
    "hasCanonicalExample": false
+  },
+  {
+   "type": "membership_course_grant_access",
+   "family": "steps-marketplace",
+   "title": "Marketplace step — membership_course_grant_access",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
+  },
+  {
+   "type": "membership_default_course_revoke",
+   "family": "steps-marketplace",
+   "title": "Marketplace step — membership_default_course_revoke",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
   },
   {
    "type": "membership_grant_offer",
@@ -24502,7 +25054,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — payment",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"payment\"` exposes **4 actions** in `sniffs/02-assets.json::actions[9].actions[]`. `executionConfig.type` set: `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `payment`.",
    "fields": [
     {
@@ -24616,7 +25168,7 @@
    "title": "Send Estimate",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Automatically send estimate using estimate templates",
    "fields": [
     {
@@ -24664,7 +25216,7 @@
    "title": "Send Invoice",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "fields": [
     {
      "name": "userId",
@@ -24797,7 +25349,7 @@
    "family": "triggers-marketplace",
    "title": "private_channel_access_granted (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Triggers when a contact is granted access to community group's private channel",
    "meta": {
     "App": "communities",
@@ -24850,7 +25402,7 @@
    "family": "triggers-marketplace",
    "title": "private_channel_access_revoked (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Community Private Channel Access Revoked trigger",
    "meta": {
     "App": "communities",
@@ -25019,7 +25571,7 @@
    "family": "triggers-marketplace",
    "title": "proposal_estimate_update (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Documents & Contracts Trigger",
    "meta": {
     "App": "payments",
@@ -25171,7 +25723,7 @@
    "title": "Send Documents & Contracts",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Automatically send documents & contracts templates",
    "fields": [
     {
@@ -25210,7 +25762,7 @@
    "family": "triggers-marketplace",
    "title": "quiz_submitted (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Runs when a quiz is submitted.",
    "meta": {
     "App": "events",
@@ -25273,6 +25825,15 @@
    "hasCanonicalExample": false
   },
   {
+   "type": "rcs_interactive_message",
+   "family": "steps-marketplace",
+   "title": "Marketplace step — rcs_interactive_message",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
+  },
+  {
    "type": "react_to_last_message",
    "family": "steps-marketplace",
    "app": "blooio",
@@ -25304,7 +25865,7 @@
    "family": "triggers-marketplace",
    "title": "refund (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Runs when a refund is initiated for a transaction",
    "meta": {
     "App": "payments",
@@ -25943,6 +26504,88 @@
    "hasCanonicalExample": false
   },
   {
+   "type": "reputation_video_testimonials_received",
+   "family": "triggers-marketplace",
+   "title": "reputation_video_testimonials_received (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "Trigger automated actions when a new video testimonial is received. Use filters to run the workflow only for testimonials that match specific criteria.",
+   "meta": {
+    "App": "events",
+    "Display name": "Video testimonial received",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`reputation`"
+   },
+   "fields": [
+    {
+     "name": "videoTestimonial.marketingConsent",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "videoTestimonial.collectorId",
+     "type": "select",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "videoTestimonial.marketingConsent",
+     "fieldType": "select",
+     "required": false,
+     "title": "Marketing Consent"
+    },
+    {
+     "field": "videoTestimonial.collectorId",
+     "fieldType": "select",
+     "required": false,
+     "title": "Video Collector"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "requested_to_join_group",
+   "family": "triggers-marketplace",
+   "title": "requested_to_join_group (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "Trigger is fired when a user requests to join a group.",
+   "meta": {
+    "App": "communities",
+    "Display name": "Requested to join group",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`requested_to_join_group`"
+   },
+   "fields": [
+    {
+     "name": "groupId",
+     "type": "select",
+     "required": true
+    },
+    {
+     "name": "DYNAMIC",
+     "type": "DYNAMIC",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "groupId",
+     "fieldType": "select",
+     "required": true,
+     "title": "Group"
+    },
+    {
+     "field": "DYNAMIC",
+     "fieldType": "DYNAMIC",
+     "required": false,
+     "title": "Questions"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
    "type": "respond_on_comment",
    "family": "steps",
    "title": "respond_on_comment",
@@ -26026,7 +26669,7 @@
    "title": "Revoke Group Access",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Remove contact's access to a specified membership community group",
    "fields": [
     {
@@ -26046,7 +26689,7 @@
    "title": "Revoke Private Channel Access",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Removes contact's access from a specific community group's private channel",
    "fields": [
     {
@@ -26215,6 +26858,15 @@
    "hasCanonicalExample": false
   },
   {
+   "type": "send_rcs",
+   "family": "steps-marketplace",
+   "title": "Marketplace step — send_rcs",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
+  },
+  {
    "type": "send_smart_message",
    "family": "steps-marketplace",
    "app": "blooio",
@@ -26304,7 +26956,7 @@
    "title": "WhatsApp: Send Flows",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Send WhatsApp Flows to your customers, allowing them to seamlessly book appointments directly on your exist...",
    "fields": [
     {
@@ -26345,7 +26997,7 @@
    "title": "WhatsApp",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Sends a whatsapp message to the contact",
    "fields": [
     {
@@ -26394,7 +27046,7 @@
    "family": "triggers-marketplace",
    "title": "service_booking (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Triggers the workflow when a Service Booking is created or updated.",
    "meta": {
     "App": "appointments",
@@ -26829,6 +27481,91 @@
    "hasCanonicalExample": true
   },
   {
+   "type": "social_planner_post_trigger_event",
+   "family": "triggers-marketplace",
+   "title": "social_planner_post_trigger_event (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "socialPlannerPosts.note",
+   "meta": {
+    "App": "Social Planner",
+    "Display name": "socialPlannerPosts.triggerName",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`social_planner_post_trigger_event`"
+   },
+   "fields": [
+    {
+     "name": "social_accounts",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "platform",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "post_type",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "event",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "category",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "tags",
+     "type": "multiselect",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "social_accounts",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "socialPlannerPosts.filters.socialAccounts"
+    },
+    {
+     "field": "platform",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "socialPlannerPosts.filters.platform"
+    },
+    {
+     "field": "post_type",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "socialPlannerPosts.filters.postType"
+    },
+    {
+     "field": "event",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "socialPlannerPosts.filters.postStatus"
+    },
+    {
+     "field": "category",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "socialPlannerPosts.filters.category"
+    },
+    {
+     "field": "tags",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "socialPlannerPosts.filters.tags"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
    "type": "staging-test",
    "family": "steps-marketplace",
    "title": "Marketplace — Staging Test",
@@ -26951,7 +27688,7 @@
    "family": "triggers-marketplace",
    "title": "subscription (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Runs when a new subscription is created or subscription status changes",
    "meta": {
     "App": "payments",
@@ -27428,7 +28165,7 @@
    "family": "triggers-marketplace",
    "title": "task_completed (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Task completed trigger.",
    "meta": {
     "App": "contact",
@@ -27503,7 +28240,7 @@
    "family": "steps",
    "title": "task-notification",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Create a task assigned to a user, due relative to \"now\" or a fixed time. Note: registry exposes neither `task_notification` nor `task-notification` — the corpus uses both. Step row's `type` value is `task-notification` (with hyphen); inner `attributes.type` is `task_notification` (with underscore).",
    "meta": {
     "Section": "Not registered in `registry-parsed.json`",
@@ -27558,7 +28295,7 @@
     }
    ],
    "validator": "**None.** `validator: null`, no entry in `validators.json`. Publish accepts any shape. The runtime presumably has its own checks; failure surfaces at task creation.",
-   "notes": "- **Type name has a hyphen at the step level and an underscore inside `attributes`.** This is corpus-observed and likely a registration legacy issue. Don't normalize either form — use `type: \"task-notification\"` at the step row and `attributes.type: \"task_notification\"` if you set it.\n- **`dueDate` polymorphism is the biggest gotcha.** The object form is the modern shape; the integer is a legacy \"days from now\" shorthand; `\"now\"` is a special-cased string. Mixing shapes within one workflow is fine; the runtime accepts all three.\n- **`dueDate.time` is a snapshot timestamp** captured by the UI when the action was saved (Unix ms). The runtime appears to ignore this in favor of recomputing from `duration` + `unit` — but corpus consistently carries it, so include it for safety.\n- **`skipWeekends: true`** in the object form moves the due date past Saturday/Sunday. Behavior on holidays isn't traced.\n- **`assignedTo`** accepts a user id string, or the literal `\"contact.assigned_user\"` to delegate to the contact's owner. Other sentinels haven't been observed.\n- **`body` is HTML**. Renders in the task UI. Plain text also works.",
+   "notes": "- **Type name has a hyphen at the step level and an underscore inside `attributes`.** This is corpus-observed and likely a registration legacy issue. Don't normalize either form — use `type: \"task-notification\"` at the step row and `attributes.type: \"task_notification\"` if you set it.\n- **`dueDate` polymorphism is the biggest gotcha.** The object form is the modern shape; the integer is a legacy \"days from now\" shorthand; `\"now\"` is a special-cased string. Mixing shapes within one workflow is fine; the runtime accepts all three.\n- **`dueDate.time` is a snapshot timestamp** captured by the UI when the action was saved (Unix ms). The runtime appears to ignore this in favor of recomputing from `duration` + `unit` — but corpus consistently carries it, so include it for safety.\n- **`skipWeekends: true`** in the object form moves the due date past Saturday/Sunday. Behavior on holidays isn't traced.\n- **`assignedTo`** accepts a user id string, or the literal `\"contact.assigned_user\"` to delegate to the contact's owner. Other sentinels haven't been observed.\n- **`body` is HTML**. Renders in the task UI. Plain text also works.\n\n### Editor drawer — `task-notification` `[proven-live 2026-09-30]`\n\nA draft built by `build_workflow` (`marketplace: true`, `type: task-notification`, the asset's required inputs authored; `sniffs/workflows-wave1-2026-09-25/live-W32-mstep-triage-am-add-lead.json`) was opened in the builder and the step card clicked, every write blocked and nothing saved (`sniffs/workflows-wave1-2026-09-25/live-W33-step-task_notification.json`). Card: \"task-notification\". The drawer shows, after *Action name*: no further control. Inputs the asset declares as dynamic are filled in by the drawer's own read-only `dynamic-fields` / `branches` / `dynamic-source` calls, which the guarded run allowed (they only read).",
    "hasCanonicalExample": true
   },
   {
@@ -27691,7 +28428,7 @@
    "family": "triggers-marketplace",
    "title": "tiktok_comment_on_post (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "by default applicable to all videos, if nothing is selected",
    "meta": {
     "App": "communication",
@@ -27752,9 +28489,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "TikTok Interactive Messenger",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Sends a TikTok message to the contact (contact needs to have previously messaged a connected TikTok account...",
    "fields": [
     {
@@ -27764,6 +28501,16 @@
      "default": "—",
      "notes": "Message to be Sent"
     }
+   ],
+   "proven": [
+    "### Editor drawer — `whatsapp_24h_window` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `update_conversation_ai_status` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `whatsapp_v2` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `whatsapp_media` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `whatsapp_interactive_messages` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `tiktok-dm` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `log-external-call` `[proven-live 2026-09-30]`",
+    "### Runs live — `log-external-call` `[proven-live 2026-09-30]`"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/communication.md"
   },
@@ -27946,7 +28693,7 @@
    "family": "triggers-marketplace",
    "title": "transcript_generated (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Triggers when a transcript generated",
    "meta": {
     "App": "communication",
@@ -28609,7 +29356,7 @@
    "title": "Update Conversation AI Bot and Status",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Updates the Conversation AI bot and status for the contact",
    "fields": [
     {
@@ -28767,11 +29514,21 @@
    "hasCanonicalExample": true
   },
   {
+   "type": "update_inventory",
+   "family": "steps-marketplace",
+   "title": "Marketplace step — update_inventory",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "A draft built by `build_workflow` (`marketplace: true`, `type: update_inventory`, the asset's required inputs authored; `sniffs/workflows-wave1-2026-09-25/live-W32-mstep-triage-real.json`) was opened in the builder and the step card clicked, every write blocked and nothing saved (`sniffs/workflows-w",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
+  },
+  {
    "type": "user_group_gamification_level_changed",
    "family": "triggers-marketplace",
    "title": "user_group_gamification_level_changed (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "This trigger enables you to create automated actions when a community group member's gamification level changes.",
    "meta": {
     "App": "communities",
@@ -28858,6 +29615,91 @@
    ],
    "validator": "No trigger-specific validator: `user_log_in` has no entry in the builder's trigger registry, so the `membershipCourseValidator` the old page named is not attached to it. [source-derived 2026-09-26 — utils/trigger.ts:672-809]",
    "notes": "- The asset's custom-variable list is empty (`customVars: []`), so the trigger exposes no `{{user_log_in.*}}` variables of its own.\n- The asset is in the unfiltered assets read; whether it appears under every `workflowTypes` value was not checked here (the catalogue depends on the workflow type — see `20-api/03-endpoints.md`).",
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "user_replied",
+   "family": "triggers-marketplace",
+   "title": "user_replied (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "Fires when a User replies to a contact or messages a contact.",
+   "meta": {
+    "App": "events",
+    "Display name": "User Replied",
+    "workflowsTriggerType": "`INTERNAL`",
+    "customVarPrefix": "`user_replied`"
+   },
+   "fields": [
+    {
+     "name": "DYNAMIC",
+     "type": "DYNAMIC",
+     "required": false
+    },
+    {
+     "name": "contact.tags",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "message.body",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "message.type",
+     "type": "multiselect",
+     "required": false
+    },
+    {
+     "name": "message.user_type_selection",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "message.hasAttachments",
+     "type": "select",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "DYNAMIC",
+     "fieldType": "DYNAMIC",
+     "required": false,
+     "title": "Add User and ChatWidgetId"
+    },
+    {
+     "field": "contact.tags",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Contact tags"
+    },
+    {
+     "field": "message.body",
+     "fieldType": "string",
+     "required": false,
+     "title": "Message body"
+    },
+    {
+     "field": "message.type",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Message channel"
+    },
+    {
+     "field": "message.user_type_selection",
+     "fieldType": "select",
+     "required": false,
+     "title": "Replied By"
+    },
+    {
+     "field": "message.hasAttachments",
+     "fieldType": "select",
+     "required": false,
+     "title": "Has attachments"
+    }
+   ],
    "hasCanonicalExample": false
   },
   {
@@ -29013,9 +29855,9 @@
    "family": "steps-marketplace",
    "app": "voice-ai",
    "title": "Voice AI Outbound Call",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Place an outbound call from your AI Agent",
    "fields": [
     {
@@ -29026,6 +29868,9 @@
      "notes": "dynamic: `voice-ai-api::/agents/outbound-workflow-action`"
     }
    ],
+   "proven": [
+    "### Editor drawer — `voice_ai_outbound_call` `[proven-live 2026-09-30]`"
+   ],
    "page": "corpus/workflows/30-types/steps-marketplace/voice-ai.md"
   },
   {
@@ -29033,7 +29878,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — Voice AI",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"Voice AI\"` exposes **1 action** in `sniffs/02-assets.json::actions[23].actions[]`. `executionConfig.type` set: `CODE`. `workflowsActionType`: `INTERNAL`. `section` values: `Voice AI`.",
    "fields": [
     {
@@ -29307,7 +30152,7 @@
    "title": "WhatsApp: Customer Service Window Check",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "When a WhatsApp user sends you a message, a 24-hour Customer Service Window is open, during which you can s...",
    "fields": [
     {
@@ -29334,7 +30179,7 @@
    "title": "WhatsApp Interactive Messages",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Send Interactive Messages on WhatsApp from Workflows",
    "fields": [
     {
@@ -29354,7 +30199,7 @@
    "title": "WhatsApp Media",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Upload your attachment for the WhatsApp message. Ensure the file meets WhatsApp's supported formats and siz...",
    "fields": [
     {
@@ -29503,7 +30348,7 @@
    "title": "WhatsApp",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Sends a whatsapp message to the contact",
    "fields": [
     {

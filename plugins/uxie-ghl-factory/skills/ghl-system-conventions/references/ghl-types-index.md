@@ -5,7 +5,7 @@ One line per step and trigger type. For the full card (fields, allowed values, v
 gotchas) run `node scripts/types.mjs <type-key>`, or `describe_step_type` if the
 uxie-ghl-factory plugin is installed — same data.
 
-535 types: 152 native, 383 marketplace. Status is each card's floor: 
+556 types: 152 native, 404 marketplace. Status is each card's floor: 
 `proven-live` > `source-derived` > `inferred`; `deprecated` means do not build on it.
 
 ## Triggers (native) (62)
@@ -170,7 +170,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `workflow_goal` | source-derived | A goal is a jump target. When a contact anywhere in the workflow meets any of the goal's conditions, they jump straight to the goal step and continue from it. `action` only governs a contact who reaches the goal step by walking the path without having met it. |
 | `workflow_split` | source-derived | Multi-path randomizer / A/B-test splitter. Routes incoming contacts across N paths via weight-distributed random selection. |
 
-## Triggers (marketplace apps) (105)
+## Triggers (marketplace apps) (118)
 
 | type | title | status |
 |---|---|---|
@@ -178,6 +178,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `affiliate_campaign_enroll` | affiliate_campaign_enroll (Marketplace) | source-derived |
 | `affiliate_new_lead` | affiliate_new_lead (Marketplace) | source-derived |
 | `affiliate_sales` | affiliate_sales (Marketplace) | source-derived |
+| `ai_studio_form_submitted` | ai_studio_form_submitted (Marketplace) | proven-live |
 | `airtable_new_record_created` | airtable_new_record_created (Marketplace) | source-derived |
 | `airtable_record_updated` | airtable_record_updated (Marketplace) | source-derived |
 | `apify_actor_run_finished` | apify_actor_run_finished (Marketplace) | source-derived |
@@ -208,13 +209,17 @@ uxie-ghl-factory plugin is installed — same data.
 | `clickup_new_task` | clickup_new_task (Marketplace) | source-derived |
 | `clickup_new_time_entry` | clickup_new_time_entry (Marketplace) | source-derived |
 | `clickup_task_updated` | clickup_task_updated (Marketplace) | source-derived |
+| `client_portal_file_uploaded` | client_portal_file_uploaded (Marketplace) | proven-live |
 | `contact_engagement_score` | contact_engagement_score (Marketplace) | source-derived |
+| `conversations_sla` | conversations_sla (Marketplace) | proven-live |
 | `coupon_code_applied` | coupon_code_applied (Marketplace) | source-derived |
 | `coupon_code_expired` | coupon_code_expired (Marketplace) | source-derived |
 | `coupon_code_redeemed` | coupon_code_redeemed (Marketplace) | source-derived |
 | `coupon_redemption_limit_reached` | coupon_redemption_limit_reached (Marketplace) | source-derived |
 | `ecommerce_order_fulfilled_trigger` | ecommerce_order_fulfilled_trigger (Marketplace) | source-derived |
 | `estimate_update` | estimate_update (Marketplace) | source-derived |
+| `event_check_in` | event_check_in (Marketplace) | proven-live |
+| `event_registration` | event_registration (Marketplace) | proven-live |
 | `external_tracking` | external_tracking (Marketplace) | source-derived |
 | `funnel_website_pageview` | funnel_website_pageview (Marketplace) | source-derived |
 | `google_contacts_contact_created` | google_contacts_contact_created (Marketplace) | source-derived |
@@ -222,6 +227,10 @@ uxie-ghl-factory plugin is installed — same data.
 | `google_lead_form_submitted` | google_lead_form_submitted (Marketplace) | source-derived |
 | `group_access_granted` | group_access_granted (Marketplace) | source-derived |
 | `group_access_revoked` | group_access_revoked (Marketplace) | source-derived |
+| `group_comment_created` | group_comment_created (Marketplace) | proven-live |
+| `group_event_rsvp_created` | group_event_rsvp_created (Marketplace) | proven-live |
+| `group_membership_rejected` | group_membership_rejected (Marketplace) | proven-live |
+| `group_post_created` | group_post_created (Marketplace) | proven-live |
 | `ig_follower_added` | ig_follower_added (Marketplace) | source-derived |
 | `imessage_t` | imessage_t (Marketplace) | source-derived |
 | `lc_cal_com_booking_cancelled` | lc_cal_com_booking_cancelled (Marketplace) | source-derived |
@@ -270,7 +279,10 @@ uxie-ghl-factory plugin is installed — same data.
 | `refund` | refund (Marketplace) | source-derived |
 | `rental_booking` | rental_booking (Marketplace) | source-derived |
 | `reputation_review_received` | reputation_review_received (Marketplace) | source-derived |
+| `reputation_video_testimonials_received` | reputation_video_testimonials_received (Marketplace) | proven-live |
+| `requested_to_join_group` | requested_to_join_group (Marketplace) | proven-live |
 | `service_booking` | service_booking (Marketplace) | source-derived |
+| `social_planner_post_trigger_event` | social_planner_post_trigger_event (Marketplace) | proven-live |
 | `subscription` | subscription (Marketplace) | source-derived |
 | `survey_monkey_it_response_completed` | survey_monkey_it_response_completed (Marketplace) | source-derived |
 | `task_completed` | task_completed (Marketplace) | source-derived |
@@ -278,9 +290,10 @@ uxie-ghl-factory plugin is installed — same data.
 | `transcript_generated` | transcript_generated (Marketplace) | source-derived |
 | `typeform_new_entry` | typeform_new_entry (Marketplace) | source-derived |
 | `user_group_gamification_level_changed` | user_group_gamification_level_changed (Marketplace) | source-derived |
+| `user_replied` | user_replied (Marketplace) | proven-live |
 | `whatsapp_referral` | whatsapp_referral (Marketplace) | source-derived |
 
-## Steps (marketplace apps) (278)
+## Steps (marketplace apps) (286)
 
 | type | title | status |
 |---|---|---|
@@ -298,7 +311,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `airtable_retrieve_record` | Find Record | source-derived |
 | `airtable_update_record` | Update Record | source-derived |
 | `am-add-lead` | Add Leads under an Affiliate | source-derived |
-| `am-add-manual-commission` | Add manual sales for an Affiliate | source-derived |
+| `am-add-manual-commission` | Add manual sales for an Affiliate | proven-live |
 | `apify` | Marketplace — Apify | source-derived |
 | `appointment_booking` | Book Appointment | source-derived |
 | `appointment_booking_conversation_ai` | Appointment Booking Conversation AI Bot | source-derived |
@@ -343,7 +356,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `blooio` | Marketplace — Blooio | source-derived |
 | `cal-com` | Marketplace — Cal.com | source-derived |
 | `calendars_create_appointment_note` | Create Appointment / Booking Note | proven-live |
-| `calendars_generate_one_time_booking_link` | Generate One Time Booking Link | source-derived |
+| `calendars_generate_one_time_booking_link` | Generate One Time Booking Link | proven-live |
 | `certificates` | Marketplace — certificates | source-derived |
 | `clear_associated_company_fields` | Clear Associated Company Fields | proven-live |
 | `clickup` | Marketplace — ClickUp | source-derived |
@@ -361,13 +374,13 @@ uxie-ghl-factory plugin is installed — same data.
 | `communities` | Marketplace — Communities | source-derived |
 | `company` | Marketplace — Company | source-derived |
 | `contact` | Marketplace — contact | source-derived |
-| `contact_email_verification` | Email Verification | source-derived |
+| `contact_email_verification` | Email Verification | proven-live |
 | `conversation-ai` | Marketplace — Conversation AI | source-derived |
 | `create_and_associate_company` | Create And Associate Company | proven-live |
 | `create_basecamp_project` | Create Project | source-derived |
 | `create_new_document` | Create New Document | source-derived |
 | `create_new_document_page` | Create New Document Page | source-derived |
-| `create_recurring_invoice` | Send Recurring Invoice | source-derived |
+| `create_recurring_invoice` | Send Recurring Invoice | proven-live |
 | `create_task_attachment` | Post Attachment | source-derived |
 | `custom-push-notification` | Smart Push Notification | source-derived |
 | `customobjects` | Marketplace — customObjects | source-derived |
@@ -382,7 +395,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `find_or_create_contact` | Find Or Create Contact | source-derived |
 | `find_task_by_id` | Find Task By Id | source-derived |
 | `find-notion-page-by-title` | Find Page By Title | source-derived |
-| `generate_marketing_audit_report` | Generate Marketing Audit Report | source-derived |
+| `generate_marketing_audit_report` | Generate Marketing Audit Report | proven-live |
 | `google-contacts` | Marketplace — Google Contacts | source-derived |
 | `google-forms` | Marketplace — Google Forms | source-derived |
 | `google-slides` | Marketplace — Google Slides | source-derived |
@@ -391,12 +404,13 @@ uxie-ghl-factory plugin is installed — same data.
 | `googlecontacts_create_contact_group` | Create Contact Group | source-derived |
 | `googlecontacts_find` | Find Contact | source-derived |
 | `googlecontacts_update_contact` | Update Contact | source-derived |
-| `grant_user_group_gamification_points` | Grant Community Group Leaderboard Points | source-derived |
+| `grant_user_group_gamification_points` | Grant Community Group Leaderboard Points | proven-live |
 | `grant-group-access` | Grant Group Access | source-derived |
 | `grant-private-channel-access` | Grant Private Channel Access | source-derived |
 | `hubspot` | Marketplace — HubSpot | source-derived |
 | `imessage_a` | Send iMessage | source-derived |
 | `internal` | Marketplace — internal | source-derived |
+| `internal_comment_action` | Marketplace step — internal_comment_action | proven-live |
 | `internal-add-contact-followers` | Add Contact Followers | proven-live |
 | `internal-add-opportunities-followers` | Add Follower(s) to Opportunity | proven-live |
 | `internal-add-opportunity-owner` | Add Owner to Opportunity | proven-live |
@@ -404,8 +418,10 @@ uxie-ghl-factory plugin is installed — same data.
 | `internal-remove-contact-followers` | Remove Contact Followers | proven-live |
 | `internal-remove-opportunities-followers` | Remove Follower(s) from Opportunity | proven-live |
 | `internal-remove-opportunity-owner` | Remove Owner from Opportunity | proven-live |
+| `issue_badge_workflow` | Marketplace step — issue_badge_workflow | proven-live |
 | `issue_certificates_workflow` | Issue certificate | source-derived |
 | `ivr` | Marketplace — ivr | source-derived |
+| `kb_search` | Marketplace step — kb_search | proven-live |
 | `lc_apify_run_a_actor` | Run A Actor | source-derived |
 | `lc_cal_com_cancel_booking` | Cancel booking | source-derived |
 | `lc_cal_com_create_booking` | Create booking | source-derived |
@@ -501,6 +517,8 @@ uxie-ghl-factory plugin is installed — same data.
 | `log-external-call` | Log External Call | source-derived |
 | `manus-ai` | Marketplace — Manus AI | source-derived |
 | `marketing` | Marketplace — marketing | source-derived |
+| `membership_course_grant_access` | Marketplace step — membership_course_grant_access | proven-live |
+| `membership_default_course_revoke` | Marketplace step — membership_default_course_revoke | proven-live |
 | `mistral-ai` | Marketplace — Mistral AI | source-derived |
 | `monday-com` | Marketplace — Monday.com | source-derived |
 | `mycrmsim-sms-imessage-whatsapp` | Marketplace — myCRMSIM - SMS, iMessage & WhatsApp | source-derived |
@@ -521,12 +539,14 @@ uxie-ghl-factory plugin is installed — same data.
 | `payments_create_estimate` | Send Estimate | source-derived |
 | `payments_create_invoice` | Send Invoice | source-derived |
 | `proposals_estimates_send_document` | Send Documents & Contracts | source-derived |
+| `rcs_interactive_message` | Marketplace step — rcs_interactive_message | proven-live |
 | `react_to_last_message` | React To Last Message | source-derived |
 | `remove_associated_record` | Remove Associated Record | source-derived |
 | `remove_associated_records_from_workflow` | Remove Associated Records From Workflow | source-derived |
 | `remove_contact_tag_tool` | Remove Contact Tags | proven-live |
 | `revoke-group-access` | Revoke Group Access | source-derived |
 | `revoke-private-channel-access` | Revoke Private Channel Access | source-derived |
+| `send_rcs` | Marketplace step — send_rcs | proven-live |
 | `send_smart_message` | Send Message - Blooio.com | source-derived |
 | `send_whatsapp_flow` | WhatsApp: Send Flows | source-derived |
 | `send_whatsapp_message` | WhatsApp | source-derived |
@@ -539,7 +559,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `survey_monkey_ia_send_survey` | Send Survey | source-derived |
 | `survey-monkey` | Marketplace — Survey Monkey | source-derived |
 | `test_compilation` | test compilation | source-derived |
-| `tiktok-dm` | TikTok Interactive Messenger | source-derived |
+| `tiktok-dm` | TikTok Interactive Messenger | proven-live |
 | `todoist` | Marketplace — Todoist | source-derived |
 | `typeform` | Marketplace — Typeform | source-derived |
 | `typeform_create_form` | Create Empty Form | source-derived |
@@ -547,8 +567,9 @@ uxie-ghl-factory plugin is installed — same data.
 | `typeform_search_responses` | Search Responses in a form | source-derived |
 | `update_associated_company` | Update Associated Company | proven-live |
 | `update_conversation_ai_status` | Update Conversation AI Bot and Status | source-derived |
+| `update_inventory` | Marketplace step — update_inventory | proven-live |
 | `vapi-ai` | Marketplace — Vapi.ai | source-derived |
-| `voice_ai_outbound_call` | Voice AI Outbound Call | source-derived |
+| `voice_ai_outbound_call` | Voice AI Outbound Call | proven-live |
 | `voice-ai` | Marketplace — Voice AI | source-derived |
 | `whatsapp_24h_window` | WhatsApp: Customer Service Window Check | source-derived |
 | `whatsapp_interactive_messages` | WhatsApp Interactive Messages | source-derived |
