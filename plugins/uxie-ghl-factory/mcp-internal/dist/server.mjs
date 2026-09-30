@@ -224189,13 +224189,14 @@ var TOOLS2 = [
   },
   {
     name: "restore_workflow_version",
-    description: `${describe3("restore_workflow_version", "Restore a workflow to an earlier version \u2014 risk: write")}. Roll a workflow back to one of its version-history snapshots, exactly as the builder's version drawer does: delete the current triggers, recreate the version's triggers (inactive), then save the version's steps, settings and name with isRestoreRequest:true. It ALWAYS lands as a DRAFT and records meta.versionRestore. Target proof: pass the workflow id AND its current name; a mismatch is refused. Refused like the builder refuses it: a PUBLISHED workflow (unpublish_workflows first), a workflow with contacts active in any step, and the version it is already on. Preview by default (version number, step diff added/removed/changed, trigger and settings changes); confirm:true writes and reads the workflow and its triggers back. Trigger ids change (an inbound webhook keeps its URL). Read versions with list_workflow_versions / get_workflow_version. asNewWorkflowName = the drawer's "Create new workflow from this version": the source is NOT touched (so it may be published, busy, or on that version); a blank DRAFT is created under the new name at the location root, the version's triggers are recreated on it (new ids; an inbound webhook gets a NEW URL) and its steps saved, then read back. A name any listed workflow already carries is refused (agent-type workflows are not in the list).`,
+    description: `${describe3("restore_workflow_version", "Restore a workflow to an earlier version \u2014 risk: write")}. Roll a workflow back to one of its version-history snapshots, exactly as the builder's version drawer does: delete the current triggers, recreate the version's triggers (inactive), then save the version's steps, settings and name with isRestoreRequest:true. It ALWAYS lands as a DRAFT and records meta.versionRestore. Target proof: pass the workflow id AND its current name; a mismatch is refused. Refused like the builder refuses it: a PUBLISHED workflow (unpublish_workflows first), a workflow with contacts active in any step, the version it is already on, and a version with NO steps over a workflow that has steps (the create snapshot and draft saves hold none; pass allowEmpty:true to do it on purpose). Preview by default (version number, step diff added/removed/changed, trigger and settings changes); confirm:true writes and reads the workflow and its triggers back. Trigger ids change (an inbound webhook keeps its URL). Read versions with list_workflow_versions / get_workflow_version. asNewWorkflowName = the drawer's "Create new workflow from this version": the source is NOT touched (so it may be published, busy, or on that version); a blank DRAFT is created under the new name at the location root, the version's triggers are recreated on it (new ids; an inbound webhook gets a NEW URL) and its steps saved, then read back. A name any listed workflow already carries is refused (agent-type workflows are not in the list).`,
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
       workflowName: external_exports.string().describe("the workflow's CURRENT name \u2014 the target proof"),
       version: external_exports.number().int().positive().describe("the version number to restore (list_workflow_versions)"),
       asNewWorkflowName: external_exports.string().optional().describe("create a NEW draft workflow from the version under this name instead of restoring in place"),
+      allowEmpty: external_exports.boolean().default(false).describe("deliberately restore a version that holds NO steps over a workflow that has steps (refused otherwise)"),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
@@ -224239,8 +224240,18 @@ var TOOLS2 = [
         );
       const before = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
       if (!before.response.ok) return fromHttp(before.response.status, before.response.json);
+      const targetSteps = (version2.workflowData.templates ?? []).length, currentSteps = (wf.workflowData?.templates ?? []).length;
+      if (targetSteps === 0 && currentSteps > 0 && args.allowEmpty !== true)
+        return withFailureData(
+          fail(
+            CODES.VALIDATION_FAILED,
+            `version ${args.version} holds 0 steps and the workflow now has ${currentSteps}: restoring it would leave an EMPTY draft. Nothing was written.`,
+            "GHL writes version records only when a workflow is created (an EMPTY snapshot) and on each publish; draft saves (edit_workflow, repair_workflow, the builder's Save) make none. A useful restore target exists only after a publish: pick a version whose get_workflow_version holds steps. Pass allowEmpty:true only if emptying the workflow is what you want."
+          ),
+          { versionSteps: targetSteps, currentSteps }
+        );
       const diff = diffVersion(wf, version2, before.triggers);
-      const preview = { workflowId: args.workflowId, name: wf.name, restoreVersion: version2.version ?? args.version, versionStatus: version2.status ?? null, currentVersion: wf.version ?? null, landsAs: "draft", diff };
+      const preview = { workflowId: args.workflowId, name: wf.name, restoreVersion: version2.version ?? args.version, versionStatus: version2.status ?? null, currentVersion: wf.version ?? null, steps: { target: targetSteps, current: currentSteps }, landsAs: "draft", diff };
       if (args.confirm !== true)
         return withFailureData(fail(CODES.CONFIRM_REQUIRED, "Restore preview is ready; no write was sent.", "Review data.preview (steps added/removed/changed, triggers, settings), then repeat with confirm:true."), { preview });
       const userId = wf.updatedBy ?? null;
