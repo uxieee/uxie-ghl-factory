@@ -59,22 +59,33 @@
         "commit:6c12ed12"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:4ec230aa"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-29",
+    "hashedAt": "2026-09-30",
     "endpoints": {
+      "GET https://services.leadconnectorhq.com /agent-studio/super-agent/agents": "a80dcd62a4b3625ab64c1a39a140f0308d5d669e6885b3bcf0a2ee9c000d3791",
       "GET https://services.leadconnectorhq.com /agent-studio/super-agent/agents/{}": "96ba1eec8c2eb7dc51c2a8519862fe16f3a1ff6e9f6878927506d0a3db477703",
+      "POST https://services.leadconnectorhq.com /agent-studio/super-agent/agents/from-template": "522e5333c204b81851123047f4c6ac9a7227ea83e832a1e4e1b28a6b52d44729",
       "PUT https://services.leadconnectorhq.com /agent-studio/super-agent/agents/{}": "a415967e56b8dd6aa4baf249bc6bab87f535841b9f7c6b51a213c52a8f8c25ff",
       "SSE https://services.leadconnectorhq.com /agent-studio/super-agents/build": "2d11005ca07d57ec40b2f42cb30a3f157d9a02bb727bc61c4cdb748dfd4b2935"
     },
     "builds": {
-      "agentLogsApp": 693,
-      "agentStudioApp": 710,
-      "aiEmployeesApp": 2631,
-      "aiGrowthApp": 708,
+      "agentLogsApp": 712,
+      "agentStudioApp": 715,
+      "aiEmployeesApp": 2641,
+      "aiGrowthApp": 714,
       "superagentsApp": 703,
-      "voiceAiApp": 707
+      "voiceAiApp": 713
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_agent": "82c6802eba03b809bc587bae5a49d12b4444ee6e190b6070afa61e3b7a342e48",
@@ -88,7 +99,7 @@
       "plugins/uxie-ghl-factory/engines/ai/voiceai-update.mjs": "77665bca480b2152a0751b631c8792615dafaa96199988d89751f144fb92aced",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "aace93819a562eb4c84c691a3a50601282afbaeda75c49c253799595154fc1e4"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa"
     }
   }
 }
