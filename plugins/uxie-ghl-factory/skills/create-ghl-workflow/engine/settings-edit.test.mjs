@@ -44,7 +44,7 @@ test('settingsPatch merges over the stored values and lands the UI\'s stored sha
   assert.equal(body.stopOnResponse, true);
   assert.equal(body.allowMultiple, false, 'untouched stored values survive');
   assert.equal(body.timezone, 'account');
-  assert.deepEqual(body.workflowNote, { content: 'hello', createdBy: 'U', createdAt: '2026-08-22T00:00:00.000Z', updatedBy: 'U', updatedAt: '2026-08-22T00:00:00.000Z' });
+  assert.deepEqual(body.workflowNote, { content: 'hello', createdBy: 'U', createdByName: 'uxie-ghl-factory', createdAt: '2026-08-22T00:00:00.000Z', updatedBy: 'U', updatedByName: 'uxie-ghl-factory', updatedAt: '2026-08-22T00:00:00.000Z' });
   assert.deepEqual(body.meta, { statsView: true });
   assert.equal(body.eventStartDate, '', 'stored null is carried as the UI sends it');
 });
@@ -65,7 +65,7 @@ test('an unknown key or impossible value refuses at commit; a stored note keeps 
   assert.throws(() => editCommitBody(f, f.workflowData.templates, noDiff, 'U', { settingsPatch: { timezone: 'UTC' } }), (e) => e.code === 'SETTINGS_VALUE');
   const f2 = { ...fresh(), workflowNote: { content: 'old', createdBy: 'X', createdByName: 'Xander', createdAt: '2025-01-01T00:00:00.000Z', updatedBy: 'X', updatedAt: '2025-01-01T00:00:00.000Z' } };
   const body = editCommitBody(f2, f2.workflowData.templates, noDiff, 'U', { settingsPatch: { workflowNote: 'new' }, now: '2026-08-22T00:00:00.000Z' });
-  assert.deepEqual(body.workflowNote, { content: 'new', createdBy: 'X', createdByName: 'Xander', createdAt: '2025-01-01T00:00:00.000Z', updatedBy: 'U', updatedAt: '2026-08-22T00:00:00.000Z' });
+  assert.deepEqual(body.workflowNote, { content: 'new', createdBy: 'X', createdByName: 'Xander', createdAt: '2025-01-01T00:00:00.000Z', updatedBy: 'U', updatedByName: 'uxie-ghl-factory', updatedAt: '2026-08-22T00:00:00.000Z' });
 });
 
 test('a legacy doc with From name but no From email does not brick an unrelated settings edit (advisory), but a senderAddress edit is held to the rule', () => {
