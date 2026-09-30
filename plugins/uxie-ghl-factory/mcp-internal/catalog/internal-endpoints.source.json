@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T07:05:41.759Z",
+      "capturedAt": "2026-09-30T07:20:53.019Z",
       "hash": "corpus",
-      "fileCount": 1346,
-      "endpoints": 1346
+      "fileCount": 1355,
+      "endpoints": 1355
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1842,
+  "discoveredCallSites": 1851,
   "skippedCallSites": 717,
-  "count": 1595,
+  "count": 1604,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -3667,7 +3667,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/30-types/native-elements.md:255"
+        "funnels/30-types/native-elements.md:258"
       ],
       "serviceBasis": "declared"
     },
@@ -3693,7 +3693,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/30-types/native-elements.md:254"
+        "funnels/30-types/native-elements.md:257"
       ],
       "serviceBasis": "declared"
     },
@@ -3746,7 +3746,7 @@
       },
       "sources": [
         "funnels/70-research/2026-09-29-route-census.md:28",
-        "funnels/30-types/native-elements.md:254"
+        "funnels/30-types/native-elements.md:257"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -7600,6 +7600,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/funnel-object-operations.md:161",
         "funnels/70-research/2026-09-29-route-census.md:48"
       ],
       "serviceBasis": "declared"
@@ -8384,7 +8385,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnel-object-operations.md:160"
+        "funnels/20-api/funnel-object-operations.md:173"
       ],
       "serviceBasis": "declared"
     },
@@ -9456,7 +9457,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnel-object-operations.md:158"
+        "funnels/20-api/funnel-object-operations.md:171"
       ],
       "serviceBasis": "declared"
     },
@@ -11717,7 +11718,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnel-object-operations.md:166"
+        "funnels/20-api/funnel-object-operations.md:179"
       ],
       "serviceBasis": "declared"
     },
@@ -19422,6 +19423,104 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "funnels--store-pickup-store",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/store/pickup-store",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "altId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnel-object-operations.md:152"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--store-pickup-store-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/store/pickup-store",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnel-object-operations.md:153"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--store-pickup-store-delete",
+      "method": "DELETE",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/store/pickup-store/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "altId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "altType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnel-object-operations.md:154"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "funnels--setup-progress",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -19450,7 +19549,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnel-object-operations.md:152",
+        "funnels/20-api/funnel-object-operations.md:165",
         "funnels/70-research/2026-09-29-route-census.md:94"
       ],
       "serviceBasis": "declared"
@@ -19477,7 +19576,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnel-object-operations.md:153",
+        "funnels/20-api/funnel-object-operations.md:166",
         "funnels/70-research/2026-09-29-route-census.md:95"
       ],
       "serviceBasis": "declared"
@@ -40152,7 +40251,7 @@
         "forms/20-api/forms.md",
         "forms/20-api/forms.md:33",
         "forms/20-api/forms.md:54",
-        "forms/20-api/forms.md:245"
+        "forms/20-api/forms.md:250"
       ],
       "serviceBasis": "declared"
     },
@@ -40251,7 +40350,7 @@
         "forms/10-anatomy/form-object.md:90",
         "forms/20-api/forms.md:35",
         "forms/20-api/forms.md:69",
-        "forms/20-api/forms.md:245",
+        "forms/20-api/forms.md:250",
         "forms/40-rules/validators-and-quirks.md:165"
       ],
       "serviceBasis": "declared",
@@ -40323,6 +40422,98 @@
       "aka": [
         "/forms/{id}"
       ]
+    },
+    {
+      "id": "forms--categories-get-categories",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/categories/get-categories",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:245"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--categories-get-themes",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/categories/get-themes/{categoryId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:245"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--forms-clone-from-theme",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/clone-from-theme",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:246"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "forms--forms-conversation-on-submission",
@@ -40975,7 +41166,7 @@
         "forms/00-overview/forms-surveys-quizzes.md:54",
         "forms/20-api/forms.md:47",
         "forms/20-api/forms.md:232",
-        "forms/20-api/forms.md:247"
+        "forms/20-api/forms.md:252"
       ],
       "serviceBasis": "declared"
     },
@@ -41150,8 +41341,87 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/20-api/forms.md:249",
+        "forms/20-api/forms.md:254",
         "forms/40-rules/validators-and-quirks.md:162"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--assist-mode-summary-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/funnel-ai-v2/copilot/assist-mode/summary",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnel-ai.md:87"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--copilot-chat-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/funnel-ai-v2/copilot/chat",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnel-ai.md:82",
+        "funnels/20-api/funnel-ai.md:87"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--copilot-feedback-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/funnel-ai-v2/copilot/feedback",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnel-ai.md:89"
       ],
       "serviceBasis": "declared"
     },
