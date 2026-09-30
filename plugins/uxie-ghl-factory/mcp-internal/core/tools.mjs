@@ -24,12 +24,12 @@ import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
   needsLocationForSettings, domainChangeGuard, regexRedirectOn, settingsSideEffects,
   planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader, planEditHeader, planDeleteHeader, planAddEvent, planEditEvent, planDeleteEvent, readEvents,
-  planDeleteFunnel, additionalRoutesOf, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
+  planDeleteFunnel, planDeleteStore, planAddProductPage, additionalRoutesOf, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
   readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS, planAddStepProduct, planEditStepProduct, planDeleteStepProduct, STEP_PRODUCT_NOTE, readStepProducts, stepProductView,
   CLONE_FUNNEL_NOTE, IMPORT_PAGE_NOTE, BILLING_FIELDS_NOTE, BILLING_ON_SAVE_NOTE, billingCheckouts,
 } from './funnel-ops.mjs';
 import { planAdvancedFilters, videoFilters, videoView, filterQuery, ordersView, FILTER_FIELDS as ANALYTICS_FILTER_FIELDS, SALES_NOTE } from './funnel-analytics.mjs';
-import { planCreateFunnel, createdId, findMediaVideo, webinarView, sessionWarnings, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments, listFolders, FOLDER_KINDS } from './funnel-create.mjs';
+import { planCreateFunnel, createdId, findMediaVideo, webinarView, sessionWarnings, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments, listFolders, FOLDER_KINDS, templateLoadOutcome, STORE_BLANK_STEP_COUNT } from './funnel-create.mjs';
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { elementSpecProblem } from './element-spec.mjs';
@@ -2132,7 +2132,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   const pdpBad = pageData.sections.flatMap((sec) => sec.elements.filter((n) => appendedIds.has(sec.id) || insertedIds.has(n.id)).flatMap((n) => pdpNodeProblems(n, sec, { stepKey })));
   if (pdpBad.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${pdpBad.length} product-page block(s) this call appends are misplaced; nothing was written`, 'Append them in a section with pdp:true, on the store\'s product-detail step (or a custom product page).'), { problems: pdpBad, report });
   const appendedScope = { sectionIds: appendedIds, popupIds: new Set(report.filter((r) => r.op === 'append-popup').map((r) => r.popupId)) };
-  const problems = auditPageData(pageData);
+  const stepType = (funnel?.steps ?? []).find((st) => st.id === args.stepId)?.type;
+  const problems = auditPageData(pageData, { stepType });
   const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, expectPage, ...r }) => r), ...(seo ? { seo: { from: seo.before, to: seo.write } } : {}), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
     ...(problems.length ? { preexistingProblems: problems } : {}),
     ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
@@ -2266,6 +2267,8 @@ async function resolveRoute(args, deps) {
     route: { id: row._id ?? null, type: row.type ?? null, typeId: row.typeId ?? null, publishStatus: row.publishStatus ?? null, action: row.action ?? null, target: row.target || null, updatedAt: row.updatedAt ?? null },
     owner: { funnelId: row.funnelId ?? null, funnel: funnel?.name ?? null, funnelType: funnel?.type ?? null, ...(step ? { step: { id: step.id, name: step.name } } : {}), ...(row.type === 'page' ? { pageId: row.typeId } : {}) } };
 }
+
+const BLOG_SLUG_OK = (v) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(v ?? ''));
 
 async function listSites(args, deps) {
   const walked = await walkFunnelList(deps, args.locationId);
@@ -12371,7 +12374,7 @@ export const TOOLS = [
     description: `${describe('create_funnel', 'Create a funnel, website, store, webinar or blog document on a location')}. `
       + 'The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true '
       + 'creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs '
-      + 'screen\'s own list). Refuses a name already used by any document on the location. folderId (funnel, website) files it in that folder, as the New screen does inside a folder. Each kind sends '
+      + 'screen\'s own list). Refuses a name already used by any document on the location. folderId (funnel, website) files it in that folder, as the New screen does inside a folder. blog {domain, urlSlug} serves the blog at <domain>/<slug> (the slug must be free). Each kind sends '
       + 'exactly what GHL\'s own "New …" screen sends: funnel and website are created empty (no steps, no '
       + 'domain); a store and a webinar are GHL\'s BLANK TEMPLATE installs — that is the UI\'s own blank path '
       + '(store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, '
@@ -12388,6 +12391,7 @@ export const TOOLS = [
       kind: z.enum(FUNNEL_KINDS),
       name: z.string(),
       description: z.string().optional(),
+      blog: z.object({ domain: z.string(), urlSlug: z.string() }).optional().describe('blog: serve the blog at <domain>/<urlSlug> — the Create blog screen\'s Domain and slug (domain = one of the location\'s domains, by url or id; the slug must be free on it)'),
       folderId: z.string().optional().describe('funnel / website: file it in this folder (the New screen files it in the folder you are in) — an id from find_ghl_site list:true folders:true; a funnel needs a Funnels-tab folder, a website a Websites-tab folder'),
       webinar: z.object({
         type: z.enum(['live', 'onDemand']).optional().describe('live (default) or onDemand — a pre-recorded webinar with no schedule'),
@@ -12418,6 +12422,8 @@ export const TOOLS = [
       { method: 'POST', path: '/funnels/funnel/create' },
       { method: 'POST', path: '/templates/template/load' },
       { method: 'POST', path: '/blogs/site' },
+      { method: 'POST', path: '/funnels/lookup/exists' },
+      { method: 'GET', path: '/funnels/domain' },
       { method: 'POST', path: '/funnels/funnel/webinar/sessions' },
     ],
     handler: async (args, deps) => {
@@ -12455,7 +12461,21 @@ export const TOOLS = [
           folder = fl.rows.find((x) => x.id === args.folderId) ?? null;
           if (!folder) return fail(CODES.VALIDATION_FAILED, `folderId ${args.folderId} is not a ${args.kind} folder on this location`, `${fl.rows.length ? `${args.kind} folders: ${fl.rows.map((x) => `${x.name} (${x.id})`).join(', ')}.` : `This location has no ${args.kind} folder.`} A funnel needs a Funnels-tab folder and a website a Websites-tab folder. Nothing was sent.`);
         }
-        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.(), folderId: args.folderId });
+        let blogDomain = null;
+        if (args.blog && args.kind === 'blog') {
+          const dl = await gw.call('GET', `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+          if (!dl.ok) return fromHttp(dl.status, dl.json);
+          const doms = dl.json?.domains ?? dl.json?.data ?? [];
+          const want = String(args.blog.domain).trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '').toLowerCase();
+          blogDomain = (Array.isArray(doms) ? doms : []).find((x) => (x.id ?? x._id) === args.blog.domain || String(x.url ?? '').toLowerCase() === want) ?? null;
+          if (!blogDomain) return fail(CODES.VALIDATION_FAILED, `blog.domain ${args.blog.domain} is not a domain of this location`, `Its domains: ${(Array.isArray(doms) ? doms : []).map((x) => x.url).join(', ') || 'none'}. Nothing was sent.`);
+          if (BLOG_SLUG_OK(args.blog.urlSlug)) {
+            const ex = await gw.call('POST', '/funnels/lookup/exists', { domain: blogDomain.url, path: `/${args.blog.urlSlug}`, locationId: args.locationId });
+            if (!ex.ok) return fromHttp(ex.status, ex.json);
+            if (ex.json?.exists !== false) return fail(CODES.VALIDATION_FAILED, `/${args.blog.urlSlug} is already taken on ${blogDomain.url} (a page, step or redirect holds it)`, 'Pick another blog.urlSlug. Nothing was sent.');
+          }
+        }
+        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.(), folderId: args.folderId, blog: args.blog ? { urlSlug: args.blog.urlSlug, domainId: blogDomain?.id ?? blogDomain?._id } : undefined });
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was sent.');
         const preview = { kind: args.kind, request: { method: plan.method, path: plan.path, body: plan.body } };
         if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `create_funnel ${args.kind} preview is ready; no write was sent.`, 'Repeat with confirm:true to send exactly this request.'), { preview });
@@ -12473,10 +12493,10 @@ export const TOOLS = [
           id ??= blogRow?._id ?? null;
         }
         const read = id ? await reread(async () => (await readFunnel(gw, args.locationId, id)).funnel, (f) => Boolean(f?.name), deps.rereadOptions ?? {}) : { value: null };
-        const f = read.value;
+        let f = read.value;
         const out = {
           kind: args.kind, funnelId: id, status: w.status,
-          readBack: f ? { name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null, domainId: f.domainId || null, ...(args.folderId !== undefined ? { folderId: f.parentId ?? null, folder: folder?.name ?? null } : {}),
+          readBack: f ? { name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null, domainId: f.domainId || null, ...(args.folderId !== undefined ? { folderId: f.parentId ?? null, folder: folder?.name ?? null } : {}), ...(blogDomain ? { blogDomain: blogDomain.url, blogSlug: args.blog.urlSlug } : {}),
             steps: (f.steps ?? []).map((s) => ({ id: s.id, name: s.name, type: s.type, url: s.url, pages: s.pages ?? [] })) } : null,
           ...(args.kind === 'blog' ? { blogList: blogRow ? { id: blogRow._id, name: blogRow.name } : null } : {}),
           ...(args.kind === 'store' ? { note: STORE_DANGLING_FORM_NOTE } : {}),
@@ -12509,9 +12529,32 @@ export const TOOLS = [
             if (warnings.length) out.warnings = warnings;
           }
         }
+        // A template install (store, webinar) answers 201 whatever its progress: only data.status 'completed' is an install (the UI's own rule).
+        if (args.kind === 'store' || args.kind === 'webinar') {
+          const tl = templateLoadOutcome(w.json);
+          out.templateLoad = tl;
+          if (!tl.complete) {
+            // 'processing' is still running: give it the read-back window before calling the install partial.
+            const settled = args.kind === 'store' && id && tl.status === 'processing'
+              ? await reread(async () => (await readFunnel(gw, args.locationId, id)).funnel, (x) => (x?.steps ?? []).length >= STORE_BLANK_STEP_COUNT, deps.rereadOptions ?? {})
+              : { value: f };
+            const steps = (settled.value?.steps ?? []).length;
+            if (!(tl.status === 'processing' && steps >= STORE_BLANK_STEP_COUNT)) {
+              return withFailureData(fail(CODES.VERIFY_FAILED, `the template load answered ${w.status} with status ${tl.status === null ? 'absent' : `'${tl.status}'`}${tl.err ? ` (${typeof tl.err === 'string' ? tl.err : JSON.stringify(tl.err)})` : ''}, not 'completed' — the ${args.kind} may be a PARTIAL install (${steps} step(s) read back${args.kind === 'store' ? `, a blank store has ${STORE_BLANK_STEP_COUNT}` : ''})`,
+                'Do not create again: find_ghl_site list:true, open the document, and delete or finish it by hand.'), out);
+            }
+            out.templateLoad = { ...tl, settled: true };
+            f = settled.value;
+            if (out.readBack) out.readBack.steps = (f.steps ?? []).map((x) => ({ id: x.id, name: x.name, type: x.type, url: x.url, pages: x.pages ?? [] }));
+          }
+          if (args.kind === 'store' && (f?.steps ?? []).length < STORE_BLANK_STEP_COUNT) {
+            return withFailureData(fail(CODES.VERIFY_FAILED, `the store read back with ${(f?.steps ?? []).length} of the ${STORE_BLANK_STEP_COUNT} steps a blank store has`, 'Do not create again: find_ghl_site list:true first.'), out);
+          }
+        }
         const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== 'store' || f.isStoreActive === true);
         const folderOk = args.folderId === undefined || (f && f.parentId === args.folderId);
-        if (!f || f.name !== name || !typeOk || !folderOk || (args.kind === 'blog' && !blogRow)) {
+        const blogOk = !blogDomain || (f && (f.domainId === (blogDomain.id ?? blogDomain._id)));
+        if (!f || f.name !== name || !typeOk || !folderOk || !blogOk || (args.kind === 'blog' && !blogRow)) {
           return withFailureData(fail(CODES.VERIFY_FAILED, `create answered ${w.status} but the ${args.kind} did not read back as created`, 'Do not create again: find_ghl_site list:true first.'), out);
         }
         return ok(out);
@@ -12525,7 +12568,8 @@ export const TOOLS = [
       + 'with its publishStatus / redirect action — the ROUTING truth; a step with no row 404s in public), '
       + 'settings (the funnel-settings fields as update-settings names them), versions (one page: '
       + 'live vs drafts, sorted by timestamp, not by array position), security (custom response headers), '
-      + 'events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the '
+      + 'events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), store-setup (a store: the '
+      + 'location-wide onboarding checklist — stores, domains, products, payments, shipping, orders), share (the '
       + 'funnel\'s share link if one exists — read-only; creating one is left to the UI: it cannot be removed below the $497 plan), '
       + 'archived-pages (restorable with edit_funnel restore-page), step-products {stepId} (a step\'s order-form and sell-button '
       + 'products with names; add one with edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default 30 days; filters?} '
@@ -12539,7 +12583,7 @@ export const TOOLS = [
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
-      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages', 'step-products', 'stats', 'webinar', 'filter-values', 'sales']).default('summary'),
+      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages', 'step-products', 'stats', 'webinar', 'filter-values', 'sales', 'store-setup']).default('summary'),
       pageId: z.string().optional(),
       stepId: z.string().optional(),
       from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -12566,6 +12610,7 @@ export const TOOLS = [
       { method: 'GET', path: '/stats/video/stats' },
       { method: 'GET', path: '/stats/filter-values' },
       { method: 'GET', path: '/funnels/order' },
+      { method: 'GET', path: '/store/setup/progress' },
       { method: 'POST', path: '/funnels/funnel/webinar/sessions' },
     ],
     handler: async (args, deps) => guard(async () => {
@@ -12580,6 +12625,19 @@ export const TOOLS = [
         const d = r.json?.data ?? {};
         return ok({ funnelId: args.funnelId, shared: true, share: { shareId: d.shareId, shareWith: d.shareWith, funnelName: d.funnelName, importUrl: d.shareId ? `https://app.gohighlevel.com/funnels/share/${d.shareId}` : null },
           note: 'shareWith ALL = anyone with the link can import a copy into their own account. Narrowing it to the agency or removing it is gated to the $497 plan in the UI.' });
+      }
+      if (view === 'store-setup') {
+        // The Stores onboarding checklist the New-store banner reads: LOCATION-level, derived by the stores service (never written here).
+        const { res: fr, funnel: f } = await readFunnel(gw, args.locationId, args.funnelId);
+        if (!fr.ok) return fromHttp(fr.status, fr.json);
+        if (!f?.isStoreActive) return fail(CODES.VALIDATION_FAILED, `${args.funnelId} is not a store (isStoreActive is not true)`, 'Pass a store document id (find_ghl_site list:true).');
+        const r = await gw.call('GET', `/store/setup/progress?altId=${L}&altType=location`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const d = r.json?.data ?? {};
+        const tasks = ['stores', 'connectedDomains', 'products', 'paymentProviders', 'shipping', 'orders'];
+        return ok({ funnelId: args.funnelId, store: f.name, scope: 'location', tasks: Object.fromEntries(tasks.map((k) => [k, d[k] === true])), todo: tasks.filter((k) => d[k] !== true),
+          onboardingCompletedAt: d.onboardingCompletedAt ?? null, askAiOnboardingSeen: d.askAiOnboardingSeen ?? null,
+          note: 'One checklist per LOCATION, not per store: a task is done when any store of the location has it. Read-only — the UI writes onboardingCompletedAt when the banner is dismissed; this tool does not.' });
       }
       if (view === 'archived-pages') {
         const { res: r, pages } = await readFunnelPages(gw, args.locationId, args.funnelId);
@@ -12699,17 +12757,17 @@ export const TOOLS = [
     name: 'edit_funnel',
     description: `${describe('edit_funnel', 'Edit a GHL funnel or website document: settings, steps, publish state, headers')}. `
       + 'One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings '
-      + '(the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is '
+      + '(the full update-settings body from a fresh read; every unnamed field is '
       + 'checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) · create-step (refused without a '
       + 'domain) · update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, '
       + 'never retried) · reorder-steps (full permutation) · clone-step · delete-step (id AND name) · publish-page / '
       + 'unpublish-page (routing only; content publishes via build_funnel_page publish:true; redirect 404 | url | step) · add-header / '
       + 'edit-header / delete-header (exact-case path only; delete needs the current value) · add-event / edit-event / delete-event (Meta pixel) · split-test add-variation | start | declare-winner · delete-funnel (id AND expectName; refused '
-      + 'while a page serves) · clone-funnel {name} (this location; no domain, no paths) · archive-page / '
+      + 'while a page serves) · clone-funnel {name} (no domain, no paths) · archive-page / '
       + 'restore-page (restore mints a NEW path) · import-page · add-store (🔴 a builder save of the checkout creates '
       + '7 location-wide billing fields) · add-step-product {stepId, expectName, productId, priceId; quantity.max 1-999} · edit-step-product / delete-step-product {stepId, stepProductId, expectName = the step product\'s name} (returns '
-      + 'stepProductId, what a sell-product button stores) · set-cookie-consent {cookieConsent} (funnel banner; ON needs acknowledged:true). Not offered: sharing (opening Share creates a link anyone '
-      + 'can import, not removable below the $497 plan — read one with get_funnel view share), a bare orphan page, '
+      + 'stepProductId) · add-product-page {name, url, productIds} (store custom product page) · delete-store {expectName} (removes the 5 store pages; the document STAYS) · set-cookie-consent {cookieConsent} (funnel banner; ON needs acknowledged:true). Not offered: sharing (a link anyone can import; '
+      + 'read one with get_funnel view share), a bare orphan page, '
       + 'folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps '
       + 'per op: ghl-funnels-pages SKILL → references/edit-funnel.md. Siblings: create_funnel, get_funnel, '
       + 'build_funnel_page, audit_site.',
@@ -12717,7 +12775,7 @@ export const TOOLS = [
       locationId: z.string(),
       funnelId: z.string(),
       op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header', 'edit-header', 'delete-header', 'add-event', 'edit-event', 'delete-event', 'split-test', 'delete-funnel',
-        'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store', 'add-step-product', 'edit-step-product', 'delete-step-product', 'set-cookie-consent']),
+        'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store', 'add-step-product', 'edit-step-product', 'delete-step-product', 'set-cookie-consent', 'add-product-page', 'delete-store']),
       action: z.enum(['add-variation', 'start', 'declare-winner']).optional(),
       sourceFunnelId: z.string().optional(),
       sourceStepId: z.string().optional(),
@@ -12745,6 +12803,7 @@ export const TOOLS = [
         buttons: z.object({ acceptAll: z.string().optional(), acceptEssential: z.string().optional(), ok: z.string().optional() }).optional(),
       }).optional().describe('set-cookie-consent: the funnel-level banner (every page of the funnel). Colours, fonts, the policy link, the cookie list and regions stay on the builder panel'),
       productId: z.string().optional(),
+      productIds: z.array(z.string()).min(1).optional().describe('add-product-page: the products the custom product page shows (ids; each must read on this location)'),
       priceId: z.string().optional(),
       routeAdditional: z.boolean().optional().describe('split-test start: when the step is also served at other domains/paths, the modal asks whether to route them through the split (true) or not (false)'),
       stepProductId: z.string().optional().describe('edit-step-product / delete-step-product: the step product (its id is what add-step-product returned; get_funnel view step-products lists them); expectName is then ITS name'),
@@ -12783,6 +12842,8 @@ export const TOOLS = [
       { method: 'DELETE', path: '/funnels/event/{id}' },
       { method: 'POST', path: '/funnels/funnel/funnel-page/{pageId}' },
       { method: 'POST', path: '/funnels/funnel/delete' },
+      { method: 'POST', path: '/funnels/funnel/delete-store' },
+      { method: 'POST', path: '/funnels/funnel/create-custom-product-detail-page' },
       { method: 'POST', path: '/funnels/funnel/clone-control-page/' },
       { method: 'POST', path: '/funnels/lookup/create' },
       { method: 'POST', path: '/funnels/lookup/exists' },
@@ -12949,6 +13010,24 @@ export const TOOLS = [
             const src = args.sourceFunnelId === args.funnelId ? { res: res, funnel } : await readFunnel(gw, args.locationId, args.sourceFunnelId);
             if (!src.res.ok) return fromHttp(src.res.status, src.res.json);
             plan = planImportPage({ funnel, stepId: args.stepId, source: src.funnel, sourceStepId: args.sourceStepId, sourcePageIndex: args.sourcePageIndex ?? 0, locationId: args.locationId, userId: gw.uid });
+            break;
+          }
+          case 'delete-store': {
+            const miss = need('expectName');
+            if (miss) { plan = { refuse: miss }; break; }
+            plan = planDeleteStore({ funnel, expectName: args.expectName, locationId: args.locationId, userId: gw.uid });
+            break;
+          }
+          case 'add-product-page': {
+            const miss = need('name') ?? need('url') ?? need('productIds');
+            if (miss) { plan = { refuse: miss }; break; }
+            const products = [];
+            for (const pid of args.productIds) {
+              const pr = await gw.call('GET', `/products/${encodeURIComponent(pid)}?locationId=${encodeURIComponent(args.locationId)}`);
+              if (!pr.ok) return fromHttp(pr.status, pr.json);
+              products.push({ id: pid, name: pr.json?.name ?? pr.json?.product?.name ?? null });
+            }
+            plan = planAddProductPage({ funnel, locationId: args.locationId, name: args.name, url: args.url, products });
             break;
           }
           case 'add-store': {
@@ -13269,6 +13348,35 @@ export const TOOLS = [
             const out = { op: 'import-page', step: s ? stepView(s, 0) : null, importedPageId: added.length === 1 ? added[0] : null, fromPageId: plan.target.sourcePageId, path: row ? lookupView(row) : null,
               note: funnel.domainId ? IMPORT_PAGE_NOTE : `${IMPORT_PAGE_NOTE} This funnel has no domain, so the page has no public path yet.` };
             if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, `expected one new page with a public path on the target step, read back ${added.length}`, 'Re-read with get_funnel before importing again.'), out);
+            return ok(out);
+          }
+          case 'delete-store': {
+            const got = await reread(async () => await fresh(), (f2) => f2?.isStoreActive === false, deps.rereadOptions ?? {});
+            const f2 = got.value;
+            const left = (f2?.steps ?? []).map((x) => ({ id: x.id, name: x.name, type: x.type, url: x.url }));
+            const wantKept = plan.target.keeps.map((x) => x.id);
+            const out = { op: 'delete-store', removed: plan.target.removes, isStoreActive: f2?.isStoreActive ?? null, remaining: left,
+              note: 'The document was NOT deleted: its non-store steps (and any custom product page) stay, and a website store now lists under Websites, not Stores. Delete the document itself with delete-funnel.' };
+            const storeLeft = left.filter((x) => x.type === 'store');
+            const keptOk = wantKept.every((id) => left.some((x) => x.id === id));
+            if (!f2 || f2.isStoreActive !== false || storeLeft.length || !keptOk) {
+              return withFailureData(fail(CODES.VERIFY_FAILED, 'the store did not read back as removed (isStoreActive false, no store steps, every other step kept)', 'Compare data.remaining; do not send again blindly.'), out);
+            }
+            return ok(out);
+          }
+          case 'add-product-page': {
+            const sid = plan.stepId;
+            const got = await reread(async () => await fresh(), (f2) => (f2?.steps ?? []).some((x) => x.id === sid && (x.pages ?? []).length > 0), deps.rereadOptions ?? {});
+            const st = (got.value?.steps ?? []).find((x) => x.id === sid) ?? null;
+            const pageId = st?.pages?.[0] ?? plan.response?.pageDetails?._id ?? plan.response?.pageDetails?.id ?? null;
+            const pd = pageId ? (await gw.call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(pageId)}`)).json : null;
+            const metas = [...new Set((pd?.sections ?? []).flatMap((sec) => (sec.elements ?? []).map((n) => n.meta)).filter((m) => /^store-pdp-v2-/.test(m ?? '')))];
+            const out = { op: 'add-product-page', stepId: sid, pageId, step: st ? stepView(st, 0) : null, key: st?.key ?? null, products: st?.products ?? null, pdpBlocks: metas,
+              note: 'A custom product page renders on a product route of a ROUTED store domain (measured: a store with no domain previews its product LIST instead). Edit it with build_funnel_page edit mode.' };
+            const prodOk = Array.isArray(st?.products) && plan.body.step.products.every((x) => st.products.map(String).includes(x));
+            if (!st || st.key !== 'store-custom-product-detail' || !prodOk || !pageId || !metas.length) {
+              return withFailureData(fail(CODES.VERIFY_FAILED, 'the custom product page did not read back (step with key store-custom-product-detail, the products, and a page holding store-pdp-v2 blocks)', 'Compare data.step / data.pdpBlocks; do not create it again — get_funnel view summary first.'), out);
+            }
             return ok(out);
           }
           case 'add-store': {

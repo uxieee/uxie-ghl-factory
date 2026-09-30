@@ -247,6 +247,8 @@ export { KIND_DEFAULT_EXTRA };
 import { KIND_DEFAULT_STYLES, KIND_CONFIG_EXTRA } from './kind-style-defaults.mjs';
 import { KIND_TAGNAME, KIND_ORACLE_EXTRA, KIND_ORACLE_STYLES, KIND_OMIT_EXTRA, KIND_TITLE, KIND_OMIT_CLASS, KIND_ORACLE_NEW_KEYS } from './kind-oracle-defaults.mjs';
 
+/** Props the audit does not call missing though the kind declares them: a template-made node renders without them (never applied at compose). */
+const AUDIT_TOLERATED_EXTRA = Object.freeze({ 'blog-content': /^blog(AuthorLayout|ShowTagLinks|ContentPostStyle)$/ });
 export const NEEDS_STEP_TYPE = Object.freeze({
   'store-cart': 'store', 'store-checkout': 'store', 'store-thank-you': 'store',
   'blog-content': 'blog-post',
@@ -974,7 +976,8 @@ export const auditPageData = (pageData, opts = {}) => {
           problems.push(`node ${n.id} (button): styles has neither color nor secondaryColor — the BUILDER throws on every render and can no longer save (a 422), while the public page renders. Set styles.color.`);
         }
         // Props a kind's fresh builder node does not carry (KIND_OMIT_EXTRA) are not a defect: the builder's own countdown lacks them and renders.
-        const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p) => !(p in (n.extra ?? {})) && !KIND_OMIT_EXTRA[n.meta]?.test(p));
+        // The blog template's own blog-content node (measured live, wave46) lacks the three blog* props until a builder Save fills them, and renders.
+        const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p) => !(p in (n.extra ?? {})) && !KIND_OMIT_EXTRA[n.meta]?.test(p) && !AUDIT_TOLERATED_EXTRA[n.meta]?.test(p));
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(', ')} — the renderer reads extra.<prop>.value unguarded`);
       }
       // nodeId selects the CSS selector the builder recomputes for this node, so it must be present on

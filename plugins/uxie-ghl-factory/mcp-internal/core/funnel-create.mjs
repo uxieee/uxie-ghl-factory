@@ -17,6 +17,7 @@
 // from GHL's template account, which does not exist on the location (measured: 401 on read while the
 // location's own form reads 200) — so a store comes back with a dangling form reference to rebind.
 
+const BLOG_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const KINDS = Object.freeze(['funnel', 'website', 'store', 'webinar', 'blog']);
 /** The kinds whose New screen files the document in the folder you are in (`parentId`), measured 2026-09-30: a funnel folder holds funnels, a website folder websites. */
 export const FOLDER_KINDS = Object.freeze(['funnel', 'website']);
@@ -77,9 +78,10 @@ const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
  * endDate is sent as the start converted from `timezone` to UTC. GHL's own one-off wizard sends the BROWSER's offset
  * instead, so the session runs at the saver's local time (knowledge funnels rule 47); this tool does not copy that.
  */
-export function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName, video, now, folderId }) {
+export function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName, video, now, folderId, blog }) {
   if (!KINDS.includes(kind)) return { refuse: `kind must be one of ${KINDS.join(', ')}` };
   if (typeof name !== 'string' || !name.trim()) return { refuse: 'name is required' };
+  if (blog !== undefined && kind !== 'blog') return { refuse: 'blog {urlSlug, domain} belongs to kind blog only' };
   if (folderId !== undefined && !FOLDER_KINDS.includes(kind)) return { refuse: `folderId files a ${FOLDER_KINDS.join(' or ')} in a folder; for a ${kind} the folder scoping of its list was not measured, so it is not offered — create it and move it on the Sites screen` };
   if (folderId !== undefined && (typeof folderId !== 'string' || !folderId.trim())) return { refuse: 'folderId is a folder id (find_ghl_site list:true folders:true)' };
   const n = name.trim();
@@ -88,7 +90,11 @@ export function planCreateFunnel({ kind, name, locationId, companyId, descriptio
     case 'website':
       return { method: 'POST', path: '/funnels/funnel/create', body: { locationId, name: n, type: kind, ...(folderId ? { parentId: folderId } : {}) } };
     case 'blog':
-      return { method: 'POST', path: '/blogs/site', body: { locationId, title: n, description: description ?? '' } };
+    { // the Create blog screen sends {locationId, title, urlSlug, domain: <domain id>, description}; without a domain and slug those two keys are absent (measured 2026-09-30)
+      if (blog?.urlSlug !== undefined && !BLOG_SLUG.test(String(blog.urlSlug))) return { refuse: 'blog.urlSlug is lower-case letters, digits and single dashes (e.g. my-blog)' };
+      if ((blog?.urlSlug === undefined) !== (blog?.domainId === undefined) && blog) return { refuse: 'blog.domain and blog.urlSlug go together: the blog is served at <domain>/<slug>' };
+      return { method: 'POST', path: '/blogs/site', body: { locationId, title: n, ...(blog?.urlSlug ? { urlSlug: blog.urlSlug, domain: blog.domainId } : {}), description: description ?? '' } };
+    }
     case 'store':
       return { method: 'POST', path: '/templates/template/load', body: { templateId: BLANK_TEMPLATES.store, locationId, product: 'stores', extras: { name: n } } };
     case 'webinar': return planWebinar({ name: n, locationId, companyId, webinar: webinar ?? {}, formName, video, now });
@@ -203,6 +209,19 @@ export function planWebinar({ name, locationId, companyId, webinar: w, formName,
       } },
     },
   };
+}
+
+/** The blank store's steps as measured (Products List, Product details, Cart, Checkout, Thank you!, Contact Us, Home): fewer read back = a partial install. */
+export const STORE_BLANK_STEP_COUNT = 7;
+
+/**
+ * What a template load says about itself. The UI (funnels bundle, the New store screen) treats only `data.status === 'completed'` as success
+ * and shows `data.err` for `processing` / `partial-completed`; the template library also knows `error`. A 201 alone is not an install.
+ * {status, complete, err}; a response with no status at all is not complete either.
+ */
+export function templateLoadOutcome(json) {
+  const status = json?.data?.status ?? null;
+  return { status, complete: status === 'completed', err: json?.data?.err ?? json?.err ?? null };
 }
 
 /** The new document's id from the create response, per route. null when the route does not echo one (blog). */

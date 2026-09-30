@@ -2207,6 +2207,16 @@
   {
     "tool": "create_funnel",
     "method": "POST",
+    "path": "/funnels/lookup/exists"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "GET",
+    "path": "/funnels/domain"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "POST",
     "path": "/funnels/funnel/webinar/sessions"
   },
   {
@@ -2283,6 +2293,11 @@
     "tool": "get_funnel",
     "method": "GET",
     "path": "/funnels/order"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/store/setup/progress"
   },
   {
     "tool": "get_funnel",
@@ -2423,6 +2438,16 @@
     "tool": "edit_funnel",
     "method": "POST",
     "path": "/funnels/funnel/delete"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/delete-store"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/create-custom-product-detail-page"
   },
   {
     "tool": "edit_funnel",

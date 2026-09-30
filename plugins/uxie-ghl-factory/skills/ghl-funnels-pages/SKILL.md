@@ -42,7 +42,7 @@ funnel ──has many──▶ step ──has many──▶ page (control + spli
 
 | # | step | how |
 |---|---|---|
-| 1 | create the funnel | **`create_funnel`** — `kind` funnel / website / store / webinar / blog; refuses a name already on the location; store and webinar are GHL's blank-template installs (the UI's own blank path). A webinar is `webinar.type` `live` (date + start/end time in a timezone, the live link `videoUrl`, optionally a DAILY / WEEKLY / MONTHLY `recurring` series) or `onDemand` (a Media Storage video by id or name, no schedule); the sessions are read back, and it returns `warnings` when a series starts later than the date given or drifts an hour across a daylight-saving change. A new webinar emails nobody: registrants are emailed only after a notification row with a template is enabled on the Edit webinar screen |
+| 1 | create the funnel | **`create_funnel`** — `kind` funnel / website / store / webinar / blog; refuses a name already on the location; store and webinar are GHL's blank-template installs (the UI's own blank path) — the load answers 201 whatever its progress, so the result reports the load `status` and is a `VERIFY_FAILED` unless it is `completed` (a `processing` load is re-read until the whole 7-step store is there). A **blog** takes `blog {domain, urlSlug}` (the Create blog screen's pair: the blog is served at `<domain>/<slug>`, shown Published; without them it is a Draft; the slug is checked free first); a blog post needs a category and an author before it can be published — those and the post itself are made on the Blogs screen. A webinar is `webinar.type` `live` (date + start/end time in a timezone, the live link `videoUrl`, optionally a DAILY / WEEKLY / MONTHLY `recurring` series) or `onDemand` (a Media Storage video by id or name, no schedule); the sessions are read back, and it returns `warnings` when a series starts later than the date given or drifts an hour across a daylight-saving change. A new webinar emails nobody: registrants are emailed only after a notification row with a template is enabled on the Edit webinar screen |
 | 2 | attach the domain **before creating steps** | **no tool** — recipe 11. Rows are stamped from the funnel path as it stands when minted, so steps created first get flat paths. 🔴 Run **`audit_site`** first: a path is held per DOMAIN across every document on the location, the attach renames a collision silently and arbitrarily, and routing never follows a later step rename |
 | 3 | create each step (mints its page) | **`edit_funnel` op `create-step`** — refuses on a funnel with no domain (such a step gets no lookup row and 404s); preview returns the `step.id`, pass it back on confirm |
 | 4 | author + publish the page | **`build_funnel_page`** — composes, validates, writes, reads back, and publishes when you pass `publish:true` |
@@ -67,7 +67,9 @@ its sessions, notification rows, and the guests and workflow-recipe links the Ed
 `add-header` / `edit-header` / `delete-header` · `add-event` / `edit-event` / `delete-event` (Meta pixel) · `split-test` (`add-variation` on a path you name and it pre-checks → `start`
 `{controlTraffic}` → `declare-winner` `{winnerPageId}`, which archives the other page) ·
 `delete-funnel` (target check: id **and** `expectName`; refused while any page still serves in public —
-unpublish first; the edge keeps serving a deleted page ~70 s). `update-step` also renames the step's
+unpublish first; the edge keeps serving a deleted page ~70 s). `delete-store` `{expectName}` removes the store from its document — 🔴 **not** a
+document delete: the five `store` steps go and `isStoreActive` turns false, but every other step (Contact Us, Home, a custom product page) stays and a
+website store moves from the Stores tab to Websites (the UI's "Delete all store pages?" is this; delete the document with `delete-funnel`). `update-step` also renames the step's
 page record, as the UI does, so the builder's page title never drifts from the step.
 
 Whole-object ops on the same tool (bodies captured from the UI, each proven live):
@@ -81,6 +83,9 @@ path minted from the page name (the old path stays 404). `import-page` `{stepId,
 sourceStepId, sourcePageIndex}` — a copy of another step's page as the target's second page; products are
 NOT imported. `add-store` — the 5 store steps on fixed domain-level paths (pre-checked; refused if any is
 held); GHL creates the pages EMPTY (a blank 200 in public), so the op fills each with its store element.
+`add-product-page` `{name, url, productIds}` — a website STORE's custom Product Details page (the Add new page modal's toggle, offered
+only on a store that is not a funnel): a step with key `store-custom-product-detail` holding the products and one page of the 11 `store-pdp-v2-*` blocks; it renders on a
+product route of a store served on a domain (a store with no domain previews its product list instead).
 🔴 Saving a checkout with the billing address on IN THE BUILDER creates a "Billing Info" contact-field
 folder + 7 billing fields location-wide (a repeat added no duplicate fields; they are not removed with the store); `build_funnel_page` previews
 say so when a page has such a checkout.
@@ -138,7 +143,7 @@ checks the step by id AND name and that the price is one of the product's, refus
 lists, reads it back and returns `stepProductId` (the id a sell button stores). `get_funnel` view `step-products`
 lists them with product and price names. `edit-step-product` (`stepProductId`, `expectName`, plus `displayText`, `quantity`, `bump`, `authorizeAmount`; product and price stay as stored) and
 `delete-step-product` change or remove one, each checked by id AND name and read back; `quantity.max` is 1–999 and a
-bump is always 1 unit; `authorizeAmount` must be positive.
+bump is always 1 unit; `authorizeAmount` must be positive. `get_funnel` view `store-setup` (a store's id) reads the Stores onboarding checklist the banner shows — stores, domains, products, payments, shipping, orders — which is ONE list per location, not per store.
 
 **Forms, surveys, calendars** (`form`, `survey`, `calendar` leaves) bind by reference: `extra.formId` /
 `surveyId` = `{value: <id>, text: <name>}`, `calendarId` = `{value, text, isTeamSelected: false}`, each with its

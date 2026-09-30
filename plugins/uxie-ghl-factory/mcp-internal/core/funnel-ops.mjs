@@ -395,6 +395,24 @@ export function planDeleteFunnel({ funnel, lookups, expectName, locationId, user
   };
 }
 
+// Remove a STORE from its document. Sites → Stores → ⋮ → Delete ("Delete all store pages?") sends POST /funnels/funnel/delete-store {funnelId, locationId,
+// userId} (captured blocked for a website store AND a funnel store, knowledge sniffs/funnels-wave46-f8b-2026-09-30 live-ui-cap.store-delete.BLOCKED.json).
+// Measured live: it does NOT delete the document. The five `store` steps go, isStoreActive turns false, and every other step (Contact Us, Home, a custom
+// product page) stays — a website store then lists under Websites instead of Stores. Deleting the document itself is delete-funnel.
+export function planDeleteStore({ funnel, expectName, locationId, userId }) {
+  const fid = funnel._id ?? funnel.id;
+  if (typeof expectName !== 'string' || funnel.name !== expectName) {
+    return { refuse: `target check failed: document ${fid} is named ${JSON.stringify(funnel.name)}, not ${JSON.stringify(expectName)}. Nothing was changed.` };
+  }
+  if (funnel.isStoreActive !== true) return { refuse: 'this document has no store (isStoreActive is not true)' };
+  if (!userId) return { refuse: 'this credential carries no user id, and the delete route requires one' };
+  const storeSteps = (funnel.steps ?? []).filter((s) => s.type === 'store');
+  return {
+    method: 'POST', path: '/funnels/funnel/delete-store', body: { funnelId: fid, locationId, userId },
+    target: { id: fid, name: funnel.name, type: funnel.type, removes: storeSteps.map((s) => ({ id: s.id, name: s.name, url: s.url })), keeps: (funnel.steps ?? []).filter((s) => s.type !== 'store').map((s) => ({ id: s.id, name: s.name, url: s.url })) },
+  };
+}
+
 // Split tests — the step overview's own calls (sniffs/funnels-wave1-2026-09-26 ui-cap-split.json,
 // funnels-wave10-e-plan-2026-09-28 live-object.split-test-lifecycle.json):
 //   add-variation   POST /funnels/funnel/clone-control-page/ {locationId, stepName, pageId, domainName}
@@ -660,6 +678,26 @@ export function planImportPage({ funnel, stepId, source, sourceStepId, sourcePag
 export const STORE_PATHS = Object.freeze(['/store-product-list', '/store-product-detail', '/store-cart', '/store-checkout', '/store-thank-you',
   '/store-product-list-page', '/store-product-detail-page', '/store-cart-page', '/store-checkout-page', '/store-thank-you-page']);
 export const BILLING_FIELDS_NOTE = 'LOCATION-WIDE side effect: when a checkout page with the billing address enabled is saved in the builder, GHL creates a "Billing Info" contact custom-field folder and 7 "Billing Address - …" contact fields on the location (measured; a second call created no duplicate fields; a duplicate folder could not be ruled out, folders are not listable). They are not removed with the store.';
+// A website store's CUSTOM PRODUCT DETAILS PAGE (Pages → Add new page → "Create Custom Product Details Page" → pick products). The body is the
+// modal's own, captured blocked (knowledge sniffs/funnels-wave46-f8b-2026-09-30 live-ui-cap.store-pdp-page.BLOCKED.json): the step path goes WITHOUT its
+// leading slash and the create button stays disabled until a product is picked. The toggle is offered only on a store that is not a funnel.
+export function planAddProductPage({ funnel, locationId, name, url, products }) {
+  if (funnel.type !== 'website' || funnel.isStoreActive !== true) return { refuse: `a custom product page belongs on a website STORE (this document is ${funnel.type === 'website' ? 'a website with no store' : `a ${funnel.type ?? 'document'}`}); the UI offers the toggle only when isStoreActive and the type is not funnel` };
+  if (typeof name !== 'string' || !name.trim()) return { refuse: 'the page needs a name' };
+  if (!(products ?? []).length) return { refuse: 'pick at least one product: the modal keeps Create disabled until one is chosen' };
+  if (new Set(products.map((x) => x.id)).size !== products.length) return { refuse: 'productIds names a product twice' };
+  const pathCheck = checkStepPath(url);
+  if (pathCheck.refuse) return pathCheck;
+  const held = (funnel.steps ?? []).find((s) => normPath(s.url) === pathCheck.path);
+  if (held) return { refuse: `${pathCheck.path} is already the path of step "${held.name}" on this store` };
+  const id = randomUUID();
+  return {
+    method: 'POST', path: '/funnels/funnel/create-custom-product-detail-page',
+    body: { locationId, step: { id, name, url: pathCheck.path.replace(/^\/+/, ''), pages: [], type: 'optin_funnel_page', split: false, control_traffic: 100, products: products.map((x) => x.id), key: 'store-custom-product-detail' }, funnelId: funnel._id ?? funnel.id },
+    stepId: id, target: { store: funnel.name, path: pathCheck.path, products },
+  };
+}
+
 export function planAddStore({ funnel, domainName, taken }) {
   if (funnel.type && funnel.type !== 'funnel') return { refuse: `add-store adds a store to a FUNNEL; this document is a ${funnel.type} (a website store is made with create_funnel kind store)` };
   if (funnel.isStoreActive === true) return { refuse: 'this funnel already has a store (isStoreActive)' };

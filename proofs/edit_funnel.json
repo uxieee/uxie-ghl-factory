@@ -102,6 +102,15 @@
         "commit:5fba2958"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:d073ed76"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -128,9 +137,11 @@
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-funnel-step": "2625afaef8d395f484583a653d8f063f323ad26609404ba47bac5dd4625f1bd4",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-funnel-to-locations": "e4c8f7e43c4a168c1d55f276a6ac8b0645156f76f05091de39d7cb9334ac95be",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/cookie-consent": "2c7965cc6b314f279870d0aabf96a1b3ab6054546cbe1c17421db0677354ae98",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/create-custom-product-detail-page": "78ee2dfa872f9423a7a2c7a5a5af7c59ddec6a18c3b02f4a205a42ec17e18400",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/create-step": "14bcb50dd0ec4702536cc9cc89def97c4ccbc06f6b0c4936db4bc54236d9ffe6",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/delete": "03b76962c956f54258f3e1dd609012e2375bd78d70c0333c15c6a5c6c2067348",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/delete-step": "38ad4ca5e07c2267e3b2c766fc494445d2142eadaa9091512e6fe3b958810ad7",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/delete-store": "a3fa22a032a8715c342490132fdee3c2109fc184b0fd7b4bd5f466387d8c5ffe",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/funnel-page/{}": "e60848a40e30e25fc5209c619b13f6f987352c87a1210634ead11ecf2f0c7125",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/headers": "c111de9f910e2c1ff366f9d04d7a9589616ea3da3d1bed7ddb5170c864245cba",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/headers/delete": "5823713f82aa20d2a03131ae6e322f8933eb4a101c8ece0b2f10dfeccb5efe90",
@@ -152,15 +163,15 @@
       "redirectApp": 222
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_funnel": "1342aa1c214a45e525bca97556f3d79b45cb73870106e434f75f8720cb2be85e",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_funnel": "bc8e0a9a61da5335022424e7466b2cc76a955ba7f53ad9e69d73a9ed691a6321",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/cookie-consent.mjs": "44e10ea44ceb283311fb9c14fd67ff39d5d8990ace1b0d358a61c08bb016c992",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
       "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "e643d74b3e42bddbed538584740d42f0a9e58c8de0a0bd5560867d76fd083c5f",
-      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "5161bb246496714f08e150205eaa5bed28868bd2d53dd1109b2d97c6ff8df379",
-      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "6236f0072fee6aae198c0ee1377bd60bc630e7e1064ac728c7e4cccce39921b8"
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "d0d9be6077c880cd2fff42d74d348ae6c517204e8c9a7e234639dcd254dde6dc",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "acb648d700c96afc21e277775bfe04d71ca993d0179ba18b0ef526eba44d7848"
     }
   }
 }
