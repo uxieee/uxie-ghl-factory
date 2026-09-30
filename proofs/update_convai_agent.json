@@ -64,6 +64,15 @@
         "commit:4ec230aa"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:afe9223b"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -75,12 +84,12 @@
       "PUT https://services.leadconnectorhq.com /ai-employees/employees/{}": "6ff9d4220832351c75b539613c420734fcf48c2339bc3a59edbecd743deadc41"
     },
     "builds": {
-      "agentLogsApp": 712,
+      "agentLogsApp": 717,
       "agentStudioApp": 715,
       "aiEmployeesApp": 2641,
       "aiGrowthApp": 714,
-      "superagentsApp": 703,
-      "voiceAiApp": 713
+      "superagentsApp": 721,
+      "voiceAiApp": 719
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_convai_agent": "144d11b2cfdf03740d8107dad6126b238ac33f155a1e766b94a6a18c9bd80b8e",

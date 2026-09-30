@@ -68,6 +68,15 @@
         "commit:4ec230aa"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:afe9223b"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -79,12 +88,12 @@
       "POST https://services.leadconnectorhq.com /ai-employees/employees": "dde0d845b79cf606acb6facd809b2393334fe94358f7e3a713f42ae2fb5e80a8"
     },
     "builds": {
-      "agentLogsApp": 712,
+      "agentLogsApp": 717,
       "agentStudioApp": 715,
       "aiEmployeesApp": 2641,
       "aiGrowthApp": 714,
-      "superagentsApp": 703,
-      "voiceAiApp": 713
+      "superagentsApp": 721,
+      "voiceAiApp": 719
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_convai_agent": "9a2134cbb5cfc0b88d846047c3778aebd9fe8bdfd6b3b5a9e9c4073c71c1309c",
@@ -95,11 +104,11 @@
       "plugins/uxie-ghl-factory/engines/ai/studio-ir.mjs": "f94a564a105321c9bb13aa6f5840cdfa56884923597ae750b41b81d81cda50af",
       "plugins/uxie-ghl-factory/engines/ai/voiceai-compiler.mjs": "54884c9d6bf7e62b5bfa9326494a1ca10c0d8c796b99a4142bf1164623439700",
       "plugins/uxie-ghl-factory/engines/ai/voiceai-ir.mjs": "b60279db061a0c36ddc39d2362b700c4169385c8bb713cc6908334322999cf69",
-      "plugins/uxie-ghl-factory/engines/ai/voiceai-update.mjs": "77665bca480b2152a0751b631c8792615dafaa96199988d89751f144fb92aced",
+      "plugins/uxie-ghl-factory/engines/ai/voiceai-update.mjs": "c4779a9a9fec1612936609ee8d6321507ccd5509cfc1bd0e2e659dd8e4acaf56",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
-      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd"
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "e643d74b3e42bddbed538584740d42f0a9e58c8de0a0bd5560867d76fd083c5f"
     }
   }
 }

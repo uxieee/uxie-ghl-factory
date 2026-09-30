@@ -25,6 +25,15 @@
         "commit:4ec230aa"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:afe9223b"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -35,12 +44,12 @@
       "POST https://services.leadconnectorhq.com /agent-deployment/routing-config/configs": "7b6ccf39be0cd83095772685db4fafe2eb9c28af4cb59e01ecbd328e52e4224a"
     },
     "builds": {
-      "agentLogsApp": 712,
+      "agentLogsApp": 717,
       "agentStudioApp": 715,
       "aiEmployeesApp": 2641,
       "aiGrowthApp": 714,
-      "superagentsApp": 703,
-      "voiceAiApp": 713
+      "superagentsApp": 721,
+      "voiceAiApp": 719
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#set_agent_deployment": "ca16a7078b8e452a25c92a6a42bc718ed87e2545ccf288ecc35a78a3c5e88624",
