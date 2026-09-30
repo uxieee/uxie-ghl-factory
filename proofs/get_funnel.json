@@ -75,6 +75,15 @@
         "commit:d073ed76"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:880e2c46"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -95,7 +104,7 @@
       "GET https://backend.leadconnectorhq.com /stats/filter-values": "7adfcc379d7cad4743529f7c054661954915ac3fbba75052aa004f8887c0345f",
       "GET https://backend.leadconnectorhq.com /stats/optin/conversion-rate": "8a68796e59a9754d475d3919dd066d1eec63a5b2abf533a3c6094b72c01a9f78",
       "GET https://backend.leadconnectorhq.com /stats/video/stats": "08c39150e8967acd8a1742bf743a5d1daf8cfed4c9bfad34c85a1852ce968b4a",
-      "GET https://backend.leadconnectorhq.com /store/setup/progress": "06d2f4928f8a1ff050e657df5abba997e8f1cd150d5a0e37db5e66b2f1dd6456",
+      "GET https://backend.leadconnectorhq.com /store/setup/progress": "33e745cbbb2a5dea887a62fce11ba102a24ec67193434a8fcca20fec3d3d0fc1",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/webinar/sessions": "a32abd1e7d9588d3dc283db48140d372dbf4ae618a75c2586f8eaf3929fdbc8b"
     },
     "builds": {
