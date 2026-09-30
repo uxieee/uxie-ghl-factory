@@ -170,6 +170,14 @@ const SECRET_KEYS = new Set([
   'sessioncredential', 'sessioncredentials',
 ]);
 const isSecretKey = (key) => SECRET_KEYS.has(String(key).replace(/[-_\s]/g, '').toLowerCase());
+// build_course's `spec.credential` is the COURSE'S credential TEMPLATE ("certificate" | "badge" with a title), not a secret: the key name
+// alone refused every spec that attached one (live 2026-09-30, build_course preview with credential {title, type}). Exactly that shape only:
+// keys title/type, type certificate|badge, a short title free of secret text. Anything else under `credential` is still a credential.
+const isCredentialTemplateSpec = (key, value) => String(key).toLowerCase() === 'credential'
+  && value && typeof value === 'object' && !Array.isArray(value)
+  && Object.keys(value).every((k) => k === 'title' || k === 'type')
+  && typeof value.title === 'string' && value.title.length > 0 && value.title.length <= 120
+  && (value.type === undefined || value.type === 'certificate' || value.type === 'badge');
 const isNoAuthObject = (key, value) => String(key).toLowerCase() === 'authorization'
   && value && typeof value === 'object' && !Array.isArray(value)
   && Object.keys(value).every((k) => k === 'type' || k === 'data')
@@ -252,6 +260,7 @@ export function containsSecrets(value, key = '', depth = 0) {
   // default shape could not be authored (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
   // live-3J-webhook-chain-run2-authorization-refused.json). Exactly that shape only: any other type,
   // or any data at all, still falls through to the key-name refusal below.
+  if (isCredentialTemplateSpec(key, value)) return hasSecretText(value.title);
   if (isNoAuthObject(key, value)) return false;
   // An EMPTY string under a secret-named key carries no credential either. The chatgpt drawer
   // stores apiKey:"" (GHL then uses its own key), and the key-name rule refused that default, so
@@ -345,7 +354,7 @@ export function scrubSecrets(value, parentKey = '') {
       // step's apiKey:"" read back as "<redacted>", and writing that export back would store the
       // literal as the key (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
       // live-3P2-chatgpt-apikey.json).
-      isSecretKey(key) ? (item === '' || isNoAuthObject(key, item) ? item : '<redacted>') : scrubSecrets(item, key),
+      isSecretKey(key) ? (item === '' || isNoAuthObject(key, item) || (isCredentialTemplateSpec(key, item) && !hasSecretText(item.title)) ? item : '<redacted>') : scrubSecrets(item, key),
     ]));
   }
   return value;
