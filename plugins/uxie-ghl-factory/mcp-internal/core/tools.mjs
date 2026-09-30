@@ -8867,11 +8867,13 @@ export const TOOLS = [
       const target = String(args.targetLocationId ?? '').trim();
       if (!target) return fail(CODES.VALIDATION_FAILED, 'targetLocationId is required', 'Name the sub-account to copy into.');
       const allowed = deps.state?.allowedLocations ?? null;
-      if (args.confirm === true && (!allowed || !allowed.has(target))) {
+      // Refused on the PREVIEW too: a preview reads the target's name and workflow list, so a target outside the bound set is
+      // not even looked at. A proof that wants to show the refusal therefore never needs to send confirm:true to a foreign id.
+      if (!allowed || !allowed.has(target)) {
         return fail(CODES.LOCATION_FORBIDDEN,
           `this registration is not permitted to write into ${target}: the copy lands there`,
           'Copy only into an account this registration is bound to (GHL_INTERNAL_LOCATIONS), or rebind it '
-          + 'with /uxie-ghl-factory:internal-connect (bind mode). Nothing was sent.');
+          + 'with /uxie-ghl-factory:internal-connect (bind mode). Nothing was read or sent.');
       }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const tgw = target === args.locationId ? gw : deps.makeGw({ loc: target, state: deps.state });

@@ -20,10 +20,10 @@ export async function runCopyWorkflowProof({ tool, deps, LOCATION, NAME, check, 
   left.push(`workflow ${wid} (${srcName}, draft, no trigger)`);
 
   subject('copy_workflow_to_location');
-  const unbound = await run('copy_workflow_to_location', { workflowId: wid, targetLocationId: LOCATION, confirm: true });
-  check(unbound.code === 'LOCATION_FORBIDDEN', 'CONTROL: an UNBOUND registration may not copy, even into its own account', `${unbound.code}`);
-  const foreign = await run('copy_workflow_to_location', { workflowId: wid, targetLocationId: 'TESTCONFnotBound0001', confirm: true }, bound);
-  check(foreign.code === 'LOCATION_FORBIDDEN', 'CONTROL: a target outside the bound set is refused before anything is sent', `${foreign.code}`);
+  const unbound = await run('copy_workflow_to_location', { workflowId: wid, targetLocationId: LOCATION });
+  check(unbound.code === 'LOCATION_FORBIDDEN', 'CONTROL (preview, nothing confirmed): an UNBOUND registration may not copy, even into its own account', `${unbound.code}`);
+  const foreign = await run('copy_workflow_to_location', { workflowId: wid, targetLocationId: 'TESTCONFnotBound0001' }, bound);
+  check(foreign.code === 'LOCATION_FORBIDDEN', 'CONTROL (preview, nothing confirmed): a target outside the bound set is refused before anything is read or sent', `${foreign.code}`);
 
   const pv = await run('copy_workflow_to_location', { workflowId: wid, targetLocationId: LOCATION }, bound);
   check(pv.code === 'CONFIRM_REQUIRED' && pv.data?.preview?.source?.steps === 2 && pv.data?.preview?.target?.existingWithThisName === 1
