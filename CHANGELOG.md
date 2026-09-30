@@ -11,6 +11,32 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.41.0] — 2026-09-30
+
+**The workflow builder now catches builder rules that GHL's API does not enforce, and the "all failed" log filter works.**
+
+### Fixed
+- `get_workflow_logs` with the event type "all failed" returned nothing, because GHL's server does not understand that
+  filter. The tool now asks for the five failure statuses one by one, as GHL's own screen does. Tested live on test
+  workflows that had errors: before the fix it found 0 rows, after it 5 and 1.
+- A wait step's "Additional filter" (day of month, month or year) and its exact seconds were dropped when a workflow
+  was built. Both are kept now; tested live against the old behaviour.
+- Workflow notes written when a workflow is built now show an author, as notes written later already did.
+- A custom-object workflow can use the marketplace steps GHL lists for custom objects (for example "Find object record").
+- The warning about the old event-start-date setting no longer says it's hidden: GHL still shows it, marked Deprecated.
+
+### Added
+- A second "Inbound webhook" or "Incoming call" trigger on one workflow is refused. GHL's API saves it, but the builder
+  allows only one and flags the extra with an error. `skipWorkflowRules` still lets you build it anyway.
+- Warnings (the workflow is still built) for:
+  - a contact trigger in a Company or custom-object workflow (the builder never offers it);
+  - a trigger filter using an operator the builder no longer offers for that trigger;
+  - a step or trigger name longer than 100 characters, which the builder refuses to save.
+- Webhook steps accept HEAD and OPTIONS, the two methods the builder offers that were refused before. They build and
+  read back correctly; whether GHL actually sends them when the workflow runs has not been tested.
+- The workflow skill now names five things GHL can do that this plugin leaves out on purpose, and says where to do
+  them in GHL: log export, folder permissions, recipes, the template library and campaign import.
+
 ## [1.40.1] — 2026-09-30
 
 **The Custom Code example workflow can be built again.**
