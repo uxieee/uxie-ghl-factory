@@ -135894,7 +135894,7 @@ function triggerFromVersion(src, { workflowId, status = "draft", locationId, com
   if (companyAge !== void 0 && companyAge !== null) body2.company_age = companyAge;
   return body2;
 }
-function restoreBody(version2, { name, targetVersion, userId, oldTriggers = [], newTriggers = [], restoredAt = /* @__PURE__ */ new Date() }) {
+function restoreBody(version2, { name, targetVersion, userId, oldTriggers = [], newTriggers = [], restoredAt = /* @__PURE__ */ new Date(), keep = {} }) {
   const settings = {};
   for (const k of SETTINGS_KEYS2) settings[k] = k === "eventStartDate" ? version2.startDate ?? version2.eventStartDate : version2[k];
   return {
@@ -135902,6 +135902,7 @@ function restoreBody(version2, { name, targetVersion, userId, oldTriggers = [], 
     isRestoreRequest: true,
     status: "draft",
     ...settings,
+    ...keep.workflowNote ? { workflowNote: keep.workflowNote } : {},
     workflowData: version2.workflowData,
     updatedBy: userId,
     version: targetVersion,
@@ -223011,7 +223012,7 @@ var TOOLS2 = [
         progress.triggersCreated.push(c.json?.id ?? c.json?._id ?? c.json ?? null);
       }
       const mid = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
-      const put = await gw.call("PUT", `/workflow/${loc}/${wid}`, restoreBody(version2, { name: version2.name ?? wf.name, targetVersion: wf.version, userId, oldTriggers: before.triggers, newTriggers: mid.triggers }));
+      const put = await gw.call("PUT", `/workflow/${loc}/${wid}`, restoreBody(version2, { name: version2.name ?? wf.name, targetVersion: wf.version, userId, oldTriggers: before.triggers, newTriggers: mid.triggers, keep: { workflowNote: wf.workflowNote } }));
       if (!put.ok) return withFailureData(fromHttp(put.status, put.json), { partialProgress: progress, triggersBefore: before.triggers });
       progress.documentSaved = true;
       const back = await getWorkflow(gw, args.locationId, args.workflowId);
@@ -223019,7 +223020,7 @@ var TOOLS2 = [
       const trg = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
       const wantIds = (version2.workflowData.templates ?? []).map((t) => t.id).sort();
       const gotIds = (after?.workflowData?.templates ?? []).map((t) => t.id).sort();
-      const verified = Boolean(after) && after.status === "draft" && JSON.stringify(wantIds) === JSON.stringify(gotIds) && Boolean(after.meta?.versionRestore) && trg.triggers.length === (version2.triggersData ?? []).length;
+      const verified = Boolean(after) && after.status === "draft" && JSON.stringify(wantIds) === JSON.stringify(gotIds) && Boolean(after.meta?.versionRestore) && trg.triggers.length === (version2.triggersData ?? []).length && (!wf.workflowNote || after.workflowNote?.content === wf.workflowNote.content);
       const data2 = { restored: true, verified, from: { version: wf.version, name: wf.name }, to: { version: after?.version ?? null, name: after?.name ?? null, status: after?.status ?? null, steps: gotIds.length, triggers: trg.triggers.map((t) => ({ id: t.id ?? t._id, type: t.type, name: t.name ?? null, status: t.status ?? null })), versionRestore: after?.meta?.versionRestore ?? null }, progress };
       if (!verified) return withFailureData(fail(CODES.VERIFY_FAILED, "GHL accepted the restore but the read-back does not match the version (steps, draft status, versionRestore or trigger count).", "Inspect data.to against get_workflow_version."), data2);
       return ok(data2);
