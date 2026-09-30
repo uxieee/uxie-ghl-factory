@@ -204650,7 +204650,7 @@ function internalNotificationAttributes(a, ctx) {
   } };
 }
 var WEBHOOK_EVENTS = /* @__PURE__ */ new Set(["CUSTOM"]);
-var WEBHOOK_METHODS = /* @__PURE__ */ new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
+var WEBHOOK_METHODS = /* @__PURE__ */ new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
 function webhookAttributes(a, ref) {
   const ev = a.event ?? "CUSTOM";
   if (!WEBHOOK_EVENTS.has(ev))
