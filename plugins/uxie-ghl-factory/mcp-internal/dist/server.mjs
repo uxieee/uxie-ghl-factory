@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1620,
+      count: 1636,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -650,6 +650,394 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/70-research/WORKFLOW-AI.md:39"
+          ]
+        },
+        {
+          id: "ai-agents--agents",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}",
+          path: "/agents/{pa}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:28"
+          ]
+        },
+        {
+          id: "ai-agents--auto-supervise-stop",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}/auto-supervise/{runId}/stop",
+          path: "/agents/{pa}/auto-supervise/{runId}/stop",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            },
+            {
+              name: "runId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:39"
+          ]
+        },
+        {
+          id: "ai-agents--auto-supervise-run",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}/auto-supervise/run",
+          path: "/agents/{pa}/auto-supervise/run",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:38"
+          ]
+        },
+        {
+          id: "ai-agents--agents-eval-prompt",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}/eval-prompt",
+          path: "/agents/{pa}/eval-prompt",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:37"
+          ]
+        },
+        {
+          id: "ai-agents--agents-iterations",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}/iterations",
+          path: "/agents/{pa}/iterations",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:35"
+          ]
+        },
+        {
+          id: "ai-agents--agents-iterations-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}/iterations",
+          path: "/agents/{pa}/iterations",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:34"
+          ]
+        },
+        {
+          id: "ai-agents--optimization-runtime-prepare",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}/optimization-runtime/prepare",
+          path: "/agents/{pa}/optimization-runtime/prepare",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:33"
+          ]
+        },
+        {
+          id: "ai-agents--agents-scenarios",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}/scenarios",
+          path: "/agents/{pa}/scenarios",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:32"
+          ]
+        },
+        {
+          id: "ai-agents--agents-scenarios-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}/scenarios",
+          path: "/agents/{pa}/scenarios",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:31"
+          ]
+        },
+        {
+          id: "ai-agents--scenarios-generate",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/agents/{pa}/scenarios/generate",
+          path: "/agents/{pa}/scenarios/generate",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pa"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:30"
+          ]
+        },
+        {
+          id: "ai-agents--ghl-past-scenarios",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agents/ghl/{agentId}/past-scenarios",
+          path: "/agents/ghl/{agentId}/past-scenarios",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:29"
           ]
         },
         {
@@ -1626,6 +2014,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/30-types/steps-marketplace/company.md:99"
+          ]
+        },
+        {
+          id: "ai-agents--auth-firebase-token",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/auth/firebase-token",
+          path: "/auth/firebase-token",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:40"
+          ]
+        },
+        {
+          id: "ai-agents--iterate-stream",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/auto-supervise/iterate/stream",
+          path: "/auto-supervise/iterate/stream",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:36"
           ]
         },
         {
@@ -15079,7 +15529,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "pipelines-opportunities",
+          service: "ai-agents",
           tree: "documented",
           pathParams: [
             {
@@ -15103,7 +15553,78 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/40-rules/labs-feature-flags.md:25",
             "pipelines-opportunities/00-overview/index.md:48"
+          ]
+        },
+        {
+          id: "ai-agents--feature-flags-location",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/labs/feature-flags/location/{locationId}",
+          path: "/labs/feature-flags/location/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/40-rules/labs-feature-flags.md:28"
+          ]
+        },
+        {
+          id: "ai-agents--features-location",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/labs/features/location/{locationId}",
+          path: "/labs/features/location/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/40-rules/labs-feature-flags.md:27"
           ]
         },
         {
@@ -25455,6 +25976,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/70-research/ENDPOINTS.md:94"
+          ]
+        },
+        {
+          id: "ai-agents--prompt-optimizer-daily",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/usage/prompt-optimizer/daily",
+          path: "/usage/prompt-optimizer/daily",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "channel",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/prompt-optimizer.md:26"
           ]
         },
         {
@@ -45003,6 +45562,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "ai-agents--employees-working-hours-get",
+          aka: [
+            "/ai-employees/employees/{id}/working-hours"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}/working-hours",
           path: "/ai-employees/employees/{agentId}/working-hours",
@@ -45033,7 +45595,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:132"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:132",
+            "ai-agents/40-rules/labs-feature-flags.md:60"
           ]
         },
         {
@@ -68664,6 +69227,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:175",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
             "ai-agents/20-api/12-ai-agents-api.md:389",
+            "ai-agents/20-api/prompt-optimizer.md:69",
             "ai-agents/10-anatomy/flow-agent-shape.md:63"
           ]
         },
@@ -137668,7 +138232,7 @@ function normalizeSettings(settings, ctx = {}) {
     refuse("SETTINGS_VALUE", `settings.eventStartDate must be a string ('' = unset; deprecated in favour of the event_start_date step)`);
     eventStartDate = "";
   }
-  if (eventStartDate) warn(`settings.eventStartDate is deprecated in the builder (the Settings tab still shows the field, labelled "[Deprecated]: please use event start date action") \u2014 prefer an event_start_date step`);
+  if (eventStartDate) warn(`settings.eventStartDate is deprecated in the builder (once a value is stored the Settings tab shows a card labelled "[Deprecated]: please use event start date action", but its date input reads blank \u2014 read the stored document, not the tab) \u2014 prefer an event_start_date step`);
   let scheduledPauseDates = s.scheduledPauseDates ?? [];
   if (!Array.isArray(scheduledPauseDates)) {
     refuse("SETTINGS_VALUE", `settings.scheduledPauseDates must be an array`);

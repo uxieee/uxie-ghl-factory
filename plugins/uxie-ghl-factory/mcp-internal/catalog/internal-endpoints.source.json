@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T15:01:36.767Z",
+      "capturedAt": "2026-09-30T15:16:51.479Z",
       "hash": "corpus",
-      "fileCount": 1376,
-      "endpoints": 1376
+      "fileCount": 1393,
+      "endpoints": 1393
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1872,
-  "skippedCallSites": 719,
-  "count": 1611,
+  "discoveredCallSites": 1889,
+  "skippedCallSites": 720,
+  "count": 1627,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -428,6 +428,292 @@
       ],
       "serviceBasis": "reviewed",
       "serviceReason": "OWNED: the workflow builder AI prompt enhancer (WORKFLOW-AI.md), a relative spelling off the workflow mount"
+    },
+    {
+      "id": "ai-agents--agents",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:28"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--auto-supervise-stop",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}/auto-supervise/{runId}/stop",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:39"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--auto-supervise-run",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}/auto-supervise/run",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:38"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agents-eval-prompt",
+      "method": "PATCH",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}/eval-prompt",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:37"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agents-iterations",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}/iterations",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:35"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agents-iterations-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}/iterations",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:34"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--optimization-runtime-prepare",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}/optimization-runtime/prepare",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:33"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agents-scenarios",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}/scenarios",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:32"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agents-scenarios-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}/scenarios",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:31"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--scenarios-generate",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/{pa}/scenarios/generate",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:30"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--ghl-past-scenarios",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agents/ghl/{agentId}/past-scenarios",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:29"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "aiemployee-service--is-beta-enabled",
@@ -1221,6 +1507,58 @@
       },
       "sources": [
         "workflows/30-types/steps-marketplace/company.md:99"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--auth-firebase-token",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/auth/firebase-token",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:40"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--iterate-stream",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/auto-supervise/iterate/stream",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:36"
       ],
       "serviceBasis": "declared"
     },
@@ -11792,7 +12130,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "pipelines-opportunities",
+      "service": "ai-agents",
       "query": [
         {
           "name": "includeExplicitOptIns",
@@ -11810,7 +12148,60 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/40-rules/labs-feature-flags.md:25",
         "pipelines-opportunities/00-overview/index.md:48"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--feature-flags-location",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/labs/feature-flags/location/{locationId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/40-rules/labs-feature-flags.md:28"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--features-location",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/labs/features/location/{locationId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/40-rules/labs-feature-flags.md:27"
       ],
       "serviceBasis": "declared"
     },
@@ -19897,6 +20288,39 @@
       ],
       "serviceBasis": "reviewed",
       "serviceReason": "OWNED: workflow trigger dynamic-source options (relative spelling off the workflows-marketplace mount)"
+    },
+    {
+      "id": "ai-agents--prompt-optimizer-daily",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/usage/prompt-optimizer/daily",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "channel",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/prompt-optimizer.md:26"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "pipelines-opportunities--user-preferences",
@@ -35789,9 +36213,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:132"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:132",
+        "ai-agents/40-rules/labs-feature-flags.md:60"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "declared",
+      "aka": [
+        "/ai-employees/employees/{id}/working-hours"
+      ]
     },
     {
       "id": "ai-agents--employees-working-hours-post",
@@ -54217,6 +54645,7 @@
         "ai-agents/20-api/12-ai-agents-api.md:175",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
         "ai-agents/20-api/12-ai-agents-api.md:389",
+        "ai-agents/20-api/prompt-optimizer.md:69",
         "ai-agents/10-anatomy/flow-agent-shape.md:63"
       ],
       "serviceBasis": "declared",
