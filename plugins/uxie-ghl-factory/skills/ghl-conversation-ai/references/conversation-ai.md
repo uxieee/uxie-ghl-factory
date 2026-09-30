@@ -273,7 +273,8 @@ second row on the same channel + `providerId` answers `409` only when the two au
 `includeTags:[]` (everyone) or `[X]` 409s. Bot B `includeTags:[]` + `excludeTags:[X]` coexists
 and also covers untagged contacts, which is the "everyone else" pattern. With two include rows, a
 contact carrying neither tag gets **no bot**. Delivery was proven on Live_Chat; inbound SMS was
-not exercised (the test account has no number).
+not exercised (the test account now has a purchased number with an SMS routing row bound to it, but US SMS is
+unregistered there, A2P 10DLC incomplete, and a real inbound message needs a person's phone).
 
 🔴 **A row pinned to a dead identifier is a silent mute.** A `Live_Chat` row with
 `allIdentifiers:false` and `specificIdentifiers` naming a widget that no longer exists was found

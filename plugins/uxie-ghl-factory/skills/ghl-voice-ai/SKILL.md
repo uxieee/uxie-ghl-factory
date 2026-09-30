@@ -98,12 +98,25 @@ those off or make them unreachable, and read the operator's contact afterwards. 
 but it **drops** the hangup prompt (`endCallConfig.instruction`), resets hold phrases (`noResponseConfig`) to off, loses
 `voiceModel`, and switches `voice.provider` to `ELEVEN_LABS`. Re-apply those with `update_voiceai_agent`.
 
+**9. Every new voice agent emails ALL admins after every call.** `sendPostCallNotificationTo` is created as
+`{admins:true, …}` (live 2026-09-30), and so is the hand-off agent behind a flow builder agent and any agent the Ask AI
+copilot makes. Before attaching a number to a test or draft agent, turn it off with `update_voiceai_agent`
+(`sendPostCallNotificationTo` with all five keys: `admins`, `allUsers`, `contactAssignedUser`, `specificUsers`, `customEmails`).
+
+**10. A purchased number becomes the location's default sender.** The first number bought on a sub-account is
+`isDefaultNumber:true`, so workflow SMS and call steps that had no sender now have one, and any call to it reaches the
+attached agent. "Proceed to Buy" in the UI is the purchase, not a preview. US SMS from it needs A2P 10DLC registration.
+
 ## Deployment is a phone number, not a publish
 
 An agent goes live by being attached to a number:
 `PUT /voice-ai/agents/{agentId}/phone-number`. Outbound is separate again and gated on
 consent (`/voice-ai/consent/*`, async apply + audit tasks with status polls) before it can be
 configured at all.
+
+A number is BOUGHT in Settings → Phone System (a search route and a `…/purchase` route, `references/voice-ai.md`), then
+attached on the agent's Deploy tab, whose Save is the agent PUT with `inboundPhoneNumber` and `inboundNumbers`. Nothing on
+a test sub-account can ring it: a real call needs a person.
 
 ## Limits worth knowing before you author
 
@@ -122,8 +135,9 @@ Full set: `ai-agents/40-rules/constraints.md`.
 | `CALL_TRANSFER`, `DATA_EXTRACTION` | **live-fired** |
 | `WORKFLOW_TRIGGER` | **ran on a live call** (2026-09-28 web call: the tool fired mid-call and spoke its static `triggerMessage`) |
 | `SMS`, `APPOINTMENT_BOOKING`, `AGENT_TRANSFER_CHILD` | **created live by `create_voiceai_agent`** and read back (booking mints `GET_SLOTS` / `BOOK_SLOT`, the transfer mints its `AGENT_TRANSFER` root); not run on a call |
-| `CAP` | **capture-verified, not live-fired** |
-| `IN_CALL_DATA_EXTRACTION`, `MCP` | **untested.** Do not assume `IN_CALL_DATA_EXTRACTION` mirrors `DATA_EXTRACTION` |
+| `CAP` (`customApi`) | **test, create and attach live-proven** (2026-09-30, through the editor: the body carries the API key); not run on a call |
+| MCP servers | **add, tools fetch (GHL calls the URL), tool attach and read-back live-proven** (2026-09-30); not run on a call |
+| `IN_CALL_DATA_EXTRACTION` | **untested.** Do not assume it mirrors `DATA_EXTRACTION` |
 
 The seven types verified live are `CALL_TRANSFER`, `WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`,
 `APPOINTMENT_BOOKING`, `CAP`, `AGENT_TRANSFER_CHILD`. The wire enum also has `CUSTOM_ACTION` (legacy
@@ -146,7 +160,8 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 | Capability | Where in GHL | Why not here |
 |---|---|---|
 | Flow-builder voice agents (node graph, `CUSTOM_LLM` over agent-execution) | Voice AI → Create Agent → Flow Builder | legacy flow-builder generation, not engine-authored |
-| Custom Action 2.0 variants beyond the verified CAP (Send Email / SMS / WhatsApp), MCP servers | Voice agent → Actions → New Action | source-derived only so far |
+| Custom Action 2.0 variants beyond `customApi` (Send Email / SMS / WhatsApp) | Voice agent → Actions → New Action | source-derived only so far |
+| An MCP server or Custom Action 2.0 that needs a credential (header / API key) | Voice agent → Actions → New Action → Add MCP / Custom Action 2.0 | the internal tool refuses a credential in its arguments and GHL redacts it on read; do it in the editor (reads and credential-free writes work through `raw_request`, `references/voice-ai.md`) |
 | Prompt Optimizer / Prompt Evaluator | Voice agent → Prompt Optimizer (Labs); the Evaluator and Edit with AI exist only in the legacy editor | billed, Labs-gated |
 | Voice cloning / importing a community voice | Voice picker → My voices | not engine-authored |
 | Buying numbers, number pools, KYC | Voice agent → Deploy → Buy new number | purchases and compliance |
