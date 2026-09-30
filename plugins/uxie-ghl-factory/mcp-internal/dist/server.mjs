@@ -176,7 +176,7 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-29",
+      generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
       count: 1587,
       endpoints: [
@@ -8558,7 +8558,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:116"
+            "funnels/10-anatomy/styling-and-saved-assets.md:118"
           ]
         },
         {
@@ -8981,7 +8981,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:112",
+            "funnels/10-anatomy/styling-and-saved-assets.md:114",
             "funnels/10-anatomy/websites-and-global-sections.md:96",
             "funnels/20-api/funnel-ai.md:59"
           ]
@@ -9026,7 +9026,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/page-content.md:13",
             "funnels/10-anatomy/routing-and-publishing.md:31",
-            "funnels/10-anatomy/styling-and-saved-assets.md:131",
+            "funnels/10-anatomy/styling-and-saved-assets.md:133",
             "funnels/20-api/funnels-api.md:143",
             "funnels/20-api/funnels-api.md:234",
             "funnels/30-types/section.md:78"
@@ -9137,7 +9137,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:114"
+            "funnels/10-anatomy/styling-and-saved-assets.md:116"
           ]
         },
         {
@@ -9793,7 +9793,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:109"
+            "funnels/10-anatomy/styling-and-saved-assets.md:111"
           ]
         },
         {
@@ -9857,7 +9857,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:98"
+            "funnels/10-anatomy/styling-and-saved-assets.md:100"
           ]
         },
         {
@@ -9901,7 +9901,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:98"
+            "funnels/10-anatomy/styling-and-saved-assets.md:100"
           ]
         },
         {
@@ -12925,6 +12925,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/50-runtime/analytics.md:95",
             "funnels/70-research/2026-09-29-route-census.md:86"
           ]
         },
@@ -12991,7 +12992,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/step-products-and-orders.md:70",
+            "funnels/20-api/step-products-and-orders.md:81",
             "funnels/40-rules/silent-failures.md:1324"
           ]
         },
@@ -13091,7 +13092,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "destructive",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -13114,7 +13117,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/step-products-and-orders.md:53"
+            "funnels/20-api/step-products-and-orders.md:61"
           ]
         },
         {
@@ -13161,7 +13164,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -13184,6 +13189,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/step-products-and-orders.md:53",
             "funnels/70-research/2026-09-29-route-census.md:84"
           ]
         },
@@ -21678,7 +21684,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/step-products-and-orders.md:67",
+            "funnels/20-api/step-products-and-orders.md:78",
             "platform/20-api/payment-links.md:100"
           ]
         },
@@ -23844,7 +23850,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:63"
+            "funnels/50-runtime/analytics.md:104"
           ]
         },
         {
@@ -23902,7 +23908,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:32"
+            "funnels/50-runtime/analytics.md:32",
+            "funnels/50-runtime/analytics.md:71"
           ]
         },
         {
@@ -23931,6 +23938,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: false,
               source: "documented"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -23942,7 +23955,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:24"
+            "funnels/50-runtime/analytics.md:24",
+            "funnels/50-runtime/analytics.md:66"
           ]
         },
         {
@@ -24120,7 +24134,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:82",
+            "funnels/50-runtime/analytics.md:80",
             "funnels/70-research/2026-09-29-route-census.md:93"
           ]
         },
@@ -24347,7 +24361,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:30"
+            "funnels/50-runtime/analytics.md:30",
+            "funnels/50-runtime/analytics.md:88"
           ]
         },
         {
@@ -24378,7 +24393,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/50-runtime/analytics.md:79"
+            "funnels/50-runtime/analytics.md:120"
           ]
         },
         {
@@ -73533,9 +73548,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       audit_site: {
-        description: "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift \u2014 proof: live-runtime (2026-09-23); risk: read",
+        description: "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-23)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "funnels-service--get-funnels",
@@ -73665,9 +73680,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_funnel_page: {
-        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "funnels--builder-autosave",
@@ -75685,9 +75700,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_funnel: {
-        description: "Edit a GHL funnel/website: settings, steps, publish state, headers \u2014 preview, confirm, read back \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Edit a GHL funnel/website: settings, steps, publish state, headers \u2014 preview, confirm, read back \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "funnels--funnel-update-settings",
@@ -109228,6 +109243,7 @@ var REF_CLASS = Object.freeze({
   productId: "account",
   storeProductId: "account",
   storeCollectionId: "account",
+  customFontId: "account",
   popupId: "page-local",
   // hl_main_popup-<id>, defined in this page's own popupsList
   storeProductPriceId: "sentinel"
@@ -109236,7 +109252,11 @@ var REF_CLASS = Object.freeze({
 var REF_SOURCE = Object.freeze({
   formId: "forms",
   calendarId: "calendars",
-  surveyId: "surveys"
+  surveyId: "surveys",
+  // A sell-product button stores {value: {id: <step product id>}} (a Products-tab row of a step of the SAME funnel), and an uploaded font is named by
+  // {customFontId: <_id>} in the page's typography slot (GET /funnels/custom-fonts).
+  productId: "stepProducts",
+  customFontId: "customFonts"
 });
 var placeholderKind = (v) => {
   if (v === "none" || v === "" || v == null) return "empty";
@@ -109261,8 +109281,12 @@ function scanPage({ pageData, pageId, pageName = null }) {
   for (const p2 of pageData?.popupsList ?? []) if (p2?.id) popupsDefined.add(p2.id);
   walk(pageData, (o) => {
     for (const [k, v] of Object.entries(o)) {
+      if (k === "productId" && o.action?.value !== "sell-product") continue;
       if (REF_CLASS[k] && v && typeof v === "object" && "value" in v) {
-        refs.push({ prop: k, cls: REF_CLASS[k], value: String(v.value ?? ""), text: v.text ?? null, pageId, pageName });
+        const inner = v.value && typeof v.value === "object" && !Array.isArray(v.value) ? v.value.id : v.value;
+        refs.push({ prop: k, cls: REF_CLASS[k], value: String(inner ?? ""), text: v.text ?? null, pageId, pageName });
+      } else if (k === "customFontId" && typeof v === "string") {
+        refs.push({ prop: k, cls: REF_CLASS[k], value: v, text: null, pageId, pageName });
       }
       if ((k === "locationId" || k === "location_id") && typeof v === "string" && v) locations.add(v);
     }
@@ -123650,7 +123674,10 @@ var KEYFRAMES = {
   lightSpeedInLeft: (s) => [kf("0%", 0, { translate3d: "-100%, 0, 0", skewX: "30deg", scale: `${s}` }), kf("60%", 1, { skewX: "-20deg" }), kf("80%", void 0, { skewX: "5deg" }), kf("100%", void 0, { translateZ: "0" })],
   lightSpeedInRight: (s) => [kf("0%", 0, { translate3d: "100%, 0, 0", skewX: "-30deg", scale: `${s}` }), kf("60%", 1, { skewX: "20deg" }), kf("80%", void 0, { skewX: "-5deg" }), kf("100%", void 0, { translateZ: "0" })]
 };
-var ENTRANCE_ANIMATIONS = Object.freeze(Object.keys(KEYFRAMES));
+var COMPILED_ENTRANCE = Object.freeze(Object.keys(KEYFRAMES));
+var LOOP_ANIMATIONS = Object.freeze(["buttonPulseGlow", "buttonRocking", "buttonBounce"]);
+var LOOP_METAS = Object.freeze(["button"]);
+var ENTRANCE_ANIMATIONS = Object.freeze([...COMPILED_ENTRANCE, ...LOOP_ANIMATIONS]);
 function transformOf(t) {
   const out = [];
   for (const [k, v] of Object.entries(t)) {
@@ -123687,19 +123714,20 @@ var knob = (v, { min = -Infinity, exclusiveMin = false } = {}) => {
 };
 var num = (n) => cssoValue(String(n));
 function entranceCss(id, cls, parentOffset = 0) {
+  const mobile = cls?.disableAnimationsOnMobile?.value === true && /^[a-zA-Z0-9_-]+$/.test(id) ? `@media (max-width:1024px){#${id}{animation:none!important}}.--mobile #${id}{animation:none!important}` : "";
   const v = cls?.entranceAnimation?.value;
-  if (typeof v !== "string" || !v.includes("animate__animated")) return "";
+  if (typeof v !== "string" || !v.includes("animate__animated")) return mobile;
   const scale = cls.animationScale?.value, dur = cls.animationDuration?.value, delay = cls.animationDelay?.value, easing = cls.animationEasing?.value;
-  if (!scale && !dur && !delay && !easing) return "";
+  if (!scale && !dur && !delay && !easing) return mobile;
   const name = v.split(" ").pop()?.replace("animate__", "");
-  if (!name || !KEYFRAMES[name]) return "";
+  if (!name || !KEYFRAMES[name]) return mobile;
   const s = knob(scale, { min: 0, exclusiveMin: true });
   const d = knob(dur, { min: 0, exclusiveMin: true });
   const e = typeof easing === "string" && EASINGS.includes(easing) ? easing : "linear";
   const total = (Number(delay) || 0) + (parentOffset || 0);
   const kn = `${name}-${id}`;
   const rule2 = `.animate__${kn}{animation:${kn} ${num(d ?? 1)}s ${e} ${num(total || 0)}s forwards!important;-webkit-animation-name:${kn};animation-name:${kn}}`;
-  return rule2 + keyframesCss(kn, KEYFRAMES[name](s ?? 1));
+  return rule2 + keyframesCss(kn, KEYFRAMES[name](s ?? 1)) + mobile;
 }
 var HOVER_EFFECT_CATEGORY = Object.freeze({
   "hvr-grow": "scale",
@@ -123754,16 +123782,26 @@ function hoverCss(id, cls) {
   if (allowed.has("hoverSpread") && spread != null) vars.push(`--hover-spread:${spread}px`);
   return `.${id},.c${id}{${vars.join(";")}}`;
 }
-function entranceClass(spec) {
+function entranceClass(spec, meta3) {
   if (!spec) return {};
-  const { name, duration: duration3, delay, scale, easing } = spec;
+  const { name, duration: duration3, delay, scale, easing, disableOnMobile } = spec;
   if (!ENTRANCE_ANIMATIONS.includes(name)) throw new Error(`entranceAnimation.name must be one of: ${ENTRANCE_ANIMATIONS.join(", ")}`);
   if (easing !== void 0 && !EASINGS.includes(easing)) throw new Error(`entranceAnimation.easing must be one of: ${EASINGS.join(", ")}`);
-  const out = { entranceAnimation: { value: `animate__animated animate__${name}` } };
-  if (scale !== void 0) out.animationScale = { value: scale };
-  if (duration3 !== void 0) out.animationDuration = { value: duration3 };
-  if (delay !== void 0) out.animationDelay = { value: delay };
-  if (easing !== void 0) out.animationEasing = { value: easing };
+  if (disableOnMobile !== void 0 && typeof disableOnMobile !== "boolean") throw new Error("entranceAnimation.disableOnMobile is true or false");
+  const out = {};
+  if (LOOP_ANIMATIONS.includes(name)) {
+    if (meta3 !== void 0 && !LOOP_METAS.includes(meta3)) throw new Error(`entranceAnimation ${name} is an infinite loop the builder offers on buttons \u2014 not on ${meta3}`);
+    const knobs = ["duration", "delay", "scale", "easing"].filter((k) => spec[k] !== void 0);
+    if (knobs.length) throw new Error(`entranceAnimation ${name} is an infinite loop: the builder hides its timing knobs (${knobs.join(", ")} given)`);
+    out.entranceAnimation = { value: name };
+  } else {
+    out.entranceAnimation = { value: `animate__animated animate__${name}` };
+    if (scale !== void 0) out.animationScale = { value: scale };
+    if (duration3 !== void 0) out.animationDuration = { value: duration3 };
+    if (delay !== void 0) out.animationDelay = { value: delay };
+    if (easing !== void 0) out.animationEasing = { value: easing };
+  }
+  if (disableOnMobile !== void 0) out.disableAnimationsOnMobile = { value: disableOnMobile };
   return out;
 }
 var HOVER_SPEC_KEYS = { duration: "hoverDuration", delay: "hoverDelay", easing: "hoverEasing", scale: "hoverScale", angle: "hoverAngle", distance: "hoverDistance", borderThickness: "hoverBorderThickness", blur: "hoverBlur", spread: "hoverSpread" };
@@ -123813,6 +123851,7 @@ function stripAnimationCss(css, id) {
   }
   out = out.replace(new RegExp(`\\.animate__[A-Za-z]+-${esc3}\\{[^}]*\\}`, "g"), "");
   out = out.replace(new RegExp(`\\.${esc3},\\.c${esc3}\\{--hover-[^}]*\\}`, "g"), "");
+  out = out.replace(new RegExp(`@media \\(max-width:1024px\\)\\{#${esc3}\\{animation:none!important\\}\\}\\.--mobile #${esc3}\\{animation:none!important\\}`, "g"), "");
   return out;
 }
 var ENTRANCE_METAS = Object.freeze(["heading", "sub-heading", "paragraph", "rich-text", "bulletList", "button", "image", "section", "row", "col"]);
@@ -129632,6 +129671,33 @@ function routeClickAction(meta3, extra = {}) {
   for (const p2 of spec.props) out[p2] = { value: v === "" ? "none" : v };
   return out;
 }
+var EMBED_KINDS = Object.freeze({ form: "formId", survey: "surveyId", calendar: "calendarId" });
+var EMBED_ACTION_VALUES = Object.freeze(["none", "url", "go-to-next-funnel-step"]);
+function routeEmbedExtra(meta3, extra = {}) {
+  const prop = EMBED_KINDS[meta3];
+  if (!prop) return extra;
+  const out = { ...extra };
+  const ref = out[prop];
+  if (ref !== void 0) {
+    if (typeof ref !== "object" || ref === null || Array.isArray(ref)) {
+      throw Object.assign(
+        new Error(`${meta3}: extra.${prop} must be {value: "<id>", text: "<the asset's name>"}, not ${JSON.stringify(ref)} \u2014 the renderer reads .value and the builder shows .text`),
+        { remediation: `Name the ${meta3 === "calendar" ? "calendar" : meta3} as {value, text} (read its id and name from list_forms / the calendars list).` }
+      );
+    }
+    if (typeof ref.value !== "string") throw Object.assign(new Error(`${meta3}: extra.${prop}.value must be the asset id (a string)`), { remediation: "Pass the id the picker would store." });
+    out[prop] = meta3 === "calendar" ? { isTeamSelected: false, ...ref } : ref;
+  }
+  const a = out.action?.value ?? out.action;
+  if (a === void 0 || a === "") out.action = { value: "none" };
+  else if (!EMBED_ACTION_VALUES.includes(a)) {
+    throw Object.assign(
+      new Error(`${meta3}: on-submit action '${a}' is not one the builder offers on an embedded ${meta3} (${EMBED_ACTION_VALUES.join(", ")})`),
+      { remediation: `Use one of ${EMBED_ACTION_VALUES.join(", ")}; url also needs extra.visitWebsite.url.` }
+    );
+  } else out.action = { value: a };
+  return out;
+}
 var clickActionOf = (n) => {
   const spec = CLICK_ACTION_PROPS[n?.meta];
   return spec ? n?.extra?.[spec.props[0]]?.value : n?.extra?.action?.value;
@@ -129817,7 +129883,7 @@ var TAG_IS_TAGNAME = Object.freeze(/* @__PURE__ */ new Set([
 ]));
 var NEEDS_CONTEXT = Object.freeze({});
 var RAW_EXTRA_PROPS = Object.freeze(/* @__PURE__ */ new Set(["socialShareStyle", "blog_style", "blogPinedPostStyle"]));
-var REFERENCE_EXTRA_PROPS = Object.freeze(/* @__PURE__ */ new Set(["formId"]));
+var REFERENCE_EXTRA_PROPS = Object.freeze(/* @__PURE__ */ new Set(["formId", "surveyId", "calendarId"]));
 var counter = 0;
 var resetIds = () => {
   counter = 0;
@@ -129894,20 +129960,22 @@ var STYLE_DEFAULTS = {
   "nav-menu-v2": NAV_MENU_STYLE_DEFAULTS
 };
 var VIDEO_TYPES = Object.freeze(["youtube", "vimeo", "wistia", "custom_embed", "html", "selfHosted"]);
+var DIRECT_VIDEO_EXTENSIONS = [".mp4", ".webm", ".mov", ".avi", ".m4v", ".ogv"];
 function videoTypeOf(url2) {
   const u = String(url2 ?? "");
-  if (/youtube\.com|youtu\.be/i.test(u)) return "youtube";
-  if (/vimeo\.com/i.test(u)) return "vimeo";
-  if (/wistia\.(com|net)|wi\.st/i.test(u)) return "wistia";
-  if (/\.(mp4|webm|ogg|m3u8)(\?|$)/i.test(u)) return "html";
-  return null;
+  if (!u || u.includes("youtube.com") || u.includes("youtu.be")) return "youtube";
+  if (u.includes("vimeo.com")) return "vimeo";
+  if (u.includes("wistia.com")) return "wistia";
+  const lower = u.toLowerCase();
+  if (DIRECT_VIDEO_EXTENSIONS.some((e) => lower.includes(e))) return "html";
+  return "custom_embed";
 }
 function normalizeVideoExtra(extra = {}) {
   const given = extra.videoProperties;
   if (!given || typeof given !== "object") return extra;
   const v = { ...KIND_DEFAULT_EXTRA.video.videoProperties.value, ...given.value ?? {} };
   v.selfHostedVideo = { ...KIND_DEFAULT_EXTRA.video.videoProperties.value.selfHostedVideo, ...given.value?.selfHostedVideo ?? {} };
-  if (!given.value?.type) v.type = v.selfHostedVideo.id ? "selfHosted" : videoTypeOf(v.url) ?? v.type;
+  if (!given.value?.type) v.type = v.selfHostedVideo.id ? "selfHosted" : videoTypeOf(v.url);
   return { ...extra, videoProperties: { value: v } };
 }
 function videoSourceProblems(pageData, onlyIds = null) {
@@ -129919,6 +129987,7 @@ function videoSourceProblems(pageData, onlyIds = null) {
         const src = v.type === "selfHosted" ? v.selfHostedVideo?.id : v.type === "custom_embed" ? v.customEmbedCode ?? v.url : v.url;
         if (!src) out.push(`video ${n.id}: no source \u2014 set extra.videoProperties.value.url (a YouTube, Vimeo, Wistia or .mp4 URL) or selfHostedVideo {id, name, url} of a Media Storage file; without one the public page shows an empty box`);
         else if (!VIDEO_TYPES.includes(v.type)) out.push(`video ${n.id}: videoProperties.value.type '${v.type}' is not one of ${VIDEO_TYPES.join(", ")}`);
+        else if (v.type !== "selfHosted" && v.type !== "custom_embed" && v.url && videoTypeOf(v.url) !== v.type) out.push(`video ${n.id}: type '${v.type}' does not match its url \u2014 the builder reads it as '${videoTypeOf(v.url)}' (youtube.com/youtu.be, vimeo.com, wistia.com, a .mp4/.webm/.mov/.avi/.m4v/.ogv file, else custom_embed) and would switch the player when the page is next opened; drop the type or set the one the builder derives`);
       }
     }
   };
@@ -129940,14 +130009,14 @@ var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt
     if (/FontFamily$/.test(k) && typeof v?.value === "string" && /^var\(--(?!headlinefont\)|contentfont\))/.test(v.value)) base[k] = { ...v, value: "var(--contentfont)" };
   }
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
-  const routed = routeClickAction(meta3, meta3 === "video" ? normalizeVideoExtra(extra) : extra);
+  const routed = routeEmbedExtra(meta3, routeClickAction(meta3, meta3 === "video" ? normalizeVideoExtra(extra) : extra));
   const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, fillTextFieldInitials(meta3, unshare(completeExtra(meta3, routed))), withDefaults, cls, TOOL_COMPILED_KINDS.has(meta3) ? void 0 : KIND_FACTORY_WRAPPER[meta3]);
   if (wrapper) node.wrapper = { ...node.wrapper, ...storedMap(wrapper) };
   for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) node[k] = storedMap(v);
   node.tag = tag || (TAG_IS_TAGNAME.has(meta3) ? ELEMENTS[meta3].tagName : "");
   return node;
 };
-var makeColumn = ({ children, widthPct, padX = 20, salt }) => {
+var makeColumn = ({ children, widthPct, padX = 20, salt, background, bgImage }) => {
   const id = mkId("col", salt);
   const col = envelope(
     id,
@@ -129955,7 +130024,7 @@ var makeColumn = ({ children, widthPct, padX = 20, salt }) => {
     "col",
     "c-column",
     {
-      bgImage: BG_IMAGE,
+      bgImage: bgImage ? sectionBgImage(bgImage) : BG_IMAGE,
       columnLayout: val("column"),
       justifyContentColumnLayout: val("center"),
       alignContentColumnLayout: val("inherit"),
@@ -129967,7 +130036,7 @@ var makeColumn = ({ children, widthPct, padX = 20, salt }) => {
       paddingBottom: px(0),
       paddingLeft: px(padX),
       paddingRight: px(padX),
-      backgroundColor: val("transparent"),
+      backgroundColor: val(background ?? "transparent"),
       width: { value: String(widthPct), unit: "%" }
     }
   );
@@ -129993,8 +130062,11 @@ function sectionKnobs({ sticky, width, fullWidthRows, pdp } = {}) {
   if (fullWidthRows !== void 0) extra.allowRowMaxWidth = val(fullWidthRows === true);
   return { extra, cls };
 }
+var COLUMN_SPEC_KEYS = Object.freeze(["elements", "widthPct", "padX", "background", "bgImage"]);
+var MAX_COLUMNS_PER_ROW = 6;
 var SECTION_SPEC_KEYS = Object.freeze([
   "columns",
+  "rows",
   "background",
   "padY",
   "maxWidth",
@@ -130035,12 +130107,13 @@ function sectionStylingPatch(o = {}) {
   if (o.customClass) extra.customClass = val(sectionClasses(o.customClass));
   if (o.bgImage) extra.bgImage = sectionBgImage(o.bgImage);
   if (Object.keys(extra).length) merge2.extra = extra;
-  if (o.entranceAnimation) merge2.class = entranceClass(o.entranceAnimation);
+  if (o.entranceAnimation) merge2.class = entranceClass(o.entranceAnimation, "section");
   for (const k of ["tabletStyles", "mobileStyles", "tabletWrapper", "mobileWrapper"]) if (o[k]) replace[k] = storedMap(o[k]);
   return { merge: merge2, replace, touchesCss: !!(o.styles || o.wrapper || o.entranceAnimation || Object.keys(replace).length) };
 }
 var makeSection = ({
   columns,
+  rows,
   background = "transparent",
   padY = 60,
   maxWidth = BUILDER_INNER_MAX_WIDTH,
@@ -130065,26 +130138,32 @@ var makeSection = ({
   cls: extraCls,
   sectionCss = ""
 }) => {
-  const widths = columns.map((c) => Number(c.widthPct)).filter((n) => Number.isFinite(n));
-  const total = widths.reduce((a, b) => a + b, 0);
-  if (widths.length === columns.length && columns.length > 0 && Math.abs(total - 100) > 1) {
-    const err = new Error(
-      `column widths in this row sum to ${Number(total.toFixed(2))}%, not 100% (${widths.join("% + ")}%). Columns are flex:1 1 auto, so width is a BASIS: they will be grown or shrunk to fill the row and will NOT render at the widths given \u2014 ${columns.length} columns summing short render at ${Number((100 / columns.length).toFixed(2))}% each.`
-    );
-    err.remediation = "Give widths that total 100, or omit widthPct entirely to divide the row evenly.";
-    throw err;
+  const rowGroups = rows ?? [columns];
+  for (const cols of rowGroups) {
+    const widths = cols.map((c) => Number(c.widthPct)).filter((n) => Number.isFinite(n));
+    const total = widths.reduce((a, b) => a + b, 0);
+    if (widths.length === cols.length && cols.length > 0 && Math.abs(total - 100) > 1) {
+      const err = new Error(
+        `column widths in this row sum to ${Number(total.toFixed(2))}%, not 100% (${widths.join("% + ")}%). Columns are flex:1 1 auto, so width is a BASIS: they will be grown or shrunk to fill the row and will NOT render at the widths given \u2014 ${cols.length} columns summing short render at ${Number((100 / cols.length).toFixed(2))}% each.`
+      );
+      err.remediation = "Give widths that total 100, or omit widthPct entirely to divide the row evenly.";
+      throw err;
+    }
   }
   const sid = mkId("section", salt);
-  const rid = mkId("row", salt);
-  const row = envelope(
-    rid,
-    "row",
-    "row",
-    "c-row",
-    { bgImage: BG_IMAGE },
-    { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val("transparent") }
-  );
-  row.child = columns.map((c) => c.col.id);
+  const rowNodes = rowGroups.map((cols) => {
+    const rid = mkId("row", salt);
+    const r = envelope(
+      rid,
+      "row",
+      "row",
+      "c-row",
+      { bgImage: BG_IMAGE },
+      { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val("transparent") }
+    );
+    r.child = cols.map((c) => c.col.id);
+    return { row: r, cols };
+  });
   const knobs = sectionKnobs({ sticky, width, fullWidthRows, pdp });
   const meta3 = envelope(
     sid,
@@ -130105,14 +130184,13 @@ var makeSection = ({
   );
   for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) meta3[k] = storedMap(v);
   meta3._id = sid;
-  meta3.child = [rid];
+  meta3.child = rowNodes.map(({ row }) => row.id);
   meta3.isGlobal = false;
   const scaffold = [
     nodeLayerCss({ ...meta3, id: sid }),
     sectionInnerRule(sid, { fullWidthRows: fullWidthRows === true, maxWidth }),
     sectionCss,
-    nodeLayerCss(row),
-    ...columns.map(({ col }) => nodeLayerCss(col) + `#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`)
+    ...rowNodes.flatMap(({ row, cols }) => [nodeLayerCss(row), ...cols.map(({ col }) => nodeLayerCss(col) + `#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`)])
   ].join("");
   return {
     id: sid,
@@ -130121,7 +130199,7 @@ var makeSection = ({
     locationId,
     isGlobal: false,
     metaData: meta3,
-    elements: [row, ...columns.flatMap(({ col, leaves: leaves2 }) => [col, ...leaves2])],
+    elements: rowNodes.flatMap(({ row, cols }) => [row, ...cols.flatMap(({ col, leaves: leaves2 }) => [col, ...leaves2])]),
     general: { colors: [], fontsForPreview: [], rootVars: {}, sectionStyles: scaffold + elementCss, customFonts: [] }
   };
 };
@@ -130369,6 +130447,12 @@ var auditPageData = (pageData, opts = {}) => {
           if (v !== void 0 && !spec.values.includes(v)) problems.push(`node ${n.id} (${n.meta}): extra.${p2}.value ${JSON.stringify(v)} is not one of ${spec.values.join(", ")} \u2014 the click does nothing`);
         }
       }
+      if (EMBED_KINDS[n.meta]) {
+        const ea = n.extra?.action?.value;
+        if (ea !== void 0 && ea !== "" && !EMBED_ACTION_VALUES.includes(ea)) problems.push(`node ${n.id} (${n.meta}): extra.action.value '${ea}' is not on the builder's menu for an embedded ${n.meta} (${EMBED_ACTION_VALUES.join(", ")}) \u2014 the submit does nothing useful`);
+        const r = n.extra?.[EMBED_KINDS[n.meta]];
+        if (r && typeof r === "object" && r.value && typeof r.text !== "string") problems.push(`node ${n.id} (${n.meta}): extra.${EMBED_KINDS[n.meta]} has no .text \u2014 the builder stores {value, text} (the asset's name) and shows the name from it`);
+      }
       for (const prop of REFERENCE_EXTRA_PROPS) {
         const v = n.extra?.[prop];
         if (v !== void 0 && typeof v !== "object") {
@@ -130527,16 +130611,33 @@ function settingsSideEffects(requested, before, after, sentBody) {
   return { materialised, changed };
 }
 var normPath = (p2) => p2 == null ? p2 : `/${String(p2).replace(/^\/+/, "")}`;
+var STEP_TYPES = Object.freeze(["optin_funnel_page", "sales_funnel_page", "misc_funnel_page"]);
+var RESERVED_PATH_RUNS = Object.freeze([["store", "account"], ["b"], ["c"], ["product"], ["collections"], ["post"], ["category"], ["author"], ["tag"]]);
+function checkStepPath(url2) {
+  const raw = String(url2 ?? "");
+  if (!raw.trim()) return { refuse: "a step path is required" };
+  const path = raw.startsWith("/") ? raw : `/${raw}`;
+  if (path.includes(" ") || !/^\/[a-z0-9\-_/]*$/.test(path)) return { refuse: `step path ${JSON.stringify(raw)} is not valid: use lowercase letters, digits, "-", "_" and "/" only (the UI refuses it: invalidUrlFormat)` };
+  const segs = path.split("/").filter(Boolean);
+  if (segs.length > 5) return { refuse: `step path ${JSON.stringify(raw)} has ${segs.length} segments; at most 5 nested levels are allowed (the UI refuses it: urlTooManyNestedPaths)` };
+  const hit = RESERVED_PATH_RUNS.find((run) => segs.some((_, at) => run.every((seg, k) => segs[at + k] === seg)));
+  if (hit) return { refuse: `step path ${JSON.stringify(raw)} contains the reserved segment "${hit.join("/")}" (storefront and blog routes; the UI refuses it: reservedPathError)` };
+  return { path };
+}
 function planCreateStep({ funnel, step }) {
   if (!funnel.domainId) {
     return { refuse: "this funnel has no domain attached. A step created without a domainId gets NO lookup row and 404s in public (measured). Attach a domain first (settings op with domainId), then create the step." };
   }
+  const type = step.type ?? "optin_funnel_page";
+  if (!STEP_TYPES.includes(type)) return { refuse: `step.type ${JSON.stringify(type)} is not one the Add-step modal offers (${STEP_TYPES.join(", ")}); webinar and store steps come from their template installs` };
+  const pathCheck = checkStepPath(step.url);
+  if (pathCheck.refuse) return pathCheck;
   const id = step.id ?? randomUUID();
   return {
     method: "POST",
     path: "/funnels/funnel/create-step",
     body: {
-      step: { id, name: step.name, url: String(step.url).replace(/^\/+/, ""), pages: [], type: step.type ?? "optin_funnel_page", split: false, control_traffic: 100 },
+      step: { id, name: step.name, url: String(step.url).replace(/^\/+/, ""), pages: [], type, split: false, control_traffic: 100 },
       funnelId: funnel._id ?? funnel.id,
       domainId: funnel.domainId
     },
@@ -130548,6 +130649,8 @@ function planUpdateStep({ funnel, stepId, name, url: url2, domainName }) {
   if (!s) return { refuse: `step ${stepId} is not on this funnel` };
   const b = { stepId, name: name ?? s.name };
   if (url2 !== void 0) {
+    const pathCheck = checkStepPath(url2);
+    if (pathCheck.refuse) return pathCheck;
     if (!domainName) return { refuse: "moving a step path needs the funnel's domain name, and it could not be resolved from the domain list" };
     Object.assign(b, { url: normPath(url2), domainName });
   }
@@ -130719,7 +130822,11 @@ var splitStamp = (d = /* @__PURE__ */ new Date()) => {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${hh}:${mm}:${ss} ${d.getHours() < 12 ? "AM" : "PM"} UTC${sign}${String(Math.floor(a / 60)).padStart(2, "0")}:${String(a % 60).padStart(2, "0")}`;
 };
-function planSplit({ funnel, stepId, action, controlTraffic, winnerPageId, variationPath, domainName, locationId, now }) {
+function additionalRoutesOf({ step, lookups, domainName }) {
+  const own = normPath(step?.url ?? "");
+  return (lookups ?? []).filter((r) => r.typeId === step?.id && r.type === "step" && (r.domain !== domainName || normPath(r.path) !== own)).map((r) => ({ lookup_id: r._id, path: r.path, domain: r.domain }));
+}
+function planSplit({ funnel, stepId, action, controlTraffic, winnerPageId, variationPath, domainName, locationId, now, additionalRoutes = [], routeAdditional }) {
   const fid = funnel._id ?? funnel.id;
   const step = (funnel.steps ?? []).find((s) => s.id === stepId);
   if (!step) return { refuse: `step ${stepId} is not on this funnel` };
@@ -130744,7 +130851,11 @@ function planSplit({ funnel, stepId, action, controlTraffic, winnerPageId, varia
       if (pages.length !== 2) return { refuse: `step has ${pages.length} page(s); start needs a control and one variation (add-variation first)` };
       const ct = controlTraffic ?? 50;
       if (!Number.isInteger(ct) || ct < 0 || ct > 100) return { refuse: "controlTraffic is an integer 0..100 (the share the control gets)" };
-      return { ...put({ split: true, control_traffic: ct, split_started_at: splitStamp(now), split_ended_at: null, route_all_requests: true, additional_routes: [] }), step: stepView(step, 0) };
+      if (additionalRoutes.length && typeof routeAdditional !== "boolean") {
+        return { refuse: `this step is also served at ${additionalRoutes.length} other domain/path(s) (${additionalRoutes.map((r) => `${r.domain}${r.path}`).join(", ")}); the UI asks whether the split should include them. Pass routeAdditional: true (route them through the split) or false (leave them on the control page).` };
+      }
+      const include = additionalRoutes.length ? routeAdditional === true : true;
+      return { ...put({ split: true, control_traffic: ct, split_started_at: splitStamp(now), split_ended_at: null, route_all_requests: include, additional_routes: additionalRoutes.length && include ? additionalRoutes : [] }), step: stepView(step, 0), ...additionalRoutes.length ? { additionalRoutes } : {} };
     }
     case "declare-winner": {
       if (pages.length !== 2) return { refuse: `step has ${pages.length} page(s); there is no variation to decide` };
@@ -130828,7 +130939,23 @@ function stepProductView(r) {
   };
 }
 var STEP_PRODUCT_NOTE = "The returned stepProductId is what a sell-product button needs: extra.productId = {value: {id: <stepProductId>}}. An order form on this step lists every step product.";
-function planAddStepProduct({ funnel, stepId, expectName, product, prices, existing, priceId, displayText, quantity, bump, locationId }) {
+var MAX_STEP_PRODUCT_UNITS = 999;
+function stepProductQuantity({ quantity, bump } = {}) {
+  const q3 = quantity ?? {};
+  if (bump === true) {
+    if (q3.max !== void 0 && q3.max !== 1 || q3.allowMultiple === true) return { refuse: "a bump product is always 1 unit per order (the form fixes max 1, not multiple)" };
+    return { quantity: { max: 1, allowMultiple: false } };
+  }
+  const max = q3.max ?? 1;
+  if (!Number.isInteger(max) || max < 1 || max > MAX_STEP_PRODUCT_UNITS) return { refuse: `quantity.max is a whole number of units, 1 to ${MAX_STEP_PRODUCT_UNITS} (the form refuses anything else: productUnitsLimitError)` };
+  return { quantity: { max, allowMultiple: q3.allowMultiple === true } };
+}
+function stepProductAuthorizeAmount(authorizeAmount) {
+  if (authorizeAmount === void 0 || authorizeAmount === null || authorizeAmount === 0) return { amount: 0 };
+  if (typeof authorizeAmount !== "number" || !(authorizeAmount > 0)) return { refuse: "authorizeAmount is a positive amount (a custom card authorization; omit it for the default, 0)" };
+  return { amount: authorizeAmount };
+}
+function planAddStepProduct({ funnel, stepId, expectName, product, prices, existing, priceId, displayText, quantity, bump, authorizeAmount, locationId }) {
   const step = (funnel.steps ?? []).find((s) => s.id === stepId);
   if (!step) return { refuse: `step ${stepId} is not on this funnel` };
   if (typeof expectName !== "string" || step.name !== expectName) {
@@ -130841,7 +130968,10 @@ function planAddStepProduct({ funnel, stepId, expectName, product, prices, exist
   }
   const dup = (existing ?? []).find((e) => String(e.product?._id ?? e.product) === product._id && String(e.price?._id ?? e.price) === priceId && e.deleted !== true);
   if (dup) return { refuse: `this step already lists ${JSON.stringify(product.name)} at that price (step product ${dup._id}); nothing was added` };
-  const q3 = quantity ?? {};
+  const q3 = stepProductQuantity({ quantity, bump });
+  if (q3.refuse) return q3;
+  const auth = stepProductAuthorizeAmount(authorizeAmount);
+  if (auth.refuse) return auth;
   return {
     method: "POST",
     path: "/funnels/order-form/products",
@@ -130854,11 +130984,34 @@ function planAddStepProduct({ funnel, stepId, expectName, product, prices, exist
       product: product._id,
       price: priceId,
       bumpProduct: bump === true,
-      quantity: { max: q3.max ?? 1, allowMultiple: q3.allowMultiple === true },
-      authorizeAmount: 0
+      quantity: q3.quantity,
+      authorizeAmount: auth.amount
     },
     target: { step: stepView(step, 0), product: { id: product._id, name: product.name }, price: { id: price._id, name: price.name, amount: price.amount, currency: price.currency, type: price.type } }
   };
+}
+var spId = (x) => (x && typeof x === "object" ? x._id : x) ?? null;
+function planEditStepProduct({ funnel, stepId, stepProductId, expectName, row, displayText, quantity, bump, authorizeAmount }) {
+  const step = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!step) return { refuse: `step ${stepId} is not on this funnel` };
+  if (!row || row._id !== stepProductId || row.deleted === true) return { refuse: `step product ${stepProductId} is not on step ${JSON.stringify(step.name)}` };
+  if (typeof expectName !== "string" || row.name !== expectName) return { refuse: `target check failed: step product ${stepProductId} is named ${JSON.stringify(row.name ?? null)}, not ${JSON.stringify(expectName)}. Nothing was changed.` };
+  const nextBump = bump === void 0 ? row.bumpProduct === true : bump === true;
+  const q3 = stepProductQuantity({ quantity: quantity ?? row.quantity, bump: nextBump });
+  if (q3.refuse) return q3;
+  const auth = stepProductAuthorizeAmount(authorizeAmount === void 0 ? row.authorizeAmount : authorizeAmount);
+  if (auth.refuse) return auth;
+  const body2 = { name: row.name, displayText: displayText ?? row.displayText ?? "", product: spId(row.product), price: spId(row.price), bumpProduct: nextBump, quantity: q3.quantity, authorizeAmount: auth.amount };
+  const was = { displayText: row.displayText ?? "", bumpProduct: row.bumpProduct === true, quantity: row.quantity ?? null, authorizeAmount: row.authorizeAmount ?? 0 };
+  if (JSON.stringify(was) === JSON.stringify({ displayText: body2.displayText, bumpProduct: body2.bumpProduct, quantity: body2.quantity, authorizeAmount: body2.authorizeAmount })) return { refuse: "nothing to change: the step product already has these values" };
+  return { method: "PUT", path: `/funnels/order-form/products/${enc(stepProductId)}`, body: body2, target: { step: stepView(step, 0), stepProduct: { id: row._id, name: row.name }, from: was } };
+}
+function planDeleteStepProduct({ funnel, stepId, stepProductId, expectName, row }) {
+  const step = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!step) return { refuse: `step ${stepId} is not on this funnel` };
+  if (!row || row._id !== stepProductId || row.deleted === true) return { refuse: `step product ${stepProductId} is not on step ${JSON.stringify(step.name)}` };
+  if (typeof expectName !== "string" || row.name !== expectName) return { refuse: `target check failed: step product ${stepProductId} is named ${JSON.stringify(row.name ?? null)}, not ${JSON.stringify(expectName)}. Nothing was deleted.` };
+  return { method: "DELETE", path: `/funnels/order-form/products/${enc(stepProductId)}`, target: { step: stepView(step, 0), stepProduct: { id: row._id, name: row.name } } };
 }
 var IMPORT_PAGE_NOTE = "Products attached to the source page are NOT imported (GHL's own warning). The page is a copy with a new id; it gets its own public path.";
 function planImportPage({ funnel, stepId, source, sourceStepId, sourcePageIndex = 0, locationId, userId }) {
@@ -131836,7 +131989,7 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
       try {
         if (o.entranceAnimation) {
           if (!ENTRANCE_METAS.includes(hit.node.meta)) throw new Error(`the builder offers an entrance animation on ${ENTRANCE_METAS.join(", ")} \u2014 not on ${hit.node.meta}`);
-          clsPatch = { ...clsPatch, ...entranceClass(o.entranceAnimation) };
+          clsPatch = { ...clsPatch, ...entranceClass(o.entranceAnimation, hit.node.meta) };
         }
         if (o.hoverAnimation) {
           if (!HOVER_METAS.includes(hit.node.meta)) throw new Error(`the builder offers a hover animation on buttons only \u2014 not on ${hit.node.meta}`);
@@ -227001,7 +227154,7 @@ var TOOLS2 = [
         nodeId: external_exports.string().optional(),
         extra: external_exports.record(external_exports.any()).optional(),
         styles: external_exports.record(external_exports.any()).optional(),
-        entranceAnimation: external_exports.object({ name: external_exports.enum(ENTRANCE_ANIMATIONS), duration: external_exports.number().positive().optional(), delay: external_exports.number().min(0).optional(), scale: external_exports.number().positive().optional(), easing: external_exports.enum(["linear", "ease-in", "ease-out", "ease-in-out"]).optional() }).optional(),
+        entranceAnimation: external_exports.object({ name: external_exports.enum(ENTRANCE_ANIMATIONS), duration: external_exports.number().positive().optional(), delay: external_exports.number().min(0).optional(), scale: external_exports.number().positive().optional(), easing: external_exports.enum(["linear", "ease-in", "ease-out", "ease-in-out"]).optional(), disableOnMobile: external_exports.boolean().optional() }).optional(),
         hoverAnimation: external_exports.object({ name: external_exports.enum(HOVER_ANIMATIONS) }).passthrough().optional(),
         openPopup: external_exports.string().optional(),
         font: external_exports.enum(["headline", "content"]).optional(),
@@ -227089,7 +227242,7 @@ var TOOLS2 = [
         let cls = {};
         if (e.entranceAnimation) {
           if (!ENTRANCE_METAS.includes(e.meta)) throw new Error(`entranceAnimation: the builder offers it on ${ENTRANCE_METAS.join(", ")} \u2014 not on ${e.meta}`);
-          cls = { ...cls, ...entranceClass(e.entranceAnimation) };
+          cls = { ...cls, ...entranceClass(e.entranceAnimation, e.meta) };
         }
         if (e.hoverAnimation) {
           if (!HOVER_METAS.includes(e.meta)) throw new Error(`hoverAnimation: the builder offers it on buttons only \u2014 not on ${e.meta}`);
@@ -227130,21 +227283,36 @@ var TOOLS2 = [
         if (unknown2.length) throw Object.assign(new Error(`section: unknown key(s) ${unknown2.map((k) => `\`${k}\``).join(", ")} \u2014 a section takes ${SECTION_SPEC_KEYS.join(", ")}`), { remediation: "Nothing was written. Element keys go on the elements inside columns[].elements." });
         let secCls;
         if (spec.entranceAnimation) {
-          secCls = entranceClass(spec.entranceAnimation);
+          secCls = entranceClass(spec.entranceAnimation, "section");
         }
         if (spec.fullWidthRows === true && spec.maxWidth !== void 0) throw Object.assign(new Error("a section takes fullWidthRows OR maxWidth, not both: fullWidthRows makes the rows' container 100% wide"), { remediation: "Drop one of them." });
+        if (spec.rows !== void 0 && spec.columns !== void 0) throw Object.assign(new Error("a section takes `columns` (one row) OR `rows` (several rows, each {columns}), not both"), { remediation: "Use rows: [{columns: [...]}, {columns: [...]}] for more than one row." });
         const css = [];
-        const columns = (spec.columns ?? []).map((c, ci) => {
-          const leaves2 = (c.elements ?? []).map((e) => {
-            const { leaf, css: lc } = composeLeaf(e, `${saltBase}${si}C${ci}`);
-            if (lc) css.push(lc);
-            return leaf;
+        const rowSpecs = spec.rows ?? [{ columns: spec.columns ?? [] }];
+        if (spec.rows !== void 0) for (const [ri, r] of rowSpecs.entries()) {
+          const bad = Object.keys(r ?? {}).filter((k) => k !== "columns");
+          if (bad.length) throw Object.assign(new Error(`section row ${ri}: unknown key(s) ${bad.map((k) => `\`${k}\``).join(", ")} \u2014 a row takes only \`columns\` here (row alignment and width are not offered)`), { remediation: "Nothing was written." });
+        }
+        const rowsBuilt = rowSpecs.map((r, ri) => {
+          const cspecs = r.columns ?? [];
+          if (cspecs.length > MAX_COLUMNS_PER_ROW) throw Object.assign(new Error(`a row holds 1 to ${MAX_COLUMNS_PER_ROW} columns (${cspecs.length} given)`), { remediation: `Split it over ${Math.ceil(cspecs.length / MAX_COLUMNS_PER_ROW)} rows.` });
+          return cspecs.map((c, ci) => {
+            const badCol = Object.keys(c ?? {}).filter((k) => !COLUMN_SPEC_KEYS.includes(k));
+            if (badCol.length) throw Object.assign(new Error(`column: unknown key(s) ${badCol.map((k) => `\`${k}\``).join(", ")} \u2014 a column takes ${COLUMN_SPEC_KEYS.join(", ")}; anything else used to be dropped silently`), { remediation: "Nothing was written." });
+            const csalt = spec.rows !== void 0 ? `${saltBase}${si}R${ri}C${ci}` : `${saltBase}${si}C${ci}`;
+            const leaves2 = (c.elements ?? []).map((e) => {
+              const { leaf, css: lc } = composeLeaf(e, csalt);
+              if (lc) css.push(lc);
+              return leaf;
+            });
+            const widthPct = c.widthPct ?? Math.round(1e4 / (cspecs.length || 1)) / 100;
+            return { col: makeColumn({ children: leaves2, widthPct, padX: c.padX ?? 20, salt: csalt, background: c.background, bgImage: c.bgImage }), leaves: leaves2, widthPct };
           });
-          const widthPct = c.widthPct ?? Math.round(1e4 / (spec.columns.length || 1)) / 100;
-          return { col: makeColumn({ children: leaves2, widthPct, padX: c.padX ?? 20, salt: `${saltBase}${si}C${ci}` }), leaves: leaves2, widthPct };
         });
+        const columns = rowsBuilt[0] ?? [];
         const built = makeSection({
           columns,
+          rows: spec.rows !== void 0 ? rowsBuilt : void 0,
           background: spec.background ?? "transparent",
           padY: spec.padY ?? 60,
           maxWidth: spec.maxWidth ?? BUILDER_INNER_MAX_WIDTH,
@@ -227768,7 +227936,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_funnel",
-    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true; redirect 404 | url | step) \xB7 add-header / edit-header / delete-header (exact-case path only; delete needs the current value) \xB7 add-event / edit-event / delete-event (Meta pixel) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (this location; no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId} (returns stepProductId, what a sell-product button stores). Not offered: sharing (opening Share creates a link anyone can import, not removable below the $497 plan \u2014 read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true; redirect 404 | url | step) \xB7 add-header / edit-header / delete-header (exact-case path only; delete needs the current value) \xB7 add-event / edit-event / delete-event (Meta pixel) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (this location; no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId; quantity.max 1-999} \xB7 edit-step-product / delete-step-product {stepId, stepProductId, expectName = the step product's name} (returns stepProductId, what a sell-product button stores). Not offered: sharing (opening Share creates a link anyone can import, not removable below the $497 plan \u2014 read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -227794,7 +227962,9 @@ var TOOLS2 = [
         "restore-page",
         "import-page",
         "add-store",
-        "add-step-product"
+        "add-step-product",
+        "edit-step-product",
+        "delete-step-product"
       ]),
       action: external_exports.enum(["add-variation", "start", "declare-winner"]).optional(),
       sourceFunnelId: external_exports.string().optional(),
@@ -227804,7 +227974,7 @@ var TOOLS2 = [
       winnerPageId: external_exports.string().optional(),
       variationPath: external_exports.string().optional(),
       settings: external_exports.record(external_exports.any()).optional(),
-      step: external_exports.object({ id: external_exports.string().optional(), name: external_exports.string(), url: external_exports.string(), type: external_exports.string().optional() }).optional(),
+      step: external_exports.object({ id: external_exports.string().optional(), name: external_exports.string(), url: external_exports.string(), type: external_exports.enum(["optin_funnel_page", "sales_funnel_page", "misc_funnel_page"]).optional() }).optional(),
       stepId: external_exports.string().optional(),
       name: external_exports.string().optional(),
       url: external_exports.string().optional(),
@@ -227824,6 +227994,9 @@ var TOOLS2 = [
       }).optional().describe("add-event: pixelId, level, events (+ pageIds for level page); the Conversions API stays off (its token is a credential \u2014 set it on the Events screen). edit-event / delete-event: eventId + expectPixelId (the target check); edit changes the rest; conversionApi:false turns the API off"),
       productId: external_exports.string().optional(),
       priceId: external_exports.string().optional(),
+      routeAdditional: external_exports.boolean().optional().describe("split-test start: when the step is also served at other domains/paths, the modal asks whether to route them through the split (true) or not (false)"),
+      stepProductId: external_exports.string().optional().describe("edit-step-product / delete-step-product: the step product (its id is what add-step-product returned; get_funnel view step-products lists them); expectName is then ITS name"),
+      authorizeAmount: external_exports.number().positive().optional().describe("add / edit-step-product: a custom card authorization amount (omit for the default)"),
       displayText: external_exports.string().optional(),
       quantity: external_exports.object({ max: external_exports.number().int().min(1).optional(), allowMultiple: external_exports.boolean().optional() }).optional(),
       bump: external_exports.boolean().optional(),
@@ -227849,6 +228022,8 @@ var TOOLS2 = [
       { method: "POST", path: "/funnels/funnel/headers/delete" },
       { method: "GET", path: "/funnels/event" },
       { method: "POST", path: "/funnels/domain/invalidate-cache" },
+      { method: "PUT", path: "/funnels/order-form/products/{id}" },
+      { method: "DELETE", path: "/funnels/order-form/products/{id}" },
       { method: "POST", path: "/funnels/event" },
       { method: "PATCH", path: "/funnels/event/{id}" },
       { method: "DELETE", path: "/funnels/event/{id}" },
@@ -228003,12 +228178,18 @@ var TOOLS2 = [
               break;
             }
             let domainName;
-            if (args.action === "add-variation" && funnel.domainId) {
+            if ((args.action === "add-variation" || args.action === "start") && funnel.domainId) {
               const d = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
               const list = d.json?.domains ?? d.json?.data ?? [];
               domainName = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === funnel.domainId)?.url;
             }
-            plan = planSplit({ funnel, stepId: args.stepId, action: args.action, controlTraffic: args.controlTraffic, winnerPageId: args.winnerPageId, variationPath: args.variationPath, domainName, locationId: args.locationId });
+            let additionalRoutes = [];
+            if (args.action === "start") {
+              const lr = await readLookups(gw, args.locationId, args.funnelId);
+              if (!lr.res.ok) return fromHttp(lr.res.status, lr.res.json);
+              additionalRoutes = additionalRoutesOf({ step: (funnel.steps ?? []).find((x) => x.id === args.stepId), lookups: lr.rows, domainName });
+            }
+            plan = planSplit({ funnel, stepId: args.stepId, action: args.action, controlTraffic: args.controlTraffic, winnerPageId: args.winnerPageId, variationPath: args.variationPath, domainName, locationId: args.locationId, additionalRoutes, routeAdditional: args.routeAdditional });
             if (!plan.refuse && plan.exists) {
               const ex = await gw.call("POST", "/funnels/lookup/exists", plan.exists);
               if (!ex.ok) return fromHttp(ex.status, ex.json);
@@ -228099,8 +228280,23 @@ var TOOLS2 = [
               displayText: args.displayText,
               quantity: args.quantity,
               bump: args.bump,
+              authorizeAmount: args.authorizeAmount,
               locationId: args.locationId
             });
+            if (!plan.refuse) plan.notes = [STEP_PRODUCT_NOTE];
+            break;
+          }
+          case "edit-step-product":
+          case "delete-step-product": {
+            const miss = need("stepId") ?? need("stepProductId") ?? need("expectName");
+            if (miss) {
+              plan = { refuse: miss };
+              break;
+            }
+            const sp = await readStepProducts(gw, args.locationId, args.funnelId, args.stepId);
+            if (!sp.res.ok) return fromHttp(sp.res.status, sp.res.json);
+            const row = sp.rows.find((r) => r._id === args.stepProductId) ?? null;
+            plan = args.op === "edit-step-product" ? planEditStepProduct({ funnel, stepId: args.stepId, stepProductId: args.stepProductId, expectName: args.expectName, row, displayText: args.displayText, quantity: args.quantity, bump: args.bump, authorizeAmount: args.authorizeAmount }) : planDeleteStepProduct({ funnel, stepId: args.stepId, stepProductId: args.stepProductId, expectName: args.expectName, row });
             if (!plan.refuse) plan.notes = [STEP_PRODUCT_NOTE];
             break;
           }
@@ -228475,6 +228671,31 @@ var TOOLS2 = [
             if (!same4) return withFailureData(fail(CODES.VERIFY_FAILED, "the step product did not read back on the step with the requested product and price", "Compare data.stepProducts; do not add again blindly."), out);
             return ok(out);
           }
+          case "edit-step-product": {
+            const got = await reread(
+              async () => (await readStepProducts(gw, args.locationId, fid, args.stepId)).rows,
+              (rows) => {
+                const r = rows.find((x) => x._id === args.stepProductId);
+                return !!r && (r.displayText ?? "") === plan.body.displayText && r.bumpProduct === true === plan.body.bumpProduct && JSON.stringify(r.quantity) === JSON.stringify(plan.body.quantity) && (r.authorizeAmount ?? 0) === plan.body.authorizeAmount;
+              },
+              deps.rereadOptions ?? {}
+            );
+            const row = got.value.find((x) => x._id === args.stepProductId) ?? null;
+            const out = { op: "edit-step-product", stepProductId: args.stepProductId, target: plan.target, readBack: row ? stepProductView(row) : null, stepProducts: got.value.map(stepProductView), note: STEP_PRODUCT_NOTE };
+            const same4 = row && (row.displayText ?? "") === plan.body.displayText && row.bumpProduct === true === plan.body.bumpProduct && JSON.stringify(row.quantity) === JSON.stringify(plan.body.quantity) && (row.authorizeAmount ?? 0) === plan.body.authorizeAmount && String(row.product?._id ?? row.product) === plan.body.product && String(row.price?._id ?? row.price) === plan.body.price;
+            if (!same4) return withFailureData(fail(CODES.VERIFY_FAILED, "the step product did not read back with the requested values (or its product / price moved)", "Compare data.readBack with data.target.from; do not repeat blindly."), out);
+            return ok(out);
+          }
+          case "delete-step-product": {
+            const got = await reread(
+              async () => (await readStepProducts(gw, args.locationId, fid, args.stepId)).rows,
+              (rows) => !rows.some((r) => r._id === args.stepProductId),
+              deps.rereadOptions ?? {}
+            );
+            const out = { op: "delete-step-product", target: plan.target, stepProducts: got.value.map(stepProductView), note: STEP_PRODUCT_NOTE };
+            if (got.value.some((r) => r._id === args.stepProductId)) return withFailureData(fail(CODES.VERIFY_FAILED, "the step product still lists on the step after the delete answered", "Read get_funnel view step-products; do not delete twice."), out);
+            return ok(out);
+          }
           default:
             return ok({ op: args.op, status: w.status });
         }
@@ -228525,6 +228746,13 @@ var TOOLS2 = [
       await loadList("forms", `/forms/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, "forms");
       await loadList("calendars", `/calendars/?locationId=${encodeURIComponent(args.locationId)}`, "calendars");
       await loadList("surveys", `/surveys/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, "surveys");
+      {
+        const cf = await gw.call("GET", `/funnels/custom-fonts?locationId=${encodeURIComponent(args.locationId)}`);
+        if (cf.status === 200) {
+          known.customFonts = new Set(pick3(body2(cf), "data").filter((x) => x.deleted !== true).map((x) => x._id ?? x.id).filter(Boolean));
+          coverage.push({ check: "dangling-references:customFonts", ran: true, knownIds: known.customFonts.size });
+        } else coverage.push({ check: "dangling-references:customFonts", ran: false, why: `the customFonts list answered ${cf.status}` });
+      }
       const cv = await gw.call("GET", `/locations/${encodeURIComponent(args.locationId)}/customValues`);
       if (cv.status === 200) {
         known.customValues = new Set(pick3(body2(cv), "customValues").map((c) => normaliseTag(c.fieldKey ?? "")).filter(Boolean));
@@ -228541,6 +228769,24 @@ var TOOLS2 = [
         const all = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
         if (all.status !== 200) return fromHttp(all.status, all.json);
         docs = pick3(body2(all), "funnels", "data");
+      }
+      {
+        const ids = /* @__PURE__ */ new Set();
+        let failed = 0, stepsRead = 0;
+        for (const d of docs) for (const st of d.steps ?? []) {
+          if (!st.id || !(st.pages ?? []).length) continue;
+          const sp = await readStepProducts(gw, args.locationId, d._id, st.id);
+          if (sp.res.status !== 200) {
+            failed++;
+            continue;
+          }
+          stepsRead++;
+          for (const r of sp.rows) if (r._id) ids.add(r._id);
+        }
+        if (!failed) {
+          known.stepProducts = ids;
+          coverage.push({ check: "dangling-references:stepProducts", ran: true, knownIds: ids.size, steps: stepsRead });
+        } else coverage.push({ check: "dangling-references:stepProducts", ran: false, why: `the step-product list failed for ${failed} step(s); a partial list would flag real products as dangling` });
       }
       const scans = [];
       const findings = [];

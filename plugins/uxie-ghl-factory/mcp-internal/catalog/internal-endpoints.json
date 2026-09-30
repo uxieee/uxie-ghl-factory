@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-29",
+  "generated": "2026-09-30",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
   "count": 1587,
   "endpoints": [
@@ -8381,7 +8381,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:116"
+        "funnels/10-anatomy/styling-and-saved-assets.md:118"
       ]
     },
     {
@@ -8804,7 +8804,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:112",
+        "funnels/10-anatomy/styling-and-saved-assets.md:114",
         "funnels/10-anatomy/websites-and-global-sections.md:96",
         "funnels/20-api/funnel-ai.md:59"
       ]
@@ -8849,7 +8849,7 @@
       "sources": [
         "funnels/10-anatomy/page-content.md:13",
         "funnels/10-anatomy/routing-and-publishing.md:31",
-        "funnels/10-anatomy/styling-and-saved-assets.md:131",
+        "funnels/10-anatomy/styling-and-saved-assets.md:133",
         "funnels/20-api/funnels-api.md:143",
         "funnels/20-api/funnels-api.md:234",
         "funnels/30-types/section.md:78"
@@ -8960,7 +8960,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:114"
+        "funnels/10-anatomy/styling-and-saved-assets.md:116"
       ]
     },
     {
@@ -9616,7 +9616,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:109"
+        "funnels/10-anatomy/styling-and-saved-assets.md:111"
       ]
     },
     {
@@ -9680,7 +9680,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:98"
+        "funnels/10-anatomy/styling-and-saved-assets.md:100"
       ]
     },
     {
@@ -9724,7 +9724,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:98"
+        "funnels/10-anatomy/styling-and-saved-assets.md:100"
       ]
     },
     {
@@ -12748,6 +12748,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/50-runtime/analytics.md:95",
         "funnels/70-research/2026-09-29-route-census.md:86"
       ]
     },
@@ -12814,7 +12815,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/step-products-and-orders.md:70",
+        "funnels/20-api/step-products-and-orders.md:81",
         "funnels/40-rules/silent-failures.md:1324"
       ]
     },
@@ -12914,7 +12915,9 @@
       "rail": "workflow",
       "kind": "destructive",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -12937,7 +12940,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/step-products-and-orders.md:53"
+        "funnels/20-api/step-products-and-orders.md:61"
       ]
     },
     {
@@ -12984,7 +12987,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -13007,6 +13012,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/step-products-and-orders.md:53",
         "funnels/70-research/2026-09-29-route-census.md:84"
       ]
     },
@@ -21501,7 +21507,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/step-products-and-orders.md:67",
+        "funnels/20-api/step-products-and-orders.md:78",
         "platform/20-api/payment-links.md:100"
       ]
     },
@@ -23667,7 +23673,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:63"
+        "funnels/50-runtime/analytics.md:104"
       ]
     },
     {
@@ -23725,7 +23731,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:32"
+        "funnels/50-runtime/analytics.md:32",
+        "funnels/50-runtime/analytics.md:71"
       ]
     },
     {
@@ -23754,6 +23761,12 @@
           "type": "string",
           "required": false,
           "source": "documented"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
         }
       ],
       "body": null,
@@ -23765,7 +23778,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:24"
+        "funnels/50-runtime/analytics.md:24",
+        "funnels/50-runtime/analytics.md:66"
       ]
     },
     {
@@ -23943,7 +23957,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:82",
+        "funnels/50-runtime/analytics.md:80",
         "funnels/70-research/2026-09-29-route-census.md:93"
       ]
     },
@@ -24170,7 +24184,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:30"
+        "funnels/50-runtime/analytics.md:30",
+        "funnels/50-runtime/analytics.md:88"
       ]
     },
     {
@@ -24201,7 +24216,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:79"
+        "funnels/50-runtime/analytics.md:120"
       ]
     },
     {

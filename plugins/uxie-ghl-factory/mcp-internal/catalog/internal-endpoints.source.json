@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-29",
+  "generated": "2026-09-30",
   "trees": [
     {
       "tree": "workflow-builder",
@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-29T21:38:26.296Z",
+      "capturedAt": "2026-09-30T03:38:59.192Z",
       "hash": "corpus",
       "fileCount": 1326,
       "endpoints": 1326
@@ -6608,7 +6608,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:116"
+        "funnels/10-anatomy/styling-and-saved-assets.md:118"
       ],
       "serviceBasis": "declared"
     },
@@ -6942,7 +6942,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:112",
+        "funnels/10-anatomy/styling-and-saved-assets.md:114",
         "funnels/10-anatomy/websites-and-global-sections.md:96",
         "funnels/20-api/funnel-ai.md:59"
       ],
@@ -6979,7 +6979,7 @@
       "sources": [
         "funnels/10-anatomy/page-content.md:13",
         "funnels/10-anatomy/routing-and-publishing.md:31",
-        "funnels/10-anatomy/styling-and-saved-assets.md:131",
+        "funnels/10-anatomy/styling-and-saved-assets.md:133",
         "funnels/20-api/funnels-api.md:143",
         "funnels/20-api/funnels-api.md:234",
         "funnels/30-types/section.md:78"
@@ -7067,7 +7067,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:114"
+        "funnels/10-anatomy/styling-and-saved-assets.md:116"
       ],
       "serviceBasis": "declared"
     },
@@ -7566,7 +7566,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:109"
+        "funnels/10-anatomy/styling-and-saved-assets.md:111"
       ],
       "serviceBasis": "declared"
     },
@@ -7618,7 +7618,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:98"
+        "funnels/10-anatomy/styling-and-saved-assets.md:100"
       ],
       "serviceBasis": "declared"
     },
@@ -7657,7 +7657,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:98"
+        "funnels/10-anatomy/styling-and-saved-assets.md:100"
       ],
       "serviceBasis": "declared"
     },
@@ -10075,6 +10075,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/50-runtime/analytics.md:95",
         "funnels/70-research/2026-09-29-route-census.md:86"
       ],
       "serviceBasis": "declared"
@@ -10127,7 +10128,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/step-products-and-orders.md:70",
+        "funnels/20-api/step-products-and-orders.md:81",
         "funnels/40-rules/silent-failures.md:1324"
       ],
       "serviceBasis": "declared"
@@ -10226,7 +10227,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/step-products-and-orders.md:53"
+        "funnels/20-api/step-products-and-orders.md:61"
       ],
       "serviceBasis": "declared"
     },
@@ -10278,6 +10279,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/step-products-and-orders.md:53",
         "funnels/70-research/2026-09-29-route-census.md:84"
       ],
       "serviceBasis": "declared"
@@ -16910,7 +16912,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/step-products-and-orders.md:67",
+        "funnels/20-api/step-products-and-orders.md:78",
         "platform/20-api/payment-links.md:100"
       ],
       "serviceBasis": "declared"
@@ -18597,7 +18599,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:63"
+        "funnels/50-runtime/analytics.md:104"
       ],
       "serviceBasis": "declared"
     },
@@ -18648,7 +18650,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:32"
+        "funnels/50-runtime/analytics.md:32",
+        "funnels/50-runtime/analytics.md:71"
       ],
       "serviceBasis": "declared"
     },
@@ -18670,6 +18673,12 @@
           "type": "string",
           "required": false,
           "source": "documented"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
         }
       ],
       "body": null,
@@ -18681,7 +18690,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:24"
+        "funnels/50-runtime/analytics.md:24",
+        "funnels/50-runtime/analytics.md:66"
       ],
       "serviceBasis": "declared"
     },
@@ -18832,7 +18842,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:82",
+        "funnels/50-runtime/analytics.md:80",
         "funnels/70-research/2026-09-29-route-census.md:93"
       ],
       "serviceBasis": "declared"
@@ -19023,7 +19033,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:30"
+        "funnels/50-runtime/analytics.md:30",
+        "funnels/50-runtime/analytics.md:88"
       ],
       "serviceBasis": "declared"
     },
@@ -19049,7 +19060,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:79"
+        "funnels/50-runtime/analytics.md:120"
       ],
       "serviceBasis": "declared"
     },
