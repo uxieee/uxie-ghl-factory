@@ -101,7 +101,7 @@ import {
 } from './smart-lists.mjs';
 import { planPipelineEdit, readBackWithBackoff, readBaseWithBackoff, RECENT_WRITE_MS, COLOR_RENDER_MODES, strayArrivals, cardsInRemovedStages } from './pipelines.mjs';
 import { CLOSE_DATE_BUCKETS, DRILLDOWN_BY, FORECAST_VIEWS, GROUP_BY, PATHS as FORECAST_PATHS, forecastBody, nameMaps, shapeForecast } from './forecast.mjs';
-import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId } from './snapshots.mjs';
+import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId, listAgencyLocations, resolveTargets } from './snapshots.mjs';
 import {
   digestSpans as digestAgentSpans,
   branchNameMap as agentLogBranchNames,
@@ -10892,6 +10892,8 @@ export const TOOLS = [
     description: `${describe('push_snapshot', 'Load a snapshot into sub-accounts — risk: destructive')}. `
       + 'Preview by default; confirm:true writes. THE MOST DANGEROUS CALL HERE — it writes into OTHER '
       + 'sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. '
+      + 'Every target id is resolved against the agency\'s own sub-account list first: an id that is not one of '
+      + 'them is refused with nothing sent, and the preview names each target (id + location name). '
       + '`assets` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends '
       + 'carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows '
       + 'nobody chose. This one loads exactly what you name. '
@@ -10918,6 +10920,7 @@ export const TOOLS = [
       { method: 'GET', path: '/locations/{locationId}' },
       { method: 'GET', path: '/snapshots-appengine/snapshot/{snapshotId}/get_assets' },
       { method: 'GET', path: '/snapshots/v2/{companyId}' },
+      { method: 'GET', path: '/snapshots/locations/{companyId}' },
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'POST', path: '/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations' },
     ],
@@ -10932,6 +10935,25 @@ export const TOOLS = [
           'assets must name at least one id — a push with nothing selected is never what you meant',
           'Read what the snapshot actually carries with get_snapshot_contents (snapshotId), and pass ids from it, e.g. {"workflow": ["<id>"]}. '
           + 'Not get_snapshot_manifest: that lists what the source ACCOUNT could snapshot, a superset.');
+      }
+
+      // WHO RECEIVES IT. The push queues ANY target id it is given — a mistyped id that happens to be a real client
+      // sub-account would load the snapshot into that client — so every target is resolved against the agency's own
+      // sub-account list (the one the push wizard offers) before anything else is read or sent.
+      const agency = await listAgencyLocations(gw, companyId);
+      if (agency.failure) {
+        return {
+          ...fromHttp(agency.failure.status || 502, agency.failure.json),
+          remediation: 'The agency\'s sub-account list could not be read in full, so the targets cannot be checked and nothing was sent. Retry; do not work around it.',
+        };
+      }
+      const targets = resolveTargets(args.targetLocationIds, agency.locations);
+      if (targets.unknown.length) {
+        return withFailureData(
+          fail(CODES.VALIDATION_FAILED,
+            `${targets.unknown.length} target id(s) are not sub-accounts of this agency: ${targets.unknown.join(', ')}. Nothing was sent.`,
+            'Take target ids from the agency\'s own sub-account list (the same list the push wizard offers). A push queues any id it is given, so a mistyped id that happens to be a real client account would load it there.'),
+          { unknownTargets: targets.unknown, knownTargetCount: agency.locations.length });
       }
 
       // The snapshot's own manifest. An id that is not in it is accepted by the push and silently
@@ -11001,7 +11023,7 @@ export const TOOLS = [
           fail(CODES.VALIDATION_FAILED,
             `${published.length} of ${wanted.length} selected workflows are PUBLISHED on the source and will arrive live on every target.`,
             'Stand them down on the SOURCE first, or pass allowPublishedWorkflows:true and use the returned standDown plan immediately after the load.'),
-          { publishedOnSource: published, targets: args.targetLocationIds, standDown });
+          { publishedOnSource: published, targets: args.targetLocationIds, targetsNamed: targets.resolved, standDown });
       }
 
       const body = buildPushBody(args.targetLocationIds, args.assets, { overwriteConflicts: args.overwriteConflicts });
@@ -11016,6 +11038,7 @@ export const TOOLS = [
               companyId,
               snapshotId: args.snapshotId,
               targets: args.targetLocationIds,
+              targetsNamed: targets.resolved,
               categories,
               assetCount: check.requested,
               workflows: workflows.length ? workflows : undefined,
@@ -11043,6 +11066,7 @@ export const TOOLS = [
         companyId,
         snapshotId: args.snapshotId,
         targets: args.targetLocationIds,
+        targetsNamed: targets.resolved,
         categories,
         assetCount: check.requested,
         queued: true,

@@ -1997,6 +1997,11 @@
   {
     "tool": "push_snapshot",
     "method": "GET",
+    "path": "/snapshots/locations/{companyId}"
+  },
+  {
+    "tool": "push_snapshot",
+    "method": "GET",
     "path": "/workflow/{loc}/{wid}"
   },
   {

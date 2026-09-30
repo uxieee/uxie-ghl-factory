@@ -24282,7 +24282,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "push_snapshot"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

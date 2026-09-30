@@ -25,6 +25,47 @@ export async function resolveCompanyId(gw, locationId) {
 }
 
 /**
+ * The agency's own sub-accounts, exactly as the push wizard offers them: `GET /snapshots/locations/{companyId}`
+ * ({ data: [{ id, locationName, deleted }], meta: { hasNext } }), walked page by page. A push queues ANY target id it
+ * is given, so this list is the only thing standing between a mistyped id and a client account.
+ * Returns { locations: [{ id, name }] } or { failure: { status, json } } — a list that cannot be read in full is a
+ * failure, never a short list (a short list would turn a real target into "unknown", and an empty one into "all unknown").
+ */
+export async function listAgencyLocations(gw, companyId, { pageSize = 100, maxPages = 50 } = {}) {
+  const locations = [];
+  let skip = 0;
+  for (let page = 0; page < maxPages; page++) {
+    const r = await gw.call('GET', `/snapshots/locations/${encodeURIComponent(companyId)}?limit=${pageSize}&skip=${skip}`);
+    if (!r.ok) return { failure: { status: r.status, json: r.json } };
+    const rows = Array.isArray(r.json?.data) ? r.json.data : null;
+    if (!rows) return { failure: { status: r.status, json: r.json } };
+    for (const row of rows) {
+      const id = row?.id ?? row?._id;
+      if (id && row.deleted !== true) locations.push({ id: String(id), name: row.locationName ?? row.name ?? null });
+    }
+    if (!r.json?.meta?.hasNext || rows.length === 0) return { locations };
+    skip += rows.length;
+  }
+  return { failure: { status: 0, json: { message: `the agency's sub-account list ran past ${maxPages} pages` } } };
+}
+
+/**
+ * Split the requested target ids into the ones the agency owns (with their names, in the order asked) and the ones it
+ * does not. A repeated id is reported once in `resolved`.
+ */
+export function resolveTargets(ids, locations) {
+  const byId = new Map((locations ?? []).map((l) => [l.id, l]));
+  const resolved = []; const unknown = []; const seen = new Set();
+  for (const id of ids ?? []) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const hit = byId.get(id);
+    if (hit) resolved.push({ id: hit.id, name: hit.name }); else unknown.push(id);
+  }
+  return { resolved, unknown };
+}
+
+/**
  * Flatten a preFetchAssets response into `{category: Set(id)}`.
  * The shape varies per category, so every plausible id key is accepted rather than assuming one —
  * an id this misses would be reported as unknown, which is a refusal on a valid asset.

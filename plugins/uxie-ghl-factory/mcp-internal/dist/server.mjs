@@ -24459,7 +24459,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "push_snapshot"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -214422,6 +214424,37 @@ async function resolveCompanyId(gw, locationId) {
   const id = (r.json?.location ?? r.json ?? {}).companyId;
   return typeof id === "string" && id ? id : null;
 }
+async function listAgencyLocations(gw, companyId, { pageSize = 100, maxPages = 50 } = {}) {
+  const locations = [];
+  let skip = 0;
+  for (let page = 0; page < maxPages; page++) {
+    const r = await gw.call("GET", `/snapshots/locations/${encodeURIComponent(companyId)}?limit=${pageSize}&skip=${skip}`);
+    if (!r.ok) return { failure: { status: r.status, json: r.json } };
+    const rows = Array.isArray(r.json?.data) ? r.json.data : null;
+    if (!rows) return { failure: { status: r.status, json: r.json } };
+    for (const row of rows) {
+      const id = row?.id ?? row?._id;
+      if (id && row.deleted !== true) locations.push({ id: String(id), name: row.locationName ?? row.name ?? null });
+    }
+    if (!r.json?.meta?.hasNext || rows.length === 0) return { locations };
+    skip += rows.length;
+  }
+  return { failure: { status: 0, json: { message: `the agency's sub-account list ran past ${maxPages} pages` } } };
+}
+function resolveTargets(ids, locations) {
+  const byId = new Map((locations ?? []).map((l) => [l.id, l]));
+  const resolved = [];
+  const unknown2 = [];
+  const seen = /* @__PURE__ */ new Set();
+  for (const id of ids ?? []) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const hit = byId.get(id);
+    if (hit) resolved.push({ id: hit.id, name: hit.name });
+    else unknown2.push(id);
+  }
+  return { resolved, unknown: unknown2 };
+}
 function manifestIndex(prefetch) {
   const out = {};
   const idOf3 = (row) => typeof row === "string" ? row : row?.id ?? row?._id ?? row?.value ?? null;
@@ -229597,7 +229630,7 @@ var TOOLS2 = [
   },
   {
     name: "push_snapshot",
-    description: `${describe3("push_snapshot", "Load a snapshot into sub-accounts \u2014 risk: destructive")}. Preview by default; confirm:true writes. THE MOST DANGEROUS CALL HERE \u2014 it writes into OTHER sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. \`assets\` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows nobody chose. This one loads exactly what you name. \u{1F534} LOADED WORKFLOWS ARRIVE PUBLISHED when the source workflow is published \u2014 that is how 26 went live on an account taking ~230 enrollments a week. This refuses to load published workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. Conflicts NEVER cover assets the operator built by hand: a conflict means "this snapshot was pushed here before" (settled 2026-09-09), so an empty result is not clearance. Duplicate anything customised on the target BEFORE loading \u2014 that is the only protection. Pick \`assets\` ids with get_snapshot_contents (what the snapshot carries), not get_snapshot_manifest. \u{1F534} Custom fields and values MERGE BY NAME: a same-named custom field can have its dataType REWRITTEN to the snapshot's (SINGLE_OPTIONS became TEXT on a live load, keeping an orphaned picklistOptions array), which breaks any workflow branching on its options. Read custom fields before and after a load and diff dataType.`,
+    description: `${describe3("push_snapshot", "Load a snapshot into sub-accounts \u2014 risk: destructive")}. Preview by default; confirm:true writes. THE MOST DANGEROUS CALL HERE \u2014 it writes into OTHER sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. Every target id is resolved against the agency's own sub-account list first: an id that is not one of them is refused with nothing sent, and the preview names each target (id + location name). \`assets\` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows nobody chose. This one loads exactly what you name. \u{1F534} LOADED WORKFLOWS ARRIVE PUBLISHED when the source workflow is published \u2014 that is how 26 went live on an account taking ~230 enrollments a week. This refuses to load published workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. Conflicts NEVER cover assets the operator built by hand: a conflict means "this snapshot was pushed here before" (settled 2026-09-09), so an empty result is not clearance. Duplicate anything customised on the target BEFORE loading \u2014 that is the only protection. Pick \`assets\` ids with get_snapshot_contents (what the snapshot carries), not get_snapshot_manifest. \u{1F534} Custom fields and values MERGE BY NAME: a same-named custom field can have its dataType REWRITTEN to the snapshot's (SINGLE_OPTIONS became TEXT on a live load, keeping an orphaned picklistOptions array), which breaks any workflow branching on its options. Read custom fields before and after a load and diff dataType.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       snapshotId: external_exports.string(),
@@ -229611,6 +229644,7 @@ var TOOLS2 = [
       { method: "GET", path: "/locations/{locationId}" },
       { method: "GET", path: "/snapshots-appengine/snapshot/{snapshotId}/get_assets" },
       { method: "GET", path: "/snapshots/v2/{companyId}" },
+      { method: "GET", path: "/snapshots/locations/{companyId}" },
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "POST", path: "/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations" }
     ],
@@ -229624,6 +229658,24 @@ var TOOLS2 = [
           CODES.VALIDATION_FAILED,
           "assets must name at least one id \u2014 a push with nothing selected is never what you meant",
           'Read what the snapshot actually carries with get_snapshot_contents (snapshotId), and pass ids from it, e.g. {"workflow": ["<id>"]}. Not get_snapshot_manifest: that lists what the source ACCOUNT could snapshot, a superset.'
+        );
+      }
+      const agency = await listAgencyLocations(gw, companyId);
+      if (agency.failure) {
+        return {
+          ...fromHttp(agency.failure.status || 502, agency.failure.json),
+          remediation: "The agency's sub-account list could not be read in full, so the targets cannot be checked and nothing was sent. Retry; do not work around it."
+        };
+      }
+      const targets = resolveTargets(args.targetLocationIds, agency.locations);
+      if (targets.unknown.length) {
+        return withFailureData(
+          fail(
+            CODES.VALIDATION_FAILED,
+            `${targets.unknown.length} target id(s) are not sub-accounts of this agency: ${targets.unknown.join(", ")}. Nothing was sent.`,
+            "Take target ids from the agency's own sub-account list (the same list the push wizard offers). A push queues any id it is given, so a mistyped id that happens to be a real client account would load it there."
+          ),
+          { unknownTargets: targets.unknown, knownTargetCount: agency.locations.length }
         );
       }
       const man = await gw.call("GET", `/snapshots-appengine/snapshot/${encodeURIComponent(args.snapshotId)}/get_assets?type=own&companyId=${encodeURIComponent(companyId)}`);
@@ -229678,7 +229730,7 @@ var TOOLS2 = [
             `${published.length} of ${wanted.length} selected workflows are PUBLISHED on the source and will arrive live on every target.`,
             "Stand them down on the SOURCE first, or pass allowPublishedWorkflows:true and use the returned standDown plan immediately after the load."
           ),
-          { publishedOnSource: published, targets: args.targetLocationIds, standDown }
+          { publishedOnSource: published, targets: args.targetLocationIds, targetsNamed: targets.resolved, standDown }
         );
       }
       const body2 = buildPushBody(args.targetLocationIds, args.assets, { overwriteConflicts: args.overwriteConflicts });
@@ -229694,6 +229746,7 @@ var TOOLS2 = [
               companyId,
               snapshotId: args.snapshotId,
               targets: args.targetLocationIds,
+              targetsNamed: targets.resolved,
               categories,
               assetCount: check2.requested,
               workflows: workflows.length ? workflows : void 0,
@@ -229716,6 +229769,7 @@ var TOOLS2 = [
         companyId,
         snapshotId: args.snapshotId,
         targets: args.targetLocationIds,
+        targetsNamed: targets.resolved,
         categories,
         assetCount: check2.requested,
         queued: true,
