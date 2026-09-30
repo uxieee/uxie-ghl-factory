@@ -3409,7 +3409,10 @@ export function compile(ir, ctx) {
       'datetime_formatter', 'number_formatter', 'text_formatter', 'math_operation', 'custom_code',
       'add_to_workflow', 'remove_from_workflow', 'remove_from_all_workflows', 'array_functions',
       'drip', 'add_notes', 'create_custom_object', 'update_custom_object', 'clear_custom_object_fields', 'transition']);
-    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type));
+    // Marketplace steps: the orchestrator fetches the asset index FOR this workflow's kind (assetWorkflowTypes), so a step the index lists is
+    // one the object workflow's picker offers (find_object_record: the asset's workflowTypes is ['custom_object']). They are not refused here.
+    const objectMarketplace = (t) => Boolean(ctx?.marketplace?.get?.(t.type, 'action'));
+    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type) && !objectMarketplace(t));
     if (bad.length)
       throw new IRError('OBJECT_STEP',
         `OBJECT_STEP: ${bad.length} step(s) not available in an object-based workflow (customObjectType ${norm.customObjectType}): `

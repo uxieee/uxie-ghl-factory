@@ -54,3 +54,11 @@ test('a wait keeps an authored windowCondition and specificTimeSecond (they used
   const dflt = mk(); const o3 = compile(w({ type: 'time', startAfter: { type: 'minutes', value: 1, when: 'after' } }, { window: { condition: 'when', days: [1], start: '09:00', end: '17:00' } }), dflt.ctx);
   assert.deepEqual(o3.autoSaveBody.workflowData.templates.find((t) => t.type === 'wait').attributes.windowCondition, { field: '', operator: '', value: '' });
 });
+
+test('an object-workflow step the location\'s asset index lists (find_object_record) is not refused as OBJECT_STEP; an unlisted native step still is', () => {
+  const spec = (type, marketplace) => ({ name: 'W', customObjectType: 'custom_objects.x', triggers: [{ ref: 't', type: 'inbound_webhook', name: 'hook', filters: [] }],
+    graph: [{ ref: 's', kind: 'action', type, ...(marketplace ? { marketplace: true } : {}), name: 'step', attributes: marketplace ? { filter_on: 'earliest' } : { type, tags: ['x'] } }] });
+  const listed = mk(); listed.ctx.marketplace = { get: (k, kind) => (k === 'find_object_record' && kind === 'action' ? { key: k } : undefined), has: () => true };
+  try { compile(spec('find_object_record', true), listed.ctx); } catch (e) { assert.notEqual(e.code, 'OBJECT_STEP', String(e.message)); }
+  assert.throws(() => compile(spec('add_contact_tag', false), mk().ctx), (e) => e.code === 'OBJECT_STEP');
+});
