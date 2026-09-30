@@ -11,6 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [Unreleased]
+
+**`update_voiceai_agent` no longer wipes an agent's saved languages.**
+
+### Fixed
+- GHL resets `agentSettings.languages` to `[]` on any partial update that does not send it. On an agent the editor had
+  saved (`["en-US"]`), changing one unrelated field, or the post-call email setting, emptied the list. The tool's check
+  reported it, but only after the write had landed. The update now sends the stored list along unless you name
+  `languages` yourself, and so does the write-back after a provider refusal. Tested live on the sandbox: with the fix, a
+  one-field change left `languages` at `["en-US"]`; without it, the same change wiped it.
+
 ## [1.41.3] — 2026-09-30
 
 **`get_premium_usage` now reads GHL's real plan tiers.**

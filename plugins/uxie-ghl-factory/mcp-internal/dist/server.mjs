@@ -217362,7 +217362,10 @@ function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}
     }
     expected[k] = body2[k];
   }
-  return { method: "PUT", path: `/voice-ai/agents/${agentId}`, body: body2, expected, setKeys: Object.keys(spec) };
+  const storedLanguages = current.agentSettings?.languages;
+  const carried = !("languages" in spec) && Array.isArray(storedLanguages) && storedLanguages.length ? [...storedLanguages] : null;
+  if (carried) body2.languages = carried;
+  return { method: "PUT", path: `/voice-ai/agents/${agentId}`, body: body2, expected, setKeys: Object.keys(spec), ...carried ? { carried: { languages: carried } } : {} };
 }
 var same2 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 var KB_KEYS = ["knowledgeBaseIds", "knowledgeBasePrompt"];
@@ -217405,7 +217408,7 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
     const stored = plan.setKeys.filter((k) => !same2(readFlat(after, k), readFlat(before, k)));
     const message = serverMessage2(put?.json) ?? `HTTP ${put?.status ?? "?"}`;
     if (!stored.length) return { ok: false, code: "AGENT_UPDATE_FAILED", status: put?.status ?? null, detail: message, written: [] };
-    const undo = { locationId: plan.body.locationId };
+    const undo = { locationId: plan.body.locationId, ...plan.carried ?? {} };
     for (const k of stored) {
       undo[k] = k === "prompts" ? Object.fromEntries(Object.keys(plan.body.prompts).map((s) => [s, before?.prompts?.[s] ?? null])) : writable(k, readFlat(before, k));
     }

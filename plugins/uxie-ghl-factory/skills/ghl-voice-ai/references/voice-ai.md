@@ -434,6 +434,10 @@ other unlisted `actionType`.
   and `spamConfig.postCallAnalysis {enabled: false, blockThreshold: 5, notifyMode: "admin", …}`. After a user's first
   save in the UI, an engine-built agent shows those two keys; they are not drift. The `languages` default is the Save
   mapping itself (`languages.length ? languages : [language]`).
+- 🔴 **A partial `PUT /voice-ai/agents/{id}` resets `agentSettings.languages` to `[]` unless the body sends `languages`**
+  (live-proven 2026-09-30: `{voiceVolume}` alone and `{sendPostCallNotificationTo}` alone each turned `["en-US"]` into `[]`;
+  `{languages:["en-US"]}` put it back and moved nothing else). Every other key survives a partial PUT. `update_voiceai_agent`
+  sends the stored list along whenever the spec does not name `languages`; with `raw_request`, add it yourself.
 
 ## Raw routes and their traps (no typed tool — use `raw_request`, `host: "ai"`; live-proven 2026-09-28)
 
