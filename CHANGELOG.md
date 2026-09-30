@@ -11,6 +11,24 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.41.6] — 2026-10-01
+
+**`restore_workflow_version` no longer wipes the workflow's note, and there are new merge-tag notes.**
+
+### Fixed
+- 🔴 Restoring a workflow version erased the workflow's note. The tool built the restored workflow from the version
+  record, which doesn't carry the note. It now keeps the current note, and its check after the restore confirms the note
+  survived. Tested live: restoring a version now leaves the whole workflow unchanged, note included.
+- The other tools that save a whole workflow (`edit_workflow`, `publish_workflow` and `repair_workflow`) were checked in
+  the code and, for the first two, live on a test draft. Each starts from a fresh copy of the workflow and sends all of
+  it back. `rename_workflow` never saves the whole workflow.
+
+### Added
+- The merge-tag guide covers custom-object workflows (contact tags and the workflow name render empty there) and
+  Voice AI tags (they render empty outside a call).
+- The workflow skill's "before any write" rules now say never to send GHL part of a workflow. A save with only some of
+  its fields returns success but deletes the workflow's steps and changes its settings.
+
 ## [1.41.5] — 2026-09-30
 
 **`update_voiceai_agent` no longer wipes an agent's saved languages.**
