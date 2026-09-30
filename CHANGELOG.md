@@ -11,6 +11,24 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.42.2] — 2026-10-01
+
+**The AI Studio build-status tool no longer says "still running" for a cancelled build.**
+
+### Fixed
+- `get_studio_generation_status` reported a build you had cancelled as still running and, with its default wait, sat
+  waiting until the connection timed out (about 60 seconds). It now answers `cancelled` straight away. Tested live: a
+  cancelled build answered `cancelled` in 3.7 seconds, and a normal build still answered ready, with its version.
+- `set_contact_ai_status` no longer says "the bot goes off indefinitely" when you switch the bot ON.
+
+### Added
+- Proof records: 31 AI-agent and AI Studio tools re-proven live on 1.42.0. `get_ai_configuration_bundle` and
+  `list_marketplace_apps` are proven for the first time.
+
+### Known limits
+- `generate_studio_site` with a wait longer than about 50 seconds can outlast the connection's 60-second timeout. The
+  build carries on at GHL, but no result comes back. Start with `waitSeconds: 0` and poll the status instead.
+
 ## [1.42.1] — 2026-10-01
 
 **`push_snapshot` only pushes to your own sub-accounts, and names each one before it sends.**
