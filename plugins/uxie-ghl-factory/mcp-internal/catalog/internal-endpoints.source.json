@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T17:08:54.109Z",
+      "capturedAt": "2026-09-30T17:58:52.841Z",
       "hash": "corpus",
-      "fileCount": 1414,
-      "endpoints": 1414
+      "fileCount": 1418,
+      "endpoints": 1418
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1910,
+  "discoveredCallSites": 1914,
   "skippedCallSites": 720,
-  "count": 1647,
+  "count": 1651,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -12805,7 +12805,7 @@
       "id": "locations-service--get-by-id",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{id}",
+      "path": "/locations/{locationId}",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -12830,7 +12830,10 @@
         "services/marketplaceServices/LocationsService.ts:11"
       ],
       "serviceClass": "LocationsService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "unattributed",
+      "aka": [
+        "/locations/{id}"
+      ]
     },
     {
       "id": "opportunity-custom-field-service--get-custom-fields",
@@ -12939,6 +12942,32 @@
       "aka": [
         "/locations/{L}/customFields"
       ]
+    },
+    {
+      "id": "workflows--locations",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/locations/{locationId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/opportunity.md:105"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "memberships-courses--locations-categories-put",
@@ -22569,7 +22598,7 @@
         "workflows/10-anatomy/advanced-canvas.md:36",
         "workflows/20-api/03-endpoints.md:191",
         "workflows/20-api/trash-and-restore.md:24",
-        "workflows/40-rules/publish-gate.md:138",
+        "workflows/40-rules/publish-gate.md:141",
         "workflows/40-rules/settings-semantics.md:167",
         "workflows/00-overview/10-caveats.md:138",
         "workflows/10-anatomy/04-workflow-anatomy.md:40"
@@ -23813,7 +23842,8 @@
         "services/WorkflowService.ts:623",
         "platform/20-api/snapshots-authoring.md:278",
         "platform/40-rules/snapshot-carry-matrix.md:108",
-        "workflows/40-rules/publish-gate.md:48"
+        "workflows/40-rules/publish-gate.md:48",
+        "workflows/40-rules/publish-gate.md:65"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -39788,6 +39818,32 @@
       "serviceReason": "MOVED to its owning surface: a plain contact read"
     },
     {
+      "id": "platform--contacts-smartlist-delete-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/contacts/smartlist/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots.md:193"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--conversations-ai-employee-configs",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -42698,7 +42754,7 @@
       },
       "sources": [
         "services/marketplaceServices/InboundWebhookRequestService.ts:20",
-        "workflows/40-rules/publish-gate.md:128",
+        "workflows/40-rules/publish-gate.md:131",
         "workflows/40-rules/validation-gate.md:97",
         "workflows/70-research/2026-09-30-workflow-tool-reproof.md:31",
         "workflows/70-research/INBOUND-WEBHOOK.md:34",
@@ -52346,6 +52402,45 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "platform--snapshots-locations-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/snapshots/locations/{companyId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "skip",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots.md:189"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "platform--v2-available",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -52374,7 +52469,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:122"
+        "platform/20-api/snapshots.md:122",
+        "platform/20-api/snapshots.md:191"
       ],
       "serviceBasis": "declared"
     },
@@ -52440,7 +52536,34 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:111"
+        "platform/20-api/snapshots.md:111",
+        "platform/20-api/snapshots.md:172"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "platform--v2-set-assets-to-locations-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots.md:166"
       ],
       "serviceBasis": "declared"
     },

@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1656,
+      count: 1660,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -16396,16 +16396,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "locations-service--get-by-id",
+          aka: [
+            "/locations/{id}"
+          ],
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/locations/{id}",
-          path: "/locations/{id}",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}",
+          path: "/locations/{locationId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          reach: "source-only",
           coveredBy: [
             "check_snapshot_conflicts",
             "copy_workflow_to_location",
@@ -16431,7 +16431,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "workflow-builder",
           pathParams: [
             {
-              name: "id"
+              name: "locationId"
             }
           ],
           query: [],
@@ -16445,6 +16445,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/LocationsService.ts:11"
+          ]
+        },
+        {
+          id: "workflows--locations",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}",
+          path: "/locations/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/opportunity.md:105"
           ]
         },
         {
@@ -29045,7 +29080,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/10-anatomy/advanced-canvas.md:36",
             "workflows/20-api/03-endpoints.md:191",
             "workflows/20-api/trash-and-restore.md:24",
-            "workflows/40-rules/publish-gate.md:138",
+            "workflows/40-rules/publish-gate.md:141",
             "workflows/40-rules/settings-semantics.md:167",
             "workflows/00-overview/10-caveats.md:138",
             "workflows/10-anatomy/04-workflow-anatomy.md:40"
@@ -30556,7 +30591,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/WorkflowService.ts:623",
             "platform/20-api/snapshots-authoring.md:278",
             "platform/40-rules/snapshot-carry-matrix.md:108",
-            "workflows/40-rules/publish-gate.md:48"
+            "workflows/40-rules/publish-gate.md:48",
+            "workflows/40-rules/publish-gate.md:65"
           ]
         },
         {
@@ -50290,6 +50326,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "platform--contacts-smartlist-delete-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/contacts/smartlist/{id}",
+          path: "/contacts/smartlist/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:193"
+          ]
+        },
+        {
           id: "ai-agents--conversations-ai-employee-configs",
           method: "GET",
           url: "https://services.leadconnectorhq.com/conversations-ai/employeeConfigs",
@@ -53894,7 +53965,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/InboundWebhookRequestService.ts:20",
-            "workflows/40-rules/publish-gate.md:128",
+            "workflows/40-rules/publish-gate.md:131",
             "workflows/40-rules/validation-gate.md:97",
             "workflows/70-research/2026-09-30-workflow-tool-reproof.md:31",
             "workflows/70-research/INBOUND-WEBHOOK.md:34",
@@ -66249,6 +66320,56 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "platform--snapshots-locations-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots/locations/{companyId}",
+          path: "/snapshots/locations/{companyId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "push_snapshot"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:189"
+          ]
+        },
+        {
           id: "platform--v2-available",
           method: "GET",
           url: "https://services.leadconnectorhq.com/snapshots/locations/v2/{companyId}/available",
@@ -66288,7 +66409,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:122"
+            "platform/20-api/snapshots.md:122",
+            "platform/20-api/snapshots.md:191"
           ]
         },
         {
@@ -66380,7 +66502,45 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:111"
+            "platform/20-api/snapshots.md:111",
+            "platform/20-api/snapshots.md:172"
+          ]
+        },
+        {
+          id: "platform--v2-set-assets-to-locations-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations",
+          path: "/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "push_snapshot"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:166"
           ]
         },
         {
