@@ -313,8 +313,8 @@ uxie-ghl-factory plugin is installed — same data.
 | `am-add-lead` | Add Leads under an Affiliate | source-derived |
 | `am-add-manual-commission` | Add manual sales for an Affiliate | proven-live |
 | `apify` | Marketplace — Apify | source-derived |
-| `appointment_booking` | Book Appointment | source-derived |
-| `appointment_booking_conversation_ai` | Appointment Booking Conversation AI Bot | source-derived |
+| `appointment_booking` | Book Appointment | undefined |
+| `appointment_booking_conversation_ai` | Appointment Booking Conversation AI Bot | undefined |
 | `appointments` | Marketplace — appointments | source-derived |
 | `asana` | Marketplace — Asana | source-derived |
 | `asana_ia_asana_add_task_to_section` | Add Task To Section Of Project | source-derived |
@@ -370,10 +370,10 @@ uxie-ghl-factory plugin is installed — same data.
 | `clickup_ia_delete_task` | Delete Task | source-derived |
 | `clickup_ia_update_task` | Update Task | source-derived |
 | `clickup_new_checklist` | Add Checklist To Task | source-derived |
-| `communication` | Marketplace — communication | source-derived |
+| `communication` |  | undefined |
 | `communities` | Marketplace — Communities | source-derived |
 | `company` | Marketplace — Company | source-derived |
-| `contact` | Marketplace — contact | source-derived |
+| `contact` |  | undefined |
 | `contact_email_verification` | Email Verification | proven-live |
 | `conversation-ai` | Marketplace — Conversation AI | source-derived |
 | `create_and_associate_company` | Create And Associate Company | proven-live |
@@ -388,7 +388,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `eliza` | Marketplace — eliza | source-derived |
 | `fathom` | Marketplace — Fathom | source-derived |
 | `find_all_tasks` | Find Tasks | source-derived |
-| `find_associated_record` | Find Associated Record | source-derived |
+| `find_associated_record` | Find Associated Record | proven-live |
 | `find_custom_fields` | Find Custom Fields | source-derived |
 | `find_documents` | Find Documents | source-derived |
 | `find_notion_comment` | Find Comment | source-derived |
@@ -472,7 +472,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `lc_manus_fetch_task` | Fetch Tasks | source-derived |
 | `lc_manus_get_task` | Get Task | source-derived |
 | `lc_manus_update_task` | Update Task | source-derived |
-| `lc_merge_contact` | Merge Contact | source-derived |
+| `lc_merge_contact` | Merge Contact | undefined |
 | `lc_mistral_ai_analyze_image_vision` | Analyze Image (Vision) | source-derived |
 | `lc_mistral_ai_create_chat_completion` | Create Chat Completion | source-derived |
 | `lc_mistral_ai_create_embeddings` | Create Embeddings | source-derived |
@@ -514,7 +514,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `lc_vapi_upload_file` | Upload File | source-derived |
 | `linear` | Marketplace — Linear | source-derived |
 | `live_chat_response` | Send Live Chat Message | proven-live |
-| `log-external-call` | Log External Call | source-derived |
+| `log-external-call` | Log External Call | undefined |
 | `manus-ai` | Marketplace — Manus AI | source-derived |
 | `marketing` | Marketplace — marketing | source-derived |
 | `membership_course_grant_access` | Marketplace step — membership_course_grant_access | proven-live |
@@ -548,8 +548,8 @@ uxie-ghl-factory plugin is installed — same data.
 | `revoke-private-channel-access` | Revoke Private Channel Access | source-derived |
 | `send_rcs` | Marketplace step — send_rcs | proven-live |
 | `send_smart_message` | Send Message - Blooio.com | source-derived |
-| `send_whatsapp_flow` | WhatsApp: Send Flows | source-derived |
-| `send_whatsapp_message` | WhatsApp | source-derived |
+| `send_whatsapp_flow` | WhatsApp: Send Flows | undefined |
+| `send_whatsapp_message` | WhatsApp | undefined |
 | `send-data` | Marketplace — send_data | source-derived |
 | `staging-test` | Marketplace — Staging Test | source-derived |
 | `survey_monkey_ia_create_contact` | Create Contact | source-derived |
@@ -566,15 +566,15 @@ uxie-ghl-factory plugin is installed — same data.
 | `typeform_duplicate_existing_form` | Duplicate Existing Form | source-derived |
 | `typeform_search_responses` | Search Responses in a form | source-derived |
 | `update_associated_company` | Update Associated Company | proven-live |
-| `update_conversation_ai_status` | Update Conversation AI Bot and Status | source-derived |
+| `update_conversation_ai_status` | Update Conversation AI Bot and Status | undefined |
 | `update_inventory` | Marketplace step — update_inventory | proven-live |
 | `vapi-ai` | Marketplace — Vapi.ai | source-derived |
 | `voice_ai_outbound_call` | Voice AI Outbound Call | proven-live |
 | `voice-ai` | Marketplace — Voice AI | source-derived |
-| `whatsapp_24h_window` | WhatsApp: Customer Service Window Check | source-derived |
-| `whatsapp_interactive_messages` | WhatsApp Interactive Messages | source-derived |
-| `whatsapp_media` | WhatsApp Media | source-derived |
-| `whatsapp_v2` | WhatsApp | source-derived |
+| `whatsapp_24h_window` | WhatsApp: Customer Service Window Check | undefined |
+| `whatsapp_interactive_messages` | WhatsApp Interactive Messages | undefined |
+| `whatsapp_media` | WhatsApp Media | undefined |
+| `whatsapp_v2` | WhatsApp | undefined |
 | `workflow_ai_analyze_image` | workflow_ai_analyze_image | proven-live |
 | `workflow_ai_decision_maker` | workflow_ai_decision_maker | proven-live |
 | `workflow_ai_email_parser` | workflow_ai_email_parser | source-derived |

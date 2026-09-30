@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T08:38:02.239Z",
+      "capturedAt": "2026-09-30T11:46:25.353Z",
       "hash": "corpus",
-      "fileCount": 1362,
-      "endpoints": 1362
+      "fileCount": 1365,
+      "endpoints": 1365
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1858,
+  "discoveredCallSites": 1861,
   "skippedCallSites": 719,
-  "count": 1607,
+  "count": 1609,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -15154,7 +15154,7 @@
         "ai-studio/_data/endpoints.json",
         "ai-studio/10-anatomy/embedding-and-credentials.md:51",
         "ai-studio/10-anatomy/the-chat-and-version-model.md:25",
-        "workflows/20-api/version-history.md:76"
+        "workflows/20-api/version-history.md:74"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -17888,8 +17888,9 @@
         "services/marketplaceServices/SaasService.ts:12",
         "services/marketplaceServices/SaasService.ts:16",
         "workflows/20-api/agency-premium-features.md:51",
-        "workflows/20-api/agency-premium-features.md:173",
-        "services/marketplaceServices/SaasService.ts:29"
+        "workflows/20-api/agency-premium-features.md:181",
+        "services/marketplaceServices/SaasService.ts:29",
+        "workflows/20-api/agency-premium-features.md:119"
       ],
       "serviceClass": "SaasService",
       "serviceBasis": "reviewed",
@@ -17897,6 +17898,7 @@
         "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
         "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
         "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
+        "/saas-billing-v2/billing-config/LOCATION/{locationId}/workflow_premium_actions",
         "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}"
       ],
       "serviceReason": "OWNED: the premium WORKFLOW-product gate the build preflight reads"
@@ -17967,7 +17969,7 @@
       },
       "sources": [
         "workflows/20-api/agency-premium-features.md:85",
-        "workflows/20-api/agency-premium-features.md:129"
+        "workflows/20-api/agency-premium-features.md:137"
       ],
       "serviceBasis": "reviewed",
       "serviceReason": "OWNED: agency roster of the workflow_ai product"
@@ -17995,7 +17997,7 @@
       },
       "sources": [
         "workflows/20-api/agency-premium-features.md:54",
-        "workflows/20-api/agency-premium-features.md:127"
+        "workflows/20-api/agency-premium-features.md:135"
       ],
       "serviceBasis": "reviewed",
       "serviceReason": "OWNED: agency roster of the workflow_premium_actions product"
@@ -19958,7 +19960,7 @@
       },
       "sources": [
         "services/api/fetch-users.ts:55",
-        "workflows/50-runtime/log-export.md:50",
+        "workflows/50-runtime/log-export.md:54",
         "workflows/70-research/ENDPOINTS.md:129"
       ],
       "serviceClass": null,
@@ -22291,8 +22293,8 @@
       "sources": [
         "services/api/workflow-version-service.ts:26",
         "workflows/20-api/version-history.md:18",
-        "workflows/20-api/version-history.md:104",
-        "workflows/50-runtime/11-runtime-logs.md:218",
+        "workflows/20-api/version-history.md:102",
+        "workflows/50-runtime/11-runtime-logs.md:231",
         "services/WorkflowService.ts:550"
       ],
       "serviceClass": null,
@@ -23229,7 +23231,8 @@
       "sources": [
         "services/AutoSaveSettingsService.ts:27",
         "workflows/20-api/03-endpoints.md:306",
-        "workflows/20-api/version-history.md:75",
+        "workflows/20-api/version-history.md:73",
+        "workflows/40-rules/settings-semantics.md:218",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:68"
       ],
       "serviceClass": "AutoSaveSettingsService",
@@ -23921,6 +23924,7 @@
       "sources": [
         "services/api/domain-selection.service.ts:57",
         "workflows/20-api/sender-domain.md:16",
+        "workflows/20-api/sender-domain.md:71",
         "workflows/40-rules/validation-gate.md:95"
       ],
       "serviceClass": null,
@@ -25184,7 +25188,8 @@
       },
       "sources": [
         "services/WorkflowService.ts:659",
-        "workflows/20-api/03-endpoints.md:388"
+        "workflows/20-api/03-endpoints.md:388",
+        "workflows/20-api/trash-and-restore.md:51"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -25281,6 +25286,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:213",
+        "workflows/10-anatomy/builder-automation-surface.md:117",
         "workflows/20-api/03-endpoints.md:389"
       ],
       "serviceClass": "WorkflowService",
@@ -25309,6 +25315,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:688",
+        "workflows/10-anatomy/builder-automation-surface.md:117",
         "workflows/20-api/03-endpoints.md:389"
       ],
       "serviceClass": "WorkflowService",
@@ -25364,6 +25371,7 @@
       },
       "sources": [
         "services/PremiumTierUsageService.ts:21",
+        "workflows/20-api/agency-premium-features.md:119",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:72"
       ],
       "serviceClass": "PremiumTierUsageService",
@@ -25587,6 +25595,7 @@
       "sources": [
         "services/ScheduledPauseService.ts:64",
         "workflows/50-runtime/scheduled-pause.md:22",
+        "workflows/50-runtime/scheduled-pause.md:152",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:69"
       ],
       "serviceClass": "ScheduledPauseService",
@@ -29422,6 +29431,39 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "workflows--dynamic-source-internal-comment-action",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflows-marketplace/actions/dynamic-source/internal_comment_action",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [
+        {
+          "name": "filterField",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/20-api/uploads-and-dynamic-sources.md:52"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "workflows-marketplace-platform-service--fetch-action-input-all-options",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -29572,7 +29614,9 @@
       "sources": [
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:165",
         "workflows/70-research/ENDPOINTS.md:234",
-        "workflows/30-types/steps-marketplace/agent-studio.md:33"
+        "workflows/30-types/steps-marketplace/agent-studio.md:33",
+        "workflows/30-types/steps-marketplace/communities.md:157",
+        "workflows/30-types/steps-marketplace/communities.md:161"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -31055,6 +31099,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "workflows--ai-studio-form-submitted-dynamic-fields",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflows-marketplace/triggers/published/ai_studio_form_submitted/dynamic-fields",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/triggers-marketplace/ai_studio_form_submitted.md:33"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "workflows--workflows",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -31229,7 +31299,8 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowCopyLogsService.ts:10",
-        "workflows/20-api/copy-to-sub-account.md:31"
+        "workflows/20-api/copy-to-sub-account.md:31",
+        "workflows/20-api/copy-to-sub-account.md:50"
       ],
       "serviceClass": "WorkflowCopyLogsService",
       "serviceBasis": "inferred-from-path"
@@ -31335,7 +31406,7 @@
       "sources": [
         "services/api/log-export-service.ts:48",
         "workflows/20-api/log-export.md:26",
-        "workflows/50-runtime/log-export.md:17"
+        "workflows/50-runtime/log-export.md:21"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -31393,7 +31464,7 @@
       "sources": [
         "services/api/log-export-service.ts:32",
         "workflows/20-api/log-export.md:25",
-        "workflows/50-runtime/log-export.md:16"
+        "workflows/50-runtime/log-export.md:20"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -31445,7 +31516,8 @@
       "sources": [
         "services/api/log-export-service.ts:62",
         "workflows/20-api/log-export.md:27",
-        "workflows/50-runtime/log-export.md:18"
+        "workflows/50-runtime/log-export.md:3",
+        "workflows/50-runtime/log-export.md:22"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -31782,8 +31854,8 @@
         "services/api/workflow-logs-service.ts:72",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:166",
         "workflows/50-runtime/11-runtime-logs.md:37",
-        "workflows/50-runtime/11-runtime-logs.md:113",
-        "workflows/50-runtime/11-runtime-logs.md:251"
+        "workflows/50-runtime/11-runtime-logs.md:126",
+        "workflows/50-runtime/11-runtime-logs.md:264"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -31898,8 +31970,8 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:237",
-        "workflows/50-runtime/11-runtime-logs.md:190",
-        "workflows/50-runtime/11-runtime-logs.md:256",
+        "workflows/50-runtime/11-runtime-logs.md:203",
+        "workflows/50-runtime/11-runtime-logs.md:269",
         "workflows/70-research/RAIL.md:134",
         "workflows/70-research/RUNTIME-DATA-2.md:70"
       ],
@@ -32031,8 +32103,8 @@
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
         "workflows/20-api/03-endpoints.md:364",
-        "workflows/50-runtime/11-runtime-logs.md:145",
-        "workflows/50-runtime/11-runtime-logs.md:252",
+        "workflows/50-runtime/11-runtime-logs.md:158",
+        "workflows/50-runtime/11-runtime-logs.md:265",
         "workflows/70-research/ENDPOINTS.md:193",
         "workflows/70-research/RAIL.md:115"
       ],
@@ -32100,8 +32172,8 @@
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:281",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
-        "workflows/50-runtime/11-runtime-logs.md:203",
-        "workflows/50-runtime/11-runtime-logs.md:254",
+        "workflows/50-runtime/11-runtime-logs.md:216",
+        "workflows/50-runtime/11-runtime-logs.md:267",
         "workflows/70-research/ENDPOINTS.md:196"
       ],
       "serviceClass": "WorkflowMarketplaceService",
@@ -32394,7 +32466,7 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:203",
-        "workflows/50-runtime/11-runtime-logs.md:188",
+        "workflows/50-runtime/11-runtime-logs.md:201",
         "workflows/70-research/ENDPOINTS.md:194",
         "workflows/70-research/RAIL.md:134",
         "workflows/70-research/RUNTIME-DATA-2.md:71"
@@ -32693,7 +32765,7 @@
         "workflows/20-api/03-endpoints.md:365",
         "workflows/20-api/workflow-maps.md:74",
         "workflows/20-api/workflow-maps.md:92",
-        "workflows/50-runtime/11-runtime-logs.md:189"
+        "workflows/50-runtime/11-runtime-logs.md:202"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -32771,8 +32843,8 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
         "workflows/20-api/workflow-maps.md:62",
         "workflows/20-api/workflow-maps.md:91",
-        "workflows/50-runtime/11-runtime-logs.md:159",
-        "workflows/50-runtime/11-runtime-logs.md:253"
+        "workflows/50-runtime/11-runtime-logs.md:172",
+        "workflows/50-runtime/11-runtime-logs.md:266"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"

@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1616,
+      count: 1618,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -19449,7 +19449,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-studio/_data/endpoints.json",
             "ai-studio/10-anatomy/embedding-and-credentials.md:51",
             "ai-studio/10-anatomy/the-chat-and-version-model.md:25",
-            "workflows/20-api/version-history.md:76"
+            "workflows/20-api/version-history.md:74"
           ]
         },
         {
@@ -22888,6 +22888,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
             "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
             "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
+            "/saas-billing-v2/billing-config/LOCATION/{locationId}/workflow_premium_actions",
             "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}"
           ],
           method: "GET",
@@ -22955,8 +22956,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/SaasService.ts:12",
             "services/marketplaceServices/SaasService.ts:16",
             "workflows/20-api/agency-premium-features.md:51",
-            "workflows/20-api/agency-premium-features.md:173",
-            "services/marketplaceServices/SaasService.ts:29"
+            "workflows/20-api/agency-premium-features.md:181",
+            "services/marketplaceServices/SaasService.ts:29",
+            "workflows/20-api/agency-premium-features.md:119"
           ]
         },
         {
@@ -23051,7 +23053,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/20-api/agency-premium-features.md:85",
-            "workflows/20-api/agency-premium-features.md:129"
+            "workflows/20-api/agency-premium-features.md:137"
           ]
         },
         {
@@ -23095,7 +23097,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/20-api/agency-premium-features.md:54",
-            "workflows/20-api/agency-premium-features.md:127"
+            "workflows/20-api/agency-premium-features.md:135"
           ]
         },
         {
@@ -25606,7 +25608,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/fetch-users.ts:55",
-            "workflows/50-runtime/log-export.md:50",
+            "workflows/50-runtime/log-export.md:54",
             "workflows/70-research/ENDPOINTS.md:129"
           ]
         },
@@ -28728,8 +28730,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/workflow-version-service.ts:26",
             "workflows/20-api/version-history.md:18",
-            "workflows/20-api/version-history.md:104",
-            "workflows/50-runtime/11-runtime-logs.md:218",
+            "workflows/20-api/version-history.md:102",
+            "workflows/50-runtime/11-runtime-logs.md:231",
             "services/WorkflowService.ts:550"
           ]
         },
@@ -29795,7 +29797,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/AutoSaveSettingsService.ts:27",
             "workflows/20-api/03-endpoints.md:306",
-            "workflows/20-api/version-history.md:75",
+            "workflows/20-api/version-history.md:73",
+            "workflows/40-rules/settings-semantics.md:218",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:68"
           ]
         },
@@ -30647,6 +30650,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/domain-selection.service.ts:57",
             "workflows/20-api/sender-domain.md:16",
+            "workflows/20-api/sender-domain.md:71",
             "workflows/40-rules/validation-gate.md:95"
           ]
         },
@@ -32220,7 +32224,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/WorkflowService.ts:659",
-            "workflows/20-api/03-endpoints.md:388"
+            "workflows/20-api/03-endpoints.md:388",
+            "workflows/20-api/trash-and-restore.md:51"
           ]
         },
         {
@@ -32360,6 +32365,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/WorkflowService.ts:213",
+            "workflows/10-anatomy/builder-automation-surface.md:117",
             "workflows/20-api/03-endpoints.md:389"
           ]
         },
@@ -32400,6 +32406,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/WorkflowService.ts:688",
+            "workflows/10-anatomy/builder-automation-surface.md:117",
             "workflows/20-api/03-endpoints.md:389"
           ]
         },
@@ -32482,6 +32489,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/PremiumTierUsageService.ts:21",
+            "workflows/20-api/agency-premium-features.md:119",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:72"
           ]
         },
@@ -32786,6 +32794,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/ScheduledPauseService.ts:64",
             "workflows/50-runtime/scheduled-pause.md:22",
+            "workflows/50-runtime/scheduled-pause.md:152",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:69"
           ]
         },
@@ -37509,6 +37518,44 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "workflows--dynamic-source-internal-comment-action",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/dynamic-source/internal_comment_action",
+          path: "/workflows-marketplace/actions/dynamic-source/internal_comment_action",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "filterField",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/uploads-and-dynamic-sources.md:52"
+          ]
+        },
+        {
           id: "workflows-marketplace-platform-service--fetch-action-input-all-options",
           aka: [
             "/workflows-marketplace/actions/options/conversationai_services_booking"
@@ -37704,7 +37751,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:165",
             "workflows/70-research/ENDPOINTS.md:234",
-            "workflows/30-types/steps-marketplace/agent-studio.md:33"
+            "workflows/30-types/steps-marketplace/agent-studio.md:33",
+            "workflows/30-types/steps-marketplace/communities.md:157",
+            "workflows/30-types/steps-marketplace/communities.md:161"
           ]
         },
         {
@@ -39423,6 +39472,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "workflows--ai-studio-form-submitted-dynamic-fields",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/triggers/published/ai_studio_form_submitted/dynamic-fields",
+          path: "/workflows-marketplace/triggers/published/ai_studio_form_submitted/dynamic-fields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/triggers-marketplace/ai_studio_form_submitted.md:33"
+          ]
+        },
+        {
           id: "workflows--workflows",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflows/{locationId}",
@@ -39634,7 +39714,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowCopyLogsService.ts:10",
-            "workflows/20-api/copy-to-sub-account.md:31"
+            "workflows/20-api/copy-to-sub-account.md:31",
+            "workflows/20-api/copy-to-sub-account.md:50"
           ]
         },
         {
@@ -39760,7 +39841,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/log-export-service.ts:48",
             "workflows/20-api/log-export.md:26",
-            "workflows/50-runtime/log-export.md:17"
+            "workflows/50-runtime/log-export.md:21"
           ]
         },
         {
@@ -39824,7 +39905,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/log-export-service.ts:32",
             "workflows/20-api/log-export.md:25",
-            "workflows/50-runtime/log-export.md:16"
+            "workflows/50-runtime/log-export.md:20"
           ]
         },
         {
@@ -39884,7 +39965,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/log-export-service.ts:62",
             "workflows/20-api/log-export.md:27",
-            "workflows/50-runtime/log-export.md:18"
+            "workflows/50-runtime/log-export.md:3",
+            "workflows/50-runtime/log-export.md:22"
           ]
         },
         {
@@ -40233,8 +40315,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/api/workflow-logs-service.ts:72",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:166",
             "workflows/50-runtime/11-runtime-logs.md:37",
-            "workflows/50-runtime/11-runtime-logs.md:113",
-            "workflows/50-runtime/11-runtime-logs.md:251"
+            "workflows/50-runtime/11-runtime-logs.md:126",
+            "workflows/50-runtime/11-runtime-logs.md:264"
           ]
         },
         {
@@ -40378,8 +40460,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:237",
-            "workflows/50-runtime/11-runtime-logs.md:190",
-            "workflows/50-runtime/11-runtime-logs.md:256",
+            "workflows/50-runtime/11-runtime-logs.md:203",
+            "workflows/50-runtime/11-runtime-logs.md:269",
             "workflows/70-research/RAIL.md:134",
             "workflows/70-research/RUNTIME-DATA-2.md:70"
           ]
@@ -40533,8 +40615,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
             "workflows/20-api/03-endpoints.md:364",
-            "workflows/50-runtime/11-runtime-logs.md:145",
-            "workflows/50-runtime/11-runtime-logs.md:252",
+            "workflows/50-runtime/11-runtime-logs.md:158",
+            "workflows/50-runtime/11-runtime-logs.md:265",
             "workflows/70-research/ENDPOINTS.md:193",
             "workflows/70-research/RAIL.md:115"
           ]
@@ -40611,8 +40693,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:281",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
-            "workflows/50-runtime/11-runtime-logs.md:203",
-            "workflows/50-runtime/11-runtime-logs.md:254",
+            "workflows/50-runtime/11-runtime-logs.md:216",
+            "workflows/50-runtime/11-runtime-logs.md:267",
             "workflows/70-research/ENDPOINTS.md:196"
           ]
         },
@@ -40915,7 +40997,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:203",
-            "workflows/50-runtime/11-runtime-logs.md:188",
+            "workflows/50-runtime/11-runtime-logs.md:201",
             "workflows/70-research/ENDPOINTS.md:194",
             "workflows/70-research/RAIL.md:134",
             "workflows/70-research/RUNTIME-DATA-2.md:71"
@@ -41222,7 +41304,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "workflows/20-api/03-endpoints.md:365",
             "workflows/20-api/workflow-maps.md:74",
             "workflows/20-api/workflow-maps.md:92",
-            "workflows/50-runtime/11-runtime-logs.md:189"
+            "workflows/50-runtime/11-runtime-logs.md:202"
           ]
         },
         {
@@ -41312,8 +41394,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
             "workflows/20-api/workflow-maps.md:62",
             "workflows/20-api/workflow-maps.md:91",
-            "workflows/50-runtime/11-runtime-logs.md:159",
-            "workflows/50-runtime/11-runtime-logs.md:253"
+            "workflows/50-runtime/11-runtime-logs.md:172",
+            "workflows/50-runtime/11-runtime-logs.md:266"
           ]
         },
         {
@@ -137366,6 +137448,7 @@ init_define_TOOL_CATALOG();
 var TIMEZONES = ["account", "contact"];
 var WINDOW_CONDITIONS = ["when"];
 var SENDER_KEYS = ["from_name", "from_email", "from_number"];
+var NOTE_AUTHOR = (ctx, now) => ({ createdBy: ctx.uid ?? void 0, createdByName: "uxie-ghl-factory", createdAt: now, updatedBy: ctx.uid ?? void 0, updatedByName: "uxie-ghl-factory", updatedAt: now });
 var NOTE_KEYS = ["content", "createdBy", "createdByName", "createdOn", "createdAt", "updatedBy", "updatedByName", "updatedOn", "updatedAt"];
 var SETTINGS_SPEC = Object.freeze({
   allowMultiple: { ui: "Allow re-entry", def: true, type: "boolean" },
@@ -137469,12 +137552,12 @@ function normalizeSettings(settings, ctx = {}) {
   if (s.workflowNote != null && s.workflowNote !== "") {
     const now = (ctx.now ? new Date(ctx.now) : /* @__PURE__ */ new Date()).toISOString();
     if (typeof s.workflowNote === "string") {
-      workflowNote = { content: s.workflowNote, createdBy: ctx.uid ?? void 0, createdAt: now, updatedBy: ctx.uid ?? void 0, updatedAt: now };
+      workflowNote = { content: s.workflowNote, ...NOTE_AUTHOR(ctx, now) };
     } else if (typeof s.workflowNote === "object" && !Array.isArray(s.workflowNote)) {
       const extra = Object.keys(s.workflowNote).filter((k) => !NOTE_KEYS.includes(k));
       if (extra.length) refuse("SETTINGS_KEY", `settings.workflowNote has unknown key(s) [${extra.join(", ")}] \u2014 IWorkflowNote is ${NOTE_KEYS.join(", ")}`);
       if (typeof s.workflowNote.content !== "string") refuse("SETTINGS_VALUE", `settings.workflowNote.content must be a string`);
-      workflowNote = { content: String(s.workflowNote.content ?? ""), createdBy: ctx.uid ?? void 0, createdAt: now, updatedBy: ctx.uid ?? void 0, updatedAt: now, ...s.workflowNote };
+      workflowNote = { content: String(s.workflowNote.content ?? ""), ...NOTE_AUTHOR(ctx, now), ...s.workflowNote };
     } else refuse("SETTINGS_VALUE", `settings.workflowNote must be a string or {content, \u2026}`);
     if (workflowNote) {
       for (const k of Object.keys(workflowNote)) if (workflowNote[k] === void 0) delete workflowNote[k];
@@ -137486,7 +137569,7 @@ function normalizeSettings(settings, ctx = {}) {
     refuse("SETTINGS_VALUE", `settings.eventStartDate must be a string ('' = unset; deprecated in favour of the event_start_date step)`);
     eventStartDate = "";
   }
-  if (eventStartDate) warn(`settings.eventStartDate is deprecated in the builder (the Settings tab no longer shows it) \u2014 prefer an event_start_date step`);
+  if (eventStartDate) warn(`settings.eventStartDate is deprecated in the builder (the Settings tab still shows the field, labelled "[Deprecated]: please use event start date action") \u2014 prefer an event_start_date step`);
   let scheduledPauseDates = s.scheduledPauseDates ?? [];
   if (!Array.isArray(scheduledPauseDates)) {
     refuse("SETTINGS_VALUE", `settings.scheduledPauseDates must be an array`);
@@ -204649,6 +204732,8 @@ function internalNotificationAttributes(a, ctx) {
     ...assignedOwnerKeys(b, userType, { defaultOwners: false })
   } };
 }
+var WINDOW_CONDITION_FIELDS = /* @__PURE__ */ new Set(["", "day_month", "month", "year"]);
+var WINDOW_CONDITION_OPERATORS = /* @__PURE__ */ new Set(["", "==", "!="]);
 var WEBHOOK_EVENTS = /* @__PURE__ */ new Set(["CUSTOM"]);
 var WEBHOOK_METHODS = /* @__PURE__ */ new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
 function webhookAttributes(a, ref) {
@@ -204735,7 +204820,12 @@ function waitAttributes(node, ctx) {
     const w = node.window ?? a.window;
     if (w) {
       base.window = w.condition === "exact" ? { condition: "exact", days: w.days ?? [], start: w.start } : { condition: "when", days: w.days ?? [0, 1, 2, 3, 4, 5, 6], start: w.start, end: w.end };
-      base.windowCondition = { field: "", operator: "", value: "" };
+      const wc = node.windowCondition ?? w.windowCondition ?? a.windowCondition;
+      if (wc !== void 0 && (wc === null || typeof wc !== "object" || Array.isArray(wc)))
+        throw new IRError("WAIT_WINDOW_CONDITION", `wait '${node.ref}': windowCondition must be {field, operator, value}.`);
+      if (wc && !WINDOW_CONDITION_FIELDS.has(wc.field ?? "")) ctx?.warn?.(`WAIT_WINDOW_CONDITION: wait '${node.ref}' windowCondition.field '${wc.field}' is not one of ${[...WINDOW_CONDITION_FIELDS].filter(Boolean).join(", ")} (the drawer offers Current Day of month, Current month, Current year); sent as authored.`);
+      if (wc && !WINDOW_CONDITION_OPERATORS.has(wc.operator ?? "")) ctx?.warn?.(`WAIT_WINDOW_CONDITION: wait '${node.ref}' windowCondition.operator '${wc.operator}' is not '==' or '!='; sent as authored.`);
+      base.windowCondition = { field: wc?.field ?? "", operator: wc?.operator ?? "", value: wc?.value ?? "" };
     }
     return base;
   }
@@ -204764,7 +204854,8 @@ function waitAttributes(node, ctx) {
         specificDate: a.specificDate,
         ...a.specificTimeHour !== void 0 ? { specificTimeHour: a.specificTimeHour } : {},
         ...a.specificTimeMinute !== void 0 ? { specificTimeMinute: a.specificTimeMinute } : {},
-        ...a.specificTimePeriod !== void 0 ? { specificTimePeriod: a.specificTimePeriod } : {}
+        ...a.specificTimePeriod !== void 0 ? { specificTimePeriod: a.specificTimePeriod } : {},
+        ...a.specificTimeSecond !== void 0 ? { specificTimeSecond: a.specificTimeSecond } : {}
       },
       // setInitialSpecificDate()'s own defaults, verbatim.
       specificDateProceed: a.specificDateProceed ?? "on",
@@ -206179,10 +206270,63 @@ function seedRefMap(norm3, externalRefs) {
   for (const [name, id] of externalRefs.byName ?? []) if (id && !authored.has(name) && !refMap.has(name)) refMap.set(name, id);
   return refMap;
 }
+var UNIQUE_ONLY_TRIGGERS = /* @__PURE__ */ new Set(["inbound_webhook", "ivr_incoming_call"]);
+var DEPRECATED_TRIGGER_OPERATORS = /* @__PURE__ */ new Set(["matches_intent", "string-matches-any-of"]);
+var DEPRECATED_OPERATOR_TRIGGERS = /* @__PURE__ */ new Set([
+  "tik_tok_form_submitted",
+  "order_submission",
+  "product_started",
+  "category_started",
+  "lesson_started",
+  "lesson_completed",
+  "payment_received",
+  "affiliate_created",
+  "opportunity_decay",
+  "opportunity_status_changed",
+  "opportunity_created",
+  "opportunity_changed",
+  "pipeline_stage_updated",
+  "ivr_incoming_call"
+]);
+var CONFIG_KIND_TRIGGERS = /* @__PURE__ */ new Set(["inbound_webhook", "custom_date_reminder"]);
+var OBJECT_KIND_TRIGGERS = /* @__PURE__ */ new Set(["custom_object_created", "custom_object_changed", "inbound_webhook", "custom_date_reminder"]);
+function checkTriggerRules(norm3, ctx) {
+  const list = norm3.triggers ?? [];
+  for (const type of UNIQUE_ONLY_TRIGGERS) {
+    const n = list.filter((t) => t.type === type).length;
+    const hatch = ctx?.skipWorkflowRules === true || Array.isArray(ctx?.skipWorkflowRules) && ctx.skipWorkflowRules.includes("TRIGGER_UNIQUE_ONLY");
+    if (n > 1 && !hatch) {
+      throw new IRError(
+        "TRIGGER_UNIQUE_ONLY",
+        `TRIGGER_UNIQUE_ONLY: ${n} '${type}' triggers on one workflow. The builder allows one ("Each workflow can only have one instance of this trigger, and one has already been created"): the picker greys the type out and the canvas flags the extra card with an error badge. The API stores them all (measured), so this would save and then not work in the editor. Keep one trigger, or pass skipWorkflowRules (true, or ["TRIGGER_UNIQUE_ONLY"]) to build it anyway.`
+      );
+    }
+  }
+  const configKind = Boolean(norm3.workflowType && norm3.workflowType !== "agent");
+  const objectKind = Boolean(norm3.customObjectType);
+  if (configKind || objectKind) {
+    const allowed = configKind ? CONFIG_KIND_TRIGGERS : OBJECT_KIND_TRIGGERS;
+    for (const t of list) {
+      if (t.marketplace === true || allowed.has(t.type)) continue;
+      const cat = ctx?.catalog?.trigger?.(t.type)?.category ?? null;
+      if (!cat || cat === "events" || cat === "company" || cat === "custom_object") continue;
+      ctx?.warn?.(`TRIGGER_KIND_MISMATCH: '${t.name ?? t.type}' (${t.type}, ${cat}) is not offered by the builder's trigger picker for a ${configKind ? `'${norm3.workflowType}'` : "custom-object"} workflow (it offers ${configKind ? "the app/marketplace triggers, Inbound webhook and Custom date reminder" : "the two custom-object triggers, Inbound webhook, Custom date reminder and the app triggers"}). The API stores it anyway (measured), so it saves but cannot be edited or re-added in the builder.`);
+    }
+  }
+  for (const t of list) {
+    if (!DEPRECATED_OPERATOR_TRIGGERS.has(t.type)) continue;
+    for (const f of t.filters ?? []) {
+      if (DEPRECATED_TRIGGER_OPERATORS.has(f.operator)) {
+        ctx?.warn?.(`TRIGGER_OPERATOR_DEPRECATED: '${t.name ?? t.type}' filter '${f.field ?? f.on}' uses '${f.operator}', which the builder no longer offers for ${t.type}: the row loads with an empty operator ("Select operator") and the stored value is kept on re-save. Use 'string-contains-any-of' or 'has_value'.`);
+      }
+    }
+  }
+}
 function compile(ir, ctx) {
   const norm3 = parseIR(ir, { externalRefs: ctx.externalRefs });
   checkMarketplaceFilters(norm3.triggers, ctx);
   checkFlowTriggers(norm3.triggers, ctx);
+  checkTriggerRules(norm3, ctx);
   const oppTriggerTypes = new Set(
     ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === "opportunities")
   );
@@ -206373,7 +206517,8 @@ function compile(ir, ctx) {
       "clear_custom_object_fields",
       "transition"
     ]);
-    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type));
+    const objectMarketplace = (t) => Boolean(ctx?.marketplace?.get?.(t.type, "action"));
+    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type) && !objectMarketplace(t));
     if (bad.length)
       throw new IRError(
         "OBJECT_STEP",
@@ -206391,6 +206536,14 @@ function compile(ir, ctx) {
   autoSaveBody.workflowData.templates = stripNullNext(templates);
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, _triggerRefs: triggerRefs, authored, compiled: templates.length };
   casingLint(result);
+  for (const t of templates) {
+    const n = typeof t?.name === "string" ? t.name : null;
+    if (n && n.length > 100) ctx?.warn?.(`NAME_LENGTH: step '${n.slice(0, 40)}\u2026' is ${n.length} characters; the builder's drawer refuses to save a name over 100 ("Name should be between 1-100 characters"), so this step could not be edited there. The API stores it.`);
+  }
+  for (const tb of triggerBodies ?? []) {
+    const n = typeof tb?.name === "string" ? tb.name : null;
+    if (n && n.length > 100) ctx?.warn?.(`NAME_LENGTH: trigger '${n.slice(0, 40)}\u2026' is ${n.length} characters; the builder refuses to save a trigger name over 100.`);
+  }
   return result;
 }
 
@@ -210760,7 +210913,9 @@ async function orchestrate(ir, gw, opts = {}) {
       // merge-tags.mjs hatches. MERGE_TAG_UNKNOWN names strictMergeTags:false as the remedy, and
       // until wave10 neither reached this ctx, so the advice could not be followed.
       strictMergeTags: opts.strictMergeTags,
-      skipMergeTagCheck: opts.skipMergeTagCheck
+      skipMergeTagCheck: opts.skipMergeTagCheck,
+      // compiler.mjs checkTriggerRules (TRIGGER_UNIQUE_ONLY) honours the same hatch as the document rules
+      skipWorkflowRules: opts.skipWorkflowRules
     });
   } catch (e) {
     if (e?.name === "IRError") {
@@ -218605,6 +218760,7 @@ function processAuditPacing() {
 function makeGatewayFactory({ state: state2, gatewayImpl = makeGateway }) {
   return (options = {}) => gatewayImpl({ tokenFile: state2.tokenFile, legacyTokenFileEnv: state2.legacyTokenFileEnv, renewer: state2.renewer ?? null, ...options });
 }
+var ALL_FAILED_EVENT_TYPES = ["error", "failed", "wait_window_failed", "loop_identified", "failed_retry_limit_reached"];
 function validateRegisteredArgs(tool, args) {
   if (containsSecrets(args)) {
     return credentialFailure(tool.name === "set_token_file" ? CODES.TOKEN_MISSING : CODES.VALIDATION_FAILED);
@@ -221355,6 +221511,7 @@ var TOOLS2 = [
       contactId: external_exports.string().optional(),
       fromDate: external_exports.number().int().nonnegative().optional(),
       toDate: external_exports.number().int().nonnegative().optional(),
+      // `all_failed` is accepted and expanded into the five failure statuses on logs/v2 (the server itself answers [] for it).
       eventType: external_exports.string().optional(),
       // Per-run TRACE: every log row of ONE execution (the `workflowStatusId` of any log row /
       // enrollment `id`). logs/v2 only — the roster rejects unknown params. Live-proven GROM AU
@@ -221396,7 +221553,8 @@ var TOOLS2 = [
       if (typeof args.contactId === "string" && args.contactId.length) filters.contactId = args.contactId;
       if (Number.isFinite(args.fromDate)) filters.fromDate = String(args.fromDate);
       if (Number.isFinite(args.toDate)) filters.toDate = String(args.toDate);
-      if (typeof args.eventType === "string" && args.eventType.length) filters.eventType = args.eventType;
+      const expandAllFailed = args.eventType === "all_failed";
+      if (typeof args.eventType === "string" && args.eventType.length && !expandAllFailed) filters.eventType = args.eventType;
       const withFilters = (params) => {
         const q3 = new URLSearchParams(params);
         for (const [key, value] of Object.entries(filters)) q3.set(key, value);
@@ -221404,6 +221562,7 @@ var TOOLS2 = [
       };
       const logsQuery = withFilters(base);
       logsQuery.set("limit", String(limit));
+      if (expandAllFailed) for (const t of ALL_FAILED_EVENT_TYPES) logsQuery.append("eventType", t);
       if (filters.fromDate !== void 0 || filters.toDate !== void 0) logsQuery.set("dateType", "custom");
       if (typeof args.executionId === "string" && args.executionId.length) logsQuery.set("executionId", args.executionId);
       const [logs, counts] = await Promise.all([

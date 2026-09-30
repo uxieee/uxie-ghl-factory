@@ -7,7 +7,7 @@
    "family": "triggers-marketplace",
    "title": "abandoned_checkout (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Triggers when a cart is abandoned",
    "meta": {
     "App": "Ecommerce Stores",
@@ -548,7 +548,7 @@
    "family": "steps",
    "title": "add_to_affiliate_campaign",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Add the contact to a specific affiliate campaign.",
    "meta": {
     "Section": "`affiliate` (per `sniffs/bundle/registry-parsed.json::entries[62]`)",
@@ -583,7 +583,7 @@
    "family": "steps",
    "title": "add_to_affiliate_manager",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Add the contact to the location's Affiliate Manager (becomes an affiliate).",
    "meta": {
     "Section": "`affiliate` (per `sniffs/bundle/registry-parsed.json::entries[60]`)",
@@ -2036,9 +2036,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "Book Appointment",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Automatically schedules appointments using standard or dynamic time slots, with the flexibility to override...",
    "fields": [
     {
@@ -2063,9 +2061,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "Appointment Booking Conversation AI Bot",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Book an appointment with conversation AI bot, click <a target=\"_blank\" href=\"https://help.leadconnectorhq.c...",
    "fields": [
     {
@@ -8872,9 +8868,6 @@
   {
    "type": "communication",
    "family": "steps-marketplace",
-   "title": "Marketplace — communication",
-   "status": "source-derived",
-   "lastVerified": "2026-09-30",
    "summary": "`appName: \"communication\"` exposes **12 actions** in `sniffs/02-assets.json::actions[3].actions[]`. `executionConfig.type` set: `CODE`, `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `communication`.",
    "fields": [
     {
@@ -9091,9 +9084,6 @@
   {
    "type": "contact",
    "family": "steps-marketplace",
-   "title": "Marketplace — contact",
-   "status": "source-derived",
-   "lastVerified": "2026-09-30",
    "summary": "`appName: \"contact\"` exposes **11 actions** in `sniffs/02-assets.json::actions[2].actions[]`. `executionConfig.type` set: `API`, `CODE`, `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `contact`.",
    "fields": [
     {
@@ -9362,7 +9352,6 @@
    "title": "Email Verification",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-09-30",
    "summary": "Verify the email before sending",
    "configSurface": "none",
    "proven": [
@@ -9909,7 +9898,7 @@
    "family": "steps",
    "title": "AI splitter",
    "status": "proven-live",
-   "lastVerified": "2026-08-31",
+   "lastVerified": "2026-09-30",
    "summary": "Let the model choose a branch from a natural-language description of each one.",
    "fields": [
     {
@@ -10100,7 +10089,7 @@
    "family": "steps",
    "title": "Services booking",
    "status": "source-derived",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-09-30",
    "summary": "Book a commerce **service** (rather than a calendar) from inside the conversation.",
    "fields": [
     {
@@ -12224,7 +12213,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — customObjects",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"customObjects\"` exposes **1 action** in `sniffs/02-assets.json::actions[15].actions[]`. `executionConfig.type` set: `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `customObjects`. 1 hidden in `additionalConfig`.",
    "fields": [
     {
@@ -13777,9 +13766,9 @@
    "family": "steps-marketplace",
    "app": "customobjects",
    "title": "Find Associated Record",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Find an associated record using selected fields and filters.",
    "fields": [
     {
@@ -13796,6 +13785,9 @@
      "default": "—",
      "notes": "dynamic (custom generator)"
     }
+   ],
+   "proven": [
+    "### `find_object_record` — authoring and the editor `[proven-live 2026-09-30]`"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/customobjects.md"
   },
@@ -16753,7 +16745,6 @@
    "title": "Delete Contact",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-09-30",
    "summary": "This action permanently deletes the contact from this account and all workflows.",
    "configSurface": "none",
    "proven": [
@@ -20751,9 +20742,7 @@
    "family": "steps-marketplace",
    "app": "contact",
    "title": "Merge Contact",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Identifies duplicate contacts and merges the newer contact record into the oldest existing record. Once con...",
    "fields": [
     {
@@ -22876,7 +22865,6 @@
    "title": "Send Live Chat Message",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-09-30",
    "summary": "Automatically send response message to the live chat",
    "fields": [
     {
@@ -22897,9 +22885,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "Log External Call",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Add an external call to the conversation. If you are using Inbound Webhook Trigger to pass the call details...",
    "fields": [
     {
@@ -26254,7 +26240,7 @@
    "family": "steps",
    "title": "remove_from_affiliate_campaign",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Remove the contact from an affiliate campaign.",
    "meta": {
     "Section": "`affiliate` (per `sniffs/bundle/registry-parsed.json::entries[63]`)",
@@ -27083,9 +27069,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp: Send Flows",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Send WhatsApp Flows to your customers, allowing them to seamlessly book appointments directly on your exist...",
    "fields": [
     {
@@ -27124,9 +27108,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Sends a whatsapp message to the contact",
    "fields": [
     {
@@ -28620,7 +28602,6 @@
    "title": "TikTok Interactive Messenger",
    "status": "proven-live",
    "source": "measured",
-   "lastVerified": "2026-09-30",
    "summary": "Sends a TikTok message to the contact (contact needs to have previously messaged a connected TikTok account...",
    "fields": [
     {
@@ -29504,9 +29485,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "Update Conversation AI Bot and Status",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Updates the Conversation AI bot and status for the contact",
    "fields": [
     {
@@ -30352,9 +30331,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp: Customer Service Window Check",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "When a WhatsApp user sends you a message, a 24-hour Customer Service Window is open, during which you can s...",
    "fields": [
     {
@@ -30379,9 +30356,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp Interactive Messages",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Send Interactive Messages on WhatsApp from Workflows",
    "fields": [
     {
@@ -30399,9 +30374,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp Media",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Upload your attachment for the WhatsApp message. Ensure the file meets WhatsApp's supported formats and siz...",
    "fields": [
     {
@@ -30548,9 +30521,7 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp",
-   "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-09-30",
    "summary": "Sends a whatsapp message to the contact",
    "fields": [
     {
