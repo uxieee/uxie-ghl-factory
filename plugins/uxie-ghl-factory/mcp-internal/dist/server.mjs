@@ -76478,9 +76478,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       cancel_studio_generation: {
-        description: "Cancel studio generation \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Cancel studio generation \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-chat-cancel"
@@ -76991,9 +76991,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_agent_message_trace: {
-        description: "Why the AI said it: the node-by-node span trace for one message, digested \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Why the AI said it: the node-by-node span trace for one message, digested \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--logs-spans",
@@ -77012,9 +77012,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_agent_metrics: {
-        description: "Agent Logs metrics dashboard \u2014 tokens, latency, success rates, top models/tools/agents, time series \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Agent Logs metrics dashboard \u2014 tokens, latency, success rates, top models/tools/agents, time series \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--agent-logs-metrics"
@@ -77030,9 +77030,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_agent_session: {
-        description: "One agent session: summary, customConfigs, every interaction and its metrics \u2014 proof: live-runtime (2026-09-29); risk: read",
+        description: "One agent session: summary, customConfigs, every interaction and its metrics \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--logs-summary",
@@ -77117,9 +77117,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_ai_response_details: {
-        description: "The assembled prompt, history and retrieval behind one outbound AI message \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "The assembled prompt, history and retrieval behind one outbound AI message \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--interactions-response-details"
@@ -77135,9 +77135,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_contact_ai_status: {
-        description: "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-08-08)",
         proofRows: [
           "ai-convai-contact-config-read"
@@ -77215,9 +77215,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_generation_status: {
-        description: "Get studio generation status \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Get studio generation status \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
@@ -77255,9 +77255,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_site: {
-        description: "Get studio site \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Get studio site \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects--documented",
@@ -77277,9 +77277,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_site_diffs: {
-        description: "Get studio site diffs \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Get studio site diffs \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
@@ -77295,9 +77295,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_site_history: {
-        description: "Get studio site history \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Get studio site history \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
@@ -77553,9 +77553,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_agent_contacts: {
-        description: "Agent Logs contacts \u2014 per-contact AI activity aggregates \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Agent Logs contacts \u2014 per-contact AI activity aggregates \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--agent-logs-contacts"
@@ -77571,9 +77571,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_agent_sessions: {
-        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-29); risk: read",
+        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--agent-logs-logs"
@@ -77647,9 +77647,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_marketplace_apps: {
-        description: "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: live-runtime (2026-08-16: the endpoint and its dual-credential rail were called against a real sub-account and returned the installed app with appId/publisher; the handler itself is unit-tested against a mocked gateway, not live-invoked); risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large.",
+        description: "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: live-runtime (2026-09-30); the handler itself is unit-tested against a mocked gateway, not live-invoked); risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large.",
         risk: "read",
-        proof: "documented",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "documented",
         proofRows: [
           "marketplace-modules-triggers-list",
@@ -77691,9 +77691,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_studio_sites: {
-        description: "List studio sites \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "List studio sites \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects",
@@ -77904,9 +77904,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       read_studio_site_content: {
-        description: "Read studio site content \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Read studio site content \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects-files"
@@ -78585,9 +78585,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_agent_log_filter_values: {
-        description: "Read Agent Logs filter values \u2014 proof: live-runtime (2026-09-29); risk: read",
+        description: "Read Agent Logs filter values \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "ai-agents--agent-logs-filter-values"
@@ -78603,9 +78603,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_voice_call_logs: {
-        description: "Read Voice AI call logs \u2014 proof: live-runtime (2026-09-29); risk: read",
+        description: "Read Voice AI call logs \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "ai-agents--dashboard-call-logs",
@@ -78625,9 +78625,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_convai_conversation_logs: {
-        description: "Read Conversation AI conversation logs \u2014 proof: live-runtime (2026-09-29); risk: read",
+        description: "Read Conversation AI conversation logs \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "ai-agents--employees-conversation-logs",
