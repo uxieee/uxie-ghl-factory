@@ -5,7 +5,7 @@ One line per step and trigger type. For the full card (fields, allowed values, v
 gotchas) run `node scripts/types.mjs <type-key>`, or `describe_step_type` if the
 uxie-ghl-factory plugin is installed — same data.
 
-533 types: 152 native, 381 marketplace. Status is each card's floor: 
+535 types: 152 native, 383 marketplace. Status is each card's floor: 
 `proven-live` > `source-derived` > `inferred`; `deprecated` means do not build on it.
 
 ## Triggers (native) (62)
@@ -170,7 +170,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `workflow_goal` | source-derived | A goal is a jump target. When a contact anywhere in the workflow meets any of the goal's conditions, they jump straight to the goal step and continue from it. `action` only governs a contact who reaches the goal step by walking the path without having met it. |
 | `workflow_split` | source-derived | Multi-path randomizer / A/B-test splitter. Routes incoming contacts across N paths via weight-distributed random selection. |
 
-## Triggers (marketplace apps) (104)
+## Triggers (marketplace apps) (105)
 
 | type | title | status |
 |---|---|---|
@@ -191,6 +191,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `asana_it_asana_task_deleted` | asana_it_asana_task_deleted (Marketplace) | source-derived |
 | `asana_it_asana_task_moved_to_section` | asana_it_asana_task_moved_to_section (Marketplace) | source-derived |
 | `asana_it_asana_task_updated` | asana_it_asana_task_updated (Marketplace) | source-derived |
+| `badges_issued_workflow` | badges_issued_workflow (Marketplace) | proven-live |
 | `basecamp_new_activity` | basecamp_new_activity (Marketplace) | source-derived |
 | `basecamp_new_comment_added` | basecamp_new_comment_added (Marketplace) | source-derived |
 | `basecamp_new_document` | basecamp_new_document (Marketplace) | source-derived |
@@ -279,7 +280,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `user_group_gamification_level_changed` | user_group_gamification_level_changed (Marketplace) | source-derived |
 | `whatsapp_referral` | whatsapp_referral (Marketplace) | source-derived |
 
-## Steps (marketplace apps) (277)
+## Steps (marketplace apps) (278)
 
 | type | title | status |
 |---|---|---|
@@ -320,6 +321,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `associate_records` | Associate Records | source-derived |
 | `associate_records` | Associate Records | proven-live |
 | `associations` | Marketplace — Associations | source-derived |
+| `badges` | Marketplace — badges (Issue badge) | proven-live |
 | `basecamp` | Marketplace — BaseCamp | source-derived |
 | `basecamp_create_campfire_message` | Create Campfire Message | source-derived |
 | `basecamp_create_comment_on_message` | Create Comment On Message | source-derived |

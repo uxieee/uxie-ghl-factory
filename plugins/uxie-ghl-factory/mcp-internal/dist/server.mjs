@@ -221974,7 +221974,7 @@ var TOOLS2 = [
   },
   {
     name: "build_course",
-    description: `${describe3("build_course", "Build and verify a GHL Memberships course (proof: documented).")} The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Only free offers are supported; paid offers return 500 without a payment provider. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).`,
+    description: `${describe3("build_course", "Build and verify a GHL Memberships course (proof: documented).")} The course's certificate/badge template goes under spec.award {title, type: certificate|badge} ("credential" is refused by the secret guard). The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Only free offers are supported; paid offers return 500 without a payment provider. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).`,
     inputSchema: schema({
       locationId: external_exports.string(),
       spec: external_exports.object({}).passthrough(),
@@ -222011,8 +222011,13 @@ var TOOLS2 = [
       { method: "GET", path: "/membership/locations/{loc}/certificate-attachments/products/{productId}?skip={skip}&limit={limit}" }
     ],
     handler: async (args, deps) => guard(async () => {
-      const courseSpec = { ...args.spec, locationId: args.locationId };
+      const { award, ...specRest } = args.spec;
+      const courseSpec = { ...specRest, ...award !== void 0 ? { credential: award } : {}, locationId: args.locationId };
       const preview = previewCourseSpec(courseSpec, { requireAbsoluteMediaPaths: true });
+      if (award !== void 0 && preview.wouldCreate && "credential" in preview.wouldCreate) {
+        preview.wouldCreate.award = preview.wouldCreate.credential;
+        delete preview.wouldCreate.credential;
+      }
       if (!preview.valid) {
         return withFailureData(
           fail(
@@ -222041,6 +222046,7 @@ var TOOLS2 = [
       });
       const data2 = {
         preview,
+        ...award !== void 0 ? { award } : {},
         created: report.built,
         verification: report.verification,
         failurePhase: report.failurePhase,

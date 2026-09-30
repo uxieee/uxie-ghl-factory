@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 534,
+ "count": 536,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -3875,6 +3875,26 @@
    "hasCanonicalExample": false
   },
   {
+   "type": "badges",
+   "family": "steps-marketplace",
+   "title": "Marketplace — badges (Issue badge)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "The GHL first-party (INTERNAL) step `issue_badge_workflow` (\"Issue badge\") takes ONE required input, `templateId` (a select fed by the certificates service route `triggers/templates?type=badge`). Templates are created with a course's `credential` block of type `badge` (`build_course`).",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
+  },
+  {
+   "type": "badges_issued_workflow",
+   "family": "triggers-marketplace",
+   "title": "badges_issued_workflow (Marketplace)",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "The GHL first-party (INTERNAL) trigger \"Badges Issued\": runs when a badge is issued. Filter row: `templateId` (optional select fed by `triggers/templates?type=badge`); a built trigger with no row stored `conditions: []`.",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
+  },
+  {
    "type": "basecamp",
    "family": "steps-marketplace",
    "title": "Marketplace — BaseCamp",
@@ -6631,7 +6651,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — certificates",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"certificates\"` exposes **1 action** in `sniffs/02-assets.json::actions[13].actions[]`. `executionConfig.type` set: `PUBSUB`. `workflowsActionType`: `INTERNAL`. `section` values: `certificates`.",
    "fields": [
     {
@@ -6658,7 +6678,7 @@
    "family": "triggers-marketplace",
    "title": "certificates_issued_workflow (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Runs when a certificate is issued.",
    "meta": {
     "App": "certificates",
@@ -16221,7 +16241,7 @@
    "title": "Issue certificate",
    "status": "source-derived",
    "source": "asset",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Choose a certificate to send. The selected certificate template will be sent out as email. (* Some custom v...",
    "fields": [
     {
