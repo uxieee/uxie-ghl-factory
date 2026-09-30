@@ -11,6 +11,21 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.41.1] — 2026-09-30
+
+**The "wrong trigger for this workflow type" warning fires only on Company workflows.**
+
+### Fixed
+- The warning added in 1.41.0 could fire on ordinary contact workflows if a `workflowType` value was set. Reading 300
+  sandbox workflows showed GHL stores no type on ordinary workflows, `agent` on agent workflows and `business` on Company
+  ones. The warning now fires only for Company workflows, and a test checks that the other kinds stay quiet.
+
+### Added
+- The workflow skill names more things GHL can do that the plugin leaves out on purpose, and says where to find them
+  in GHL: the location-wide builder and AI Builder settings, the flow-bot setup page, and the per-workflow sending
+  domain. The Workflow AI entry now lists every mode of the AI panel and what was measured about it.
+- Knowledge pages for the "Add products to cart" and "Product viewed" e-commerce triggers.
+
 ## [1.41.0] — 2026-09-30
 
 **The workflow builder now catches builder rules that GHL's API does not enforce, and the "all failed" log filter works.**
