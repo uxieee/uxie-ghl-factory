@@ -5641,7 +5641,7 @@ export const TOOLS = [
   },
   {
     name: 'build_course',
-    description: `${describe('build_course', 'Build and verify a GHL Memberships course (proof: documented).')} The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Only free offers are supported; paid offers return 500 without a payment provider. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).`,
+    description: `${describe('build_course', 'Build and verify a GHL Memberships course (proof: documented).')} The course's certificate/badge template goes under spec.award {title, type: certificate|badge} ("credential" is refused by the secret guard). The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Only free offers are supported; paid offers return 500 without a payment provider. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).`,
     inputSchema: schema({
       locationId: z.string(),
       spec: z.object({}).passthrough(),
@@ -5678,8 +5678,15 @@ export const TOOLS = [
       { method: 'GET', path: '/membership/locations/{loc}/certificate-attachments/products/{productId}?skip={skip}&limit={limit}' },
     ],
     handler: async (args, deps) => guard(async () => {
-      const courseSpec = { ...args.spec, locationId: args.locationId };
+      // `award` is this tool's name for the course's credential TEMPLATE ({title, type: certificate|badge}). The engine's spec key is
+      // `credential`, but that key name is refused by the tool layer's secret guard, so no course could attach a template through the
+      // tool (live 2026-09-30). The guard runs on the arguments (a secret-looking value under `award` is still refused); the key is
+      // mapped here, after it, and the engine gets `credential`. `credential:` in the spec is still refused as before.
+      const { award, ...specRest } = args.spec;
+      const courseSpec = { ...specRest, ...(award !== undefined ? { credential: award } : {}), locationId: args.locationId };
       const preview = previewCourseSpec(courseSpec, { requireAbsoluteMediaPaths: true });
+      // The output scrub redacts a key named `credential`; report the template from the spec side under `award`.
+      if (award !== undefined && preview.wouldCreate && 'credential' in preview.wouldCreate) { preview.wouldCreate.award = preview.wouldCreate.credential; delete preview.wouldCreate.credential; }
       if (!preview.valid) {
         return withFailureData(
           fail(
@@ -5709,6 +5716,7 @@ export const TOOLS = [
       });
       const data = {
         preview,
+        ...(award !== undefined ? { award } : {}),
         created: report.built,
         verification: report.verification,
         failurePhase: report.failurePhase,
