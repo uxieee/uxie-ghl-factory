@@ -11,6 +11,19 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.41.3] — 2026-09-30
+
+**`get_premium_usage` now reads GHL's real plan tiers.**
+
+### Fixed
+- `get_premium_usage` read two usage categories GHL doesn't recognise (`workflow_premium_actions` and `workflow_ai`).
+  GHL answers ANY category name with the same zeros and no limit, so those readings proved nothing. By default the tool
+  now reads the three plan tiers, starter, growth and scale. Tested live on the sandbox: they report limits of 10,000,
+  30,000 and 65,000, all unused.
+- The two old category names are still accepted, but their result now carries a note that the reading proves nothing.
+- The workflow skill no longer cites the old reading as evidence that Workflow AI turns cost nothing. What was
+  actually measured is that GHL's AI usage meters did not move.
+
 ## [1.41.2] — 2026-09-30
 
 **Two new workflow reference pages: merge tags, and waits, settings and triggers.**
