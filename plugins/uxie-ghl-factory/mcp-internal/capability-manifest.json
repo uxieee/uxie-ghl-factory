@@ -2356,6 +2356,16 @@
   },
   {
     "tool": "edit_funnel",
+    "method": "PUT",
+    "path": "/funnels/order-form/products/{id}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "DELETE",
+    "path": "/funnels/order-form/products/{id}"
+  },
+  {
+    "tool": "edit_funnel",
     "method": "POST",
     "path": "/funnels/event"
   },

@@ -18,7 +18,7 @@
 // The three reference classes. Only `account` refs dangle on a clone.
 export const REF_CLASS = Object.freeze({
   formId: 'account', calendarId: 'account', surveyId: 'account', countdownTimerId: 'account',
-  productId: 'account', storeProductId: 'account', storeCollectionId: 'account',
+  productId: 'account', storeProductId: 'account', storeCollectionId: 'account', customFontId: 'account',
   popupId: 'page-local',           // hl_main_popup-<id>, defined in this page's own popupsList
   storeProductPriceId: 'sentinel', // observed value "all" — not an id at all
 });
@@ -27,6 +27,9 @@ export const REF_CLASS = Object.freeze({
 // and is reported as NOT CHECKED rather than passed.
 export const REF_SOURCE = Object.freeze({
   formId: 'forms', calendarId: 'calendars', surveyId: 'surveys',
+  // A sell-product button stores {value: {id: <step product id>}} (a Products-tab row of a step of the SAME funnel), and an uploaded font is named by
+  // {customFontId: <_id>} in the page's typography slot (GET /funnels/custom-fonts).
+  productId: 'stepProducts', customFontId: 'customFonts',
 });
 
 // A value that is never a real id. `none` is what GHL's AI generator writes on an account with no
@@ -59,8 +62,15 @@ export function scanPage({ pageData, pageId, pageName = null }) {
   for (const p of pageData?.popupsList ?? []) if (p?.id) popupsDefined.add(p.id);
   walk(pageData, (o) => {
     for (const [k, v] of Object.entries(o)) {
+      // 🔴 EVERY button's extra carries an empty `productId` (the builder's default shape), used or not: it is a reference only
+      // on a sell-product button. Checking it elsewhere reports every button on the account as a dangling product.
+      if (k === 'productId' && o.action?.value !== 'sell-product') continue;
       if (REF_CLASS[k] && v && typeof v === 'object' && 'value' in v) {
-        refs.push({ prop: k, cls: REF_CLASS[k], value: String(v.value ?? ''), text: v.text ?? null, pageId, pageName });
+        // productId's value is {id}, not an id: read the id out of it, or every sell button reads as "[object Object]".
+        const inner = v.value && typeof v.value === 'object' && !Array.isArray(v.value) ? v.value.id : v.value;
+        refs.push({ prop: k, cls: REF_CLASS[k], value: String(inner ?? ''), text: v.text ?? null, pageId, pageName });
+      } else if (k === 'customFontId' && typeof v === 'string') {
+        refs.push({ prop: k, cls: REF_CLASS[k], value: v, text: null, pageId, pageName });
       }
       if ((k === 'locationId' || k === 'location_id') && typeof v === 'string' && v) locations.add(v);
     }

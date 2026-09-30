@@ -183,7 +183,7 @@ function orderPopups(pageData, o) {
 /**
  * ops:
  *  { op: 'set', nodeId, extra?: {...}, styles?: {...},     merge into an existing leaf, row or column;
- *    entranceAnimation?: {name, duration?, delay?, scale?, easing?}, hoverAnimation?: {name, …knobs} }
+ *    entranceAnimation?: {name (21 compiled + the 3 button loops buttonPulseGlow / buttonRocking / buttonBounce), duration?, delay?, scale?, easing?, disableOnMobile?}, hoverAnimation?: {name, …knobs} }
  *                                                          the animations go into `class` AND the compiled sheet
  *  { op: 'set', nodeId: <section id>, sticky?, width?, fullWidthRows? }   a section's General-tab knobs
  *  { op: 'append-popup', popup }                           popup: a built entry from makePopup() (+ its css)
@@ -239,7 +239,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       try {
         if (o.entranceAnimation) {
           if (!ENTRANCE_METAS.includes(hit.node.meta)) throw new Error(`the builder offers an entrance animation on ${ENTRANCE_METAS.join(', ')} — not on ${hit.node.meta}`);
-          clsPatch = { ...clsPatch, ...entranceClass(o.entranceAnimation) };
+          clsPatch = { ...clsPatch, ...entranceClass(o.entranceAnimation, hit.node.meta) };
         }
         if (o.hoverAnimation) {
           if (!HOVER_METAS.includes(hit.node.meta)) throw new Error(`the builder offers a hover animation on buttons only — not on ${hit.node.meta}`);

@@ -108,6 +108,11 @@ class knobs AND the builder's compiled rules, byte-equal to what the builder sav
 `[{name, width: full|medium|small, showOn: 'exit'|'none'|{delay}, closeOnOutsideClick, position,
 background, columns}]` (edit mode: `append-popup`) and a button's `openPopup: "<popup name>"` open one.
 An empty popup is refused — GHL never renders it — and so is an openPopup naming a popup the page lacks.
+A button also takes the three LOOPING entrances `buttonPulseGlow` / `buttonRocking` / `buttonBounce` (a bare class, no
+duration/delay knobs; buttons only), and any entrance takes `disableOnMobile: true` (the builder's "disable on mobile"
+switch — the animation is switched off at 1024px and below and in the mobile preview). A section takes `columns` (one
+row) OR `rows: [{columns}]` (several rows; at most 6 columns a row, each column `{elements, widthPct, padX, background,
+bgImage}`).
 
 **Buttons that sell** (`extra` on a `button`, both modes; every shape is what the builder UI saves, proven by
 reading it back and clicking it in public). `action` `add-to-cart` / `buy-now` take `storeProductId` (the product)
@@ -122,17 +127,21 @@ After a sale, a `sell-product` button or an order form (`one-step-order`, `two-s
 `edit_funnel` op `add-step-product` `{stepId, expectName, productId, priceId, displayText?, quantity?, bump?}`: it
 checks the step by id AND name and that the price is one of the product's, refuses a product+price the step already
 lists, reads it back and returns `stepProductId` (the id a sell button stores). `get_funnel` view `step-products`
-lists them with product and price names. Removing or editing one is not offered.
+lists them with product and price names. `edit-step-product` (`stepProductId`, `expectName`, plus `displayText`, `quantity`, `bump`, `authorizeAmount`; product and price stay as stored) and
+`delete-step-product` change or remove one, each checked by id AND name and read back; `quantity.max` is 1–999 and a
+bump is always 1 unit; `authorizeAmount` must be positive.
 
 **Forms, surveys, calendars** (`form`, `survey`, `calendar` leaves) bind by reference: `extra.formId` /
 `surveyId` = `{value: <id>, text: <name>}`, `calendarId` = `{value, text, isTeamSelected: false}`, each with its
-own redirect `action` (`none` = use the asset's own action, `url` + `visitWebsite`, `go-to-next-funnel-step`). All
+own redirect `action` (`none` = use the asset's own action — an empty or missing action is written as `{value:'none'}`,
+as the builder does — `url` + `visitWebsite`, `go-to-next-funnel-step`; anything else is refused). All
 three render inline in the public page. 🔴 A survey with **no question** takes the WHOLE public page down with a
 500 (the renderer reads the survey live; adding one question fixes it with no republish), so check a page's public
 status after binding a survey.
 
 **Video** (`video` leaf): the source is `extra.videoProperties.value` — pass `{url}` (a YouTube, Vimeo, Wistia or .mp4 URL;
-the player `type` is read off it) or `{selfHostedVideo: {id, name, url}}` for a Media Storage file (`type: "selfHosted"`).
+the player `type` is derived from it exactly as the builder does: no url/youtube → youtube, vimeo, wistia, a
+.mp4/.webm/.mov/.avi/.m4v/.ogv url → html, anything else → custom_embed; a `type` that disagrees is refused) or `{selfHostedVideo: {id, name, url}}` for a Media Storage file (`type: "selfHosted"`).
 A video with no source is refused (it rendered an empty 16:9 box). In edit mode a `set` naming only a new `url` keeps the
 rest of the stored value. `playBackControls` (`autoplay`, `loop`, `showProgressBar`, …) is a RAW object. 🔴 Only a
 **hosted** video reports analytics (plays, completion). YouTube, Vimeo, Wistia and embeds send nothing.
