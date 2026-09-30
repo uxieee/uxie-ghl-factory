@@ -11,6 +11,23 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.38.0] — 2026-09-30
+
+**Sites: folders, a route lookup by domain and path, cookie consent, and countdown timer assets. Executed live on
+the test account.**
+
+### Added
+- `create_funnel` `folderId` puts a new funnel or website in a folder of its own tab (the tabs don't share folders).
+  `find_ghl_site` lists both tabs' folders with document counts, and scopes by `folderId`.
+- `find_ghl_site` `route {domain, path}` answers what serves a path: the route row plus the owning funnel, step and
+  page. The corpus had said no such read existed. Live on a page, a step and an absent path, against the public
+  200/404.
+- `edit_funnel` `set-cookie-consent` sets the cookie banner; turning it on needs `acknowledged: true`, as the panel's
+  disclaimer does. ⚠️ A changed banner reaches a page only at that page's next publish.
+- `find_ghl_site` lists and reads Countdown Timer assets. `audit_site` checks a bound timer id, and
+  `build_funnel_page` composes a marketing countdown from its asset, as the builder does. Creating, editing and
+  archiving timers stays in Marketing → Countdown Timers.
+
 ## [1.37.1] — 2026-09-30
 
 **Re-proof: 20 workflow and course write tools re-proven live on the current core.**
