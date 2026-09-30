@@ -73668,9 +73668,9 @@ var init_define_TOOL_CATALOG = __esm({
   "<define:__TOOL_CATALOG__>"() {
     define_TOOL_CATALOG_default = {
       answer_studio_question: {
-        description: "Answer studio question \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Answer studio question \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-chat"
@@ -73977,9 +73977,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_convai_agent: {
-        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-convai-agent-create"
@@ -74094,9 +74094,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_studio_agent: {
-        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-studio-agent-build"
@@ -74112,9 +74112,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_studio_site: {
-        description: "Create studio site \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Create studio site \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects"
@@ -74130,9 +74130,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_voiceai_agent: {
-        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-voiceai-agent-create"
@@ -74338,9 +74338,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       generate_studio_site: {
-        description: "Generate studio site \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Generate studio site \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects-usage-policy",
@@ -74636,9 +74636,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_preview: {
-        description: "Get studio preview \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Get studio preview \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects-sandbox",
@@ -75241,9 +75241,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       publish_studio_site: {
-        description: "Publish studio site \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Publish studio site \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-publish",
@@ -75439,9 +75439,9 @@ var init_define_TOOL_CATALOG = __esm({
         riskRows: []
       },
       set_contact_ai_status: {
-        description: "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-08-08)",
         proofRows: [
           "ai-convai-contact-config-update"
@@ -75457,9 +75457,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       set_studio_secrets: {
-        description: "Set studio secrets \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Set studio secrets \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--put-projects-secrets",
@@ -75525,9 +75525,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       unpublish_studio_site: {
-        description: "Unpublish studio site \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Unpublish studio site \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-unpublish",
@@ -75565,9 +75565,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_convai_agent: {
-        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "unrecorded",
         proofRows: [
           "aiemployee-service--get-employee-by-id",
@@ -75790,9 +75790,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_voiceai_agent: {
-        description: "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "ai-agents--voice-ai-agents-get",
@@ -75958,9 +75958,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       set_agent_deployment: {
-        description: "Put one agent on one channel in the Agent Deployment routing table (only its row; whole table proven unchanged otherwise) \u2014 proof: live-runtime (2026-09-28); risk: write",
+        description: "Put one agent on one channel in the Agent Deployment routing table (only its row; whole table proven unchanged otherwise) \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-28)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "ai-agents--routing-config-configs",
