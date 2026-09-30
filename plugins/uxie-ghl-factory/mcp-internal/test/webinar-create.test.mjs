@@ -116,7 +116,7 @@ function gwDeps({ media = [], sessionsShort = false, firstShiftDays = 0 } = {}) 
       if (path.startsWith('/medias/files')) return { ok: true, status: 200, json: { files: media } };
       if (path === '/templates/template/load') {
         db.doc = { _id: 'NEW', name: body.extras.name, type: 'webinar', steps: [], webinarProperties: { ...body.extras.webinarProperties, notifications: [] } };
-        return { ok: true, status: 201, json: { data: { target: { assetId: 'NEW' } } } };
+        return { ok: true, status: 201, json: { status: 'ok', data: { status: 'completed', target: { assetId: 'NEW' } } } };
       }
       if (path.startsWith('/funnels/funnel/fetch/')) return { ok: true, status: 200, json: structuredClone(db.doc) };
       if (path === '/funnels/funnel/webinar/sessions') {

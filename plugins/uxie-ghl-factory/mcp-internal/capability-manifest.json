@@ -2296,6 +2296,11 @@
   },
   {
     "tool": "get_funnel",
+    "method": "GET",
+    "path": "/store/setup/progress"
+  },
+  {
+    "tool": "get_funnel",
     "method": "POST",
     "path": "/funnels/funnel/webinar/sessions"
   },
@@ -2433,6 +2438,16 @@
     "tool": "edit_funnel",
     "method": "POST",
     "path": "/funnels/funnel/delete"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/delete-store"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/create-custom-product-detail-page"
   },
   {
     "tool": "edit_funnel",

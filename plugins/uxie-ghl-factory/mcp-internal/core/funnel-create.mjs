@@ -211,6 +211,19 @@ export function planWebinar({ name, locationId, companyId, webinar: w, formName,
   };
 }
 
+/** The blank store's steps as measured (Products List, Product details, Cart, Checkout, Thank you!, Contact Us, Home): fewer read back = a partial install. */
+export const STORE_BLANK_STEP_COUNT = 7;
+
+/**
+ * What a template load says about itself. The UI (funnels bundle, the New store screen) treats only `data.status === 'completed'` as success
+ * and shows `data.err` for `processing` / `partial-completed`; the template library also knows `error`. A 201 alone is not an install.
+ * {status, complete, err}; a response with no status at all is not complete either.
+ */
+export function templateLoadOutcome(json) {
+  const status = json?.data?.status ?? null;
+  return { status, complete: status === 'completed', err: json?.data?.err ?? json?.err ?? null };
+}
+
 /** The new document's id from the create response, per route. null when the route does not echo one (blog). */
 export function createdId(kind, json) {
   if (kind === 'funnel' || kind === 'website') return json?.id ?? null;
