@@ -161,7 +161,7 @@ export function normalizeSettings(settings, ctx = {}) {
 
   let eventStartDate = s.eventStartDate ?? '';
   if (typeof eventStartDate !== 'string') { refuse('SETTINGS_VALUE', `settings.eventStartDate must be a string ('' = unset; deprecated in favour of the event_start_date step)`); eventStartDate = ''; }
-  if (eventStartDate) warn(`settings.eventStartDate is deprecated in the builder (the Settings tab still shows the field, labelled "[Deprecated]: please use event start date action") — prefer an event_start_date step`);
+  if (eventStartDate) warn(`settings.eventStartDate is deprecated in the builder (once a value is stored the Settings tab shows a card labelled "[Deprecated]: please use event start date action", but its date input reads blank — read the stored document, not the tab) — prefer an event_start_date step`);
 
   let scheduledPauseDates = s.scheduledPauseDates ?? [];
   if (!Array.isArray(scheduledPauseDates)) { refuse('SETTINGS_VALUE', `settings.scheduledPauseDates must be an array`); scheduledPauseDates = []; }
