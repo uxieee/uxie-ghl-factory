@@ -25327,8 +25327,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
+          note: "Deletes an AI Studio project: ?alt_id={locationId}&alt_type=location, no body \u2192 200 {project_id, status:'deleted'}; a later project read answers 404. Its secrets and published route go with it (proven live 2026-09-30 on an own unpublished project, ai-agents reproof; knowledge corpus ai-studio/20-api/projects.md).",
           proof: "observed",
-          reach: "source-only",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -72229,6 +72233,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         "POST /workflows-marketplace/triggers/dynamic-source/{key}": {
           kind: "read",
           note: "The trigger twin of actions/dynamic-source: a READ sent as POST, body = the trigger's current attributes (source-derived, workflows wave25)."
+        },
+        "DELETE /vibe-ai/projects/{projectId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "Deletes an AI Studio project: ?alt_id={locationId}&alt_type=location, no body \u2192 200 {project_id, status:'deleted'}; a later project read answers 404. Its secrets and published route go with it (proven live 2026-09-30 on an own unpublished project, ai-agents reproof; knowledge corpus ai-studio/20-api/projects.md)."
         }
       }
     };
@@ -73728,9 +73738,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_course: {
-        description: "Build course \u2014 proof: live-runtime (2026-09-25), floor: documented; risk: write",
+        description: "Build course \u2014 proof: live-runtime (2026-09-30), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "documented",
         proofRows: [
           "memberships-assessment-assignment-create",
@@ -74072,9 +74082,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_snapshot: {
-        description: "Capture a sub-account into an agency snapshot \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Capture a sub-account into an agency snapshot \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -75283,9 +75293,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       push_snapshot: {
-        description: "Load a snapshot into sub-accounts \u2014 proof: live-runtime (2026-09-25); risk: destructive",
+        description: "Load a snapshot into sub-accounts \u2014 proof: live-runtime (2026-09-30); risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "platform--v2-set-assets-to-locations",
@@ -75325,9 +75335,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       refresh_snapshot: {
-        description: "Re-capture a snapshot without losing its curation \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Re-capture a snapshot without losing its curation \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -75721,9 +75731,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_pipeline: {
-        description: "Edit a pipeline and its stages safely \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Edit a pipeline and its stages safely \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "pipelines-opportunities--opportunities-pipelines",
