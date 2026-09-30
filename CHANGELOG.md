@@ -11,6 +11,22 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.39.1] — 2026-09-30
+
+**Fix: recurring invoices. GHL ignores "end after N" when an end date is present, so the tool now warns; the video
+trigger's viewer identification is documented. Executed live on the test account.**
+
+### Changed
+- ⚠️ `create_recurring_invoice` warns `RECURRING_COUNT_IGNORED` when a schedule set to end after N invoices also
+  carries an end date. Live: GHL ignored the count, and the schedule stayed active with 31 invoices left until
+  cancelled. It refuses week number 0 and a numeric day of week, both of which GHL refused live.
+
+### Docs
+- The *Video watched* trigger fires only for a viewer the page can identify, for example after a form submit in the
+  same browser. Before that, the player reports an anonymous fingerprint. Proven live: enrolled at video completion.
+- A form submit whose phone matches an existing contact overwrites that contact's name and email.
+- 20 trigger drawer sections were corrected from current captures.
+
 ## [1.39.0] — 2026-09-30
 
 **Sites: blogs and stores. Create a blog on a domain, place blog content, remove a store, and add a custom product
