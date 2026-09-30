@@ -11,6 +11,28 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.41.2] — 2026-09-30
+
+**Two new workflow reference pages: merge tags, and waits, settings and triggers.**
+
+### Added
+- `create-ghl-workflow/references/merge-tags.md`, measured live:
+  - how to read trigger data;
+  - `formatList`, with the three list formats and what each renders;
+  - the "Right now" date tags;
+  - `{{default … "…"}}` fallbacks;
+  - what the merge-tag picker offers;
+  - which tokens the builder refuses.
+- `create-ghl-workflow/references/waits-settings-triggers.md`, which covers wait, workflow-settings and trigger behaviour
+  measured on the sandbox.
+- The workflow skill names five more things GHL can do that the plugin leaves out on purpose, and says where to find
+  them in GHL: Save version, the onboarding page, Manage tokens, the Mention tool and trigger-links icon, and the premium
+  opt-in.
+
+### Changed
+- The warning about the old event-start-date setting now says what GHL actually shows: once a value is stored, the
+  Settings tab shows a card marked Deprecated whose date field reads blank.
+
 ## [1.41.1] — 2026-09-30
 
 **The "wrong trigger for this workflow type" warning fires only on Company workflows.**
