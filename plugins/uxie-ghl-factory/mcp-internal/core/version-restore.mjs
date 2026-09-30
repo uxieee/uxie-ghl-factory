@@ -30,7 +30,9 @@ export function triggerFromVersion(src, { workflowId, status = 'draft', location
 }
 
 // The document PUT (apply-version-to-workflow.ts:92-119), with the restore always landing as a draft.
-export function restoreBody(version, { name, targetVersion, userId, oldTriggers = [], newTriggers = [], restoredAt = new Date() }) {
+// `keep` carries what the version record does not hold and the PUT would otherwise wipe: the document PUT replaces the whole
+// document, and a restore that left the current workflow note out reset it to none (measured live 2026-09-30, own draft).
+export function restoreBody(version, { name, targetVersion, userId, oldTriggers = [], newTriggers = [], restoredAt = new Date(), keep = {} }) {
   const settings = {};
   for (const k of SETTINGS_KEYS) settings[k] = k === 'eventStartDate' ? (version.startDate ?? version.eventStartDate) : version[k];
   return {
@@ -38,6 +40,7 @@ export function restoreBody(version, { name, targetVersion, userId, oldTriggers 
     isRestoreRequest: true,
     status: 'draft',
     ...settings,
+    ...(keep.workflowNote ? { workflowNote: keep.workflowNote } : {}),
     workflowData: version.workflowData,
     updatedBy: userId,
     version: targetVersion,

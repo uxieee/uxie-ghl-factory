@@ -4647,7 +4647,7 @@ export const TOOLS = [
         progress.triggersCreated.push(c.json?.id ?? c.json?._id ?? c.json ?? null);
       }
       const mid = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
-      const put = await gw.call('PUT', `/workflow/${loc}/${wid}`, restoreBody(version, { name: version.name ?? wf.name, targetVersion: wf.version, userId, oldTriggers: before.triggers, newTriggers: mid.triggers }));
+      const put = await gw.call('PUT', `/workflow/${loc}/${wid}`, restoreBody(version, { name: version.name ?? wf.name, targetVersion: wf.version, userId, oldTriggers: before.triggers, newTriggers: mid.triggers, keep: { workflowNote: wf.workflowNote } }));
       if (!put.ok) return withFailureData(fromHttp(put.status, put.json), { partialProgress: progress, triggersBefore: before.triggers });
       progress.documentSaved = true;
       const back = await getWorkflow(gw, args.locationId, args.workflowId);
@@ -4656,7 +4656,8 @@ export const TOOLS = [
       const wantIds = (version.workflowData.templates ?? []).map((t) => t.id).sort();
       const gotIds = (after?.workflowData?.templates ?? []).map((t) => t.id).sort();
       const verified = Boolean(after) && after.status === 'draft' && JSON.stringify(wantIds) === JSON.stringify(gotIds)
-        && Boolean(after.meta?.versionRestore) && trg.triggers.length === (version.triggersData ?? []).length;
+        && Boolean(after.meta?.versionRestore) && trg.triggers.length === (version.triggersData ?? []).length
+        && (!wf.workflowNote || after.workflowNote?.content === wf.workflowNote.content);
       const data = { restored: true, verified, from: { version: wf.version, name: wf.name }, to: { version: after?.version ?? null, name: after?.name ?? null, status: after?.status ?? null, steps: gotIds.length, triggers: trg.triggers.map((t) => ({ id: t.id ?? t._id, type: t.type, name: t.name ?? null, status: t.status ?? null })), versionRestore: after?.meta?.versionRestore ?? null }, progress };
       if (!verified) return withFailureData(fail(CODES.VERIFY_FAILED, 'GHL accepted the restore but the read-back does not match the version (steps, draft status, versionRestore or trigger count).', 'Inspect data.to against get_workflow_version.'), data);
       return ok(data);
