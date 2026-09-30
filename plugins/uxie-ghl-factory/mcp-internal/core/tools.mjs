@@ -10427,6 +10427,9 @@ export const TOOLS = [
     name: 'update_form_data',
     description: `${describe('update_form_data', 'Edit a form\'s stored document safely — risk: write')}. `
       + 'Preview by default; confirm:true writes. THE SAVE IS A WHOLE-DOCUMENT REPLACE and there is no '
+      + 'A form an earlier create_form made (before 1.36.0) opens EMPTY in the form builder; passing its fields back '
+      + '(`fields`) repairs it — the builder\'s per-element keys are filled in and reported as builderShape; an update '
+      + 'naming no `fields` leaves the fields as they are. '
       + 'PATCH — PUT and PATCH both 404 — so this reads the current document first, merges your change '
       + 'into it and writes the whole thing back. The preview shows exactly which top-level keys of '
       + '`formData.form` would change. Two keys are renamed by the server on write '
