@@ -83,6 +83,15 @@
         "corpus:corpus/workflows/70-research/2026-09-30-workflow-tool-reproof.md"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:662395b1"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -99,7 +108,7 @@
       "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#copy_workflow_to_location": "e2ce64e1e78c1758a96658d68562501038c74b1b7ebcf14aff9d949e6232c333",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#copy_workflow_to_location": "e1a4725bb3c8259dcc29158eccabac8e8d5dfda2764f92b4d37d1dae1815d3eb",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",

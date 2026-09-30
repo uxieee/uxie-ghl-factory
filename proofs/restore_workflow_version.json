@@ -44,6 +44,15 @@
         "commit:2b4c0f19"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:662395b1"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -64,7 +73,7 @@
       "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#restore_workflow_version": "aba49a02ff1bf0fc45977756ff71695f0991e56a84060a63de4379090c5a5f5e",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#restore_workflow_version": "aa1f40395f5267eea12c9fb2e37c8c56b78837a21adc3c260a1122ecd20d18ab",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
