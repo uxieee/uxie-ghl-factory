@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.41.4] — 2026-09-30
+
+**`edit_pipeline` no longer reports a false failure, or loses a stage, when GHL's read-back lags.**
+
+### Fixed
+- GHL sometimes returns an out-of-date stage count for 1 to 3 seconds after a pipeline edit. It happened on about 2–12%
+  of rapid edits, measured on the sandbox.
+  - `edit_pipeline` used to call that a failure (VERIFY_FAILED "sent 8, read back 7") even though the edit had landed.
+    It now re-reads for up to about 3 seconds.
+  - If the count is still behind after that, it reports ok with `verified: false` and a note to re-read the pipeline.
+  - Any other mismatch, such as a wrong name or probability, is still reported as a failure straight away.
+- 🔴 Fixed a lost update: when two edits came quickly one after the other, the second could start from the out-of-date
+  pipeline and overwrite the stage the first edit had just added. The tool now notices when the pipeline it reads is
+  missing stages it has just written, re-reads, and refuses to write if it is still behind.
+- Tested live: 100 rapid edits in a row on a busy account. Every one succeeded, and afterwards all 102 expected stages
+  were stored.
+
+### Known limits
+- The guard only sees edits made by the same running plugin. A second session editing the same pipeline isn't
+  detected, and a stage removed moments earlier could still come back.
+
 ## [1.41.3] — 2026-09-30
 
 **`get_premium_usage` now reads GHL's real plan tiers.**
