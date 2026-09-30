@@ -21,6 +21,7 @@ export function findNode(pageData, nodeId) {
 import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch, withElement } from './funnel-pages.mjs';
 import { randomId, allIds, subtreeIds, parentOf, positionIn, movedIndex, cloneSubtree, copyRulesUnderNewIds, stripRulesNaming, findPopup, popupRoot } from './page-structure.mjs';
 import { nodeLayerCss, storedMap, LAYER_SPEC_KEYS } from './style-layer.mjs';
+import { applyDynamicText, DTR_KINDS } from './dynamic-text.mjs';
 import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, customFamily, setPageColors, pageColorValue, PAGE_COLOR_SLOTS } from './page-fonts.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
 
@@ -268,6 +269,15 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
         const next = { ...cur, ...given, selfHostedVideo: { ...(cur.selfHostedVideo ?? {}), ...(given.selfHostedVideo ?? {}) } };
         if (!given.type) next.type = given.selfHostedVideo?.id ? 'selfHosted' : (given.url ? (videoTypeOf(given.url) ?? cur.type) : cur.type);
         o.extra = { ...o.extra, videoProperties: { value: next } };
+      }
+      // Dynamic text from URL: the placeholders in the text become the builder's pills and the node's extra.dtr map is written.
+      if (o.dynamicText !== undefined) {
+        try {
+          if (!DTR_KINDS.includes(hit.node.meta)) throw new Error(`dynamicText is offered on ${DTR_KINDS.join(', ')} — not on ${hit.node.meta}`);
+          const html = o.extra?.text?.value ?? hit.node.extra?.text?.value;
+          const d = applyDynamicText(html, o.dynamicText);
+          o.extra = { ...(o.extra ?? {}), text: { value: d.html }, dtr: { ...(hit.node.extra?.dtr ?? {}), ...d.dtr } };
+        } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
       }
       // An image or svg keeps its click action in imageActions / svgImageActions, not `action` (funnel-pages.mjs).
       if (o.extra) {

@@ -33,6 +33,7 @@ import { planCreateFunnel, createdId, findMediaVideo, webinarView, sessionWarnin
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { elementSpecProblem } from './element-spec.mjs';
+import { applyDynamicText } from './dynamic-text.mjs';
 import { makePopup, popupRefProblems } from './page-popup.mjs';
 import { normalizeStyles } from './style-values.mjs';
 import { fontRegistry, typographyValue, typographyFamily, setRootVars, typographyRule, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, resolveCustomFont, setPageColors } from './page-fonts.mjs';
@@ -11812,6 +11813,7 @@ export const TOOLS = [
         showOn: z.union([z.enum(['exit', 'none']), z.object({ delay: z.number().min(0) })]).optional().describe("set-popup: 'exit' | 'none' | {delay: seconds}"),
         nodeId: z.string().optional(),
         title: z.string().optional().describe("set: the element's name (Settings → Element name; shown in Layers)"),
+        dynamicText: z.record(z.any()).optional().describe("set (paragraph, heading, sub-heading): {paramName: {default?, transform?: none|upper|lower|title|sentence|capitalize, normalize?}} — turns the {{query_param.paramName}} placeholders in the text into the builder's 'dynamic text from URL' pills"),
         extra: z.record(z.any()).optional(),
         styles: z.record(z.any()).optional(),
         entranceAnimation: z.object({ name: z.enum(ENTRANCE_ANIMATIONS), duration: z.number().positive().optional(), delay: z.number().min(0).optional(), scale: z.number().positive().optional(), easing: z.enum(['linear', 'ease-in', 'ease-out', 'ease-in-out']).optional(), disableOnMobile: z.boolean().optional() }).optional(),
@@ -11913,7 +11915,13 @@ export const TOOLS = [
           if (!HOVER_METAS.includes(e.meta)) throw new Error(`hoverAnimation: the builder offers it on buttons only — not on ${e.meta}`);
           cls = { ...cls, ...hoverClass(e.hoverAnimation) };
         }
-        let extra = { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}), ...(e.font ? { typography: val(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {}) };
+        let dtrExtra = {};
+        if (e.dynamicText !== undefined) {
+          if (e.html === undefined) throw new Error(`dynamicText needs html carrying the {{query_param.NAME}} placeholder(s)`);
+          const d = applyDynamicText(e.html, e.dynamicText);
+          dtrExtra = { text: val(d.html), dtr: d.dtr };
+        }
+        let extra = { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}), ...dtrExtra, ...(e.font ? { typography: val(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {}) };
         if (e.openPopup !== undefined) {
           const pid = popupIds.get(e.openPopup) ?? ([...popupIds.values()].includes(e.openPopup) ? e.openPopup : null);
           if (!pid) throw Object.assign(new Error(`openPopup "${e.openPopup}" names no popup on this page (${[...popupIds.keys()].join(', ') || 'it has none'})`), { remediation: 'Name a popup from `popups` (or an append-popup in the same call) by its name.' });
