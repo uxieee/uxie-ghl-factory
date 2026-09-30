@@ -94,3 +94,11 @@ never executed either — their `formData` carries `slides[]`, `logic`, `resultT
 and `categoryCustomFields` instead of `form.fields[]`, read from the builder's source and never
 written. A submission through the widget creates a contact and fires `form_submission` triggers on
 any published workflow filtered to that form, so never submit on a client account to test.
+
+**Location Forms settings are a UI-only job on purpose.** Forms → Settings holds six location-wide switches (create conversation on submission, submission PDF, sticky contact,
+save progress, capture timezone, GDPR font), each with Enable all / Disable all over EVERY form, survey and quiz of the location, plus a per-form override (Manage individual forms).
+No tool writes them: the bulk switch reaches every form on the account, other people's included, and cannot be undone in one step. The routes are known
+(`POST /forms/update-conversation-on-submission {locationId, showSubmissionInConversationsFeed}`; `update-generate-submission-document`, `update-sticky-contact`, `update-save-progress`,
+`update-capture-timezone`, `update-gdpr-font` each `{locationId, value, productType}`; a per-form override adds `formId` — proven live on an own form), so when a user asks for one, tell
+them it lives at **Forms → Settings** (per form: Manage individual forms) and, if they want it scripted, that `raw_request` reaches it with the body above.
+Also: dropping a question tile in the form builder (dropdown, checkbox, radio, number, date, signature, file upload, rating…) creates a real contact custom field at once, not at Save.

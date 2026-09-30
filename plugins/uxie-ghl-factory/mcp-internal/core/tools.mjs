@@ -10546,12 +10546,18 @@ export const TOOLS = [
     description: `${describe('list_form_submissions', 'List form submissions — risk: read')}. `
       + 'Submissions for one form, or for the whole sub-account when formId is omitted. This endpoint '
       + 'pages with `page`, NOT `skip` — sending skip is a 422. The separate count endpoint takes a '
-      + 'date range and refuses formId, so a per-form count is the length of these rows.',
+      + 'date range and refuses formId, so a per-form count is the length of these rows. The Submissions tab\'s own filters: '
+      + '`startAt` / `endAt` (ISO time, e.g. 2026-09-01T00:00:00+00:00 — a window that excludes a submission drops it), `q` (search; a '
+      + 'string nothing matches returns 0), `productType` form | survey | quiz (quiz returned 0 on a form\'s rows while survey returned the same rows as form).',
     inputSchema: schema({
       locationId: z.string(),
       formId: z.string().optional(),
       page: z.number().default(1),
       limit: z.number().default(20),
+      startAt: z.string().optional().describe('window start, ISO time with offset (the tab sends 2026-08-29T23:00:00+00:00)'),
+      endAt: z.string().optional().describe('window end, ISO time with offset'),
+      q: z.string().optional().describe('search text'),
+      productType: z.enum(['form', 'survey', 'quiz']).optional(),
     }),
     capabilities: [{ method: 'GET', path: '/forms/submissions' }],
     handler: async (args, deps) => guard(async () => {
@@ -10562,6 +10568,7 @@ export const TOOLS = [
         limit: String(args.limit ?? 20),
       });
       if (args.formId) q.set('formId', args.formId);
+      for (const k of ['startAt', 'endAt', 'q', 'productType']) if (args[k] !== undefined) q.set(k, args[k]);
       const r = await gw.call('GET', `/forms/submissions?${q}`);
       if (!r.ok) return fromHttp(r.status, r.json);
       const rows = r.json?.submissions ?? r.json?.data ?? [];
