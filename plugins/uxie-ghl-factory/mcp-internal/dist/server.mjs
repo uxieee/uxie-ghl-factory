@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1587,
+      count: 1591,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -49326,6 +49326,103 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--custom-fields-conditional-fields",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/custom-fields/conditional-fields",
+          path: "/custom-fields/conditional-fields",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/settings.md:139"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--custom-fields-conditional-fields-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/custom-fields/conditional-fields/{id}",
+          path: "/custom-fields/conditional-fields/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/settings.md:144"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--conditional-fields-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/custom-fields/conditional-fields/list",
+          path: "/custom-fields/conditional-fields/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/settings.md:143"
+          ]
+        },
+        {
           id: "conversations--feature-domain",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/email-isv/feature/domain/{domain}",
@@ -54573,6 +54670,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:73"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--feature-flags-location-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/labs/feature-flags/location/{locationId}",
+          path: "/labs/feature-flags/location/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/settings.md:134"
           ]
         },
         {
@@ -62655,6 +62787,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "pipelines-opportunities/20-api/bulk-actions.md:155",
             "pipelines-opportunities/20-api/forecast.md:15",
             "pipelines-opportunities/20-api/forecast.md:97",
             "pipelines-opportunities/20-api/forecast.md:146",
@@ -62749,7 +62882,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "pipelines-opportunities--opportunities-smart-filters-delete",
+          id: "pipelines-opportunities--opportunities-smart-filters-delete-delete",
+          aka: [
+            "/opportunities/smart-filters/{id}"
+          ],
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/opportunities/smart-filters/{smartFilterId}",
           path: "/opportunities/smart-filters/{smartFilterId}",
@@ -62784,6 +62920,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:253",
             "pipelines-opportunities/20-api/smart-filters.md:152"
           ]
         },
@@ -62941,7 +63078,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:151"
+            "pipelines-opportunities/20-api/smart-filters.md:151",
+            "pipelines-opportunities/20-api/smart-filters.md:250"
           ]
         },
         {
@@ -73878,9 +74016,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_form: {
-        description: "Create a form and save its document \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Create a form and save its document \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-create",
@@ -75449,9 +75587,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_form_data: {
-        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-detail",
@@ -75730,9 +75868,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_redirects: {
-        description: "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects) \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects) \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "funnels--redirect-list",
@@ -75752,9 +75890,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_funnel: {
-        description: "Create a funnel, website, store, webinar or blog document on a location \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Create a funnel, website, store, webinar or blog document on a location \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "funnels--funnel-create",

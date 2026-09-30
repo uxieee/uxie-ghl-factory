@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T04:05:55.674Z",
+      "capturedAt": "2026-09-30T04:13:29.031Z",
       "hash": "corpus",
-      "fileCount": 1326,
-      "endpoints": 1326
+      "fileCount": 1331,
+      "endpoints": 1331
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1822,
+  "discoveredCallSites": 1827,
   "skippedCallSites": 713,
-  "count": 1578,
+  "count": 1582,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -39053,6 +39053,84 @@
       "serviceBasis": "inferred-from-path"
     },
     {
+      "id": "pipelines-opportunities--custom-fields-conditional-fields",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/custom-fields/conditional-fields",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/settings.md:139"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--custom-fields-conditional-fields-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/custom-fields/conditional-fields/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/settings.md:144"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--conditional-fields-list",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/custom-fields/conditional-fields/list",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/settings.md:143"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "conversations--feature-domain",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
@@ -43295,6 +43373,32 @@
       },
       "sources": [
         "ai-agents/20-api/knowledge-base.md:73"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--feature-flags-location-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/labs/feature-flags/location/{locationId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/settings.md:134"
       ],
       "serviceBasis": "declared"
     },
@@ -49508,6 +49612,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "pipelines-opportunities/20-api/bulk-actions.md:155",
         "pipelines-opportunities/20-api/forecast.md:15",
         "pipelines-opportunities/20-api/forecast.md:97",
         "pipelines-opportunities/20-api/forecast.md:146",
@@ -49588,7 +49693,7 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "pipelines-opportunities--opportunities-smart-filters-delete",
+      "id": "pipelines-opportunities--opportunities-smart-filters-delete-delete",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/opportunities/smart-filters/{smartFilterId}",
@@ -49609,9 +49714,13 @@
         "returns": "unresolved"
       },
       "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:253",
         "pipelines-opportunities/20-api/smart-filters.md:152"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "declared",
+      "aka": [
+        "/opportunities/smart-filters/{id}"
+      ]
     },
     {
       "id": "pipelines-opportunities--opportunities-smart-filters-get-get",
@@ -49726,7 +49835,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:151"
+        "pipelines-opportunities/20-api/smart-filters.md:151",
+        "pipelines-opportunities/20-api/smart-filters.md:250"
       ],
       "serviceBasis": "declared"
     },
