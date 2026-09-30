@@ -11,6 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.37.1] — 2026-09-30
+
+**Re-proof: 20 workflow and course write tools re-proven live on the current core.**
+
+### Changed
+- `build_workflow`, `edit_workflow`, `publish_workflow`, `repair_workflow`, `validate_workflow`, `unpublish_workflows`,
+  `rename_workflow`, `duplicate_workflow`, `copy_workflow_to_location`, `move_workflows`, `create_workflow_folder`,
+  `restore_workflow_version`, `set_workflow_error_alerts`, `fast_forward_contacts`, `pin_webhook_sample`,
+  `test_custom_code`, `create_smart_list`, `create_custom_field_folder`, `raw_request` and `build_course` were each
+  re-run live on the current core: one write per call, each effect read back, own test objects only.
+
 ## [1.37.0] — 2026-09-30
 
 **Pages: element names and dynamic text from URL parameters; courses can carry a certificate or badge. Executed
