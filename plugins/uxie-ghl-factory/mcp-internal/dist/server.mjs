@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1593,
+      count: 1594,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -15553,7 +15553,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "forms--locations-custom-fields-post",
+          id: "forms--locations-custom-fields-post-post",
+          aka: [
+            "/locations/{id}/customFields/"
+          ],
           method: "POST",
           url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/",
           path: "/locations/{locationId}/customFields/",
@@ -15586,6 +15589,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/30-types/standard-elements.md:162",
             "forms/20-api/neighbour-services.md:21",
             "forms/20-api/neighbour-services.md:75",
             "forms/40-rules/validators-and-quirks.md:113"
@@ -18686,6 +18690,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "workflows/30-types/triggers/membership_contact_created.md:79",
+            "workflows/30-types/triggers/offer_access_granted.md:77",
+            "workflows/30-types/triggers/product_access_granted.md:77",
             "workflows/40-rules/marketplace-asset-publisher-classes.md:111"
           ]
         },
@@ -18861,6 +18868,38 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "models/Filters/membership.ts:66",
             "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53",
             "workflows/30-types/steps/membership_grant_offer.md:60"
+          ]
+        },
+        {
+          id: "workflows--smart-list-user-offer-management",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/membership/smart-list/user-offer-management",
+          path: "/membership/smart-list/user-offer-management",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/triggers/offer_access_removed.md:77",
+            "workflows/30-types/triggers/product_access_removed.md:77"
           ]
         },
         {
@@ -131957,6 +131996,39 @@ function findPopup(pageData, ref) {
   return named.length > 1 ? { ambiguous: named.map(({ p: p2 }) => p2.id) } : null;
 }
 
+// core/dynamic-text.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var DTR_TRANSFORMS = Object.freeze(["none", "upper", "lower", "title", "sentence", "capitalize"]);
+var DTR_KINDS = Object.freeze(["paragraph", "heading", "sub-heading"]);
+var DTR_PARAM_RE = /^[A-Za-z0-9_-]{1,64}$/;
+var escAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+var escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function applyDynamicText(html, spec) {
+  if (!spec || typeof spec !== "object" || Array.isArray(spec) || !Object.keys(spec).length) throw new Error("dynamicText: give an object {paramName: {default, transform, normalize}}");
+  let out = String(html ?? "");
+  const dtr = {};
+  for (const [name, cfg] of Object.entries(spec)) {
+    if (!DTR_PARAM_RE.test(name)) throw new Error(`dynamicText: "${name}" is not a URL parameter name (letters, digits, _ and - only, up to 64)`);
+    const c = cfg && typeof cfg === "object" ? cfg : {};
+    const transform3 = c.transform ?? "none";
+    if (!DTR_TRANSFORMS.includes(transform3)) throw new Error(`dynamicText.${name}.transform "${transform3}" \u2014 one of ${DTR_TRANSFORMS.join(", ")}`);
+    if (c.default !== void 0 && typeof c.default !== "string") throw new Error(`dynamicText.${name}.default must be a string`);
+    out = out.replace(new RegExp(`<span[^>]*data-dtr-token="${escRe(escAttr(name))}"[^>]*>[^<]*</span>`, "g"), () => `{{query_param.${name}}}`);
+    const re = new RegExp(`\\{\\{\\s*query_param\\.${escRe(name)}\\s*\\}\\}`, "g");
+    if (!re.test(out)) throw new Error(`dynamicText.${name}: the text has no {{query_param.${name}}} placeholder to turn into the pill`);
+    const def = c.default ?? "";
+    const pill = `<span data-dtr-token="${escAttr(name)}" data-dtr-default="${escAttr(def)}" data-dtr-transform="${transform3}" class="dtr-token">{{ query_param.${name} }}</span>`;
+    out = out.replace(new RegExp(re.source, "g"), () => pill);
+    dtr[name] = { default: def, transform: transform3, normalize: c.normalize !== false };
+  }
+  return { html: out, dtr };
+}
+
 // core/page-fonts.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -132334,6 +132406,17 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
         if (!given.type) next2.type = given.selfHostedVideo?.id ? "selfHosted" : given.url ? videoTypeOf(given.url) ?? cur.type : cur.type;
         o.extra = { ...o.extra, videoProperties: { value: next2 } };
       }
+      if (o.dynamicText !== void 0) {
+        try {
+          if (!DTR_KINDS.includes(hit.node.meta)) throw new Error(`dynamicText is offered on ${DTR_KINDS.join(", ")} \u2014 not on ${hit.node.meta}`);
+          const html = o.extra?.text?.value ?? hit.node.extra?.text?.value;
+          const d = applyDynamicText(html, o.dynamicText);
+          o.extra = { ...o.extra ?? {}, text: { value: d.html }, dtr: { ...hit.node.extra?.dtr ?? {}, ...d.dtr } };
+        } catch (e) {
+          report.push({ i, op: "set", nodeId: o.nodeId, error: e.message });
+          continue;
+        }
+      }
       if (o.extra) {
         try {
           o.extra = routeClickAction(hit.node.meta, o.extra);
@@ -132341,6 +132424,11 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
           report.push({ i, op: "set", nodeId: o.nodeId, error: e.message });
           continue;
         }
+      }
+      if (typeof o.title === "string") {
+        hit.node.title = o.title;
+        if (hit.node.element && typeof hit.node.element === "object") hit.node.element.title = o.title;
+        changed.push("title");
       }
       if (o.extra && Object.keys(o.extra).length) {
         mergeInto(hit.node, "extra", o.extra);
@@ -132402,7 +132490,7 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
         if (stale) changed.push("note: the old rules of this node were not found verbatim (a builder-saved sheet is minified); they stay until the page is next saved in the builder");
       }
       hit.node.updated = true;
-      report.push({ i, op: "set", nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...layerPatch } });
+      report.push({ i, op: "set", nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...typeof o.title === "string" ? { title: o.title } : {}, ...layerPatch } });
     } else if (o.op === "append-section") {
       const secs = next.sections ?? [];
       let at;
@@ -132558,6 +132646,7 @@ function verifyEdits(stored, report) {
           if (JSON.stringify(hit?.node?.[key]?.[k2]) !== JSON.stringify(v)) wrong.push(`${key}.${k2}`);
         }
       }
+      if (typeof r.expect?.title === "string" && hit?.node?.title !== r.expect.title) wrong.push("title");
       out.push({ nodeId: r.nodeId, present: !!hit, applied: !!hit && wrong.length === 0, ...wrong.length ? { notApplied: wrong } : {} });
     } else if (r.op === "append-section") {
       const at = (stored.sections ?? []).findIndex((s) => s.id === r.sectionId);
@@ -132686,7 +132775,11 @@ var ELEMENT_SPEC_KEYS = Object.freeze({
   tabletStyles: () => true,
   mobileStyles: () => true,
   tabletWrapper: () => true,
-  mobileWrapper: () => true
+  mobileWrapper: () => true,
+  title: () => true,
+  // the element's name (Layers)
+  dynamicText: (meta3) => DTR_KINDS.includes(meta3)
+  // {param: {default, transform}} — `{{query_param.param}}` pills in html
 });
 var DID_YOU_MEAN = Object.freeze({
   text: "html",
@@ -132694,7 +132787,10 @@ var DID_YOU_MEAN = Object.freeze({
   label: "html",
   innerHTML: "html",
   value: "html",
-  title: "html",
+  name: "title",
+  elementName: "title",
+  urlParam: "dynamicText",
+  queryParam: "dynamicText",
   style: "styles",
   class: "extra.customClass",
   className: "extra.customClass",
@@ -226373,7 +226469,7 @@ var TOOLS2 = [
   },
   {
     name: "update_form_data",
-    description: `${describe3("update_form_data", "Edit a form's stored document safely \u2014 risk: write")}. Preview by default; confirm:true writes. THE SAVE IS A WHOLE-DOCUMENT REPLACE and there is no PATCH \u2014 PUT and PATCH both 404 \u2014 so this reads the current document first, merges your change into it and writes the whole thing back. The preview shows exactly which top-level keys of \`formData.form\` would change. Two keys are renamed by the server on write (formAction.redirect_url \u2192 redirectUrl, style.ac_branding \u2192 acBranding), so the read-back compares on the names GHL stores, not the ones you sent. \`fields\` get the same renderer check as create_form: a built-in tag without \`type\` is completed the builder's way, any other is refused.`,
+    description: `${describe3("update_form_data", "Edit a form's stored document safely \u2014 risk: write")}. Preview by default; confirm:true writes. THE SAVE IS A WHOLE-DOCUMENT REPLACE and there is no A form an earlier create_form made (before 1.36.0) opens EMPTY in the form builder; passing its fields back (\`fields\`) repairs it \u2014 the builder's per-element keys are filled in and reported as builderShape; an update naming no \`fields\` leaves the fields as they are. PATCH \u2014 PUT and PATCH both 404 \u2014 so this reads the current document first, merges your change into it and writes the whole thing back. The preview shows exactly which top-level keys of \`formData.form\` would change. Two keys are renamed by the server on write (formAction.redirect_url \u2192 redirectUrl, style.ac_branding \u2192 acBranding), so the read-back compares on the names GHL stores, not the ones you sent. \`fields\` get the same renderer check as create_form: a built-in tag without \`type\` is completed the builder's way, any other is refused.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       formId: external_exports.string(),
@@ -227561,6 +227657,8 @@ var TOOLS2 = [
         closeOnOutsideClick: external_exports.boolean().optional().describe("set-popup: close on clicking outside"),
         showOn: external_exports.union([external_exports.enum(["exit", "none"]), external_exports.object({ delay: external_exports.number().min(0) })]).optional().describe("set-popup: 'exit' | 'none' | {delay: seconds}"),
         nodeId: external_exports.string().optional(),
+        title: external_exports.string().optional().describe("set: the element's name (Settings \u2192 Element name; shown in Layers)"),
+        dynamicText: external_exports.record(external_exports.any()).optional().describe("set (paragraph, heading, sub-heading): {paramName: {default?, transform?: none|upper|lower|title|sentence|capitalize, normalize?}} \u2014 turns the {{query_param.paramName}} placeholders in the text into the builder's 'dynamic text from URL' pills"),
         extra: external_exports.record(external_exports.any()).optional(),
         styles: external_exports.record(external_exports.any()).optional(),
         entranceAnimation: external_exports.object({ name: external_exports.enum(ENTRANCE_ANIMATIONS), duration: external_exports.number().positive().optional(), delay: external_exports.number().min(0).optional(), scale: external_exports.number().positive().optional(), easing: external_exports.enum(["linear", "ease-in", "ease-out", "ease-in-out"]).optional(), disableOnMobile: external_exports.boolean().optional() }).optional(),
@@ -227657,7 +227755,13 @@ var TOOLS2 = [
           if (!HOVER_METAS.includes(e.meta)) throw new Error(`hoverAnimation: the builder offers it on buttons only \u2014 not on ${e.meta}`);
           cls = { ...cls, ...hoverClass(e.hoverAnimation) };
         }
-        let extra = { ...e.html !== void 0 ? { text: val2(e.html) } : {}, ...e.extra ?? {}, ...e.font ? { typography: val2(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {} };
+        let dtrExtra = {};
+        if (e.dynamicText !== void 0) {
+          if (e.html === void 0) throw new Error(`dynamicText needs html carrying the {{query_param.NAME}} placeholder(s)`);
+          const d = applyDynamicText(e.html, e.dynamicText);
+          dtrExtra = { text: val2(d.html), dtr: d.dtr };
+        }
+        let extra = { ...e.html !== void 0 ? { text: val2(e.html) } : {}, ...e.extra ?? {}, ...dtrExtra, ...e.font ? { typography: val2(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {} };
         if (e.openPopup !== void 0) {
           const pid = popupIds.get(e.openPopup) ?? ([...popupIds.values()].includes(e.openPopup) ? e.openPopup : null);
           if (!pid) throw Object.assign(new Error(`openPopup "${e.openPopup}" names no popup on this page (${[...popupIds.keys()].join(", ") || "it has none"})`), { remediation: "Name a popup from `popups` (or an append-popup in the same call) by its name." });
@@ -227679,6 +227783,7 @@ var TOOLS2 = [
           tabletWrapper: e.tabletWrapper,
           mobileWrapper: e.mobileWrapper
         });
+        if (typeof e.title === "string" && e.title) leaf.title = e.title;
         const ported = KIND_CSS_KINDS.includes(e.meta);
         let css = e.css ? e.meta === "button" ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css) : ported ? "" : leafStyleCss(leaf.id, e.styles);
         css += ported ? "" : elementSizeCss(leaf);

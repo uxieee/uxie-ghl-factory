@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-30",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1593,
+  "count": 1594,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -15376,7 +15376,10 @@
       ]
     },
     {
-      "id": "forms--locations-custom-fields-post",
+      "id": "forms--locations-custom-fields-post-post",
+      "aka": [
+        "/locations/{id}/customFields/"
+      ],
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/",
       "path": "/locations/{locationId}/customFields/",
@@ -15409,6 +15412,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "forms/30-types/standard-elements.md:162",
         "forms/20-api/neighbour-services.md:21",
         "forms/20-api/neighbour-services.md:75",
         "forms/40-rules/validators-and-quirks.md:113"
@@ -18509,6 +18513,9 @@
         "returns": "unresolved"
       },
       "sources": [
+        "workflows/30-types/triggers/membership_contact_created.md:79",
+        "workflows/30-types/triggers/offer_access_granted.md:77",
+        "workflows/30-types/triggers/product_access_granted.md:77",
         "workflows/40-rules/marketplace-asset-publisher-classes.md:111"
       ]
     },
@@ -18684,6 +18691,38 @@
         "models/Filters/membership.ts:66",
         "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53",
         "workflows/30-types/steps/membership_grant_offer.md:60"
+      ]
+    },
+    {
+      "id": "workflows--smart-list-user-offer-management",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/membership/smart-list/user-offer-management",
+      "path": "/membership/smart-list/user-offer-management",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/triggers/offer_access_removed.md:77",
+        "workflows/30-types/triggers/product_access_removed.md:77"
       ]
     },
     {

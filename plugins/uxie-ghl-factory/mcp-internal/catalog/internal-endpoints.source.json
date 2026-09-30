@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T04:46:58.298Z",
+      "capturedAt": "2026-09-30T05:24:46.838Z",
       "hash": "corpus",
-      "fileCount": 1333,
-      "endpoints": 1333
+      "fileCount": 1335,
+      "endpoints": 1335
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1829,
-  "skippedCallSites": 713,
-  "count": 1584,
+  "discoveredCallSites": 1831,
+  "skippedCallSites": 714,
+  "count": 1585,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -12072,6 +12072,38 @@
       ]
     },
     {
+      "id": "forms--locations-custom-fields-post-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/locations/{locationId}/customFields/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/30-types/standard-elements.md:162",
+        "forms/20-api/neighbour-services.md:21",
+        "forms/20-api/neighbour-services.md:75",
+        "forms/40-rules/validators-and-quirks.md:113"
+      ],
+      "serviceBasis": "declared",
+      "aka": [
+        "/locations/{id}/customFields/"
+      ]
+    },
+    {
       "id": "platform--locations-custom-fields-post",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -12149,34 +12181,6 @@
       },
       "sources": [
         "forms/00-overview/forms-surveys-quizzes.md:25"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "forms--locations-custom-fields-post",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/customFields/",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/20-api/neighbour-services.md:21",
-        "forms/20-api/neighbour-services.md:75",
-        "forms/40-rules/validators-and-quirks.md:113"
       ],
       "serviceBasis": "declared"
     },
@@ -14560,6 +14564,9 @@
         "returns": "unresolved"
       },
       "sources": [
+        "workflows/30-types/triggers/membership_contact_created.md:79",
+        "workflows/30-types/triggers/offer_access_granted.md:77",
+        "workflows/30-types/triggers/product_access_granted.md:77",
         "workflows/40-rules/marketplace-asset-publisher-classes.md:111"
       ],
       "serviceBasis": "reviewed",
@@ -14703,6 +14710,33 @@
       ],
       "serviceClass": "LocationMembership",
       "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "workflows--smart-list-user-offer-management",
+      "method": "DELETE",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/membership/smart-list/user-offer-management",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/triggers/offer_access_removed.md:77",
+        "workflows/30-types/triggers/product_access_removed.md:77"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "memberships-courses--user-hl-user-details",

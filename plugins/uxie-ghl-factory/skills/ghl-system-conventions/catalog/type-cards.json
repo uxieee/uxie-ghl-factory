@@ -3880,7 +3880,7 @@
    "title": "Marketplace — badges (Issue badge)",
    "status": "proven-live",
    "lastVerified": "2026-09-30",
-   "summary": "The GHL first-party (INTERNAL) step `issue_badge_workflow` (\"Issue badge\") takes ONE required input, `templateId` (a select fed by the certificates service route `triggers/templates?type=badge`). Templates are created with a course's `credential` block of type `badge` (`build_course`).",
+   "summary": "The GHL first-party (INTERNAL) step `issue_badge_workflow` (\"Issue badge\") takes ONE required input, `templateId` (a select fed by the certificates service route `triggers/templates?type=badge`). Templates are created with a course's credential template of type `badge` (`build_course`, spec key `awa",
    "hasCanonicalExample": false,
    "configSurface": "none"
   },
