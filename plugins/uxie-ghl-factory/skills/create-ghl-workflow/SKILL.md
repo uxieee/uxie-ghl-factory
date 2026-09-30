@@ -115,6 +115,7 @@ them to where it lives in the UI. Never report it as impossible, and never build
    off. Do not ask first. One re-capture per failure — never retry-loop.
 3. **Draft-first.** Everything builds as `draft`. Publish is a separate, opt-in
    `--publish` run gated on explicit user confirmation.
+4. **Never partial-PUT a workflow document.** `PUT /workflow/{loc}/{wid}` replaces the whole document: a body of just `{name, version}` reset `allowMultiple`, dropped `status` and emptied the steps on a draft. Use `edit_workflow`, `rename_workflow` and `publish_workflow`, which read, merge and send everything and read it back.
 
 ## Which reference for which job
 
