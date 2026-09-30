@@ -11,6 +11,23 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.42.4] — 2026-10-01
+
+**`restore_workflow_version` no longer empties a workflow by restoring a version that has no steps.**
+
+### Fixed
+- 🔴 GHL's first version of a workflow built through the API holds NO steps: create snapshots and draft saves record
+  no steps. Restoring it answered "restored, verified" and left an empty draft. The tool now refuses to restore a version
+  with no steps over a workflow that has steps (nothing is written), and explains why: restore targets exist only after a
+  publish. Pass `allowEmpty: true` if you really mean it. The preview now shows the step count of both the version and
+  the current workflow.
+- Tested live on a test draft: version 1 was refused on both preview and confirm, with nothing changed. A published
+  version still restored normally and undid a later edit.
+
+### Added
+- Proof records: 29 workflow tools re-proven live on 1.42.3, 14 AI Studio tools on 1.42.3, and `find_ghl_site` and
+  `list_account_entities` on 1.42.3.
+
 ## [1.42.3] — 2026-10-01
 
 **`copy_workflow_to_location` refuses a foreign account before it reads anything, even on the preview.**
