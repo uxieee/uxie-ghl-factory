@@ -8780,25 +8780,29 @@ export const TOOLS = [
   {
     name: 'get_premium_usage',
     description: `${describe('get_premium_usage', 'Read premium-action and workflow-AI usage — risk: read')}. `
-      + 'How much of each premium tier this sub-account has consumed: workflow_premium_actions and workflow_ai, '
-      + 'each with plan, usage, limit, remaining, percentage, credits and resetTime, verbatim from GHL. This is '
-      + 'CONSUMPTION, not whether premium is switched on (build/edit read that gate themselves). Each tier reports '
-      + 'its own result, so one failed read never hides the other. Only an idle account has been measured (all '
-      + 'zero or null), so the fields are passed through as GHL returns them, not reinterpreted.',
+      + 'How much of each PLAN tier this sub-account has consumed: starter_tier, growth_tier and scale_tier (the '
+      + 'defaults), each with plan, usage, limit (10000, 30000 and 65000 measured 2026-09-30), remaining, percentage, '
+      + 'credits and resetTime, verbatim from GHL. This is CONSUMPTION, not whether premium is switched on (build/edit '
+      + 'read that gate themselves). Each tier reports its own result, so one failed read never hides another. '
+      + 'workflow_premium_actions and workflow_ai are still accepted, but GHL answers ANY string with the same zeros and '
+      + 'a null limit (a made-up tier gave the identical answer), so those two readings prove nothing and carry a note. '
+      + 'Only an idle account has been measured (usage 0), so the fields are passed through as GHL returns them.',
     inputSchema: schema({
       locationId: z.string(),
-      tiers: z.array(z.enum(['workflow_premium_actions', 'workflow_ai'])).optional(),
+      tiers: z.array(z.enum(['starter_tier', 'growth_tier', 'scale_tier', 'workflow_premium_actions', 'workflow_ai'])).optional(),
     }),
     capabilities: [{ method: 'GET', path: '/workflow/{loc}/premium-tier-usage/{tier}' }],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const loc = encodeURIComponent(args.locationId);
-      const tiers = args.tiers?.length ? args.tiers : ['workflow_premium_actions', 'workflow_ai'];
+      const tiers = args.tiers?.length ? args.tiers : ['starter_tier', 'growth_tier', 'scale_tier'];
       const out = {};
       for (const tier of tiers) {
         const r = await gw.call('GET', `/workflow/${loc}/premium-tier-usage/${tier}?${new URLSearchParams({ locationId: args.locationId })}`);
         out[tier] = r.ok
-          ? { read: true, usage: r.json?.usage ?? null }
+          ? { read: true, usage: r.json?.usage ?? null,
+              ...(tier === 'workflow_premium_actions' || tier === 'workflow_ai'
+                ? { note: 'GHL answers any string here with the same zeros and a null limit (measured 2026-09-30 with a made-up tier), so this reading proves nothing; read starter_tier, growth_tier or scale_tier' } : {}) }
           : { read: false, httpStatus: r.status, error: r.json?.message ?? null };
       }
       const failed = tiers.filter((t) => !out[t].read);

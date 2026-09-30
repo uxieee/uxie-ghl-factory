@@ -77,16 +77,26 @@ test('a copy GHL queued but that never appears is reported as NOT done, with a d
   assert.match(r.remediation, /Do not re-send/);
 });
 
-test('get_premium_usage reads both tiers verbatim, and one failed tier never hides the other', async () => {
+test('get_premium_usage reads the three plan tiers verbatim, and one failed tier never hides the others', async () => {
   const usage = { plan: 'x', usage: 3, limit: 10, remaining: 7, percentage: 30, credits: null, resetTime: null };
-  const gw = { call: async (m, p) => (p.includes('/workflow_ai')
+  const gw = { call: async (m, p) => (p.includes('/growth_tier')
     ? { ok: false, status: 503, json: { message: 'reset' } }
     : { ok: true, status: 200, json: { usage } }) };
   const r = await tool('get_premium_usage').handler({ locationId: 'L' }, { makeGw: () => gw, state: {} });
   assert.equal(r.ok, true);
-  assert.deepEqual(r.data.workflow_premium_actions, { read: true, usage });
-  assert.equal(r.data.workflow_ai.read, false);
-  assert.match(r.data.headline, /1 of 2 tier\(s\) read; FAILED: workflow_ai/);
+  assert.deepEqual(r.data.starter_tier, { read: true, usage });
+  assert.deepEqual(r.data.scale_tier, { read: true, usage });
+  assert.equal(r.data.growth_tier.read, false);
+  assert.match(r.data.headline, /2 of 3 tier\(s\) read; FAILED: growth_tier/);
+});
+
+test('get_premium_usage: the two legacy tier keys still read but carry a note that GHL echoes any string', async () => {
+  const usage = { plan: 'x', usage: 0, limit: null, remaining: null, percentage: 0, credits: 0, resetTime: null };
+  const gw = { call: async () => ({ ok: true, status: 200, json: { usage } }) };
+  const r = await tool('get_premium_usage').handler({ locationId: 'L', tiers: ['workflow_ai', 'starter_tier'] }, { makeGw: () => gw, state: {} });
+  assert.equal(r.data.workflow_ai.read, true);
+  assert.match(r.data.workflow_ai.note, /proves nothing/);
+  assert.equal(r.data.starter_tier.note, undefined);
 });
 
 test('a confirmed copy carries GHL\'s own copy-log row for THIS request, not an older one', async () => {

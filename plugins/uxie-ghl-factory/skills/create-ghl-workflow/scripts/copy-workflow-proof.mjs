@@ -42,8 +42,8 @@ export async function runCopyWorkflowProof({ tool, deps, LOCATION, NAME, check, 
 
   subject('get_premium_usage');
   const pu = await run('get_premium_usage', {});
-  check(pu.ok === true && pu.data?.workflow_premium_actions?.read === true && pu.data?.workflow_ai?.read === true
-    && 'usage' in (pu.data.workflow_premium_actions.usage ?? {}),
-    'get_premium_usage reads both tiers and returns GHL\'s usage record', JSON.stringify(pu.data ?? pu.code).slice(0, 300));
+  check(pu.ok === true && ['starter_tier', 'growth_tier', 'scale_tier'].every((t) => pu.data?.[t]?.read === true)
+    && 'usage' in (pu.data.starter_tier.usage ?? {}),
+    'get_premium_usage reads the three plan tiers and returns GHL\'s usage record', JSON.stringify(pu.data ?? pu.code).slice(0, 300));
   subject(false);
 }
