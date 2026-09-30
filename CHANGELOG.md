@@ -11,6 +11,26 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.40.0] — 2026-09-30
+
+**Workflows that run on custom-object records can now use a router and the custom-object steps.**
+
+### Added
+- A workflow built on custom-object records can now use a router, and create, update or clear custom-object fields.
+  GHL's builder lists these steps in every such workflow, but `build_workflow` used to refuse them. A workflow built
+  this way was tested live on the sandbox: it fired, and its update and clear steps ran. Steps that only make sense
+  for contacts are still refused.
+
+### Changed
+- The warning about recurring invoices that end "after N invoices" now also says that leaving out the end date has
+  not been tested.
+
+### Known GHL behaviour (measured live, in the knowledge pages)
+- A custom-object step placed straight after a "custom object created" trigger fails ("No records were found")
+  because GHL takes a moment to index the new record. A 1-minute wait before it fixes this.
+- A "create custom object" step is skipped when it targets the workflow's own object: GHL allows only one record of
+  that object per workflow.
+
 ## [1.39.3] — 2026-09-30
 
 **Privacy fix: six example workflows no longer carry another project's details.**
