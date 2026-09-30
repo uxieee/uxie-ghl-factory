@@ -11,6 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.42.5] — 2026-10-01
+
+**Proof records only. Every tool has now been proven live on the current code.**
+
+### Added
+- 12 pipelines and snapshot tools re-proven live on 1.42.3: edit_pipeline, get_pipeline_forecast, the snapshot tools,
+  the smart-list tools and create_funnel. push_snapshot is proven for its refusals, preview and queueing; actually
+  loading a snapshot into another account still needs a second test sub-account.
+- restore_workflow_version and copy_workflow_to_location re-proven live on 1.42.4, including the new empty-version
+  refusal and one real copy into the sandbox.
+
 ## [1.42.4] — 2026-10-01
 
 **`restore_workflow_version` no longer empties a workflow by restoring a version that has no steps.**
