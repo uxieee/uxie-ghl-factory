@@ -1,0 +1,231 @@
+{
+ "source": "knowledge sniffs/funnels-wave43-reproof-forms-2026-09-30 live-builder-field-shapes.json: the fields the form builder saved for each built-in palette tile (first_name relabelled to the builder default)",
+ "fields": {
+  "first_name": {
+   "active": false,
+   "fieldWidthPercentage": 100,
+   "hiddenFieldQueryKey": "first_name",
+   "label": "First Name",
+   "placeholder": "Enter your first name",
+   "standard": true,
+   "tag": "first_name",
+   "type": "text",
+   "typeLabel": "Text"
+  },
+  "email": {
+   "active": false,
+   "fieldWidthPercentage": 100,
+   "hiddenFieldQueryKey": "email",
+   "label": "Email",
+   "placeholder": "Enter your email",
+   "required": true,
+   "standard": true,
+   "tag": "email",
+   "type": "email",
+   "typeLabel": "Email"
+  },
+  "organization": {
+   "label": "Organization",
+   "tag": "organization",
+   "hiddenFieldQueryKey": "organization",
+   "type": "text",
+   "typeLabel": "Text",
+   "placeholder": "Enter your organization",
+   "required": false,
+   "standard": true,
+   "title": "Organization",
+   "active": false,
+   "fieldWidthPercentage": 100
+  },
+  "image": {
+   "label": "Image 1",
+   "tag": "image",
+   "hiddenFieldQueryKey": "image_1",
+   "type": "img",
+   "placeholder": "",
+   "standard": true,
+   "active": false
+  },
+  "terms_and_conditions": {
+   "label": "T & C",
+   "tag": "terms_and_conditions",
+   "type": "terms_and_conditions",
+   "required": true,
+   "hiddenFieldQueryKey": "terms_and_conditions",
+   "textColor": "000000",
+   "linkColor": "188bf6",
+   "placeholder": "<p style='font-family: Inter; font-size: 16px; font-weight: 400; color: #344054FF;'>I agree to terms & conditions provided by the company. By providing my phone number, I agree to receive text messages from the business.</p>",
+   "preview": "<p style='font-family: Inter; font-size: 16px; font-weight: 400; color: #000000;'>I agree to terms & conditions provided by the company. By providing my phone number, I agree to receive text messages from the business.</p>",
+   "standard": true,
+   "active": false
+  },
+  "source": {
+   "label": "Source",
+   "tag": "source",
+   "hiddenFieldQueryKey": "source",
+   "type": "source",
+   "value": "",
+   "standard": true,
+   "active": false
+  },
+  "captcha": {
+   "label": "Bot protection",
+   "tag": "captcha",
+   "hiddenFieldQueryKey": "captcha",
+   "type": "captcha",
+   "standard": true,
+   "invisible": false,
+   "active": false
+  },
+  "html": {
+   "label": "HTML 1",
+   "tag": "html",
+   "hiddenFieldQueryKey": "html_1",
+   "type": "html",
+   "placeholder": "The Custom HTML goes here",
+   "html": "",
+   "standard": true,
+   "active": false
+  },
+  "header": {
+   "label": "<h1 style=\"padding-left: 0px!important;\">Text</h1>",
+   "tag": "header",
+   "hiddenFieldQueryKey": "header_1",
+   "type": "h1",
+   "placeholder": "header",
+   "typeLabel": "Text",
+   "weight": 400,
+   "bgColor": "FFFFFF00",
+   "align": "left",
+   "shadow": {
+    "horizontal": 0,
+    "vertical": 0,
+    "blur": 0,
+    "spread": 0,
+    "color": "FFFFFF"
+   },
+   "padding": {
+    "top": 0,
+    "bottom": 0,
+    "left": 0,
+    "right": 0
+   },
+   "border": {
+    "border": 0,
+    "radius": 0,
+    "color": "FFFFFF",
+    "type": "none"
+   },
+   "standard": true,
+   "active": false
+  },
+  "website": {
+   "label": "Website",
+   "tag": "website",
+   "hiddenFieldQueryKey": "website",
+   "type": "text",
+   "typeLabel": "Text",
+   "placeholder": "https://yourwebsite.com",
+   "standard": true,
+   "title": "Website",
+   "active": false,
+   "fieldWidthPercentage": 100
+  },
+  "last_name": {
+   "label": "Last Name",
+   "tag": "last_name",
+   "hiddenFieldQueryKey": "last_name",
+   "type": "text",
+   "typeLabel": "Text",
+   "placeholder": "Enter your last name",
+   "required": false,
+   "standard": true,
+   "active": false,
+   "fieldWidthPercentage": 100
+  },
+  "full_name": {
+   "label": "Full Name",
+   "tag": "full_name",
+   "hiddenFieldQueryKey": "full_name",
+   "type": "text",
+   "typeLabel": "Text",
+   "placeholder": "Enter your full name",
+   "required": false,
+   "standard": true,
+   "active": false,
+   "fieldWidthPercentage": 100
+  },
+  "group_address": {
+   "label": "Address",
+   "tag": "group_address",
+   "hiddenFieldQueryKey": "group_address",
+   "type": "group",
+   "placeholder": "Street Address",
+   "required": false,
+   "standard": true,
+   "title": "Street Address",
+   "active": false
+  },
+  "button": {
+   "label": "Submit",
+   "tag": "button",
+   "hiddenFieldQueryKey": "button",
+   "type": "submit",
+   "placeholder": "Button",
+   "submitSubText": "",
+   "bgColor": "155EEFFF",
+   "padding": {
+    "top": 9,
+    "bottom": 9,
+    "left": 10,
+    "right": 10
+   },
+   "border": 0,
+   "borderType": "none",
+   "borderColor": "FFFFFF",
+   "borderRadius": 6,
+   "shadow": {
+    "horizontal": 0,
+    "vertical": 0,
+    "blur": 0,
+    "spread": 0,
+    "color": "FFFFFF"
+   },
+   "fullwidth": true,
+   "color": "FFFFFF",
+   "weight": 500,
+   "radius": 4,
+   "subTextColor": "000000",
+   "subTextWeight": 200,
+   "align": "center",
+   "standard": true,
+   "active": false,
+   "fieldWidthPercentage": 100
+  },
+  "date_of_birth": {
+   "label": "Date of birth",
+   "tag": "date_of_birth",
+   "type": "date",
+   "typeLabel": "Date",
+   "format": "YYYY-MM-DD",
+   "separator": "-",
+   "placeholder": "DD / MM / YYYY",
+   "standard": true,
+   "hiddenFieldQueryKey": "date_of_birth",
+   "active": false,
+   "fieldWidthPercentage": 100
+  },
+  "phone": {
+   "active": false,
+   "fieldWidthPercentage": 100,
+   "hiddenFieldQueryKey": "phone",
+   "label": "Phone",
+   "placeholder": "Enter your phone",
+   "required": true,
+   "standard": true,
+   "tag": "phone",
+   "type": "text",
+   "typeLabel": "Text"
+  }
+ }
+}

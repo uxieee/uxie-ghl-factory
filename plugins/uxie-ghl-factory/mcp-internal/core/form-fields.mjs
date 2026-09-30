@@ -24,7 +24,7 @@ export const STANDARD_ELEMENTS = Object.freeze({
   phone: { type: 'text', required: true },
   email: { type: 'email', required: true },
   button: { type: 'submit' },
-  group_address: { type: 'group', key: 'addressId', label: 'Address', placeholder: 'Street Address' },
+  group_address: { type: 'group', label: 'Address', placeholder: 'Street Address' },
   address: { type: 'text' },
   city: { type: 'text' },
   state: { type: 'text' },
@@ -56,11 +56,11 @@ export const RENDERERS = Object.freeze([
 // the group element (formBuilder BuilderHeader.vue formDataToBeSubmitted; util/default.ts defaultAddressSettings).
 // Labels and placeholders are the builder's English strings (src/locales/en.json fields.address.*).
 export const ADDRESS_CHILDREN = Object.freeze([
-  { label: 'Street Address', tag: 'address', hiddenFieldQueryKey: 'address', type: 'text', placeholder: 'Enter your full address', required: false, standard: true },
-  { label: 'City', tag: 'city', hiddenFieldQueryKey: 'city', type: 'text', placeholder: 'Enter your city', required: false, standard: true },
-  { label: 'State', tag: 'state', hiddenFieldQueryKey: 'state', type: 'text', placeholder: 'Enter your state', required: false, standard: true },
-  { label: 'Country', tag: 'country', hiddenFieldQueryKey: 'country', type: 'select', placeholder: 'Enter your country', required: false, standard: true },
-  { label: 'Postal Code', tag: 'postal_code', hiddenFieldQueryKey: 'postal_code', type: 'text', placeholder: 'ZIP or postal code', required: false, standard: true },
+  { label: 'Street Address', tag: 'address', hiddenFieldQueryKey: 'address', type: 'text', typeLabel: 'Text', placeholder: 'Enter your full address', required: false, standard: true, category: 'address', title: 'Address', hideInLeftSideBar: true },
+  { label: 'City', tag: 'city', hiddenFieldQueryKey: 'city', type: 'text', typeLabel: 'Text', placeholder: 'Enter your city', required: false, standard: true, category: 'address', title: 'City' },
+  { label: 'State', tag: 'state', hiddenFieldQueryKey: 'state', type: 'text', typeLabel: 'Text', placeholder: 'Enter your state', required: false, standard: true, category: 'address', title: 'State' },
+  { label: 'Country', tag: 'country', hiddenFieldQueryKey: 'country', type: 'select', typeLabel: 'Select', placeholder: 'Enter your country', required: false, standard: true, category: 'address', title: 'Country' },
+  { label: 'Postal Code', tag: 'postal_code', hiddenFieldQueryKey: 'postal_code', type: 'text', typeLabel: 'Text', placeholder: 'ZIP or postal code', required: false, standard: true, category: 'address', title: 'Postal Code' },
 ].map(Object.freeze));
 const CHILD_TAGS = new Set(ADDRESS_CHILDREN.map((c) => c.tag));
 /**
