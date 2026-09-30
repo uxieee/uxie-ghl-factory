@@ -270,9 +270,10 @@ triggers:
 - Resolves against the location's object schemas (`/objects/`) → the create/save carry
   `customObjectType: "custom_objects.<key>"` top-level (live-proven 2026-08-22, canary 040a9a9e).
 - **The picker offers only these actions in an object workflow** (the engine refuses others,
-  `OBJECT_STEP`; hatch `skipObjectRules`): if/else, email, wait, update_custom_value, goto, the
+  `OBJECT_STEP`; hatch `skipObjectRules`): if/else, router, email, wait, update_custom_value, goto, the
   four formatters, math_operation, custom_code, add/remove(-all)_from_workflow, array_functions,
-  drip, add_notes. Contact-centric steps (tags, opportunities, SMS…) are un-producible there.
+  drip, add_notes, and the three custom-object actions (create/update/clear — their own registry, always listed in an
+  object workflow). Contact-centric steps (tags, opportunities, SMS…) are un-producible there.
 - Object trigger filters are minted per schema field — author them as stored rows or leave `[]`.
 - Every trigger of an object workflow carries `objectKey: "custom_objects.<key>"`, as the builder writes it; the
   engine stamps it on build and on edit (live-proven 2026-09-29).

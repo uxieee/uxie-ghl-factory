@@ -346,7 +346,7 @@ const ASSET_BEHAVIOUR_WARNINGS = {
   // invoices remaining and stayed ACTIVE (live-W37-rec-readback.json; cancelled in its own call).
   create_recurring_invoice: (a) => (a?.endType === 'after' && a?.endDate !== undefined && a?.endDate !== null && String(a.endDate).trim() !== '' ? { code: 'RECURRING_COUNT_IGNORED',
     message: `endType 'after' with count ${JSON.stringify(a.count)} AND endDate ${JSON.stringify(a.endDate)}: the stored count was NOT applied when measured; the schedule ran until its endDate (31 invoices remaining) and stayed active. `
-      + 'Treat endDate as the real end, or cancel the schedule right after the first run (POST /invoices/schedule/{id}/cancel).' } : null),
+      + 'Treat endDate as the real end, or cancel the schedule right after the first run (POST /invoices/schedule/{id}/cancel). Whether the server accepts an ABSENT endDate with a count is unmeasured.' } : null),
   // A differential on two PUBLISHED company workflows: the step named one, and the record's runs in BOTH ended in the
   // same second (knowledge sniffs/workflows-wave1-2026-09-25/live-R7-7-remove-differential.json; corpus 40-rules/
   // remove-associated-records-ends-every-run.md).
@@ -3339,11 +3339,14 @@ export function compile(ir, ctx) {
   // OBJECT-BASED workflows: the picker offers ONLY these actions (utils/workflows.ts
   // objectBasedInternalActionMap + objectBasedCrossEntityActionMap, recovered 2026-08-22) —
   // anything else is un-producible in the UI and unproven at runtime for object records.
+  // Two additions from the 2026-09-29 source (this list had missed them): `router` is in objectBasedInternalActionMap, and the
+  // three custom-object actions come from their OWN registry, always listed in an object-based workflow
+  // (components/workflow/ActionOptions.vue; corpus steps/create_custom_object.md "Custom-object workflow: always in the picker").
   if (norm.customObjectType && ctx?.skipObjectRules !== true) {
-    const OBJECT_ALLOWED = new Set(['if_else', 'email', 'wait', 'update_custom_value', 'goto',
+    const OBJECT_ALLOWED = new Set(['if_else', 'router', 'email', 'wait', 'update_custom_value', 'goto',
       'datetime_formatter', 'number_formatter', 'text_formatter', 'math_operation', 'custom_code',
       'add_to_workflow', 'remove_from_workflow', 'remove_from_all_workflows', 'array_functions',
-      'drip', 'add_notes', 'transition']);
+      'drip', 'add_notes', 'create_custom_object', 'update_custom_object', 'clear_custom_object_fields', 'transition']);
     const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type));
     if (bad.length)
       throw new IRError('OBJECT_STEP',

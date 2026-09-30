@@ -46,3 +46,12 @@ test('OBJECT_STEP: steps outside the object-workflow picker refuse, with the all
   const ok = compile(ir, { ...ctx(), skipObjectRules: true });
   assert.equal(ok.autoSaveBody.customObjectType, 'custom_objects.claude_pets');
 });
+
+test('OBJECT_STEP: the custom-object actions and router are accepted in an object-based workflow (they come from their own registry); CONTROL: a contact-only step still refuses', () => {
+  const step = (type, name) => ({ ref: name, kind: 'raw', type, name, attributes: { key: 'custom_objects.claude_pets', fields: [], associations: [], makeAssociation: false } });
+  const ir = { name: 'n', customObjectType: 'custom_objects.claude_pets', triggers: [], graph: [step('create_custom_object', 'C'), step('update_custom_object', 'U'), step('clear_custom_object_fields', 'X')] };
+  const built = compile(ir, ctx());
+  assert.deepEqual(built.autoSaveBody.workflowData.templates.map((x) => x.type), ['create_custom_object', 'update_custom_object', 'clear_custom_object_fields']);
+  const bad = { ...ir, graph: [...ir.graph, { ref: 'n', kind: 'action', type: 'add_contact_tag', name: 'Nope', attributes: { tags: ['x'] } }] };
+  assert.throws(() => compile(bad, ctx()), (e) => e.code === 'OBJECT_STEP' && /'Nope' \(add_contact_tag\)/.test(e.message) && /create_custom_object/.test(e.message));
+});
