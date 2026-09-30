@@ -24,10 +24,19 @@
         "row:ai-studio--get-projects--documented"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:4ec230aa"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-25",
+    "hashedAt": "2026-09-30",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /vibe-ai/projects/{}": "e1726301a58a1598f9b5e5475745537faa2329443b30258a8a5161d831a65a7f",
       "POST https://backend.leadconnectorhq.com /vibe-ai/projects/{}/publish": "ef02cfaf58c58e60460d27488a9ffdf5f63ef49e177aedd00e94f1cf56799421"
@@ -38,12 +47,14 @@
       "vibeEditorApp": 350
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#publish_studio_site": "d913c147183111522dc32a6f65d5d406f6e1dfee276a2d3bcd082789d983cfec",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#publish_studio_site": "14b035962e7a4ed68f45ea18b1cb9c65910daa1b3f2a3d9fc09442a5800cadfb",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "70fe5c44b7821485a92036b762653ccbc5cbc0a5acbd782b4ed59357c24fec95",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
-      "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "709622e649fdb45c200814cc176db342bb52ee63ac40693b4ac7feda0e79488c"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd",
+      "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "8ca1ae1ac9a31ed987ef26a1a5b3751ace5e3072b8efd828b9fe720e6d556629"
     }
   }
 }

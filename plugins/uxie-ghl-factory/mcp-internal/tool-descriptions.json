@@ -1,8 +1,8 @@
 {
   "answer_studio_question": {
-    "description": "Answer studio question — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Answer studio question — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--post-projects-chat"
@@ -309,9 +309,9 @@
     ]
   },
   "create_convai_agent": {
-    "description": "Create Conversation AI agent — proof: live-runtime (2026-09-29); risk: write",
+    "description": "Create Conversation AI agent — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-29)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-convai-agent-create"
@@ -426,9 +426,9 @@
     ]
   },
   "create_studio_agent": {
-    "description": "Create Agent Studio agent — proof: live-runtime (2026-09-29); risk: write",
+    "description": "Create Agent Studio agent — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-29)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-studio-agent-build"
@@ -444,9 +444,9 @@
     ]
   },
   "create_studio_site": {
-    "description": "Create studio site — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Create studio site — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--post-projects"
@@ -462,9 +462,9 @@
     ]
   },
   "create_voiceai_agent": {
-    "description": "Create Voice AI agent — proof: live-runtime (2026-09-29); risk: write",
+    "description": "Create Voice AI agent — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-29)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-voiceai-agent-create"
@@ -670,9 +670,9 @@
     ]
   },
   "generate_studio_site": {
-    "description": "Generate studio site — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Generate studio site — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects-usage-policy",
@@ -968,9 +968,9 @@
     ]
   },
   "get_studio_preview": {
-    "description": "Get studio preview — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Get studio preview — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects-sandbox",
@@ -1573,9 +1573,9 @@
     ]
   },
   "publish_studio_site": {
-    "description": "Publish studio site — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Publish studio site — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--post-projects-publish",
@@ -1771,9 +1771,9 @@
     "riskRows": []
   },
   "set_contact_ai_status": {
-    "description": "Set per-contact Conversation AI status — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Set per-contact Conversation AI status — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-08-08)",
     "proofRows": [
       "ai-convai-contact-config-update"
@@ -1789,9 +1789,9 @@
     ]
   },
   "set_studio_secrets": {
-    "description": "Set studio secrets — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Set studio secrets — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--put-projects-secrets",
@@ -1857,9 +1857,9 @@
     ]
   },
   "unpublish_studio_site": {
-    "description": "Unpublish studio site — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Unpublish studio site — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--post-projects-unpublish",
@@ -1897,9 +1897,9 @@
     ]
   },
   "update_convai_agent": {
-    "description": "Update a Conversation AI agent by read-merge-write — proof: live-runtime (2026-09-29); risk: write",
+    "description": "Update a Conversation AI agent by read-merge-write — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-29)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "aiemployee-service--get-employee-by-id",
@@ -2122,9 +2122,9 @@
     ]
   },
   "update_voiceai_agent": {
-    "description": "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) — proof: live-runtime (2026-09-29); risk: write",
+    "description": "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-29)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "ai-agents--voice-ai-agents-get",
@@ -2290,9 +2290,9 @@
     ]
   },
   "set_agent_deployment": {
-    "description": "Put one agent on one channel in the Agent Deployment routing table (only its row; whole table proven unchanged otherwise) — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Put one agent on one channel in the Agent Deployment routing table (only its row; whole table proven unchanged otherwise) — proof: live-runtime (2026-09-30); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "ai-agents--routing-config-configs",
