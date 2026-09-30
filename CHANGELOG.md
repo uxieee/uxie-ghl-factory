@@ -11,6 +11,28 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.39.0] — 2026-09-30
+
+**Sites: blogs and stores. Create a blog on a domain, place blog content, remove a store, and add a custom product
+page. Executed live on the test account.**
+
+### Added
+- `create_funnel` `kind:"blog"` takes `blog {domain, urlSlug}`, the Create blog screen's own body. The slug is checked
+  free first, and the domain is verified on read-back.
+- The blog-content element on a blog post page. Live: on a published post the tool's element renders exactly like the
+  template's, and survives a builder save unchanged. Publishing a post needs a category and an author.
+- `edit_funnel` `delete-store {expectName}`. ⚠️ GHL's "Delete" on a store does NOT delete the site: it removes the five
+  store steps, turns the store off, and moves the document from Stores to Websites. Other steps and custom product pages
+  stay.
+- `edit_funnel` `add-product-page {name, url, productIds}` adds a custom product detail page. Its public render on a
+  routed store domain is not yet proven.
+- `get_funnel` `view:"store-setup"` reads the location's store onboarding checklist.
+
+### Fixed
+- `create_funnel` for a store or webinar checks the template load's status; an incomplete store is reported, not
+  claimed. Live runs only ever returned `completed`, so the other branches are unit-tested only.
+- `audit_site` no longer flags a real blog-content node for missing props.
+
 ## [1.38.0] — 2026-09-30
 
 **Sites: folders, a route lookup by domain and path, cookie consent, and countdown timer assets. Executed live on
