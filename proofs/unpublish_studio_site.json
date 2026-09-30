@@ -33,6 +33,15 @@
         "commit:4ec230aa"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:afe9223b"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -53,7 +62,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
-      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd",
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "e643d74b3e42bddbed538584740d42f0a9e58c8de0a0bd5560867d76fd083c5f",
       "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "8ca1ae1ac9a31ed987ef26a1a5b3751ace5e3072b8efd828b9fe720e6d556629"
     }
   }
