@@ -194,3 +194,47 @@ test('readBaseWithBackoff CONTROLS: no recent write, an old write, or a list tha
   const f = await readBaseWithBackoff({ read: async () => ({ failure: { ok: false } }), lastWrite: { count: 3, at: 1 }, now: 2, sleep: noSleep });
   assert.deepEqual(f.failure, { ok: false });
 });
+
+// ── removals: a stale list still SHOWS the removed stage; an edit built from it would put the stage back
+const S4 = [{ id: 'a', name: 'A', position: 0 }, { id: 'b', name: 'B', position: 1 }, { id: 'c', name: 'C', position: 2 }, { id: 'd', name: 'D', position: 3 }];
+const rmBody = { name: 'P', stages: [S4[0], { ...S4[2], position: 1 }, { ...S4[3], position: 2 }] };   // sent after removing b
+const fourRow = { name: 'P', stages: S4 };                                                              // the stale read
+const threeRow = { name: 'P', stages: rmBody.stages };                                                  // the caught-up read
+
+test('a removal read-back that still lists the removed stage is a lag; controls stay real mismatches', () => {
+  assert.equal(isReadBackLag(rmBody, fourRow, verifyPipeline(rmBody, fourRow), ['b']), true);
+  // CONTROL: the same stale read with no removal known is a real mismatch (extra stage nobody removed).
+  assert.equal(isReadBackLag(rmBody, fourRow, verifyPipeline(rmBody, fourRow), []), false);
+  // CONTROL: an extra stage that is NOT the removed one.
+  assert.equal(isReadBackLag(rmBody, fourRow, verifyPipeline(rmBody, fourRow), ['zzz']), false);
+  // CONTROL: removed stage still listed AND a wrong name elsewhere.
+  const renamed = { name: 'P', stages: S4.map((s) => (s.id === 'c' ? { ...s, name: 'WRONG' } : s)) };
+  assert.equal(isReadBackLag(rmBody, renamed, verifyPipeline(rmBody, renamed), ['b']), false);
+  // CONTROL: exactly what was sent verifies clean.
+  assert.deepEqual(verifyPipeline(rmBody, threeRow), []);
+});
+
+test('readBackWithBackoff: a removal read-back catches up; without the removed ids it fails at once', async () => {
+  let i = 0; const rows = [fourRow, fourRow, threeRow];
+  const r = await readBackWithBackoff({ read: async () => ({ row: rows[Math.min(i++, 2)] }), body: rmBody, removedIds: ['b'], sleep: noSleep });
+  assert.deepEqual(r.mismatches, []); assert.equal(r.attempts, 3); assert.equal(r.lag, false);
+  const still = await readBackWithBackoff({ read: async () => ({ row: fourRow }), body: rmBody, removedIds: ['b'], sleep: noSleep });
+  assert.equal(still.lag, true); assert.equal(still.attempts, READBACK_DELAYS_MS.length);
+  let reads = 0;
+  const control = await readBackWithBackoff({ read: async () => { reads++; return { row: fourRow }; }, body: rmBody, sleep: noSleep });
+  assert.equal(control.lag, false); assert.equal(reads, 1); assert.ok(control.mismatches.length);
+});
+
+test('readBaseWithBackoff: a list that still shows a just-removed stage is stale (would resurrect it); controls read once', async () => {
+  const lastWrite = { count: 3, at: 1000, removedIds: ['b'] };
+  let i = 0;
+  const ok = await readBaseWithBackoff({ read: async () => ({ row: [fourRow, threeRow][Math.min(i++, 1)] }), lastWrite, now: 1500, sleep: noSleep });
+  assert.equal(ok.stale, false); assert.equal(ok.attempts, 2);
+  const stale = await readBaseWithBackoff({ read: async () => ({ row: fourRow }), lastWrite, now: 1500, sleep: noSleep });
+  assert.equal(stale.stale, true);
+  // CONTROLS: caught-up list, an old write, and a write that removed nothing — one read each.
+  for (const [lw, now, row] of [[lastWrite, 1500, threeRow], [lastWrite, RECENT_WRITE_MS + 2000, fourRow], [{ count: 3, at: 1000, removedIds: [] }, 1500, fourRow]]) {
+    let reads = 0; const r = await readBaseWithBackoff({ read: async () => { reads++; return { row }; }, lastWrite: lw, now, sleep: noSleep });
+    assert.equal(r.stale, false); assert.equal(reads, 1);
+  }
+});

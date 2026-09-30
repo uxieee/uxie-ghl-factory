@@ -99,7 +99,7 @@ import {
   isGroup,
   leaves as filterLeaves,
 } from './smart-lists.mjs';
-import { planPipelineEdit, readBackWithBackoff, readBaseWithBackoff, COLOR_RENDER_MODES, strayArrivals, cardsInRemovedStages } from './pipelines.mjs';
+import { planPipelineEdit, readBackWithBackoff, readBaseWithBackoff, RECENT_WRITE_MS, COLOR_RENDER_MODES, strayArrivals, cardsInRemovedStages } from './pipelines.mjs';
 import { CLOSE_DATE_BUCKETS, DRILLDOWN_BY, FORECAST_VIEWS, GROUP_BY, PATHS as FORECAST_PATHS, forecastBody, nameMaps, shapeForecast } from './forecast.mjs';
 import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId } from './snapshots.mjs';
 import {
@@ -1733,7 +1733,7 @@ async function readWorkflowStatus(gw, loc, wid) {
 
 // Re-read the parked roster after a requeue and report which attempted ids have LEFT the step (bl-314). Polled up to
 // four times, 1.5 s apart, because the requeue is processed asynchronously.
-/** pipelineId → { count, at } of the last whole-pipeline PUT edit_pipeline sent in this process (see readBaseWithBackoff). */
+/** pipelineId → { count, at, removedIds } of the last whole-pipeline PUT edit_pipeline sent in this process (see readBaseWithBackoff). */
 const LAST_PIPELINE_WRITE = new Map();
 
 async function readBackRequeue(ff, wid, stepId, statusIds, sleep = (ms) => new Promise((r) => setTimeout(r, ms))) {
@@ -11272,8 +11272,8 @@ export const TOOLS = [
       const row = first.row;
       if (!row) return fail(CODES.VALIDATION_FAILED, `no pipeline ${args.pipelineId} in this location`, 'Check the id with list_account_entities. Nothing was written.');
       if (first.stale) {
-        return fail(CODES.VALIDATION_FAILED, `the pipeline list still shows ${row.stages?.length ?? 0} stages but the last edit from this session sent ${LAST_PIPELINE_WRITE.get(args.pipelineId).count}; it is catching up`,
-          'Wait a few seconds and run the edit again. Writing now would build the whole pipeline from the old list and drop that edit. Nothing was written.');
+        return fail(CODES.VALIDATION_FAILED, `the pipeline list still shows ${row.stages?.length ?? 0} stages (or a stage this session just removed) but the last edit from this session left ${LAST_PIPELINE_WRITE.get(args.pipelineId).count}; it is catching up`,
+          'Wait a few seconds and run the edit again. Writing now would build the whole pipeline from the old list and undo that edit (drop an added stage or bring back a removed one). Nothing was written.');
       }
       if (String(row.name).trim() !== String(args.expectedName).trim()) {
         return fail(CODES.VALIDATION_FAILED, `target check failed: pipeline ${args.pipelineId} is named "${row.name}", not "${args.expectedName}"`,
@@ -11377,8 +11377,11 @@ export const TOOLS = [
       const write = await gw.call('PUT', `/opportunities/pipelines/${encodeURIComponent(args.pipelineId)}?${new URLSearchParams({ locationId: loc })}`, plan.body);
       if (!write.ok) return withFailureData(fromHttp(write.status, write.json), { moved });
       // The pipeline list can trail a PUT by a moment: a short read is re-read a few times (about 3 s) before it is called anything.
-      LAST_PIPELINE_WRITE.set(args.pipelineId, { count: plan.body.stages.length, at: Date.now() });
-      const after = await readBackWithBackoff({ read: readRow, body: plan.body });
+      const removedNow = plan.removed.map((r) => r.id);
+      const prevWrite = LAST_PIPELINE_WRITE.get(args.pipelineId);
+      const removedIds = [...new Set([...(prevWrite && Date.now() - prevWrite.at <= RECENT_WRITE_MS ? prevWrite.removedIds ?? [] : []), ...removedNow])];
+      LAST_PIPELINE_WRITE.set(args.pipelineId, { count: plan.body.stages.length, at: Date.now(), removedIds });
+      const after = await readBackWithBackoff({ read: readRow, body: plan.body, removedIds: removedNow });
       if (after.failure) return after.failure;
       const mismatches = after.mismatches;
       const result = { pipeline: { id: args.pipelineId, name: after.row?.name }, changes: plan.diff, moved,

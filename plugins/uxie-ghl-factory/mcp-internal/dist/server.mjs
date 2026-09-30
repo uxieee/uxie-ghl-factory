@@ -213443,14 +213443,20 @@ function verifyPipeline(body2, row) {
   });
   return bad;
 }
-function isReadBackLag(body2, row, mismatches) {
+function isReadBackLag(body2, row, mismatches, removedIds = []) {
   if (!row || !mismatches?.length) return false;
   const got = row.stages ?? [];
-  if (got.length >= body2.stages.length) return false;
-  return mismatches.every((m) => m.startsWith("stage count:") || /^stage ".*" \(.*\) is missing after the write$/.test(m));
+  if (got.length < body2.stages.length) {
+    return mismatches.every((m) => m.startsWith("stage count:") || /^stage ".*" \(.*\) is missing after the write$/.test(m));
+  }
+  if (got.length === body2.stages.length || !removedIds.length) return false;
+  const sent = new Set(body2.stages.map((s) => s.id).filter(Boolean));
+  const extra = got.filter((s) => !sent.has(s.id));
+  if (!extra.length || !extra.every((s) => removedIds.includes(s.id))) return false;
+  return mismatches.every((m) => m.startsWith("stage count:") || /^stage ".*" is at index \d+, sent at \d+$/.test(m));
 }
 var READBACK_DELAYS_MS = [0, 500, 1e3, 1500];
-async function readBackWithBackoff({ read, body: body2, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), delays = READBACK_DELAYS_MS }) {
+async function readBackWithBackoff({ read, body: body2, removedIds = [], sleep = (ms) => new Promise((r) => setTimeout(r, ms)), delays = READBACK_DELAYS_MS }) {
   let last = null;
   for (let i = 0; i < delays.length; i++) {
     if (delays[i]) await sleep(delays[i]);
@@ -213458,11 +213464,15 @@ async function readBackWithBackoff({ read, body: body2, sleep = (ms) => new Prom
     if (r.failure) return { failure: r.failure };
     const mismatches = verifyPipeline(body2, r.row);
     last = { row: r.row, mismatches, attempts: i + 1 };
-    if (!mismatches.length || !isReadBackLag(body2, r.row, mismatches)) return { ...last, lag: false };
+    if (!mismatches.length || !isReadBackLag(body2, r.row, mismatches, removedIds)) return { ...last, lag: false };
   }
   return { ...last, lag: true };
 }
 var RECENT_WRITE_MS = 2e4;
+function isStaleBase(row, lastWrite) {
+  const got = row.stages ?? [];
+  return got.length < lastWrite.count || got.some((s) => (lastWrite.removedIds ?? []).includes(s.id));
+}
 async function readBaseWithBackoff({ read, lastWrite, now = Date.now(), sleep = (ms) => new Promise((r) => setTimeout(r, ms)), delays = READBACK_DELAYS_MS }) {
   const recent = lastWrite && now - lastWrite.at <= RECENT_WRITE_MS;
   let last = null;
@@ -213471,7 +213481,7 @@ async function readBaseWithBackoff({ read, lastWrite, now = Date.now(), sleep = 
     const r = await read();
     if (r.failure) return { failure: r.failure };
     last = { row: r.row, attempts: i + 1 };
-    if (!recent || !r.row || (r.row.stages ?? []).length >= lastWrite.count) return { ...last, stale: false };
+    if (!recent || !r.row || !isStaleBase(r.row, lastWrite)) return { ...last, stale: false };
   }
   return { ...last, stale: true };
 }
@@ -229168,8 +229178,8 @@ var TOOLS2 = [
       if (first.stale) {
         return fail(
           CODES.VALIDATION_FAILED,
-          `the pipeline list still shows ${row.stages?.length ?? 0} stages but the last edit from this session sent ${LAST_PIPELINE_WRITE.get(args.pipelineId).count}; it is catching up`,
-          "Wait a few seconds and run the edit again. Writing now would build the whole pipeline from the old list and drop that edit. Nothing was written."
+          `the pipeline list still shows ${row.stages?.length ?? 0} stages (or a stage this session just removed) but the last edit from this session left ${LAST_PIPELINE_WRITE.get(args.pipelineId).count}; it is catching up`,
+          "Wait a few seconds and run the edit again. Writing now would build the whole pipeline from the old list and undo that edit (drop an added stage or bring back a removed one). Nothing was written."
         );
       }
       if (String(row.name).trim() !== String(args.expectedName).trim()) {
@@ -229262,14 +229272,14 @@ var TOOLS2 = [
       const pipelineIds = [];
       if (removing) {
         await new Promise((r) => setTimeout(r, 3e3));
-        const removedIds = new Set(affected.map((a) => a.id));
+        const removedIds2 = new Set(affected.map((a) => a.id));
         const late2 = [];
         for (let page = 1; page <= 20; page++) {
           const res = await search([pipeFilter], 100, page);
           if (!res.ok) return fromHttp(res.status, res.json);
           const rows = res.json?.opportunities ?? [];
           pipelineIds.push(...rows.map((c) => c.id));
-          late2.push(...cardsInRemovedStages(rows, removedIds));
+          late2.push(...cardsInRemovedStages(rows, removedIds2));
           if (rows.length < 100) break;
         }
         if (late2.length) {
@@ -229283,8 +229293,11 @@ var TOOLS2 = [
       const writeStartedAt = (/* @__PURE__ */ new Date()).toISOString();
       const write = await gw.call("PUT", `/opportunities/pipelines/${encodeURIComponent(args.pipelineId)}?${new URLSearchParams({ locationId: loc })}`, plan.body);
       if (!write.ok) return withFailureData(fromHttp(write.status, write.json), { moved });
-      LAST_PIPELINE_WRITE.set(args.pipelineId, { count: plan.body.stages.length, at: Date.now() });
-      const after = await readBackWithBackoff({ read: readRow, body: plan.body });
+      const removedNow = plan.removed.map((r) => r.id);
+      const prevWrite = LAST_PIPELINE_WRITE.get(args.pipelineId);
+      const removedIds = [.../* @__PURE__ */ new Set([...prevWrite && Date.now() - prevWrite.at <= RECENT_WRITE_MS ? prevWrite.removedIds ?? [] : [], ...removedNow])];
+      LAST_PIPELINE_WRITE.set(args.pipelineId, { count: plan.body.stages.length, at: Date.now(), removedIds });
+      const after = await readBackWithBackoff({ read: readRow, body: plan.body, removedIds: removedNow });
       if (after.failure) return after.failure;
       const mismatches = after.mismatches;
       const result = {
