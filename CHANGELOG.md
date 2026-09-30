@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.35.2] — 2026-09-30
+
+**Fixes: birthday reminders and inbound-email trigger filters are written the way the builder writes them; AI,
+pipeline, course and snapshot write tools re-proven. Executed live on the test account.**
+
+### Fixed
+- *Birthday reminder* month and day are stored as the builder stores them: a 0-based month index and a numeric day.
+  A month given as a name or 1–12 is mapped, and an out-of-range day is refused. The builder showed "Select" before.
+  Live: the draft renders "May / 16".
+- *Inbound email* trigger filters (to, cc, from, subject, body, has attachments, is a reply) are recognised with their
+  operator menus. They were flagged as unknown although the builder offers them. Live: "Subject / Contains / test"
+  renders.
+
+### Changed
+- 19 write tools were re-proven live on the current core: the AI agent, voice agent, deployment, contact-AI and AI
+  Studio tools, plus `edit_pipeline`, `build_course` and the snapshot tools. Every test object was deleted afterwards.
+- `raw_request` knows the AI Studio project delete as a proven route.
+
+### Docs
+- Trigger pages describe 25 more trigger drawers.
+
 ## [1.35.1] — 2026-09-30
 
 **Docs and catalogue: pipeline smart tags, board export and conditional rules; re-proven funnel and form tools.**
