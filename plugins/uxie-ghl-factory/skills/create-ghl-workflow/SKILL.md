@@ -121,6 +121,7 @@ them to where it lives in the UI. Never report it as impossible, and never build
 | Change a workflow that already exists: retype a step, insert before the first, multipath containers, edit triggers, the dead-branch guard | `references/editing.md` |
 | The exact field set for one step or trigger type | **`describe_step_type`** (the tool — not a file) |
 | Build one of the recipes end to end | `references/build-recipe.md` |
+| Merge tags in step text: trigger data, `formatList`, dates, `default`, the picker, what the engine refuses | `references/merge-tags.md` |
 | Marketplace / third-party steps and triggers | `references/marketplace-steps.md` |
 | The advanced canvas: what a person's gestures store, that our tools keep canvas layout on edit (proven 2026-09-29), and rescuing a goto that lost its target | `references/advanced-canvas.md` |
 | What a step's stored shape must look like, and why mirroring one example misleads | `references/step-shapes.md` |
