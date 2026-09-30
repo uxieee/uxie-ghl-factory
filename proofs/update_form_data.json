@@ -51,6 +51,15 @@
         "commit:31b57404"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:00661fd8"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -64,12 +73,13 @@
       "formSurveyApp": 326
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_form_data": "c438d6130a24658c4fec242702f22eb8da1b912e866cdb56378ea8f5ece2de94",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_form_data": "5d85deb1040d9ac0c87ce62094badab5bc7c3bcbfb90cd53d2d5e492d1dc2d00",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
-      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd"
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-builder-shapes.mjs": "513d8a8c06d490e1e8d68ad188a6f1db9ed9be1c1208f31d86c824671372a7e8",
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "e643d74b3e42bddbed538584740d42f0a9e58c8de0a0bd5560867d76fd083c5f"
     }
   }
 }

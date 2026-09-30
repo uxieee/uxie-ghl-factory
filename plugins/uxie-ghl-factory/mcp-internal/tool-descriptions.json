@@ -906,9 +906,9 @@
     ]
   },
   "get_form": {
-    "description": "Read one form and its stored document — proof: live-runtime (2026-09-25); risk: read",
+    "description": "Read one form and its stored document — proof: live-runtime (2026-09-30); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-detail",
@@ -1342,9 +1342,9 @@
     ]
   },
   "list_form_submissions": {
-    "description": "List form submissions — proof: live-runtime (2026-09-25); risk: read",
+    "description": "List form submissions — proof: live-runtime (2026-09-30); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-submissions"
