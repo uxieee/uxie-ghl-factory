@@ -111,6 +111,10 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
   Set it to what the agent needs before publishing anything whose triggers fire on real events.
 - `imageGeneration: {quality: low|medium|high}` and `mediaSettings: {tts: {voice, instructions}, video:
   {durationSeconds}}` pass through when given.
+  🔴 **`mediaSettings.video.durationSeconds` is stored and read back but NOT honoured**: with `4` the generated clip was
+  8.0 s (1280×720, h264 + aac), and the editor's row reads "Video generation · 8s · 16:9 or 9:16" (one run, other values
+  untried). Generated files land in the location's media library; deleting the library entry leaves the public URL
+  answering 200. A run moved no USD usage meter (live 2026-09-30).
 - `contextManagement`, `reasoning.effort` — server defaults `{strategy:"summarize", keepRecentTurns:10,
   compactionThreshold:0.9}` and `{effort:"medium"}`. 🔴 **`actions` is NOT stored**: a PUT carrying `actions:
   [{actionName, actionId, triggerCondition, basePrompt}]` (the bundle's shape) answered 200 and read back without
@@ -119,6 +123,24 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
   persisted a PUT in the captured beta UI session — an unresolved gap, not something this compiler drives.
 - `knowledgeBaseIds` — capture shows `null` when unset (never an empty array); the compiler
   preserves that null-vs-array distinction rather than defaulting to `[]`.
+
+## Custom MCP apps (live 2026-09-30)
+
+Apps → **Add custom MCP** registers YOUR MCP server as a location-level app (`POST /oauth/locations/{loc}/mcp-apps {name, mcpUrl, product:"Superagents"}`
+→ `appId`, slug `mcp-app-<appId>`, `authType:"basic"`, one credential field `access_token` sent as `Authorization: Bearer <token>`); **Connect** stores
+the token (`POST /oauth/clients/{appId}/authentication/locations/{loc}/accounts {access_token, name, email}`, name and email required; `GET /agent-studio/plugins/{slug}/connection-status`
+reads it back); GHL then discovers the tools, and an agent that lists the app in `plugins[]` runs them through `use_plugin` discover → guide → execute (a test run executed the tool and the endpoint saw the calls).
+Delete = `DELETE /oauth/locations/{loc}/mcp-apps/{appId}` (it disconnects its accounts). The full routes and traps are in corpus `ai-agents/20-api/custom-api-and-mcp.md`.
+- 🔴 The app is **location-wide**: register under a clear test name and delete it in the same session.
+- 🔴 **The editor's Save writes the agent config with the Default plugin (`allSkills:true`, 540 skills) beside your app.** An agent given that can run any CRM skill; send `plugins:[<your app only>]` (the server keeps exactly what is sent).
+- 🔴 Anything under `/oauth/…` is easy to block by mistake with a write guard; the registry list is `GET /oauth/locations/{loc}/mcp-apps` (`custom:true` marks yours), not `/agent-studio/plugins/mcp/list`.
+- The `mcp` id in `config.tools` changed nothing observable: the MCP path is the plugin.
+
+## Ask AI as a builder
+
+"Create with AI" (Knowledge Base page) and the copilot's voice-flow mode act server-side with the user's own credentials. 🔴 The button STARTS a session when clicked;
+the voice-graph mode creates a NEW same-named flow agent and hand-off voice agent when the plan appears (before approval) and never edits the agent you name; the KB skill makes a KB and FAQs only.
+Scope a run with an exact prompt, read each approval card, and diff a before/after snapshot of every agent and KB; details in corpus `ai-agents/20-api/ask-ai-agent-building.md`.
 
 ## Traps (proven live 2026-09-28)
 
