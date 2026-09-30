@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.42.1] — 2026-10-01
+
+**`push_snapshot` only pushes to your own sub-accounts, and names each one before it sends.**
+
+### Fixed
+- 🔴 `push_snapshot` queued a push to ANY account id it was given, without checking it belonged to your agency. A
+  mistyped id that happened to be a real client's account would have received the snapshot. The tool now checks every
+  target against the agency's own sub-account list and refuses the whole push if any id isn't there. It also refuses
+  if that list can't be read.
+- The preview and the result now name each target (id and account name). Tested live: the preview named the sandbox,
+  an unknown id was refused with nothing queued, and a real push to the sandbox named its target.
+
+### Known limits
+- Pushing a snapshot into the account it was made from is accepted but loads nothing (measured). So actually loading
+  a snapshot into another account is still unproven: it needs a second test sub-account.
+
+### Added
+- The live-test harnesses refuse any target account other than the sandbox, and the shared live-proof runner refuses to
+  start if its environment names another account.
+- Proof records: 16 pipelines, platform and meta tools re-proven live, including edit_pipeline on 1.41.7.
+
 ## [1.42.0] — 2026-10-01
 
 **The AI-agent guides now cover everything learned while testing on the sandbox: phone numbers, custom APIs and MCP
