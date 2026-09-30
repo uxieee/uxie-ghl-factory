@@ -1,9 +1,13 @@
 // update_voiceai_agent — change an EXISTING Voice AI agent, and prove only that changed.
 //
 // Measured on the designated test sub-account, 2026-09-28, on a TEST-CONF-AI agent, diffing every key before and after:
-//   - `PUT /voice-ai/agents/{id}` with a PARTIAL body MERGES at the top level: only the keys sent change. The
-//     flow builder sends exactly such bodies ({locationId, agentName} / {locationId, llmModel} / {locationId, voiceId}).
-//     The builder-save rail (?publishAgent=true&mode=update) merges a partial body the same way.
+//   - `PUT /voice-ai/agents/{id}` with a PARTIAL body MERGES at the top level: the keys sent change, and every other
+//     key survives, WITH ONE EXCEPTION: `agentSettings.languages` is reset to [] by any partial PUT that does not send
+//     `languages` (measured 2026-09-30 on an agent whose editor Save had stored ["en-US"]: {voiceVolume} alone and
+//     {sendPostCallNotificationTo} alone each wrote []; a later {languages:["en-US"]} restored it and touched nothing
+//     else). So this module sends the stored list along whenever the caller did not name `languages` (see `carried`).
+//     The flow builder sends bodies such as {locationId, agentName} / {locationId, llmModel} / {locationId, voiceId}.
+//     The builder-save rail (?publishAgent=true&mode=update) merges a partial body the same way (languages not re-measured there).
 //   - A NESTED object is validated whole: {sendPostCallNotificationTo:{admins:true}} answered 422 naming every missing
 //     inner field and wrote nothing. So nested objects are laid over the stored one and sent whole.
 //   - Writes are FLAT and reads are NESTED (most settings come back under `agentSettings`; voiceId inside
@@ -288,7 +292,13 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
     }
     expected[k] = body[k];
   }
-  return { method: 'PUT', path: `/voice-ai/agents/${agentId}`, body, expected, setKeys: Object.keys(spec) };
+  // GHL resets agentSettings.languages to [] on a partial PUT that omits it (header). Read-modify-write: carry the stored
+  // list unless the caller named `languages`. It is not an expected/verified key: the collateral diff still compares it
+  // before and after, so a server that stops honouring it is reported as AGENT_COLLATERAL_CHANGED, not hidden.
+  const storedLanguages = current.agentSettings?.languages;
+  const carried = !('languages' in spec) && Array.isArray(storedLanguages) && storedLanguages.length ? [...storedLanguages] : null;
+  if (carried) body.languages = carried;
+  return { method: 'PUT', path: `/voice-ai/agents/${agentId}`, body, expected, setKeys: Object.keys(spec), ...(carried ? { carried: { languages: carried } } : {}) };
 }
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -343,7 +353,7 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
     const stored = plan.setKeys.filter((k) => !same(readFlat(after, k), readFlat(before, k)));
     const message = serverMessage(put?.json) ?? `HTTP ${put?.status ?? '?'}`;
     if (!stored.length) return { ok: false, code: 'AGENT_UPDATE_FAILED', status: put?.status ?? null, detail: message, written: [] };
-    const undo = { locationId: plan.body.locationId };
+    const undo = { locationId: plan.body.locationId, ...(plan.carried ?? {}) }; // the write-back is a partial PUT too: it must carry languages
     for (const k of stored) {
       // prompts merge by section: restore exactly the sections sent (a stored text, or null where none was stored)
       undo[k] = k === 'prompts'

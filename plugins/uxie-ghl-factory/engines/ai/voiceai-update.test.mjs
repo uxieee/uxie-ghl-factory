@@ -12,7 +12,7 @@ const RECORD = () => ({
 });
 
 // A fake server with the measured semantics: top-level merge, flat write → nested read, nested objects whole.
-function fakeGw({ record, refuse = null, storeOnRefuse = false, drop = [], collateral = null } = {}) {
+function fakeGw({ record, refuse = null, storeOnRefuse = false, drop = [], collateral = null, wipeLanguages = false } = {}) {
   let rec = record; const calls = [];
   const SETTINGS = new Set(Object.keys(rec.agentSettings));
   const apply = (body) => {
@@ -23,6 +23,8 @@ function fakeGw({ record, refuse = null, storeOnRefuse = false, drop = [], colla
       else if (SETTINGS.has(k)) next.agentSettings[k] = v;
       else next[k] = v;
     }
+    // measured 2026-09-30: a partial PUT that does not send `languages` resets agentSettings.languages to []
+    if (wipeLanguages && !('languages' in body)) next.agentSettings.languages = [];
     if (collateral) collateral(next);
     return next;
   };
@@ -393,4 +395,53 @@ test('CONTROL: only SOME occurrences re-templated, or a prompt change with no re
   const p2 = compileVoiceAiPartialUpdate(plain, { maxCallDuration: 600 }, { agentId: 'A', locationId: 'L' });
   const r2 = await executeVoiceAiUpdate({ plan: p2, before: plain, gw: gw2, serverMessage });
   assert.equal(r2.code, 'AGENT_COLLATERAL_CHANGED');
+});
+
+// ---- agentSettings.languages: GHL resets it on any partial PUT that omits it (measured 2026-09-30) ----
+const WITH_LANGS = () => { const r = RECORD(); r.agentSettings.languages = ['en-US']; return r; };
+
+test('languages: the stored list rides along on an update that does not name it', () => {
+  const plan = compileVoiceAiPartialUpdate(WITH_LANGS(), { voiceVolume: 0.6 }, { agentId: 'A', locationId: 'L' });
+  assert.deepEqual(plan.body.languages, ['en-US']);
+  assert.deepEqual(plan.carried, { languages: ['en-US'] });
+  assert.deepEqual(plan.setKeys, ['voiceVolume']); // carried, not "set": verification and collateral treat it as untouched
+});
+
+test('languages: a spec that names languages is sent as named; nothing stored is carried over it', () => {
+  const plan = compileVoiceAiPartialUpdate(WITH_LANGS(), { languages: ['fr-FR'] }, { agentId: 'A', locationId: 'L' });
+  assert.deepEqual(plan.body.languages, ['fr-FR']);
+  assert.equal(plan.carried, undefined);
+});
+
+test('languages: nothing stored (the create default []) means nothing is carried', () => {
+  const rec = RECORD(); rec.agentSettings.languages = [];
+  const plan = compileVoiceAiPartialUpdate(rec, { voiceVolume: 0.6 }, { agentId: 'A', locationId: 'L' });
+  assert.equal('languages' in plan.body, false);
+});
+
+test('CONTROL: without the carry the measured server wipes languages and the update reports collateral; with it languages survive', async () => {
+  const oldPlan = compileVoiceAiPartialUpdate(WITH_LANGS(), { maxCallDuration: 600 }, { agentId: 'A', locationId: 'L' });
+  delete oldPlan.body.languages; delete oldPlan.carried; // what the tool sent before the fix
+  const b1 = WITH_LANGS();
+  const wiped = await executeVoiceAiUpdate({ plan: oldPlan, before: b1, gw: fakeGw({ record: b1, wipeLanguages: true }), serverMessage });
+  assert.equal(wiped.code, 'AGENT_COLLATERAL_CHANGED');
+  assert.deepEqual(wiped.collateral.changed, [{ key: 'agentSettings.languages', before: ['en-US'], after: [] }]);
+
+  const b2 = WITH_LANGS(); const gw = fakeGw({ record: b2, wipeLanguages: true });
+  const plan = compileVoiceAiPartialUpdate(b2, { maxCallDuration: 600 }, { agentId: 'A', locationId: 'L' });
+  const kept = await executeVoiceAiUpdate({ plan, before: b2, gw, serverMessage });
+  assert.equal(kept.ok, true);
+  assert.equal(kept.collateral.unchanged, true);
+  assert.deepEqual((await gw.call('GET')).json.agentSettings.languages, ['en-US']);
+});
+
+test('languages: the write-back after a provider refusal carries them too (it is a partial PUT as well)', async () => {
+  const before = WITH_LANGS();
+  const gw = fakeGw({ record: before, wipeLanguages: true, storeOnRefuse: true, refuse: (b) => b.llmModel === 'bogus-llm' });
+  const plan = compileVoiceAiPartialUpdate(before, { llmModel: 'bogus-llm' }, { agentId: 'A', locationId: 'L' });
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.code, 'PROVIDER_REFUSED_BUT_STORED');
+  const undo = gw.calls.filter((c) => c.method === 'PUT').at(-1).body;
+  assert.deepEqual(undo.languages, ['en-US']);
+  assert.deepEqual((await gw.call('GET')).json.agentSettings.languages, ['en-US']);
 });
