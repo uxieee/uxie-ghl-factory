@@ -40,7 +40,7 @@
     "event": "simple-prompt",
     "model": "gpt-5",
     "temperature": "0.2",
-    "promptText": "{{contact.weekly_checkin_message}}",
+    "promptText": "{{contact.checkin_message}}",
     "actionType": "custom",
     "actionParams": {
       "message": "",
@@ -55,9 +55,9 @@
     "memoryKey": "action",
     "excludeFromHistory": false,
     "excludeInstructionsFromHistory": false,
-    "instructions": "# Role and Objective\n- You are a specialized analyzer. Your mission is to extract the triggers a user experienced based on their weekly reflection.\n# Instructions\n- The input is a user's weekly reflection.\n- Identify situations, places, feelings, or events described as leading to cravings or struggles (triggers). Examples: stress, boredom, parties, loneliness.\n- Extract each trigger as a short phrase.\n- If multiple triggers are present, separate them by commas.\n# Output Format\n- Output a comma-separated list of triggers extracted from the reflection.\n- If no triggers are mentioned, output: None.\n# Stop Conditions\n- Provide the output when all triggers have been extracted from the user's reflection"
+    "instructions": "# Role and Objective\n- You are a specialized analyzer. Your mission is to extract the key topics a user mentioned in their weekly summary.\n# Instructions\n- The input is a user's weekly summary.\n- Identify topics, places, or events the user mentions. Examples: work, travel, family.\n- Extract each topic as a short phrase.\n- If multiple topics are present, separate them by commas.\n# Output Format\n- Output a comma-separated list of topics extracted from the summary.\n- If no topics are mentioned, output: None.\n# Stop Conditions\n- Provide the output when all topics have been extracted from the user's summary"
   },
-  "name": "Trigger Analyzer",
+  "name": "Topic Analyzer",
   "type": "chatgpt",
   "next": "<uuid-002>"
 }
