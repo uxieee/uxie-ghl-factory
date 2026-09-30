@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 557,
+ "count": 559,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -22361,6 +22361,272 @@
     }
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/vapi-ai.md"
+  },
+  {
+   "type": "leadgen_ecommerce_add_to_cart",
+   "family": "triggers-marketplace",
+   "title": "leadgen_ecommerce_add_to_cart (Marketplace)",
+   "status": "source-derived",
+   "lastVerified": "2026-09-30",
+   "summary": "Trigger when product is added to cart",
+   "meta": {
+    "App": "Ecommerce Stores",
+    "Display name": "Add Products to Cart",
+    "Section": "Ecommerce Stores",
+    "masterType (assets registry)": "`—`",
+    "workflowsTriggerType": "`INTERNAL`",
+    "Delivery": "`webhook`",
+    "Premium / beta": "no",
+    "customVarPrefix": "`leadgen_ecommerce_add_to_cart`",
+    "Source": "`sniffs/assets/triggers.json` (the location's marketplace asset index, key `leadgen_ecommerce_add_to_cart`)"
+   },
+   "fields": [
+    {
+     "name": "duration",
+     "type": "numerical",
+     "required": true,
+     "notes": "—"
+    },
+    {
+     "name": "globalProductIds",
+     "type": "multiselect",
+     "required": false,
+     "notes": "operator shown"
+    },
+    {
+     "name": "orderSource",
+     "type": "select",
+     "required": false,
+     "notes": "operator shown"
+    },
+    {
+     "name": "subSource",
+     "type": "select",
+     "required": false,
+     "notes": "operator shown"
+    },
+    {
+     "name": "checkoutCompleted",
+     "type": "select",
+     "required": false,
+     "notes": "operator shown"
+    },
+    {
+     "name": "storeId",
+     "type": "multiselect",
+     "required": false,
+     "notes": "operator shown"
+    },
+    {
+     "name": "cartValue",
+     "type": "numerical",
+     "required": false,
+     "notes": "operator shown"
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "duration",
+     "fieldType": "numerical",
+     "required": true,
+     "title": "Duration (in Mins)",
+     "options": "—",
+     "notes": "—"
+    },
+    {
+     "field": "globalProductIds",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Global Products",
+     "options": "fed by the store's `GLOBAL_PRODUCTS` list",
+     "notes": "operator shown"
+    },
+    {
+     "field": "orderSource",
+     "fieldType": "select",
+     "required": false,
+     "title": "Order Source",
+     "options": "`external` (External), `store` (Store)",
+     "notes": "operator shown"
+    },
+    {
+     "field": "subSource",
+     "fieldType": "select",
+     "required": false,
+     "title": "Sub Source",
+     "options": "`shopify` (Shopify)",
+     "notes": "operator shown"
+    },
+    {
+     "field": "checkoutCompleted",
+     "fieldType": "select",
+     "required": false,
+     "title": "Checkout Completed",
+     "options": "`true` (True), `false` (False)",
+     "notes": "operator shown"
+    },
+    {
+     "field": "storeId",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Store Name",
+     "options": "—",
+     "notes": "operator shown"
+    },
+    {
+     "field": "cartValue",
+     "fieldType": "numerical",
+     "required": false,
+     "title": "Cart Value",
+     "options": "—",
+     "notes": "operator shown"
+    }
+   ],
+   "customVariables": [
+    {
+     "reference": "orderSource",
+     "name": "Order Source",
+     "fieldType": "select"
+    },
+    {
+     "reference": "subSource",
+     "name": "Sub Source",
+     "fieldType": "select"
+    },
+    {
+     "reference": "cartValue",
+     "name": "Cart Value",
+     "fieldType": "numerical"
+    },
+    {
+     "reference": "checkoutCompleted",
+     "name": "Checkout Completed",
+     "fieldType": "select"
+    }
+   ],
+   "notes": "- `cartValue` is both a filter row and a condition and a custom variable, so a workflow can filter on the cart total and use it in a message.\n- **Filter rows are stored in `conditions[]`**, each as `{operator, field, value, title, type, id}`; empty rows are dropped. [source-derived 2026-09-26 — models/Triggers/TriggerMain.ts:888-903]\n- `duration` (in minutes, per the row title) is the only required row; what it measures is not stated in the asset.\n- Because the asset carries `workflowsTriggerType: \"INTERNAL\"`, picking it sets `masterType: \"internal\"` and save stamps `workflowsTriggerType: \"INTERNAL\"` on the trigger.\n- **Built and read back `[proven-live 2026-09-29]`:** `build_workflow` authored this trigger into a zero-step draft on the test sub-account and `GET /workflow/{loc}/trigger` returned the stored type and conditions (`sniffs/workflows-wave1-2026-09-25/live-3BT-wave16-reruns.json`). Every filter row the drawer offers was authored and read back stored. Not run: a real store event (it needs an e-commerce store connection and a shopper).\n- Delivery is webhook-based and the trigger fires only while the workflow is published.",
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "leadgen_ecommerce_product_viewed",
+   "family": "triggers-marketplace",
+   "title": "leadgen_ecommerce_product_viewed (Marketplace)",
+   "status": "source-derived",
+   "lastVerified": "2026-09-30",
+   "summary": "Trigger when product is viewed",
+   "meta": {
+    "App": "Ecommerce Stores",
+    "Display name": "Product Viewed",
+    "Section": "Ecommerce Stores",
+    "masterType (assets registry)": "`—`",
+    "workflowsTriggerType": "`INTERNAL`",
+    "Delivery": "`webhook`",
+    "Premium / beta": "no",
+    "customVarPrefix": "`leadgen_ecommerce_product_viewed`",
+    "Source": "`sniffs/assets/triggers.json` (the location's marketplace asset index, key `leadgen_ecommerce_product_viewed`)"
+   },
+   "fields": [
+    {
+     "name": "duration",
+     "type": "numerical",
+     "required": true,
+     "notes": "—"
+    },
+    {
+     "name": "globalProductIds",
+     "type": "multiselect",
+     "required": false,
+     "notes": "operator shown"
+    },
+    {
+     "name": "orderSource",
+     "type": "select",
+     "required": false,
+     "notes": "operator shown"
+    },
+    {
+     "name": "subSource",
+     "type": "select",
+     "required": false,
+     "notes": "operator shown"
+    },
+    {
+     "name": "checkoutCompleted",
+     "type": "select",
+     "required": false,
+     "notes": "operator shown"
+    },
+    {
+     "name": "storeId",
+     "type": "multiselect",
+     "required": false,
+     "notes": "operator shown"
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "duration",
+     "fieldType": "numerical",
+     "required": true,
+     "title": "Duration (in mins)",
+     "options": "—",
+     "notes": "—"
+    },
+    {
+     "field": "globalProductIds",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Global Products",
+     "options": "fed by the store's `GLOBAL_PRODUCTS` list",
+     "notes": "operator shown"
+    },
+    {
+     "field": "orderSource",
+     "fieldType": "select",
+     "required": false,
+     "title": "Order Source",
+     "options": "`external` (External), `store` (Store)",
+     "notes": "operator shown"
+    },
+    {
+     "field": "subSource",
+     "fieldType": "select",
+     "required": false,
+     "title": "Sub Source",
+     "options": "`shopify` (Shopify)",
+     "notes": "operator shown"
+    },
+    {
+     "field": "checkoutCompleted",
+     "fieldType": "select",
+     "required": false,
+     "title": "Checkout Completed",
+     "options": "`true` (True), `false` (False)",
+     "notes": "operator shown"
+    },
+    {
+     "field": "storeId",
+     "fieldType": "multiselect",
+     "required": false,
+     "title": "Store Name",
+     "options": "—",
+     "notes": "operator shown"
+    }
+   ],
+   "customVariables": [
+    {
+     "reference": "orderSource",
+     "name": "Order Source",
+     "fieldType": "select"
+    },
+    {
+     "reference": "subSource",
+     "name": "Sub Source",
+     "fieldType": "select"
+    }
+   ],
+   "notes": "- Unlike the add-to-cart trigger this one has no `cartValue` row; it exposes `viewCount` as a variable.\n- **Filter rows are stored in `conditions[]`**, each as `{operator, field, value, title, type, id}`; empty rows are dropped. [source-derived 2026-09-26 — models/Triggers/TriggerMain.ts:888-903]\n- `duration` (in minutes, per the row title) is the only required row; what it measures is not stated in the asset.\n- Because the asset carries `workflowsTriggerType: \"INTERNAL\"`, picking it sets `masterType: \"internal\"` and save stamps `workflowsTriggerType: \"INTERNAL\"` on the trigger.\n- **Built and read back `[proven-live 2026-09-29]`:** `build_workflow` authored this trigger into a zero-step draft on the test sub-account and `GET /workflow/{loc}/trigger` returned the stored type and conditions (`sniffs/workflows-wave1-2026-09-25/live-3BT-wave16-reruns.json`). Every filter row the drawer offers was authored and read back stored. Not run: a real store event (it needs an e-commerce store connection and a shopper).\n- Delivery is webhook-based and the trigger fires only while the workflow is published.",
+   "hasCanonicalExample": false
   },
   {
    "type": "leadgen_ecommerce_review_submitted",

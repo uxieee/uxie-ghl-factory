@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T11:46:25.353Z",
+      "capturedAt": "2026-09-30T15:01:36.767Z",
       "hash": "corpus",
-      "fileCount": 1365,
-      "endpoints": 1365
+      "fileCount": 1376,
+      "endpoints": 1376
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1861,
+  "discoveredCallSites": 1872,
   "skippedCallSites": 719,
-  "count": 1609,
+  "count": 1611,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2704,10 +2704,12 @@
       },
       "sources": [
         "workflows/50-runtime/forcing-and-removing-contacts.md:54",
+        "workflows/30-types/steps/wait.md:320",
         "workflows/30-types/steps-marketplace/company.md:165"
       ],
       "serviceBasis": "reviewed",
       "aka": [
+        "/contacts/{id}/workflow/{id}",
         "/contacts/{id}/workflow/{wid}"
       ],
       "serviceReason": "OWNED: enrols a contact into a workflow"
@@ -3376,7 +3378,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/actions-and-plugins.md:47"
+        "ai-agents/20-api/actions-and-plugins.md:47",
+        "workflows/30-types/steps/wait.md:324"
       ],
       "serviceBasis": "declared"
     },
@@ -5325,6 +5328,40 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "events--attendees-check-in",
+      "method": "PATCH",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/events-management/attendees/{attendeeId}/check-in",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "events",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "events/20-api/events-management-api.md:354",
+        "workflows/30-types/triggers-marketplace/event_check_in.md:40"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "events--attendees-list",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -5385,7 +5422,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "events/20-api/events-management-api.md:306"
+        "events/20-api/events-management-api.md:306",
+        "events/20-api/events-management-api.md:354"
       ],
       "serviceBasis": "declared"
     },
@@ -5705,7 +5743,8 @@
       },
       "sources": [
         "events/20-api/public-registration.md:15",
-        "events/70-research/2026-08-18-public-registration-api.md:18"
+        "events/70-research/2026-08-18-public-registration-api.md:18",
+        "workflows/30-types/triggers-marketplace/event_registration.md:41"
       ],
       "serviceBasis": "declared"
     },
@@ -22140,7 +22179,7 @@
         "workflows/10-anatomy/04-workflow-anatomy.md:25",
         "workflows/10-anatomy/04-workflow-anatomy.md:420",
         "workflows/10-anatomy/04-workflow-anatomy.md:489",
-        "workflows/30-types/steps/if_else.md:33"
+        "workflows/20-api/version-history.md:122"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path",
@@ -22181,6 +22220,67 @@
       "serviceBasis": "inferred-from-path",
       "aka": [
         "/workflow/{locationId}/{id}/recover"
+      ]
+    },
+    {
+      "id": "backend--commit-auto-saved-changes-via-axios",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/{workflowId}/commit-auto-save",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "workflow-builder",
+      "extraHeaders": [],
+      "operation": "commitAutoSavedChangesViaAxios",
+      "service": "workflows",
+      "query": [],
+      "body": {
+        "typeName": "{ userId: any; workflowId: any; locationId: any; version: any; autoSaveSessionId: any; }",
+        "properties": [
+          {
+            "name": "userId",
+            "type": "any",
+            "optional": false
+          },
+          {
+            "name": "workflowId",
+            "type": "any",
+            "optional": false
+          },
+          {
+            "name": "locationId",
+            "type": "any",
+            "optional": false
+          },
+          {
+            "name": "version",
+            "type": "any",
+            "optional": false
+          },
+          {
+            "name": "autoSaveSessionId",
+            "type": "any",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "states/workflow.ts:276",
+        "workflows/20-api/version-history.md:122"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path",
+      "aka": [
+        "/workflow/{locationId}/{wid}/commit-auto-save"
       ]
     },
     {
@@ -22481,70 +22581,13 @@
       "sources": [
         "services/WorkflowService.ts:464",
         "workflows/20-api/test-run.md:17",
-        "workflows/50-runtime/scheduled-pause.md:124"
+        "workflows/50-runtime/scheduled-pause.md:128"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path",
       "aka": [
         "/workflow/{locationId}/{wid}/start-workflow"
       ]
-    },
-    {
-      "id": "backend--commit-auto-saved-changes-via-axios",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/workflow/{locationId}/{workflowId}/commit-auto-save",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "tree": "workflow-builder",
-      "extraHeaders": [],
-      "operation": "commitAutoSavedChangesViaAxios",
-      "service": "workflows",
-      "query": [],
-      "body": {
-        "typeName": "{ userId: any; workflowId: any; locationId: any; version: any; autoSaveSessionId: any; }",
-        "properties": [
-          {
-            "name": "userId",
-            "type": "any",
-            "optional": false
-          },
-          {
-            "name": "workflowId",
-            "type": "any",
-            "optional": false
-          },
-          {
-            "name": "locationId",
-            "type": "any",
-            "optional": false
-          },
-          {
-            "name": "version",
-            "type": "any",
-            "optional": false
-          },
-          {
-            "name": "autoSaveSessionId",
-            "type": "any",
-            "optional": false
-          }
-        ],
-        "confidence": "resolved"
-      },
-      "returns": null,
-      "confidence": {
-        "path": "resolved",
-        "query": "none-observed",
-        "body": "resolved",
-        "returns": "none-observed"
-      },
-      "sources": [
-        "states/workflow.ts:276"
-      ],
-      "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--download-file",
@@ -23142,7 +23185,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "workflow-ai/service/feedback.ts:14"
+        "workflow-ai/service/feedback.ts:14",
+        "workflows/20-api/workflow-ai.md:112"
       ],
       "serviceClass": "AIFeedbackService",
       "serviceBasis": "inferred-from-path"
@@ -23260,7 +23304,9 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/AutoSaveSettingsService.ts:37"
+        "services/AutoSaveSettingsService.ts:37",
+        "workflows/20-api/version-history.md:122",
+        "workflows/40-rules/settings-semantics.md:220"
       ],
       "serviceClass": "AutoSaveSettingsService",
       "serviceBasis": "inferred-from-path"
@@ -25595,7 +25641,7 @@
       "sources": [
         "services/ScheduledPauseService.ts:64",
         "workflows/50-runtime/scheduled-pause.md:22",
-        "workflows/50-runtime/scheduled-pause.md:152",
+        "workflows/50-runtime/scheduled-pause.md:156",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:69"
       ],
       "serviceClass": "ScheduledPauseService",
@@ -26280,6 +26326,8 @@
       "sources": [
         "services/BaseService.ts:46",
         "workflows/10-anatomy/advanced-canvas.md:38",
+        "workflows/20-api/workflow-ai.md:92",
+        "workflows/20-api/workflow-ai.md:114",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:236",
         "workflows/50-runtime/flow-bot-four-node-certification.md:58"
       ],
@@ -26685,10 +26733,37 @@
         "returns": "none-observed"
       },
       "sources": [
-        "workflow-ai/service/assistant-v2.ts:114"
+        "workflow-ai/service/assistant-v2.ts:114",
+        "workflows/20-api/workflow-ai.md:98"
       ],
       "serviceClass": "AIAssistantServiceV2",
       "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "workflows--ai-build-workflow",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/v3/ai/build-workflow",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/20-api/workflow-ai.md:84"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "workflows--ai-message",
@@ -26872,7 +26947,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/WorkflowAISettingsService.ts:37"
+        "services/WorkflowAISettingsService.ts:37",
+        "workflows/40-rules/settings-semantics.md:240"
       ],
       "serviceClass": "WorkflowAISettingsService",
       "serviceBasis": "inferred-from-path"
@@ -26999,7 +27075,8 @@
         "returns": "resolved"
       },
       "sources": [
-        "services/api/workflow-settings.ts:18"
+        "services/api/workflow-settings.ts:18",
+        "workflows/40-rules/settings-semantics.md:239"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -28039,7 +28116,8 @@
         "returns": "resolved"
       },
       "sources": [
-        "services/AgentTraceService.ts:361"
+        "services/AgentTraceService.ts:361",
+        "workflows/50-runtime/11-runtime-logs.md:287"
       ],
       "serviceClass": "AgentTraceService",
       "serviceBasis": "inferred-from-path"
@@ -35677,6 +35755,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:96",
         "ai-agents/20-api/12-ai-agents-api.md:128",
+        "workflows/30-types/triggers/conv_ai_trigger.md:149",
         "ai-agents/10-anatomy/conversation-ai-agent-shape.md:238",
         "ai-agents/20-api/12-ai-agents-api.md:386",
         "ai-agents/40-rules/builder-vs-server.md:24"
@@ -35684,6 +35763,7 @@
       "serviceBasis": "declared",
       "aka": [
         "/ai-employees/employees/{agentId}",
+        "/ai-employees/employees/{botId}",
         "/ai-employees/employees/{id}"
       ]
     },
@@ -36524,7 +36604,8 @@
         "ai-agents/10-anatomy/managed-agent-shape.md:136",
         "ai-agents/20-api/conversation-ai-boundary.md:85",
         "ai-studio/60-recipes/run-one-generation.md:26",
-        "funnels/20-api/funnel-ai.md:73"
+        "funnels/20-api/funnel-ai.md:73",
+        "workflows/20-api/workflow-ai.md:96"
       ],
       "serviceBasis": "declared"
     },

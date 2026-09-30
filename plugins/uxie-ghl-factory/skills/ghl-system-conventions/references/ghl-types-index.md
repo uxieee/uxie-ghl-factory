@@ -5,7 +5,7 @@ One line per step and trigger type. For the full card (fields, allowed values, v
 gotchas) run `node scripts/types.mjs <type-key>`, or `describe_step_type` if the
 uxie-ghl-factory plugin is installed — same data.
 
-556 types: 152 native, 404 marketplace. Status is each card's floor: 
+558 types: 152 native, 406 marketplace. Status is each card's floor: 
 `proven-live` > `source-derived` > `inferred`; `deprecated` means do not build on it.
 
 ## Triggers (native) (62)
@@ -170,7 +170,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `workflow_goal` | source-derived | A goal is a jump target. When a contact anywhere in the workflow meets any of the goal's conditions, they jump straight to the goal step and continue from it. `action` only governs a contact who reaches the goal step by walking the path without having met it. |
 | `workflow_split` | source-derived | Multi-path randomizer / A/B-test splitter. Routes incoming contacts across N paths via weight-distributed random selection. |
 
-## Triggers (marketplace apps) (118)
+## Triggers (marketplace apps) (120)
 
 | type | title | status |
 |---|---|---|
@@ -264,6 +264,8 @@ uxie-ghl-factory plugin is installed — same data.
 | `lc_monday_new_subitem_created` | lc_monday_new_subitem_created (Marketplace) | source-derived |
 | `lc_monday_new_update_in_board` | lc_monday_new_update_in_board (Marketplace) | source-derived |
 | `lc_monday_user_added_to_board` | lc_monday_user_added_to_board (Marketplace) | source-derived |
+| `leadgen_ecommerce_add_to_cart` | leadgen_ecommerce_add_to_cart (Marketplace) | source-derived |
+| `leadgen_ecommerce_product_viewed` | leadgen_ecommerce_product_viewed (Marketplace) | source-derived |
 | `leadgen_ecommerce_review_submitted` | leadgen_ecommerce_review_submitted (Marketplace) | source-derived |
 | `linkedin_form_submitted` | linkedin_form_submitted (Marketplace) | source-derived |
 | `messaging_errors` | messaging_errors (Marketplace) | source-derived |

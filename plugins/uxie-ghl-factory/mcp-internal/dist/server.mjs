@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1618,
+      count: 1620,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -3626,6 +3626,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "workflows--contacts-workflow",
           aka: [
+            "/contacts/{id}/workflow/{id}",
             "/contacts/{id}/workflow/{wid}"
           ],
           method: "POST",
@@ -3666,6 +3667,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/50-runtime/forcing-and-removing-contacts.md:54",
+            "workflows/30-types/steps/wait.md:320",
             "workflows/30-types/steps-marketplace/company.md:165"
           ]
         },
@@ -4476,7 +4478,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/actions-and-plugins.md:47"
+            "ai-agents/20-api/actions-and-plugins.md:47",
+            "workflows/30-types/steps/wait.md:324"
           ]
         },
         {
@@ -6941,6 +6944,49 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "events--attendees-check-in",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/events-management/attendees/{attendeeId}/check-in",
+          path: "/events-management/attendees/{attendeeId}/check-in",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "events",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "attendeeId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "events/20-api/events-management-api.md:354",
+            "workflows/30-types/triggers-marketplace/event_check_in.md:40"
+          ]
+        },
+        {
           id: "events--attendees-list",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/events-management/attendees/list",
@@ -7015,7 +7061,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "events/20-api/events-management-api.md:306"
+            "events/20-api/events-management-api.md:306",
+            "events/20-api/events-management-api.md:354"
           ]
         },
         {
@@ -7423,7 +7470,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "events/20-api/public-registration.md:15",
-            "events/70-research/2026-08-18-public-registration-api.md:18"
+            "events/70-research/2026-08-18-public-registration-api.md:18",
+            "workflows/30-types/triggers-marketplace/event_registration.md:41"
           ]
         },
         {
@@ -28186,7 +28234,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/10-anatomy/04-workflow-anatomy.md:25",
             "workflows/10-anatomy/04-workflow-anatomy.md:420",
             "workflows/10-anatomy/04-workflow-anatomy.md:489",
-            "workflows/30-types/steps/if_else.md:33"
+            "workflows/20-api/version-history.md:122"
           ]
         },
         {
@@ -28440,6 +28488,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "backend--commit-auto-saved-changes-via-axios",
+          aka: [
+            "/workflow/{locationId}/{wid}/commit-auto-save"
+          ],
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/commit-auto-save",
           path: "/workflow/{locationId}/{workflowId}/commit-auto-save",
@@ -28504,7 +28555,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "states/workflow.ts:276"
+            "states/workflow.ts:276",
+            "workflows/20-api/version-history.md:122"
           ]
         },
         {
@@ -29094,7 +29146,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/WorkflowService.ts:464",
             "workflows/20-api/test-run.md:17",
-            "workflows/50-runtime/scheduled-pause.md:124"
+            "workflows/50-runtime/scheduled-pause.md:128"
           ]
         },
         {
@@ -29686,7 +29738,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "workflow-ai/service/feedback.ts:14"
+            "workflow-ai/service/feedback.ts:14",
+            "workflows/20-api/workflow-ai.md:112"
           ]
         },
         {
@@ -29835,7 +29888,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/AutoSaveSettingsService.ts:37"
+            "services/AutoSaveSettingsService.ts:37",
+            "workflows/20-api/version-history.md:122",
+            "workflows/40-rules/settings-semantics.md:220"
           ]
         },
         {
@@ -32794,7 +32849,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/ScheduledPauseService.ts:64",
             "workflows/50-runtime/scheduled-pause.md:22",
-            "workflows/50-runtime/scheduled-pause.md:152",
+            "workflows/50-runtime/scheduled-pause.md:156",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:69"
           ]
         },
@@ -33704,6 +33759,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/BaseService.ts:46",
             "workflows/10-anatomy/advanced-canvas.md:38",
+            "workflows/20-api/workflow-ai.md:92",
+            "workflows/20-api/workflow-ai.md:114",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:236",
             "workflows/50-runtime/flow-bot-four-node-certification.md:58"
           ]
@@ -34215,7 +34272,43 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "workflow-ai/service/assistant-v2.ts:114"
+            "workflow-ai/service/assistant-v2.ts:114",
+            "workflows/20-api/workflow-ai.md:98"
+          ]
+        },
+        {
+          id: "workflows--ai-build-workflow",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/v3/ai/build-workflow",
+          path: "/workflow/{locationId}/v3/ai/build-workflow",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/workflow-ai.md:84"
           ]
         },
         {
@@ -34458,7 +34551,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowAISettingsService.ts:37"
+            "services/WorkflowAISettingsService.ts:37",
+            "workflows/40-rules/settings-semantics.md:240"
           ]
         },
         {
@@ -34607,7 +34701,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "resolved"
           },
           sources: [
-            "services/api/workflow-settings.ts:18"
+            "services/api/workflow-settings.ts:18",
+            "workflows/40-rules/settings-semantics.md:239"
           ]
         },
         {
@@ -35868,7 +35963,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "resolved"
           },
           sources: [
-            "services/AgentTraceService.ts:361"
+            "services/AgentTraceService.ts:361",
+            "workflows/50-runtime/11-runtime-logs.md:287"
           ]
         },
         {
@@ -45114,6 +45210,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           id: "ai-agents--ai-employees-employees-put",
           aka: [
             "/ai-employees/employees/{agentId}",
+            "/ai-employees/employees/{botId}",
             "/ai-employees/employees/{id}"
           ],
           method: "PUT",
@@ -45150,6 +45247,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:96",
             "ai-agents/20-api/12-ai-agents-api.md:128",
+            "workflows/30-types/triggers/conv_ai_trigger.md:149",
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:238",
             "ai-agents/20-api/12-ai-agents-api.md:386",
             "ai-agents/40-rules/builder-vs-server.md:24"
@@ -46136,7 +46234,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/10-anatomy/managed-agent-shape.md:136",
             "ai-agents/20-api/conversation-ai-boundary.md:85",
             "ai-studio/60-recipes/run-one-generation.md:26",
-            "funnels/20-api/funnel-ai.md:73"
+            "funnels/20-api/funnel-ai.md:73",
+            "workflows/20-api/workflow-ai.md:96"
           ]
         },
         {
@@ -206288,6 +206387,7 @@ var DEPRECATED_OPERATOR_TRIGGERS = /* @__PURE__ */ new Set([
   "pipeline_stage_updated",
   "ivr_incoming_call"
 ]);
+var COMPANY_WORKFLOW_TYPES = /* @__PURE__ */ new Set(["business", "company"]);
 var CONFIG_KIND_TRIGGERS = /* @__PURE__ */ new Set(["inbound_webhook", "custom_date_reminder"]);
 var OBJECT_KIND_TRIGGERS = /* @__PURE__ */ new Set(["custom_object_created", "custom_object_changed", "inbound_webhook", "custom_date_reminder"]);
 function checkTriggerRules(norm3, ctx) {
@@ -206302,7 +206402,7 @@ function checkTriggerRules(norm3, ctx) {
       );
     }
   }
-  const configKind = Boolean(norm3.workflowType && norm3.workflowType !== "agent");
+  const configKind = COMPANY_WORKFLOW_TYPES.has(norm3.workflowType);
   const objectKind = Boolean(norm3.customObjectType);
   if (configKind || objectKind) {
     const allowed = configKind ? CONFIG_KIND_TRIGGERS : OBJECT_KIND_TRIGGERS;
