@@ -76334,9 +76334,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_smart_lists: {
-        description: "Audit smart lists for filters the contacts screen will silently discard \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Audit smart lists for filters the contacts screen will silently discard \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-07)",
         proofRows: [
           "smartlist-search",
@@ -76356,9 +76356,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_snapshot_conflicts: {
-        description: "See what loading a snapshot would collide with \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "See what loading a snapshot would collide with \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -76622,9 +76622,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       describe_step_type: {
-        description: "Describe one workflow step or trigger type \u2014 proof: source-derived (corpus 30-types, 2026-09-29); risk: read",
+        description: "Describe one workflow step or trigger type \u2014 proof: live-runtime (2026-09-30), 2026-09-29); risk: read",
         risk: "read",
-        proof: "source-derived (corpus 30-types, 2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "documented",
         rows: [],
         riskRows: []
@@ -77031,9 +77031,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_snapshot_manifest: {
-        description: "Read everything a sub-account could put in a snapshot \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Read everything a sub-account could put in a snapshot \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -77507,9 +77507,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_snapshots: {
-        description: "List the agency's snapshots \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "List the agency's snapshots \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -77866,9 +77866,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       search_step_types: {
-        description: "Search workflow step and trigger types \u2014 proof: source-derived (corpus 30-types, 2026-09-29); risk: read",
+        description: "Search workflow step and trigger types \u2014 proof: live-runtime (2026-09-30), 2026-09-29); risk: read",
         risk: "read",
-        proof: "source-derived (corpus 30-types, 2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "documented",
         rows: [],
         riskRows: []
@@ -78138,9 +78138,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_snapshot_contents: {
-        description: "Read what a snapshot actually contains \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Read what a snapshot actually contains \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "snapshot-contents-read"
@@ -78187,9 +78187,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_pipeline_forecast: {
-        description: "Read the opportunity forecast \u2014 proof: live-runtime (2026-09-29); risk: read",
+        description: "Read the opportunity forecast \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "pipelines-opportunities--forecast-summary",

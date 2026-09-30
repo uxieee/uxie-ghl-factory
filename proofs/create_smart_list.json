@@ -38,6 +38,15 @@
         "corpus:corpus/workflows/70-research/2026-09-30-workflow-tool-reproof.md"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:6a6444d2"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -49,9 +58,9 @@
       "POST https://backend.leadconnectorhq.com /contacts/smartlist": "6ce7afe6ee06b153f071f57a80cde1e292c43a212a37588dae78c0c27941b77c"
     },
     "builds": {
-      "contactsApp": 2634,
+      "contactsApp": 2444,
       "customFieldsApp": 2079,
-      "snapshotsApp": 2003
+      "snapshotsApp": 1900
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_smart_list": "f054a7a44d30a908572be37a8d072f4988d154fec9797868bd5a943ab2807287",
@@ -59,7 +68,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
-      "plugins/uxie-ghl-factory/mcp-internal/core/site-audit.mjs": "faedfd387faa7321211be3b81a9197b2ee8ea86a2f25b5851e5b59d7125ec58a",
+      "plugins/uxie-ghl-factory/mcp-internal/core/site-audit.mjs": "a7896ef64f5f897f545213a8fc5840c11bf707dd928f1ed900fb66d027ffd6cc",
       "plugins/uxie-ghl-factory/mcp-internal/core/smart-lists.mjs": "28af158d41e0f361f9c84ec9268ac219ccfdc13f5c48d89bf5c8ad00b80f8fa6"
     }
   }
