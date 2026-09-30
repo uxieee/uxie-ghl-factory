@@ -59,6 +59,16 @@
         "commit:f15b57a0"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:9e4447bd",
+        "corpus:corpus/workflows/30-types/steps-marketplace/certificates.md"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -107,11 +117,11 @@
       "PUT https://services.leadconnectorhq.com /membership/locations/{}/products/apply-theme/{}": "81f0bdd355c8c94a6f10ebbfb5b59587baa7d667c40f3b686f8b8faa2e537480"
     },
     "builds": {
-      "certificatesApp": 1898,
-      "membershipApp": 1879
+      "certificatesApp": 2051,
+      "membershipApp": 2029
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_course": "ab1abf925639cf8e7df38e44381e6577779cd5031bbe664a4a9f2ed556ed8a42",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_course": "dcd5e0f31a51b7a35f4551d9e149efd7830b3244c96457724941478c107678cf",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",

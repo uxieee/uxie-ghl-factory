@@ -594,23 +594,35 @@
         "receipt:2026-09-25-1017"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:d8cdebb2",
+        "corpus:corpus/workflows/70-research/2026-09-30-workflow-tool-reproof.md"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-25",
+    "hashedAt": "2026-09-30",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/trigger": "08350cea684b7ac76430d36af66e093c3753ee489a66e250efef0ba978eeb148",
-      "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "d75bf4cca526ca32f133f5f381cb7a68530031528b4caa2d713addcae0c55ffc",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "eb7d0149e959efe4c9cc0a7b8615c8688463787b3960a56be91eae1d7be9fa7a",
       "POST https://backend.leadconnectorhq.com /workflow/{}": "7a4d233f4a9cebf909e0cab6294270833da25990fc39fc7748586ea9881d6c77"
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#duplicate_workflow": "6b3251e080f41515167c776265a82b0aa6ae5c6bda65a1f4d2d743928080d06e",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#duplicate_workflow": "cc00b1ca94c37845b069fcc5cdbf09b377b7603dc52a285e80de1cb2f4cf97bc",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "e643d74b3e42bddbed538584740d42f0a9e58c8de0a0bd5560867d76fd083c5f"
     }
   }
 }
