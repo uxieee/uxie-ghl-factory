@@ -3094,7 +3094,8 @@ function seedRefMap(norm, externalRefs) {
 // Builder rules for the trigger list that the API does not enforce (measured 2026-09-30, sandbox, own drafts, all 200 and stored):
 //  - `inbound_webhook` and `ivr_incoming_call` may appear once per workflow (trigger-filters.ts:33). The API stored two inbound
 //    webhooks on one draft; the picker greys the type out and the canvas flags one card with an error badge.
-//  - a Company (`workflowType: business`, or any non-agent config type) or custom-object workflow is only offered its own trigger
+//  - a Company (`workflowType: business`; 300 sandbox workflows read 2026-09-30 held only `business`, `agent` and no value at all for ordinary contact
+//    workflows) or custom-object workflow is only offered its own trigger
 //    set (TriggerMain.ts:240-292). The API stored a contact `contact_tag` trigger in a Company workflow; the picker never offers it.
 //  - the 14 triggers in NEW_TRIGGERS hide the string operators `matches_intent` and `string-matches-any-of` (trigger.ts:1131-1160);
 //    a stored one renders as "Select operator" and is kept on re-save.
@@ -3103,6 +3104,8 @@ const DEPRECATED_TRIGGER_OPERATORS = new Set(['matches_intent', 'string-matches-
 const DEPRECATED_OPERATOR_TRIGGERS = new Set(['tik_tok_form_submitted', 'order_submission', 'product_started', 'category_started', 'lesson_started',
   'lesson_completed', 'payment_received', 'affiliate_created', 'opportunity_decay', 'opportunity_status_changed', 'opportunity_created',
   'opportunity_changed', 'pipeline_stage_updated', 'ivr_incoming_call']);
+// Only the Company values: GHL stores no workflowType on an ordinary contact workflow, so any other value must not turn the rule on.
+const COMPANY_WORKFLOW_TYPES = new Set(['business', 'company']);
 const CONFIG_KIND_TRIGGERS = new Set(['inbound_webhook', 'custom_date_reminder']);
 const OBJECT_KIND_TRIGGERS = new Set(['custom_object_created', 'custom_object_changed', 'inbound_webhook', 'custom_date_reminder']);
 function checkTriggerRules(norm, ctx) {
@@ -3117,7 +3120,7 @@ function checkTriggerRules(norm, ctx) {
         + 'Keep one trigger, or pass skipWorkflowRules (true, or ["TRIGGER_UNIQUE_ONLY"]) to build it anyway.');
     }
   }
-  const configKind = Boolean(norm.workflowType && norm.workflowType !== 'agent');
+  const configKind = COMPANY_WORKFLOW_TYPES.has(norm.workflowType);
   const objectKind = Boolean(norm.customObjectType);
   if (configKind || objectKind) {
     const allowed = configKind ? CONFIG_KIND_TRIGGERS : OBJECT_KIND_TRIGGERS;
