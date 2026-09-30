@@ -1146,6 +1146,8 @@ function internalNotificationAttributes(a, ctx) {
 // blank and those three controls never appear, so the step can carry neither a method
 // nor a body — while round-tripping clean. Live-confirmed 2026-07-25 on AU. 'CUSTOM' is
 // the only value attested in the corpus or the reference.
+const WINDOW_CONDITION_FIELDS = new Set(['', 'day_month', 'month', 'year']);
+const WINDOW_CONDITION_OPERATORS = new Set(['', '==', '!=']);
 const WEBHOOK_EVENTS = new Set(['CUSTOM']);
 // The drawer's Method select offers seven (models/actions/Webhook.ts): the five below plus HEAD and OPTIONS.
 const WEBHOOK_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']);
@@ -1278,7 +1280,16 @@ function waitAttributes(node, ctx) {
       base.window = w.condition === 'exact'
         ? { condition: 'exact', days: w.days ?? [], start: w.start }
         : { condition: 'when', days: w.days ?? [0, 1, 2, 3, 4, 5, 6], start: w.start, end: w.end };
-      base.windowCondition = { field: '', operator: '', value: '' };
+      // "Additional filter" of the Advance window: a field (Current Day of month / month / year), an operator and a value. Authored
+      // on the node, its window or its attributes; the empty triple is the drawer's default. (An authored value used to be overwritten.)
+      const wc = node.windowCondition ?? w.windowCondition ?? a.windowCondition;
+      if (wc !== undefined && (wc === null || typeof wc !== 'object' || Array.isArray(wc)))
+        throw new IRError('WAIT_WINDOW_CONDITION', `wait '${node.ref}': windowCondition must be {field, operator, value}.`);
+      // The field/operator lists come from the completeness sweep's reading of the drawer (Current Day of month / month / year with == and !=);
+      // the stored value shape has not been read from a builder save, so an unlisted one is passed through with a warning, not refused.
+      if (wc && !WINDOW_CONDITION_FIELDS.has(wc.field ?? '')) ctx?.warn?.(`WAIT_WINDOW_CONDITION: wait '${node.ref}' windowCondition.field '${wc.field}' is not one of ${[...WINDOW_CONDITION_FIELDS].filter(Boolean).join(', ')} (the drawer offers Current Day of month, Current month, Current year); sent as authored.`);
+      if (wc && !WINDOW_CONDITION_OPERATORS.has(wc.operator ?? '')) ctx?.warn?.(`WAIT_WINDOW_CONDITION: wait '${node.ref}' windowCondition.operator '${wc.operator}' is not '==' or '!='; sent as authored.`);
+      base.windowCondition = { field: wc?.field ?? '', operator: wc?.operator ?? '', value: wc?.value ?? '' };
     }
     return base;
   }
@@ -1316,7 +1327,8 @@ function waitAttributes(node, ctx) {
         : { specificDate: a.specificDate,
             ...(a.specificTimeHour !== undefined ? { specificTimeHour: a.specificTimeHour } : {}),
             ...(a.specificTimeMinute !== undefined ? { specificTimeMinute: a.specificTimeMinute } : {}),
-            ...(a.specificTimePeriod !== undefined ? { specificTimePeriod: a.specificTimePeriod } : {}) }),
+            ...(a.specificTimePeriod !== undefined ? { specificTimePeriod: a.specificTimePeriod } : {}),
+            ...(a.specificTimeSecond !== undefined ? { specificTimeSecond: a.specificTimeSecond } : {}) }),
       // setInitialSpecificDate()'s own defaults, verbatim.
       specificDateProceed: a.specificDateProceed ?? 'on',
       specificDateOffsetDays: a.specificDateOffsetDays ?? 0,

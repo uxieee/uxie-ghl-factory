@@ -43,3 +43,14 @@ test('a step or trigger name over 100 characters warns (NAME_LENGTH); 100 does n
   const trig = mk(); compile({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T'.repeat(101), filters: [] }], graph: [] }, trig.ctx);
   assert.ok(trig.warnings.some((w) => /^NAME_LENGTH: trigger/.test(w)), JSON.stringify(trig.warnings));
 });
+
+test('a wait keeps an authored windowCondition and specificTimeSecond (they used to be overwritten / dropped)', () => {
+  const w = (attributes, extra = {}) => ({ name: 'W', triggers: [], graph: [{ ref: 'w', kind: 'wait', waitType: attributes.type, name: 'wait', attributes, ...extra }] });
+  const a = mk(); const out = compile(w({ type: 'time', startAfter: { type: 'minutes', value: 1, when: 'after' }, windowCondition: { field: 'day_month', operator: '!=', value: '15' } }, { window: { condition: 'when', days: [1], start: '09:00', end: '17:00' } }), a.ctx);
+  const wait = out.autoSaveBody.workflowData.templates.find((t) => t.type === 'wait');
+  assert.deepEqual(wait.attributes.windowCondition, { field: 'day_month', operator: '!=', value: '15' });
+  const d = mk(); const o2 = compile(w({ type: 'specific_date', specificDate: '2026-12-31', specificTimeHour: 9, specificTimeMinute: 0, specificTimePeriod: 'AM', specificTimeSecond: 30 }), d.ctx);
+  assert.equal(o2.autoSaveBody.workflowData.templates.find((t) => t.type === 'wait').attributes.specificTimeSecond, 30);
+  const dflt = mk(); const o3 = compile(w({ type: 'time', startAfter: { type: 'minutes', value: 1, when: 'after' } }, { window: { condition: 'when', days: [1], start: '09:00', end: '17:00' } }), dflt.ctx);
+  assert.deepEqual(o3.autoSaveBody.workflowData.templates.find((t) => t.type === 'wait').attributes.windowCondition, { field: '', operator: '', value: '' });
+});
