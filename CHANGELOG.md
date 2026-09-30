@@ -11,6 +11,24 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.39.2] — 2026-09-30
+
+**Docs: page merge fields, store pickup, form themes, and the page AI assistant. Measured live on the test
+account.**
+
+### Docs — ghl-funnels-pages
+- Merge fields on a page: custom values resolve for every visitor, and an unknown key renders blank (`audit_site`
+  flags it). `{{contact.*}}` resolves only for a visitor the browser already knows. A URL parameter or contact id does
+  not fill it.
+- Not offered by a tool, and where GHL does it:
+  - store pickup (Payments → Settings → Shipping & delivery → Pickup in store);
+  - checkout saved addresses (the customer signs in by emailed code);
+  - live presence in the builder (a realtime channel, not an API);
+  - the page AI assistant.
+
+### Changed
+- `raw_request` knows the store pickup-location, form theme / clone-from-theme and page-assistant routes.
+
 ## [1.39.1] — 2026-09-30
 
 **Fix: recurring invoices. GHL ignores "end after N" when an end date is present, so the tool now warns; the video
