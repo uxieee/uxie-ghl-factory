@@ -410,6 +410,17 @@ test('custom_webhook method is normalized to the attested casing, not just valid
   assert.equal(hook.attributes.method, 'POST');
 });
 
+// The drawer offers HEAD and OPTIONS as well; the compiler used to refuse both (completeness sweep 2026-09-29, contradiction 5).
+test('custom_webhook accepts the drawer\'s HEAD and OPTIONS methods and still refuses anything else', () => {
+  for (const method of ['HEAD', 'options']) {
+    const out = compile({ name: 'W', triggers: [], graph: [{ ref: 'w', kind: 'action', type: 'custom_webhook', name: 'Hook',
+      attributes: { event: 'CUSTOM', method, url: 'https://example.com/h' } }] }, ctx());
+    assert.equal(out.autoSaveBody.workflowData.templates.find((s) => s.type === 'custom_webhook').attributes.method, method.toUpperCase());
+  }
+  assert.throws(() => compile({ name: 'W', triggers: [], graph: [{ ref: 'w', kind: 'action', type: 'custom_webhook', name: 'Hook',
+    attributes: { event: 'CUSTOM', method: 'TRACE', url: 'https://example.com/h' } }] }, ctx()), (e) => e.code === 'WEBHOOK_METHOD' || /method 'TRACE'/.test(String(e.message)));
+});
+
 // An unrecognised `kind` used to select a handler by OMISSION: no branch matched, nothing
 // validated, and the compiler emitted nodeType undefined / attributes {} / next null. Clean write,
 // errorCount 0, verify.roundTrip true, dead step. Every guard downstream is keyed on `kind`, so a

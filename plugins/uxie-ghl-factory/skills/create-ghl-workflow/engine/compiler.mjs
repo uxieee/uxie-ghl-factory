@@ -1147,7 +1147,8 @@ function internalNotificationAttributes(a, ctx) {
 // nor a body — while round-tripping clean. Live-confirmed 2026-07-25 on AU. 'CUSTOM' is
 // the only value attested in the corpus or the reference.
 const WEBHOOK_EVENTS = new Set(['CUSTOM']);
-const WEBHOOK_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+// The drawer's Method select offers seven (models/actions/Webhook.ts): the five below plus HEAD and OPTIONS.
+const WEBHOOK_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']);
 function webhookAttributes(a, ref) {
   const ev = a.event ?? 'CUSTOM';
   if (!WEBHOOK_EVENTS.has(ev))
