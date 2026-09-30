@@ -60,7 +60,7 @@ test('storeProductPriceId is a SENTINEL and is never reported', () => {
 });
 
 test('a reference with no account list is reported as NOT CHECKED, never as clean', () => {
-  const f = run(page({ els: [el('productId', 'SOMETHING')] }));
+  const f = run(page({ els: [el('storeProductId', 'SOMETHING')] }));
   assert.equal(f.length, 1);
   assert.equal(f[0].notChecked, true);
   assert.equal(f[0].severity, 'unknown');
@@ -311,4 +311,35 @@ test('judgePageRecord flags the clone name suffix at info, and only at the end',
 test('judgePageRecord survives a record with no meta at all, which is the normal case', () => {
   assert.deepEqual(judgePageRecord({ record: { name: 'Home' }, pageName: 'x', locationId: 'L' }), []);
   assert.deepEqual(judgePageRecord({ record: null, pageName: 'x', locationId: 'L' }), []);
+});
+
+// f6: a sell-product button's productId is {value:{id}} (a STEP product id) and a text element's customFontId is a bare string.
+const withKnown = (extra) => (pd) => judge({ scans: [scanPage({ pageData: pd, pageId: 'P1', pageName: 'Home' })], known: { ...known, ...extra }, locationId: LOC });
+const sellButton = (id) => ({ type: 'element', meta: 'button', extra: { action: { value: 'sell-product' }, productId: { value: { id }, text: 'Buy' } } });
+const fontText = (id) => ({ type: 'element', meta: 'paragraph', extra: { customFontId: id } });
+
+test('a sell button whose step product exists is clean; a gone one is HIGH', () => {
+  const run2 = withKnown({ stepProducts: new Set(['SP_REAL']) });
+  assert.deepEqual(run2(page({ els: [sellButton('SP_REAL')] })), []);
+  const f = run2(page({ els: [sellButton('SP_GONE')] }));
+  assert.equal(f.length, 1);
+  assert.equal(f[0].prop, 'productId');
+  assert.equal(f[0].value, 'SP_GONE', 'the id is read out of {id}, not "[object Object]"');
+  assert.equal(f[0].severity, 'high');
+});
+
+test('customFontId is checked against the uploaded fonts, and unchecked when the list is absent', () => {
+  const run2 = withKnown({ customFonts: new Set(['FONT_REAL']) });
+  assert.deepEqual(run2(page({ els: [fontText('FONT_REAL')] })), []);
+  assert.equal(run2(page({ els: [fontText('FONT_GONE')] }))[0].check, 'dangling-references');
+  const f = run(page({ els: [sellButton('SP_ANY')] }));
+  assert.equal(f[0].notChecked, true, 'no step-product list loaded → reported NOT CHECKED, never passed');
+});
+
+test('a button that does NOT sell carries an empty productId by default — that is not a dangling reference', () => {
+  const plain = { type: 'element', meta: 'button', extra: { action: { value: 'go-to-next-funnel-step' }, productId: { value: '' } } };
+  assert.deepEqual(withKnown({ stepProducts: new Set(['SP_REAL']) })(page({ els: [plain] })), []);
+  const empty = withKnown({ stepProducts: new Set(['SP_REAL']) })(page({ els: [sellButton('')] }));
+  assert.equal(empty.length, 1, 'a sell-product button with NO product is the real defect');
+  assert.equal(empty[0].severity, 'high');
 });

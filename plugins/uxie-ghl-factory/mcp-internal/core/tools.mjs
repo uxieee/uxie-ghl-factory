@@ -15,7 +15,7 @@ import { makeGateway } from './gateway.mjs';
 import { nodeLayerCss } from './style-layer.mjs';
 import { KIND_CSS_KINDS } from './kind-css.mjs';
 import {
-  ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
+  ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn, COLUMN_SPEC_KEYS, MAX_COLUMNS_PER_ROW,
   makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, nodeExtraFromCss, elementSizeCss, buttonColourCss, applyPalette, resetIds, val,
   NEEDS_STEP_TYPE, videoSourceProblems, isPdpKind, pdpNodeProblems, pdpStylingWarning, builderStylingWarning, kindLayerCss, kindCssRefusal, mergePalette, BUILDER_PALETTE,
   BUILDER_INNER_MAX_WIDTH, SECTION_SPEC_KEYS,
@@ -24,8 +24,8 @@ import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
   needsLocationForSettings, domainChangeGuard, regexRedirectOn, settingsSideEffects,
   planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader, planEditHeader, planDeleteHeader, planAddEvent, planEditEvent, planDeleteEvent, readEvents,
-  planDeleteFunnel, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
-  readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS, planAddStepProduct, STEP_PRODUCT_NOTE, readStepProducts, stepProductView,
+  planDeleteFunnel, additionalRoutesOf, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
+  readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS, planAddStepProduct, planEditStepProduct, planDeleteStepProduct, STEP_PRODUCT_NOTE, readStepProducts, stepProductView,
   CLONE_FUNNEL_NOTE, IMPORT_PAGE_NOTE, BILLING_FIELDS_NOTE, BILLING_ON_SAVE_NOTE, billingCheckouts,
 } from './funnel-ops.mjs';
 import { planAdvancedFilters, videoFilters, videoView, filterQuery, ordersView, FILTER_FIELDS as ANALYTICS_FILTER_FIELDS, SALES_NOTE } from './funnel-analytics.mjs';
@@ -11796,7 +11796,7 @@ export const TOOLS = [
         nodeId: z.string().optional(),
         extra: z.record(z.any()).optional(),
         styles: z.record(z.any()).optional(),
-        entranceAnimation: z.object({ name: z.enum(ENTRANCE_ANIMATIONS), duration: z.number().positive().optional(), delay: z.number().min(0).optional(), scale: z.number().positive().optional(), easing: z.enum(['linear', 'ease-in', 'ease-out', 'ease-in-out']).optional() }).optional(),
+        entranceAnimation: z.object({ name: z.enum(ENTRANCE_ANIMATIONS), duration: z.number().positive().optional(), delay: z.number().min(0).optional(), scale: z.number().positive().optional(), easing: z.enum(['linear', 'ease-in', 'ease-out', 'ease-in-out']).optional(), disableOnMobile: z.boolean().optional() }).optional(),
         hoverAnimation: z.object({ name: z.enum(HOVER_ANIMATIONS) }).passthrough().optional(),
         openPopup: z.string().optional(),
         font: z.enum(['headline', 'content']).optional(),
@@ -11889,7 +11889,7 @@ export const TOOLS = [
         let cls = {};
         if (e.entranceAnimation) {
           if (!ENTRANCE_METAS.includes(e.meta)) throw new Error(`entranceAnimation: the builder offers it on ${ENTRANCE_METAS.join(', ')} — not on ${e.meta}`);
-          cls = { ...cls, ...entranceClass(e.entranceAnimation) };
+          cls = { ...cls, ...entranceClass(e.entranceAnimation, e.meta) };
         }
         if (e.hoverAnimation) {
           if (!HOVER_METAS.includes(e.meta)) throw new Error(`hoverAnimation: the builder offers it on buttons only — not on ${e.meta}`);
@@ -11939,20 +11939,34 @@ export const TOOLS = [
         const unknown = Object.keys(spec ?? {}).filter((k) => !SECTION_SPEC_KEYS.includes(k));
         if (unknown.length) throw Object.assign(new Error(`section: unknown key(s) ${unknown.map((k) => `\`${k}\``).join(', ')} — a section takes ${SECTION_SPEC_KEYS.join(', ')}`), { remediation: 'Nothing was written. Element keys go on the elements inside columns[].elements.' });
         let secCls;
-        if (spec.entranceAnimation) { secCls = entranceClass(spec.entranceAnimation); }
+        if (spec.entranceAnimation) { secCls = entranceClass(spec.entranceAnimation, 'section'); }
         if (spec.fullWidthRows === true && spec.maxWidth !== undefined) throw Object.assign(new Error('a section takes fullWidthRows OR maxWidth, not both: fullWidthRows makes the rows\' container 100% wide'), { remediation: 'Drop one of them.' });
+        if (spec.rows !== undefined && spec.columns !== undefined) throw Object.assign(new Error('a section takes `columns` (one row) OR `rows` (several rows, each {columns}), not both'), { remediation: 'Use rows: [{columns: [...]}, {columns: [...]}] for more than one row.' });
         const css = [];
-        const columns = (spec.columns ?? []).map((c, ci) => {
-          const leaves = (c.elements ?? []).map((e) => {
-            const { leaf, css: lc } = composeLeaf(e, `${saltBase}${si}C${ci}`);
-            if (lc) css.push(lc);
-            return leaf;
+        const rowSpecs = spec.rows ?? [{ columns: spec.columns ?? [] }];
+        if (spec.rows !== undefined) for (const [ri, r] of rowSpecs.entries()) {
+          const bad = Object.keys(r ?? {}).filter((k) => k !== 'columns');
+          if (bad.length) throw Object.assign(new Error(`section row ${ri}: unknown key(s) ${bad.map((k) => `\`${k}\``).join(', ')} — a row takes only \`columns\` here (row alignment and width are not offered)`), { remediation: 'Nothing was written.' });
+        }
+        const rowsBuilt = rowSpecs.map((r, ri) => {
+          const cspecs = r.columns ?? [];
+          if (cspecs.length > MAX_COLUMNS_PER_ROW) throw Object.assign(new Error(`a row holds 1 to ${MAX_COLUMNS_PER_ROW} columns (${cspecs.length} given)`), { remediation: `Split it over ${Math.ceil(cspecs.length / MAX_COLUMNS_PER_ROW)} rows.` });
+          return cspecs.map((c, ci) => {
+            const badCol = Object.keys(c ?? {}).filter((k) => !COLUMN_SPEC_KEYS.includes(k));
+            if (badCol.length) throw Object.assign(new Error(`column: unknown key(s) ${badCol.map((k) => `\`${k}\``).join(', ')} — a column takes ${COLUMN_SPEC_KEYS.join(', ')}; anything else used to be dropped silently`), { remediation: 'Nothing was written.' });
+            const csalt = spec.rows !== undefined ? `${saltBase}${si}R${ri}C${ci}` : `${saltBase}${si}C${ci}`;
+            const leaves = (c.elements ?? []).map((e) => {
+              const { leaf, css: lc } = composeLeaf(e, csalt);
+              if (lc) css.push(lc);
+              return leaf;
+            });
+            const widthPct = c.widthPct ?? Math.round(10000 / (cspecs.length || 1)) / 100;
+            return { col: makeColumn({ children: leaves, widthPct, padX: c.padX ?? 20, salt: csalt, background: c.background, bgImage: c.bgImage }), leaves, widthPct };
           });
-          const widthPct = c.widthPct ?? Math.round(10000 / (spec.columns.length || 1)) / 100;
-          return { col: makeColumn({ children: leaves, widthPct, padX: c.padX ?? 20, salt: `${saltBase}${si}C${ci}` }), leaves, widthPct };
         });
+        const columns = rowsBuilt[0] ?? [];
         const built = makeSection({
-          columns, background: spec.background ?? 'transparent', padY: spec.padY ?? 60,
+          columns, rows: spec.rows !== undefined ? rowsBuilt : undefined, background: spec.background ?? 'transparent', padY: spec.padY ?? 60,
           maxWidth: spec.maxWidth ?? BUILDER_INNER_MAX_WIDTH, elementCss: css.join(''),
           sticky: spec.sticky, width: spec.width, fullWidthRows: spec.fullWidthRows, pdp: spec.pdp,
           styles: normalizeStyles(spec.styles, 'section.styles'), wrapper: spec.wrapper, tabletStyles: spec.tabletStyles, mobileStyles: spec.mobileStyles,
@@ -12550,7 +12564,7 @@ export const TOOLS = [
       + 'edit-header / delete-header (exact-case path only; delete needs the current value) · add-event / edit-event / delete-event (Meta pixel) · split-test add-variation | start | declare-winner · delete-funnel (id AND expectName; refused '
       + 'while a page serves) · clone-funnel {name} (this location; no domain, no paths) · archive-page / '
       + 'restore-page (restore mints a NEW path) · import-page · add-store (🔴 a builder save of the checkout creates '
-      + '7 location-wide billing fields) · add-step-product {stepId, expectName, productId, priceId} (returns '
+      + '7 location-wide billing fields) · add-step-product {stepId, expectName, productId, priceId; quantity.max 1-999} · edit-step-product / delete-step-product {stepId, stepProductId, expectName = the step product\'s name} (returns '
       + 'stepProductId, what a sell-product button stores). Not offered: sharing (opening Share creates a link anyone '
       + 'can import, not removable below the $497 plan — read one with get_funnel view share), a bare orphan page, '
       + 'folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps '
@@ -12560,7 +12574,7 @@ export const TOOLS = [
       locationId: z.string(),
       funnelId: z.string(),
       op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header', 'edit-header', 'delete-header', 'add-event', 'edit-event', 'delete-event', 'split-test', 'delete-funnel',
-        'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store', 'add-step-product']),
+        'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store', 'add-step-product', 'edit-step-product', 'delete-step-product']),
       action: z.enum(['add-variation', 'start', 'declare-winner']).optional(),
       sourceFunnelId: z.string().optional(),
       sourceStepId: z.string().optional(),
@@ -12569,7 +12583,7 @@ export const TOOLS = [
       winnerPageId: z.string().optional(),
       variationPath: z.string().optional(),
       settings: z.record(z.any()).optional(),
-      step: z.object({ id: z.string().optional(), name: z.string(), url: z.string(), type: z.string().optional() }).optional(),
+      step: z.object({ id: z.string().optional(), name: z.string(), url: z.string(), type: z.enum(['optin_funnel_page', 'sales_funnel_page', 'misc_funnel_page']).optional() }).optional(),
       stepId: z.string().optional(),
       name: z.string().optional(),
       url: z.string().optional(),
@@ -12583,6 +12597,9 @@ export const TOOLS = [
         .describe('add-event: pixelId, level, events (+ pageIds for level page); the Conversions API stays off (its token is a credential — set it on the Events screen). edit-event / delete-event: eventId + expectPixelId (the target check); edit changes the rest; conversionApi:false turns the API off'),
       productId: z.string().optional(),
       priceId: z.string().optional(),
+      routeAdditional: z.boolean().optional().describe('split-test start: when the step is also served at other domains/paths, the modal asks whether to route them through the split (true) or not (false)'),
+      stepProductId: z.string().optional().describe('edit-step-product / delete-step-product: the step product (its id is what add-step-product returned; get_funnel view step-products lists them); expectName is then ITS name'),
+      authorizeAmount: z.number().positive().optional().describe('add / edit-step-product: a custom card authorization amount (omit for the default)'),
       displayText: z.string().optional(),
       quantity: z.object({ max: z.number().int().min(1).optional(), allowMultiple: z.boolean().optional() }).optional(),
       bump: z.boolean().optional(),
@@ -12608,6 +12625,8 @@ export const TOOLS = [
       { method: 'POST', path: '/funnels/funnel/headers/delete' },
       { method: 'GET', path: '/funnels/event' },
       { method: 'POST', path: '/funnels/domain/invalidate-cache' },
+      { method: 'PUT', path: '/funnels/order-form/products/{id}' },
+      { method: 'DELETE', path: '/funnels/order-form/products/{id}' },
       { method: 'POST', path: '/funnels/event' },
       { method: 'PATCH', path: '/funnels/event/{id}' },
       { method: 'DELETE', path: '/funnels/event/{id}' },
@@ -12725,12 +12744,18 @@ export const TOOLS = [
           case 'split-test': {
             if (need('stepId') || need('action')) { plan = { refuse: need('stepId') ?? need('action') }; break; }
             let domainName;
-            if (args.action === 'add-variation' && funnel.domainId) {
+            if ((args.action === 'add-variation' || args.action === 'start') && funnel.domainId) {
               const d = await gw.call('GET', `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
               const list = d.json?.domains ?? d.json?.data ?? [];
               domainName = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === funnel.domainId)?.url;
             }
-            plan = planSplit({ funnel, stepId: args.stepId, action: args.action, controlTraffic: args.controlTraffic, winnerPageId: args.winnerPageId, variationPath: args.variationPath, domainName, locationId: args.locationId });
+            let additionalRoutes = [];
+            if (args.action === 'start') {
+              const lr = await readLookups(gw, args.locationId, args.funnelId);
+              if (!lr.res.ok) return fromHttp(lr.res.status, lr.res.json);
+              additionalRoutes = additionalRoutesOf({ step: (funnel.steps ?? []).find((x) => x.id === args.stepId), lookups: lr.rows, domainName });
+            }
+            plan = planSplit({ funnel, stepId: args.stepId, action: args.action, controlTraffic: args.controlTraffic, winnerPageId: args.winnerPageId, variationPath: args.variationPath, domainName, locationId: args.locationId, additionalRoutes, routeAdditional: args.routeAdditional });
             if (!plan.refuse && plan.exists) {
               const ex = await gw.call('POST', '/funnels/lookup/exists', plan.exists);
               if (!ex.ok) return fromHttp(ex.status, ex.json);
@@ -12796,7 +12821,20 @@ export const TOOLS = [
             const sp = await readStepProducts(gw, args.locationId, args.funnelId, args.stepId);
             if (!sp.res.ok) return fromHttp(sp.res.status, sp.res.json);
             plan = planAddStepProduct({ funnel, stepId: args.stepId, expectName: args.expectName, product: pr.json, prices: pp.json?.prices ?? [], existing: sp.rows,
-              priceId: args.priceId, displayText: args.displayText, quantity: args.quantity, bump: args.bump, locationId: args.locationId });
+              priceId: args.priceId, displayText: args.displayText, quantity: args.quantity, bump: args.bump, authorizeAmount: args.authorizeAmount, locationId: args.locationId });
+            if (!plan.refuse) plan.notes = [STEP_PRODUCT_NOTE];
+            break;
+          }
+          case 'edit-step-product':
+          case 'delete-step-product': {
+            const miss = need('stepId') ?? need('stepProductId') ?? need('expectName');
+            if (miss) { plan = { refuse: miss }; break; }
+            const sp = await readStepProducts(gw, args.locationId, args.funnelId, args.stepId);
+            if (!sp.res.ok) return fromHttp(sp.res.status, sp.res.json);
+            const row = sp.rows.find((r) => r._id === args.stepProductId) ?? null;
+            plan = args.op === 'edit-step-product'
+              ? planEditStepProduct({ funnel, stepId: args.stepId, stepProductId: args.stepProductId, expectName: args.expectName, row, displayText: args.displayText, quantity: args.quantity, bump: args.bump, authorizeAmount: args.authorizeAmount })
+              : planDeleteStepProduct({ funnel, stepId: args.stepId, stepProductId: args.stepProductId, expectName: args.expectName, row });
             if (!plan.refuse) plan.notes = [STEP_PRODUCT_NOTE];
             break;
           }
@@ -13097,6 +13135,23 @@ export const TOOLS = [
             if (!same) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step product did not read back on the step with the requested product and price', 'Compare data.stepProducts; do not add again blindly.'), out);
             return ok(out);
           }
+          case 'edit-step-product': {
+            const got = await reread(async () => (await readStepProducts(gw, args.locationId, fid, args.stepId)).rows,
+              (rows) => { const r = rows.find((x) => x._id === args.stepProductId); return !!r && (r.displayText ?? '') === plan.body.displayText && (r.bumpProduct === true) === plan.body.bumpProduct && JSON.stringify(r.quantity) === JSON.stringify(plan.body.quantity) && (r.authorizeAmount ?? 0) === plan.body.authorizeAmount; }, deps.rereadOptions ?? {});
+            const row = got.value.find((x) => x._id === args.stepProductId) ?? null;
+            const out = { op: 'edit-step-product', stepProductId: args.stepProductId, target: plan.target, readBack: row ? stepProductView(row) : null, stepProducts: got.value.map(stepProductView), note: STEP_PRODUCT_NOTE };
+            const same = row && (row.displayText ?? '') === plan.body.displayText && (row.bumpProduct === true) === plan.body.bumpProduct && JSON.stringify(row.quantity) === JSON.stringify(plan.body.quantity) && (row.authorizeAmount ?? 0) === plan.body.authorizeAmount
+              && String(row.product?._id ?? row.product) === plan.body.product && String(row.price?._id ?? row.price) === plan.body.price;
+            if (!same) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step product did not read back with the requested values (or its product / price moved)', 'Compare data.readBack with data.target.from; do not repeat blindly.'), out);
+            return ok(out);
+          }
+          case 'delete-step-product': {
+            const got = await reread(async () => (await readStepProducts(gw, args.locationId, fid, args.stepId)).rows,
+              (rows) => !rows.some((r) => r._id === args.stepProductId), deps.rereadOptions ?? {});
+            const out = { op: 'delete-step-product', target: plan.target, stepProducts: got.value.map(stepProductView), note: STEP_PRODUCT_NOTE };
+            if (got.value.some((r) => r._id === args.stepProductId)) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step product still lists on the step after the delete answered', 'Read get_funnel view step-products; do not delete twice.'), out);
+            return ok(out);
+          }
           default: return ok({ op: args.op, status: w.status });
         }
       }, args, { sentWrite: () => tracked?.sent() ?? false });
@@ -13165,6 +13220,13 @@ export const TOOLS = [
       await loadList('forms', `/forms/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, 'forms');
       await loadList('calendars', `/calendars/?locationId=${encodeURIComponent(args.locationId)}`, 'calendars');
       await loadList('surveys', `/surveys/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, 'surveys');
+      {
+        const cf = await gw.call('GET', `/funnels/custom-fonts?locationId=${encodeURIComponent(args.locationId)}`);
+        if (cf.status === 200) {
+          known.customFonts = new Set(pick(body(cf), 'data').filter((x) => x.deleted !== true).map((x) => x._id ?? x.id).filter(Boolean));
+          coverage.push({ check: 'dangling-references:customFonts', ran: true, knownIds: known.customFonts.size });
+        } else coverage.push({ check: 'dangling-references:customFonts', ran: false, why: `the customFonts list answered ${cf.status}` });
+      }
 
       const cv = await gw.call('GET', `/locations/${encodeURIComponent(args.locationId)}/customValues`);
       if (cv.status === 200) {
@@ -13185,6 +13247,23 @@ export const TOOLS = [
         const all = await gw.call('GET', `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
         if (all.status !== 200) return fromHttp(all.status, all.json);
         docs = pick(body(all), 'funnels', 'data');
+      }
+
+      // Step products (what a sell-product button's productId {id} names) live per step: union them over the steps scanned.
+      {
+        const ids = new Set(); let failed = 0, stepsRead = 0;
+        for (const d of docs) for (const st of d.steps ?? []) {
+          if (!st.id || !(st.pages ?? []).length) continue;
+          const sp = await readStepProducts(gw, args.locationId, d._id, st.id);
+          if (sp.res.status !== 200) { failed++; continue; }
+          stepsRead++;
+          for (const r of sp.rows) if (r._id) ids.add(r._id);
+        }
+        // A partial union would report a real product as dangling: any failed read disables the check.
+        if (!failed) {
+          known.stepProducts = ids;
+          coverage.push({ check: 'dangling-references:stepProducts', ran: true, knownIds: ids.size, steps: stepsRead });
+        } else coverage.push({ check: 'dangling-references:stepProducts', ran: false, why: `the step-product list failed for ${failed} step(s); a partial list would flag real products as dangling` });
       }
 
       const scans = [];

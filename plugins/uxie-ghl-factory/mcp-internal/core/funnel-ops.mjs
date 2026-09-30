@@ -160,15 +160,39 @@ export const normPath = (p) => (p == null ? p : `/${String(p).replace(/^\/+/, ''
 
 // ── plans: pure, so the preview a caller sees IS the request that confirm:true sends ─────────────
 
+// The Add-step modal's three page types (funnelWebsiteApp: [{optin_funnel_page "Optin"}, {sales_funnel_page "Order"}, {misc_funnel_page "Misc"}]).
+// Webinar and store steps come from their template installs, never from this call.
+export const STEP_TYPES = Object.freeze(['optin_funnel_page', 'sales_funnel_page', 'misc_funnel_page']);
+
+// The step path validator the UI runs on every path field (funnelWebsiteApp, the function behind common.urlRequired / invalidUrlFormat /
+// urlTooManyNestedPaths / reservedPathError): a path is `/` + lowercase letters, digits, `-`, `_` and `/`; at most 5 segments ("nested paths",
+// Beta); and no run of segments equal to a reserved storefront/blog prefix, wherever in the path it sits.
+const RESERVED_PATH_RUNS = Object.freeze([['store', 'account'], ['b'], ['c'], ['product'], ['collections'], ['post'], ['category'], ['author'], ['tag']]);
+export function checkStepPath(url) {
+  const raw = String(url ?? '');
+  if (!raw.trim()) return { refuse: 'a step path is required' };
+  const path = raw.startsWith('/') ? raw : `/${raw}`;
+  if (path.includes(' ') || !/^\/[a-z0-9\-_/]*$/.test(path)) return { refuse: `step path ${JSON.stringify(raw)} is not valid: use lowercase letters, digits, "-", "_" and "/" only (the UI refuses it: invalidUrlFormat)` };
+  const segs = path.split('/').filter(Boolean);
+  if (segs.length > 5) return { refuse: `step path ${JSON.stringify(raw)} has ${segs.length} segments; at most 5 nested levels are allowed (the UI refuses it: urlTooManyNestedPaths)` };
+  const hit = RESERVED_PATH_RUNS.find((run) => segs.some((_, at) => run.every((seg, k) => segs[at + k] === seg)));
+  if (hit) return { refuse: `step path ${JSON.stringify(raw)} contains the reserved segment "${hit.join('/')}" (storefront and blog routes; the UI refuses it: reservedPathError)` };
+  return { path };
+}
+
 export function planCreateStep({ funnel, step }) {
   if (!funnel.domainId) {
     return { refuse: 'this funnel has no domain attached. A step created without a domainId gets NO lookup row and 404s in public (measured). Attach a domain first (settings op with domainId), then create the step.' };
   }
+  const type = step.type ?? 'optin_funnel_page';
+  if (!STEP_TYPES.includes(type)) return { refuse: `step.type ${JSON.stringify(type)} is not one the Add-step modal offers (${STEP_TYPES.join(', ')}); webinar and store steps come from their template installs` };
+  const pathCheck = checkStepPath(step.url);
+  if (pathCheck.refuse) return pathCheck;
   const id = step.id ?? randomUUID();
   return {
     method: 'POST', path: '/funnels/funnel/create-step',
     body: {
-      step: { id, name: step.name, url: String(step.url).replace(/^\/+/, ''), pages: [], type: step.type ?? 'optin_funnel_page', split: false, control_traffic: 100 },
+      step: { id, name: step.name, url: String(step.url).replace(/^\/+/, ''), pages: [], type, split: false, control_traffic: 100 },
       funnelId: funnel._id ?? funnel.id,
       domainId: funnel.domainId,
     },
@@ -181,6 +205,8 @@ export function planUpdateStep({ funnel, stepId, name, url, domainName }) {
   if (!s) return { refuse: `step ${stepId} is not on this funnel` };
   const b = { stepId, name: name ?? s.name };
   if (url !== undefined) {
+    const pathCheck = checkStepPath(url);
+    if (pathCheck.refuse) return pathCheck;
     if (!domainName) return { refuse: 'moving a step path needs the funnel\'s domain name, and it could not be resolved from the domain list' };
     Object.assign(b, { url: normPath(url), domainName });
   }
@@ -388,7 +414,17 @@ export const splitStamp = (d = new Date()) => {
   return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${hh}:${mm}:${ss} ${d.getHours() < 12 ? 'AM' : 'PM'} UTC${sign}${String(Math.floor(a / 60)).padStart(2, '0')}:${String(a % 60).padStart(2, '0')}`;
 };
 
-export function planSplit({ funnel, stepId, action, controlTraffic, winnerPageId, variationPath, domainName, locationId, now }) {
+/**
+ * The other domains / paths that already serve a step: lookup rows of the step whose domain or path is not the funnel's own (the split modal's
+ * getAdditionalRoutes: `domain !== funnelDomain || path !== step.url`). Starting a split asks whether to route them too.
+ */
+export function additionalRoutesOf({ step, lookups, domainName }) {
+  const own = normPath(step?.url ?? '');
+  return (lookups ?? []).filter((r) => r.typeId === step?.id && r.type === 'step' && (r.domain !== domainName || normPath(r.path) !== own))
+    .map((r) => ({ lookup_id: r._id, path: r.path, domain: r.domain }));
+}
+
+export function planSplit({ funnel, stepId, action, controlTraffic, winnerPageId, variationPath, domainName, locationId, now, additionalRoutes = [], routeAdditional }) {
   const fid = funnel._id ?? funnel.id;
   const step = (funnel.steps ?? []).find((s) => s.id === stepId);
   if (!step) return { refuse: `step ${stepId} is not on this funnel` };
@@ -413,7 +449,13 @@ export function planSplit({ funnel, stepId, action, controlTraffic, winnerPageId
       if (pages.length !== 2) return { refuse: `step has ${pages.length} page(s); start needs a control and one variation (add-variation first)` };
       const ct = controlTraffic ?? 50;
       if (!Number.isInteger(ct) || ct < 0 || ct > 100) return { refuse: 'controlTraffic is an integer 0..100 (the share the control gets)' };
-      return { ...put({ split: true, control_traffic: ct, split_started_at: splitStamp(now), split_ended_at: null, route_all_requests: true, additional_routes: [] }), step: stepView(step, 0) };
+      // The modal's "route home-page domains" question: with none, route_all_requests is true and additional_routes []; with some it asks — yes routes them
+      // (route_all_requests true, additional_routes the rows), no leaves them out (route_all_requests false, []). Unanswered is refused, not guessed.
+      if (additionalRoutes.length && typeof routeAdditional !== 'boolean') {
+        return { refuse: `this step is also served at ${additionalRoutes.length} other domain/path(s) (${additionalRoutes.map((r) => `${r.domain}${r.path}`).join(', ')}); the UI asks whether the split should include them. Pass routeAdditional: true (route them through the split) or false (leave them on the control page).` };
+      }
+      const include = additionalRoutes.length ? routeAdditional === true : true;
+      return { ...put({ split: true, control_traffic: ct, split_started_at: splitStamp(now), split_ended_at: null, route_all_requests: include, additional_routes: additionalRoutes.length && include ? additionalRoutes : [] }), step: stepView(step, 0), ...(additionalRoutes.length ? { additionalRoutes } : {}) };
     }
     case 'declare-winner': {
       if (pages.length !== 2) return { refuse: `step has ${pages.length} page(s); there is no variation to decide` };
@@ -513,7 +555,25 @@ export function stepProductView(r) {
     quantity: r.quantity ?? null, bump: r.bumpProduct === true };
 }
 export const STEP_PRODUCT_NOTE = 'The returned stepProductId is what a sell-product button needs: extra.productId = {value: {id: <stepProductId>}}. An order form on this step lists every step product.';
-export function planAddStepProduct({ funnel, stepId, expectName, product, prices, existing, priceId, displayText, quantity, bump, locationId }) {
+// The Products tab's own rules (funnelWebsiteApp, the step-product form): a MAIN product's max units per order is 1–999 and "allow multiple" is its own switch;
+// a BUMP product is always max 1, not multiple; a custom authorization amount, when given, is a positive number (the form's customAuthError), else 0.
+export const MAX_STEP_PRODUCT_UNITS = 999;
+export function stepProductQuantity({ quantity, bump } = {}) {
+  const q = quantity ?? {};
+  if (bump === true) {
+    if ((q.max !== undefined && q.max !== 1) || q.allowMultiple === true) return { refuse: 'a bump product is always 1 unit per order (the form fixes max 1, not multiple)' };
+    return { quantity: { max: 1, allowMultiple: false } };
+  }
+  const max = q.max ?? 1;
+  if (!Number.isInteger(max) || max < 1 || max > MAX_STEP_PRODUCT_UNITS) return { refuse: `quantity.max is a whole number of units, 1 to ${MAX_STEP_PRODUCT_UNITS} (the form refuses anything else: productUnitsLimitError)` };
+  return { quantity: { max, allowMultiple: q.allowMultiple === true } };
+}
+export function stepProductAuthorizeAmount(authorizeAmount) {
+  if (authorizeAmount === undefined || authorizeAmount === null || authorizeAmount === 0) return { amount: 0 };
+  if (typeof authorizeAmount !== 'number' || !(authorizeAmount > 0)) return { refuse: 'authorizeAmount is a positive amount (a custom card authorization; omit it for the default, 0)' };
+  return { amount: authorizeAmount };
+}
+export function planAddStepProduct({ funnel, stepId, expectName, product, prices, existing, priceId, displayText, quantity, bump, authorizeAmount, locationId }) {
   const step = (funnel.steps ?? []).find((s) => s.id === stepId);
   if (!step) return { refuse: `step ${stepId} is not on this funnel` };
   if (typeof expectName !== 'string' || step.name !== expectName) {
@@ -526,13 +586,43 @@ export function planAddStepProduct({ funnel, stepId, expectName, product, prices
   }
   const dup = (existing ?? []).find((e) => String(e.product?._id ?? e.product) === product._id && String(e.price?._id ?? e.price) === priceId && e.deleted !== true);
   if (dup) return { refuse: `this step already lists ${JSON.stringify(product.name)} at that price (step product ${dup._id}); nothing was added` };
-  const q = quantity ?? {};
+  const q = stepProductQuantity({ quantity, bump });
+  if (q.refuse) return q;
+  const auth = stepProductAuthorizeAmount(authorizeAmount);
+  if (auth.refuse) return auth;
   return {
     method: 'POST', path: '/funnels/order-form/products',
     body: { locationId, funnel: funnel._id ?? funnel.id, step: stepId, name: product.name, displayText: displayText ?? '', product: product._id, price: priceId,
-      bumpProduct: bump === true, quantity: { max: q.max ?? 1, allowMultiple: q.allowMultiple === true }, authorizeAmount: 0 },
+      bumpProduct: bump === true, quantity: q.quantity, authorizeAmount: auth.amount },
     target: { step: stepView(step, 0), product: { id: product._id, name: product.name }, price: { id: price._id, name: price.name, amount: price.amount, currency: price.currency, type: price.type } },
   };
+}
+
+// Edit and delete a step product (the Products tab's row menu). The edit form re-sends its whole state — PUT /funnels/order-form/products/{id}
+// {name, displayText, product, price, bumpProduct, quantity:{max, allowMultiple}, authorizeAmount} — and delete is DELETE /funnels/order-form/products/{id}
+// (funnelWebsiteApp service table + the form's save function). The target check is the step product's id AND its name.
+const spId = (x) => (x && typeof x === 'object' ? x._id : x) ?? null;
+export function planEditStepProduct({ funnel, stepId, stepProductId, expectName, row, displayText, quantity, bump, authorizeAmount }) {
+  const step = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!step) return { refuse: `step ${stepId} is not on this funnel` };
+  if (!row || row._id !== stepProductId || row.deleted === true) return { refuse: `step product ${stepProductId} is not on step ${JSON.stringify(step.name)}` };
+  if (typeof expectName !== 'string' || row.name !== expectName) return { refuse: `target check failed: step product ${stepProductId} is named ${JSON.stringify(row.name ?? null)}, not ${JSON.stringify(expectName)}. Nothing was changed.` };
+  const nextBump = bump === undefined ? row.bumpProduct === true : bump === true;
+  const q = stepProductQuantity({ quantity: quantity ?? row.quantity, bump: nextBump });
+  if (q.refuse) return q;
+  const auth = stepProductAuthorizeAmount(authorizeAmount === undefined ? row.authorizeAmount : authorizeAmount);
+  if (auth.refuse) return auth;
+  const body = { name: row.name, displayText: displayText ?? row.displayText ?? '', product: spId(row.product), price: spId(row.price), bumpProduct: nextBump, quantity: q.quantity, authorizeAmount: auth.amount };
+  const was = { displayText: row.displayText ?? '', bumpProduct: row.bumpProduct === true, quantity: row.quantity ?? null, authorizeAmount: row.authorizeAmount ?? 0 };
+  if (JSON.stringify(was) === JSON.stringify({ displayText: body.displayText, bumpProduct: body.bumpProduct, quantity: body.quantity, authorizeAmount: body.authorizeAmount })) return { refuse: 'nothing to change: the step product already has these values' };
+  return { method: 'PUT', path: `/funnels/order-form/products/${enc(stepProductId)}`, body, target: { step: stepView(step, 0), stepProduct: { id: row._id, name: row.name }, from: was } };
+}
+export function planDeleteStepProduct({ funnel, stepId, stepProductId, expectName, row }) {
+  const step = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!step) return { refuse: `step ${stepId} is not on this funnel` };
+  if (!row || row._id !== stepProductId || row.deleted === true) return { refuse: `step product ${stepProductId} is not on step ${JSON.stringify(step.name)}` };
+  if (typeof expectName !== 'string' || row.name !== expectName) return { refuse: `target check failed: step product ${stepProductId} is named ${JSON.stringify(row.name ?? null)}, not ${JSON.stringify(expectName)}. Nothing was deleted.` };
+  return { method: 'DELETE', path: `/funnels/order-form/products/${enc(stepProductId)}`, target: { step: stepView(step, 0), stepProduct: { id: row._id, name: row.name } } };
 }
 
 // Import a page from another step (any funnel/website/webinar on the location) as a new page of a target step: the

@@ -80,7 +80,13 @@ const KEYFRAMES = {
 };
 
 /** The 21 entrance animations the builder compiles (the Entrance grid minus "None" and the three infinite loops). */
-export const ENTRANCE_ANIMATIONS = Object.freeze(Object.keys(KEYFRAMES));
+const COMPILED_ENTRANCE = Object.freeze(Object.keys(KEYFRAMES));
+/** The grid's "Infinite loop" group: Glow, Rocking, Bounce. Their value is a bare class (`buttonPulseGlow` …) — no `animate__animated`, no timing knobs,
+ *  no compiled keyframes: the public stylesheet ships `.buttonPulseGlow{animation:pulseGlow 2s infinite …}` (page builder INFINITE_LOOP_PREVIEW; read on a public page). Buttons only. */
+export const LOOP_ANIMATIONS = Object.freeze(['buttonPulseGlow', 'buttonRocking', 'buttonBounce']);
+export const LOOP_METAS = Object.freeze(['button']);
+/** All 24 the entrance grid offers: 21 compiled + 3 loops. */
+export const ENTRANCE_ANIMATIONS = Object.freeze([...COMPILED_ENTRANCE, ...LOOP_ANIMATIONS]);
 
 // The builder's generateTransform: object order is emission order; translateX/Y/Z fold into one
 // translate3d only when no translate3d is given, and only from the translateX key — so a lone
@@ -134,19 +140,22 @@ const num = (n) => cssoValue(String(n));
  * getParentAnimationOffset).
  */
 export function entranceCss(id, cls, parentOffset = 0) {
+  // "Disable animations on mobile" (class.disableAnimationsOnMobile.value === true): the builder's generateAnimationCustomizationStyles adds a
+  // no-animation rule under 1024px and under the canvas's .--mobile wrapper (csso-minified here).
+  const mobile = cls?.disableAnimationsOnMobile?.value === true && /^[a-zA-Z0-9_-]+$/.test(id) ? `@media (max-width:1024px){#${id}{animation:none!important}}.--mobile #${id}{animation:none!important}` : '';
   const v = cls?.entranceAnimation?.value;
-  if (typeof v !== 'string' || !v.includes('animate__animated')) return '';
+  if (typeof v !== 'string' || !v.includes('animate__animated')) return mobile;
   const scale = cls.animationScale?.value, dur = cls.animationDuration?.value, delay = cls.animationDelay?.value, easing = cls.animationEasing?.value;
-  if (!scale && !dur && !delay && !easing) return '';
+  if (!scale && !dur && !delay && !easing) return mobile;
   const name = v.split(' ').pop()?.replace('animate__', '');
-  if (!name || !KEYFRAMES[name]) return '';
+  if (!name || !KEYFRAMES[name]) return mobile;
   const s = knob(scale, { min: 0, exclusiveMin: true });
   const d = knob(dur, { min: 0, exclusiveMin: true });
   const e = typeof easing === 'string' && EASINGS.includes(easing) ? easing : 'linear';
   const total = (Number(delay) || 0) + (parentOffset || 0);
   const kn = `${name}-${id}`;
   const rule = `.animate__${kn}{animation:${kn} ${num(d ?? 1)}s ${e} ${num(total || 0)}s forwards!important;-webkit-animation-name:${kn};animation-name:${kn}}`;
-  return rule + keyframesCss(kn, KEYFRAMES[name](s ?? 1));
+  return rule + keyframesCss(kn, KEYFRAMES[name](s ?? 1)) + mobile;
 }
 
 // Hover effects and the knob each category adds to duration/delay/easing (the builder's
@@ -195,16 +204,26 @@ export function hoverCss(id, cls) {
 }
 
 // Caller-facing specs → the node's `class` patch, as the builder stores it. Throws a message on a bad spec.
-export function entranceClass(spec) {
+export function entranceClass(spec, meta) {
   if (!spec) return {};
-  const { name, duration, delay, scale, easing } = spec;
+  const { name, duration, delay, scale, easing, disableOnMobile } = spec;
   if (!ENTRANCE_ANIMATIONS.includes(name)) throw new Error(`entranceAnimation.name must be one of: ${ENTRANCE_ANIMATIONS.join(', ')}`);
   if (easing !== undefined && !EASINGS.includes(easing)) throw new Error(`entranceAnimation.easing must be one of: ${EASINGS.join(', ')}`);
-  const out = { entranceAnimation: { value: `animate__animated animate__${name}` } };
-  if (scale !== undefined) out.animationScale = { value: scale };
-  if (duration !== undefined) out.animationDuration = { value: duration };
-  if (delay !== undefined) out.animationDelay = { value: delay };
-  if (easing !== undefined) out.animationEasing = { value: easing };
+  if (disableOnMobile !== undefined && typeof disableOnMobile !== 'boolean') throw new Error('entranceAnimation.disableOnMobile is true or false');
+  const out = {};
+  if (LOOP_ANIMATIONS.includes(name)) {
+    if (meta !== undefined && !LOOP_METAS.includes(meta)) throw new Error(`entranceAnimation ${name} is an infinite loop the builder offers on buttons — not on ${meta}`);
+    const knobs = ['duration', 'delay', 'scale', 'easing'].filter((k) => spec[k] !== undefined);
+    if (knobs.length) throw new Error(`entranceAnimation ${name} is an infinite loop: the builder hides its timing knobs (${knobs.join(', ')} given)`);
+    out.entranceAnimation = { value: name };
+  } else {
+    out.entranceAnimation = { value: `animate__animated animate__${name}` };
+    if (scale !== undefined) out.animationScale = { value: scale };
+    if (duration !== undefined) out.animationDuration = { value: duration };
+    if (delay !== undefined) out.animationDelay = { value: delay };
+    if (easing !== undefined) out.animationEasing = { value: easing };
+  }
+  if (disableOnMobile !== undefined) out.disableAnimationsOnMobile = { value: disableOnMobile };
   return out;
 }
 
@@ -255,6 +274,7 @@ export function stripAnimationCss(css, id) {
   }
   out = out.replace(new RegExp(`\\.animate__[A-Za-z]+-${esc}\\{[^}]*\\}`, 'g'), '');
   out = out.replace(new RegExp(`\\.${esc},\\.c${esc}\\{--hover-[^}]*\\}`, 'g'), '');
+  out = out.replace(new RegExp(`@media \\(max-width:1024px\\)\\{#${esc}\\{animation:none!important\\}\\}\\.--mobile #${esc}\\{animation:none!important\\}`, 'g'), '');
   return out;
 }
 

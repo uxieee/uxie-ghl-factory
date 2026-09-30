@@ -155,6 +155,9 @@ and NaN are refused by key name (`styles.color: null …`) before anything is wr
   - `pdp`: `true` | `{products: [<product id>]}` — the product-page section the `store-pdp-v2-*` blocks need (above)
 - **`entranceAnimation`** `{name, duration, delay, scale, easing}` goes on heading, sub-heading, paragraph,
   rich-text, bulletList, button, image and a section.
+  A button also takes the looping entrances `buttonPulseGlow`, `buttonRocking`, `buttonBounce` (bare class, no timing
+  knobs), and every entrance takes `disableOnMobile: true` (class `disableAnimationsOnMobile` + a `@media (max-width:1024px)`
+  and `.--mobile` rule that switch the animation off).
 - **`hoverAnimation`** goes on a button: `{name, duration, delay, easing}` plus the effect's own knob, which is
   one of `scale`, `angle`, `distance`, `borderThickness`, or `blur` with `spread`.
 

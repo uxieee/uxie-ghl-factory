@@ -91,6 +91,36 @@ export function routeClickAction(meta, extra = {}) {
   for (const p of spec.props) out[p] = { value: v === '' ? 'none' : v };
   return out;
 }
+// ── An embedded form, survey or calendar ──
+// The builder's Add-existing pickers store the asset as `{value: id, text: name}` (calendarId adds `isTeamSelected: false`; the survey picker
+// stores the name lowercased) — knowledge sniffs/funnels-wave16-embeds-2026-09-29 live-embed.{form,survey,calendar}.json. The on-submit menu is
+// `none` (the builder's default, shown "Please select an action") | `url` | `go-to-next-funnel-step` (survey ui: "none = Use action from survey
+// builder"); the tool used to accept the 19-value button list on these kinds and to write `""` instead of `none`.
+export const EMBED_KINDS = Object.freeze({ form: 'formId', survey: 'surveyId', calendar: 'calendarId' });
+export const EMBED_ACTION_VALUES = Object.freeze(['none', 'url', 'go-to-next-funnel-step']);
+/** Shape an embed's reference and action as the builder stores them; refuses what the builder cannot produce. Other kinds pass through. */
+export function routeEmbedExtra(meta, extra = {}) {
+  const prop = EMBED_KINDS[meta];
+  if (!prop) return extra;
+  const out = { ...extra };
+  const ref = out[prop];
+  if (ref !== undefined) {
+    if (typeof ref !== 'object' || ref === null || Array.isArray(ref)) {
+      throw Object.assign(new Error(`${meta}: extra.${prop} must be {value: "<id>", text: "<the asset's name>"}, not ${JSON.stringify(ref)} — the renderer reads .value and the builder shows .text`),
+        { remediation: `Name the ${meta === 'calendar' ? 'calendar' : meta} as {value, text} (read its id and name from list_forms / the calendars list).` });
+    }
+    if (typeof ref.value !== 'string') throw Object.assign(new Error(`${meta}: extra.${prop}.value must be the asset id (a string)`), { remediation: 'Pass the id the picker would store.' });
+    out[prop] = meta === 'calendar' ? { isTeamSelected: false, ...ref } : ref;
+  }
+  const a = out.action?.value ?? out.action;
+  if (a === undefined || a === '') out.action = { value: 'none' };
+  else if (!EMBED_ACTION_VALUES.includes(a)) {
+    throw Object.assign(new Error(`${meta}: on-submit action '${a}' is not one the builder offers on an embedded ${meta} (${EMBED_ACTION_VALUES.join(', ')})`),
+      { remediation: `Use one of ${EMBED_ACTION_VALUES.join(', ')}; url also needs extra.visitWebsite.url.` });
+  } else out.action = { value: a };
+  return out;
+}
+
 /** The click action a node will perform, wherever its kind keeps it. */
 export const clickActionOf = (n) => {
   const spec = CLICK_ACTION_PROPS[n?.meta];
@@ -320,7 +350,7 @@ export const RAW_EXTRA_PROPS = Object.freeze(new Set(['socialShareStyle', 'blog_
 // template: `{"value":"jKwjvV2VCm6nWM1PnVTk","text":"Claim My Link"}`. A scan for `"formId":"<id>"`
 // matches nothing, which is how two independent sessions declared a page clean that carried a live
 // reference — match on `extra.<prop>.value`, or on the element's `meta`.
-export const REFERENCE_EXTRA_PROPS = Object.freeze(new Set(['formId']));
+export const REFERENCE_EXTRA_PROPS = Object.freeze(new Set(['formId', 'surveyId', 'calendarId']));
 
 let counter = 0;
 export const resetIds = () => { counter = 0; };
@@ -440,20 +470,24 @@ const STYLE_DEFAULTS = { button: BUTTON_STYLE_DEFAULTS, 'one-step-order': ORDER_
 // html | selfHosted) and reads url (or selfHostedVideo {id, name, url} for a Media Storage file). A caller naming only a
 // url gets the builder's full value around it and a type read off the url; an authored type always wins.
 export const VIDEO_TYPES = Object.freeze(['youtube', 'vimeo', 'wistia', 'custom_embed', 'html', 'selfHosted']);
+// The builder's own classifier (page builder getVideoType, bundle e1b163ff): an empty url or youtube.com / youtu.be → youtube, vimeo.com → vimeo,
+// wistia.com → wistia, a url CONTAINING .mp4 .webm .mov .avi .m4v or .ogv → html, anything else (Loom, .m3u8, .ogg, an embed page) → custom_embed.
+const DIRECT_VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.m4v', '.ogv'];
 export function videoTypeOf(url) {
   const u = String(url ?? '');
-  if (/youtube\.com|youtu\.be/i.test(u)) return 'youtube';
-  if (/vimeo\.com/i.test(u)) return 'vimeo';
-  if (/wistia\.(com|net)|wi\.st/i.test(u)) return 'wistia';
-  if (/\.(mp4|webm|ogg|m3u8)(\?|$)/i.test(u)) return 'html';
-  return null;
+  if (!u || u.includes('youtube.com') || u.includes('youtu.be')) return 'youtube';
+  if (u.includes('vimeo.com')) return 'vimeo';
+  if (u.includes('wistia.com')) return 'wistia';
+  const lower = u.toLowerCase();
+  if (DIRECT_VIDEO_EXTENSIONS.some((e) => lower.includes(e))) return 'html';
+  return 'custom_embed';
 }
 export function normalizeVideoExtra(extra = {}) {
   const given = extra.videoProperties;
   if (!given || typeof given !== 'object') return extra;
   const v = { ...KIND_DEFAULT_EXTRA.video.videoProperties.value, ...(given.value ?? {}) };
   v.selfHostedVideo = { ...KIND_DEFAULT_EXTRA.video.videoProperties.value.selfHostedVideo, ...(given.value?.selfHostedVideo ?? {}) };
-  if (!given.value?.type) v.type = v.selfHostedVideo.id ? 'selfHosted' : (videoTypeOf(v.url) ?? v.type);
+  if (!given.value?.type) v.type = v.selfHostedVideo.id ? 'selfHosted' : videoTypeOf(v.url);
   return { ...extra, videoProperties: { value: v } };
 }
 // A composed video with no source renders an empty box in public while every write answers 201.
@@ -465,6 +499,7 @@ export function videoSourceProblems(pageData, onlyIds = null) {
       const src = v.type === 'selfHosted' ? v.selfHostedVideo?.id : (v.type === 'custom_embed' ? (v.customEmbedCode ?? v.url) : v.url);
       if (!src) out.push(`video ${n.id}: no source — set extra.videoProperties.value.url (a YouTube, Vimeo, Wistia or .mp4 URL) or selfHostedVideo {id, name, url} of a Media Storage file; without one the public page shows an empty box`);
       else if (!VIDEO_TYPES.includes(v.type)) out.push(`video ${n.id}: videoProperties.value.type '${v.type}' is not one of ${VIDEO_TYPES.join(', ')}`);
+      else if (v.type !== 'selfHosted' && v.type !== 'custom_embed' && v.url && videoTypeOf(v.url) !== v.type) out.push(`video ${n.id}: type '${v.type}' does not match its url — the builder reads it as '${videoTypeOf(v.url)}' (youtube.com/youtu.be, vimeo.com, wistia.com, a .mp4/.webm/.mov/.avi/.m4v/.ogv file, else custom_embed) and would switch the player when the page is next opened; drop the type or set the one the builder derives`);
     }
   } };
   for (const s of pageData.sections ?? []) walk(s.elements);
@@ -503,7 +538,7 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
     if (/FontFamily$/.test(k) && typeof v?.value === 'string' && /^var\(--(?!headlinefont\)|contentfont\))/.test(v.value)) base[k] = { ...v, value: 'var(--contentfont)' };
   }
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
-  const routed = routeClickAction(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra);
+  const routed = routeEmbedExtra(meta, routeClickAction(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra));
   const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, fillTextFieldInitials(meta, unshare(completeExtra(meta, routed))), withDefaults, cls, TOOL_COMPILED_KINDS.has(meta) ? undefined : KIND_FACTORY_WRAPPER[meta]);
   // The wrapper and per-device maps a caller gave (numbers are px), over the envelope's.
   if (wrapper) node.wrapper = { ...node.wrapper, ...storedMap(wrapper) };
@@ -513,13 +548,13 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
   return node;
 };
 
-export const makeColumn = ({ children, widthPct, padX = 20, salt }) => {
+export const makeColumn = ({ children, widthPct, padX = 20, salt, background, bgImage }) => {
   const id = mkId('col', salt);
   const col = envelope(id, 'col', 'col', 'c-column',
-    { bgImage: BG_IMAGE, columnLayout: val('column'), justifyContentColumnLayout: val('center'),
+    { bgImage: bgImage ? sectionBgImage(bgImage) : BG_IMAGE, columnLayout: val('column'), justifyContentColumnLayout: val('center'),
       alignContentColumnLayout: val('inherit'), forceColumnLayoutForMobile: val(true), elementVersion: val(2) },
     { paddingTop: px(0), paddingBottom: px(0), paddingLeft: px(padX), paddingRight: px(padX),
-      backgroundColor: val('transparent'), width: { value: String(widthPct), unit: '%' } });
+      backgroundColor: val(background ?? 'transparent'), width: { value: String(widthPct), unit: '%' } });
   col.child = children.map((c) => c.id);
   return col;
 };
@@ -550,7 +585,10 @@ export function sectionKnobs({ sticky, width, fullWidthRows, pdp } = {}) {
 }
 
 /** The keys a section spec in build_funnel_page may carry; any other is refused by name (it used to be dropped silently). */
-export const SECTION_SPEC_KEYS = Object.freeze(['columns', 'background', 'padY', 'maxWidth', 'sticky', 'width', 'fullWidthRows', 'pdp',
+/** What a column takes (a row holds 1–6 of them). Any other key is refused, not dropped. */
+export const COLUMN_SPEC_KEYS = Object.freeze(['elements', 'widthPct', 'padX', 'background', 'bgImage']);
+export const MAX_COLUMNS_PER_ROW = 6;
+export const SECTION_SPEC_KEYS = Object.freeze(['columns', 'rows', 'background', 'padY', 'maxWidth', 'sticky', 'width', 'fullWidthRows', 'pdp',
   'styles', 'wrapper', 'tabletStyles', 'mobileStyles', 'tabletWrapper', 'mobileWrapper', 'visibility', 'customClass', 'bgImage', 'entranceAnimation']);
 
 // A section's background image, in the builder's stored shape (the renderer reads it from extra.bgImage; it is never in
@@ -574,12 +612,12 @@ export function sectionStylingPatch(o = {}) {
   if (o.customClass) extra.customClass = val(sectionClasses(o.customClass));
   if (o.bgImage) extra.bgImage = sectionBgImage(o.bgImage);
   if (Object.keys(extra).length) merge.extra = extra;
-  if (o.entranceAnimation) merge.class = entranceClass(o.entranceAnimation);
+  if (o.entranceAnimation) merge.class = entranceClass(o.entranceAnimation, 'section');
   for (const k of ['tabletStyles', 'mobileStyles', 'tabletWrapper', 'mobileWrapper']) if (o[k]) replace[k] = storedMap(o[k]);
   return { merge, replace, touchesCss: !!(o.styles || o.wrapper || o.entranceAnimation || Object.keys(replace).length) };
 }
 
-export const makeSection = ({ columns, background = 'transparent', padY = 60, maxWidth = BUILDER_INNER_MAX_WIDTH, elementCss = '', pageId, funnelId, locationId, salt, sticky, width, fullWidthRows, pdp,
+export const makeSection = ({ columns, rows, background = 'transparent', padY = 60, maxWidth = BUILDER_INNER_MAX_WIDTH, elementCss = '', pageId, funnelId, locationId, salt, sticky, width, fullWidthRows, pdp,
   styles, wrapper, tabletStyles, mobileStyles, tabletWrapper, mobileWrapper, visibility, customClass, bgImage, cls: extraCls, sectionCss = '' }) => {
   // 🔴 COLUMN WIDTHS MUST FILL THE ROW. A column is `flex: 1 1 auto`, so the `width` compiled here
   // acts as a flex BASIS, not a fixed size: a row whose widths sum to less than 100 does not leave a
@@ -598,25 +636,32 @@ export const makeSection = ({ columns, background = 'transparent', padY = 60, ma
   // arithmetic can render WORSE than wrong arithmetic: removing `!important` overrides that said
   // 33.33% exposed a stale 41.5% base, and 41.5 x 3 = 124.5% wrapped the row. Repair means stripping
   // every existing width declaration first. See the anatomy page before touching a live stylesheet.
-  const widths = columns.map((c) => Number(c.widthPct)).filter((n) => Number.isFinite(n));
-  const total = widths.reduce((a, b) => a + b, 0);
-  if (widths.length === columns.length && columns.length > 0 && Math.abs(total - 100) > 1) {
-    const err = new Error(
-      `column widths in this row sum to ${Number(total.toFixed(2))}%, not 100% (${widths.join('% + ')}%). `
-      + 'Columns are flex:1 1 auto, so width is a BASIS: they will be grown or shrunk to fill the row and '
-      + `will NOT render at the widths given — ${columns.length} columns summing short render at `
-      + `${Number((100 / columns.length).toFixed(2))}% each.`);
-    // Carry the remediation with the error: the composer's catch cannot tell which of its many
-    // failure modes threw, and its default advice (the element-kind list) is misleading here.
-    err.remediation = 'Give widths that total 100, or omit widthPct entirely to divide the row evenly.';
-    throw err;
+  // One row (`columns`) or several (`rows`: a list of column lists) — the builder's section holds any number of rows.
+  const rowGroups = rows ?? [columns];
+  for (const cols of rowGroups) {
+    const widths = cols.map((c) => Number(c.widthPct)).filter((n) => Number.isFinite(n));
+    const total = widths.reduce((a, b) => a + b, 0);
+    if (widths.length === cols.length && cols.length > 0 && Math.abs(total - 100) > 1) {
+      const err = new Error(
+        `column widths in this row sum to ${Number(total.toFixed(2))}%, not 100% (${widths.join('% + ')}%). `
+        + 'Columns are flex:1 1 auto, so width is a BASIS: they will be grown or shrunk to fill the row and '
+        + `will NOT render at the widths given — ${cols.length} columns summing short render at `
+        + `${Number((100 / cols.length).toFixed(2))}% each.`);
+      // Carry the remediation with the error: the composer's catch cannot tell which of its many
+      // failure modes threw, and its default advice (the element-kind list) is misleading here.
+      err.remediation = 'Give widths that total 100, or omit widthPct entirely to divide the row evenly.';
+      throw err;
+    }
   }
 
   const sid = mkId('section', salt);
-  const rid = mkId('row', salt);
-  const row = envelope(rid, 'row', 'row', 'c-row', { bgImage: BG_IMAGE },
-    { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val('transparent') });
-  row.child = columns.map((c) => c.col.id);
+  const rowNodes = rowGroups.map((cols) => {
+    const rid = mkId('row', salt);
+    const r = envelope(rid, 'row', 'row', 'c-row', { bgImage: BG_IMAGE },
+      { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val('transparent') });
+    r.child = cols.map((c) => c.col.id);
+    return { row: r, cols };
+  });
   const knobs = sectionKnobs({ sticky, width, fullWidthRows, pdp });
   const meta = envelope(sid, 'section', 'section', 'c-section',
     { sticky: val('noneSticky'), bgImage: sectionBgImage(bgImage), allowRowMaxWidth: val(false), ...knobs.extra,
@@ -625,7 +670,7 @@ export const makeSection = ({ columns, background = 'transparent', padY = 60, ma
     { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20), ...(storedMap(styles) ?? {}) },
     { ...knobs.cls, ...(extraCls ?? {}) }, storedMap(wrapper));
   for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) meta[k] = storedMap(v);
-  meta._id = sid; meta.child = [rid]; meta.isGlobal = false;
+  meta._id = sid; meta.child = rowNodes.map(({ row }) => row.id); meta.isGlobal = false;
 
   // The section, row and columns compile through the builder's generic layer (core/style-layer.mjs), so a builder save
   // writes the same rules; the inner width and the column's inner flex rule are the builder's per-kind additions.
@@ -633,13 +678,12 @@ export const makeSection = ({ columns, background = 'transparent', padY = 60, ma
     nodeLayerCss({ ...meta, id: sid }),
     sectionInnerRule(sid, { fullWidthRows: fullWidthRows === true, maxWidth }),
     sectionCss,
-    nodeLayerCss(row),
-    ...columns.map(({ col }) => nodeLayerCss(col) + `#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`),
+    ...rowNodes.flatMap(({ row, cols }) => [nodeLayerCss(row), ...cols.map(({ col }) => nodeLayerCss(col) + `#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`)]),
   ].join('');
 
   return {
     id: sid, pageId, funnelId, locationId, isGlobal: false, metaData: meta,
-    elements: [row, ...columns.flatMap(({ col, leaves }) => [col, ...leaves])],
+    elements: rowNodes.flatMap(({ row, cols }) => [row, ...cols.flatMap(({ col, leaves }) => [col, ...leaves])]),
     general: { colors: [], fontsForPreview: [], rootVars: {}, sectionStyles: scaffold + elementCss, customFonts: [] },
   };
 };
@@ -936,6 +980,13 @@ export const auditPageData = (pageData, opts = {}) => {
           const v = n.extra?.[p]?.value;
           if (v !== undefined && !spec.values.includes(v)) problems.push(`node ${n.id} (${n.meta}): extra.${p}.value ${JSON.stringify(v)} is not one of ${spec.values.join(', ')} — the click does nothing`);
         }
+      }
+      // An embedded form/survey/calendar's on-submit menu is none | url | go-to-next-funnel-step, not the 19-value button list.
+      if (EMBED_KINDS[n.meta]) {
+        const ea = n.extra?.action?.value;
+        if (ea !== undefined && ea !== '' && !EMBED_ACTION_VALUES.includes(ea)) problems.push(`node ${n.id} (${n.meta}): extra.action.value '${ea}' is not on the builder's menu for an embedded ${n.meta} (${EMBED_ACTION_VALUES.join(', ')}) — the submit does nothing useful`);
+        const r = n.extra?.[EMBED_KINDS[n.meta]];
+        if (r && typeof r === 'object' && r.value && typeof r.text !== 'string') problems.push(`node ${n.id} (${n.meta}): extra.${EMBED_KINDS[n.meta]} has no .text — the builder stores {value, text} (the asset's name) and shows the name from it`);
       }
       // A reference to another asset is `{value, text}` — `formId` proven live 2026-09-10 by reading a
       // `form` node out of GHL's own template. A bare string is the shape a `"formId":"<id>"` scan

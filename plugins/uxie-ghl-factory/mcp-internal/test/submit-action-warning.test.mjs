@@ -46,19 +46,19 @@ test('DIFFERENTIAL compose: a bare-formId form is flagged in the PREVIEW (1.17.1
   assert.ok(w, 'the preview carries submitAction');
   assert.equal(w.nodes.length, 1);
   assert.equal(w.nodes[0].kind, 'form');
-  assert.equal(w.nodes[0].action, '');
+  assert.equal(w.nodes[0].action, 'none', 'the builder\'s own default spelling (was "" before f6)');
   assert.match(w.warning, /no success state/);
   assert.match(w.warning, /not one that carries the same form/);
 });
 
-test('compose RESULT carries the warning and writes the action exactly as the caller left it', async () => {
+test('compose RESULT carries the warning and writes the builder\'s default action `none` when the caller named none', async () => {
   const calls = [];
   const r = await tool.handler({ ...base, sections: [section(FORM)], confirm: true }, deps(calls));
   assert.equal(r.ok, true, JSON.stringify(r).slice(0, 300));
   assert.equal(r.data.submitAction.nodes.length, 1);
   const saved = calls.find((c) => c.path.startsWith('/funnels/builder/autosave/')).body.pageData.sections;
   const form = saved.flatMap((s) => s.elements).find((e) => e.meta === 'form');
-  assert.deepEqual(form.extra.action, { value: '' }, 'no auto-default: the action is not rewritten');
+  assert.deepEqual(form.extra.action, { value: 'none' }, 'the builder writes none for a fresh embed, not an empty string; still flagged: no success state');
 });
 
 test('a form given an action is not flagged', async () => {
