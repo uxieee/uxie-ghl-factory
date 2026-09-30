@@ -11,6 +11,19 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.35.1] — 2026-09-30
+
+**Docs and catalogue: pipeline smart tags, board export and conditional rules; re-proven funnel and form tools.**
+
+### Docs — ghl-pipeline-specialist
+- "Apply to all pipelines" for a smart tag is one bulk request that writes a tag into every pipeline.
+- The board's Export builds the CSV in the browser as a download.
+- A conditional "Show" rule on an opportunity field is saved, but the Add and Edit forms don't apply it in this build.
+
+### Changed
+- `raw_request` knows the conditional-fields routes, the Labs feature-flag write and smart-tag delete.
+- `create_funnel`, `create_form`, `update_form_data` and `edit_redirects` were re-proven live on the current core.
+
 ## [1.35.0] — 2026-09-30
 
 **Pages: countdown timers render, element defaults match what the builder creates, and page text and link colours
