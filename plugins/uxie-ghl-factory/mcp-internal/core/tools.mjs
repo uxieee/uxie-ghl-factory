@@ -29,7 +29,7 @@ import {
   CLONE_FUNNEL_NOTE, IMPORT_PAGE_NOTE, BILLING_FIELDS_NOTE, BILLING_ON_SAVE_NOTE, billingCheckouts,
 } from './funnel-ops.mjs';
 import { planAdvancedFilters, videoFilters, videoView, filterQuery, ordersView, FILTER_FIELDS as ANALYTICS_FILTER_FIELDS, SALES_NOTE } from './funnel-analytics.mjs';
-import { planCreateFunnel, createdId, findMediaVideo, webinarView, sessionWarnings, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
+import { planCreateFunnel, createdId, findMediaVideo, webinarView, sessionWarnings, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments, listFolders, FOLDER_KINDS } from './funnel-create.mjs';
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { elementSpecProblem } from './element-spec.mjs';
@@ -2222,17 +2222,53 @@ async function walkFunnelList(deps, locationId) {
 const siteRow = (f) => ({ id: f._id ?? f.id, name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null,
   domainId: f.domainId || null, folderId: f.parentId ?? null, steps: (f.steps ?? []).length, updatedAt: f.updatedAt ?? f.dateUpdated ?? null });
 
+// find_ghl_site route: the route row for one exact public URL (measured 2026-09-30, sniffs/funnels-wave45-f8): the path needs its leading
+// slash ("test" answers 404 like an absent route), matching is on the lowercased path, and an absent route is a 404 "Lookup does not exist".
+async function resolveRoute(args, deps) {
+  const { domain, path } = args.route;
+  const dom = String(domain ?? '').trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
+  let p = String(path ?? '').trim();
+  if (!dom) return { checked: false, warning: 'route.domain is required (the custom or default domain, e.g. sites.example.com).' };
+  if (!p.startsWith('/')) p = `/${p}`;
+  const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+  const r = await gw.call('GET', `/funnels/lookup/domain-and-path?domain=${encodeURIComponent(dom)}&path=${encodeURIComponent(p)}&locationId=${encodeURIComponent(args.locationId)}`);
+  if (r.status === 404) return { checked: true, found: false, domain: dom, path: p, note: 'No route row for this exact domain + path (paths are matched lowercased, with the leading slash). A step or page of a funnel that has a domain but was never published has no row either.' };
+  if (!r.ok) return { checked: false, status: r.status, warning: `The route lookup failed (${r.status}); this is NOT "no such route".`, detail: r.json?.message ?? null };
+  const row = r.json?.data ?? r.json;
+  const funnel = row?.funnelId ? (await gw.call('GET', `/funnels/funnel/fetch/${encodeURIComponent(row.funnelId)}?locationId=${encodeURIComponent(args.locationId)}`)).json?.data ?? null : null;
+  const step = funnel && row.type === 'step' ? (funnel.steps ?? []).find((x) => x.id === row.typeId) ?? null : (funnel && row.type === 'page' ? (funnel.steps ?? []).find((x) => (x.pages ?? []).includes(row.typeId)) ?? null : null);
+  return { checked: true, found: true, domain: row.domain ?? dom, path: row.path ?? p,
+    route: { id: row._id ?? null, type: row.type ?? null, typeId: row.typeId ?? null, publishStatus: row.publishStatus ?? null, action: row.action ?? null, target: row.target || null, updatedAt: row.updatedAt ?? null },
+    owner: { funnelId: row.funnelId ?? null, funnel: funnel?.name ?? null, funnelType: funnel?.type ?? null, ...(step ? { step: { id: step.id, name: step.name } } : {}), ...(row.type === 'page' ? { pageId: row.typeId } : {}) } };
+}
+
 async function listSites(args, deps) {
   const walked = await walkFunnelList(deps, args.locationId);
-  if (!walked.rows) return { locationId: args.locationId, funnelsChecked: false, warning: `The funnels list failed on BOTH rails (last status ${walked.res?.status ?? 'unknown'}). Nothing is known about this location's documents.` };
+  if (!walked.rows) return { locationId: args.locationId, funnelsChecked: false, warning: `The funnels list failed on BOTH rails (last status ${walked.res?.status ?? 'unknown'}). Nothing is known about this location's documents — this is NOT an empty location.` };
   const q = String(args.search ?? '').toLowerCase();
   const rows = walked.rows
     .filter((f) => !args.type || (args.type === 'store' ? f.type === 'website' && f.isStoreActive === true : f.type === args.type))
     .filter((f) => !q || String(f.name ?? '').toLowerCase().includes(q))
+    .filter((f) => !args.folderId || f.parentId === args.folderId)
     .map(siteRow)
     .sort((a, b) => String(a.name).localeCompare(String(b.name)));
-  return { locationId: args.locationId, funnelsChecked: true, funnelsRail: walked.rail, total: walked.count, returned: rows.length, ...(walked.truncated ? { truncated: true } : {}), documents: rows,
-    note: 'Funnel folders are organisational only (create/rename/move them on the Sites screen); folderId is the folder a document is filed in.' };
+  let folders;
+  if (args.folders === true || args.folderId) {
+    // The plain list never carries folders; `category=all` does, one tab at a time (a folder belongs to the Funnels or the Websites tab).
+    const gw = deps.makeGw({ loc: args.locationId, state: deps.state, rail: walked.rail });
+    const all = [];
+    for (const t of FOLDER_KINDS) {
+      const fl = await listFolders(gw, args.locationId, t);
+      if (!fl.rows) return { locationId: args.locationId, funnelsChecked: true, foldersChecked: false, warning: `The ${t} folder list failed (status ${fl.res?.status ?? 'unknown'}); the documents below are unaffected, but this is NOT "no folders".`, documents: rows };
+      all.push(...fl.rows);
+    }
+    const held = new Map();
+    for (const f of walked.rows) if (f.parentId) held.set(f.parentId, (held.get(f.parentId) ?? 0) + 1);
+    folders = all.map((f) => ({ ...f, documents: held.get(f.id) ?? 0 })).sort((a, b) => `${a.type}${a.name}`.localeCompare(`${b.type}${b.name}`));
+    if (args.folderId && !folders.some((f) => f.id === args.folderId)) return { locationId: args.locationId, funnelsChecked: true, foldersChecked: true, warning: `folderId ${args.folderId} is not a folder on this location.`, folders, documents: [] };
+  }
+  return { locationId: args.locationId, funnelsChecked: true, funnelsRail: walked.rail, total: walked.count, returned: rows.length, ...(walked.truncated ? { truncated: true } : {}), ...(folders ? { foldersChecked: true, folders } : {}), documents: rows,
+    note: 'folderId is the folder a document is filed in. Folders themselves (create / rename / delete / move) are done on the Sites screen; folders:true lists them.' };
 }
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -9588,10 +9624,11 @@ export const TOOLS = [
     name: 'find_ghl_site',
     description: describe('find_ghl_site',
       'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
+      + 'route {domain, path} answers "which page serves this exact URL?": the route row (page / step / redirect, publish status, redirect target) and the funnel, step and page that own it (the path needs its leading slash). '
       + 'includeRedirects:true also returns the location\'s domains and every URL redirect (path → target, '
       + 'with clicks: 30 days, or redirectClicksFrom/To + a per-row series); change redirects with edit_redirects. list:true (site optional) instead returns EVERY '
       + 'funnel, website, store, webinar and blog document on the location (walked to the list\'s count), '
-      + 'filtered by type (store = a website with isStoreActive) and a case-insensitive name search. '
+      + 'filtered by type (store = a website with isStoreActive), a case-insensitive name search and folderId (the documents filed in one folder); folders:true also returns the folders themselves. '
       + 'Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint '
       + 'collections, so querying the wrong one returns an empty list that reads as "does not exist" '
       + 'Disjointness measured 2026-09-04 '
@@ -9601,16 +9638,22 @@ export const TOOLS = [
     inputSchema: schema({ locationId: z.string(), site: z.string().optional(), includeRedirects: z.boolean().default(false),
       redirectClicksFrom: z.string().optional().describe('with includeRedirects: click range start, YYYY-MM-DD (default: 30 days ago)'),
       redirectClicksTo: z.string().optional().describe('click range end, YYYY-MM-DD (default: today)'),
-      list: z.boolean().default(false), type: z.enum(['funnel', 'website', 'store', 'webinar', 'blog']).optional(), search: z.string().optional() }),
+      list: z.boolean().default(false), type: z.enum(['funnel', 'website', 'store', 'webinar', 'blog']).optional(), search: z.string().optional(),
+      folders: z.boolean().default(false).describe('with list:true: also return the location\'s FOLDERS (Funnels tab and Websites tab), each with the documents filed in it'),
+      folderId: z.string().optional().describe('with list:true: only the documents filed in this folder (a folders:true id)'),
+      route: z.object({ domain: z.string(), path: z.string() }).optional().describe('instead of a site name: which document owns this exact public URL — reads the route row (GET /funnels/lookup/domain-and-path) and names its funnel, step and page') }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects' },
       { method: 'GET', path: '/funnels/funnel/list' },
+      { method: 'GET', path: '/funnels/lookup/domain-and-path' },
+      { method: 'GET', path: '/funnels/funnel/fetch/{id}' },
       { method: 'GET', path: '/funnels/domain' },
       { method: 'GET', path: '/funnels/lookup/redirect/list' },
       { method: 'POST', path: '/stats/url-redirect' },
     ],
     handler: async (args, deps) => guard(async () => {
-      if (args.list !== true && !args.site) return fail(CODES.VALIDATION_FAILED, 'site is required unless list:true', 'Pass site (a domain, slug or name) to resolve one, or list:true to list every document.');
+      if (args.route) return ok(await resolveRoute(args, deps));
+      if (args.list !== true && !args.site) return fail(CODES.VALIDATION_FAILED, 'site is required unless list:true (or route)', 'Pass site (a domain, slug or name) to resolve one, list:true to list every document, or route {domain, path} for the owner of one public URL.');
       if (args.list === true) return ok(await listSites(args, deps));
       const { api } = studioDeps(args, deps);
       const studio = (await api.listProjects()).json;
@@ -12273,7 +12316,7 @@ export const TOOLS = [
     description: `${describe('create_funnel', 'Create a funnel, website, store, webinar or blog document on a location')}. `
       + 'The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true '
       + 'creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs '
-      + 'screen\'s own list). Refuses a name already used by any document on the location. Each kind sends '
+      + 'screen\'s own list). Refuses a name already used by any document on the location. folderId (funnel, website) files it in that folder, as the New screen does inside a folder. Each kind sends '
       + 'exactly what GHL\'s own "New …" screen sends: funnel and website are created empty (no steps, no '
       + 'domain); a store and a webinar are GHL\'s BLANK TEMPLATE installs — that is the UI\'s own blank path '
       + '(store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, '
@@ -12290,6 +12333,7 @@ export const TOOLS = [
       kind: z.enum(FUNNEL_KINDS),
       name: z.string(),
       description: z.string().optional(),
+      folderId: z.string().optional().describe('funnel / website: file it in this folder (the New screen files it in the folder you are in) — an id from find_ghl_site list:true folders:true; a funnel needs a Funnels-tab folder, a website a Websites-tab folder'),
       webinar: z.object({
         type: z.enum(['live', 'onDemand']).optional().describe('live (default) or onDemand — a pre-recorded webinar with no schedule'),
         timezone: z.string().optional().describe('IANA timezone the webinar runs in, e.g. America/New_York (required for live; on-demand defaults to America/New_York)'),
@@ -12349,7 +12393,14 @@ export const TOOLS = [
           }
           companyId = await resolveCompanyId(gw, args.locationId);
         }
-        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.() });
+        let folder = null;
+        if (args.folderId !== undefined && FOLDER_KINDS.includes(args.kind)) {
+          const fl = await listFolders(gw, args.locationId, args.kind);
+          if (!fl.rows) return fromHttp(fl.res?.status, fl.res?.json);
+          folder = fl.rows.find((x) => x.id === args.folderId) ?? null;
+          if (!folder) return fail(CODES.VALIDATION_FAILED, `folderId ${args.folderId} is not a ${args.kind} folder on this location`, `${fl.rows.length ? `${args.kind} folders: ${fl.rows.map((x) => `${x.name} (${x.id})`).join(', ')}.` : `This location has no ${args.kind} folder.`} A funnel needs a Funnels-tab folder and a website a Websites-tab folder. Nothing was sent.`);
+        }
+        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.(), folderId: args.folderId });
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was sent.');
         const preview = { kind: args.kind, request: { method: plan.method, path: plan.path, body: plan.body } };
         if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `create_funnel ${args.kind} preview is ready; no write was sent.`, 'Repeat with confirm:true to send exactly this request.'), { preview });
@@ -12370,7 +12421,7 @@ export const TOOLS = [
         const f = read.value;
         const out = {
           kind: args.kind, funnelId: id, status: w.status,
-          readBack: f ? { name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null, domainId: f.domainId || null,
+          readBack: f ? { name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null, domainId: f.domainId || null, ...(args.folderId !== undefined ? { folderId: f.parentId ?? null, folder: folder?.name ?? null } : {}),
             steps: (f.steps ?? []).map((s) => ({ id: s.id, name: s.name, type: s.type, url: s.url, pages: s.pages ?? [] })) } : null,
           ...(args.kind === 'blog' ? { blogList: blogRow ? { id: blogRow._id, name: blogRow.name } : null } : {}),
           ...(args.kind === 'store' ? { note: STORE_DANGLING_FORM_NOTE } : {}),
@@ -12404,7 +12455,8 @@ export const TOOLS = [
           }
         }
         const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== 'store' || f.isStoreActive === true);
-        if (!f || f.name !== name || !typeOk || (args.kind === 'blog' && !blogRow)) {
+        const folderOk = args.folderId === undefined || (f && f.parentId === args.folderId);
+        if (!f || f.name !== name || !typeOk || !folderOk || (args.kind === 'blog' && !blogRow)) {
           return withFailureData(fail(CODES.VERIFY_FAILED, `create answered ${w.status} but the ${args.kind} did not read back as created`, 'Do not create again: find_ghl_site list:true first.'), out);
         }
         return ok(out);
