@@ -14723,7 +14723,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps-marketplace/payment.md:102"
+            "workflows/30-types/steps-marketplace/payment.md:114"
           ]
         },
         {
@@ -14754,7 +14754,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps-marketplace/payment.md:102"
+            "workflows/30-types/steps-marketplace/payment.md:114"
           ]
         },
         {
@@ -14837,7 +14837,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps-marketplace/payment.md:113"
+            "workflows/30-types/steps-marketplace/payment.md:125"
           ]
         },
         {
@@ -14872,7 +14872,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps-marketplace/payment.md:114"
+            "workflows/30-types/steps-marketplace/payment.md:126"
           ]
         },
         {
@@ -14903,7 +14903,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps-marketplace/payment.md:106"
+            "workflows/30-types/steps-marketplace/payment.md:118"
           ]
         },
         {
@@ -203587,6 +203587,9 @@ function marketplaceAttributes(node, ctx) {
       "MARKETPLACE_REQUIRED_FIELD",
       `marketplace step '${node.ref}' (${node.type}, "${entry.appName}") is missing required input(s): ${missing.join(", ")}. The builder would show "Resolve N Errors".`
     );
+  const refused = ASSET_VALUE_REFUSALS[node.type]?.(out);
+  if (refused)
+    throw new IRError("MARKETPLACE_VALUE_REFUSED", `marketplace step '${node.ref}' (${node.type}, "${entry.appName}"): ${refused}`);
   const declared = /* @__PURE__ */ new Set([...entry.inputs.map((f) => f?.field).filter(Boolean), ...generatorDeclaredKeys(entry)]);
   for (const key of Object.keys(out)) {
     if (MARKETPLACE_ENVELOPE_KEYS.has(key) || declared.has(key)) continue;
@@ -203596,7 +203599,27 @@ function marketplaceAttributes(node, ctx) {
   if (behaviour) ctx?.warn?.(`${behaviour.code}: step '${node.ref}' (${node.type}): ${behaviour.message}`);
   return out;
 }
+var RECURRING_WEEKDAYS = /* @__PURE__ */ new Set(["mo", "tu", "we", "th", "fr", "sa", "su", "td"]);
+var ASSET_VALUE_REFUSALS = {
+  // Run 1: dayOfWeek 1 -> HTTP 500 'InvoiceSchedule validation failed: schedule.rrule.dayOfWeek: `1` is not a valid enum value'
+  // (the run failed). Run 2: numOfWeek 0 -> 422 'data.numOfWeek value must be between -2 and 4 and not equal to 0' (the run was skipped).
+  create_recurring_invoice: (a) => {
+    const dow = a?.dayOfWeek;
+    if (dow !== void 0 && dow !== null && dow !== "" && !RECURRING_WEEKDAYS.has(String(dow)))
+      return `dayOfWeek must be one of mo, tu, we, th, fr, sa, su, td (got ${JSON.stringify(dow)}); the server refuses any other value and the run fails.`;
+    const nw = a?.numOfWeek;
+    if (nw === 0 || nw === "0")
+      return 'numOfWeek 0 is refused by the server (422 "value must be between -2 and 4 and not equal to 0") and the run is skipped; use 1-4, -1 (last) or -2 (action date).';
+    return null;
+  }
+};
 var ASSET_BEHAVIOUR_WARNINGS = {
+  // A stored `count` does not end the schedule when an endDate is also present: the schedule kept its endDate, showed 31
+  // invoices remaining and stayed ACTIVE (live-W37-rec-readback.json; cancelled in its own call).
+  create_recurring_invoice: (a) => a?.endType === "after" && a?.endDate !== void 0 && a?.endDate !== null && String(a.endDate).trim() !== "" ? {
+    code: "RECURRING_COUNT_IGNORED",
+    message: `endType 'after' with count ${JSON.stringify(a.count)} AND endDate ${JSON.stringify(a.endDate)}: the stored count was NOT applied when measured; the schedule ran until its endDate (31 invoices remaining) and stayed active. Treat endDate as the real end, or cancel the schedule right after the first run (POST /invoices/schedule/{id}/cancel).`
+  } : null,
   // A differential on two PUBLISHED company workflows: the step named one, and the record's runs in BOTH ended in the
   // same second (knowledge sniffs/workflows-wave1-2026-09-25/live-R7-7-remove-differential.json; corpus 40-rules/
   // remove-associated-records-ends-every-run.md).

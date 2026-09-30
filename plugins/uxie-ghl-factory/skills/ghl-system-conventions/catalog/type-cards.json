@@ -11390,6 +11390,9 @@
    ],
    "proven": [
     "### Editor drawer — `proposals_estimates_send_document` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `payments_create_estimate` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `payments_create_invoice` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `create_recurring_invoice` `[proven-live 2026-09-30]`",
     "### Runs live — `payments_create_estimate` `[proven-live 2026-09-30]`",
     "### Runs live — `payments_create_invoice` `[proven-live 2026-09-30]`",
     "### Runs live — `create_recurring_invoice` `[proven-live 2026-09-30]`"
@@ -29820,7 +29823,7 @@
    "family": "triggers",
    "title": "video_event",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Fires on a video-watch event in a funnel video at a configured percentage watched.",
    "meta": {
     "Trigger value": "`video_event`",
