@@ -4670,7 +4670,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/30-types/native-elements.md:174"
+            "funnels/30-types/native-elements.md:186"
           ]
         },
         {
@@ -8558,7 +8558,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:118"
+            "funnels/10-anatomy/styling-and-saved-assets.md:119"
           ]
         },
         {
@@ -8981,7 +8981,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:114",
+            "funnels/10-anatomy/styling-and-saved-assets.md:115",
             "funnels/10-anatomy/websites-and-global-sections.md:96",
             "funnels/20-api/funnel-ai.md:59"
           ]
@@ -9026,7 +9026,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/page-content.md:13",
             "funnels/10-anatomy/routing-and-publishing.md:31",
-            "funnels/10-anatomy/styling-and-saved-assets.md:133",
+            "funnels/10-anatomy/styling-and-saved-assets.md:134",
             "funnels/20-api/funnels-api.md:143",
             "funnels/20-api/funnels-api.md:234",
             "funnels/30-types/section.md:78"
@@ -9137,7 +9137,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:116"
+            "funnels/10-anatomy/styling-and-saved-assets.md:117"
           ]
         },
         {
@@ -9793,7 +9793,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:111"
+            "funnels/10-anatomy/styling-and-saved-assets.md:112"
           ]
         },
         {
@@ -9857,7 +9857,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:100"
+            "funnels/10-anatomy/styling-and-saved-assets.md:101"
           ]
         },
         {
@@ -9901,7 +9901,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:100"
+            "funnels/10-anatomy/styling-and-saved-assets.md:101"
           ]
         },
         {
@@ -83335,9 +83335,9 @@ var util;
     }
     return void 0;
   };
-  util2.isInteger = typeof Number.isInteger === "function" ? (val3) => Number.isInteger(val3) : (val3) => typeof val3 === "number" && Number.isFinite(val3) && Math.floor(val3) === val3;
+  util2.isInteger = typeof Number.isInteger === "function" ? (val4) => Number.isInteger(val4) : (val4) => typeof val4 === "number" && Number.isFinite(val4) && Math.floor(val4) === val4;
   function joinValues2(array2, separator = " | ") {
-    return array2.map((val3) => typeof val3 === "string" ? `'${val3}'` : val3).join(separator);
+    return array2.map((val4) => typeof val4 === "string" ? `'${val4}'` : val4).join(separator);
   }
   util2.joinValues = joinValues2;
   util2.jsonStringifyReplacer = (_, value) => {
@@ -83965,20 +83965,20 @@ var ZodType = class {
     return handleResult(ctx, result);
   }
   refine(check2, message) {
-    const getIssueProperties = (val3) => {
+    const getIssueProperties = (val4) => {
       if (typeof message === "string" || typeof message === "undefined") {
         return { message };
       } else if (typeof message === "function") {
-        return message(val3);
+        return message(val4);
       } else {
         return message;
       }
     };
-    return this._refinement((val3, ctx) => {
-      const result = check2(val3);
+    return this._refinement((val4, ctx) => {
+      const result = check2(val4);
       const setError = () => ctx.addIssue({
         code: ZodIssueCode.custom,
-        ...getIssueProperties(val3)
+        ...getIssueProperties(val4)
       });
       if (typeof Promise !== "undefined" && result instanceof Promise) {
         return result.then((data2) => {
@@ -83999,9 +83999,9 @@ var ZodType = class {
     });
   }
   refinement(check2, refinementData) {
-    return this._refinement((val3, ctx) => {
-      if (!check2(val3)) {
-        ctx.addIssue(typeof refinementData === "function" ? refinementData(val3, ctx) : refinementData);
+    return this._refinement((val4, ctx) => {
+      if (!check2(val4)) {
+        ctx.addIssue(typeof refinementData === "function" ? refinementData(val4, ctx) : refinementData);
         return false;
       } else {
         return true;
@@ -84751,11 +84751,11 @@ ZodString.create = (params) => {
     ...processCreateParams(params)
   });
 };
-function floatSafeRemainder(val3, step) {
-  const valDecCount = (val3.toString().split(".")[1] || "").length;
+function floatSafeRemainder(val4, step) {
+  const valDecCount = (val4.toString().split(".")[1] || "").length;
   const stepDecCount = (step.toString().split(".")[1] || "").length;
   const decCount = valDecCount > stepDecCount ? valDecCount : stepDecCount;
-  const valInt = Number.parseInt(val3.toFixed(decCount).replace(".", ""));
+  const valInt = Number.parseInt(val4.toFixed(decCount).replace(".", ""));
   const stepInt = Number.parseInt(step.toFixed(decCount).replace(".", ""));
   return valInt % stepInt / 10 ** decCount;
 }
@@ -86638,22 +86638,22 @@ var ZodEnum = class _ZodEnum extends ZodType {
   }
   get enum() {
     const enumValues = {};
-    for (const val3 of this._def.values) {
-      enumValues[val3] = val3;
+    for (const val4 of this._def.values) {
+      enumValues[val4] = val4;
     }
     return enumValues;
   }
   get Values() {
     const enumValues = {};
-    for (const val3 of this._def.values) {
-      enumValues[val3] = val3;
+    for (const val4 of this._def.values) {
+      enumValues[val4] = val4;
     }
     return enumValues;
   }
   get Enum() {
     const enumValues = {};
-    for (const val3 of this._def.values) {
-      enumValues[val3] = val3;
+    for (const val4 of this._def.values) {
+      enumValues[val4] = val4;
     }
     return enumValues;
   }
@@ -87648,11 +87648,11 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-function assertEqual(val3) {
-  return val3;
+function assertEqual(val4) {
+  return val4;
 }
-function assertNotEqual(val3) {
-  return val3;
+function assertNotEqual(val4) {
+  return val4;
 }
 function assertIs(_arg) {
 }
@@ -87667,7 +87667,7 @@ function getEnumValues(entries) {
   return values;
 }
 function joinValues(array2, separator = "|") {
-  return array2.map((val3) => stringifyPrimitive(val3)).join(separator);
+  return array2.map((val4) => stringifyPrimitive(val4)).join(separator);
 }
 function jsonStringifyReplacer(_, value) {
   if (typeof value === "bigint")
@@ -87695,8 +87695,8 @@ function cleanRegex(source) {
   const end = source.endsWith("$") ? source.length - 1 : source.length;
   return source.slice(start, end);
 }
-function floatSafeRemainder2(val3, step) {
-  const ratio = val3 / step;
+function floatSafeRemainder2(val4, step) {
+  const ratio = val4 / step;
   const roundedRatio = Math.round(ratio);
   const tolerance = Number.EPSILON * Math.max(Math.abs(ratio), 1);
   if (Math.abs(ratio - roundedRatio) < tolerance)
@@ -88893,8 +88893,8 @@ var $ZodCheckMaxSize = /* @__PURE__ */ $constructor("$ZodCheckMaxSize", (inst, d
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val3 = payload.value;
-    return !nullish(val3) && val3.size !== void 0;
+    const val4 = payload.value;
+    return !nullish(val4) && val4.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
@@ -88921,8 +88921,8 @@ var $ZodCheckMinSize = /* @__PURE__ */ $constructor("$ZodCheckMinSize", (inst, d
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val3 = payload.value;
-    return !nullish(val3) && val3.size !== void 0;
+    const val4 = payload.value;
+    return !nullish(val4) && val4.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
@@ -88949,8 +88949,8 @@ var $ZodCheckSizeEquals = /* @__PURE__ */ $constructor("$ZodCheckSizeEquals", (i
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val3 = payload.value;
-    return !nullish(val3) && val3.size !== void 0;
+    const val4 = payload.value;
+    return !nullish(val4) && val4.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
@@ -88979,8 +88979,8 @@ var $ZodCheckMaxLength = /* @__PURE__ */ $constructor("$ZodCheckMaxLength", (ins
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val3 = payload.value;
-    return !nullish(val3) && val3.length !== void 0;
+    const val4 = payload.value;
+    return !nullish(val4) && val4.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
@@ -89008,8 +89008,8 @@ var $ZodCheckMinLength = /* @__PURE__ */ $constructor("$ZodCheckMinLength", (ins
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val3 = payload.value;
-    return !nullish(val3) && val3.length !== void 0;
+    const val4 = payload.value;
+    return !nullish(val4) && val4.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
@@ -89037,8 +89037,8 @@ var $ZodCheckLengthEquals = /* @__PURE__ */ $constructor("$ZodCheckLengthEquals"
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val3 = payload.value;
-    return !nullish(val3) && val3.length !== void 0;
+    const val4 = payload.value;
+    return !nullish(val4) && val4.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
@@ -90347,8 +90347,8 @@ var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnio
       for (const [k, v] of Object.entries(pv)) {
         if (!propValues[k])
           propValues[k] = /* @__PURE__ */ new Set();
-        for (const val3 of v) {
-          propValues[k].add(val3);
+        for (const val4 of v) {
+          propValues[k].add(val4);
         }
       }
     }
@@ -98749,7 +98749,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
     check: "string_format",
     type: "string",
     format,
-    fn: typeof fnOrRegex === "function" ? fnOrRegex : (val3) => fnOrRegex.test(val3),
+    fn: typeof fnOrRegex === "function" ? fnOrRegex : (val4) => fnOrRegex.test(val4),
     ...params
   };
   if (fnOrRegex instanceof RegExp) {
@@ -99260,30 +99260,30 @@ var enumProcessor = (schema2, _ctx, json2, _params) => {
 var literalProcessor = (schema2, ctx, json2, _params) => {
   const def = schema2._zod.def;
   const vals = [];
-  for (const val3 of def.values) {
-    if (val3 === void 0) {
+  for (const val4 of def.values) {
+    if (val4 === void 0) {
       if (ctx.unrepresentable === "throw") {
         throw new Error("Literal `undefined` cannot be represented in JSON Schema");
       } else {
       }
-    } else if (typeof val3 === "bigint") {
+    } else if (typeof val4 === "bigint") {
       if (ctx.unrepresentable === "throw") {
         throw new Error("BigInt literals cannot be represented in JSON Schema");
       } else {
-        vals.push(Number(val3));
+        vals.push(Number(val4));
       }
     } else {
-      vals.push(val3);
+      vals.push(val4);
     }
   }
   if (vals.length === 0) {
   } else if (vals.length === 1) {
-    const val3 = vals[0];
-    json2.type = val3 === null ? "null" : typeof val3;
+    const val4 = vals[0];
+    json2.type = val4 === null ? "null" : typeof val4;
     if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
-      json2.enum = [val3];
+      json2.enum = [val4];
     } else {
-      json2.const = val3;
+      json2.const = val4;
     }
   } else {
     if (vals.every((v) => typeof v === "number"))
@@ -99435,7 +99435,7 @@ var intersectionProcessor = (schema2, ctx, json2, params) => {
     ...params,
     path: [...params.path, "allOf", 1]
   });
-  const isSimpleIntersection = (val3) => "allOf" in val3 && Object.keys(val3).length === 1;
+  const isSimpleIntersection = (val4) => "allOf" in val4 && Object.keys(val4).length === 1;
   const allOf = [
     ...isSimpleIntersection(a) ? a.allOf : [a],
     ...isSimpleIntersection(b) ? b.allOf : [b]
@@ -102926,9 +102926,9 @@ var TextResourceContentsSchema = ResourceContentsSchema.extend({
    */
   text: string2()
 });
-var Base64Schema = string2().refine((val3) => {
+var Base64Schema = string2().refine((val4) => {
   try {
-    atob(val3);
+    atob(val4);
     return true;
   } catch {
     return false;
@@ -103731,7 +103731,7 @@ var ElicitResultSchema = ResultSchema.extend({
    * Per MCP spec, content is "typically omitted" for decline/cancel actions.
    * We normalize null to undefined for leniency while maintaining type compatibility.
    */
-  content: preprocess((val3) => val3 === null ? void 0 : val3, record(string2(), union([string2(), number2(), boolean2(), array(string2())])).optional())
+  content: preprocess((val4) => val4 === null ? void 0 : val4, record(string2(), union([string2(), number2(), boolean2(), array(string2())])).optional())
 });
 var ResourceTemplateReferenceSchema = object2({
   type: literal("ref/resource"),
@@ -129597,13 +129597,59 @@ var KIND_CONFIG_EXTRA = Object.freeze({
   }
 });
 
+// core/kind-oracle-defaults.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var KIND_OMIT_EXTRA = Object.freeze({ countdown: /^webinar/ });
+var KIND_TAGNAME = Object.freeze({ "day-timer": "c-countdown", "minute-timer": "c-countdown" });
+var val = (v) => ({ value: v });
+var TIMER_TYPOGRAPHY = { typography: val("var(--contentfont)") };
+var KIND_ORACLE_EXTRA = Object.freeze({
+  countdown: (now) => ({ ...TIMER_TYPOGRAPHY, startDate: val(now), endDate: val(now) }),
+  "day-timer": () => ({ ...TIMER_TYPOGRAPHY }),
+  "minute-timer": () => ({ ...TIMER_TYPOGRAPHY }),
+  "nav-menu-v2": () => ({
+    typography: val("var(--headlinefont)"),
+    desktopFontSize: { value: 14, unit: "px" },
+    mobileFontSize: { value: 14, unit: "px" },
+    showSearchbar: val(false),
+    iconEnd: val({ name: "chevron-down", unicode: "f078", fontFamily: "Font Awesome 5 Free", color: "var(--black)" })
+  }),
+  blog: () => ({ paginationOverride: { value: 6, min: 0 } })
+});
+var KIND_ORACLE_STYLES = Object.freeze({
+  "nav-menu-v2": Object.freeze({
+    hoverBackgroundColor: val("var(--cobalt)"),
+    navMenuItemSpacingX: { value: 12, unit: "px" },
+    navMenuAlign: val("left"),
+    borderColor: val("var(--black)"),
+    itemBorderWidth: val("1px"),
+    itemBorderRadius: val("0px")
+  }),
+  // the fresh Blog: a filled cobalt "More stories" button, section padding 0 / 10 / 0 / 40 and no border (the tool's older gray outlined button came from a template)
+  blog: Object.freeze({
+    buttonColor: val("var(--cobalt)"),
+    buttonTextColor: val("var(--white)"),
+    buttonBorderColor: val("var(--white)"),
+    paddingLeft: { value: 0, unit: "px" },
+    paddingRight: { value: 0, unit: "px" },
+    paddingBottom: { value: 40, unit: "px" },
+    borderWidth: val("0px"),
+    borderStyle: val("none")
+  })
+});
+
 // core/funnel-pages.mjs
 var HERE = dirname(fileURLToPath(import.meta.url));
 var CATALOG = true ? define_FUNNEL_ELEMENTS_default : JSON.parse(readFileSync(resolve(HERE, "../catalog/funnel-elements.json"), "utf8"));
 var ELEMENTS = Object.freeze(CATALOG.elements);
 var ELEMENT_KINDS = Object.freeze(Object.keys(CATALOG.elements));
 var px = (value) => ({ value, unit: "px" });
-var val = (value) => ({ value });
+var val2 = (value) => ({ value });
 var BG_IMAGE = Object.freeze({ value: Object.freeze({
   mediaType: "image",
   url: "",
@@ -129615,7 +129661,7 @@ var BG_IMAGE = Object.freeze({ value: Object.freeze({
   videoLoop: true
 }) });
 var MARGINS = () => ({ marginLeft: px(0), marginRight: px(0), marginTop: px(0), marginBottom: px(0) });
-var BOX = () => ({ borders: val("noBorder"), borderRadius: val("radius0"), radiusEdge: val("none") });
+var BOX = () => ({ borders: val2("noBorder"), borderRadius: val2("radius0"), radiusEdge: val2("none") });
 var PREFIX = ".hl_page-preview--content";
 var ACTION_VALUES = Object.freeze([
   "go-to-next-funnel-step",
@@ -129782,7 +129828,7 @@ function pdpSectionExtra(pdp) {
   if (!Array.isArray(products) || products.some((p2) => typeof p2 !== "string" || !p2)) {
     throw Object.assign(new Error("section pdp must be true or {products: [<product id>, \u2026]}"), { remediation: `true on the store's "Product details" step (the product comes from the URL); {products: [id]} on a custom product page, where the first id is the product shown.` });
   }
-  return { selectedProducts: val(products), manageProducts: val(""), typography: val("var(--contentfont)"), pdpV2Section: true };
+  return { selectedProducts: val2(products), manageProducts: val2(""), typography: val2("var(--contentfont)"), pdpV2Section: true };
 }
 function pdpNodeProblems(n, section, opts = {}) {
   const out = [];
@@ -129901,8 +129947,8 @@ var envelope = (id, type, meta3, tagName, extra, styles, cls, wrapper) => ({
   wrapper: { ...MARGINS(), ...wrapper ?? {} },
   extra: {
     ...type === "element" ? { nodeId: `c${id}` } : {},
-    visibility: val({ hideDesktop: false, hideMobile: false }),
-    customClass: val([]),
+    visibility: val2({ hideDesktop: false, hideMobile: false }),
+    customClass: val2([]),
     ...extra ?? {}
   },
   customCss: [],
@@ -129922,6 +129968,10 @@ var completeExtra = (meta3, given = {}) => {
   for (const prop of declared) {
     if ((prop === "visibility" || prop === "customClass") && !Object.prototype.hasOwnProperty.call(given, prop)) continue;
     out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : Object.prototype.hasOwnProperty.call(known, prop) ? known[prop] : Object.prototype.hasOwnProperty.call(builder, prop) ? builder[prop] : emptyFor(prop, meta3);
+  }
+  if (!("customText" in given) && known.customText?.value && factory.customText?.value) {
+    const fill = (base, over) => over && typeof over === "object" && !Array.isArray(over) && base && typeof base === "object" && !Array.isArray(base) ? Object.fromEntries([.../* @__PURE__ */ new Set([...Object.keys(base), ...Object.keys(over)])].map((k) => [k, k in over ? fill(base[k], over[k]) : base[k]])) : over;
+    out.customText = { ...out.customText, value: fill(factory.customText.value, known.customText.value) };
   }
   for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
   for (const [prop, v] of Object.entries(factory)) if (!(prop in out) && !(prop in given)) out[prop] = v;
@@ -130008,9 +130058,17 @@ var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt
   for (const [k, v] of Object.entries(base)) {
     if (/FontFamily$/.test(k) && typeof v?.value === "string" && /^var\(--(?!headlinefont\)|contentfont\))/.test(v.value)) base[k] = { ...v, value: "var(--contentfont)" };
   }
+  const oracleStyles = KIND_ORACLE_STYLES[meta3];
+  if (oracleStyles) Object.assign(base, oracleStyles);
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
   const routed = routeEmbedExtra(meta3, routeClickAction(meta3, meta3 === "video" ? normalizeVideoExtra(extra) : extra));
-  const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, fillTextFieldInitials(meta3, unshare(completeExtra(meta3, routed))), withDefaults, cls, TOOL_COMPILED_KINDS.has(meta3) ? void 0 : KIND_FACTORY_WRAPPER[meta3]);
+  const oracleExtra = KIND_ORACLE_EXTRA[meta3]?.((/* @__PURE__ */ new Date()).toISOString()) ?? {};
+  const filled = fillTextFieldInitials(meta3, unshare(completeExtra(meta3, routed)));
+  for (const [k, v] of Object.entries(oracleExtra)) if (!Object.prototype.hasOwnProperty.call(routed, k) && k in filled) filled[k] = structuredClone(v);
+  if (KIND_OMIT_EXTRA[meta3]) {
+    for (const k of Object.keys(filled)) if (KIND_OMIT_EXTRA[meta3].test(k) && !Object.prototype.hasOwnProperty.call(routed, k)) delete filled[k];
+  }
+  const node = envelope(id, "element", meta3, KIND_TAGNAME[meta3] ?? ELEMENTS[meta3].tagName, filled, withDefaults, cls, TOOL_COMPILED_KINDS.has(meta3) ? void 0 : KIND_FACTORY_WRAPPER[meta3]);
   if (wrapper) node.wrapper = { ...node.wrapper, ...storedMap(wrapper) };
   for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) node[k] = storedMap(v);
   node.tag = tag || (TAG_IS_TAGNAME.has(meta3) ? ELEMENTS[meta3].tagName : "");
@@ -130025,18 +130083,18 @@ var makeColumn = ({ children, widthPct, padX = 20, salt, background, bgImage }) 
     "c-column",
     {
       bgImage: bgImage ? sectionBgImage(bgImage) : BG_IMAGE,
-      columnLayout: val("column"),
-      justifyContentColumnLayout: val("center"),
-      alignContentColumnLayout: val("inherit"),
-      forceColumnLayoutForMobile: val(true),
-      elementVersion: val(2)
+      columnLayout: val2("column"),
+      justifyContentColumnLayout: val2("center"),
+      alignContentColumnLayout: val2("inherit"),
+      forceColumnLayoutForMobile: val2(true),
+      elementVersion: val2(2)
     },
     {
       paddingTop: px(0),
       paddingBottom: px(0),
       paddingLeft: px(padX),
       paddingRight: px(padX),
-      backgroundColor: val(background ?? "transparent"),
+      backgroundColor: val2(background ?? "transparent"),
       width: { value: String(widthPct), unit: "%" }
     }
   );
@@ -130053,13 +130111,13 @@ function sectionKnobs({ sticky, width, fullWidthRows, pdp } = {}) {
   if (pdp !== void 0 && pdp !== false) Object.assign(extra, pdpSectionExtra(pdp));
   if (sticky !== void 0) {
     if (!SECTION_STICKY[sticky]) throw Object.assign(new Error(`section sticky must be one of ${Object.keys(SECTION_STICKY).join(", ")}`), { remediation: "none = scrolls away; top/bottom = stays fixed to that edge while the page scrolls." });
-    extra.sticky = val(SECTION_STICKY[sticky]);
+    extra.sticky = val2(SECTION_STICKY[sticky]);
   }
   if (width !== void 0) {
     if (!SECTION_WIDTH[width]) throw Object.assign(new Error(`section width must be one of ${Object.keys(SECTION_WIDTH).join(", ")}`), { remediation: "The builder's Width dropdown: Full, Wide, Mid Wide, Small." });
-    cls.width = val(SECTION_WIDTH[width]);
+    cls.width = val2(SECTION_WIDTH[width]);
   }
-  if (fullWidthRows !== void 0) extra.allowRowMaxWidth = val(fullWidthRows === true);
+  if (fullWidthRows !== void 0) extra.allowRowMaxWidth = val2(fullWidthRows === true);
   return { extra, cls };
 }
 var COLUMN_SPEC_KEYS = Object.freeze(["elements", "widthPct", "padX", "background", "bgImage"]);
@@ -130103,8 +130161,8 @@ function sectionStylingPatch(o = {}) {
   if (o.styles) merge2.styles = storedMap(o.styles);
   if (o.wrapper) merge2.wrapper = storedMap(o.wrapper);
   const extra = {};
-  if (o.visibility) extra.visibility = val({ hideDesktop: !!o.visibility.hideDesktop, hideTablet: !!o.visibility.hideTablet, hideMobile: !!o.visibility.hideMobile });
-  if (o.customClass) extra.customClass = val(sectionClasses(o.customClass));
+  if (o.visibility) extra.visibility = val2({ hideDesktop: !!o.visibility.hideDesktop, hideTablet: !!o.visibility.hideTablet, hideMobile: !!o.visibility.hideMobile });
+  if (o.customClass) extra.customClass = val2(sectionClasses(o.customClass));
   if (o.bgImage) extra.bgImage = sectionBgImage(o.bgImage);
   if (Object.keys(extra).length) merge2.extra = extra;
   if (o.entranceAnimation) merge2.class = entranceClass(o.entranceAnimation, "section");
@@ -130159,7 +130217,7 @@ var makeSection = ({
       "row",
       "c-row",
       { bgImage: BG_IMAGE },
-      { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val("transparent") }
+      { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val2("transparent") }
     );
     r.child = cols.map((c) => c.col.id);
     return { row: r, cols };
@@ -130171,14 +130229,14 @@ var makeSection = ({
     "section",
     "c-section",
     {
-      sticky: val("noneSticky"),
+      sticky: val2("noneSticky"),
       bgImage: sectionBgImage(bgImage),
-      allowRowMaxWidth: val(false),
+      allowRowMaxWidth: val2(false),
       ...knobs.extra,
-      ...visibility ? { visibility: val({ hideDesktop: !!visibility.hideDesktop, hideTablet: !!visibility.hideTablet, hideMobile: !!visibility.hideMobile }) } : {},
-      ...customClass ? { customClass: val(sectionClasses(customClass)) } : {}
+      ...visibility ? { visibility: val2({ hideDesktop: !!visibility.hideDesktop, hideTablet: !!visibility.hideTablet, hideMobile: !!visibility.hideMobile }) } : {},
+      ...customClass ? { customClass: val2(sectionClasses(customClass)) } : {}
     },
-    { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20), ...storedMap(styles) ?? {} },
+    { backgroundColor: val2(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20), ...storedMap(styles) ?? {} },
     { ...knobs.cls, ...extraCls ?? {} },
     storedMap(wrapper)
   );
@@ -130426,7 +130484,7 @@ var auditPageData = (pageData, opts = {}) => {
         if (n.meta === "button" && !n.styles?.secondaryColor?.value && !n.styles?.color?.value) {
           problems.push(`node ${n.id} (button): styles has neither color nor secondaryColor \u2014 the BUILDER throws on every render and can no longer save (a 422), while the public page renders. Set styles.color.`);
         }
-        const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p2) => !(p2 in (n.extra ?? {})));
+        const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p2) => !(p2 in (n.extra ?? {})) && !KIND_OMIT_EXTRA[n.meta]?.test(p2));
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(", ")} \u2014 the renderer reads extra.<prop>.value unguarded`);
       }
       if (n.type === "element" && n.extra?.nodeId !== `c${n.id}`) {
@@ -131763,6 +131821,30 @@ async function resolveCustomFont(gw, locationId, id) {
   const hit = rows.find((x) => (x._id ?? x.id) === id && x.deleted !== true);
   return { res: r, count: rows.length, font: hit ? { custom: true, id: hit._id ?? hit.id, name: hit.name, url: hit.url, format: hit.format } : null };
 }
+var PAGE_COLOR_SLOTS = Object.freeze({ textColor: ["--text-color", "var(--black)"], linkColor: ["--link-color", "var(--blue)"] });
+var PALETTE_LABELS = Object.freeze(["transparent", "primary", "secondary", "white", "gray", "black", "red", "orange", "yellow", "green", "teal", "malibu", "indigo", "purple", "pink", "cobalt", "smoke", "overlay", "blue"]);
+function pageColorValue(input, which = "textColor") {
+  const s = String(input ?? "").trim();
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s)) return s.toLowerCase();
+  const name = (/^var\(--([a-z0-9-]+)\)$/i.exec(s)?.[1] ?? s).toLowerCase();
+  if (PALETTE_LABELS.includes(name)) return `var(--${name})`;
+  throw new Error(`typography.${which}: "${s}" is neither a palette colour (${PALETTE_LABELS.join(", ")}) nor a hex colour like #1a2b3c`);
+}
+function setPageColors(pageData, given = {}) {
+  const t = pageData.settings?.settings?.typography;
+  const vars = {};
+  for (const [slot, [cssVar, defLabel]] of Object.entries(PAGE_COLOR_SLOTS)) {
+    if (given[slot] === void 0) continue;
+    const value = pageColorValue(given[slot], slot);
+    if (t) {
+      t.colors = t.colors ?? {};
+      t.colors[slot] = { value: { label: t.colors[slot]?.value?.label ?? defLabel, value } };
+    }
+    vars[cssVar] = value;
+  }
+  if (Object.keys(vars).length) pageData.pageStyles = setRootVars(pageData.pageStyles, vars);
+  return vars;
+}
 
 // core/page-edit.mjs
 function findNode(pageData, nodeId) {
@@ -132213,6 +132295,10 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
         next.pageStyles = setRootVars(next.pageStyles, vars);
         changed.push("settings.settings.typography", "general.general.fontsToLoad", "pageStyles");
       }
+      if (o.typography && (o.typography.textColor !== void 0 || o.typography.linkColor !== void 0)) {
+        setPageColors(next, o.typography);
+        changed.push("settings.settings.typography.colors", "pageStyles");
+      }
       if (!changed.length) {
         report.push({ i, op: "page", error: "page op needs trackingCode, customCss, background or typography (SEO goes in `seo`)" });
         continue;
@@ -132306,6 +132392,13 @@ function verifyEdits(stored, report) {
         if (stored.settings?.settings?.typography?.fonts?.[key]?.value?.text !== family) wrong.push(`typography.${key}`);
         if (!(stored.general?.general?.fontsToLoad ?? []).includes(family)) wrong.push(`fontsToLoad.${family}`);
         if (!new RegExp(`--${varName2}\\s*:\\s*'${family.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}'`).test(stored.pageStyles ?? "")) wrong.push(`pageStyles.--${varName2}`);
+      }
+      for (const slot of Object.keys(PAGE_COLOR_SLOTS)) {
+        if (e.typography?.[slot] === void 0) continue;
+        const want = pageColorValue(e.typography[slot], slot);
+        const cssVar = PAGE_COLOR_SLOTS[slot][0];
+        if (stored.settings?.settings?.typography?.colors?.[slot]?.value?.value !== want) wrong.push(`typography.colors.${slot}`);
+        if (!new RegExp(`${cssVar}\\s*:\\s*${want.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*[;}]`).test(stored.pageStyles ?? "")) wrong.push(`pageStyles.${cssVar}`);
       }
       out.push({ page: true, applied: wrong.length === 0, ...wrong.length ? { notApplied: wrong } : {} });
     }
@@ -132454,8 +132547,8 @@ function makePopup(spec, i, composeLeaf, saltBase = "P", label2 = `popups[${i}]`
     title: "row",
     child: columns.map((c) => c.col.id),
     class: {},
-    styles: { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val("transparent") },
-    extra: { visibility: val({ hideDesktop: false, hideTablet: false, hideMobile: false }), bgImage: BG_IMAGE, rowWidth: { value: 100, unit: "%" }, customClass: val([]) },
+    styles: { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val2("transparent") },
+    extra: { visibility: val2({ hideDesktop: false, hideTablet: false, hideMobile: false }), bgImage: BG_IMAGE, rowWidth: { value: 100, unit: "%" }, customClass: val2([]) },
     wrapper: {},
     tabletStyles: {},
     tabletWrapper: {},
@@ -132476,27 +132569,27 @@ function makePopup(spec, i, composeLeaf, saltBase = "P", label2 = `popups[${i}]`
     customCss: [],
     extra: {
       bgImage: BG_IMAGE,
-      overlayColor: val(spec.overlayColor ?? "rgba(0, 0, 0, 0.5)"),
+      overlayColor: val2(spec.overlayColor ?? "rgba(0, 0, 0, 0.5)"),
       left: { value: 50, unit: "%" },
-      popupDisabled: val(spec.disabled === true),
-      popupHide: val(spec.closeOnOutsideClick ?? true),
-      minWidth: val(minWidth),
+      popupDisabled: val2(spec.disabled === true),
+      popupHide: val2(spec.closeOnOutsideClick ?? true),
+      minWidth: val2(minWidth),
       showPopupOnMouseOut: trigger,
-      customClass: val([]),
-      position: val(position)
+      customClass: val2([]),
+      position: val2(position)
     },
     styles: {
-      boxShadow: val("none"),
+      boxShadow: val2("none"),
       paddingTop: px(pad2),
       paddingBottom: px(pad2),
       paddingLeft: px(pad2),
       paddingRight: px(pad2),
       marginTop: px(0),
-      borderColor: val("transparent"),
-      borderWidth: val("0px"),
-      borderStyle: val("none"),
-      borderRadius: val("0px"),
-      backgroundColor: val(background),
+      borderColor: val2("transparent"),
+      borderWidth: val2("0px"),
+      borderStyle: val2("none"),
+      borderRadius: val2("0px"),
+      backgroundColor: val2(background),
       width: { value: String(widthPx), unit: "px" }
     }
   };
@@ -135510,11 +135603,11 @@ function checkOppFieldShape(field, { ref, warn } = {}) {
   for (const key of ["valueFieldType", "dataType"]) {
     const rule2 = spec[key];
     if (!rule2) continue;
-    const val3 = field[key];
-    if (val3 === void 0) continue;
-    if (rule2.allowed.includes(val3)) continue;
+    const val4 = field[key];
+    if (val4 === void 0) continue;
+    if (rule2.allowed.includes(val4)) continue;
     const support = `set: [${rule2.allowed.join(", ")}], n=${rule2.n}, ${rule2.accounts} accounts`;
-    const msg = `OPP_SHAPE: ${field.filterField} ${key} '${val3}' not attested (${support})${ref ? ` on '${ref}'` : ""} \u2014 verify against a live step`;
+    const msg = `OPP_SHAPE: ${field.filterField} ${key} '${val4}' not attested (${support})${ref ? ` on '${ref}'` : ""} \u2014 verify against a live step`;
     if (rule2.accounts >= throwAt) throw new IRError("OPP_SHAPE", msg);
     if (rule2.accounts >= warnAt) warn?.(msg);
   }
@@ -135523,12 +135616,12 @@ function checkAgainstRulebook(field, ref) {
   const rule2 = opp_field_rulebook_default.fields[field.filterField];
   if (!rule2) return;
   for (const key of ["valueFieldType", "dataType"]) {
-    const val3 = field[key];
-    if (val3 === void 0) continue;
-    if (val3 === rule2[key]) continue;
+    const val4 = field[key];
+    if (val4 === void 0) continue;
+    if (val4 === rule2[key]) continue;
     throw new IRError(
       "OPP_SHAPE",
-      `OPP_SHAPE: ${field.filterField} ${key} '${val3}' contradicts the builder's own field picker, which defines this field as ${key} '${rule2[key]}' (source: ${opp_field_rulebook_default._source.split(" \u2014 ")[0]}, ${opp_field_rulebook_default._captured})${ref ? ` on '${ref}'` : ""}.`
+      `OPP_SHAPE: ${field.filterField} ${key} '${val4}' contradicts the builder's own field picker, which defines this field as ${key} '${rule2[key]}' (source: ${opp_field_rulebook_default._source.split(" \u2014 ")[0]}, ${opp_field_rulebook_default._captured})${ref ? ` on '${ref}'` : ""}.`
     );
   }
 }
@@ -135682,10 +135775,10 @@ init_define_TOOL_CATALOG();
 var PREFIX3 = "inboundWebhookRequest";
 function webhookMergeTags(payload, { prefix = PREFIX3, includeHeaders = false } = {}) {
   const out = {};
-  const walk3 = (val3, path) => {
-    if (val3 !== null && typeof val3 === "object") {
-      if (Array.isArray(val3)) val3.forEach((v, i) => walk3(v, path ? `${path}.${i}` : String(i)));
-      else for (const [k, v] of Object.entries(val3)) walk3(v, path ? `${path}.${k}` : k);
+  const walk3 = (val4, path) => {
+    if (val4 !== null && typeof val4 === "object") {
+      if (Array.isArray(val4)) val4.forEach((v, i) => walk3(v, path ? `${path}.${i}` : String(i)));
+      else for (const [k, v] of Object.entries(val4)) walk3(v, path ? `${path}.${k}` : k);
     } else {
       out[path] = `{{${prefix}.${path}}}`;
     }
@@ -203444,9 +203537,9 @@ function normalizeCondition(rawC, ctx) {
     return { ...extras, conditionType: type, conditionSubType: type, conditionOperator: c.conditionOperator ?? "==", conditionValue: c.conditionValue };
   if (type === "contact_detail") {
     const op = c.conditionOperator ?? "contain";
-    let val3 = c.conditionValue;
-    if (op === "contain" && typeof val3 === "string") val3 = val3.toLowerCase();
-    return { ...extras, conditionType: "contact_detail", conditionSubType: c.conditionSubType, conditionOperator: op, conditionValue: val3 };
+    let val4 = c.conditionValue;
+    if (op === "contain" && typeof val4 === "string") val4 = val4.toLowerCase();
+    return { ...extras, conditionType: "contact_detail", conditionSubType: c.conditionSubType, conditionOperator: op, conditionValue: val4 };
   }
   return {
     ...extras,
@@ -216141,7 +216234,7 @@ var FORCED_ALL = /* @__PURE__ */ new Set(["Email", "WebChat"]);
 var OPERATORS = ["AND", "OR"];
 var ROW_KEYS = ["enabled", "allIdentifiers", "specificIdentifiers", "includeTags", "includeTagsOperator", "excludeTags", "excludeTagsOperator"];
 var LIST_KEYS = /* @__PURE__ */ new Set(["specificIdentifiers", "includeTags", "excludeTags"]);
-var val2 = (r, k) => r?.[k] === void 0 && LIST_KEYS.has(k) ? [] : r?.[k] ?? null;
+var val3 = (r, k) => r?.[k] === void 0 && LIST_KEYS.has(k) ? [] : r?.[k] ?? null;
 var DeployError = class extends Error {
   constructor(message) {
     super(message);
@@ -216202,17 +216295,17 @@ function planDeployment(rows, intent, { locationId }) {
     return { action: "create", method: "POST", path: DEPLOY_PATH, body: { locationId, ...intent.identity, ...intent.row }, collisions, othersCount: rows.length };
   }
   const cur = mine[0];
-  const changed = ROW_KEYS.filter((k) => JSON.stringify(val2(cur, k)) !== JSON.stringify(intent.row[k]));
+  const changed = ROW_KEYS.filter((k) => JSON.stringify(val3(cur, k)) !== JSON.stringify(intent.row[k]));
   if (!changed.length) return { action: "noop", rowId: cur.id, collisions, othersCount: rows.length - 1 };
   return { action: "update", method: "PATCH", path: `${DEPLOY_PATH}/${encodeURIComponent(cur.id)}`, rowId: cur.id, body: { ...intent.row }, changed, before: pick2(cur), collisions, othersCount: rows.length - 1 };
 }
-var pick2 = (r) => Object.fromEntries(ROW_KEYS.map((k) => [k, val2(r, k)]));
+var pick2 = (r) => Object.fromEntries(ROW_KEYS.map((k) => [k, val3(r, k)]));
 var canon = (v) => Array.isArray(v) ? v.map(canon) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v;
 var same3 = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
 function verifyDeployment(beforeRows, afterRows, intent, targetId) {
   const target = targetId ? afterRows.find((r) => r.id === targetId) : afterRows.filter((r) => sameTarget(r, intent.identity));
   const row = Array.isArray(target) ? target.length === 1 ? target[0] : null : target;
-  const mismatches = row ? ROW_KEYS.filter((k) => JSON.stringify(val2(row, k)) !== JSON.stringify(intent.row[k])) : ["row not found after the write"];
+  const mismatches = row ? ROW_KEYS.filter((k) => JSON.stringify(val3(row, k)) !== JSON.stringify(intent.row[k])) : ["row not found after the write"];
   const byId = new Map(afterRows.map((r) => [r.id, r]));
   const others = beforeRows.filter((r) => r.id !== row?.id);
   const changedOthers = others.filter((r) => !byId.has(r.id) || !same3(r, byId.get(r.id))).map((r) => r.id);
@@ -227137,7 +227230,7 @@ var TOOLS2 = [
       stepId: external_exports.string(),
       sections: external_exports.array(external_exports.record(external_exports.any())).min(1).optional(),
       popups: external_exports.array(external_exports.record(external_exports.any())).optional(),
-      typography: external_exports.object({ headlineFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional(), contentFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional() }).optional(),
+      typography: external_exports.object({ headlineFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional(), contentFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional(), textColor: external_exports.string().min(1).optional(), linkColor: external_exports.string().min(1).optional() }).optional(),
       edits: external_exports.array(external_exports.object({
         op: external_exports.enum(["set", "append-section", "insert", "move", "clone", "append-popup", "set-popup", "remove-popup", "order-popups", "remove-node", "page"]),
         element: external_exports.record(external_exports.any()).optional().describe("insert: the new element, the same shape as an element of a column"),
@@ -227158,7 +227251,7 @@ var TOOLS2 = [
         hoverAnimation: external_exports.object({ name: external_exports.enum(HOVER_ANIMATIONS) }).passthrough().optional(),
         openPopup: external_exports.string().optional(),
         font: external_exports.enum(["headline", "content"]).optional(),
-        typography: external_exports.object({ headlineFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional(), contentFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional() }).optional(),
+        typography: external_exports.object({ headlineFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional(), contentFont: external_exports.union([external_exports.string().min(1), external_exports.object({ customFontId: external_exports.string().min(1) })]).optional(), textColor: external_exports.string().min(1).optional(), linkColor: external_exports.string().min(1).optional() }).optional(),
         sticky: external_exports.enum(["none", "top", "bottom"]).optional(),
         width: external_exports.enum(["full", "wide", "midWide", "small"]).optional(),
         fullWidthRows: external_exports.boolean().optional(),
@@ -227248,11 +227341,11 @@ var TOOLS2 = [
           if (!HOVER_METAS.includes(e.meta)) throw new Error(`hoverAnimation: the builder offers it on buttons only \u2014 not on ${e.meta}`);
           cls = { ...cls, ...hoverClass(e.hoverAnimation) };
         }
-        let extra = { ...e.html !== void 0 ? { text: val(e.html) } : {}, ...e.extra ?? {}, ...e.font ? { typography: val(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {} };
+        let extra = { ...e.html !== void 0 ? { text: val2(e.html) } : {}, ...e.extra ?? {}, ...e.font ? { typography: val2(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {} };
         if (e.openPopup !== void 0) {
           const pid = popupIds.get(e.openPopup) ?? ([...popupIds.values()].includes(e.openPopup) ? e.openPopup : null);
           if (!pid) throw Object.assign(new Error(`openPopup "${e.openPopup}" names no popup on this page (${[...popupIds.keys()].join(", ") || "it has none"})`), { remediation: "Name a popup from `popups` (or an append-popup in the same call) by its name." });
-          extra = { ...extra, action: val("openPopup"), popupId: val(pid) };
+          extra = { ...extra, action: val2("openPopup"), popupId: val2(pid) };
         }
         const leaf = makeLeaf({
           meta: e.meta,
@@ -227368,6 +227461,7 @@ var TOOLS2 = [
         });
         pageData.popupsList = popups.map((p2) => p2.entry);
         applyTypography(pageData, typo, fonts.reg);
+        if (args.typography?.textColor !== void 0 || args.typography?.linkColor !== void 0) setPageColors(pageData, args.typography);
         applyPalette(pageData);
         const refs = popupRefProblems(pageData);
         if (refs.length) throw Object.assign(new Error(refs.join("; ")), { remediation: 'A button whose action is openPopup must name a popup on this page \u2014 use `openPopup: "<popup name>"` on the element.' });

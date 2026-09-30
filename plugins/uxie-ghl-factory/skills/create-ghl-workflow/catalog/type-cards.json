@@ -741,7 +741,7 @@
    "family": "triggers",
    "title": "affiliate_created",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a new affiliate record is created in Affiliate Manager.",
    "meta": {
     "Trigger value": "`affiliate_created`",
@@ -1858,7 +1858,7 @@
    "family": "triggers",
    "title": "appointment",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires on appointment events (booked / status changes) in the chosen calendar.",
    "meta": {
     "Trigger value": "`appointment`",
@@ -5982,7 +5982,7 @@
    "family": "triggers",
    "title": "birthday_reminder",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires on each contact's birthday at a configured offset (before/after N days).",
    "meta": {
     "Trigger value": "`birthday_reminder`",
@@ -6489,7 +6489,7 @@
    "family": "triggers",
    "title": "call_status",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when an inbound or outbound call hits a configured call-status state.",
    "meta": {
     "Trigger value": "`call_status`",
@@ -6539,7 +6539,7 @@
    "family": "triggers",
    "title": "category_completed",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a contact completes a course category.",
    "meta": {
     "Trigger value": "`category_completed`",
@@ -6575,7 +6575,7 @@
    "family": "triggers",
    "title": "category_started",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a contact starts a course category.",
    "meta": {
     "Trigger value": "`category_started`",
@@ -11680,7 +11680,7 @@
    "family": "triggers",
    "title": "customer_appointment",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires on customer-side appointment events (booked by the contact).",
    "meta": {
     "Trigger value": "`customer_appointment`",
@@ -11730,7 +11730,7 @@
    "family": "triggers",
    "title": "customer_reply",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "Fires on an inbound message from the contact, on a chosen channel or any. With no filter it fires on **every** inbound message, not only on replies to a workflow's own message: a first live-chat message from a brand-new contact was evaluated against it `[proven-live 2026-09-25]`.",
    "meta": {
     "Trigger value": "`customer_reply`",
@@ -11981,7 +11981,7 @@
    "family": "triggers",
    "title": "dnd_contact",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a contact's DND state changes on a given channel.",
    "meta": {
     "Trigger value": "`dnd_contact`",
@@ -12831,7 +12831,7 @@
    "family": "triggers",
    "title": "facebook_comment_on_post",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a Facebook page receives a comment on a post.",
    "meta": {
     "Trigger value": "`facebook_comment_on_post`",
@@ -13021,7 +13021,7 @@
    "family": "triggers",
    "title": "facebook_lead_gen",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a Facebook Lead Ads lead is captured on a configured page.",
    "meta": {
     "Trigger value": "`facebook_lead_gen`",
@@ -15323,7 +15323,7 @@
    "family": "triggers",
    "title": "ig_comment_on_post",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when an Instagram business account receives a comment on a post.",
    "meta": {
     "Trigger value": "`ig_comment_on_post`",
@@ -15626,7 +15626,7 @@
    "family": "triggers",
    "title": "inbound_trigger",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires on an inbound email matching configured email-address / subject / body / attachment filters. NOT the generic webhook — that is `inbound_webhook`.",
    "meta": {
     "Trigger value": "`inbound_trigger`",
@@ -16499,7 +16499,7 @@
    "family": "triggers",
    "title": "ivr_incoming_call",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Fires on an incoming call to a configured IVR-routed number.",
    "meta": {
     "Trigger value": "`ivr_incoming_call`",
@@ -21827,7 +21827,7 @@
    "family": "triggers",
    "title": "lesson_completed",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a contact completes a course lesson.",
    "meta": {
     "Trigger value": "`lesson_completed`",
@@ -21870,7 +21870,7 @@
    "family": "triggers",
    "title": "lesson_started",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a contact starts a course lesson.",
    "meta": {
     "Trigger value": "`lesson_started`",
@@ -23201,7 +23201,7 @@
    "family": "triggers",
    "title": "note_changed",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when an existing contact note is modified.",
    "meta": {
     "Trigger value": "`note_changed`",
@@ -24423,7 +24423,7 @@
    "family": "triggers",
    "title": "order_submission",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when an order is submitted on a funnel page.",
    "meta": {
     "Trigger value": "`order_submission`",
@@ -24911,7 +24911,7 @@
    "family": "triggers",
    "title": "product_completed",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a contact completes a membership product.",
    "meta": {
     "Trigger value": "`product_completed`",
@@ -24940,7 +24940,7 @@
    "family": "triggers",
    "title": "product_started",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a contact starts a membership product (progress crosses the configured percentage).",
    "meta": {
     "Trigger value": "`product_started`",
@@ -27349,7 +27349,7 @@
    "family": "triggers",
    "title": "task_added",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a task is added to a contact.",
    "meta": {
     "Trigger value": "`task_added`",
@@ -27417,7 +27417,7 @@
    "family": "triggers",
    "title": "task_due_date_reminder",
    "status": "source-derived",
-   "lastVerified": "2026-09-29",
+   "lastVerified": "2026-09-30",
    "summary": "Fires before or after a task's due date by the configured number of days.",
    "meta": {
     "Trigger value": "`task_due_date_reminder`",
@@ -27612,7 +27612,7 @@
    "family": "triggers",
    "title": "tik_tok_form_submitted",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a TikTok lead-form submission is received.",
    "meta": {
     "Trigger value": "`tik_tok_form_submitted`",
