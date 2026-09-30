@@ -11,6 +11,21 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.42.3] — 2026-10-01
+
+**`copy_workflow_to_location` refuses a foreign account before it reads anything, even on the preview.**
+
+### Fixed
+- The preview of `copy_workflow_to_location` (no `confirm`) used to contact GHL about a target account the plugin isn't
+  bound to, and only then report GHL's refusal. It now refuses an unbound target straight away ("Nothing was read or
+  sent"). Tested live through the MCP server: the old code reached GHL and got a 403; the new code refused before any
+  request. A preview for the bound sandbox still works as before.
+- The copy-workflow proof script no longer sends a confirmed copy to a foreign id to test the refusal.
+
+### Added
+- Proof record: `set_contact_ai_status` re-proven live on 1.42.2.
+- The endpoint catalogue gains the affiliate manager, services catalog, estimate send and proposal-template routes.
+
 ## [1.42.2] — 2026-10-01
 
 **The AI Studio build-status tool no longer says "still running" for a cancelled build.**
