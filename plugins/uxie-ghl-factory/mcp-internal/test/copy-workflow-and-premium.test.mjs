@@ -58,6 +58,15 @@ test('copy refuses a target the registration is not bound to, before anything is
   assert.equal(calls.length, 0);
 });
 
+test('the same refusal holds on the PREVIEW: a foreign or unbound target is neither read nor previewed', async () => {
+  const { gw, calls } = copyGateway();
+  const foreign = await tool('copy_workflow_to_location').handler(args(), deps(gw, new Set(['SRC'])));
+  assert.equal(foreign.code, 'LOCATION_FORBIDDEN');
+  const unbound = await tool('copy_workflow_to_location').handler(args(), deps(gw, null));
+  assert.equal(unbound.code, 'LOCATION_FORBIDDEN');
+  assert.equal(calls.length, 0, 'not even a read reached the gateway');
+});
+
 test('a confirmed copy sends the builder\'s body and is proven by the NEW id appearing in the target', async () => {
   const { gw, calls } = copyGateway();
   const r = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
