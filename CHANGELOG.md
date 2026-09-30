@@ -11,6 +11,19 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.41.5] — 2026-09-30
+
+**`update_voiceai_agent` no longer wipes an agent's saved languages.**
+
+### Fixed
+- 🔴 GHL clears a voice agent's saved languages whenever an update doesn't include them. So changing one unrelated
+  setting (for example the post-call email) on an agent saved in the editor with English emptied its language list. The
+  tool's own check reported it, but only after the change had landed. The tool now sends the stored languages along
+  unless you set them yourself, including when it retries after a provider refusal.
+- Tested live on the sandbox: with the fix, a one-setting change kept the language as English; without it, the same
+  change cleared it.
+- The voice-AI guide now warns that the same happens to any hand-written partial update of a voice agent.
+
 ## [1.41.4] — 2026-09-30
 
 **`edit_pipeline` no longer reports a false failure, or loses a stage, when GHL's read-back lags.**
