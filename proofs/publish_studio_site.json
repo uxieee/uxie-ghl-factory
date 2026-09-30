@@ -42,6 +42,15 @@
         "commit:afe9223b"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:da8d0f62"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -56,7 +65,7 @@
       "vibeEditorApp": 350
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#publish_studio_site": "14b035962e7a4ed68f45ea18b1cb9c65910daa1b3f2a3d9fc09442a5800cadfb",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#publish_studio_site": "bc6533370a303e8cec2c1f4e295369dc965893e03dcbe149e7062aa6386ee055",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "70fe5c44b7821485a92036b762653ccbc5cbc0a5acbd782b4ed59357c24fec95",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
