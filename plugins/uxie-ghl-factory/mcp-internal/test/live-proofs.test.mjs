@@ -115,3 +115,40 @@ test('readExercised: an array when the suite wrote one, null when it did not', (
   assert.equal(readExercised(f), null);
 });
 
+
+// ── the sandbox guard: locationId AND every receiver-type field must be the sandbox
+import { receiverViolations, assertSandboxOnly, receiverEnvViolations, RECEIVER_FIELDS } from '../../../../scripts/lib/sandbox-guard.mjs';
+import { spawnSync as spawnGuard } from 'node:child_process';
+
+test('sandbox guard: a call naming only the sandbox passes; every receiver field is checked, not just locationId', () => {
+  const SB = 'SANDBOX0000000000001';
+  assert.deepEqual(receiverViolations({ locationId: SB, targetLocationIds: [SB] }, SB), []);
+  assert.deepEqual(receiverViolations({ locationId: SB }, SB), [], 'a call with no receiver is fine');
+  for (const f of RECEIVER_FIELDS) {
+    assert.deepEqual(receiverViolations({ locationId: SB, [f]: f.endsWith('s') ? [SB, 'OTHER'] : 'OTHER' }, SB), [f], f);
+  }
+  // CONTROLS: a foreign locationId, several at once, and no sandbox supplied at all
+  assert.deepEqual(receiverViolations({ locationId: 'OTHER', targetLocationIds: ['OTHER'] }, SB).sort(), ['locationId', 'targetLocationIds']);
+  assert.ok(receiverViolations({ locationId: SB }, undefined).length, 'no sandbox id = refuse, never pass');
+  assert.throws(() => assertSandboxOnly({ locationId: SB, targetLocationIds: ['TYPO'] }, SB), /targetLocationIds is not the sandbox/);
+  assert.doesNotThrow(() => assertSandboxOnly({ locationId: SB, targetLocationIds: [SB] }, SB));
+});
+
+test('sandbox guard: receiver-type env vars other than the sandbox are named', () => {
+  const SB = 'SANDBOX0000000000001';
+  assert.deepEqual(receiverEnvViolations({ GHL_TARGET_LOCATION: SB, PATH: '/x' }, SB), []);
+  assert.deepEqual(receiverEnvViolations({ GHL_TARGET_LOCATION: 'OTHER' }, SB), ['GHL_TARGET_LOCATION']);
+  assert.deepEqual(receiverEnvViolations({ GHL_DESTINATION_LOCATION_IDS: `${SB},OTHER` }, SB), ['GHL_DESTINATION_LOCATION_IDS']);
+  assert.deepEqual(receiverEnvViolations({ GHL_LIVE_PROOF_LOCATION: SB, HOME: '/h' }, SB), [], 'unrelated env is left alone');
+});
+
+test('run-live-proofs refuses to start when a receiver env var names another account (before any account call)', () => {
+  const run = (env) => spawnGuard('node', [SCRIPT, '--dry-run'], { env: { PATH: process.env.PATH, HOME: process.env.HOME, ...env }, encoding: 'utf8' });
+  const bad = run({ GHL_LIVE_PROOF_LOCATION: 'SANDBOX0000000000001', GHL_TARGET_LOCATION: 'CLIENT00000000000002' });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /GHL_TARGET_LOCATION/);
+  // CONTROL: the same run with the receiver equal to the sandbox proceeds to the dry-run listing
+  const good = run({ GHL_LIVE_PROOF_LOCATION: 'SANDBOX0000000000001', GHL_TARGET_LOCATION: 'SANDBOX0000000000001' });
+  assert.equal(good.status, 0, good.stderr);
+  assert.match(good.stdout, /would run/);
+});
