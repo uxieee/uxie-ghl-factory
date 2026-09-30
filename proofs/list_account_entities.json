@@ -532,6 +532,15 @@
         "commit:880e2c46"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:03c8132c"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -552,7 +561,7 @@
       "GET https://backend.leadconnectorhq.com /payments/coupon/list": "77ce2dae75f2dc01bf1d0454aa5604c53fc9b42b3ff780e327d7c60fe9357d56",
       "GET https://backend.leadconnectorhq.com /phone-system/call-dispositions": "97258e5288674c8defe16f74c91abebf2a8100efa24cb0ec45a8581787d9257e",
       "GET https://backend.leadconnectorhq.com /phone-system/numbers": "db941c57f370f81a272a911ca52244be998d3ae5228fce7d95e70b1919efd7d0",
-      "GET https://backend.leadconnectorhq.com /proposals/templates": "81f30d330ab997c600f8b94dabf6d88d50d6dc2af21b69aebaf2c0a724f9d714",
+      "GET https://backend.leadconnectorhq.com /proposals/templates": "0b49ecae60e5a958146b7dc5406a44f330f1c8a0fedfe4cfe49e3f7f8061af99",
       "GET https://backend.leadconnectorhq.com /workflow/{}/list": "c3a30133ae951cb061dce33d9bf73e80273ed161cade4401a663efa490030075",
       "GET https://services.leadconnectorhq.com /ai-employees/employees/search": "8250608413f4592ce312b87ae75be1b98926008b13e71dc8c5cae05120550785",
       "GET https://services.leadconnectorhq.com /forms": "26274ceeb0e0ea438bd972ae437cec72deaa929a2088b4b9cab7b3cdef6e8c02",
