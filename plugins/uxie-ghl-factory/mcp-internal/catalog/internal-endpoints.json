@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-30",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1596,
+  "count": 1604,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1491,6 +1491,103 @@
       ]
     },
     {
+      "id": "funnels--blogs-authors",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/blogs/authors",
+      "path": "/blogs/authors",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnels-api.md:78"
+      ]
+    },
+    {
+      "id": "funnels--blogs-posts",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/blogs/posts",
+      "path": "/blogs/posts",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnels-api.md:78"
+      ]
+    },
+    {
+      "id": "funnels--blogs-posts-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/blogs/posts/{id}",
+      "path": "/blogs/posts/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnels-api.md:79"
+      ]
+    },
+    {
       "id": "funnels--blogs-site",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/blogs/site",
@@ -2636,7 +2733,7 @@
         "ai-agents/20-api/chat-widget.md:28",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
         "funnels/10-anatomy/websites-and-global-sections.md:278",
-        "funnels/20-api/funnels-api.md:386",
+        "funnels/20-api/funnels-api.md:394",
         "workflows/70-research/ENDPOINTS.md:137"
       ]
     },
@@ -2944,7 +3041,11 @@
       },
       "sources": [
         "memberships-courses/20-api/build-api.md:332",
-        "platform/40-rules/validation-speaks-three-dialects.md:28"
+        "platform/40-rules/validation-speaks-three-dialects.md:28",
+        "workflows/30-types/steps-marketplace/communities.md:136",
+        "workflows/30-types/steps-marketplace/communities.md:140",
+        "workflows/30-types/steps-marketplace/communities.md:144",
+        "workflows/30-types/triggers-marketplace/group_access_granted.md:81"
       ]
     },
     {
@@ -8544,7 +8645,7 @@
       "sources": [
         "funnels/40-rules/silent-failures.md:578",
         "funnels/20-api/funnel-ai.md:58",
-        "funnels/20-api/funnels-api.md:245",
+        "funnels/20-api/funnels-api.md:253",
         "funnels/20-api/publish-routing-and-site-settings.md:44",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
@@ -8579,7 +8680,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:303"
+        "funnels/20-api/funnels-api.md:311"
       ]
     },
     {
@@ -8886,7 +8987,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:71",
-        "funnels/20-api/funnels-api.md:288",
+        "funnels/20-api/funnels-api.md:296",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
         "funnels/40-rules/silent-failures.md:802",
         "funnels/40-rules/silent-failures.md:1075",
@@ -8971,8 +9072,8 @@
         "funnels/10-anatomy/page-content.md:13",
         "funnels/10-anatomy/routing-and-publishing.md:31",
         "funnels/10-anatomy/styling-and-saved-assets.md:134",
-        "funnels/20-api/funnels-api.md:143",
-        "funnels/20-api/funnels-api.md:234",
+        "funnels/20-api/funnels-api.md:151",
+        "funnels/20-api/funnels-api.md:242",
         "funnels/30-types/section.md:78"
       ]
     },
@@ -9536,7 +9637,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:72",
-        "funnels/20-api/funnels-api.md:289",
+        "funnels/20-api/funnels-api.md:297",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:40",
         "funnels/60-recipes/build-a-multi-step-funnel.md:78"
       ]
@@ -9604,7 +9705,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:302",
+        "funnels/20-api/funnels-api.md:310",
         "funnels/20-api/publish-routing-and-site-settings.md:57"
       ]
     },
@@ -9894,6 +9995,7 @@
       "reach": "source-only",
       "coveredBy": [
         "audit_site",
+        "create_funnel",
         "edit_funnel",
         "find_ghl_site"
       ],
@@ -9939,6 +10041,7 @@
       ],
       "coveredBy": [
         "audit_site",
+        "create_funnel",
         "edit_funnel",
         "find_ghl_site"
       ],
@@ -9968,7 +10071,7 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:21",
-        "funnels/20-api/funnels-api.md:222"
+        "funnels/20-api/funnels-api.md:230"
       ]
     },
     {
@@ -10414,7 +10517,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:111"
+        "funnels/20-api/funnels-api.md:119"
       ]
     },
     {
@@ -10566,7 +10669,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnel-object-operations.md:145"
+        "funnels/20-api/funnel-object-operations.md:160"
       ]
     },
     {
@@ -10600,7 +10703,7 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:113",
-        "funnels/20-api/funnels-api.md:147",
+        "funnels/20-api/funnels-api.md:155",
         "funnels/40-rules/silent-failures.md:120",
         "funnels/40-rules/silent-failures.md:237"
       ]
@@ -10784,7 +10887,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -10837,7 +10942,7 @@
       },
       "sources": [
         "funnels/10-anatomy/page-content.md:22",
-        "funnels/20-api/funnels-api.md:119",
+        "funnels/20-api/funnels-api.md:127",
         "funnels/40-rules/silent-failures.md:524",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
         "funnels/60-recipes/author-native-elements.md:56",
@@ -10937,7 +11042,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:93",
+        "funnels/20-api/funnel-object-operations.md:148",
+        "funnels/20-api/funnels-api.md:101",
         "funnels/40-rules/silent-failures.md:564"
       ]
     },
@@ -10983,7 +11089,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -11002,6 +11110,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/funnel-object-operations.md:145",
         "funnels/70-research/2026-09-29-route-census.md:63"
       ]
     },
@@ -11060,9 +11169,9 @@
       "sources": [
         "services/marketplaceServices/FunnelsService.ts:21",
         "funnels/20-api/funnels-api.md:17",
-        "funnels/20-api/funnels-api.md:100",
-        "funnels/20-api/funnels-api.md:85",
-        "funnels/20-api/funnels-api.md:231",
+        "funnels/20-api/funnels-api.md:108",
+        "funnels/20-api/funnels-api.md:93",
+        "funnels/20-api/funnels-api.md:239",
         "funnels/20-api/webinars.md:47",
         "funnels/40-rules/silent-failures.md:1046",
         "funnels/60-recipes/build-a-multi-step-funnel.md:50"
@@ -11261,8 +11370,8 @@
         "funnels/00-overview/index.md:68",
         "funnels/10-anatomy/websites-and-global-sections.md:300",
         "funnels/20-api/funnel-ai.md:60",
-        "funnels/20-api/funnels-api.md:310",
-        "funnels/20-api/funnels-api.md:407"
+        "funnels/20-api/funnels-api.md:318",
+        "funnels/20-api/funnels-api.md:415"
       ]
     },
     {
@@ -11300,7 +11409,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:319"
+        "funnels/20-api/funnels-api.md:327"
       ]
     },
     {
@@ -11581,7 +11690,7 @@
         "ai-studio/10-anatomy/project.md:17",
         "funnels/10-anatomy/websites-and-global-sections.md:34",
         "funnels/20-api/funnels-api.md:17",
-        "funnels/20-api/funnels-api.md:230",
+        "funnels/20-api/funnels-api.md:238",
         "funnels/40-rules/silent-failures.md:655"
       ]
     },
@@ -11683,7 +11792,7 @@
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:115",
         "funnels/10-anatomy/domains-and-public-urls.md:169",
-        "funnels/20-api/funnels-api.md:164",
+        "funnels/20-api/funnels-api.md:172",
         "funnels/40-rules/silent-failures.md:123",
         "funnels/40-rules/silent-failures.md:245",
         "funnels/40-rules/silent-failures.md:531"
@@ -11751,7 +11860,7 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:72",
-        "funnels/20-api/funnels-api.md:201"
+        "funnels/20-api/funnels-api.md:209"
       ]
     },
     {
@@ -11819,7 +11928,7 @@
         "funnels/10-anatomy/domains-and-public-urls.md:33",
         "funnels/10-anatomy/websites-and-global-sections.md:264",
         "funnels/10-anatomy/websites-and-global-sections.md:490",
-        "funnels/20-api/funnels-api.md:328",
+        "funnels/20-api/funnels-api.md:336",
         "funnels/40-rules/silent-failures.md:988"
       ]
     },
@@ -11888,7 +11997,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnel-object-operations.md:143"
+        "funnels/20-api/funnel-object-operations.md:158"
       ]
     },
     {
@@ -12258,7 +12367,7 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:99",
-        "funnels/20-api/funnels-api.md:309",
+        "funnels/20-api/funnels-api.md:317",
         "funnels/40-rules/silent-failures.md:270",
         "funnels/40-rules/silent-failures.md:937",
         "funnels/40-rules/silent-failures.md:967",
@@ -12344,6 +12453,7 @@
       "kind": "write",
       "reach": "source-only",
       "coveredBy": [
+        "create_funnel",
         "edit_funnel",
         "edit_redirects"
       ],
@@ -12365,7 +12475,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:101",
+        "funnels/20-api/funnels-api.md:109",
         "funnels/20-api/url-redirects.md:66"
       ]
     },
@@ -12798,7 +12908,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:352",
+        "funnels/20-api/funnels-api.md:360",
         "funnels/20-api/url-redirects.md:48"
       ]
     },
@@ -12840,7 +12950,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:41",
-        "funnels/20-api/funnels-api.md:308",
+        "funnels/20-api/funnels-api.md:316",
         "funnels/10-anatomy/routing-and-publishing.md:61",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
       ]
@@ -13290,8 +13400,8 @@
         "funnels/10-anatomy/websites-and-global-sections.md:306",
         "funnels/10-anatomy/websites-and-global-sections.md:540",
         "funnels/20-api/funnel-object-operations.md:84",
-        "funnels/20-api/funnels-api.md:232",
-        "funnels/20-api/funnels-api.md:405"
+        "funnels/20-api/funnels-api.md:240",
+        "funnels/20-api/funnels-api.md:413"
       ]
     },
     {
@@ -13324,7 +13434,7 @@
       },
       "sources": [
         "funnels/10-anatomy/page-content.md:22",
-        "funnels/20-api/funnels-api.md:136",
+        "funnels/20-api/funnels-api.md:144",
         "funnels/40-rules/silent-failures.md:120"
       ]
     },
@@ -13408,7 +13518,7 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:91",
-        "funnels/20-api/funnels-api.md:233"
+        "funnels/20-api/funnels-api.md:241"
       ]
     },
     {
@@ -14409,6 +14519,68 @@
       ]
     },
     {
+      "id": "workflows--estimate-list",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/invoices/estimate/list",
+      "path": "/invoices/estimate/list",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/payment.md:102"
+      ]
+    },
+    {
+      "id": "workflows--estimate-template",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/invoices/estimate/template",
+      "path": "/invoices/estimate/template",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/payment.md:102"
+      ]
+    },
+    {
       "id": "platform--invoices-gen-url",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/invoices/gen-url",
@@ -14458,6 +14630,103 @@
       },
       "sources": [
         "platform/20-api/payment-links.md:111"
+      ]
+    },
+    {
+      "id": "workflows--invoices-schedule",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/invoices/schedule",
+      "path": "/invoices/schedule",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/payment.md:113"
+      ]
+    },
+    {
+      "id": "workflows--schedule-cancel",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/invoices/schedule/{id}/cancel",
+      "path": "/invoices/schedule/{id}/cancel",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/payment.md:114"
+      ]
+    },
+    {
+      "id": "workflows--invoices-template",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/invoices/template",
+      "path": "/invoices/template",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps-marketplace/payment.md:106"
       ]
     },
     {
@@ -14530,7 +14799,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnel-object-operations.md:151"
+        "funnels/20-api/funnel-object-operations.md:166"
       ]
     },
     {
@@ -19265,7 +19534,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:416"
+        "funnels/20-api/funnels-api.md:424"
       ]
     },
     {
@@ -24429,7 +24698,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -24438,16 +24709,24 @@
       "service": "funnels",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "altId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/funnel-object-operations.md:152",
         "funnels/70-research/2026-09-29-route-census.md:94"
       ]
     },
@@ -24479,6 +24758,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/funnel-object-operations.md:153",
         "funnels/70-research/2026-09-29-route-census.md:95"
       ]
     },

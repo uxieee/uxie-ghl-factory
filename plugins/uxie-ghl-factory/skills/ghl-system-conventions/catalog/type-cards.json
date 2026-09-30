@@ -9810,7 +9810,7 @@
    "family": "steps",
    "title": "Book appointment",
    "status": "proven-live",
-   "lastVerified": "2026-08-31",
+   "lastVerified": "2026-09-30",
    "summary": "Hand the conversation to the booking flow for one calendar, then branch on the outcome.",
    "fields": [
     {
@@ -11389,7 +11389,10 @@
     }
    ],
    "proven": [
-    "### Editor drawer — `proposals_estimates_send_document` `[proven-live 2026-09-30]`"
+    "### Editor drawer — `proposals_estimates_send_document` `[proven-live 2026-09-30]`",
+    "### Runs live — `payments_create_estimate` `[proven-live 2026-09-30]`",
+    "### Runs live — `payments_create_invoice` `[proven-live 2026-09-30]`",
+    "### Runs live — `create_recurring_invoice` `[proven-live 2026-09-30]`"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/payment.md"
   },
@@ -15413,7 +15416,12 @@
     "### Editor drawer — `grant-group-access` `[proven-live 2026-09-30]`",
     "### Editor drawer — `revoke-group-access` `[proven-live 2026-09-30]`",
     "### Editor drawer — `grant-private-channel-access` `[proven-live 2026-09-30]`",
-    "### Editor drawer — `revoke-private-channel-access` `[proven-live 2026-09-30]`"
+    "### Editor drawer — `revoke-private-channel-access` `[proven-live 2026-09-30]`",
+    "### Editor drawer — `grant_user_group_gamification_points` `[proven-live 2026-09-30]`",
+    "### Runs live — `custom-push-notification` `[proven-live 2026-09-30]`",
+    "### Runs live — `grant-group-access` `[proven-live 2026-09-30]`",
+    "### Runs live — `revoke-group-access` `[proven-live 2026-09-30]`",
+    "### Runs live — `grant_user_group_gamification_points` `[proven-live 2026-09-30]`"
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/communities.md"
   },
@@ -15515,7 +15523,7 @@
    "family": "triggers-marketplace",
    "title": "group_access_revoked (Marketplace)",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Triggers when a contact's access is revoked from community group's private channel",
    "meta": {
     "App": "communities",

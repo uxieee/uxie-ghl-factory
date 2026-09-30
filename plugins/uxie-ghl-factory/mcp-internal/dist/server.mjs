@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1596,
+      count: 1604,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -1668,6 +1668,103 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--blogs-authors",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/blogs/authors",
+          path: "/blogs/authors",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnels-api.md:78"
+          ]
+        },
+        {
+          id: "funnels--blogs-posts",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/blogs/posts",
+          path: "/blogs/posts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnels-api.md:78"
+          ]
+        },
+        {
+          id: "funnels--blogs-posts-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/blogs/posts/{id}",
+          path: "/blogs/posts/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnels-api.md:79"
+          ]
+        },
+        {
           id: "funnels--blogs-site",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/blogs/site",
@@ -2813,7 +2910,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/chat-widget.md:28",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "funnels/10-anatomy/websites-and-global-sections.md:278",
-            "funnels/20-api/funnels-api.md:386",
+            "funnels/20-api/funnels-api.md:394",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -3121,7 +3218,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/build-api.md:332",
-            "platform/40-rules/validation-speaks-three-dialects.md:28"
+            "platform/40-rules/validation-speaks-three-dialects.md:28",
+            "workflows/30-types/steps-marketplace/communities.md:136",
+            "workflows/30-types/steps-marketplace/communities.md:140",
+            "workflows/30-types/steps-marketplace/communities.md:144",
+            "workflows/30-types/triggers-marketplace/group_access_granted.md:81"
           ]
         },
         {
@@ -8721,7 +8822,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/40-rules/silent-failures.md:578",
             "funnels/20-api/funnel-ai.md:58",
-            "funnels/20-api/funnels-api.md:245",
+            "funnels/20-api/funnels-api.md:253",
             "funnels/20-api/publish-routing-and-site-settings.md:44",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
@@ -8756,7 +8857,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:303"
+            "funnels/20-api/funnels-api.md:311"
           ]
         },
         {
@@ -9063,7 +9164,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:71",
-            "funnels/20-api/funnels-api.md:288",
+            "funnels/20-api/funnels-api.md:296",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
             "funnels/40-rules/silent-failures.md:802",
             "funnels/40-rules/silent-failures.md:1075",
@@ -9148,8 +9249,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/page-content.md:13",
             "funnels/10-anatomy/routing-and-publishing.md:31",
             "funnels/10-anatomy/styling-and-saved-assets.md:134",
-            "funnels/20-api/funnels-api.md:143",
-            "funnels/20-api/funnels-api.md:234",
+            "funnels/20-api/funnels-api.md:151",
+            "funnels/20-api/funnels-api.md:242",
             "funnels/30-types/section.md:78"
           ]
         },
@@ -9713,7 +9814,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:72",
-            "funnels/20-api/funnels-api.md:289",
+            "funnels/20-api/funnels-api.md:297",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:40",
             "funnels/60-recipes/build-a-multi-step-funnel.md:78"
           ]
@@ -9781,7 +9882,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:302",
+            "funnels/20-api/funnels-api.md:310",
             "funnels/20-api/publish-routing-and-site-settings.md:57"
           ]
         },
@@ -10071,6 +10172,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "audit_site",
+            "create_funnel",
             "edit_funnel",
             "find_ghl_site"
           ],
@@ -10116,6 +10218,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           coveredBy: [
             "audit_site",
+            "create_funnel",
             "edit_funnel",
             "find_ghl_site"
           ],
@@ -10145,7 +10248,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:21",
-            "funnels/20-api/funnels-api.md:222"
+            "funnels/20-api/funnels-api.md:230"
           ]
         },
         {
@@ -10591,7 +10694,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:111"
+            "funnels/20-api/funnels-api.md:119"
           ]
         },
         {
@@ -10743,7 +10846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnel-object-operations.md:145"
+            "funnels/20-api/funnel-object-operations.md:160"
           ]
         },
         {
@@ -10777,7 +10880,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:113",
-            "funnels/20-api/funnels-api.md:147",
+            "funnels/20-api/funnels-api.md:155",
             "funnels/40-rules/silent-failures.md:120",
             "funnels/40-rules/silent-failures.md:237"
           ]
@@ -10961,7 +11064,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -11014,7 +11119,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:119",
+            "funnels/20-api/funnels-api.md:127",
             "funnels/40-rules/silent-failures.md:524",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
             "funnels/60-recipes/author-native-elements.md:56",
@@ -11114,7 +11219,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:93",
+            "funnels/20-api/funnel-object-operations.md:148",
+            "funnels/20-api/funnels-api.md:101",
             "funnels/40-rules/silent-failures.md:564"
           ]
         },
@@ -11160,7 +11266,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -11179,6 +11287,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/funnel-object-operations.md:145",
             "funnels/70-research/2026-09-29-route-census.md:63"
           ]
         },
@@ -11237,9 +11346,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/FunnelsService.ts:21",
             "funnels/20-api/funnels-api.md:17",
-            "funnels/20-api/funnels-api.md:100",
-            "funnels/20-api/funnels-api.md:85",
-            "funnels/20-api/funnels-api.md:231",
+            "funnels/20-api/funnels-api.md:108",
+            "funnels/20-api/funnels-api.md:93",
+            "funnels/20-api/funnels-api.md:239",
             "funnels/20-api/webinars.md:47",
             "funnels/40-rules/silent-failures.md:1046",
             "funnels/60-recipes/build-a-multi-step-funnel.md:50"
@@ -11438,8 +11547,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/00-overview/index.md:68",
             "funnels/10-anatomy/websites-and-global-sections.md:300",
             "funnels/20-api/funnel-ai.md:60",
-            "funnels/20-api/funnels-api.md:310",
-            "funnels/20-api/funnels-api.md:407"
+            "funnels/20-api/funnels-api.md:318",
+            "funnels/20-api/funnels-api.md:415"
           ]
         },
         {
@@ -11477,7 +11586,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:319"
+            "funnels/20-api/funnels-api.md:327"
           ]
         },
         {
@@ -11758,7 +11867,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-studio/10-anatomy/project.md:17",
             "funnels/10-anatomy/websites-and-global-sections.md:34",
             "funnels/20-api/funnels-api.md:17",
-            "funnels/20-api/funnels-api.md:230",
+            "funnels/20-api/funnels-api.md:238",
             "funnels/40-rules/silent-failures.md:655"
           ]
         },
@@ -11860,7 +11969,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:115",
             "funnels/10-anatomy/domains-and-public-urls.md:169",
-            "funnels/20-api/funnels-api.md:164",
+            "funnels/20-api/funnels-api.md:172",
             "funnels/40-rules/silent-failures.md:123",
             "funnels/40-rules/silent-failures.md:245",
             "funnels/40-rules/silent-failures.md:531"
@@ -11928,7 +12037,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnel-object-operations.md:72",
-            "funnels/20-api/funnels-api.md:201"
+            "funnels/20-api/funnels-api.md:209"
           ]
         },
         {
@@ -11996,7 +12105,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/domains-and-public-urls.md:33",
             "funnels/10-anatomy/websites-and-global-sections.md:264",
             "funnels/10-anatomy/websites-and-global-sections.md:490",
-            "funnels/20-api/funnels-api.md:328",
+            "funnels/20-api/funnels-api.md:336",
             "funnels/40-rules/silent-failures.md:988"
           ]
         },
@@ -12065,7 +12174,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnel-object-operations.md:143"
+            "funnels/20-api/funnel-object-operations.md:158"
           ]
         },
         {
@@ -12435,7 +12544,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:99",
-            "funnels/20-api/funnels-api.md:309",
+            "funnels/20-api/funnels-api.md:317",
             "funnels/40-rules/silent-failures.md:270",
             "funnels/40-rules/silent-failures.md:937",
             "funnels/40-rules/silent-failures.md:967",
@@ -12521,6 +12630,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "write",
           reach: "source-only",
           coveredBy: [
+            "create_funnel",
             "edit_funnel",
             "edit_redirects"
           ],
@@ -12542,7 +12652,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:101",
+            "funnels/20-api/funnels-api.md:109",
             "funnels/20-api/url-redirects.md:66"
           ]
         },
@@ -12975,7 +13085,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:352",
+            "funnels/20-api/funnels-api.md:360",
             "funnels/20-api/url-redirects.md:48"
           ]
         },
@@ -13017,7 +13127,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:41",
-            "funnels/20-api/funnels-api.md:308",
+            "funnels/20-api/funnels-api.md:316",
             "funnels/10-anatomy/routing-and-publishing.md:61",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
           ]
@@ -13467,8 +13577,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:306",
             "funnels/10-anatomy/websites-and-global-sections.md:540",
             "funnels/20-api/funnel-object-operations.md:84",
-            "funnels/20-api/funnels-api.md:232",
-            "funnels/20-api/funnels-api.md:405"
+            "funnels/20-api/funnels-api.md:240",
+            "funnels/20-api/funnels-api.md:413"
           ]
         },
         {
@@ -13501,7 +13611,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:136",
+            "funnels/20-api/funnels-api.md:144",
             "funnels/40-rules/silent-failures.md:120"
           ]
         },
@@ -13585,7 +13695,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnel-object-operations.md:91",
-            "funnels/20-api/funnels-api.md:233"
+            "funnels/20-api/funnels-api.md:241"
           ]
         },
         {
@@ -14586,6 +14696,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--estimate-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/invoices/estimate/list",
+          path: "/invoices/estimate/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/payment.md:102"
+          ]
+        },
+        {
+          id: "workflows--estimate-template",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/invoices/estimate/template",
+          path: "/invoices/estimate/template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/payment.md:102"
+          ]
+        },
+        {
           id: "platform--invoices-gen-url",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/invoices/gen-url",
@@ -14635,6 +14807,103 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/payment-links.md:111"
+          ]
+        },
+        {
+          id: "workflows--invoices-schedule",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/invoices/schedule",
+          path: "/invoices/schedule",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/payment.md:113"
+          ]
+        },
+        {
+          id: "workflows--schedule-cancel",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/invoices/schedule/{id}/cancel",
+          path: "/invoices/schedule/{id}/cancel",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/payment.md:114"
+          ]
+        },
+        {
+          id: "workflows--invoices-template",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/invoices/template",
+          path: "/invoices/template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps-marketplace/payment.md:106"
           ]
         },
         {
@@ -14707,7 +14976,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnel-object-operations.md:151"
+            "funnels/20-api/funnel-object-operations.md:166"
           ]
         },
         {
@@ -19442,7 +19711,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:416"
+            "funnels/20-api/funnels-api.md:424"
           ]
         },
         {
@@ -24606,7 +24875,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -24615,16 +24886,24 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "funnels",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "altId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/funnel-object-operations.md:152",
             "funnels/70-research/2026-09-29-route-census.md:94"
           ]
         },
@@ -24656,6 +24935,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/funnel-object-operations.md:153",
             "funnels/70-research/2026-09-29-route-census.md:95"
           ]
         },
@@ -76029,9 +76309,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_funnel: {
-        description: "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) \u2014 proof: live-runtime (2026-09-29); risk: read",
+        description: "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "funnels-service--get-funnel-by-id",
@@ -130196,6 +130476,7 @@ var emptyFor = (prop, meta3) => {
   if (/items|list|options|products|categories|elements|fields|slides|links/i.test(prop)) return { value: [] };
   return { value: "" };
 };
+var AUDIT_TOLERATED_EXTRA = Object.freeze({ "blog-content": /^blog(AuthorLayout|ShowTagLinks|ContentPostStyle)$/ });
 var NEEDS_STEP_TYPE = Object.freeze({
   "store-cart": "store",
   "store-checkout": "store",
@@ -130867,7 +131148,7 @@ var auditPageData = (pageData, opts = {}) => {
         if (n.meta === "button" && !n.styles?.secondaryColor?.value && !n.styles?.color?.value) {
           problems.push(`node ${n.id} (button): styles has neither color nor secondaryColor \u2014 the BUILDER throws on every render and can no longer save (a 422), while the public page renders. Set styles.color.`);
         }
-        const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p2) => !(p2 in (n.extra ?? {})) && !KIND_OMIT_EXTRA[n.meta]?.test(p2));
+        const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p2) => !(p2 in (n.extra ?? {})) && !KIND_OMIT_EXTRA[n.meta]?.test(p2) && !AUDIT_TOLERATED_EXTRA[n.meta]?.test(p2));
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(", ")} \u2014 the renderer reads extra.<prop>.value unguarded`);
       }
       if (n.type === "element" && n.extra?.nodeId !== `c${n.id}`) {
@@ -131253,6 +131534,21 @@ function planDeleteFunnel({ funnel, lookups, expectName, locationId, userId }) {
     target: { id: fid, name: funnel.name, type: funnel.type, steps: (funnel.steps ?? []).length, lookupRows: lookups.length }
   };
 }
+function planDeleteStore({ funnel, expectName, locationId, userId }) {
+  const fid = funnel._id ?? funnel.id;
+  if (typeof expectName !== "string" || funnel.name !== expectName) {
+    return { refuse: `target check failed: document ${fid} is named ${JSON.stringify(funnel.name)}, not ${JSON.stringify(expectName)}. Nothing was changed.` };
+  }
+  if (funnel.isStoreActive !== true) return { refuse: "this document has no store (isStoreActive is not true)" };
+  if (!userId) return { refuse: "this credential carries no user id, and the delete route requires one" };
+  const storeSteps = (funnel.steps ?? []).filter((s) => s.type === "store");
+  return {
+    method: "POST",
+    path: "/funnels/funnel/delete-store",
+    body: { funnelId: fid, locationId, userId },
+    target: { id: fid, name: funnel.name, type: funnel.type, removes: storeSteps.map((s) => ({ id: s.id, name: s.name, url: s.url })), keeps: (funnel.steps ?? []).filter((s) => s.type !== "store").map((s) => ({ id: s.id, name: s.name, url: s.url })) }
+  };
+}
 var splitStamp = (d = /* @__PURE__ */ new Date()) => {
   const off = -d.getTimezoneOffset();
   const sign = off >= 0 ? "+" : "-";
@@ -131496,6 +131792,24 @@ var STORE_PATHS = Object.freeze([
   "/store-thank-you-page"
 ]);
 var BILLING_FIELDS_NOTE = 'LOCATION-WIDE side effect: when a checkout page with the billing address enabled is saved in the builder, GHL creates a "Billing Info" contact custom-field folder and 7 "Billing Address - \u2026" contact fields on the location (measured; a second call created no duplicate fields; a duplicate folder could not be ruled out, folders are not listable). They are not removed with the store.';
+function planAddProductPage({ funnel, locationId, name, url: url2, products }) {
+  if (funnel.type !== "website" || funnel.isStoreActive !== true) return { refuse: `a custom product page belongs on a website STORE (this document is ${funnel.type === "website" ? "a website with no store" : `a ${funnel.type ?? "document"}`}); the UI offers the toggle only when isStoreActive and the type is not funnel` };
+  if (typeof name !== "string" || !name.trim()) return { refuse: "the page needs a name" };
+  if (!(products ?? []).length) return { refuse: "pick at least one product: the modal keeps Create disabled until one is chosen" };
+  if (new Set(products.map((x) => x.id)).size !== products.length) return { refuse: "productIds names a product twice" };
+  const pathCheck = checkStepPath(url2);
+  if (pathCheck.refuse) return pathCheck;
+  const held = (funnel.steps ?? []).find((s) => normPath(s.url) === pathCheck.path);
+  if (held) return { refuse: `${pathCheck.path} is already the path of step "${held.name}" on this store` };
+  const id = randomUUID();
+  return {
+    method: "POST",
+    path: "/funnels/funnel/create-custom-product-detail-page",
+    body: { locationId, step: { id, name, url: pathCheck.path.replace(/^\/+/, ""), pages: [], type: "optin_funnel_page", split: false, control_traffic: 100, products: products.map((x) => x.id), key: "store-custom-product-detail" }, funnelId: funnel._id ?? funnel.id },
+    stepId: id,
+    target: { store: funnel.name, path: pathCheck.path, products }
+  };
+}
 function planAddStore({ funnel, domainName, taken }) {
   if (funnel.type && funnel.type !== "funnel") return { refuse: `add-store adds a store to a FUNNEL; this document is a ${funnel.type} (a website store is made with create_funnel kind store)` };
   if (funnel.isStoreActive === true) return { refuse: "this funnel already has a store (isStoreActive)" };
@@ -131609,6 +131923,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
+var BLOG_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 var KINDS = Object.freeze(["funnel", "website", "store", "webinar", "blog"]);
 var FOLDER_KINDS = Object.freeze(["funnel", "website"]);
 var BLANK_TEMPLATES = Object.freeze({ store: "6841a9953740196dc6e4031a", webinar: "684001d9bd9f6a3e0b118e89", webinarOnDemand: "683fff83bd9f6ac22b118e81" });
@@ -131656,9 +131971,10 @@ function webinarStartUtc({ timezone, date: date5, startTime }) {
 }
 var STORE_DANGLING_FORM_NOTE = `The blank store's "Contact Us" page embeds a form that lives in GHL's template account, not on this location: it renders no working form until you bind one of yours (build_funnel_page edit mode, set the form element's formId). audit_site reports it as a dangling reference.`;
 var HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
-function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName, video, now, folderId }) {
+function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName, video, now, folderId, blog }) {
   if (!KINDS.includes(kind)) return { refuse: `kind must be one of ${KINDS.join(", ")}` };
   if (typeof name !== "string" || !name.trim()) return { refuse: "name is required" };
+  if (blog !== void 0 && kind !== "blog") return { refuse: "blog {urlSlug, domain} belongs to kind blog only" };
   if (folderId !== void 0 && !FOLDER_KINDS.includes(kind)) return { refuse: `folderId files a ${FOLDER_KINDS.join(" or ")} in a folder; for a ${kind} the folder scoping of its list was not measured, so it is not offered \u2014 create it and move it on the Sites screen` };
   if (folderId !== void 0 && (typeof folderId !== "string" || !folderId.trim())) return { refuse: "folderId is a folder id (find_ghl_site list:true folders:true)" };
   const n = name.trim();
@@ -131666,8 +131982,11 @@ function planCreateFunnel({ kind, name, locationId, companyId, description, webi
     case "funnel":
     case "website":
       return { method: "POST", path: "/funnels/funnel/create", body: { locationId, name: n, type: kind, ...folderId ? { parentId: folderId } : {} } };
-    case "blog":
-      return { method: "POST", path: "/blogs/site", body: { locationId, title: n, description: description ?? "" } };
+    case "blog": {
+      if (blog?.urlSlug !== void 0 && !BLOG_SLUG.test(String(blog.urlSlug))) return { refuse: "blog.urlSlug is lower-case letters, digits and single dashes (e.g. my-blog)" };
+      if (blog?.urlSlug === void 0 !== (blog?.domainId === void 0) && blog) return { refuse: "blog.domain and blog.urlSlug go together: the blog is served at <domain>/<slug>" };
+      return { method: "POST", path: "/blogs/site", body: { locationId, title: n, ...blog?.urlSlug ? { urlSlug: blog.urlSlug, domain: blog.domainId } : {}, description: description ?? "" } };
+    }
     case "store":
       return { method: "POST", path: "/templates/template/load", body: { templateId: BLANK_TEMPLATES.store, locationId, product: "stores", extras: { name: n } } };
     case "webinar":
@@ -131817,6 +132136,11 @@ function planWebinar({ name, locationId, companyId, webinar: w, formName, video,
       } }
     }
   };
+}
+var STORE_BLANK_STEP_COUNT = 7;
+function templateLoadOutcome(json2) {
+  const status = json2?.data?.status ?? null;
+  return { status, complete: status === "completed", err: json2?.data?.err ?? json2?.err ?? null };
 }
 function createdId(kind, json2) {
   if (kind === "funnel" || kind === "website") return json2?.id ?? null;
@@ -219071,7 +219395,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   const pdpBad = pageData.sections.flatMap((sec) => sec.elements.filter((n) => appendedIds.has(sec.id) || insertedIds.has(n.id)).flatMap((n) => pdpNodeProblems(n, sec, { stepKey: stepKey2 })));
   if (pdpBad.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${pdpBad.length} product-page block(s) this call appends are misplaced; nothing was written`, "Append them in a section with pdp:true, on the store's product-detail step (or a custom product page)."), { problems: pdpBad, report });
   const appendedScope = { sectionIds: appendedIds, popupIds: new Set(report.filter((r) => r.op === "append-popup").map((r) => r.popupId)) };
-  const problems = auditPageData(pageData);
+  const stepType = (funnel?.steps ?? []).find((st) => st.id === args.stepId)?.type;
+  const problems = auditPageData(pageData, { stepType });
   const preview = {
     mode: "edit",
     target: target.step,
@@ -219236,6 +219561,7 @@ async function resolveRoute(args, deps) {
     owner: { funnelId: row.funnelId ?? null, funnel: funnel?.name ?? null, funnelType: funnel?.type ?? null, ...step ? { step: { id: step.id, name: step.name } } : {}, ...row.type === "page" ? { pageId: row.typeId } : {} }
   };
 }
+var BLOG_SLUG_OK = (v) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(v ?? ""));
 async function listSites(args, deps) {
   const walked = await walkFunnelList(deps, args.locationId);
   if (!walked.rows) return { locationId: args.locationId, funnelsChecked: false, warning: `The funnels list failed on BOTH rails (last status ${walked.res?.status ?? "unknown"}). Nothing is known about this location's documents \u2014 this is NOT an empty location.` };
@@ -228519,12 +228845,13 @@ var TOOLS2 = [
   },
   {
     name: "create_funnel",
-    description: `${describe3("create_funnel", "Create a funnel, website, store, webinar or blog document on a location")}. The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs screen's own list). Refuses a name already used by any document on the location. folderId (funnel, website) files it in that folder, as the New screen does inside a folder. Each kind sends exactly what GHL's own "New \u2026" screen sends: funnel and website are created empty (no steps, no domain); a store and a webinar are GHL's BLANK TEMPLATE installs \u2014 that is the UI's own blank path (store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, broadcast and expired pages, bound to the registration form you name, which must be one of this location's forms. webinar.type live (default: date + startTime/endTime in webinar.timezone, converted to UTC \u2014 GHL's own one-off wizard uses the browser's offset instead \u2014 the live link videoUrl, and optionally a DAILY/WEEKLY/MONTHLY recurring series) or onDemand (a Media Storage video by id/name, no schedule); the sessions are read back. A new webinar sends NO emails: notifications stay off until you enable one with a template on the Edit webinar screen); a blog gets a Blog Home and a Blog Post step. The blank store's Contact Us page embeds a form from GHL's template account that does not exist here \u2014 rebind it. Other templates are not offered: an install can bring side assets. The funnels list's "Build with AI" (the AI builder; it creates a funnel on click) is left to the UI \u2014 this tool plus build_funnel_page is the deterministic path. Next steps: edit_funnel settings (domain) \u2192 create-step \u2192 build_funnel_page.`,
+    description: `${describe3("create_funnel", "Create a funnel, website, store, webinar or blog document on a location")}. The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs screen's own list). Refuses a name already used by any document on the location. folderId (funnel, website) files it in that folder, as the New screen does inside a folder. blog {domain, urlSlug} serves the blog at <domain>/<slug> (the slug must be free). Each kind sends exactly what GHL's own "New \u2026" screen sends: funnel and website are created empty (no steps, no domain); a store and a webinar are GHL's BLANK TEMPLATE installs \u2014 that is the UI's own blank path (store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, broadcast and expired pages, bound to the registration form you name, which must be one of this location's forms. webinar.type live (default: date + startTime/endTime in webinar.timezone, converted to UTC \u2014 GHL's own one-off wizard uses the browser's offset instead \u2014 the live link videoUrl, and optionally a DAILY/WEEKLY/MONTHLY recurring series) or onDemand (a Media Storage video by id/name, no schedule); the sessions are read back. A new webinar sends NO emails: notifications stay off until you enable one with a template on the Edit webinar screen); a blog gets a Blog Home and a Blog Post step. The blank store's Contact Us page embeds a form from GHL's template account that does not exist here \u2014 rebind it. Other templates are not offered: an install can bring side assets. The funnels list's "Build with AI" (the AI builder; it creates a funnel on click) is left to the UI \u2014 this tool plus build_funnel_page is the deterministic path. Next steps: edit_funnel settings (domain) \u2192 create-step \u2192 build_funnel_page.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       kind: external_exports.enum(KINDS),
       name: external_exports.string(),
       description: external_exports.string().optional(),
+      blog: external_exports.object({ domain: external_exports.string(), urlSlug: external_exports.string() }).optional().describe("blog: serve the blog at <domain>/<urlSlug> \u2014 the Create blog screen's Domain and slug (domain = one of the location's domains, by url or id; the slug must be free on it)"),
       folderId: external_exports.string().optional().describe("funnel / website: file it in this folder (the New screen files it in the folder you are in) \u2014 an id from find_ghl_site list:true folders:true; a funnel needs a Funnels-tab folder, a website a Websites-tab folder"),
       webinar: external_exports.object({
         type: external_exports.enum(["live", "onDemand"]).optional().describe("live (default) or onDemand \u2014 a pre-recorded webinar with no schedule"),
@@ -228558,6 +228885,8 @@ var TOOLS2 = [
       { method: "POST", path: "/funnels/funnel/create" },
       { method: "POST", path: "/templates/template/load" },
       { method: "POST", path: "/blogs/site" },
+      { method: "POST", path: "/funnels/lookup/exists" },
+      { method: "GET", path: "/funnels/domain" },
       { method: "POST", path: "/funnels/funnel/webinar/sessions" }
     ],
     handler: async (args, deps) => {
@@ -228597,7 +228926,21 @@ var TOOLS2 = [
           folder = fl.rows.find((x) => x.id === args.folderId) ?? null;
           if (!folder) return fail(CODES.VALIDATION_FAILED, `folderId ${args.folderId} is not a ${args.kind} folder on this location`, `${fl.rows.length ? `${args.kind} folders: ${fl.rows.map((x) => `${x.name} (${x.id})`).join(", ")}.` : `This location has no ${args.kind} folder.`} A funnel needs a Funnels-tab folder and a website a Websites-tab folder. Nothing was sent.`);
         }
-        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.(), folderId: args.folderId });
+        let blogDomain = null;
+        if (args.blog && args.kind === "blog") {
+          const dl = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+          if (!dl.ok) return fromHttp(dl.status, dl.json);
+          const doms = dl.json?.domains ?? dl.json?.data ?? [];
+          const want = String(args.blog.domain).trim().replace(/^https?:\/\//i, "").replace(/\/.*$/, "").toLowerCase();
+          blogDomain = (Array.isArray(doms) ? doms : []).find((x) => (x.id ?? x._id) === args.blog.domain || String(x.url ?? "").toLowerCase() === want) ?? null;
+          if (!blogDomain) return fail(CODES.VALIDATION_FAILED, `blog.domain ${args.blog.domain} is not a domain of this location`, `Its domains: ${(Array.isArray(doms) ? doms : []).map((x) => x.url).join(", ") || "none"}. Nothing was sent.`);
+          if (BLOG_SLUG_OK(args.blog.urlSlug)) {
+            const ex = await gw.call("POST", "/funnels/lookup/exists", { domain: blogDomain.url, path: `/${args.blog.urlSlug}`, locationId: args.locationId });
+            if (!ex.ok) return fromHttp(ex.status, ex.json);
+            if (ex.json?.exists !== false) return fail(CODES.VALIDATION_FAILED, `/${args.blog.urlSlug} is already taken on ${blogDomain.url} (a page, step or redirect holds it)`, "Pick another blog.urlSlug. Nothing was sent.");
+          }
+        }
+        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.(), folderId: args.folderId, blog: args.blog ? { urlSlug: args.blog.urlSlug, domainId: blogDomain?.id ?? blogDomain?._id } : void 0 });
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, "Nothing was sent.");
         const preview = { kind: args.kind, request: { method: plan.method, path: plan.path, body: plan.body } };
         if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `create_funnel ${args.kind} preview is ready; no write was sent.`, "Repeat with confirm:true to send exactly this request."), { preview });
@@ -228615,7 +228958,7 @@ var TOOLS2 = [
           id ??= blogRow?._id ?? null;
         }
         const read = id ? await reread(async () => (await readFunnel(gw, args.locationId, id)).funnel, (f2) => Boolean(f2?.name), deps.rereadOptions ?? {}) : { value: null };
-        const f = read.value;
+        let f = read.value;
         const out = {
           kind: args.kind,
           funnelId: id,
@@ -228627,6 +228970,7 @@ var TOOLS2 = [
             url: f.url ?? null,
             domainId: f.domainId || null,
             ...args.folderId !== void 0 ? { folderId: f.parentId ?? null, folder: folder?.name ?? null } : {},
+            ...blogDomain ? { blogDomain: blogDomain.url, blogSlug: args.blog.urlSlug } : {},
             steps: (f.steps ?? []).map((s) => ({ id: s.id, name: s.name, type: s.type, url: s.url, pages: s.pages ?? [] }))
           } : null,
           ...args.kind === "blog" ? { blogList: blogRow ? { id: blogRow._id, name: blogRow.name } : null } : {},
@@ -228668,9 +229012,31 @@ var TOOLS2 = [
             if (warnings.length) out.warnings = warnings;
           }
         }
+        if (args.kind === "store" || args.kind === "webinar") {
+          const tl = templateLoadOutcome(w.json);
+          out.templateLoad = tl;
+          if (!tl.complete) {
+            const settled = args.kind === "store" && id && tl.status === "processing" ? await reread(async () => (await readFunnel(gw, args.locationId, id)).funnel, (x) => (x?.steps ?? []).length >= STORE_BLANK_STEP_COUNT, deps.rereadOptions ?? {}) : { value: f };
+            const steps = (settled.value?.steps ?? []).length;
+            if (!(tl.status === "processing" && steps >= STORE_BLANK_STEP_COUNT)) {
+              return withFailureData(fail(
+                CODES.VERIFY_FAILED,
+                `the template load answered ${w.status} with status ${tl.status === null ? "absent" : `'${tl.status}'`}${tl.err ? ` (${typeof tl.err === "string" ? tl.err : JSON.stringify(tl.err)})` : ""}, not 'completed' \u2014 the ${args.kind} may be a PARTIAL install (${steps} step(s) read back${args.kind === "store" ? `, a blank store has ${STORE_BLANK_STEP_COUNT}` : ""})`,
+                "Do not create again: find_ghl_site list:true, open the document, and delete or finish it by hand."
+              ), out);
+            }
+            out.templateLoad = { ...tl, settled: true };
+            f = settled.value;
+            if (out.readBack) out.readBack.steps = (f.steps ?? []).map((x) => ({ id: x.id, name: x.name, type: x.type, url: x.url, pages: x.pages ?? [] }));
+          }
+          if (args.kind === "store" && (f?.steps ?? []).length < STORE_BLANK_STEP_COUNT) {
+            return withFailureData(fail(CODES.VERIFY_FAILED, `the store read back with ${(f?.steps ?? []).length} of the ${STORE_BLANK_STEP_COUNT} steps a blank store has`, "Do not create again: find_ghl_site list:true first."), out);
+          }
+        }
         const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== "store" || f.isStoreActive === true);
         const folderOk = args.folderId === void 0 || f && f.parentId === args.folderId;
-        if (!f || f.name !== name || !typeOk || !folderOk || args.kind === "blog" && !blogRow) {
+        const blogOk = !blogDomain || f && f.domainId === (blogDomain.id ?? blogDomain._id);
+        if (!f || f.name !== name || !typeOk || !folderOk || !blogOk || args.kind === "blog" && !blogRow) {
           return withFailureData(fail(CODES.VERIFY_FAILED, `create answered ${w.status} but the ${args.kind} did not read back as created`, "Do not create again: find_ghl_site list:true first."), out);
         }
         return ok(out);
@@ -228679,11 +229045,11 @@ var TOOLS2 = [
   },
   {
     name: "get_funnel",
-    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the funnel's share link if one exists \u2014 read-only; creating one is left to the UI: it cannot be removed below the $497 plan), archived-pages (restorable with edit_funnel restore-page), step-products {stepId} (a step's order-form and sell-button products with names; add one with edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default 30 days; filters?} (per-step page views, opt-in and sale rates, earnings per view, plus the Analytics cards: page views, opt-ins, sales and value, opt-in rate, hosted-video plays, pauses, completion, drop-off spike and progress graph; filters = the Advanced filter, groups of field is/is not values; \u{1F534} only a HOSTED video reports; RESETTING stats is not offered: irreversible, ~30 s async, clears Sites Analytics too \u2014 funnel \u2192 Stats \u2192 Reset), filter-values {field} (the values a filter can pick), sales (the Sales tab: version-1 order forms only), webinar (type, schedule, recurrence, form, link/video, sessions, notification rows, guests + recipe links). Siblings: find_ghl_site resolves a domain/name to the id first; audit_site sweeps a whole site for dangling references and publish drift. Read-only.`,
+    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), store-setup (a store: the location-wide onboarding checklist \u2014 stores, domains, products, payments, shipping, orders), share (the funnel's share link if one exists \u2014 read-only; creating one is left to the UI: it cannot be removed below the $497 plan), archived-pages (restorable with edit_funnel restore-page), step-products {stepId} (a step's order-form and sell-button products with names; add one with edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default 30 days; filters?} (per-step page views, opt-in and sale rates, earnings per view, plus the Analytics cards: page views, opt-ins, sales and value, opt-in rate, hosted-video plays, pauses, completion, drop-off spike and progress graph; filters = the Advanced filter, groups of field is/is not values; \u{1F534} only a HOSTED video reports; RESETTING stats is not offered: irreversible, ~30 s async, clears Sites Analytics too \u2014 funnel \u2192 Stats \u2192 Reset), filter-values {field} (the values a filter can pick), sales (the Sales tab: version-1 order forms only), webinar (type, schedule, recurrence, form, link/video, sessions, notification rows, guests + recipe links). Siblings: find_ghl_site resolves a domain/name to the id first; audit_site sweeps a whole site for dangling references and publish drift. Read-only.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
-      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent", "share", "archived-pages", "step-products", "stats", "webinar", "filter-values", "sales"]).default("summary"),
+      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent", "share", "archived-pages", "step-products", "stats", "webinar", "filter-values", "sales", "store-setup"]).default("summary"),
       pageId: external_exports.string().optional(),
       stepId: external_exports.string().optional(),
       from: external_exports.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -228713,6 +229079,7 @@ var TOOLS2 = [
       { method: "GET", path: "/stats/video/stats" },
       { method: "GET", path: "/stats/filter-values" },
       { method: "GET", path: "/funnels/order" },
+      { method: "GET", path: "/store/setup/progress" },
       { method: "POST", path: "/funnels/funnel/webinar/sessions" }
     ],
     handler: async (args, deps) => guard(async () => {
@@ -228729,6 +229096,25 @@ var TOOLS2 = [
           shared: true,
           share: { shareId: d.shareId, shareWith: d.shareWith, funnelName: d.funnelName, importUrl: d.shareId ? `https://app.gohighlevel.com/funnels/share/${d.shareId}` : null },
           note: "shareWith ALL = anyone with the link can import a copy into their own account. Narrowing it to the agency or removing it is gated to the $497 plan in the UI."
+        });
+      }
+      if (view === "store-setup") {
+        const { res: fr, funnel: f } = await readFunnel(gw, args.locationId, args.funnelId);
+        if (!fr.ok) return fromHttp(fr.status, fr.json);
+        if (!f?.isStoreActive) return fail(CODES.VALIDATION_FAILED, `${args.funnelId} is not a store (isStoreActive is not true)`, "Pass a store document id (find_ghl_site list:true).");
+        const r = await gw.call("GET", `/store/setup/progress?altId=${L}&altType=location`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const d = r.json?.data ?? {};
+        const tasks = ["stores", "connectedDomains", "products", "paymentProviders", "shipping", "orders"];
+        return ok({
+          funnelId: args.funnelId,
+          store: f.name,
+          scope: "location",
+          tasks: Object.fromEntries(tasks.map((k) => [k, d[k] === true])),
+          todo: tasks.filter((k) => d[k] !== true),
+          onboardingCompletedAt: d.onboardingCompletedAt ?? null,
+          askAiOnboardingSeen: d.askAiOnboardingSeen ?? null,
+          note: "One checklist per LOCATION, not per store: a task is done when any store of the location has it. Read-only \u2014 the UI writes onboardingCompletedAt when the banner is dismissed; this tool does not."
         });
       }
       if (view === "archived-pages") {
@@ -228890,7 +229276,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_funnel",
-    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read, derived as the Settings page derives it; every unnamed field is checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true; redirect 404 | url | step) \xB7 add-header / edit-header / delete-header (exact-case path only; delete needs the current value) \xB7 add-event / edit-event / delete-event (Meta pixel) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (this location; no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId; quantity.max 1-999} \xB7 edit-step-product / delete-step-product {stepId, stepProductId, expectName = the step product's name} (returns stepProductId, what a sell-product button stores) \xB7 set-cookie-consent {cookieConsent} (funnel banner; ON needs acknowledged:true). Not offered: sharing (opening Share creates a link anyone can import, not removable below the $497 plan \u2014 read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (the full update-settings body from a fresh read; every unnamed field is checked unchanged; a funnel domain change needs resetSplitTests:true; a regex-redirected domain is refused) \xB7 create-step (refused without a domain) \xB7 update-step (rename and/or move the path in one PUT; the edge may serve the old path for minutes, never retried) \xB7 reorder-steps (full permutation) \xB7 clone-step \xB7 delete-step (id AND name) \xB7 publish-page / unpublish-page (routing only; content publishes via build_funnel_page publish:true; redirect 404 | url | step) \xB7 add-header / edit-header / delete-header (exact-case path only; delete needs the current value) \xB7 add-event / edit-event / delete-event (Meta pixel) \xB7 split-test add-variation | start | declare-winner \xB7 delete-funnel (id AND expectName; refused while a page serves) \xB7 clone-funnel {name} (no domain, no paths) \xB7 archive-page / restore-page (restore mints a NEW path) \xB7 import-page \xB7 add-store (\u{1F534} a builder save of the checkout creates 7 location-wide billing fields) \xB7 add-step-product {stepId, expectName, productId, priceId; quantity.max 1-999} \xB7 edit-step-product / delete-step-product {stepId, stepProductId, expectName = the step product's name} (returns stepProductId) \xB7 add-product-page {name, url, productIds} (store custom product page) \xB7 delete-store {expectName} (removes the 5 store pages; the document STAYS) \xB7 set-cookie-consent {cookieConsent} (funnel banner; ON needs acknowledged:true). Not offered: sharing (a link anyone can import; read one with get_funnel view share), a bare orphan page, folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps per op: ghl-funnels-pages SKILL \u2192 references/edit-funnel.md. Siblings: create_funnel, get_funnel, build_funnel_page, audit_site.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -228919,7 +229305,9 @@ var TOOLS2 = [
         "add-step-product",
         "edit-step-product",
         "delete-step-product",
-        "set-cookie-consent"
+        "set-cookie-consent",
+        "add-product-page",
+        "delete-store"
       ]),
       action: external_exports.enum(["add-variation", "start", "declare-winner"]).optional(),
       sourceFunnelId: external_exports.string().optional(),
@@ -228957,6 +229345,7 @@ var TOOLS2 = [
         buttons: external_exports.object({ acceptAll: external_exports.string().optional(), acceptEssential: external_exports.string().optional(), ok: external_exports.string().optional() }).optional()
       }).optional().describe("set-cookie-consent: the funnel-level banner (every page of the funnel). Colours, fonts, the policy link, the cookie list and regions stay on the builder panel"),
       productId: external_exports.string().optional(),
+      productIds: external_exports.array(external_exports.string()).min(1).optional().describe("add-product-page: the products the custom product page shows (ids; each must read on this location)"),
       priceId: external_exports.string().optional(),
       routeAdditional: external_exports.boolean().optional().describe("split-test start: when the step is also served at other domains/paths, the modal asks whether to route them through the split (true) or not (false)"),
       stepProductId: external_exports.string().optional().describe("edit-step-product / delete-step-product: the step product (its id is what add-step-product returned; get_funnel view step-products lists them); expectName is then ITS name"),
@@ -228995,6 +229384,8 @@ var TOOLS2 = [
       { method: "DELETE", path: "/funnels/event/{id}" },
       { method: "POST", path: "/funnels/funnel/funnel-page/{pageId}" },
       { method: "POST", path: "/funnels/funnel/delete" },
+      { method: "POST", path: "/funnels/funnel/delete-store" },
+      { method: "POST", path: "/funnels/funnel/create-custom-product-detail-page" },
       { method: "POST", path: "/funnels/funnel/clone-control-page/" },
       { method: "POST", path: "/funnels/lookup/create" },
       { method: "POST", path: "/funnels/lookup/exists" },
@@ -229213,6 +229604,30 @@ var TOOLS2 = [
             const src = args.sourceFunnelId === args.funnelId ? { res, funnel } : await readFunnel(gw, args.locationId, args.sourceFunnelId);
             if (!src.res.ok) return fromHttp(src.res.status, src.res.json);
             plan = planImportPage({ funnel, stepId: args.stepId, source: src.funnel, sourceStepId: args.sourceStepId, sourcePageIndex: args.sourcePageIndex ?? 0, locationId: args.locationId, userId: gw.uid });
+            break;
+          }
+          case "delete-store": {
+            const miss = need("expectName");
+            if (miss) {
+              plan = { refuse: miss };
+              break;
+            }
+            plan = planDeleteStore({ funnel, expectName: args.expectName, locationId: args.locationId, userId: gw.uid });
+            break;
+          }
+          case "add-product-page": {
+            const miss = need("name") ?? need("url") ?? need("productIds");
+            if (miss) {
+              plan = { refuse: miss };
+              break;
+            }
+            const products = [];
+            for (const pid of args.productIds) {
+              const pr = await gw.call("GET", `/products/${encodeURIComponent(pid)}?locationId=${encodeURIComponent(args.locationId)}`);
+              if (!pr.ok) return fromHttp(pr.status, pr.json);
+              products.push({ id: pid, name: pr.json?.name ?? pr.json?.product?.name ?? null });
+            }
+            plan = planAddProductPage({ funnel, locationId: args.locationId, name: args.name, url: args.url, products });
             break;
           }
           case "add-store": {
@@ -229608,6 +230023,48 @@ var TOOLS2 = [
               note: funnel.domainId ? IMPORT_PAGE_NOTE : `${IMPORT_PAGE_NOTE} This funnel has no domain, so the page has no public path yet.`
             };
             if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, `expected one new page with a public path on the target step, read back ${added.length}`, "Re-read with get_funnel before importing again."), out);
+            return ok(out);
+          }
+          case "delete-store": {
+            const got = await reread(async () => await fresh(), (f22) => f22?.isStoreActive === false, deps.rereadOptions ?? {});
+            const f2 = got.value;
+            const left = (f2?.steps ?? []).map((x) => ({ id: x.id, name: x.name, type: x.type, url: x.url }));
+            const wantKept = plan.target.keeps.map((x) => x.id);
+            const out = {
+              op: "delete-store",
+              removed: plan.target.removes,
+              isStoreActive: f2?.isStoreActive ?? null,
+              remaining: left,
+              note: "The document was NOT deleted: its non-store steps (and any custom product page) stay, and a website store now lists under Websites, not Stores. Delete the document itself with delete-funnel."
+            };
+            const storeLeft = left.filter((x) => x.type === "store");
+            const keptOk = wantKept.every((id) => left.some((x) => x.id === id));
+            if (!f2 || f2.isStoreActive !== false || storeLeft.length || !keptOk) {
+              return withFailureData(fail(CODES.VERIFY_FAILED, "the store did not read back as removed (isStoreActive false, no store steps, every other step kept)", "Compare data.remaining; do not send again blindly."), out);
+            }
+            return ok(out);
+          }
+          case "add-product-page": {
+            const sid = plan.stepId;
+            const got = await reread(async () => await fresh(), (f2) => (f2?.steps ?? []).some((x) => x.id === sid && (x.pages ?? []).length > 0), deps.rereadOptions ?? {});
+            const st = (got.value?.steps ?? []).find((x) => x.id === sid) ?? null;
+            const pageId = st?.pages?.[0] ?? plan.response?.pageDetails?._id ?? plan.response?.pageDetails?.id ?? null;
+            const pd = pageId ? (await gw.call("GET", `/funnels/builder/page/data?pageId=${encodeURIComponent(pageId)}`)).json : null;
+            const metas = [...new Set((pd?.sections ?? []).flatMap((sec) => (sec.elements ?? []).map((n) => n.meta)).filter((m) => /^store-pdp-v2-/.test(m ?? "")))];
+            const out = {
+              op: "add-product-page",
+              stepId: sid,
+              pageId,
+              step: st ? stepView(st, 0) : null,
+              key: st?.key ?? null,
+              products: st?.products ?? null,
+              pdpBlocks: metas,
+              note: "A custom product page renders on a product route of a ROUTED store domain (measured: a store with no domain previews its product LIST instead). Edit it with build_funnel_page edit mode."
+            };
+            const prodOk = Array.isArray(st?.products) && plan.body.step.products.every((x) => st.products.map(String).includes(x));
+            if (!st || st.key !== "store-custom-product-detail" || !prodOk || !pageId || !metas.length) {
+              return withFailureData(fail(CODES.VERIFY_FAILED, "the custom product page did not read back (step with key store-custom-product-detail, the products, and a page holding store-pdp-v2 blocks)", "Compare data.step / data.pdpBlocks; do not create it again \u2014 get_funnel view summary first."), out);
+            }
             return ok(out);
           }
           case "add-store": {
