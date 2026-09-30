@@ -343,3 +343,16 @@ test('a button that does NOT sell carries an empty productId by default — that
   assert.equal(empty.length, 1, 'a sell-product button with NO product is the real defect');
   assert.equal(empty[0].severity, 'high');
 });
+
+// f8: a marketing-countdown binds a saved Countdown Timer asset by id; the other countdown kinds carry an empty default that is not a reference.
+const timer = (id) => ({ type: 'element', meta: 'marketing-countdown', extra: { countdownTimerId: { value: id } } });
+
+test('countdownTimerId is checked against the location\'s timer assets; an empty default is not a reference; no list → NOT CHECKED', () => {
+  const run2 = withKnown({ countdownTimers: new Set(['T_REAL']) });
+  assert.deepEqual(run2(page({ els: [timer('T_REAL')] })), []);
+  const gone = run2(page({ els: [timer('T_GONE')] }));
+  assert.equal(gone.length, 1);
+  assert.deepEqual([gone[0].prop, gone[0].value, gone[0].severity], ['countdownTimerId', 'T_GONE', 'high']);
+  assert.deepEqual(run2(page({ els: [timer('')] })), [], 'a kind whose default is empty is not flagged');
+  assert.equal(run(page({ els: [timer('T_ANY')] }))[0].notChecked, true);
+});

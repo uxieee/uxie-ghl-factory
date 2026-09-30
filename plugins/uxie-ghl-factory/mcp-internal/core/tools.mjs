@@ -2223,6 +2223,29 @@ async function walkFunnelList(deps, locationId) {
 const siteRow = (f) => ({ id: f._id ?? f.id, name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null,
   domainId: f.domainId || null, folderId: f.parentId ?? null, steps: (f.steps ?? []).length, updatedAt: f.updatedAt ?? f.dateUpdated ?? null });
 
+// find_ghl_site countdownTimers / countdownTimerId: the saved Countdown Timer assets (leadgen countdown-timer app). Measured 2026-09-30
+// (sniffs/funnels-wave45-f8): GET /countdown-timer/?locationId answers {countdownTimers:[…], total} (a `skip` param is refused 422), and
+// GET /countdown-timer/{locationId}/{id} answers the asset. A fixed timer whose endDate has passed renders EMPTY on a page (wave42).
+const timerRow = (t, now = Date.now()) => ({ id: t._id, name: t.name, templateId: t.templateId ?? null, timerType: t.timerType ?? null, status: t.status ?? null,
+  ...(t.timerType === 'fixed' || t.endDate ? { endDate: t.endDate ?? null, ...(t.timerType === 'fixed' && t.endDate ? { expired: Date.parse(t.endDate) < now } : {}) } : {}),
+  timezone: t.timezone ?? null, adaptToContactTimezone: t.adaptToContactTimezone ?? null, hideTimerForAppleMail: t.hideTimerForAppleMail ?? null, updatedAt: t.updatedAt ?? null, previewUrl: t.previewUrl ?? null });
+async function countdownTimerAssets(args, deps) {
+  const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+  const L = encodeURIComponent(args.locationId);
+  if (args.countdownTimerId) {
+    const r = await gw.call('GET', `/countdown-timer/${L}/${encodeURIComponent(args.countdownTimerId)}`);
+    if (r.status === 404 || (r.ok && !r.json?._id)) return { checked: true, found: false, countdownTimerId: args.countdownTimerId };
+    if (!r.ok) return { checked: false, status: r.status, warning: `The countdown-timer read failed (${r.status}); this is NOT "no such timer".` };
+    return { checked: true, found: true, timer: { ...timerRow(r.json, deps.nowMs?.()), design: r.json.designMeta ?? null, integrations: r.json.integrations ?? [], deleted: r.json.deleted === true } };
+  }
+  const r = await gw.call('GET', `/countdown-timer/?locationId=${L}`);
+  if (!r.ok) return { checked: false, status: r.status, warning: `The countdown-timer list failed (${r.status}); this is NOT "no timers".` };
+  const rows = (r.json?.countdownTimers ?? []).filter((t) => t.deleted !== true).map((t) => timerRow(t, deps.nowMs?.()));
+  const t = r.json?.total; // measured: an aggregate row, [{total: n}], not a number
+  return { checked: true, total: (Array.isArray(t) ? t[0]?.total : t) ?? rows.length, returned: rows.length, timers: rows,
+    note: 'A marketing-countdown element binds one of these by countdownTimerId. A fixed timer whose endDate has passed renders empty on the page.' };
+}
+
 // find_ghl_site route: the route row for one exact public URL (measured 2026-09-30, sniffs/funnels-wave45-f8): the path needs its leading
 // slash ("test" answers 404 like an absent route), matching is on the lowercased path, and an absent route is a 404 "Lookup does not exist".
 async function resolveRoute(args, deps) {
@@ -9625,6 +9648,7 @@ export const TOOLS = [
     name: 'find_ghl_site',
     description: describe('find_ghl_site',
       'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
+      + 'countdownTimers:true lists the location\'s saved Countdown Timer assets and countdownTimerId reads one (the assets a marketing-countdown element binds; audit_site checks the binding). '
       + 'route {domain, path} answers "which page serves this exact URL?": the route row (page / step / redirect, publish status, redirect target) and the funnel, step and page that own it (the path needs its leading slash). '
       + 'includeRedirects:true also returns the location\'s domains and every URL redirect (path → target, '
       + 'with clicks: 30 days, or redirectClicksFrom/To + a per-row series); change redirects with edit_redirects. list:true (site optional) instead returns EVERY '
@@ -9642,10 +9666,14 @@ export const TOOLS = [
       list: z.boolean().default(false), type: z.enum(['funnel', 'website', 'store', 'webinar', 'blog']).optional(), search: z.string().optional(),
       folders: z.boolean().default(false).describe('with list:true: also return the location\'s FOLDERS (Funnels tab and Websites tab), each with the documents filed in it'),
       folderId: z.string().optional().describe('with list:true: only the documents filed in this folder (a folders:true id)'),
+      countdownTimers: z.boolean().default(false).describe('list the location\'s saved Countdown Timer assets (Marketing → Countdown Timers) — the ids a marketing-countdown element binds by countdownTimerId'),
+      countdownTimerId: z.string().optional().describe('read one Countdown Timer asset in full (template, type fixed / recurring / dynamic, end date, timezone, design)'),
       route: z.object({ domain: z.string(), path: z.string() }).optional().describe('instead of a site name: which document owns this exact public URL — reads the route row (GET /funnels/lookup/domain-and-path) and names its funnel, step and page') }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects' },
       { method: 'GET', path: '/funnels/funnel/list' },
+      { method: 'GET', path: '/countdown-timer/' },
+      { method: 'GET', path: '/countdown-timer/{locationId}/{id}' },
       { method: 'GET', path: '/funnels/lookup/domain-and-path' },
       { method: 'GET', path: '/funnels/funnel/fetch/{id}' },
       { method: 'GET', path: '/funnels/domain' },
@@ -9654,6 +9682,7 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       if (args.route) return ok(await resolveRoute(args, deps));
+      if (args.countdownTimers === true || args.countdownTimerId) return ok(await countdownTimerAssets(args, deps));
       if (args.list !== true && !args.site) return fail(CODES.VALIDATION_FAILED, 'site is required unless list:true (or route)', 'Pass site (a domain, slug or name) to resolve one, list:true to list every document, or route {domain, path} for the owner of one public URL.');
       if (args.list === true) return ok(await listSites(args, deps));
       const { api } = studioDeps(args, deps);
@@ -13343,6 +13372,14 @@ export const TOOLS = [
           known.customFonts = new Set(pick(body(cf), 'data').filter((x) => x.deleted !== true).map((x) => x._id ?? x.id).filter(Boolean));
           coverage.push({ check: 'dangling-references:customFonts', ran: true, knownIds: known.customFonts.size });
         } else coverage.push({ check: 'dangling-references:customFonts', ran: false, why: `the customFonts list answered ${cf.status}` });
+      }
+
+      {
+        const ct = await gw.call('GET', `/countdown-timer/?locationId=${encodeURIComponent(args.locationId)}`);
+        if (ct.status === 200) {
+          known.countdownTimers = new Set((ct.json?.countdownTimers ?? []).filter((x) => x.deleted !== true).map((x) => x._id ?? x.id).filter(Boolean));
+          coverage.push({ check: 'dangling-references:countdownTimers', ran: true, knownIds: known.countdownTimers.size });
+        } else coverage.push({ check: 'dangling-references:countdownTimers', ran: false, why: `the countdown-timer list answered ${ct.status}` });
       }
 
       const cv = await gw.call('GET', `/locations/${encodeURIComponent(args.locationId)}/customValues`);

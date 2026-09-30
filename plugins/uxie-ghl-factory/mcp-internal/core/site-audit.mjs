@@ -30,6 +30,8 @@ export const REF_SOURCE = Object.freeze({
   // A sell-product button stores {value: {id: <step product id>}} (a Products-tab row of a step of the SAME funnel), and an uploaded font is named by
   // {customFontId: <_id>} in the page's typography slot (GET /funnels/custom-fonts).
   productId: 'stepProducts', customFontId: 'customFonts',
+  // a marketing-countdown binds a saved Countdown Timer asset by id (GET /countdown-timer/?locationId lists the location's assets)
+  countdownTimerId: 'countdownTimers',
 });
 
 // A value that is never a real id. `none` is what GHL's AI generator writes on an account with no
@@ -65,6 +67,8 @@ export function scanPage({ pageData, pageId, pageName = null }) {
       // 🔴 EVERY button's extra carries an empty `productId` (the builder's default shape), used or not: it is a reference only
       // on a sell-product button. Checking it elsewhere reports every button on the account as a dangling product.
       if (k === 'productId' && o.action?.value !== 'sell-product') continue;
+      // Likewise the countdown kinds carry an empty `countdownTimerId` by default; only a bound (non-empty) id is a reference to a saved timer.
+      if (k === 'countdownTimerId' && !v?.value) continue;
       if (REF_CLASS[k] && v && typeof v === 'object' && 'value' in v) {
         // productId's value is {id}, not an id: read the id out of it, or every sell button reads as "[object Object]".
         const inner = v.value && typeof v.value === 'object' && !Array.isArray(v.value) ? v.value.id : v.value;

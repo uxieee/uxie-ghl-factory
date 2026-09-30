@@ -103,3 +103,20 @@ test('find_ghl_site route resolves the owner of one exact URL and reports an abs
   const c = await h({ locationId: 'LOC', route: { domain: 'd.example.com', path: '/nope' } }, d);
   assert.deepEqual([c.ok, c.data.found], [true, false]);
 });
+
+test('find_ghl_site countdownTimers lists the assets (deleted ones out) and countdownTimerId reads one; a missing one is found:false', async () => {
+  const T = [{ _id: 'T1', name: 'Sale', templateId: 'simple', timerType: 'fixed', status: 'draft', endDate: '2026-01-01T00:00:00.000Z', timezone: 'UTC', deleted: false },
+    { _id: 'T2', name: 'Loop', timerType: 'recurring', deleted: false }, { _id: 'T3', name: 'Gone', deleted: true }];
+  const d = { state: {}, nowMs: () => Date.parse('2026-09-30T00:00:00Z'), makeGw: () => ({ call: async (m, p) => {
+    if (p.startsWith('/countdown-timer/?')) return { ok: true, status: 200, json: { countdownTimers: T, total: [{ total: 3 }] } };
+    const id = p.split('/').pop(); const t = T.find((x) => x._id === id);
+    return t ? { ok: true, status: 200, json: { ...t, designMeta: { counterFontSize: 50 } } } : { ok: false, status: 404, json: {} };
+  } }) };
+  const h = tool('find_ghl_site').handler;
+  const l = await h({ locationId: 'LOC', countdownTimers: true }, d);
+  assert.deepEqual(l.data.timers.map((t) => [t.id, t.expired]), [['T1', true], ['T2', undefined]]);
+  assert.equal(l.data.total, 3, 'the aggregate row [{total}] is unwrapped');
+  const one = await h({ locationId: 'LOC', countdownTimerId: 'T1' }, d);
+  assert.deepEqual([one.data.found, one.data.timer.name, one.data.timer.design.counterFontSize], [true, 'Sale', 50]);
+  assert.equal((await h({ locationId: 'LOC', countdownTimerId: 'NOPE' }, d)).data.found, false);
+});
