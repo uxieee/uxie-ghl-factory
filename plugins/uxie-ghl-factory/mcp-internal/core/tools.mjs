@@ -10894,6 +10894,8 @@ export const TOOLS = [
       + 'sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. '
       + 'Every target id is resolved against the agency\'s own sub-account list first: an id that is not one of '
       + 'them is refused with nothing sent, and the preview names each target (id + location name). '
+      + '🔴 EFFECT UNPROVEN on this project: a snapshot pushed into its OWN source location is accepted and loads 0 locations '
+      + '(totalLocations 0), and proving a load needs a second test sub-account; what is proven is the refusals, the preview and the queue. '
       + '`assets` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends '
       + 'carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows '
       + 'nobody chose. This one loads exactly what you name. '
