@@ -9,6 +9,8 @@ import { makeLeaf } from '../core/funnel-pages.mjs';
 
 const FIX = JSON.parse(readFileSync(new URL('./fixtures/builder-created-nodes.json', import.meta.url), 'utf8'));
 const LAYERS = ['extra', 'styles', 'wrapper', 'class'];
+// key order is not a value: the builder writes {unit, value} where the tool writes {value, unit}
+const canon = (v) => JSON.stringify(v, (_k, x) => (x && typeof x === 'object' && !Array.isArray(x) ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => (a < b ? -1 : 1))) : x));
 
 // Each entry: why the tool's bare node deliberately differs from what Quick Add makes.
 const STATED = {
@@ -37,6 +39,23 @@ const STATED = {
     'extra.customText': 'the template predates the filter / sort labels; the tool carries the current set', 'extra.mobileColumns': 'template empty; registry 2',
     'styles.fontWeight': 'mobile weight as above', 'styles.fontWeightSub': 'same', 'styles.fontWeightExtra': 'same',
   },
+  // f7 (knowledge sniffs/funnels-wave42-f7-defaults-2026-09-30): kinds whose fresh node the builder makes at runtime — see core/kind-oracle-defaults.mjs
+  countdown: {
+    'extra.startDate': 'CLOCK: the builder dates a fresh countdown at the moment it is made; the tool does the same at compose time (the value differs by the seconds between the two)',
+    'extra.endDate': 'same', 'extra.visibility': 'the builder also writes hideTablet:false; absent is false',
+    'styles.fontWeight': 'the tool adds mobile:"700" — a builder save compiles an absent mobile weight to `undefined` (wave19)', 'styles.fontWeightSub': 'same',
+  },
+  'day-timer': { 'extra.visibility': 'as countdown', 'styles.fontWeight': 'as countdown', 'styles.fontWeightSub': 'same' },
+  'minute-timer': { 'extra.visibility': 'as countdown', 'styles.fontWeight': 'as countdown', 'styles.fontWeightSub': 'same' },
+  'nav-menu-v2': {
+    'extra.menuItems': 'CONTENT: the builder seeds Home / About / Contact sample items; the tool has none until the caller names the menu',
+    'extra.cacItems': 'CONTENT: the builder seeds My Orders / Logout for the customer-account menu',
+    'extra.imageProperties': 'CONTENT: the builder seeds a stock "Brand Logo" image; publishing one on a client page is worse than no logo',
+    'extra.text': 'CONTENT: the builder seeds "Business Name"', 'extra.visibility': 'as countdown',
+    'styles.letterSpacing': 'the builder stores the string "0"; the tool the number 0 (same length)',
+    'styles.fontWeight': 'as countdown',
+  },
+  blog: { 'extra.visibility': 'as countdown' },
 };
 
 const cases = [...Object.entries(FIX.builderCreated), ...Object.entries(FIX.systemTemplate)];
@@ -54,11 +73,11 @@ for (const [kind, built] of cases) {
     const unexplained = [];
     for (const layer of LAYERS) for (const [k, v] of Object.entries(built[layer] ?? {})) {
       if (k === 'nodeId' || !(k in (tool[layer] ?? {}))) continue;
-      if (JSON.stringify(v) !== JSON.stringify(tool[layer][k]) && !stated[`${layer}.${k}`]) unexplained.push(`${layer}.${k}: builder ${JSON.stringify(v).slice(0, 80)} tool ${JSON.stringify(tool[layer][k]).slice(0, 80)}`);
+      if (canon(v) !== canon(tool[layer][k]) && !stated[`${layer}.${k}`]) unexplained.push(`${layer}.${k}: builder ${JSON.stringify(v).slice(0, 80)} tool ${JSON.stringify(tool[layer][k]).slice(0, 80)}`);
     }
     assert.deepEqual(unexplained, []);
     // and a stated difference that has stopped differing is stale text to delete
-    const stale = Object.keys(stated).filter((p) => { const [layer, k] = p.split(/\.(.+)/); return built[layer]?.[k] !== undefined && JSON.stringify(built[layer][k]) === JSON.stringify(tool[layer]?.[k]); });
+    const stale = Object.keys(stated).filter((p) => { const [layer, k] = p.split(/\.(.+)/); return built[layer]?.[k] !== undefined && canon(built[layer][k]) === canon(tool[layer]?.[k]); });
     assert.deepEqual(stale, [], 'stated differences that no longer differ');
   });
 }

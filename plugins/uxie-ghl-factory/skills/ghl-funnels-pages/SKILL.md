@@ -149,8 +149,9 @@ rest of the stored value. `playBackControls` (`autoplay`, `loop`, `showProgressB
 **Timers** (`countdown`, `minute-timer`, `day-timer`; `marketing-countdown` binds a Marketing → Countdown Timers asset by
 `countdownTimerId`). 🔴 A timer whose end has passed renders NOTHING in public, even though the builder canvas shows it
 counting:
-- a Countdown's `endDate` defaults to the day it is added, at `endTime 00:00` America/New_York — always set an explicit
-  future `endDate` + `endTime`;
+- a Countdown's `endDate` defaults to the moment it is composed (the builder does the same) — already expired, so always
+  set an explicit future `endDate` (+ `endTime`); the tool's bare Day and Minute timers are the builder's `c-countdown`
+  component now (1.35.0; before it they had no component and rendered nothing even in the builder);
 - a Day Timer counts to TODAY's `endTime` and does not roll over — blank for the rest of the day once reached;
 - the Minute Timer is evergreen per visitor.
 The expire action is `url` (+ `redirectUrl`) or `hide` (+ `hideElements` / `showElements`, node ids).
@@ -178,7 +179,7 @@ Payments → Orders and Transactions. Location-wide dashboard reads (`/stats/cou
 `/stats/graph/data`, `/stats/count/split`, `/stats/device/split`, `/stats/video/stats`, `/stats/count/webinar`) go through
 `raw_request` — see the catalogue rows.
 
-**Fonts** — page typography `{headlineFont, contentFont}` (compose: top-level `typography`; edit: op `page`
+**Fonts and page colours** — page typography `{headlineFont, contentFont, textColor, linkColor}` (colours: a palette name or hex) (compose: top-level `typography`; edit: op `page`
 `typography`) writes the builder's setting, loads the faces and declares `--headlinefont` / `--contentfont`;
 an element with `font: 'headline'|'content'` uses them (refused when the page has none set). A slot can
 name an UPLOADED font instead: `{customFontId: "<_id>"}` from `GET /funnels/custom-fonts?locationId=` — written as the
