@@ -72,6 +72,16 @@
         "row:pipelines-opportunities--opportunities-pipelines-put-put"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:b77293bb",
+        "row:pipelines-opportunities--opportunities-pipelines-put-put"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {

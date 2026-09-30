@@ -57,6 +57,15 @@
         "commit:d073ed76"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:b77293bb"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -78,10 +87,10 @@
       "POST https://services.leadconnectorhq.com /templates/template/load": "cb04113f1e8c1d7581bf043374f558c469c2b41cfb84f950e09ebd2b0f51d20f"
     },
     "builds": {
-      "domainConnectApp": 228,
-      "funnelWebsiteApp": 230,
-      "funnelWebsiteDomainApp": 222,
-      "redirectApp": 222
+      "domainConnectApp": 218,
+      "funnelWebsiteApp": 219,
+      "funnelWebsiteDomainApp": 201,
+      "redirectApp": 203
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_funnel": "0e6310f14cbfa4423ba795e124cefad45f1012ce1f8c74c974da59f39406c590",
@@ -91,7 +100,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
       "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "d0d9be6077c880cd2fff42d74d348ae6c517204e8c9a7e234639dcd254dde6dc",
       "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "acb648d700c96afc21e277775bfe04d71ca993d0179ba18b0ef526eba44d7848",
-      "plugins/uxie-ghl-factory/mcp-internal/core/snapshots.mjs": "43cada8c70987a2c4d8b14a6c5d398565d582933fc5f0ea072c5dc91a6bec84c"
+      "plugins/uxie-ghl-factory/mcp-internal/core/snapshots.mjs": "6ad76fe387b90c1bfdd7df545e21c11420b5a15ebf1cf94680421a47dfb3de60"
     }
   }
 }

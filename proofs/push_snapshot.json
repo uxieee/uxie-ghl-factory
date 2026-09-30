@@ -45,6 +45,15 @@
         "row:platform--snapshots-snapshot-push-v2-set-assets-to-locations"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:b77293bb"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -56,8 +65,10 @@
       "GET https://backend.leadconnectorhq.com /snapshots/v2/{}": "efbd9a2fd7acebdda269bf8b0d1051d6d313e364fc8a870406e29d90a7cfa997",
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "eb7d0149e959efe4c9cc0a7b8615c8688463787b3960a56be91eae1d7be9fa7a",
       "GET https://services.leadconnectorhq.com /snapshots-appengine/snapshot/{}/get_assets": "e515f7622c80c4549395b27633d13df6ae4d935aedc8789a988467e65db036d1",
+      "GET https://services.leadconnectorhq.com /snapshots/locations/{}": "2a26e46b35aea30371601afb117d099e4116add357867c592d759b2c714fb413",
       "GET https://services.leadconnectorhq.com /snapshots/v2/{}": "a9c3b89e8a162e1bbb9b335097a69e8de12b9ac2d3bfc8fa8e2fa0a25724f859",
-      "POST https://backend.leadconnectorhq.com /snapshots/snapshot-push/v2/{}/set_assets_to_locations": "5ba1579044a30ef709d3a84088812723730353277c4a1fed9adb92d7d4b85add"
+      "POST https://backend.leadconnectorhq.com /snapshots/snapshot-push/v2/{}/set_assets_to_locations": "5ba1579044a30ef709d3a84088812723730353277c4a1fed9adb92d7d4b85add",
+      "POST https://services.leadconnectorhq.com /snapshots/snapshot-push/v2/{}/set_assets_to_locations": "f2b4f1a98db73934013c54318a94c762d690f03d467f6ac6f4afd2833923365c"
     },
     "builds": {
       "contactsApp": 2444,
