@@ -414,3 +414,21 @@ test('PDP blocks carry every style key the builder\'s compiler reads unguarded (
   assert.deepEqual([buy.backgroundColor, buy.color, buy.paddingTop], [{ value: 'transparent' }, { value: 'var(--secondary)' }, { value: 12, unit: 'px' }]);
   assert.equal(makeLeaf({ meta: 'store-pdp-v2-add-to-cart' }).styles.backgroundColor.value, 'var(--secondary)');
 });
+
+// wave46 (knowledge sniffs/funnels-wave46-f8b): the blog template's own blog-content node lacks three blog* props and renders; the edit
+// preview must not call that missing, and must know the step's type.
+test('audit: template-made blog-content node — no missing-props problem; step type honoured', () => {
+  resetIds();
+  const leaf = makeLeaf({ meta: 'blog-content' });
+  const col = makeColumn({ children: [leaf], widthPct: 100 });
+  const section = makeSection({ columns: [{ col, leaves: [leaf], widthPct: 100 }], pageId: 'P', funnelId: 'F', locationId: 'L' });
+  const data = buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [section] });
+  const node = data.sections[0].elements.find((n) => n.meta === 'blog-content');
+  const TOLERATED = ['blogAuthorLayout', 'blogShowTagLinks', 'blogContentPostStyle'];
+  for (const k of TOLERATED) assert.ok(k in node.extra, `${k} is a declared prop the factory still writes`);
+  for (const k of TOLERATED) delete node.extra[k];
+  assert.deepEqual(auditPageData(data, { stepType: 'blog-post' }), []);
+  assert.match(auditPageData(data, { stepType: 'optin' }).join(' '), /renders only on a step of type 'blog-post'/);
+  const other = ELEMENTS['blog-content'].extraProps.find((p) => !TOLERATED.includes(p));
+  if (other) { delete node.extra[other]; assert.match(auditPageData(data, { stepType: 'blog-post' }).join(' '), new RegExp(other)); }
+});

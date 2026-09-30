@@ -2132,7 +2132,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   const pdpBad = pageData.sections.flatMap((sec) => sec.elements.filter((n) => appendedIds.has(sec.id) || insertedIds.has(n.id)).flatMap((n) => pdpNodeProblems(n, sec, { stepKey })));
   if (pdpBad.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${pdpBad.length} product-page block(s) this call appends are misplaced; nothing was written`, 'Append them in a section with pdp:true, on the store\'s product-detail step (or a custom product page).'), { problems: pdpBad, report });
   const appendedScope = { sectionIds: appendedIds, popupIds: new Set(report.filter((r) => r.op === 'append-popup').map((r) => r.popupId)) };
-  const problems = auditPageData(pageData);
+  const stepType = (funnel?.steps ?? []).find((st) => st.id === args.stepId)?.type;
+  const problems = auditPageData(pageData, { stepType });
   const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, expectPage, ...r }) => r), ...(seo ? { seo: { from: seo.before, to: seo.write } } : {}), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
     ...(problems.length ? { preexistingProblems: problems } : {}),
     ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
@@ -2266,6 +2267,8 @@ async function resolveRoute(args, deps) {
     route: { id: row._id ?? null, type: row.type ?? null, typeId: row.typeId ?? null, publishStatus: row.publishStatus ?? null, action: row.action ?? null, target: row.target || null, updatedAt: row.updatedAt ?? null },
     owner: { funnelId: row.funnelId ?? null, funnel: funnel?.name ?? null, funnelType: funnel?.type ?? null, ...(step ? { step: { id: step.id, name: step.name } } : {}), ...(row.type === 'page' ? { pageId: row.typeId } : {}) } };
 }
+
+const BLOG_SLUG_OK = (v) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(v ?? ''));
 
 async function listSites(args, deps) {
   const walked = await walkFunnelList(deps, args.locationId);
@@ -12371,7 +12374,7 @@ export const TOOLS = [
     description: `${describe('create_funnel', 'Create a funnel, website, store, webinar or blog document on a location')}. `
       + 'The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true '
       + 'creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs '
-      + 'screen\'s own list). Refuses a name already used by any document on the location. folderId (funnel, website) files it in that folder, as the New screen does inside a folder. Each kind sends '
+      + 'screen\'s own list). Refuses a name already used by any document on the location. folderId (funnel, website) files it in that folder, as the New screen does inside a folder. blog {domain, urlSlug} serves the blog at <domain>/<slug> (the slug must be free). Each kind sends '
       + 'exactly what GHL\'s own "New …" screen sends: funnel and website are created empty (no steps, no '
       + 'domain); a store and a webinar are GHL\'s BLANK TEMPLATE installs — that is the UI\'s own blank path '
       + '(store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, '
@@ -12388,6 +12391,7 @@ export const TOOLS = [
       kind: z.enum(FUNNEL_KINDS),
       name: z.string(),
       description: z.string().optional(),
+      blog: z.object({ domain: z.string(), urlSlug: z.string() }).optional().describe('blog: serve the blog at <domain>/<urlSlug> — the Create blog screen\'s Domain and slug (domain = one of the location\'s domains, by url or id; the slug must be free on it)'),
       folderId: z.string().optional().describe('funnel / website: file it in this folder (the New screen files it in the folder you are in) — an id from find_ghl_site list:true folders:true; a funnel needs a Funnels-tab folder, a website a Websites-tab folder'),
       webinar: z.object({
         type: z.enum(['live', 'onDemand']).optional().describe('live (default) or onDemand — a pre-recorded webinar with no schedule'),
@@ -12418,6 +12422,8 @@ export const TOOLS = [
       { method: 'POST', path: '/funnels/funnel/create' },
       { method: 'POST', path: '/templates/template/load' },
       { method: 'POST', path: '/blogs/site' },
+      { method: 'POST', path: '/funnels/lookup/exists' },
+      { method: 'GET', path: '/funnels/domain' },
       { method: 'POST', path: '/funnels/funnel/webinar/sessions' },
     ],
     handler: async (args, deps) => {
@@ -12455,7 +12461,21 @@ export const TOOLS = [
           folder = fl.rows.find((x) => x.id === args.folderId) ?? null;
           if (!folder) return fail(CODES.VALIDATION_FAILED, `folderId ${args.folderId} is not a ${args.kind} folder on this location`, `${fl.rows.length ? `${args.kind} folders: ${fl.rows.map((x) => `${x.name} (${x.id})`).join(', ')}.` : `This location has no ${args.kind} folder.`} A funnel needs a Funnels-tab folder and a website a Websites-tab folder. Nothing was sent.`);
         }
-        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.(), folderId: args.folderId });
+        let blogDomain = null;
+        if (args.blog && args.kind === 'blog') {
+          const dl = await gw.call('GET', `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+          if (!dl.ok) return fromHttp(dl.status, dl.json);
+          const doms = dl.json?.domains ?? dl.json?.data ?? [];
+          const want = String(args.blog.domain).trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '').toLowerCase();
+          blogDomain = (Array.isArray(doms) ? doms : []).find((x) => (x.id ?? x._id) === args.blog.domain || String(x.url ?? '').toLowerCase() === want) ?? null;
+          if (!blogDomain) return fail(CODES.VALIDATION_FAILED, `blog.domain ${args.blog.domain} is not a domain of this location`, `Its domains: ${(Array.isArray(doms) ? doms : []).map((x) => x.url).join(', ') || 'none'}. Nothing was sent.`);
+          if (BLOG_SLUG_OK(args.blog.urlSlug)) {
+            const ex = await gw.call('POST', '/funnels/lookup/exists', { domain: blogDomain.url, path: `/${args.blog.urlSlug}`, locationId: args.locationId });
+            if (!ex.ok) return fromHttp(ex.status, ex.json);
+            if (ex.json?.exists !== false) return fail(CODES.VALIDATION_FAILED, `/${args.blog.urlSlug} is already taken on ${blogDomain.url} (a page, step or redirect holds it)`, 'Pick another blog.urlSlug. Nothing was sent.');
+          }
+        }
+        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName, video, now: deps.nowMs?.(), folderId: args.folderId, blog: args.blog ? { urlSlug: args.blog.urlSlug, domainId: blogDomain?.id ?? blogDomain?._id } : undefined });
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was sent.');
         const preview = { kind: args.kind, request: { method: plan.method, path: plan.path, body: plan.body } };
         if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `create_funnel ${args.kind} preview is ready; no write was sent.`, 'Repeat with confirm:true to send exactly this request.'), { preview });
@@ -12476,7 +12496,7 @@ export const TOOLS = [
         const f = read.value;
         const out = {
           kind: args.kind, funnelId: id, status: w.status,
-          readBack: f ? { name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null, domainId: f.domainId || null, ...(args.folderId !== undefined ? { folderId: f.parentId ?? null, folder: folder?.name ?? null } : {}),
+          readBack: f ? { name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null, domainId: f.domainId || null, ...(args.folderId !== undefined ? { folderId: f.parentId ?? null, folder: folder?.name ?? null } : {}), ...(blogDomain ? { blogDomain: blogDomain.url, blogSlug: args.blog.urlSlug } : {}),
             steps: (f.steps ?? []).map((s) => ({ id: s.id, name: s.name, type: s.type, url: s.url, pages: s.pages ?? [] })) } : null,
           ...(args.kind === 'blog' ? { blogList: blogRow ? { id: blogRow._id, name: blogRow.name } : null } : {}),
           ...(args.kind === 'store' ? { note: STORE_DANGLING_FORM_NOTE } : {}),
@@ -12511,7 +12531,8 @@ export const TOOLS = [
         }
         const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== 'store' || f.isStoreActive === true);
         const folderOk = args.folderId === undefined || (f && f.parentId === args.folderId);
-        if (!f || f.name !== name || !typeOk || !folderOk || (args.kind === 'blog' && !blogRow)) {
+        const blogOk = !blogDomain || (f && (f.domainId === (blogDomain.id ?? blogDomain._id)));
+        if (!f || f.name !== name || !typeOk || !folderOk || !blogOk || (args.kind === 'blog' && !blogRow)) {
           return withFailureData(fail(CODES.VERIFY_FAILED, `create answered ${w.status} but the ${args.kind} did not read back as created`, 'Do not create again: find_ghl_site list:true first.'), out);
         }
         return ok(out);

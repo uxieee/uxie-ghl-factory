@@ -2207,6 +2207,16 @@
   {
     "tool": "create_funnel",
     "method": "POST",
+    "path": "/funnels/lookup/exists"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "GET",
+    "path": "/funnels/domain"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "POST",
     "path": "/funnels/funnel/webinar/sessions"
   },
   {
