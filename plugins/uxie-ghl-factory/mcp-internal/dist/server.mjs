@@ -73975,9 +73975,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_workflow: {
-        description: "Build workflow \u2014 proof: live-runtime (2026-09-29), floor: documented; risk: write",
+        description: "Build workflow \u2014 proof: live-runtime (2026-09-30), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "documented",
         proofRows: [
           "entities-tags-create",
@@ -74122,9 +74122,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_custom_field_folder: {
-        description: "Create custom field folder \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Create custom field folder \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "entities-custom-field-folder-create",
@@ -74169,9 +74169,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_smart_list: {
-        description: "Create a smart list whose filter the contacts screen will actually apply \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Create a smart list whose filter the contacts screen will actually apply \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-07)",
         proofRows: [
           "platform--contacts-smartlist",
@@ -74275,9 +74275,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_workflow_folder: {
-        description: "Create workflow folder \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Create workflow folder \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-folder-create",
@@ -74322,9 +74322,9 @@ var init_define_TOOL_CATALOG = __esm({
         riskRows: []
       },
       duplicate_workflow: {
-        description: "Duplicate workflow \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Duplicate workflow \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-duplicate",
@@ -74346,9 +74346,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_workflow: {
-        description: "Edit workflow \u2014 proof: live-runtime (2026-09-29), floor: live-roundtrip (2026-07-17); risk: destructive",
+        description: "Edit workflow \u2014 proof: live-runtime (2026-09-30), floor: live-roundtrip (2026-07-17); risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-roundtrip (2026-07-17)",
         proofRows: [
           "triggers-create-for-edit"
@@ -74399,9 +74399,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       fast_forward_contacts: {
-        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
           "fast-forward-count-per-step",
@@ -75316,9 +75316,9 @@ var init_define_TOOL_CATALOG = __esm({
         undocumentedCapabilities: []
       },
       move_workflows: {
-        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-move-batch",
@@ -75344,9 +75344,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       pin_webhook_sample: {
-        description: "Inbound-webhook sample \u2192 reference pin \u2192 merge tags \u2014 proof: live-runtime (2026-09-25); risk: write (replaces the trigger's reference)",
+        description: "Inbound-webhook sample \u2192 reference pin \u2192 merge tags \u2014 proof: live-runtime (2026-09-30); risk: write (replaces the trigger's reference)",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-canary (2026-08-22)",
         proofRows: [
           "hooks-webhook-trigger-post",
@@ -75390,9 +75390,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       publish_workflow: {
-        description: "Publish workflow \u2014 proof: live-runtime (2026-09-29), floor: documented; risk: destructive",
+        description: "Publish workflow \u2014 proof: live-runtime (2026-09-30), floor: documented; risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "documented",
         proofRows: [
           "workflow-publish"
@@ -75474,9 +75474,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       repair_workflow: {
-        description: "Repair a workflow from an export or a raw templates body \u2014 proof: live-runtime (2026-09-29); risk: write",
+        description: "Repair a workflow from an export or a raw templates body \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -75606,9 +75606,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       set_workflow_error_alerts: {
-        description: "Set who GHL emails when a workflow step fails \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Set who GHL emails when a workflow step fails \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-error-notification-settings-read",
@@ -75634,9 +75634,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       test_custom_code: {
-        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-09-25); risk: sandbox-exec",
+        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-09-30); risk: sandbox-exec",
         risk: "sandbox-exec",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "custom-code-run-test"
@@ -75674,9 +75674,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       unpublish_workflows: {
-        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "workflow-service--bulk-update-status"
@@ -75736,9 +75736,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       validate_workflow: {
-        description: "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live-runtime (2026-09-25); risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. \u{1F534} valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and \u{1F534} it IGNORES the document's `status` \u2014 the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
+        description: "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live-runtime (2026-09-30); risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. \u{1F534} valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and \u{1F534} it IGNORES the document's `status` \u2014 the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
         risk: "read-only",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofRows: [
           "workflow-read",
           "triggers-list",
@@ -75761,9 +75761,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       rename_workflow: {
-        description: "Rename workflows \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Rename workflows \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-rename-subject-read",
@@ -75785,9 +75785,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       copy_workflow_to_location: {
-        description: "Copy a workflow into another sub-account \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Copy a workflow into another sub-account \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-copy-source-read",
@@ -76043,9 +76043,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       restore_workflow_version: {
-        description: "Restore a workflow to an earlier version \u2014 proof: live-canary (2026-09-28); risk: write",
+        description: "Restore a workflow to an earlier version \u2014 proof: live-runtime (2026-09-30); risk: write",
         risk: "write",
-        proof: "live-canary (2026-09-28)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-service--update",
