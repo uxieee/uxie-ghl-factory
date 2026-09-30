@@ -213,6 +213,7 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
 - **A `trigger_link` click only fires for a browser-like client.** The tracked short URL answers a `302` to `/r/2/<token>` and the
   second request registers the click, but with `curl`'s own User-Agent neither request enrolled the contact (live 2026-09-30). Link
   scanners and scripted clickers will not trigger it; test with a browser or a browser User-Agent.
+- **A `birthday_reminder` Month/Day row is stored as numbers.** The drawer stores the month as its 0-based index (January = 0) and the day as a number; a month NAME or a day string shows "Select" in the drawer and matches nothing. Write the month as a name or 1-12 and the day as 1-31: the compiler stores the numbers. An `inbound_trigger` email row (`email.to`, `email.cc`, `email.from.address`, `email.subject`, `email.body_plain`) has its own operator menu and no default; name the operator or the drawer shows "Select operator".
 - **`workflow_ai_extract_data` output is `{{workflow_ai_extract_data.N.<fieldName>}}`.**
   `{{workflow_ai_extract_data.N.output.<fieldName>}}` builds clean and renders EMPTY (live
   2026-09-28).
