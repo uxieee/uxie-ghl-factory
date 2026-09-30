@@ -3079,10 +3079,59 @@ function seedRefMap(norm, externalRefs) {
   return refMap;
 }
 
+// Builder rules for the trigger list that the API does not enforce (measured 2026-09-30, sandbox, own drafts, all 200 and stored):
+//  - `inbound_webhook` and `ivr_incoming_call` may appear once per workflow (trigger-filters.ts:33). The API stored two inbound
+//    webhooks on one draft; the picker greys the type out and the canvas flags one card with an error badge.
+//  - a Company (`workflowType: business`, or any non-agent config type) or custom-object workflow is only offered its own trigger
+//    set (TriggerMain.ts:240-292). The API stored a contact `contact_tag` trigger in a Company workflow; the picker never offers it.
+//  - the 14 triggers in NEW_TRIGGERS hide the string operators `matches_intent` and `string-matches-any-of` (trigger.ts:1131-1160);
+//    a stored one renders as "Select operator" and is kept on re-save.
+const UNIQUE_ONLY_TRIGGERS = new Set(['inbound_webhook', 'ivr_incoming_call']);
+const DEPRECATED_TRIGGER_OPERATORS = new Set(['matches_intent', 'string-matches-any-of']);
+const DEPRECATED_OPERATOR_TRIGGERS = new Set(['tik_tok_form_submitted', 'order_submission', 'product_started', 'category_started', 'lesson_started',
+  'lesson_completed', 'payment_received', 'affiliate_created', 'opportunity_decay', 'opportunity_status_changed', 'opportunity_created',
+  'opportunity_changed', 'pipeline_stage_updated', 'ivr_incoming_call']);
+const CONFIG_KIND_TRIGGERS = new Set(['inbound_webhook', 'custom_date_reminder']);
+const OBJECT_KIND_TRIGGERS = new Set(['custom_object_created', 'custom_object_changed', 'inbound_webhook', 'custom_date_reminder']);
+function checkTriggerRules(norm, ctx) {
+  const list = norm.triggers ?? [];
+  for (const type of UNIQUE_ONLY_TRIGGERS) {
+    const n = list.filter((t) => t.type === type).length;
+    const hatch = ctx?.skipWorkflowRules === true || (Array.isArray(ctx?.skipWorkflowRules) && ctx.skipWorkflowRules.includes('TRIGGER_UNIQUE_ONLY'));
+    if (n > 1 && !hatch) {
+      throw new IRError('TRIGGER_UNIQUE_ONLY',
+        `TRIGGER_UNIQUE_ONLY: ${n} '${type}' triggers on one workflow. The builder allows one ("Each workflow can only have one instance of this trigger, and one has already been created"): `
+        + 'the picker greys the type out and the canvas flags the extra card with an error badge. The API stores them all (measured), so this would save and then not work in the editor. '
+        + 'Keep one trigger, or pass skipWorkflowRules (true, or ["TRIGGER_UNIQUE_ONLY"]) to build it anyway.');
+    }
+  }
+  const configKind = Boolean(norm.workflowType && norm.workflowType !== 'agent');
+  const objectKind = Boolean(norm.customObjectType);
+  if (configKind || objectKind) {
+    const allowed = configKind ? CONFIG_KIND_TRIGGERS : OBJECT_KIND_TRIGGERS;
+    for (const t of list) {
+      if (t.marketplace === true || allowed.has(t.type)) continue;
+      const cat = ctx?.catalog?.trigger?.(t.type)?.category ?? null;
+      if (!cat || cat === 'events' || cat === 'company' || cat === 'custom_object') continue;
+      ctx?.warn?.(`TRIGGER_KIND_MISMATCH: '${t.name ?? t.type}' (${t.type}, ${cat}) is not offered by the builder's trigger picker for a ${configKind ? `'${norm.workflowType}'` : 'custom-object'} workflow `
+        + `(it offers ${configKind ? 'the app/marketplace triggers, Inbound webhook and Custom date reminder' : 'the two custom-object triggers, Inbound webhook, Custom date reminder and the app triggers'}). The API stores it anyway (measured), so it saves but cannot be edited or re-added in the builder.`);
+    }
+  }
+  for (const t of list) {
+    if (!DEPRECATED_OPERATOR_TRIGGERS.has(t.type)) continue;
+    for (const f of t.filters ?? []) {
+      if (DEPRECATED_TRIGGER_OPERATORS.has(f.operator)) {
+        ctx?.warn?.(`TRIGGER_OPERATOR_DEPRECATED: '${t.name ?? t.type}' filter '${f.field ?? f.on}' uses '${f.operator}', which the builder no longer offers for ${t.type}: the row loads with an empty operator ("Select operator") and the stored value is kept on re-save. Use 'string-contains-any-of' or 'has_value'.`);
+      }
+    }
+  }
+}
+
 export function compile(ir, ctx) {
   const norm = parseIR(ir, { externalRefs: ctx.externalRefs });
   checkMarketplaceFilters(norm.triggers, ctx);
   checkFlowTriggers(norm.triggers, ctx);
+  checkTriggerRules(norm, ctx);
   // update_opportunity needs an associated opportunity at runtime — enforce the
   // invariant with the catalog-derived set of opportunity-attaching triggers.
   const oppTriggerTypes = new Set(
