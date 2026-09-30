@@ -548,6 +548,9 @@ export function makeGatewayFactory({ state, gatewayImpl = makeGateway }) {
   return (options = {}) => gatewayImpl({ tokenFile: state.tokenFile, legacyTokenFileEnv: state.legacyTokenFileEnv, renewer: state.renewer ?? null, ...options });
 }
 
+// The five statuses the builder's Execution Logs `all_failed` filter stands for (SWEEP-WORKFLOW-LEVEL:228).
+export const ALL_FAILED_EVENT_TYPES = ['error', 'failed', 'wait_window_failed', 'loop_identified', 'failed_retry_limit_reached'];
+
 function validateRegisteredArgs(tool, args) {
   // Secret detection MUST precede unknown-key validation so neither keys nor
   // values can be reflected by an SDK/Zod error or our own response.
@@ -3718,6 +3721,7 @@ export const TOOLS = [
       contactId: z.string().optional(),
       fromDate: z.number().int().nonnegative().optional(),
       toDate: z.number().int().nonnegative().optional(),
+      // `all_failed` is accepted and expanded into the five failure statuses on logs/v2 (the server itself answers [] for it).
       eventType: z.string().optional(),
       // Per-run TRACE: every log row of ONE execution (the `workflowStatusId` of any log row /
       // enrollment `id`). logs/v2 only — the roster rejects unknown params. Live-proven GROM AU
@@ -3759,7 +3763,11 @@ export const TOOLS = [
       if (typeof args.contactId === 'string' && args.contactId.length) filters.contactId = args.contactId;
       if (Number.isFinite(args.fromDate)) filters.fromDate = String(args.fromDate);
       if (Number.isFinite(args.toDate)) filters.toDate = String(args.toDate);
-      if (typeof args.eventType === 'string' && args.eventType.length) filters.eventType = args.eventType;
+      // The builder's Execution Logs filter has an `all_failed` choice. The SERVER does not know it (measured 2026-09-30:
+      // eventType=all_failed and a comma list both answer 200 with []); the builder expands it client-side into REPEATED
+      // eventType parameters, which logs/v2 ORs. Do the same, on logs/v2 only: the roster takes one eventType, so it is left unfiltered.
+      const expandAllFailed = args.eventType === 'all_failed';
+      if (typeof args.eventType === 'string' && args.eventType.length && !expandAllFailed) filters.eventType = args.eventType;
       const withFilters = (params) => {
         const q = new URLSearchParams(params);
         for (const [key, value] of Object.entries(filters)) q.set(key, value);
@@ -3768,6 +3776,7 @@ export const TOOLS = [
 
       const logsQuery = withFilters(base);
       logsQuery.set('limit', String(limit));
+      if (expandAllFailed) for (const t of ALL_FAILED_EVENT_TYPES) logsQuery.append('eventType', t);
       // 🔴 WITHOUT dateType=custom, logs/v2 IGNORES fromDate/toDate AND STILL ANSWERS 200 with a
       // day-snapped ~30-day default. Measured on the designated sandbox 2026-09-21 by differential:
       // a one-hour window around 2026-09-08 returned three rows all stamped 2026-09-01 — outside
