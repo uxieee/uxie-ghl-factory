@@ -33,3 +33,13 @@ test('a deprecated string operator on one of the 14 triggers warns (TRIGGER_OPER
   try { compile({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [{ field: 'x', operator: 'matches_intent', value: 'y' }] }], graph: [] }, b.ctx); } catch { /* ignore */ }
   assert.equal(b.warnings.some((w) => /TRIGGER_OPERATOR_DEPRECATED/.test(w)), false);
 });
+
+test('a step or trigger name over 100 characters warns (NAME_LENGTH); 100 does not', () => {
+  const tag = (name) => ({ ref: 'a', kind: 'action', type: 'add_contact_tag', name, attributes: { type: 'add_contact_tag', tags: ['x'] } });
+  const long = mk(); compile({ name: 'W', triggers: [], graph: [tag('n'.repeat(101))] }, long.ctx);
+  assert.ok(long.warnings.some((w) => /^NAME_LENGTH/.test(w) && /101 characters/.test(w)), JSON.stringify(long.warnings));
+  const ok = mk(); compile({ name: 'W', triggers: [], graph: [tag('n'.repeat(100))] }, ok.ctx);
+  assert.equal(ok.warnings.some((w) => /^NAME_LENGTH/.test(w)), false);
+  const trig = mk(); compile({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T'.repeat(101), filters: [] }], graph: [] }, trig.ctx);
+  assert.ok(trig.warnings.some((w) => /^NAME_LENGTH: trigger/.test(w)), JSON.stringify(trig.warnings));
+});

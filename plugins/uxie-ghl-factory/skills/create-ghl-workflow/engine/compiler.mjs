@@ -3447,5 +3447,16 @@ export function compile(ir, ctx) {
 
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, _triggerRefs: triggerRefs, authored, compiled: templates.length };
   casingLint(result);
+  // The builder's drawer refuses to save a step or trigger name outside 1..100 characters ("Name should be between 1-100 characters. 101/100");
+  // the API stores any length (measured 2026-09-30: a 101-character step built, read back and ran), so an over-long name builds a workflow
+  // nobody can save from the editor. Advisory, like check_workflow's NAME_LENGTH.
+  for (const t of templates) {
+    const n = typeof t?.name === 'string' ? t.name : null;
+    if (n && n.length > 100) ctx?.warn?.(`NAME_LENGTH: step '${n.slice(0, 40)}…' is ${n.length} characters; the builder's drawer refuses to save a name over 100 (\"Name should be between 1-100 characters\"), so this step could not be edited there. The API stores it.`);
+  }
+  for (const tb of triggerBodies ?? []) {
+    const n = typeof tb?.name === 'string' ? tb.name : null;
+    if (n && n.length > 100) ctx?.warn?.(`NAME_LENGTH: trigger '${n.slice(0, 40)}…' is ${n.length} characters; the builder refuses to save a trigger name over 100.`);
+  }
   return result;
 }
