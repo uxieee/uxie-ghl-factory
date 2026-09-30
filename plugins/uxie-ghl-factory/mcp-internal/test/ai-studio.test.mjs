@@ -1160,3 +1160,49 @@ test('awaitTurn stops on an UNANSWERED question and returns it; an answered ques
   const done = await awaitTurn({ firestore: { messages: async () => [built] }, projectId: 'P1', messageId: 'm1', waitMs: 20, pollMs: 5, nowMs: clock(), sleep: async () => {} });
   assert.equal(done.pending, false);
 });
+
+// A turn stopped by cancel_studio_generation is stored with cancelledByUser:true and never gets a
+// buildStatus. Before the fix get_studio_generation_status polled it to the wait ceiling and answered
+// pending:true "still running" (live 2026-10-01: with the default wait it blocked until the client timed out).
+const fsRow = (fields) => ({ document: { fields: Object.fromEntries(Object.entries(fields).map(([k, v]) => [k,
+  typeof v === 'boolean' ? { booleanValue: v } : { stringValue: String(v) }])) } });
+async function statusWith(rows, { waitSeconds = 0.05, location = `LOC-${Math.random()}` } = {}) {
+  const tool = TOOLS.find((t) => t.name === 'get_studio_generation_status');
+  let queries = 0;
+  const gw = { call: async (method, path) => {
+    if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) return { status: 200, ok: true, json: { id: 'P1', alt_id: location } };
+    if (method === 'POST' && path.includes('/oauth/2/login/signin/refresh')) return { status: 200, ok: true, json: { token: 'custom' } };
+    throw new Error(`unexpected call: ${method} ${path}`);
+  } };
+  const fb = { call: async () => { queries += 1; return { status: 200, ok: true, json: rows.map(fsRow) }; } };
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({ idToken: 'fixture-id-token', expiresIn: '3600' }) });
+  try {
+    const result = await tool.handler({ locationId: location, projectId: 'P1', messageId: 'm1', waitSeconds },
+      { state: {}, makeGw: (opts) => (opts.rail === 'firebase' ? fb : gw) });
+    return { result, queries: () => queries };
+  } finally { globalThis.fetch = realFetch; }
+}
+
+test('get_studio_generation_status answers "cancelled" at once for a cancelled turn, without waiting for a build', async () => {
+  const { result, queries } = await statusWith([{ role: 'assistant', id: 'm1', cancelledByUser: true }], { waitSeconds: 120 });
+  assert.equal(result.ok, true);
+  assert.equal(result.data.buildStatus, 'cancelled');
+  assert.equal(result.data.versionId, null);
+  assert.equal(result.data.pending, undefined, 'a cancelled turn is not "still running"');
+  assert.equal(queries(), 1, 'it resolves on the first read, not at the 120 s ceiling');
+});
+
+// CONTROL: the same row WITHOUT the flag is what the old code saw — it stays pending.
+test('control: the same row without cancelledByUser still answers pending', async () => {
+  const { result } = await statusWith([{ role: 'assistant', id: 'm1' }]);
+  assert.equal(result.ok, true);
+  assert.equal(result.data.pending, true);
+});
+
+test('a cancelled row for a DIFFERENT message id does not cancel this turn', async () => {
+  const { result } = await statusWith([{ role: 'assistant', id: 'other', cancelledByUser: true },
+    { role: 'assistant', id: 'm1', buildStatus: 'ready', versionId: 'v1' }]);
+  assert.equal(result.data.buildStatus, 'ready');
+  assert.equal(result.data.versionId, 'v1');
+});

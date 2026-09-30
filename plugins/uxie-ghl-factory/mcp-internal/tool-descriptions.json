@@ -950,9 +950,9 @@
     ]
   },
   "get_studio_generation_status": {
-    "description": "Get studio generation status — proof: live-runtime (2026-09-25); risk: read",
+    "description": "Get studio generation status — proof: live-runtime (2026-09-30); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-30)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "typed--get_studio_site_history--vibe-platform-documents:runQuery"

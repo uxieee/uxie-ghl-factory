@@ -306,3 +306,17 @@ test('set_contact_ai_status reports a mismatch, never a false ok, when the read-
   assert.ok(result.data.mismatches.length > 0);
   assert.match(result.remediation, /URGENT/);
 });
+
+// The preview note must match the status being set: "active" used to print "goes off indefinitely".
+test('set_contact_ai_status preview note says the bot is switched ON for status:"active"', async () => {
+  const deps = { state: {}, makeGw: () => { throw new Error('preview must not build a gateway'); } };
+  const on = await tool('set_contact_ai_status').handler({ locationId: 'L', contactId: 'C', status: 'active' }, deps);
+  assert.equal(on.code, 'CONFIRM_REQUIRED');
+  assert.doesNotMatch(on.data.preview.note, /goes off/);
+  assert.match(on.data.preview.note, /switched back on/);
+  const off = await tool('set_contact_ai_status').handler({ locationId: 'L', contactId: 'C', status: 'inactive' }, deps);
+  assert.match(off.data.preview.note, /goes off indefinitely/);
+  const window = await tool('set_contact_ai_status').handler(
+    { locationId: 'L', contactId: 'C', status: 'inactive', reactivateAfterTimeValue: 1, reactivateAfterTimeUnit: 'hour' }, deps);
+  assert.match(window.data.preview.note, /reactivates itself/);
+});

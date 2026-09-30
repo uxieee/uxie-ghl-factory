@@ -1920,6 +1920,18 @@ const STUDIO_IDTOKENS = new Map();   // locationId -> { idToken, expiresAt }
 // the Bearer (jwt) rail /vibe-ai lives on; `fb` carries the firebase rail for Firestore history
 // reads; `history` mints/caches the Firestore idToken, runs one query, and retries ONCE on a
 // rejected idToken (C2 — a 401/403 used to read as an empty collection).
+// A turn stopped by cancel_studio_generation is stored with cancelledByUser:true and never gets a buildStatus,
+// so awaitTurn alone polled it to the ceiling and answered "still running" for a dead turn (live 2026-10-01).
+// The status tool reads its turn through messagesUnlessCancelled, which stops the wait the moment the row says so.
+class TurnCancelled extends Error {}
+const messagesUnlessCancelled = async (history, projectId, messageId) => {
+  const rows = await history(MESSAGES, projectId, 'order', 300);
+  if (rows.some((r) => r.role === 'assistant' && r.id === messageId && r.cancelledByUser === true)) throw new TurnCancelled();
+  return rows;
+};
+const cancelledTurn = (messageId) => ({ messageId, versionId: null, buildStatus: 'cancelled', summary: null,
+  note: 'This turn was cancelled (cancelledByUser). It minted no version; start a new turn with generate_studio_site.' });
+
 const studioDeps = (args, deps) => {
   const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
   const api = new StudioApi({ gw, loc: args.locationId });
@@ -2937,9 +2949,11 @@ export const TOOLS = [
         path: `${CONTACT_AI_CONFIGS_PATH}/{configId}`,
         configIdResolvedBy: `GET ${contactAiConfigQuery(args)}`,
         body: { locationId: args.locationId, data: intent.data },
-        note: intent.expectSleeping
-          ? 'The bot goes off and reactivates itself after the given window.'
-          : 'The bot goes off indefinitely — no reactivation is scheduled (sleepingTill: null).',
+        note: intent.data.status === 'active'
+          ? 'The bot is switched back on for this contact.'
+          : intent.expectSleeping
+            ? 'The bot goes off and reactivates itself after the given window.'
+            : 'The bot goes off indefinitely — no reactivation is scheduled (sleepingTill: null).',
       };
       if (args.confirm !== true) {
         return withFailureData(fail(
@@ -10135,10 +10149,16 @@ export const TOOLS = [
       const { api, history } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
       if (error) return error;
-      const turn = await awaitTurn({
-        firestore: { messages: (pid) => history(MESSAGES, pid, 'order', 300) },
-        projectId: args.projectId, messageId: args.messageId, waitMs: (args.waitSeconds ?? 120) * 1000,
-      });
+      let turn;
+      try {
+        turn = await awaitTurn({
+          firestore: { messages: (pid) => messagesUnlessCancelled(history, pid, args.messageId) },
+          projectId: args.projectId, messageId: args.messageId, waitMs: (args.waitSeconds ?? 120) * 1000,
+        });
+      } catch (e) {
+        if (e instanceof TurnCancelled) return ok(cancelledTurn(args.messageId));
+        throw e;
+      }
       if (turn.pending) return ok(turn);
       const a = turn.assistant ?? {};
       return ok({ messageId: a.id, versionId: a.versionId ?? null, buildStatus: a.buildStatus,
