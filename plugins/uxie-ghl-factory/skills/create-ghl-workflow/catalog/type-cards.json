@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 531,
+ "count": 534,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -598,6 +598,16 @@
    "validator": "`addToWorkflowValidator` (length 208, result level `warning`). Per `sniffs/bundle/validators.json::addToWorkflowValidator`:\n\n```\nif (!workflow_id || !workflow_id.trim()) push { field: \"workflow_id\", message: \"workflow_selection_required\" }\n```\n\n`fields_referenced: [\"workflow_id\"]`. No existence lookup — the validator only checks the string is non-empty. The publish endpoint does not appear to verify the target workflow exists; sending a bogus UUID will publish.",
    "notes": "- **Both `input_trigger_params` values run** `[proven-live 2026-09-28]`: with `false` and with `true` the contact was enrolled in the target workflow and its step ran (the target read `finished`); with no inbound-webhook trigger upstream, `true` has nothing to forward and changes nothing visible `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`.\n- **`workflow_id` is the destination workflow's UUID.** This is the workflow's own id (the value in the body's `_id` / `id`), not a trigger id. Sourcing this means making a separate `GET /workflows/{loc}` call to list workflows.\n- **No existence check in the validator.** A non-existent target workflow id publishes cleanly — the failure surfaces only at runtime. Verify the target exists before relying on it.\n- **`input_trigger_params: true` is for inbound-webhook chaining.** When set, the parent workflow's trigger params (e.g. JSON body fields) are passed into the destination workflow's scope.\n- **The destination must be published** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3AR-goal-opp-esd-atw.json`, `live-3AR2-step-log-details.json`: into a published target the step logged `success` (\"Started Workflow <name> for contact …\") and the target's step ran; into a DRAFT target the step logged `skipped`, `skippedFor: {type: \"invalid-data\", msg: \"Workflow <name> is in Draft mode.\"}`, and nothing ran there. Publish still accepts a draft target, so the failure shows only in the run log. The log's attributes spell the keys `workflowId` / `inputTriggerParams` (camelCase); the stored step uses `workflow_id` / `input_trigger_params`.\n- **No loop guard.** Workflow A can add to workflow B, which can add back to A. Be careful with bidirectional enrollment.",
    "hasCanonicalExample": true
+  },
+  {
+   "type": "added_to_campaign",
+   "family": "triggers",
+   "title": "added_to_campaign",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "A legacy trigger key: the recovered registry lists it, the trigger picker does not offer it (the picker's own entries for this area are the marketplace-internal triggers, see [`../triggers-marketplace/`](../triggers-marketplace/)). `build_workflow` still authors it and GHL stores it.",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
   },
   {
    "type": "affiliate",
@@ -1982,6 +1992,16 @@
     }
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/communication.md"
+  },
+  {
+   "type": "appointment_v3",
+   "family": "triggers",
+   "title": "appointment_v3",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "A legacy trigger key: the recovered registry lists it, the trigger picker does not offer it (the picker's own entries for this area are the marketplace-internal triggers, see [`../triggers-marketplace/`](../triggers-marketplace/)). `build_workflow` still authors it and GHL stores it.",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
   },
   {
    "type": "appointments",
@@ -9283,7 +9303,7 @@
    "family": "triggers",
    "title": "conv_ai_autonomous_trigger",
    "status": "proven-live",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires from an autonomous conversation AI bot action — treated as a 'goto' jump trigger.",
    "meta": {
     "Trigger value": "`conv_ai_autonomous_trigger`",
@@ -9363,7 +9383,7 @@
    "family": "triggers",
    "title": "conv_ai_trigger",
    "status": "proven-live",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Fires when a conversation AI bot session starts for a contact.",
    "meta": {
     "Trigger value": "`conv_ai_trigger`",
@@ -11724,6 +11744,16 @@
    "validator": "`appointmentValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::appointmentValidator`:\n\n- `appointment.assignedUserId`\n- `calendar.id`\n\nAll other fields and the body envelope pass without validator inspection. A trigger with no filters is accepted at create time. A filter row with no value is accepted by the API too, but the builder blocks SAVING a trigger that carries one (`TriggerMain.hasErrors` → `checkForEmptyFilter`, `TriggerMain.ts:306-360`; exempt: operator `has-changed`, `has_value`, `has_no_value`, and a value of `false` or `0`) `[source-derived]` — the publish flow uses the same validator chain (`docs/08-validators.md`).",
    "notes": "- Smaller filter set than `appointment` (no status / event-type / modified-by rows, and no `appointment.isV3` row), but not just two rows: `calendar.id`, `contact.tags`, a calendar-group row and a dependent `appointment.assignedUserId` row. Calendly calendars are filtered out of the calendar options. Validator is the same `appointmentValidator`. [source-derived 2026-09-26 — models/Triggers/Filters/CustomerAppointmentFilter.ts:16-33, 38-76, 91-184]",
    "hasCanonicalExample": false
+  },
+  {
+   "type": "customer_appointment_v3",
+   "family": "triggers",
+   "title": "customer_appointment_v3",
+   "status": "proven-live",
+   "lastVerified": "2026-09-30",
+   "summary": "A legacy trigger key: the recovered registry lists it, the trigger picker does not offer it (the picker's own entries for this area are the marketplace-internal triggers, see [`../triggers-marketplace/`](../triggers-marketplace/)). `build_workflow` still authors it and GHL stores it.",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
   },
   {
    "type": "customer_reply",

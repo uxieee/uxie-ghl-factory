@@ -5,16 +5,18 @@ One line per step and trigger type. For the full card (fields, allowed values, v
 gotchas) run `node scripts/types.mjs <type-key>`, or `describe_step_type` if the
 uxie-ghl-factory plugin is installed — same data.
 
-530 types: 149 native, 381 marketplace. Status is each card's floor: 
+533 types: 152 native, 381 marketplace. Status is each card's floor: 
 `proven-live` > `source-derived` > `inferred`; `deprecated` means do not build on it.
 
-## Triggers (native) (59)
+## Triggers (native) (62)
 
 | type | status | summary |
 |---|---|---|
+| `added_to_campaign` | proven-live | A legacy trigger key: the recovered registry lists it, the trigger picker does not offer it (the picker's own entries for this area are the marketplace-internal triggers, see [`../triggers-marketplace/`](../triggers-marketplace/)). `build_workflow` still authors it and GHL stores it. |
 | `affiliate_created` | source-derived | Fires when a new affiliate record is created in Affiliate Manager. |
 | `affiliate_new_lead` | source-derived | Fires when a new lead is created on a configured affiliate campaign. |
 | `appointment` | source-derived | Fires on appointment events (booked / status changes) in the chosen calendar. |
+| `appointment_v3` | proven-live | A legacy trigger key: the recovered registry lists it, the trigger picker does not offer it (the picker's own entries for this area are the marketplace-internal triggers, see [`../triggers-marketplace/`](../triggers-marketplace/)). `build_workflow` still authors it and GHL stores it. |
 | `birthday_reminder` | source-derived | Fires on each contact's birthday at a configured offset (before/after N days). |
 | `call_status` | source-derived | Fires when an inbound or outbound call hits a configured call-status state. |
 | `category_completed` | source-derived | Fires when a contact completes a course category. |
@@ -28,6 +30,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `custom_object_changed` | source-derived | Fires when a custom-object record is updated. |
 | `custom_object_created` | source-derived | Fires when a custom-object record is created. |
 | `customer_appointment` | source-derived | Fires on customer-side appointment events (booked by the contact). |
+| `customer_appointment_v3` | proven-live | A legacy trigger key: the recovered registry lists it, the trigger picker does not offer it (the picker's own entries for this area are the marketplace-internal triggers, see [`../triggers-marketplace/`](../triggers-marketplace/)). `build_workflow` still authors it and GHL stores it. |
 | `customer_reply` | source-derived | Fires on an inbound message from the contact, on a chosen channel or any. With no filter it fires on **every** inbound message, not only on replies to a workflow's own message: a first live-chat message from a brand-new contact was evaluated against it `[proven-live 2026-09-25]`. |
 | `dnd_contact` | source-derived | Fires when a contact's DND state changes on a given channel. |
 | `facebook_comment_on_post` | source-derived | Fires when a Facebook page receives a comment on a post. |
