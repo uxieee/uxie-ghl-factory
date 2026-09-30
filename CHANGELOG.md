@@ -11,6 +11,36 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.42.0] — 2026-10-01
+
+**The AI-agent guides now cover everything learned while testing on the sandbox: phone numbers, custom APIs and MCP
+servers, the prompt optimizer and GHL's Ask AI builder.**
+
+### Added
+- Voice AI guide:
+  - Every new voice agent emails ALL admins after every call. That's GHL's default.
+  - The first phone number a sub-account buys becomes its default number, so every workflow text or call step then has
+    a number to send from.
+  - Custom actions, MCP servers and call transfer are now described from live tests: what was proven, and what still
+    needs a real call.
+  - The routes to buy a number, attach it to an agent and save a custom action.
+- Conversation AI guide:
+  - The API Call action.
+  - The Working Hours switch in GHL's Labs can never be turned back off (GHL's own screen refuses), so check that before
+    enabling a Labs feature.
+  - Prompt optimizer traps.
+  - Custom MCP apps.
+  - GHL's Ask AI builder: asked to change a voice agent, it creates a NEW agent with the same name as soon as it shows its
+    plan, and never edits the one you named.
+- Agent Studio guide:
+  - The video length you ask for isn't honoured (asked for 4 s, got 8 s).
+  - Custom MCP app routes.
+  - Ask AI builder traps.
+- The endpoint catalogue gains the routes above: custom-API test, skill instances, MCP apps, Ask AI stream, phone-number
+  search, purchase and list. The prompt-optimizer routes now name their id `{perfAgentId}`.
+- Proof records: eight funnels, forms and courses tools re-proven live on 1.41.6; `list_courses` is proven for the first
+  time.
+
 ## [1.41.7] — 2026-10-01
 
 **`edit_pipeline` no longer brings back a stage you just removed.**
