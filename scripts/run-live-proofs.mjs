@@ -37,6 +37,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { homedir } from 'node:os';
+import { receiverEnvViolations } from './lib/sandbox-guard.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, '..');
@@ -152,6 +153,15 @@ if (invokedDirectly) {
   if (!location) {
     die('GHL_LIVE_PROOF_LOCATION is not set, and there is deliberately no default.',
       'Set it to the DESIGNATED TEST SUB-ACCOUNT. A default here is how a scheduled job eventually runs against a client.');
+  }
+
+  // A receiver (push/copy target) other than the designated account is refused the same way a foreign
+  // location is: the suites inherit this environment, and a tool that queues any id it is given would
+  // write into whatever an env var named.
+  const foreignReceivers = receiverEnvViolations(process.env, location);
+  if (foreignReceivers.length) {
+    die(`${foreignReceivers.join(', ')} name(s) a receiver other than GHL_LIVE_PROOF_LOCATION.`,
+      'Live proofs may write to the designated test sub-account only. Unset it, or set it to that same id.');
   }
 
   const tokenFile = process.env.GHL_INTERNAL_TOK_FILE

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
-import { checkSelection, diffStored, manifestIndex, CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, nonEmptyCategories } from '../core/snapshots.mjs';
+import { checkSelection, diffStored, manifestIndex, CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, nonEmptyCategories, listAgencyLocations, resolveTargets } from '../core/snapshots.mjs';
 
 // Snapshots are AGENCY-scoped: a mistake is not confined to one sub-account. Three of the four
 // traps on this surface are silent — they answer 200 and produce a snapshot that is wrong rather
@@ -193,8 +193,9 @@ test('checkSelection cannot judge a category it has no manifest for, and says no
 
 // A push gateway: the snapshot's manifest carries a source locationId, and workflow reads on that
 // source answer with whatever status the test asks for.
-const pushGw = ({ wfStatus = { wf1: 'draft', wf2: 'draft' }, sourceLoc = 'SRC', pushOk = true, manifestOk = true } = {}) => {
-  const seen = { push: null, wfReads: [] };
+const AGENCY = [{ id: 'TGT', locationName: 'Target One' }, { id: 'A', locationName: 'Alpha' }, { id: 'B', locationName: 'Beta' }, { id: 'GONE', locationName: 'Closed', deleted: true }];
+const pushGw = ({ wfStatus = { wf1: 'draft', wf2: 'draft' }, sourceLoc = 'SRC', pushOk = true, manifestOk = true, agency = { ok: true, rows: AGENCY } } = {}) => {
+  const seen = { push: null, wfReads: [], manifestReads: 0, agencyReads: 0 };
   return {
     seen,
     uid: 'USER1',
@@ -206,7 +207,12 @@ const pushGw = ({ wfStatus = { wf1: 'draft', wf2: 'draft' }, sourceLoc = 'SRC', 
       // get_assets returns the snapshot's CONTENTS and carries NO locationId. Putting one here
       // would let the rail pass in tests while being inert in production — which is exactly what
       // shipped, and what the first live run caught.
+      if (method === 'GET' && /^\/snapshots\/locations\/COMPANY1\?/.test(path)) {
+        seen.agencyReads++;
+        return agency.ok ? { ok: true, status: 200, json: { data: agency.rows, meta: { hasNext: false } } } : { ok: false, status: 500, json: {} };
+      }
       if (method === 'GET' && path.includes('/get_assets')) {
+        seen.manifestReads++;
         return manifestOk
           ? { ok: true, status: 200, json: PREFETCH }
           : { ok: false, status: 400, json: { msg: "Can't find account data" } };
@@ -375,3 +381,69 @@ test('no resolvable source account means UNDETERMINED, never safe', async () => 
   assert.ok(r.data.preview.warnings.some((w) => /UNKNOWN/.test(w)));
 });
 
+
+
+// ── targets: a push queues ANY id it is given, so a mistyped id that is a real client sub-account would load it there.
+test('resolveTargets: names the agency\'s accounts in the order asked, reports the rest as unknown, ignores closed ones', () => {
+  const locs = [{ id: 'A', name: 'Alpha' }, { id: 'B', name: 'Beta' }];
+  assert.deepEqual(resolveTargets(['B', 'A'], locs), { resolved: [{ id: 'B', name: 'Beta' }, { id: 'A', name: 'Alpha' }], unknown: [] });
+  assert.deepEqual(resolveTargets(['A', 'NOPE', 'A'], locs), { resolved: [{ id: 'A', name: 'Alpha' }], unknown: ['NOPE'] });
+  // CONTROL: an empty agency list makes every target unknown, never "all fine"
+  assert.deepEqual(resolveTargets(['A'], []), { resolved: [], unknown: ['A'] });
+});
+
+test('listAgencyLocations walks every page, drops closed accounts, and FAILS (never a short list) when a page cannot be read', async () => {
+  const pages = [
+    { ok: true, status: 200, json: { data: [{ id: 'A', locationName: 'Alpha' }, { _id: 'G', locationName: 'Closed', deleted: true }], meta: { hasNext: true } } },
+    { ok: true, status: 200, json: { data: [{ id: 'B', locationName: 'Beta' }], meta: { hasNext: false } } },
+  ];
+  const paths = []; let i = 0;
+  const r = await listAgencyLocations({ call: async (m, path) => { paths.push(path); return pages[i++]; } }, 'C1', { pageSize: 2 });
+  assert.deepEqual(r.locations, [{ id: 'A', name: 'Alpha' }, { id: 'B', name: 'Beta' }]);
+  assert.deepEqual(paths, ['/snapshots/locations/C1?limit=2&skip=0', '/snapshots/locations/C1?limit=2&skip=2']);
+  // CONTROLS
+  assert.ok((await listAgencyLocations({ call: async () => ({ ok: false, status: 500, json: {} }) }, 'C1')).failure);
+  assert.ok((await listAgencyLocations({ call: async () => ({ ok: true, status: 200, json: { oops: 1 } }) }, 'C1')).failure, 'a body with no data array is a failure, not an empty agency');
+  let n = 0;
+  assert.ok((await listAgencyLocations({ call: async () => { n++; return { ok: true, status: 200, json: { data: [{ id: 'X' }], meta: { hasNext: true } } }; } }, 'C1', { maxPages: 3 })).failure, 'a list that never ends is a failure');
+  assert.equal(n, 3);
+});
+
+test('push_snapshot REFUSES a target that is not a sub-account of the agency — nothing is read or sent', async () => {
+  const { r, gw } = await runPush({ assets: { tags: ['t1'] }, targetLocationIds: ['NotAnAgencyLocation'], confirm: true });
+  assert.equal(r.ok, false);
+  assert.equal(r.code, 'VALIDATION_FAILED');
+  assert.deepEqual(r.data.unknownTargets, ['NotAnAgencyLocation']);
+  assert.equal(gw.seen.push, null, 'the push must NOT be sent');
+  assert.equal(gw.seen.manifestReads, 0, 'and the snapshot is not even read');
+  // a closed (deleted) account is not a target either
+  const closed = await runPush({ assets: { tags: ['t1'] }, targetLocationIds: ['GONE'], confirm: true });
+  assert.equal(closed.r.code, 'VALIDATION_FAILED');
+  assert.equal(closed.gw.seen.push, null);
+});
+
+test('push_snapshot refuses the WHOLE push when one of several targets is unknown (the known one is not sent either)', async () => {
+  const { r, gw } = await runPush({ assets: { tags: ['t1'] }, targetLocationIds: ['TGT', 'TYPO'], confirm: true });
+  assert.equal(r.ok, false);
+  assert.deepEqual(r.data.unknownTargets, ['TYPO']);
+  assert.equal(gw.seen.push, null);
+});
+
+test('push_snapshot refuses when the agency list cannot be read — a target it cannot check is not a target', async () => {
+  const { r, gw } = await runPush({ assets: { tags: ['t1'] }, confirm: true }, { agency: { ok: false } });
+  assert.equal(r.ok, false);
+  assert.equal(gw.seen.push, null);
+  assert.match(r.remediation, /nothing was sent/);
+});
+
+test('push_snapshot preview NAMES each target (id + location name); the queued result names them too', async () => {
+  const pv = await runPush({ assets: { tags: ['t1'] }, targetLocationIds: ['TGT', 'A'] });
+  assert.equal(pv.r.code, 'CONFIRM_REQUIRED');
+  assert.deepEqual(pv.r.data.preview.targetsNamed, [{ id: 'TGT', name: 'Target One' }, { id: 'A', name: 'Alpha' }]);
+  assert.equal(pv.gw.seen.push, null);
+  // CONTROL: a known target sails through unchanged, and the wire body still carries exactly the ids asked for
+  const go = await runPush({ assets: { tags: ['t1'] }, targetLocationIds: ['TGT'], confirm: true });
+  assert.equal(go.r.ok, true, JSON.stringify(go.r));
+  assert.deepEqual(go.r.data.targetsNamed, [{ id: 'TGT', name: 'Target One' }]);
+  assert.deepEqual(go.gw.seen.push.selectedLocationIds, ['TGT']);
+});
