@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-30T07:20:53.019Z",
+      "capturedAt": "2026-09-30T08:38:02.239Z",
       "hash": "corpus",
-      "fileCount": 1355,
-      "endpoints": 1355
+      "fileCount": 1362,
+      "endpoints": 1362
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1851,
-  "skippedCallSites": 717,
-  "count": 1604,
+  "discoveredCallSites": 1858,
+  "skippedCallSites": 719,
+  "count": 1607,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2652,6 +2652,32 @@
       },
       "sources": [
         "workflows/30-types/triggers/note_changed.md:78"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--tasks-completed",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/contacts/{contactId}/tasks/{taskId}/completed",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/triggers-marketplace/task_completed.md:82"
       ],
       "serviceBasis": "declared"
     },
@@ -10869,6 +10895,58 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "workflows--generate-image-ai-brand-boards",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/generate-image-ai/{locationId}/brand-boards",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps/workflow_ai_generate_image.md:159"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--generate-image-ai-brand-voices",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/generate-image-ai/{locationId}/brand-voices",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps/workflow_ai_generate_image.md:160"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "workflows--prompt-enhance-post",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -10890,6 +10968,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "workflows/30-types/steps/workflow_ai_generate_image.md:124",
         "workflows/70-research/WORKFLOW-AI.md:39"
       ],
       "serviceBasis": "reviewed",
@@ -17008,6 +17087,7 @@
       },
       "sources": [
         "services/marketplaceServices/PhoneSystemService.ts:25",
+        "workflows/30-types/steps/voicemail.md:116",
         "workflows/70-research/ACTION-DRAWERS-2.md:4269"
       ],
       "serviceClass": "PhoneSystemService",
@@ -22678,7 +22758,9 @@
         "states/app.ts:586",
         "hooks/use-note-image-upload.ts:49",
         "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
-        "workflows/20-api/uploads-and-dynamic-sources.md:21"
+        "workflows/20-api/uploads-and-dynamic-sources.md:21",
+        "workflows/30-types/steps/voicemail.md:77",
+        "workflows/30-types/steps/voicemail.md:117"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -25772,7 +25854,8 @@
       },
       "sources": [
         "services/SecretManagerService.ts:21",
-        "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:510"
+        "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:510",
+        "workflows/30-types/steps/custom_webhook.md:229"
       ],
       "serviceClass": "SecretManagerService",
       "serviceBasis": "inferred-from-path"
@@ -25800,7 +25883,8 @@
       },
       "sources": [
         "services/SecretManagerService.ts:29",
-        "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:570"
+        "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:570",
+        "workflows/30-types/steps/custom_webhook.md:230"
       ],
       "serviceClass": "SecretManagerService",
       "serviceBasis": "inferred-from-path"
@@ -25828,11 +25912,13 @@
       },
       "sources": [
         "services/SecretManagerService.ts:33",
+        "workflows/30-types/steps/custom_webhook.md:231",
         "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:628"
       ],
       "serviceClass": "SecretManagerService",
       "serviceBasis": "inferred-from-path",
       "aka": [
+        "/workflow/{locationId}/secret-manager/{id}",
         "/workflow/{locationId}/secret-manager/{value}"
       ]
     },
@@ -28800,7 +28886,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/CustomWebhookService.ts:114"
+        "services/CustomWebhookService.ts:114",
+        "workflows/30-types/steps/custom_webhook.md:238"
       ],
       "serviceClass": "CustomWebhookService",
       "serviceBasis": "inferred-from-path"
@@ -39050,6 +39137,8 @@
       },
       "sources": [
         "ai-agents/20-api/conversation-ai-boundary.md:108",
+        "workflows/30-types/steps/conversation_ai.md:79",
+        "workflows/30-types/steps/conversation_ai.md:101",
         "workflows/70-research/ENDPOINTS.md:177"
       ],
       "serviceBasis": "reviewed",

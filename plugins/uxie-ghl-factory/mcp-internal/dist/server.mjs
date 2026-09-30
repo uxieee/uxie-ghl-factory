@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-30",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1613,
+      count: 1616,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -3583,6 +3583,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/30-types/triggers/note_changed.md:78"
+          ]
+        },
+        {
+          id: "workflows--tasks-completed",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/contacts/{contactId}/tasks/{taskId}/completed",
+          path: "/contacts/{contactId}/tasks/{taskId}/completed",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "contactId"
+            },
+            {
+              name: "taskId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/triggers-marketplace/task_completed.md:82"
           ]
         },
         {
@@ -13941,6 +13979,76 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--generate-image-ai-brand-boards",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/generate-image-ai/{locationId}/brand-boards",
+          path: "/generate-image-ai/{locationId}/brand-boards",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps/workflow_ai_generate_image.md:159"
+          ]
+        },
+        {
+          id: "workflows--generate-image-ai-brand-voices",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/generate-image-ai/{locationId}/brand-voices",
+          path: "/generate-image-ai/{locationId}/brand-voices",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps/workflow_ai_generate_image.md:160"
+          ]
+        },
+        {
           id: "workflows--prompt-enhance-post",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/generate-image-ai/{locationId}/prompt/enhance",
@@ -13973,6 +14081,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "workflows/30-types/steps/workflow_ai_generate_image.md:124",
             "workflows/70-research/WORKFLOW-AI.md:39"
           ]
         },
@@ -21742,6 +21851,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/PhoneSystemService.ts:25",
+            "workflows/30-types/steps/voicemail.md:116",
             "workflows/70-research/ACTION-DRAWERS-2.md:4269"
           ]
         },
@@ -29093,7 +29203,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "states/app.ts:586",
             "hooks/use-note-image-upload.ts:49",
             "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
-            "workflows/20-api/uploads-and-dynamic-sources.md:21"
+            "workflows/20-api/uploads-and-dynamic-sources.md:21",
+            "workflows/30-types/steps/voicemail.md:77",
+            "workflows/30-types/steps/voicemail.md:117"
           ]
         },
         {
@@ -33007,7 +33119,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/SecretManagerService.ts:21",
-            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:510"
+            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:510",
+            "workflows/30-types/steps/custom_webhook.md:229"
           ]
         },
         {
@@ -33043,12 +33156,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/SecretManagerService.ts:29",
-            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:570"
+            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:570",
+            "workflows/30-types/steps/custom_webhook.md:230"
           ]
         },
         {
           id: "secret-manager-service--remove",
           aka: [
+            "/workflow/{locationId}/secret-manager/{id}",
             "/workflow/{locationId}/secret-manager/{value}"
           ],
           method: "DELETE",
@@ -33085,6 +33200,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/SecretManagerService.ts:33",
+            "workflows/30-types/steps/custom_webhook.md:231",
             "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:628"
           ]
         },
@@ -36794,7 +36910,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/CustomWebhookService.ts:114"
+            "services/CustomWebhookService.ts:114",
+            "workflows/30-types/steps/custom_webhook.md:238"
           ]
         },
         {
@@ -49355,6 +49472,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:108",
+            "workflows/30-types/steps/conversation_ai.md:79",
+            "workflows/30-types/steps/conversation_ai.md:101",
             "workflows/70-research/ENDPOINTS.md:177"
           ]
         },
@@ -203941,7 +204060,7 @@ var ASSET_BEHAVIOUR_WARNINGS = {
   // invoices remaining and stayed ACTIVE (live-W37-rec-readback.json; cancelled in its own call).
   create_recurring_invoice: (a) => a?.endType === "after" && a?.endDate !== void 0 && a?.endDate !== null && String(a.endDate).trim() !== "" ? {
     code: "RECURRING_COUNT_IGNORED",
-    message: `endType 'after' with count ${JSON.stringify(a.count)} AND endDate ${JSON.stringify(a.endDate)}: the stored count was NOT applied when measured; the schedule ran until its endDate (31 invoices remaining) and stayed active. Treat endDate as the real end, or cancel the schedule right after the first run (POST /invoices/schedule/{id}/cancel).`
+    message: `endType 'after' with count ${JSON.stringify(a.count)} AND endDate ${JSON.stringify(a.endDate)}: the stored count was NOT applied when measured; the schedule ran until its endDate (31 invoices remaining) and stayed active. Treat endDate as the real end, or cancel the schedule right after the first run (POST /invoices/schedule/{id}/cancel). Whether the server accepts an ABSENT endDate with a count is unmeasured.`
   } : null,
   // A differential on two PUBLISHED company workflows: the step named one, and the record's runs in BOTH ended in the
   // same second (knowledge sniffs/workflows-wave1-2026-09-25/live-R7-7-remove-differential.json; corpus 40-rules/
@@ -206233,6 +206352,7 @@ function compile(ir, ctx) {
   if (norm3.customObjectType && ctx?.skipObjectRules !== true) {
     const OBJECT_ALLOWED = /* @__PURE__ */ new Set([
       "if_else",
+      "router",
       "email",
       "wait",
       "update_custom_value",
@@ -206248,6 +206368,9 @@ function compile(ir, ctx) {
       "array_functions",
       "drip",
       "add_notes",
+      "create_custom_object",
+      "update_custom_object",
+      "clear_custom_object_fields",
       "transition"
     ]);
     const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type));

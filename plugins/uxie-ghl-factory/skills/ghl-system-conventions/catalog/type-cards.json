@@ -151,14 +151,14 @@
    "family": "steps",
    "title": "add_appointment_booking_ai_bot",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Hand the contact off to an AI bot that books an appointment on a specified calendar via conversational flow.",
    "meta": {
     "Section": "`eliza` (per `sniffs/bundle/registry-parsed.json::entries[49]`)",
     "Validator": "`aiAppointmentBookValidator` (per `sniffs/bundle/validators-summary.json`)",
-    "Hybrid / multi-path?": "Linear step, but its outcome is branchable downstream: an If/Else condition `ai_bot_booked_appointment` with values `true` (\"Booked Appointment\"), `false` (\"Not booked Appointment\"), `timeout` (\"Got timed out\"). The condition is offered only on the Agency Pro plan and is disabled unless this bot step sits upstream in the same branch family [source-derived 2026-09-26 — models/conditions/Condition.ts:1165-1181,1345-1346,1382-1386; utils/ifelse_conditions.ts:417-420].",
+    "Hybrid / multi-path?": "Linear step. When it is saved as the last step of its path, the builder auto-appends an If/Else named `AI Condition` with branches `Did the bot book the appointment?` and `Did the bot time out?` [source-derived 2026-09-29 — components/AsideSection.vue:1931-1933; states/workflow.ts:1698-1771]. Its outcome is branchable downstream: an If/Else condition `ai_bot_booked_appointment` with values `true` (\"Booked Appointment\"), `false` (\"Not booked Appointment\"), `timeout` (\"Got timed out\"). The condition is offered only on the Agency Pro plan and is disabled unless this bot step sits upstream in the same branch family [source-derived 2026-09-26 — models/conditions/Condition.ts:1165-1181,1345-1346,1382-1386; utils/ifelse_conditions.ts:417-420].",
     "Corpus frequency": "0 occurrences (validator-only entry per `sniffs/bundle/og-action-ui-metadata.json::add_appointment_booking_ai_bot`).",
-    "Premium / beta?": "Not flagged.",
+    "Premium / beta?": "Not flagged in the action registry, but the drawer is gated on the Agency Pro plan: below it the form and Save are hidden and an upgrade notice shows instead [proven-live 2026-09-30 — sniffs/workflows-wave1-2026-09-25/live-W37-walk-add_appointment_booking_ai_bot-main.json; source-derived — components/actions/AddAIAppointmentBot.vue:2,169-170,395-405; states/app.ts:837-845].",
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/AIAppointmentBook.ts`"
    },
    "fields": [
@@ -187,22 +187,22 @@
      "name": "send_first_message",
      "type": "boolean",
      "required": true,
-     "default": "—",
-     "notes": "Send a kick-off message."
+     "default": "true",
+     "notes": "Send a kick-off message. Drawer label \"Send first message?\"."
     },
     {
      "name": "no_confirmation_message",
      "type": "boolean",
      "required": true,
-     "default": "—",
-     "notes": "Skip the post-booking confirmation."
+     "default": "false",
+     "notes": "Skip the post-booking confirmation. Drawer label \"Don't let the bot send the appointment confirmation message\"."
     },
     {
      "name": "send_success_message",
      "type": "boolean",
      "required": true,
-     "default": "—",
-     "notes": "Send a success message after booking."
+     "default": "false",
+     "notes": "Drawer label \"Configure success message for appointment booking\"; the checkbox shows only while `no_confirmation_message` is ticked, and unticking that forces this to `false` [source-derived 2026-09-29 — components/actions/AddAIAppointmentBot.vue:99-115,298-312]."
     },
     {
      "name": "success_message",
@@ -222,8 +222,8 @@
      "name": "first_message",
      "type": "string",
      "required": "conditional",
-     "default": "—",
-     "notes": "Required when `send_first_message && !template_id`. Must pass `isValidHandleBar`."
+     "default": "Do you want to book an appointment?",
+     "notes": "Required when `send_first_message && !template_id`. Must pass `isValidHandleBar`. The drawer also resets it to the default when \"Send first message?\" is unticked, and deletes the key on save when unticked or when a template is picked [source-derived 2026-09-29 — models/actions/AIAppointmentBook.ts:25-27,41-92; components/actions/AddAIAppointmentBot.vue:285-296]."
     },
     {
      "name": "template_id",
@@ -231,6 +231,62 @@
      "required": "conditional",
      "default": "—",
      "notes": "Saved template for the first message."
+    }
+   ],
+   "conditions": [
+    {
+     "label": "\"Action name\"",
+     "field": "text",
+     "type": "\"AI appointment booking bot\"",
+     "operator": "error \"Name should be between 1-50 characters. {n}/50\", but the check allows 1-100 characters"
+    },
+    {
+     "label": "\"Calendar\"",
+     "field": "select, placeholder \"Select\"",
+     "type": "none",
+     "operator": "the location's calendars; a team calendar reads \"<name> (<team name>)\". Error \"Select a calendar\""
+    },
+    {
+     "label": "\"Total Bot Processing Duration (Hours)\"",
+     "field": "number, **no min/max**",
+     "type": "none",
+     "operator": "tooltip \"This is the total duration for which the bot will try to converse with the user to book the appointment, after which the bot will be timed out.\"; error \"Timeout cannot be empty\". Only an empty or `0` value fails; the drawer does not reject negatives or decimals"
+    },
+    {
+     "label": "\"Send first message?\"",
+     "field": "checkbox",
+     "type": "ticked",
+     "operator": "unticking clears `template_id` and resets the message to \"Do you want to book an appointment?\""
+    },
+    {
+     "label": "\"Templates\" (first message ticked)",
+     "field": "select, placeholder \"Select template\"",
+     "type": "none",
+     "operator": "\"None\" first, then the location's SMS templates by name (up to 2000 fetched)"
+    },
+    {
+     "label": "\"Message\" (ticked, no template)",
+     "field": "rich-text editor; only toolbar item is the custom-variable picker",
+     "type": "\"Do you want to book an appointment?\"",
+     "operator": "errors \"Message cannot be empty\" / \"There are issues in your custom variables, please fix them before saving.\""
+    },
+    {
+     "label": "\"Don't let the bot send the appointment confirmation message\"",
+     "field": "checkbox",
+     "type": "unticked",
+     "operator": "tooltip \"Check the box, if you don't want the bot to send the confirmation message upon successfully booking the appointment.\""
+    },
+    {
+     "label": "\"Configure success message for appointment booking\" (only while the box above is ticked)",
+     "field": "checkbox",
+     "type": "unticked",
+     "operator": "tooltip \"Configure the success message to be sent, once appointment is successfully booked by the bot. If no message is configured, the bot will stop processing messages upon successfully booking the appointment.\""
+    },
+    {
+     "label": "\"Templates\" / \"Message\" (success ticked)",
+     "field": "same select and editor as the first message",
+     "type": "default success text (below)",
+     "operator": "same errors as the first message"
     }
    ],
    "validator": "`aiAppointmentBookValidator` (per `sniffs/bundle/validators.json`):\n\n- `calendar_id` set, else `ai_appointment_calendar_required`.\n- `timeout_time` set, else `ai_appointment_timeout_required`.\n- If `send_first_message`: requires either `template_id` or non-empty `first_message`; if `first_message` is set, must pass `isValidHandleBar` else `ai_appointment_message_invalid_vars`.\n- If `no_confirmation_message && send_success_message`: requires either `success_message_template_id` or non-empty `success_message`; handlebar validity check applies the same way.\n\nPer `validators-summary.json`: 4+ fields referenced; result level `warning`.",
@@ -374,10 +430,10 @@
    "family": "steps",
    "title": "add_notes",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
-   "summary": "Attach an HTML note to the contact, optionally with title and color.",
+   "lastVerified": "2026-09-30",
+   "summary": "Attach an HTML note to the contact, optionally with a title and color. In an object-based workflow the card reads \"Adds a note to the {objectName} record\" and the drawer offers no title or color.",
    "meta": {
-    "Section": "`contact` (per `sniffs/bundle/registry-parsed.json::entries[12]`)",
+    "Section": "`contact` (per `sniffs/bundle/registry-parsed.json::entries[12]`); in object-based workflows it is filed under `custom_objects`",
     "Validator": "`addNotesValidator` (per `sniffs/bundle/validators-summary.json`)",
     "Hybrid / multi-path?": "Linear.",
     "Corpus frequency": "10 steps across 6 workflows in 3 locations (per `sniffs/bundle/og-action-ui-metadata.json::add_notes`).",
@@ -397,7 +453,7 @@
      "type": "string",
      "required": true,
      "default": "''",
-     "notes": "Note body. Validator requires `html.trim().length > 0`. Supports `{{handlebars}}`."
+     "notes": "Note body. The publish validator only warns when it is missing or whitespace; the drawer blocks save when it is empty after stripping every tag and `&nbsp;` (so `<p></p>` fails there). Supports `{{handlebars}}`."
     },
     {
      "name": "title",
@@ -422,7 +478,7 @@
     }
    ],
    "validator": "`addNotesValidator` (per `sniffs/bundle/validators.json`):\n\n- `attributes.html` must be set and non-whitespace, else `note_content_required` warning.\n\nPer `validators-summary.json`: 1 field referenced; result level `warning`. Validator length 176 chars — extremely tight.",
-   "notes": "- **Proven live** `[proven-live 2026-09-28]` (`sniffs/workflows-wave1-2026-09-25/live-3E-add-notes.json`): `title`, `html` with a merge tag (resolved per contact) and `color: \"#D3F8DF\"` (green) were stored on the contact's note exactly so; the note carries `userId: null` (written by a workflow, not a user). `color` is one of 10 hex values the drawer offers (`constants/notes-action.ts`: yellow `#FEF0C7` default, green, blue, gray, teal, fuchsia, orange, rose, purple, cyan).\n- 🔴 **A workflow-written note fires the contact `note_add` trigger** `[proven-live 2026-09-28]`: the note enrolled the contact in another workflow with an unfiltered Note-added trigger within ~4 s. Check what listens on Note added before adding notes in bulk.\n- `html` accepts (and the corpus uses) handlebar resolution; the validator only checks the literal string is non-empty pre-resolution.\n- Notes are appended (not replacing); each execution adds a new note to the contact's timeline.\n- `color` field name observed as a hex literal — alternate enum values (named colors) not verified.",
+   "notes": "- **Proven live** `[proven-live 2026-09-28]` (`sniffs/workflows-wave1-2026-09-25/live-3E-add-notes.json`): `title`, `html` with a merge tag (resolved per contact) and `color: \"#D3F8DF\"` (green) were stored on the contact's note exactly so; the note carries `userId: null` (written by a workflow, not a user). `color` is one of 10 hex values the drawer offers (`constants/notes-action.ts`: yellow `#FEF0C7` default, green, blue, gray, teal, fuchsia, orange, rose, purple, cyan).\n- 🔴 **A workflow-written note fires the contact `note_add` trigger** `[proven-live 2026-09-28]`: the note enrolled the contact in another workflow with an unfiltered Note-added trigger within ~4 s. Check what listens on Note added before adding notes in bulk.\n- `html` accepts (and the corpus uses) handlebar resolution; the validator only checks the literal string is non-empty pre-resolution.\n- Notes are appended (not replacing); each execution adds a new note to the contact's timeline.\n- `color` is always one of the 10 hex values above: the drawer has no named-colour, custom or hex input, and deletes the key when no colour is set `[source-derived — components/actions/crm/AddNote.vue:123-145; models/actions/Note.ts:125]`.",
    "hasCanonicalExample": true
   },
   {
@@ -1060,16 +1116,16 @@
    "family": "steps",
    "title": "ai_agent",
    "status": "source-derived",
-   "lastVerified": "2026-09-29",
+   "lastVerified": "2026-09-30",
    "summary": "LLM agent step that runs a prompt against a model and (optionally) emits structured output or invokes tools.",
    "meta": {
     "Section": "`workflow_ai` (per `sniffs/bundle/registry-parsed.json::entries[0]`)",
-    "Validator": "No publish validator is registered for `ai_agent`. The drawer's Save is blocked when `prompt` is empty, or when `outputFormat` is `json` and `structuredResponse.properties` is missing or empty [source-derived 2026-09-26 — models/actions/AIAgent.ts:259-303].",
+    "Validator": "No publish validator is registered for `ai_agent`. The drawer's Save is blocked when the step name is empty or over 100 characters, when `prompt` is empty, or when `outputFormat` is `json` and `structuredResponse.properties` is missing or empty [source-derived 2026-09-29 — models/actions/AIAgent.ts:259-303].",
     "Hybrid / multi-path?": "Linear (the agent's exit-tool routing is internal to the agent runtime, not represented as workflow branches in the corpus example).",
     "Corpus frequency": "17 occurrences across 5 workflows in 1 location (per `sniffs/bundle/og-action-ui-metadata.json::ai_agent`).",
     "Premium / beta?": "`isPremiumAction: true`; **no longer beta** — the 09-29 builder registry entry carries no `beta` flag (`utils/workflows.ts:250-261`) [corrected 2026-09-29 — completeness sweep, `sniffs/workflows-completeness-2026-09-29/SWEEP.md` §4 #1].",
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/AIAgent.ts`",
-    "Icon": "`lucide-bot`, color `purple`"
+    "Icon": "`lucide:bot`, color `purple`"
    },
    "fields": [
     {
@@ -1077,7 +1133,7 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "The agent's system/instruction prompt. Long multi-line text; supports `{{handlebars}}`."
+     "notes": "The agent's instructions (\"Instructions\" in the drawer). The drawer edits them in a rich-text editor and stores **Markdown** (trimmed); merge tags `{{…}}` go in through its custom-value picker [source-derived 2026-09-29 — components/actions/ai-agent-components/AgentPromptEditor.vue:260,439]. A plain-text prompt written by API is read as Markdown [ASSUMPTION — from the editor's Markdown serialiser; runtime not tested]."
     },
     {
      "name": "model",
@@ -1091,7 +1147,7 @@
      "type": "array",
      "required": true,
      "default": "[]",
-     "notes": "Tool list; corpus example uses `[]`."
+     "notes": "Tool list. Item: `{id (uuid), toolType, toolName, description, attributes, workflowsActionType, letAIDecideAll}`; AI-filled tools also carry `attributes.__tool_schema__` [source-derived 2026-09-29 — models/actions/AIAgent.ts:92-257]."
     },
     {
      "name": "outputFormat",
@@ -1112,7 +1168,7 @@
      "type": "boolean",
      "required": false,
      "default": "false",
-     "notes": "Whether to retain conversation memory across runs."
+     "notes": "\"Conversation memory\": a rolling summary of past runs **for the same contact on this step** (builder help: \"Use a rolling summary of past runs for the same contact on this step so the agent has context.\") [source-derived 2026-09-29 — components/actions/ai-agent-new/AIAgentV2.vue:302-310]."
     },
     {
      "name": "structuredResponse",
@@ -1122,8 +1178,8 @@
      "notes": "JSON-schema-like object: `type`, `description`, `properties`. With `json`, Save is blocked unless `properties` has at least one key [source-derived 2026-09-26 — models/actions/AIAgent.ts:293-301]."
     }
    ],
-   "validator": "No publish validator is registered for `ai_agent` (the `ai_agent` action metadata has no `validator` key) [source-derived 2026-09-26 — utils/workflows.ts:251-262]. The only client gate is the drawer's Save: it refuses an empty `prompt` (\"instructionsRequired\") and, with `outputFormat: \"json\"`, a `structuredResponse` without properties (\"schemaRequiredForJson\") [source-derived 2026-09-26 — models/actions/AIAgent.ts:259-303]. A step written by API bypasses that Save gate.",
-   "notes": "- The registry's beta flag was removed in the 09-29 builder [corrected 2026-09-29 — completeness sweep, `sniffs/workflows-completeness-2026-09-29/SWEEP.md` §4 #1]; the step is still premium (billed).\n- `tools` array contents and how they reach the runtime weren't traced. Corpus only shows `[]`.\n- `tool_terminate_agent_tool` is a built-in runtime tool (\"Execution complete — Terminates the execution of the agent\"), not a prompt convention. Other built-in system tools the trace can show: `math_calculator`, `date_calculator` (both available by default, without being added to `tools`), `load_skill`, `metadata_holder`, `get_options`, `search_options`, `getAvailableObjects`, `getObjectFields`, `get_contact_details`, `get_opportunity_details`, `get_past_conversations`, `get_call_transcripts` [source-derived 2026-09-26 — utils/tool-metadata.ts:118-246; constants/ai-agent/tool-action-mapping.ts:43-47].\n- `outputFormat: \"json\"` requires `structuredResponse` with at least one property, or the drawer refuses Save. With `text` (the default) `structuredResponse` is cleared [source-derived 2026-09-26 — models/actions/AIAgent.ts:293-301; AIAgentV2.vue:986-997].",
+   "validator": "No publish validator is registered for `ai_agent` (the `ai_agent` action metadata has no `validator` key) [source-derived 2026-09-26 — utils/workflows.ts:251-262]. The only client gate is the drawer's Save: it refuses an empty or over-100-character name (\"Action name is required\"), an empty `prompt` (\"Instructions are required\") and, with `outputFormat: \"json\"`, a `structuredResponse` without properties (\"Output schema is required when JSON format is selected. Please add at least one property.\") [source-derived 2026-09-29 — models/actions/AIAgent.ts:259-303]. A step written by API bypasses that Save gate.",
+   "notes": "- The registry's beta flag was removed in the 09-29 builder [corrected 2026-09-29 — completeness sweep, `sniffs/workflows-completeness-2026-09-29/SWEEP.md` §4 #1]; the step is still premium (billed).\n- The `tools` item shape is traced in source (see the attributes table). How the runtime consumes a tool item has not been run live.\n- `tool_terminate_agent_tool` is a built-in runtime tool (\"Execution complete — Terminates the execution of the agent\"), not a prompt convention. Other built-in system tools the trace can show: `math_calculator`, `date_calculator` (both available by default, without being added to `tools`), `load_skill`, `metadata_holder`, `get_options`, `search_options`, `getAvailableObjects`, `getObjectFields`, `get_contact_details`, `get_opportunity_details`, `get_past_conversations`, `get_call_transcripts` [source-derived 2026-09-26 — utils/tool-metadata.ts:118-246; constants/ai-agent/tool-action-mapping.ts:43-47].\n- `outputFormat: \"json\"` requires `structuredResponse` with at least one property, or the drawer refuses Save. With `text` (the default) `structuredResponse` is cleared [source-derived 2026-09-26 — models/actions/AIAgent.ts:293-301; AIAgentV2.vue:986-997].",
    "hasCanonicalExample": true
   },
   {
@@ -6755,7 +6811,7 @@
    "family": "steps",
    "title": "chatgpt",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "Call OpenAI's GPT model with a prompt and instructions, returning a `response` for downstream consumption.",
    "meta": {
     "Section": "`external_ai_models`",
@@ -6792,14 +6848,14 @@
      "type": "string",
      "required": true,
      "default": "\"0.2\"",
-     "notes": "LLM temperature, **stored as string**. Must parse to number in `[0, 1]`. The drawer hides the temperature input when `model` contains `gpt-5` or `gpt-6` [source-derived 2026-09-26 — components/actions/premium-actions/ChatGPT.vue:135,255-258]. 100%."
+     "notes": "LLM temperature, **stored as string**. Must parse to number in `[0, 1]`. The drawer shows the temperature input only inside Advanced options, which renders only for `actionType: \"custom\"`, and only when `model` contains neither `gpt-5` nor `gpt-6`. In every preset mode it is hidden on every model, and the stored value stays `\"0.2\"` [source-derived 2026-09-29 — components/actions/premium-actions/ChatGPT.vue:130,250-261; chatgpt-components/AdvancedOptions.vue:10-23]. 100%."
     },
     {
      "name": "instructions",
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "System instructions / role description. 100% (often long)."
+     "notes": "System instructions / role description. The drawer shows its input only with `actionType: \"custom\"` and chat history on, and switching chat history off blanks it; an API-authored value with `memoryKeyToggle: false` survives a drawer round-trip until someone touches the switch [source-derived 2026-09-29 — models/actions/premium-actions/ChatGPT.ts:463-476; chatgpt-components/AdvancedOptions.vue:24-56]. 100% (often long)."
     },
     {
      "name": "model",
@@ -6813,7 +6869,7 @@
      "type": "\"analyze_text_sentiment\" | \"classify_text\" | \"summarize_text\" | \"translate_content\" | \"custom\"",
      "required": false,
      "default": "\"custom\"",
-     "notes": "Drawer mode: picks the `actionParams` inputs and the template that builds `promptText` (see Notes). All five ran on `gpt-5-nano` [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json]. 100%."
+     "notes": "Drawer mode: picks the `actionParams` inputs and the template that builds `promptText` (see Notes). The picker offers four: `classify_text` is listed as \"Classify Text (Coming Soon)\" and disabled, and no drawer input writes `actionParams.categories`, so `classify_text` is API-only [source-derived 2026-09-29 — models/actions/premium-actions/ChatGPT.ts:151-183; chatgpt-components/ActionParams.vue:1-91]. All five ran on `gpt-5-nano` when written by API [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json]. 100%."
     },
     {
      "name": "actionParams",
@@ -6873,7 +6929,7 @@
     }
    ],
    "validator": "`chatGPTValidator` (length 1456, result level `warning`). Per `sniffs/bundle/validators.json::chatGPTValidator`:\n\n1. `promptText` non-empty, AND passes `isValidHandleBar` (Handlebars syntax valid).\n2. `temperature` non-empty, parses to a number in `[0, 1]`.\n3. `event` set.\n4. Conditional checks on `actionParams` by `actionType` (the drawer's `isValidActionParams`): `translate_content` needs `message`, `from` and `to`; `summarize_text` needs `message` and `length`; `analyze_text_sentiment` needs `message`; `classify_text` and `custom` need none [source-derived 2026-09-28 — models/actions/premium-actions/ChatGPT.ts:352-368].\n\n`fields_referenced` (7): `actionParams.from`, `actionParams.length`, `actionParams.message`, `actionParams.to`, `event`, `promptText`, `temperature`.",
-   "notes": "- **`temperature` is stored as a string**, not a number. `\"0.2\"` works; `0.2` (number) may also work but corpus shows the string form exclusively.\n- **`model` defaults to `\"gpt-6-luna\"`** for a new step, and an empty `model` on an existing step is filled with it (it was `gpt-5-mini` in the 2026-09-18 builder). The corpus examples carry `\"gpt-5\"`, which is still a selectable id [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:258,280].\n- **`event: \"simple-prompt\"` is the only value.** It is the single entry in the drawer's event options, and the event selector is not shown [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:59,66-71].\n- **`promptText` Handlebars validation is strict.** Invalid Handlebars (e.g. unclosed `{{`) trips the validator. Empty prompt does too.\n- **Downstream access** is via `{{chatgpt.<N>.response}}`, where N is the step's per-type `stepIndex` (1 for the first chatgpt step, 2 for the second…). Six chatgpt steps in one workflow rendered as `{{chatgpt.1.response}}`…`{{chatgpt.6.response}}` in a later field write [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json]. The response is the raw model text, extra lines included (a translation came back with an added usage note). Compound paths like `{{chatgpt.4.response.<key>}}` exist when the response is structured (e.g. JSON mode).\n- **`memoryKey`** scopes the chat history. With `memoryKeyType: \"action\"` it's per-action-per-contact; `\"custom\"` lets you scope by an arbitrary key (e.g. group multiple steps into one conversation). Measured: two steps sharing `memoryKey: \"workflow_status\"` in one run — the first planted a code word, the second recalled it; a third step with `memoryKey: \"\"` asked the same question and answered NONE; two steps sharing a custom key recalled theirs too [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P4-chatgpt-memory.json]; two steps sharing `memoryKey: \"workflow\"` recalled theirs [proven-live 2026-09-28 — live-3P5-chatgpt-memory2.json]. `location` and `action` are the same key mechanism and were not run (`location` would write memory other workflows' steps may read; `action` needs a second execution) [inferred from the drawer writing them as plain `memoryKey` strings, ChatGPT.ts:486-510].\n- **`excludeFromHistory: true` keeps that turn out of memory.** A step that planted a code word with it on, followed by a step on the same custom key, answered NONE [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P5-chatgpt-memory2.json]. `excludeInstructionsFromHistory` was not run.\n- **`instructions` is sent as the system prompt.** A step whose `instructions` said \"reply with exactly QUINCE\" answered QUINCE to the `promptText` \"Say hello.\" [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P4-chatgpt-memory.json].\n- **`apiKey`**: leave it `\"\"` or omit it. Both runs used GHL's own key and succeeded [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json (omitted), live-3P2-chatgpt-apikey.json (`\"\"`)]. The builder has no UI for it; whether the runtime honours a non-empty value is untested [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:61-63].\n- **The drawer builds `promptText` from a template per mode**, and an API author must do the same, because the runtime reads only `promptText` [source-derived 2026-09-28 — models/actions/premium-actions/ChatGPT.ts:185-208,410-452; runtime proven-live as above]:\n  - `analyze_text_sentiment`: `Just reply only with POSITIVE, if the below message has positive intent and NEGATIVE if the message has negative intent \\n\\n<message>` → ran `POSITIVE`.\n  - `classify_text`: `Categorize the given text into one of the following categories: <categories joined by \", \"> \\n\\n\\n      Text: <message>` → ran `billing`.\n  - `summarize_text`: `Summarize the following text in <length>. Capture the key points and essential information while remaining concise and faithful to the original.\\n\\n Text: \\n\\n<message>` → ran a one-sentence summary.\n  - `translate_content`: `Translate the below Text from <from> to <to> Text: \\n\\n<message>` → ran Spanish.\n  - `custom`: the author's own `promptText` (the drawer clears it on switching to custom).\n- **Premium gate**.",
+   "notes": "- **`temperature` is stored as a string**, not a number. `\"0.2\"` works; `0.2` (number) may also work but corpus shows the string form exclusively.\n- **`model` defaults to `\"gpt-6-luna\"`** for a new step, and an empty `model` on an existing step is filled with it (it was `gpt-5-mini` in the 2026-09-18 builder). The corpus examples carry `\"gpt-5\"`, which is still a selectable id [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:258,280].\n- **`event: \"simple-prompt\"` is the only value.** It is the single entry in the drawer's event options, and the event selector is not shown [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:59,66-71].\n- **`promptText` Handlebars validation is strict.** Invalid Handlebars (e.g. unclosed `{{`) trips the validator. Empty prompt does too.\n- **Downstream access** is via `{{chatgpt.<N>.response}}`, where N is the step's per-type `stepIndex` (1 for the first chatgpt step, 2 for the second…). Six chatgpt steps in one workflow rendered as `{{chatgpt.1.response}}`…`{{chatgpt.6.response}}` in a later field write [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json]. The response is the raw model text, extra lines included (a translation came back with an added usage note). Compound paths like `{{chatgpt.4.response.<key>}}` exist when the response is structured (e.g. JSON mode).\n- **`memoryKey`** scopes the chat history. With `memoryKeyType: \"action\"` it's per-action-per-contact; `\"custom\"` lets you scope by an arbitrary key (e.g. group multiple steps into one conversation). Measured: two steps sharing `memoryKey: \"workflow_status\"` in one run — the first planted a code word, the second recalled it; a third step with `memoryKey: \"\"` asked the same question and answered NONE; two steps sharing a custom key recalled theirs too [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P4-chatgpt-memory.json]; two steps sharing `memoryKey: \"workflow\"` recalled theirs [proven-live 2026-09-28 — live-3P5-chatgpt-memory2.json]. `location` and `action` are the same key mechanism and were not run (`location` would write memory other workflows' steps may read; `action` needs a second execution) [inferred from the drawer writing them as plain `memoryKey` strings, ChatGPT.ts:486-510].\n- **`excludeFromHistory: true` keeps that turn out of memory.** A step that planted a code word with it on, followed by a step on the same custom key, answered NONE [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P5-chatgpt-memory2.json]. `excludeInstructionsFromHistory` was not run.\n- **`instructions` is sent as the system prompt.** A step whose `instructions` said \"reply with exactly QUINCE\" answered QUINCE to the `promptText` \"Say hello.\" [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P4-chatgpt-memory.json].\n- **`apiKey`**: leave it `\"\"` or omit it. Both runs used GHL's own key and succeeded [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json (omitted), live-3P2-chatgpt-apikey.json (`\"\"`)]. The builder has no UI for it; whether the runtime honours a non-empty value is untested [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:61-63].\n- **The drawer builds `promptText` from a template per mode**, and an API author must do the same, because the runtime reads only `promptText` [source-derived 2026-09-28 — models/actions/premium-actions/ChatGPT.ts:185-208,410-452; runtime proven-live as above]:\n  - `analyze_text_sentiment`: `Just reply only with POSITIVE, if the below message has positive intent and NEGATIVE if the message has negative intent \\n\\n<message>` → ran `POSITIVE`.\n  - `classify_text`: `Categorize the given text into one of the following categories: <categories joined by \", \"> \\n\\n\\n      Text: <message>` → ran `billing`.\n  - `summarize_text`: `Summarize the following text in <length>. Capture the key points and essential information while remaining concise and faithful to the original.\\n\\n Text: \\n\\n<message>` → ran a one-sentence summary.\n  - `translate_content`: `Translate the below Text from <from> to <to> Text: \\n\\n<message>` → ran Spanish.\n  - `custom`: the author's own `promptText`. Picking Custom from the Action type dropdown clears it; the pencil icon on a preset mode's read-only Prompt switches to custom and keeps the composed text [source-derived 2026-09-29 — components/actions/premium-actions/ChatGPT.vue:228-232; models/actions/premium-actions/ChatGPT.ts:453-455].\n- **Premium gate.** `isPremiumAction: true`. Before rendering, the drawer checks the location's `workflow_ai` plan (`config.optIn`, failing open) and shows a paywall instead of the form when it is off (see Builder options and limits).",
    "hasCanonicalExample": true
   },
   {
@@ -6897,7 +6953,7 @@
    "family": "steps",
    "title": "clear_custom_object_fields",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Clear (set to null/empty) one or more fields on an existing custom-object record. Resolved from `!ident:CustomObjectActionTypes.CLEAR_FIELDS`.",
    "meta": {
     "Section": "`customObjects` (per `sniffs/bundle/registry-parsed.json::entries[3]`)",
@@ -6920,28 +6976,28 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "The object's key, `custom_objects.<object>`."
+     "notes": "The target object's key: `custom_objects.<object>`, or `contact` for an associated contact. Never `business` or `opportunity`."
     },
     {
      "name": "fields",
-     "type": "array of `{ fieldKey, value, dataType }`",
-     "required": true,
+     "type": "array of `{ fieldKey, dataType }`",
+     "required": false,
      "default": "[]",
-     "notes": "`fieldKey` is the schema field's ID (not its fieldKey). Values are ignored: these are the fields to clear."
+     "notes": "`fieldKey` is the schema field's ID (not its fieldKey). These are the fields to clear; the drawer has no value input and a builder save writes no `value`. At least one row unless `clearOwner` or `clearFollowers` is true. The primary display field is offered only for a CRM target (`contact` / `opportunity`); required fields are offered."
     },
     {
      "name": "makeAssociation",
      "type": "boolean",
      "required": false,
-     "default": "true",
-     "notes": "Associate the record with the workflow's object."
+     "default": "false",
+     "notes": "No drawer control; the builder writes `false` on a new step and on every Object change."
     },
     {
      "name": "associations",
      "type": "array",
      "required": false,
      "default": "[]",
-     "notes": "Association labels, when the target is not the workflow's own object."
+     "notes": "Association ids from the **Association label** select, or `[\"all_related_associations\"]` for `All associated {objectName}`. Required when the target is not the workflow's own object; also offered for the workflow's own object when it has self-association labels."
     },
     {
      "name": "followers",
@@ -9515,7 +9571,7 @@
    "family": "steps",
    "title": "conversation_ai",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Conversation AI handoff step — typically used to invoke a conversational AI agent within the workflow. Resolved from `!ident:CONVERSATION_AI`.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[26]`)",
@@ -9564,21 +9620,21 @@
      "name": "personality",
      "type": "string",
      "required": true,
-     "default": "\"\"",
+     "default": "`\"\"` (model); seeded when the drawer opens",
      "notes": "1–300 words. Shown only when `showAdvBotConfig` is on, but validated regardless."
     },
     {
      "name": "intent",
      "type": "string",
      "required": true,
-     "default": "\"\"",
-     "notes": "1–300 words. Validated, but its drawer input is commented out (\"will be removed soon\"), so the UI cannot fill it."
+     "default": "`\"\"` (model); seeded when the drawer opens (fallback `To assist customers`)",
+     "notes": "1–300 words. Validated. Its drawer input is commented out (\"will be removed soon\"), so the user cannot edit it, but the drawer fills it on open [source-derived 2026-09-29 — components/actions/ConversationAI.vue:79-112,507-525]."
     },
     {
      "name": "additionalInstructions",
      "type": "string",
      "required": true,
-     "default": "\"\"",
+     "default": "`\"\"` (model); seeded when the drawer opens",
      "notes": "1–300 words."
     },
     {
@@ -9620,12 +9676,74 @@
      "name": "aiReplyWaitTime",
      "type": "integer",
      "required": true,
-     "default": "10",
+     "default": "`10`; seeded when the drawer opens",
      "notes": "Seconds, 1–300."
     }
    ],
+   "conditions": [
+    {
+     "label": "\"Action name\"",
+     "field": "text; disabled when `useAsTool`",
+     "type": "\"Conversation AI\"",
+     "operator": "error \"Name should be between 1-100 characters. {n}/100\""
+    },
+    {
+     "label": "\"Advanced bot configurations\"",
+     "field": "small switch",
+     "type": "off",
+     "operator": "tooltip \"Configure and change the prompt as per your specification and create custom Actions\""
+    },
+    {
+     "label": "\"Personality\" (switch on)",
+     "field": "textarea + custom-value picker",
+     "type": "seeded on open",
+     "operator": "error \"The Personality should have a length of 1 to 300 words\""
+    },
+    {
+     "label": "\"Additional instructions\" (switch on)",
+     "field": "textarea + custom-value picker",
+     "type": "seeded on open",
+     "operator": "error \"The Additional Info should have a length of 1 to 300 words\" (the error says \"Additional Info\", the label \"Additional instructions\")"
+    },
+    {
+     "label": "\"Question\"",
+     "field": "textarea (`required`) + custom-value picker, no placeholder",
+     "type": "empty",
+     "operator": "tooltip \"This is the question that will be asked by the bot and based on the reply to this question, the next branch will be decided\"; error \"The Question should have a length of 1 to 300 words\""
+    },
+    {
+     "label": "\"Time out\"",
+     "field": "number (`min 0`, `max 999`) + unit select",
+     "type": "`1` + \"Hours\"",
+     "operator": "units \"Minutes\" · \"Hours\" · \"Days\"; tooltip \"Time for which bot waits for a reply\""
+    },
+    {
+     "label": "\"Channel\"",
+     "field": "select",
+     "type": "none (`id -1`)",
+     "operator": "exactly \"SMS\" (2) · \"FACEBOOK\" (11) · \"INSTAGRAM\" (18) · \"WHATSAPP\" (19) · \"LIVE CHAT\" (29); tooltip \"The channel on which the message will be sent\"; error \"Please select a channel\""
+    },
+    {
+     "label": "\"Skip if answered\"",
+     "field": "switch",
+     "type": "on",
+     "operator": "tooltip \"Skips the action if already answered\""
+    },
+    {
+     "label": "\"Bot responses limit\"",
+     "field": "number (`min 1`, `max 25`)",
+     "type": "`5`",
+     "operator": "errors \"Bot responses limit must be between 1 and 25.\" / \"Bot responses limit is required.\""
+    },
+    {
+     "label": "\"wait time ( in seconds )\"",
+     "field": "number (`min 1`, `max 300`)",
+     "type": "seeded on open (fallback `10`)",
+     "operator": "tooltip \"The bot will wait for this amount of time before it replies to the contact. This time gives the bot the ability to collect all messages together and respond to them in one go\"; errors \"AI reply wait time must be between 1 and 300\" / \"AI reply wait time must be specified\""
+    }
+   ],
    "validator": "No publish validator is registered. The drawer's `onValidate` refuses: a channel without a name or with `id < 0`; any of `personality`, `intent`, `additionalInstructions`, `question` outside 1–300 words; a timeout that is not a positive integer or exceeds 90 days in its unit; `botResponsesLimit` missing or outside 1–25; `aiReplyWaitTime` missing or outside 1–300 [source-derived 2026-09-26 — models/actions/ConversationAI.ts:109-194]. A step written by API bypasses these drawer checks.",
-   "notes": "- The `conversationai_*` keys (`conversationai_ai_message`, `conversationai_ai_splitter`, `conversationai_custom_message`, `conversationai_objective`, `conversationai_transfer_bot`, …) are distinct types with their own pages, not sub-steps stored inside this step. This step's own fields are the ones in the table above.\n- `intent` is required by the validator but has no drawer input, so a step saved from the UI with an empty `intent` fails validation; write it by API [source-derived 2026-09-26 — models/actions/ConversationAI.ts:28,45,128-131; components/actions/ConversationAI.vue:80-112].\n- The default `channel.id: -1` is invalid; pick one of the five channels.\n- The default time-out branch is named `Time Out` and carries the condition text `Bot times out`; the other default is `No Condition Met` [source-derived 2026-09-26 — constants/keys.ts:10; models/actions/ConversationAI.ts:198].",
+   "notes": "- The `conversationai_*` keys (`conversationai_ai_message`, `conversationai_ai_splitter`, `conversationai_custom_message`, `conversationai_objective`, `conversationai_transfer_bot`, …) are distinct types with their own pages, not sub-steps stored inside this step. This step's own fields are the ones in the table above.\n- `intent` is required by the drawer's validation and has no drawer input, but the drawer seeds it on open from `GET /conversations-ai/intents/{locationId}` (fallback `To assist customers`), so a UI-saved step normally carries it. A step written by API must set it itself [source-derived 2026-09-29 — models/actions/ConversationAI.ts:28,45,128-131; components/actions/ConversationAI.vue:79-112,507-525]. It stays empty only if the endpoint returns an explicit empty `intent`. [ASSUMPTION — endpoint response shape not in source]\n- The default `channel.id: -1` is invalid; pick one of the five channels.\n- The default time-out branch is named `Time Out` and carries the condition text `Bot times out`; the other default is `No Condition Met` [source-derived 2026-09-26 — constants/keys.ts:10; models/actions/ConversationAI.ts:198].",
    "hasCanonicalExample": true
   },
   {
@@ -10925,7 +11043,7 @@
    "family": "steps",
    "title": "create_custom_object",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Create a new custom-object record on the contact's location. Resolved from `!ident:CustomObjectActionTypes.CREATE`.",
    "meta": {
     "Section": "`customObjects` (per `sniffs/bundle/registry-parsed.json::entries[1]`)",
@@ -10949,7 +11067,7 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "The object's key, `custom_objects.<object>`."
+     "notes": "The target object's key: `custom_objects.<object>`, or `contact` for an associated contact. Never `business` or `opportunity`."
     },
     {
      "name": "fields",
@@ -10970,7 +11088,7 @@
      "type": "array",
      "required": false,
      "default": "[]",
-     "notes": "Association labels, when the target is not the workflow's own object."
+     "notes": "Association ids from the **Association label** select. Required when the target is not the workflow's own object (`Please select at least one association`); also offered for the workflow's own object when it has self-association labels. At most one via the UI on create."
     },
     {
      "name": "followers",
@@ -10997,7 +11115,7 @@
      "default": "false"
     }
    ],
-   "validator": "No validator registered. Per `sniffs/bundle/validators.json` and `sniffs/bundle/validators-summary.json`, no `customObjectValidator` (or similar) exists. The publish step likely no-ops for this action; server validates at run time.",
+   "validator": "No validator registered. Per `sniffs/bundle/validators.json` and `sniffs/bundle/validators-summary.json`, no `customObjectValidator` (or similar) exists. Publish does not check this step; the drawer itself blocks **Save action** on the errors listed under Builder options and limits.",
    "notes": "- Custom-object actions are dynamically registered with the picker — the registry entry resolves from `CustomObjectActionTypes.CREATE` enum, not a literal `type` string.\n- The trio (`create_custom_object`, `update_custom_object`, `clear_custom_object_fields`) share a base interface but server behavior differs significantly; verify with a sniff before implementing.\n- A `find_custom_object` or hybrid-find variant has not been observed in the OG registry.",
    "hasCanonicalExample": true
   },
@@ -11158,7 +11276,7 @@
    "family": "steps",
    "title": "create_opportunity",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-30",
    "summary": "Create or update an opportunity record on a pipeline+stage for the running contact. The builder shows a deprecation banner on this step: \"The Create/Update Action will soon be deprecated. Existing Workflows will be unaffected; however, the new Create Opportunity and Update Opportunity actions will b",
    "meta": {
     "Section": "`opportunity`",
@@ -11166,7 +11284,7 @@
     "Hybrid / multi-path?": "Linear",
     "Corpus frequency": "62 occurrences across 55 workflows in 5 locations",
     "Premium / beta?": "No",
-    "UI editor source": "`recovered-source/src/models/actions/CreateOpportunity.ts` + `recovered-source/src/components/actions/crm/CreateOpportunity.vue`"
+    "UI editor source": "`recovered-source/src/models/actions/CreateOpportunity.ts` + `recovered-source/src/components/actions/crm/CreateOpportunity.vue` + `recovered-source/src/components/actions/crm/Field.vue` (renders every Fields row)"
    },
    "fields": [
     {
@@ -11208,8 +11326,8 @@
      "name": "opportunity_status",
      "type": "Status",
      "required": false,
-     "default": "\"open\"",
-     "notes": "`\"open\" | \"won\" | \"lost\" | \"abandoned\"` — all four are the builder's Status options `[source-derived 2026-09-26 — models/Workflow.ts:666-671; models/actions/CreateOpportunity.ts:220-227]`. 80.6%."
+     "default": "— (absent until a status is picked; the drawer pre-selects none and Save does not require one)",
+     "notes": "`\"open\" | \"won\" | \"lost\" | \"abandoned\"` — all four are the builder's Status options; how the runtime treats an absent status is untested `[ASSUMPTION — source cannot settle it]` `[source-derived 2026-09-26 — models/Workflow.ts:666-671; models/actions/CreateOpportunity.ts:220-227]`. 80.6%."
     },
     {
      "name": "monetary_value",
@@ -11459,7 +11577,7 @@
    "family": "steps",
    "title": "create_update_contact",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Create a contact (or update if one matches on email/phone) by writing one or more field values.",
    "meta": {
     "Section": "`contact` (per `sniffs/bundle/registry-parsed.json::entries[4]`)",
@@ -11467,7 +11585,7 @@
     "Hybrid / multi-path?": "Linear.",
     "Corpus frequency": "10 steps across 10 workflows in 3 locations (per `sniffs/bundle/og-action-ui-metadata.json::create_update_contact`).",
     "Premium / beta?": "Not flagged.",
-    "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/crm/CreateUpdateContact.ts`"
+    "UI editor source": "`sniffs/bundle/recovered-source/src/components/actions/crm/CreateUpdateContact.vue` (drawer) + `sniffs/bundle/recovered-source/src/models/actions/crm/CreateUpdateContact.ts` (model) + `sniffs/bundle/recovered-source/src/components/actions/crm/Field.vue` (rows)"
    },
    "fields": [
     {
@@ -11493,7 +11611,7 @@
     }
    ],
    "validator": "`createUpdateContactValidator` (per `sniffs/bundle/validators.json`):\n\n- `attributes.fields.length > 0` else `at_least_one_field_required`.\n- For each row: `field` must be set; `value` must be set unless `date === \"currentDate\"` or value is literally `false`/`0`.\n- At least one row's `field` must be `\"email\"` or `\"phone\"` (the contact identity lookup keys).\n- Non-standard `field` values trigger a `custom_field` resource warning (resolved by `06-fields-glossary.md`).\n\nPer `validators-summary.json`: 14 fields referenced; result level `warning`.",
-   "notes": "- **In a contact-LESS run it creates, then updates by email** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3J-webhook-chain.json`, `live-3J-webhook-chain-logs-late.json`: an inbound-webhook run with no contact created a contact from the payload's email/first/last name; a second POST with the SAME email updated that contact's last name (same id — no duplicate). The run's enrolment then belongs to that contact. Once a run holds a contact (from its trigger, an enrolment, or a `find_contact` Found) the step is skipped — `live-3J2-find-contactless.json`.\n- 🔴 **Skipped in any run that already has a contact** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3G-contacts.json`: enrolled with a contact, the step logs `skipped`, `skippedFor: {type: \"missing-data\", msg: \"Only one contact is allowed per workflow, and <contact name> is already in use.\"}` and does nothing. It is for runs that start WITHOUT a contact (e.g. an inbound-webhook or scheduler trigger) — its contact-less run is not yet proven. No contact was created or updated.\n- 🔴 **The builder decides \"Email or Phone is mapped\" by the row's `title`**, not its `field` key (`models/actions/crm/CreateUpdateContact.ts:229-231`: `field.title === 'Email' || field.title === 'Phone'`); rows with `field: \"email\"` and an empty title are refused (\"maps neither Email nor Phone\") by the builder and by our build `[source-derived 2026-09-28; refusal observed live — live-3G-contacts-run1-title-rule.json]`. Send the drawer's titles.\n- Despite the action name, this is upsert-by-email-or-phone. Without email/phone in `fields`, the validator warns and the runtime can't dedupe — producing duplicate contacts.\n- `date: \"currentDate\"` is the corpus convention for \"set this date field to now\"; the validator special-cases it so `value` can be empty.\n- Custom field IDs go directly in `field` (not nested under `customField`); the runtime resolves them via the contact's location schema.",
+   "notes": "- **In a contact-LESS run it creates, then updates by email** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3J-webhook-chain.json`, `live-3J-webhook-chain-logs-late.json`: an inbound-webhook run with no contact created a contact from the payload's email/first/last name; a second POST with the SAME email updated that contact's last name (same id — no duplicate). The run's enrolment then belongs to that contact. Once a run holds a contact (from its trigger, an enrolment, or a `find_contact` Found) the step is skipped — `live-3J2-find-contactless.json`.\n- 🔴 **Skipped in any run that already has a contact** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3G-contacts.json`: enrolled with a contact, the step logs `skipped`, `skippedFor: {type: \"missing-data\", msg: \"Only one contact is allowed per workflow, and <contact name> is already in use.\"}` and does nothing. No contact was created or updated. It is for runs that start WITHOUT a contact (e.g. an inbound-webhook or scheduler trigger), where it creates or updates (see the note above).\n- 🔴 **The builder decides \"Email or Phone is mapped\" by the row's `title`**, not its `field` key (`models/actions/crm/CreateUpdateContact.ts:229-231`: `field.title === 'Email' || field.title === 'Phone'`); rows with `field: \"email\"` and an empty title are refused (\"maps neither Email nor Phone\") by the builder and by our build `[source-derived 2026-09-28; refusal observed live — live-3G-contacts-run1-title-rule.json]`. Send the drawer's titles.\n- Despite the action name, this is upsert-by-email-or-phone. Without email/phone in `fields`, the validator warns and the runtime can't dedupe — producing duplicate contacts.\n- `date: \"currentDate\"` means \"set this date field to now\" in an API-authored row; the validator special-cases it so `value` can be empty. The drawer never writes it for this step.\n- Custom field IDs go directly in `field` (not nested under `customField`); the runtime resolves them via the contact's location schema.",
    "hasCanonicalExample": true
   },
   {
@@ -11501,15 +11619,15 @@
    "family": "steps",
    "title": "custom_code",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
-   "summary": "Execute user-supplied JavaScript and yield an `output` object that downstream steps can reference (e.g. `{{custom_code.<order>.output.<key>}}`).",
+   "lastVerified": "2026-09-30",
+   "summary": "Execute user-supplied JavaScript or Python and yield an `output` object that downstream steps can reference (e.g. `{{custom_code.<order>.output.<key>}}`).",
    "meta": {
     "Section": "`internal`",
     "Validator": "`customCodeValidator`",
     "Hybrid / multi-path?": "Linear",
     "Corpus frequency": "63 occurrences across 30 workflows in 3 locations",
     "Premium / beta?": "Yes (`isPremiumAction: true`)",
-    "UI editor source": "Not in recovered models — bundled separately under premium-action components"
+    "UI editor source": "`models/actions/premium-actions/CustomCode.ts` + `components/actions/premium-actions/CustomCode.vue` (+ `custom-code-components/`)"
    },
    "fields": [
     {
@@ -11517,7 +11635,7 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "JS function body. Should `return { ... }` an object — the keys appear as `{{custom_code.<order>.output.<key>}}` later. 100%."
+     "notes": "Code body in the step's `language`. It ends by assigning `output = {…}` (JS, where `return {…}` also works) or `output[\"k\"] = …` (Python). The output is an object or an array of objects (builder note: \"Output should be a JavaScript Object or Array of Objects.\"); its keys appear as `{{custom_code.<order>.output.<key>}}` later [source-derived 2026-09-29 — models/actions/premium-actions/CustomCode.ts:7-26; custom-code-components/CustomCodeTest.vue:58-69]. A new step is seeded with the language's sample code. 100%."
     },
     {
      "name": "output",
@@ -11530,19 +11648,19 @@
      "name": "inputData",
      "type": "object",
      "required": false,
-     "default": "{}",
-     "notes": "Object passed into the function as input. The code reads it as `inputData.<key>`: a bare `<key>` is not defined `[proven-live 2026-09-25]`. 100% (often empty)."
+     "default": "`{\"number1\": \"10\", \"number2\": \"20\"}` for a new builder step; `{}` when written by API without it",
+     "notes": "Object passed into the function as input, rebuilt from the drawer's property rows on save (max 20) [source-derived 2026-09-29 — models/actions/premium-actions/CustomCode.ts:16,53-56,108-116]. The code reads it as `inputData.<key>`: a bare `<key>` is not defined `[proven-live 2026-09-25]`. 100% (often empty)."
     },
     {
      "name": "language",
      "type": "string",
      "required": false,
      "default": "\"javascript\"",
-     "notes": "Only `\"javascript\"` observed in corpus. 100%."
+     "notes": "`\"javascript\"` or `\"python\"` (the drawer's Language picker: Javascript / Python). Switching it in the drawer resets `code`, `inputData` and `output` [source-derived 2026-09-29 — models/actions/premium-actions/CustomCode.ts:35-45; custom-code-components/hooks/listeners/use-custom-code-language-listener.ts:32-60]. 100%."
     }
    ],
    "validator": "`customCodeValidator` (length 297, result level `warning`). Per `sniffs/bundle/validators.json::customCodeValidator`:\n\n```\nif (!code.length)         push { field: \"code\",   message: \"custom_code_required\" }\nif (isEmpty(output || {})) push { field: \"output\", message: \"custom_code_must_be_tested\" }\n```\n\n`fields_referenced: [\"code\", \"output\"]`.\n\nThe `output` check forces the user to execute the code at least once before publish — the test execution writes the function's actual return value into `output`. **You cannot publish a `custom_code` step with an empty `output`**, even if `code` is valid. To publish via API without running the UI's test step, hand-populate `output` with a sample matching what your code will actually return.",
-   "notes": "- **JavaScript and Python both run, and `inputData` reaches both** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3H-code-arrays.json`: JS returned `{items, echo: inputData.k}`; Python (`language: \"python\"`) `output['doubled'] = int(inputData['v']) * 2` with `inputData.v = \"21\"` returned 42. Our build refuses a step with an empty `output` (`CODE_OUTPUT_EMPTY`, the builder's \"Code must be tested before saving\"); author a sample `output` — the build then runs the code through the builder's test endpoint and replaces the sample with the real result (`customCodeTests[].replacedOutput: true`).\n- 🔴 **HTTP is `await customRequest.get/post/put/patch/delete/head/options(url, {data, headers, params})` returning `{data, headers, status}`; `fetch`/`require`/`axios` do not exist.** A failed request throws a **string**: `JSON.parse(e)` gives `{isAxiosError, error: <body>, status: \"<code>\"}`, and `e.message` is undefined. The script is killed at 60 s, and GHL's UI states a 2 MB total response limit. Inputs are `inputData.<key>` (a bare key throws `ReferenceError`); a numeric-looking input string arrives as a number, so it loses a `+`. Outputs are `{{custom_code.N.output.<key>}}`; without `.output.` the tag renders EMPTY. Also injected: `_` (lodash), `moment` (its `.tz` did not convert in a real run — see the table), `_csv.parse/stringify`, `_base64`, `_uuid`, and `fileDownloader.downloadAndUploadFormData({downloadUrl, formDataKey, uploadUrl, filename, headers})`. 🔴 `_cache` exists but every call fails (`\"undefined\" is not valid JSON`), even in real runs. Python (`language: \"python\"`) runs RestrictedPython: `requests`, `pandas`, `numpy` and `dateutil` work; `os`, `sys`, `socket` and any `_`-prefixed name are refused. See \"Runtime behaviour\" `[proven-live 2026-09-25]`.\n- **`output` must match the function's actual return shape.** Downstream steps reference `{{custom_code.<order>.output.<key>}}`. If you hand-fill `output: { foo: \"bar\" }` but your code returns `{ baz: 1 }`, the workflow publishes but downstream references break at runtime.\n- **`code` is a function body** (no `function() { ... }` wrapper). JavaScript is wrapped in an **async** function, so top-level `await` works (the builder's own sample says \"This is wrapped in an async function / You can use await throughout the function\", and the linter wraps the code in `async() => {…}`) [source-derived 2026-09-26 — models/actions/premium-actions/CustomCode.ts:7-14; custom-code-components/hooks/use-codemirror-extensions.ts:76-81]. End with `output = {…}` or `return {…}`.\n- **`inputData` keys are read as `inputData.<key>` or `inputData['<key>']`, never as bare variables.** If `inputData: { name: \"{{contact.first_name}}\" }`, the code reads `inputData.name` (Handlebars are resolved before the code runs); a bare `name` is not defined `[source-derived 2026-09-26 — the builder's help text; a bare-name run has not been executed]`. The builder's help text says the same: \"Use inputData.keyName or inputData['keyName'] to access the values within the code\" [source-derived 2026-09-26 — i18n `property_to_include_help_text`].\n- **Premium gate.** `isPremiumAction: true` in the registry — sub-accounts without Workflow AI / premium tier may have publish rejected at a higher level.\n- **`stepIndex` is set** in the corpus example — premium actions often carry `stepIndex` (a numeric sequence id used internally by premium runtime infra).\n- The validator emits warnings, but publish treats them as blocking.",
+   "notes": "- **JavaScript and Python both run, and `inputData` reaches both** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3H-code-arrays.json`: JS returned `{items, echo: inputData.k}`; Python (`language: \"python\"`) `output['doubled'] = int(inputData['v']) * 2` with `inputData.v = \"21\"` returned 42. Our build refuses a step with an empty `output` (`CODE_OUTPUT_EMPTY`, the builder's \"Code must be tested before saving\"); author a sample `output` — the build then runs the code through the builder's test endpoint and replaces the sample with the real result (`customCodeTests[].replacedOutput: true`).\n- 🔴 **HTTP is `await customRequest.get/post/put/patch/delete/head/options(url, {data, headers, params})` returning `{data, headers, status}`; `fetch`/`require`/`axios` do not exist.** A failed request throws a **string**: `JSON.parse(e)` gives `{isAxiosError, error: <body>, status: \"<code>\"}`, and `e.message` is undefined. The script is killed at 60 s, and GHL's UI states a 2 MB total response limit. Inputs are `inputData.<key>` (a bare key throws `ReferenceError`); a numeric-looking input string arrives as a number, so it loses a `+`. Outputs are `{{custom_code.N.output.<key>}}`; without `.output.` the tag renders EMPTY. Also injected: `_` (lodash), `moment` (its `.tz` did not convert in a real run — see the table), `_csv.parse/stringify`, `_base64`, `_uuid`, and `fileDownloader.downloadAndUploadFormData({downloadUrl, formDataKey, uploadUrl, filename, headers})`. 🔴 `_cache` exists but every call fails (`\"undefined\" is not valid JSON`), even in real runs. Python (`language: \"python\"`) runs RestrictedPython: `requests`, `pandas`, `numpy` and `dateutil` work; `os`, `sys`, `socket` and any `_`-prefixed name are refused. See \"Runtime behaviour\" `[proven-live 2026-09-25]`.\n- **`output` must match the function's actual return shape.** Downstream steps reference `{{custom_code.<order>.output.<key>}}`. If you hand-fill `output: { foo: \"bar\" }` but your code returns `{ baz: 1 }`, the workflow publishes but downstream references break at runtime.\n- **`code` is a function body** (no `function() { ... }` wrapper). JavaScript is wrapped in an **async** function, so top-level `await` works (the builder's own sample says \"This is wrapped in an async function / You can use await throughout the function\", and the linter wraps the code in `async() => {…}`) [source-derived 2026-09-26 — models/actions/premium-actions/CustomCode.ts:7-14; custom-code-components/hooks/use-codemirror-extensions.ts:76-81]. End with `output = {…}` or `return {…}`.\n- **`inputData` keys are read as `inputData.<key>` or `inputData['<key>']`, never as bare variables.** If `inputData: { name: \"{{contact.first_name}}\" }`, the code reads `inputData.name` (Handlebars are resolved before the code runs); a bare `name` is not defined `[source-derived 2026-09-26 — the builder's help text; a bare-name run has not been executed]`. The builder's help text says the same: \"Use inputData.keyName or inputData['keyName'] to access the values within the code\" [source-derived 2026-09-26 — i18n `property_to_include_help_text`].\n- **Premium gate.** `isPremiumAction: true` in the registry. When premium actions are off for the location, the drawer shows only a paywall (see Builder options and limits); whether publish is also refused on such a location is untested.\n- **`stepIndex` is set** in the corpus example — premium actions often carry `stepIndex` (a numeric sequence id used internally by premium runtime infra).\n- The validator emits warnings, but publish treats them as blocking.",
    "hasCanonicalExample": true
   },
   {
@@ -11732,15 +11850,15 @@
    "family": "steps",
    "title": "custom_webhook",
    "status": "source-derived",
-   "lastVerified": "2026-09-29",
-   "summary": "Premium HTTP request action — POST/GET/PUT/DELETE to an external URL with JSON or form-encoded body, headers, query parameters, and an event-classification tag. Distinct from the simpler `webhook` action by supporting authorization, parameters, response capture, and event metadata.",
+   "lastVerified": "2026-09-30",
+   "summary": "Premium HTTP request action: POST, GET, PUT, DELETE, PATCH, HEAD or OPTIONS to an external URL, with a JSON or form-encoded body, headers, query parameters and an Event preset (`CUSTOM`, `POST` or `GET`) that sets which of those the drawer offers. It differs from the simpler `webhook` action in havi",
    "meta": {
     "Section": "`send_data`",
     "Validator": "`customWebhookValidator`",
     "Hybrid / multi-path?": "Linear",
     "Corpus frequency": "58 occurrences across 13 workflows in 3 locations",
     "Premium / beta?": "Yes (`isPremiumAction: true`)",
-    "UI editor source": "Not in recovered models — premium-action sub-bundle"
+    "UI editor source": "`recovered-source/src/models/actions/premium-actions/CustomWebhook.ts` (drawer `components/actions/premium-actions/CustomWebhook.vue`)"
    },
    "fields": [
     {
@@ -11752,24 +11870,24 @@
     },
     {
      "name": "method",
-     "type": "\"GET\" | \"POST\" | \"PUT\" | \"PATCH\" | \"DELETE\"",
+     "type": "\"POST\" | \"GET\" | \"PUT\" | \"DELETE\" | \"PATCH\" | \"HEAD\" | \"OPTIONS\"",
      "required": true,
      "default": "\"POST\"",
-     "notes": "HTTP method. 100%."
+     "notes": "HTTP method. The drawer shows the Method select only when `event` is `CUSTOM`; Event `POST` / `GET` force it [source-derived 2026-09-29 — models/actions/premium-actions/CustomWebhook.ts:93-122,509-516]. 100%."
     },
     {
      "name": "event",
-     "type": "string",
+     "type": "\"CUSTOM\" | \"POST\" | \"GET\"",
      "required": true,
      "default": "\"CUSTOM\"",
-     "notes": "Event-classification tag (used to group outbound webhooks; observed: `\"CUSTOM\"`). 100%."
+     "notes": "The drawer's \"Event\" select. `CUSTOM` shows the Method select and, for a method with a body, the Content-Type + body editor. `POST` forces `method: \"POST\"` and shows key/value body rows. `GET` forces `method: \"GET\"` with no body [source-derived 2026-09-29 — models/actions/premium-actions/CustomWebhook.ts:78-91,509-531; components/actions/premium-actions/CustomWebhook.vue:15-20]. 100%."
     },
     {
      "name": "body",
      "type": "object",
      "required": "conditional",
      "default": "—",
-     "notes": "`{ contentType: \"application/json\", rawData: \"<json-string>\", keyValueData: [] }`. Required when `contentType === \"application/json\"` and method has body. 100%."
+     "notes": "`{ contentType: \"application/json\" | \"application/x-www-form-urlencoded\", rawData: \"<json-string>\", keyValueData: [] }`. The publish validator warns when `contentType` is `application/json` and `rawData` is empty, whatever the method or event. The drawer never checks it [source-derived 2026-09-29 — utils/validators/webhook-validators.ts:98-125; models/actions/premium-actions/CustomWebhook.ts:865-947]. 100%."
     },
     {
      "name": "body.rawData",
@@ -11783,7 +11901,7 @@
      "type": "array<{key,value}>",
      "required": "conditional",
      "default": "[]",
-     "notes": "Form-encoded body (alternative to `rawData`)."
+     "notes": "The drawer's \"Body (Key and Value)\" rows. Used when `contentType` is `application/x-www-form-urlencoded` and when `event` is `POST`; Event `CUSTOM` empties it [source-derived 2026-09-29 — components/actions/premium-actions/CustomWebhook.vue:15-20; models/actions/premium-actions/CustomWebhook.ts:509-531]."
     },
     {
      "name": "headers",
@@ -11804,7 +11922,7 @@
      "type": "object",
      "required": false,
      "default": "{ type: \"NONE\", data: null }",
-     "notes": "`type` is `NONE` | `BASIC_AUTH` | `BEARER_TOKEN` | `API_KEY` | `OAUTH2`. `data` by type: `NONE` → `null`; `BASIC_AUTH` → `{username, password}`; `BEARER_TOKEN` → `{token}`; `API_KEY` → `{key, value, passBy: \"headers\" | \"parameters\"}` (default `headers`); `OAUTH2` → `{tokenId}` (a saved token's `_id`). The drawer offers `OAUTH2` only outside production or to the HL company [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:38-64,124-141,612-643,740-752]. 100%."
+     "notes": "`type` is `NONE` | `BASIC_AUTH` | `BEARER_TOKEN` | `API_KEY` | `OAUTH2`. `data` by type: `NONE` → `null`; `BASIC_AUTH` → `{username, password}`; `BEARER_TOKEN` → `{token}`; `API_KEY` → `{key, value, passBy: \"headers\" | \"parameters\"}` (default `headers`); `OAUTH2` → `{tokenId}` (a saved token's `_id`). The drawer fills `password`, `token` and the API-key `value` from the location's Secret Manager and stores a reference, `WFSM_<24-hex>` or `WFKC_<id>`, not the secret; only legacy steps hold plain text [source-derived 2026-09-29 — components/actions/premium-actions/custom-webhook-components/hooks/use-custom-webhook-auth.ts:19-41]. The drawer offers `OAUTH2` only outside production or to the HL company [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:38-64,124-141,612-643,740-752]. 100%."
     },
     {
      "name": "authorization.data.token",
@@ -11832,11 +11950,11 @@
      "type": "bool",
      "required": false,
      "default": "`false` [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:187]",
-     "notes": "Whether to store the response for downstream variable use (`{{custom_webhook.<order>.response.<key>}}`). 100%."
+     "notes": "The drawer's \"Save response from this Webhook\". In the builder it lists the step in the merge-field menu's \"Custom Webhook\" group (`{{custom_webhook.<N>.response.<key>}}`) and requires a successful test [source-derived 2026-09-29 — utils/premium-actions-helpers/custom_webhook_helpers.ts:41]. Its runtime effect is under Notes. 100%."
     }
    ],
    "validator": "`customWebhookValidator` (length 2518, result level `warning`). Per `sniffs/bundle/validators.json::customWebhookValidator`:\n\n1. `url` non-empty (after `.trim()`).\n2. `method` set.\n3. `event` set.\n4. If `body.contentType === \"application/json\"`:\n   - `body.rawData` non-empty.\n   - ~~`body.rawData` is parsable JSON (`JSON.parse` in try-catch).~~ **REMOVED by GHL in the 2026-09-14\n     builder bundle**, which deletes the branch and says why in its own source: *\"rawData is compiled at\n     execution time; merge fields make static JSON.parse invalid on save.\"* `[proven-live]` 2026-09-23:\n     GHL's server validator (`POST …/validate-workflows`) called VALID a body containing a merge tag, a\n     body of **malformed** JSON (`{\"a\": }`), and a body of valid JSON, identically — with a control on the\n     same call path (the step's attributes stripped) refused at the action layer, so the VALIDs were real\n     verdicts. So a syntax error in a JSON body is **no longer caught anywhere on GHL's save path**; it\n     surfaces only when the webhook fires. The plugin's engine keeps a narrowed warning of its own\n     (malformed JSON with no merge tag in it), deliberately stricter than GHL there and silent on merge tags.\n5. Authorization, by type [source-derived 2026-09-26 — utils/validators/webhook-validators.ts:151-210]:\n   - `BEARER_TOKEN`: `authorization.data.token` set (`bearer_token_required`).\n   - `API_KEY`: `authorization.data.key` and `.value` set (`api_key_and_value_required`).\n   - `OAUTH2`: `authorization.data.tokenId` set (`oauth2_token_required`).\n   - `BASIC_AUTH` is not checked at publish; only the drawer checks `username`/`password` (models/actions/premium-actions/CustomWebhook.ts:720-737).\n6. If `saveResponse` is true: `webhookResponse.isSampleRequested` must be true and `webhookResponse.status` below 400 (`valid_sample_response_required`, field `webhookResponse`) [source-derived 2026-09-26 — utils/validators/webhook-validators.ts:213-222].\n\n`fields_referenced` (11): `authorization.data`, `authorization.data.token`, `authorization.data.tokenId`, `body.keyValueData`, `body.rawData`, `event`, `headers`, `method`, `parameters`, `url`, `webhookResponse`.",
-   "notes": "- **POSTs and the receiver fires** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3J-webhook-chain.json`, `live-3J-webhook-chain-logs-late.json`: `event: CUSTOM`, `method: POST`, JSON `rawData` with a merge tag, sent to an inbound-webhook trigger URL on the same location — each run enrolled the receiving workflow once. Omit `authorization` when it is `NONE`: our tools refuse any argument KEY named `authorization` as a credential, even `{type:\"NONE\", data:null}`; the compiler fills that default itself.\n- 🔴 **Index a response array with a DOT, never brackets.** `{{custom_webhook.N.response.<path>.numbers.0.phoneNumber}}` renders. `…numbers[0].phoneNumber` fails to compile, and the WHOLE field write is skipped (`missing-data`, \"can't be compiled\"), including every other tag in the same value. GHL's validator does not catch it. A whole array or object renders `[object Object]`. To pick items out of a list, pass the array into a Custom Code step, where it arrives as a real array. See \"Reading an array out of the response\" `[proven-live 2026-09-25]`.\n- 🔴 **A 5xx holds the run on this step and retries**: 5 attempts over about 50 min, then `failed_retry_limit_reached` and the run carries on with `.status` = 500. **A 4xx fails, and the run carries on at once.** A 200 with an error in its body is a success. Branch on `{{custom_webhook.N.status}}` or `.response.<path>`. See \"What a failed call does to the run\" `[proven-live 2026-09-25]`.\n\n- **`body.rawData` is a JSON-encoded string, not an object.** When you build the body programmatically, `JSON.stringify` your payload and assign the result to `rawData`. Embedded Handlebars (`{{contact.first_name}}`) remain literal strings in the JSON until the runtime resolves them at execution.\n- **Nothing on GHL's save path parses `rawData` as JSON** (see the Validator section). Handlebars in the JSON must still produce valid JSON when expanded at execution. If a Handlebars value can be empty/null and you reference it without quotes (`\"phone\": {{contact.phone}}`), the JSON becomes invalid at runtime — wrap in quotes.\n- **`webhookResponse` is a UI-test artifact.** It captures whatever the \"test webhook\" button produced; the runtime doesn't read it. The minimal stub `{ \"isSampleRequested\": false, \"selectedContact\": \"\" }` is safe **only with `saveResponse: false`**. With `saveResponse: true`, the drawer refuses Save and the publish validator warns (`valid_sample_response_required`) until a test has run (`isSampleRequested: true`) with a status below 400 [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:808-816,942; utils/validators/webhook-validators.ts:213-222]. The test is `POST /workflow/{locationId}/run-single-action` with `{type: \"custom_webhook\", contactId or recordId, recordType, contactLess, locationId, attributes}` [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:762-782; services/CustomWebhookService.ts:6-14,42-44].\n- **The test follows the workflow's object** [proven-live 2026-09-29 — `sniffs/workflows-wave1-2026-09-25/live-R7-9-webhook-test-body.json`, `live-R7-9b-webhook-test-live.json`]:\n  - In a company workflow the drawer asks for \"SELECT A SINGLE COMPANY TO TEST\", and its search is `POST /objects/business/records/search`.\n  - The test sends `{contactLess: true, recordId: <company id>, recordType: \"business\"}`. The record type is the workflow's object key: `business` for a company workflow, `custom_objects.<key>` for a custom-object one; a contact workflow sends `contactId` instead (`getWorkflowObjectKey`, utils/workflows.ts:1635-1639).\n  - One real test to an own inbound hook answered 200 \"Success: test request received\", and the hook recorded the request (read back separately).\n  - The saved step keeps `webhookResponse: {recordId, recordType: \"business\", isSampleRequested: true, status: 200, data, headers}`.\n  - The test is a premium action execution.\n- **`saveResponse: true` makes response data available downstream** as `{{custom_webhook.<order>.response.<key>}}`. If `false`, downstream references resolve to empty strings.\n- **`event: \"CUSTOM\"` is the only observed value** in the corpus. The field appears to support classification but the runtime accepts any string.\n- **Premium gate**. `isPremiumAction: true`.\n- For a simpler POST without body validation or auth, use [`webhook`](./webhook.md).",
+   "notes": "- **POSTs and the receiver fires** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3J-webhook-chain.json`, `live-3J-webhook-chain-logs-late.json`: `event: CUSTOM`, `method: POST`, JSON `rawData` with a merge tag, sent to an inbound-webhook trigger URL on the same location — each run enrolled the receiving workflow once. Omit `authorization` when it is `NONE`: our tools refuse any argument KEY named `authorization` as a credential, even `{type:\"NONE\", data:null}`; the compiler fills that default itself.\n- 🔴 **Index a response array with a DOT, never brackets.** `{{custom_webhook.N.response.<path>.numbers.0.phoneNumber}}` renders. `…numbers[0].phoneNumber` fails to compile, and the WHOLE field write is skipped (`missing-data`, \"can't be compiled\"), including every other tag in the same value. GHL's validator does not catch it. A whole array or object renders `[object Object]`. To pick items out of a list, pass the array into a Custom Code step, where it arrives as a real array. See \"Reading an array out of the response\" `[proven-live 2026-09-25]`.\n- 🔴 **A 5xx holds the run on this step and retries**: 5 attempts over about 50 min, then `failed_retry_limit_reached` and the run carries on with `.status` = 500. **A 4xx fails, and the run carries on at once.** A 200 with an error in its body is a success. Branch on `{{custom_webhook.N.status}}` or `.response.<path>`. See \"What a failed call does to the run\" `[proven-live 2026-09-25]`.\n\n- **`body.rawData` is a JSON-encoded string, not an object.** When you build the body programmatically, `JSON.stringify` your payload and assign the result to `rawData`. Embedded Handlebars (`{{contact.first_name}}`) remain literal strings in the JSON until the runtime resolves them at execution.\n- **Nothing on GHL's save path parses `rawData` as JSON** (see the Validator section). Handlebars in the JSON must still produce valid JSON when expanded at execution. If a Handlebars value can be empty/null and you reference it without quotes (`\"phone\": {{contact.phone}}`), the JSON becomes invalid at runtime — wrap in quotes.\n- **`webhookResponse` is a UI-test artifact.** It captures whatever the \"test webhook\" button produced; the runtime doesn't read it. The minimal stub `{ \"isSampleRequested\": false, \"selectedContact\": \"\" }` is safe **only with `saveResponse: false`**. With `saveResponse: true`, the drawer refuses Save and the publish validator warns (`valid_sample_response_required`) until a test has run (`isSampleRequested: true`) with a status below 400 [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:808-816,942; utils/validators/webhook-validators.ts:213-222]. The test is `POST /workflow/{locationId}/run-single-action` with `{type: \"custom_webhook\", contactId or recordId, recordType, contactLess, locationId, attributes}` [source-derived 2026-09-26 — models/actions/premium-actions/CustomWebhook.ts:762-782; services/CustomWebhookService.ts:6-14,42-44].\n- **The test follows the workflow's object** [proven-live 2026-09-29 — `sniffs/workflows-wave1-2026-09-25/live-R7-9-webhook-test-body.json`, `live-R7-9b-webhook-test-live.json`]:\n  - In a company workflow the drawer asks for \"SELECT A SINGLE COMPANY TO TEST\", and its search is `POST /objects/business/records/search`.\n  - The test sends `{contactLess: true, recordId: <company id>, recordType: \"business\"}`. The record type is the workflow's object key: `business` for a company workflow, `custom_objects.<key>` for a custom-object one; a contact workflow sends `contactId` instead (`getWorkflowObjectKey`, utils/workflows.ts:1635-1639).\n  - One real test to an own inbound hook answered 200 \"Success: test request received\", and the hook recorded the request (read back separately).\n  - The saved step keeps `webhookResponse: {recordId, recordType: \"business\", isSampleRequested: true, status: 200, data, headers}`.\n  - The test is a premium action execution.\n- **`saveResponse` filters the builder's merge-field menu**: only steps with `saveResponse: true` appear under \"Custom Webhook\" as `{{custom_webhook.<N>.response.<key>}}`. The If/Else nested dropdown lists every upstream custom webhook regardless [source-derived 2026-09-29 — utils/premium-actions-helpers/custom_webhook_helpers.ts:20-85]. The 2026-09-25 live runs all had `saveResponse: true`, so whether the tags render at runtime with `saveResponse: false` is unproven [ASSUMPTION — no builder source reads the flag at runtime; not executed].\n- **`event` is a drawer preset, not a label.** `CUSTOM` (the only value seen in stored workflows) exposes Method and Content-Type. `POST` and `GET` lock the method and change the body UI (see Builder options and limits) [source-derived 2026-09-29 — models/actions/premium-actions/CustomWebhook.ts:78-91,509-531].\n- **Premium gate**. `isPremiumAction: true`.\n- For a simpler POST without body validation or auth, use [`webhook`](./webhook.md).",
    "hasCanonicalExample": true
   },
   {
@@ -13686,12 +13804,12 @@
    "family": "steps",
    "title": "find_contact",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
-   "summary": "Look up a contact by one or more field values; branch into \"Contact Found\" / \"Contact Not Found\" paths.",
+   "lastVerified": "2026-09-30",
+   "summary": "Look up a contact by one or more field values; branch into \"Contact found\" / \"Contact not found\" paths.",
    "meta": {
     "Section": "`contact` (per `sniffs/bundle/registry-parsed.json::entries[5]`)",
     "Validator": "`findContactValidator` (per `sniffs/bundle/validators-summary.json`)",
-    "Hybrid / multi-path?": "**Multi-path container.** `cat: \"multi-path\"`, `isHybridAction: true`, `hybridActionType: \"find_contact\"`. The step's `next` is an array of two transition IDs.",
+    "Hybrid / multi-path?": "**Multi-path container.** `cat: \"multi-path\"`, `isHybridAction: true`, `hybridActionType: \"find_contact\"`. On a branching step `next` is an array of two transition IDs; a legacy step with no `convertToMultipath` key stays linear (see Builder options and limits).",
     "Corpus frequency": "9 steps across 8 workflows in 2 locations (per `sniffs/bundle/og-action-ui-metadata.json::find_contact`).",
     "Premium / beta?": "Not flagged.",
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/crm/FindContact.ts`"
@@ -13743,19 +13861,19 @@
      "name": "convertToMultipath",
      "type": "boolean",
      "required": false,
-     "default": "`true` in corpus",
-     "notes": "Triggers UI's two-branch rendering."
+     "default": "`true` for a new step",
+     "notes": "The builder keys on the key's **presence**: on load it becomes `true` if the key exists (any value), otherwise `false` (legacy linear step, shown with the \"Enable branching for Find Contact\" banner). `[source-derived — models/actions/crm/FindContact.ts:53-59,242-248]`"
     },
     {
      "name": "transitions",
      "type": "ITransitionAttributes[]",
      "required": false,
      "default": "—",
-     "notes": "Two entries: `condition: \"contact_found\"` (primary) and `contact_not_found`."
+     "notes": "Exactly two, written on save only when branching is enabled: `condition: \"contact_found\"` (primary, name \"Contact found\") and `contact_not_found` (name \"Contact not found\"). A legacy step without `convertToMultipath` saves none and runs linear. `[source-derived — FindContact.ts:254-296]`"
     }
    ],
-   "validator": "`findContactValidator` (per `sniffs/bundle/validators.json`):\n\n- `attributes.fields.length > 0` else `at_least_one_field_required`.\n- For each row: `field` must be set; `value` must be set unless `date === \"currentDate\"` or value is `false`/`0`.\n- Non-standard `field` values trigger `custom_field` resource warning.\n\nNote: `find_contact` does **not** require email/phone (unlike `create_update_contact`). Any indexed field will do.",
-   "notes": "- **In a contact-less run it really searches, and Found ATTACHES the contact** `[proven-live 2026-09-28]` `live-3J2-find-contactless.json`: first step of an inbound-webhook run — an email that exists took Found and the run's enrolment became that contact's; an email that exists nowhere took Not Found (a `create_update_contact` there created the contact). After Found, a `create_update_contact` in that branch was skipped (the run already holds a contact), so it changed nothing.\n- **Custom-field and phone searches, contact-less** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3AS-find-contactless-cf-phone.json`: first step of an inbound-webhook run.\n  - A row on a custom text field (`field: \"<customFieldId>\"`) holding a key that one contact has took Found. The run's enrolment became that contact, and a tag step in the Found branch tagged it. A key that exists nowhere ran with no contact (Not Found) and created nothing.\n  - A `phone` row given the contact's number in E.164 (`+1555…`) found it.\n  - 🔴 The same number in US national format (`(555) 555-0177`) found **nothing**. The account's country is GB, so a national-format number is presumably read against the account's country [inferred from the account country; not tested on a US account]. Send phone searches in E.164.\n- 🔴 **Skipped in any run that already has a contact** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3G-contacts.json`: enrolled with a contact, the step logs `skipped`, `skippedFor: {type: \"missing-data\", msg: \"Only one contact is allowed per workflow, and <contact name> is already in use.\"}` and does nothing. It is for runs that start WITHOUT a contact (e.g. an inbound-webhook or scheduler trigger), where it really searches (see the note above, `live-3J2-find-contactless.json`). 🔴 **A skipped find routes down the FOUND branch**: all three runs (an existing email, an address that exists nowhere, a custom-field value) took Contact Found. A find on a contact workflow therefore always \"finds\".\n- Hybrid action: `next` is a string array (transition IDs), not a single string. See `docs/04-workflow-anatomy.md §4` for multi-path semantics.\n- The two `transitions` entries are **created by the builder UI** when you drop the step — server may reject the step body if transitions are missing or condition values are mistyped.\n- A primary branch (`isPrimaryBranch: true`) is the visual \"happy path\" — the workflow engine doesn't treat it preferentially at runtime; both branches are evaluated by their `condition`.\n- Sibling action `find_or_create_contact` (not in this registry but in metadata) covers the \"create-if-not-found\" combo as a single step.",
+   "validator": "`findContactValidator` (per `sniffs/bundle/validators.json`):\n\n- `attributes.fields.length > 0` else `at_least_one_field_required`.\n- For each row: `field` must be set; `value` must be set unless `date === \"currentDate\"` or value is `false`/`0`.\n- Non-standard `field` values trigger `custom_field` resource warning.\n\nNote: `find_contact` does **not** require email/phone (unlike `create_update_contact`). The drawer offers 13 standard fields (Contact ID included; not Date of birth, DND, Country, Timezone or Contact type) and only text-like custom fields (see Builder options and limits).",
+   "notes": "- **In a contact-less run it really searches, and Found ATTACHES the contact** `[proven-live 2026-09-28]` `live-3J2-find-contactless.json`: first step of an inbound-webhook run — an email that exists took Found and the run's enrolment became that contact's; an email that exists nowhere took Not Found (a `create_update_contact` there created the contact). After Found, a `create_update_contact` in that branch was skipped (the run already holds a contact), so it changed nothing.\n- **Custom-field and phone searches, contact-less** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3AS-find-contactless-cf-phone.json`: first step of an inbound-webhook run.\n  - A row on a custom text field (`field: \"<customFieldId>\"`) holding a key that one contact has took Found. The run's enrolment became that contact, and a tag step in the Found branch tagged it. A key that exists nowhere ran with no contact (Not Found) and created nothing.\n  - A `phone` row given the contact's number in E.164 (`+1555…`) found it.\n  - 🔴 The same number in US national format (`(555) 555-0177`) found **nothing**. The account's country is GB, so a national-format number is presumably read against the account's country [inferred from the account country; not tested on a US account]. Send phone searches in E.164.\n- 🔴 **Skipped in any run that already has a contact** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3G-contacts.json`: enrolled with a contact, the step logs `skipped`, `skippedFor: {type: \"missing-data\", msg: \"Only one contact is allowed per workflow, and <contact name> is already in use.\"}` and does nothing. It is for runs that start WITHOUT a contact (e.g. an inbound-webhook or scheduler trigger), where it really searches (see the note above, `live-3J2-find-contactless.json`). 🔴 **A skipped find routes down the FOUND branch**: all three runs (an existing email, an address that exists nowhere, a custom-field value) took Contact Found. A find on a contact workflow therefore always \"finds\".\n- Hybrid action: `next` is a string array (transition IDs), not a single string. See `docs/04-workflow-anatomy.md §4` for multi-path semantics.\n- The two `transitions` entries are **created by the builder on save** (when fewer than two exist and branching is enabled), not when the step is dropped — server may reject the step body if transitions are missing or condition values are mistyped.\n- A primary branch (`isPrimaryBranch: true`) is the visual \"happy path\" — the workflow engine doesn't treat it preferentially at runtime; both branches are evaluated by their `condition`.\n- Sibling action `find_or_create_contact` (not in this registry but in metadata) covers the \"create-if-not-found\" combo as a single step.",
    "hasCanonicalExample": true
   },
   {
@@ -23111,7 +23229,7 @@
    "family": "steps",
    "title": "math_operation",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Apply arithmetic to a numeric field and (optionally) write the result to another field. This is NOT `number_formatter` — that is a separate current step type (text↔number, phone, currency, random; see [`number_formatter`](./number_formatter.md)) `[source-derived 2026-09-25: both are members of Workf",
    "meta": {
     "Section": "`internal` (per `sniffs/bundle/registry-parsed.json::entries[40]`)",
@@ -23127,14 +23245,14 @@
      "type": "string",
      "required": true,
      "default": "''",
-     "notes": "Source field (custom-field ID, custom-value ID via `{{custom_values.X}}`, or chained result `{{math_operation.N.result}}`)."
+     "notes": "Source field: a custom-field ID, `currentDate`, `dateOfBirth`, a custom value's merge tag `{{custom_values.X}}` (its id goes in `sourceCustomValueId`), a chained result `{{math_operation.N.result}}`, or a numeric merge tag."
     },
     {
      "name": "selectFieldtype",
-     "type": "FieldType",
+     "type": "`'numerical'` | `'date'`",
      "required": true,
      "default": "''",
-     "notes": "E.g. `\"numerical\"`, `\"date\"`. Required for validator type-match."
+     "notes": "Derived from the picked source (NUMERICAL / MONETORY → `numerical`, DATE / DATE_TIME → `date`); the drawer never asks for it. Used by the type-match check."
     },
     {
      "name": "sourceCustomValueId",
@@ -23148,7 +23266,7 @@
      "type": "string",
      "required": false,
      "default": "''",
-     "notes": "Target field to write result to."
+     "notes": "Target field to also write the result to — the drawer labels it \"(Optional)\" and it is clearable; the result is available as `{{math_operation.N.result}}` either way."
     },
     {
      "name": "updateFieldType",
@@ -23168,11 +23286,11 @@
      "name": "operators",
      "type": "Operator[]",
      "required": true,
-     "default": "[]",
-     "notes": "Sequence of operations. Validator requires at least one."
+     "default": "one row `{operator: 'add', value: 0, __id}`",
+     "notes": "Sequence of operations. The validator has no at-least-one-operator check."
     }
    ],
-   "validator": "`mathOperationValidator` (per `sniffs/bundle/validators.json`):\n\n- `selectField` must be set, else `math_select_field_required`.\n- If `selectField` matches `{{math_operation.\\d+.result}}`, the validator walks `templates` to ensure the referenced math step still exists; warns `math_source_action_deleted` otherwise, or `math_input_field_type_changed` if the source's type changed.\n- When `updateField` is set and doesn't reference `custom_values`, the source and target types must match for `numerical` / `date`, else `math_field_type_mismatch`.\n- (Operators list checks not fully traced; open `validators.json::mathOperationValidator` for the full chain.)\n\nPer `validators-summary.json`: 3 fields referenced (operators, selectField, updateField); result level `warning`.",
+   "validator": "`mathOperationValidator` (per `sniffs/bundle/validators.json`):\n\n- `selectField` must be set, else `math_select_field_required`.\n- If `selectField` matches `{{math_operation.\\d+.result}}`, the validator walks `templates` to ensure the referenced math step still exists; warns `math_source_action_deleted` otherwise, or `math_input_field_type_changed` if the source's type changed.\n- When `updateField` is set and doesn't reference `custom_values`, the source and target types must match for `numerical` / `date`, else `math_field_type_mismatch`.\n- The only operator check is divide-by-zero: a `div` row whose value is the number `0` warns `math_division_by_zero` (a merge tag resolving to 0 is not caught) `[source-derived — utils/validators/additional-action-validators.ts:392-399]`.\n\nPer `validators-summary.json`: 3 fields referenced (operators, selectField, updateField); result level `warning`.",
    "notes": "- **Output** `{{math_operation.N.result}}` (per-type `stepIndex`) is readable by later steps, with or without `updateField` `[proven-live 2026-09-28]`. A custom VALUE as source and target runs too `[proven-live 2026-09-28]` (`sniffs/workflows-wave1-2026-09-25/live-3M-custom-value.json`): `selectField`/`updateField` = `{{custom_values.<key>}}` with `sourceCustomValueId`/`targetCustomValueId` = its id, `add 2` on `5` → the custom value read `7` and `.result` rendered `7`.\n- **A MONETORY custom field is a numerical source** (`MATH_FIELD_TYPES`, `MathOperations.ts:20`): in place (`selectField` = `updateField`) `100.5 + 0.25` → `100.75` `[proven-live 2026-09-28]`. Custom fields are addressed by field ID in `selectField` / `updateField` `sniffs/workflows-wave1-2026-09-25/live-3B-fields-math.json`.\n- **Date source** `[proven-live 2026-09-28]`: `2026-01-31` with `add {days:1, months:1, years:1}` → `2027-03-01`; the result merge tag renders `YYYY-MM-DD` `sniffs/workflows-wave1-2026-09-25/live-3B-fields-math.json`.\n- 🔴 **Operators run left to right and the result is ROUNDED to 2 decimals** `[proven-live 2026-09-28]`: source 10, operators `add 5, mul 2, sub 1, div 3` in ONE step → `9.67` (((10+5)×2−1)÷3 = 9.666…). A second step reading `{{math_operation.1.result}}` × 10 → `96.7` — it inherits the rounded value `sniffs/workflows-wave1-2026-09-25/live-3B-fields-math.json`.\n- `selectField` and `updateField` are the **same value** in the corpus example — this is the in-place increment pattern.\n- Chaining: a downstream math step can reference `{{math_operation.N.result}}` where N is the step index. The validator tracks template changes that would invalidate the reference.\n- `math_operation` and `number_formatter` are two different current step types; an older README conflated them. Arithmetic is `math_operation`; formatting/parsing/random is [`number_formatter`](./number_formatter.md).",
    "hasCanonicalExample": true
   },
@@ -23235,8 +23353,8 @@
    "family": "steps",
    "title": "membership_grant_offer",
    "status": "source-derived",
-   "lastVerified": "2026-09-29",
-   "summary": "Grant the contact a specific membership offer (course access, community membership, etc.).",
+   "lastVerified": "2026-09-30",
+   "summary": "Grant the contact access to the course product behind a membership offer. The builder names it \"Course grant offer\" and describes it as \"Grant contact access to a specific course product\".",
    "meta": {
     "Section": "`membership` (per `sniffs/bundle/registry-parsed.json::entries[64]`)",
     "Validator": "`membershipOfferValidator` (per `sniffs/bundle/validators-summary.json`)",
@@ -23270,7 +23388,7 @@
    "family": "steps",
    "title": "membership_revoke_offer",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Revoke a membership offer from the contact.",
    "meta": {
     "Section": "`membership` (per `sniffs/bundle/registry-parsed.json::entries[65]`)",
@@ -26171,7 +26289,7 @@
    "family": "steps",
    "title": "remove_from_workflow",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "Drop the running contact from one or more other workflows (or all of them).",
    "meta": {
     "Section": "`internal`",
@@ -27391,7 +27509,7 @@
    "family": "steps",
    "title": "sms",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "Send an SMS (or MMS via `attachments` / `urlAttachments`) to the contact.",
    "meta": {
     "Section": "`communication`",
@@ -27418,10 +27536,10 @@
     },
     {
      "name": "template_id: \"none\"",
-     "type": "sentinel",
+     "type": "picker value only",
      "required": false,
      "default": "—",
-     "notes": "Equivalent to unset (clears template via `selectTemplate`)."
+     "notes": "The drawer never stores it: choosing \"None\" in Templates deletes `template_id`. The validator treats a stored `\"none\"` as unset."
     },
     {
      "name": "attachments",
@@ -27446,10 +27564,10 @@
     },
     {
      "name": "testPhones",
-     "type": "string[]",
+     "type": "—",
      "required": false,
      "default": "—",
-     "notes": "Test-send only."
+     "notes": "Not written by the drawer. The test number lives on the model and goes only into the test-send request (`testPhones: string[]`); the `ISMS` interface still declares the key."
     },
     {
      "name": "userType",
@@ -27488,7 +27606,7 @@
     }
    ],
    "validator": "Two-link delegation per `sniffs/bundle/validators.json`:\n\n```\nsendSmsActionValidator(n) → baseSmsValidator(n, translate(\"sms_body_required\"))\n```\n\n`baseSmsValidator` logic:\n\n1. If `template_id` is set and not `\"none\"` → push `{ field: \"template_id\", resource: \"sms_template\", value: template_id }` (template-existence lookup).\n2. Else if no `attachments` and no `urlAttachments` and `parseHTMLToBody(body)` is empty/whitespace → push `{ field: \"body\", message: \"sms_body_required\" }`.\n3. Else if `body` has invalid Handlebars → push `{ field: \"body\", message: \"issueInCustomVariables\" }`.\n\nPer `sniffs/bundle/validators-summary.json::baseSmsValidator`: `fields_referenced: [\"body\", \"template_id\"]`, result level `warning`.\n\n`sendSmsActionValidator` itself is length 76 — just a curry of `baseSmsValidator` with the body-required message. The shared validator is used for `manual-sms` and the SMS branch of `internal_notification` as well.",
-   "notes": "- **No phone → skipped, the run continues** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3I-sends.json`: `status: skipped`, `skippedFor: {type: \"missing-data\", msg: \"No Phone number\"}`. (The sandbox has no SMS number provisioned, so a delivered SMS is not provable there.)\n- **`template_id: \"none\"` is a sentinel.** Same pattern as [`email`](./email.md) — clears the template reference and reverts to inline `body`.\n- **Body is HTML-encoded in the UI but stored as plain text on save** (per `SMS.ts::save` calling `parseHTMLToBody`). A roundtrip through the UI strips HTML tags; if you hand-write `<p>...</p>` in `body`, the validator will still strip it for length checks.\n- **No attachment size limit; some file types are filtered.** The builder's size check always passes (\"Removed limit on 6th June 2023\"); files whose MIME type contains `html`, `php`, `zip` or `rar` are dropped when attached, and for `instagram-dm` only images are kept `[source-derived 2026-09-26 — models/actions/SMS.ts:272-284,322-326; utils/generalFunctions.ts:271-275]`. The builder shows no segment or character counter for a plain SMS (no segment logic in `SendSMS.vue`, `SMS.ts` or anywhere in the recovered source) `[source-derived 2026-09-26]`.\n- **Attachments bypass body**. An SMS with `attachments: [{url, name}]` and empty `body` is publishable.\n- **Instagram DM uses the same class** with `typeOfMessage: \"instagram-dm\"` and a 1000-char limit on `body`. The `sms` type is the SMS-specific instance; `messenger`, `gmb_messaging`, `instagram-dm`, `manual-sms`, and `whatsapp` reuse the model but register under different types.\n- **`isInternalSMS` flag** is set on the model only when the SMS is nested in an `internal_notification`. This affects which getters validate `to` / `selectedUser`.\n- The validator is shared with `manual-sms` via the same `baseSmsValidator`.\n- **`template_id` wins over `body` at runtime.** A step storing body \"…BODY-WINS\" and a saved snippet's `template_id` recorded a message carrying the SNIPPET's text, merge tags rendered [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3U3-sms-template-differential.json]. The drawer copies the snippet into `body` when one is picked, so the two differ only after an edit; such an edit saves and changes nothing. The plugin warns `SMS_TEMPLATE_OVERRIDES_BODY`.\n- **What a run does on a sub-account with no SMS number** (contact with a phone): the step logs `success` with a `conversationId` + `messageId`; the message is recorded outbound with status `failed` and error \"Failed: No numbers available in the account. Buy a number to send SMS.\" Body merge tags render; `urlAttachments` and stored-file `attachments` (`{name, url}`) both appear as the message's `attachments` URLs [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3U-messaging-phone.json, live-3U5-sms-stored-attachment.json]. With no phone on the contact it is skipped instead (`missing-data`).",
+   "notes": "- **No phone → skipped, the run continues** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3I-sends.json`: `status: skipped`, `skippedFor: {type: \"missing-data\", msg: \"No Phone number\"}`. (The sandbox has no SMS number provisioned, so a delivered SMS is not provable there.)\n- **\"None\" in the Templates picker clears the template.** Choosing it deletes `template_id` and brings back an empty Message editor (the template choice had already deleted `body`); `\"none\"` itself is never stored by the drawer `[source-derived — models/actions/SMS.ts:304-320]`.\n- **Body is HTML-encoded in the UI but stored as plain text on save** (per `SMS.ts::save` calling `parseHTMLToBody`). A roundtrip through the UI strips HTML tags; if you hand-write `<p>...</p>` in `body`, the validator strips the tags only for its empty-body check; `sms` has no length check (only `instagram-dm` has one, 1000 characters).\n- **No attachment size limit; some file types are filtered.** The builder's size check always passes (\"Removed limit on 6th June 2023\"); files whose MIME type contains `html`, `php`, `zip` or `rar` are dropped when attached, and for `instagram-dm` only images are kept `[source-derived 2026-09-26 — models/actions/SMS.ts:272-284,322-326; utils/generalFunctions.ts:271-275]`. The Message editor shows a \"{n} characters | {m} words\" counter with no maximum `[proven-live 2026-09-30 — sniffs/workflows-wave1-2026-09-25/live-W37-walk-sms-main.json]`, and no segment counter: there is no segment logic in `SendSMS.vue`, `SMS.ts` or anywhere in the recovered source `[source-derived 2026-09-26]`.\n- **Attachments bypass body**. An SMS with `attachments: [{url, name}]` and empty `body` is publishable.\n- **Instagram DM uses the same class** with `typeOfMessage: \"instagram-dm\"` and a 1000-char limit on `body`. The `sms` type is the SMS-specific instance; `messenger`, `gmb`, `instagram-dm` and `manual-sms` reuse the model and drawer under their own types. `whatsapp` has its own model (`models/actions/WhatsApp.ts`).\n- **`isInternalSMS` flag** is set on the model only when the SMS is nested in an `internal_notification`. This affects which getters validate `to` / `selectedUser`.\n- The validator is shared with `manual-sms` via the same `baseSmsValidator`.\n- **`template_id` wins over `body` at runtime.** A step storing body \"…BODY-WINS\" and a saved snippet's `template_id` recorded a message carrying the SNIPPET's text, merge tags rendered [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3U3-sms-template-differential.json]. The drawer cannot produce this pair: choosing a template deletes `body` (and `attachments`, `urlAttachments`) and hides the Message editor, so a step storing both was written by the API `[source-derived — models/actions/SMS.ts:304-320; SendSMSMessageForm.vue:22-83]`. The plugin warns `SMS_TEMPLATE_OVERRIDES_BODY`.\n- **What a run does on a sub-account with no SMS number** (contact with a phone): the step logs `success` with a `conversationId` + `messageId`; the message is recorded outbound with status `failed` and error \"Failed: No numbers available in the account. Buy a number to send SMS.\" Body merge tags render; `urlAttachments` and stored-file `attachments` (`{name, url}`) both appear as the message's `attachments` URLs [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3U-messaging-phone.json, live-3U5-sms-stored-attachment.json]. With no phone on the contact it is skipped instead (`missing-data`).",
    "hasCanonicalExample": true
   },
   {
@@ -28368,7 +28486,7 @@
    "family": "steps",
    "title": "text_formatter",
    "status": "source-derived",
-   "lastVerified": "2026-09-25",
+   "lastVerified": "2026-09-30",
    "summary": "\"Text Formatter\": apply one text operation (case, trim, replace, find, split, extract…) to an input string and hand the result to later steps as `{{text_formatter.N.result}}`.",
    "meta": {
     "Section": "`internal`",
@@ -28391,7 +28509,7 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "Input: merge tag or literal."
+     "notes": "Input: a merge tag (the only thing the builder's picker offers) or, by API, literal text."
     },
     {
      "name": "extras",
@@ -28402,7 +28520,7 @@
     }
    ],
    "validator": "`textFormatterValidator` — warnings only: `formatterType` must be a known value, `field` non-empty.",
-   "notes": "- The output is `{{text_formatter.N.result}}` (`text-formatter-helpers.ts:49`); `N` is the per-type\n  1-based `stepIndex`. `upper_case` on `wave one text` rendered `WAVE ONE TEXT`; the log records\n  `Source Field : \"wave one text\" | Output : \"WAVE ONE TEXT\"` `[proven-live 2026-09-25]`.\n- **`trim` with `skip: 0` is SKIPPED at run time**: `status: skipped`, `skippedFor: {type: \"invalid-data\",\n  msg: \"Invalid data. \\\"key\\\" : \\\"skip\\\" , \\\"value\\\" : \\\"0\\\".\"}`, output empty. `skip` must be omitted or\n  > 0 (the builder's own copy: \"Should be a valid positive number ( greater than 0 )\"). The step saves and\n  passes GHL's validator and our build first `[proven-live 2026-09-25]`.\n- The validator is warning-level: an empty `field` or unknown `formatterType` still saves.",
+   "notes": "- The output is `{{text_formatter.N.result}}` (`text-formatter-helpers.ts:49`); `N` is the per-type\n  1-based `stepIndex`. `upper_case` on `wave one text` rendered `WAVE ONE TEXT`; the log records\n  `Source Field : \"wave one text\" | Output : \"WAVE ONE TEXT\"` `[proven-live 2026-09-25]`.\n- **`trim` with `skip: 0` is SKIPPED at run time**: `status: skipped`, `skippedFor: {type: \"invalid-data\",\n  msg: \"Invalid data. \\\"key\\\" : \\\"skip\\\" , \\\"value\\\" : \\\"0\\\".\"}`, output empty. `skip` must be omitted or\n  > 0. The builder's input has `min: 1` but no validator (the locale's \"Should be a valid positive number ( greater than 0 )\" is never wired) [source-derived 2026-09-29 — utils/text-formatter/config.ts:23-28]. The step saves and\n  passes GHL's validator and our build first `[proven-live 2026-09-25]`.\n- The canvas validator is warning-level, so an API write with an empty `field` or an unknown `formatterType` still saves. The builder drawer does not save it: its Save refuses with \"Oops! Looks like you've missed out on some fields\" [source-derived 2026-09-29 — models/actions/premium-actions/TextFormatter.ts:246-258; components/AsideSection.vue:1703-1733].",
    "hasCanonicalExample": false
   },
   {
@@ -28906,15 +29024,15 @@
    "family": "steps",
    "title": "transition",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Internal bookkeeping row that represents a branch's \"outbound edge label\" on multi-path parents. Not user-authored — created and maintained by the builder.",
    "meta": {
     "Section": "Not registered (no entry in `registry-parsed.json`)",
-    "Validator": "None — no publish validation",
+    "Validator": "None of its own; the publish validator checks a branching `wait`'s transitions (see Validator)",
     "Hybrid / multi-path?": "Multi-path bookkeeping (lives as a child under a multi-path parent's branch)",
     "Corpus frequency": "269 occurrences across 56 workflows in 6 locations",
     "Premium / beta?": "No",
-    "UI editor source": "No dedicated source — generated inline by parent multi-path nodes (`if_else`, `workflow_split`, `find_contact`, `find_opportunity`, hybrid `wait`)"
+    "UI editor source": "No drawer and no model class — the parent's drawer writes the rows on save (`wait`, `find_contact`, `workflow_split`, internal/marketplace multipath such as `find_opportunity`, `ivr_gather`, Conversation AI, interactive messenger). If/Else branches are not transitions."
    },
    "fields": [
     {
@@ -28929,18 +29047,18 @@
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "A semantic transition tag, when set: `\"contact_found\"`, `\"contact_not_found\"`, `\"wait_reply\"`. 34.2%."
+     "notes": "Written by the parent drawer: `wait_condition`, `wait_reply`, `wait_link_clicked`, `wait_email_event`, `wait_user_replied` (primary wait branch), `wait_timeout`, `contact_found`, `contact_not_found`; `workflow_split` writes none. 34.2%."
     },
     {
      "name": "description",
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "UI label, e.g. `\"Contact Found\"`. 34.2%."
+     "notes": "Branch description written by the parent drawer: Find Contact writes the translated `Contact found` / `Contact not found` (English); a wait branch carries its wait type's sentence. 34.2%."
     }
    ],
-   "validator": "**None.** The string `\"transition\"` is not registered in `sniffs/bundle/registry-parsed.json::entries[]`. No `transitionValidator` exists in `sniffs/bundle/validators.json`. Publish does not check transition rows.\n\nState this clearly: a `transition` row passes publish regardless of contents (or absence of contents), provided the wrapping parent multi-path node references its id in `parent` / `parentKey` and `transitions[]` / `next[]`.",
-   "notes": "- **Do not author this manually unless mirroring corpus.** The runtime synthesizes `transition` rows when a multi-path parent (e.g. `find_contact`, `find_opportunity`, `workflow_split`) is created. Each branch outcome becomes one `transition` child carrying the branch name as `name`.\n- **Empty `attributes` is normal.** Don't fill in fields. The row's role is purely graph-shape — it carries `parent` / `parentKey` pointing to the multi-path parent and `name` carrying the branch label.\n- **The 269 corpus occurrences** correspond mostly to `find_contact` (`Contact Found` / `Contact Not Found`) and `find_opportunity` (`Opportunity Found` / `Opportunity Not Found`) auto-generated rows.\n- **`type` (inside attributes) is informational only**: values like `contact_found` / `wait_reply` echo the parent's branch outcome but are not consumed by the runtime as discriminators.\n- For the full multi-path graph picture see [`docs/04-workflow-anatomy.md §4`](../../10-anatomy/04-workflow-anatomy.md).",
+   "validator": "**None of its own.** The string `\"transition\"` is not registered in `sniffs/bundle/registry-parsed.json::entries[]`. No `transitionValidator` exists in `sniffs/bundle/validators.json`. The builder's publish validator does check a branching `wait`'s transitions and blocks publish (severity `error`) when the wait has fewer than 2 transitions or lists a transition id missing from the workflow — errors quoted under Builder options and limits `[source-derived — utils/WorkflowValidator.ts:917-966]`.\n\nA `transition` row's own contents are not checked: it passes publish whatever its `name` or `attributes`, provided the parent multi-path node references its id in `parentKey` and `transitions[]` / `next[]`.",
+   "notes": "- **Do not author this manually unless mirroring corpus.** The builder (client side) writes the `transition` rows when a multi-path parent's drawer (e.g. `find_contact`, `find_opportunity`, `workflow_split`) is saved, and sets the parent's `next` to their ids. Each branch outcome becomes one `transition` child carrying the branch name as `name`.\n- **`attributes` depends on the parent.** `workflow_split` writes `{}`; `wait` and `find_contact` write `type` + `description` (see Attributes shape). The row carries `parentKey` (plus `parent` from the WorkflowTreeV2 canvas only) pointing to the multi-path parent and `name` carrying the branch label.\n- **The 269 corpus occurrences** correspond mostly to `find_contact` (`Contact Found` / `Contact Not Found`) and `find_opportunity` (`Opportunity Found` / `Opportunity Not Found`) auto-generated rows.\n- **`type` (inside attributes) is informational only**: values like `contact_found` / `wait_reply` echo the parent's branch outcome but are not consumed by the runtime as discriminators.\n- For the full multi-path graph picture see [`docs/04-workflow-anatomy.md §4`](../../10-anatomy/04-workflow-anatomy.md).",
    "hasCanonicalExample": true
   },
   {
@@ -29225,7 +29343,7 @@
    "family": "steps",
    "title": "update_affiliate",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Update an existing affiliate's state (active/inactive).",
    "meta": {
     "Section": "`affiliate` (per `sniffs/bundle/registry-parsed.json::entries[61]`)",
@@ -29239,20 +29357,41 @@
     {
      "name": "name",
      "type": "string",
-     "required": true,
+     "required": false,
      "default": "—",
-     "notes": "Display name."
+     "notes": "Declared by the interface, but the builder never writes it; the display name is the step-level `name` (default `Update affiliate`) [source-derived 2026-09-29 — models/actions/UpdateAffiliate.ts:4-10,31-36]."
     },
     {
      "name": "affiliate_state",
      "type": "'active' | 'inactive'",
      "required": true,
-     "default": "—",
-     "notes": "Target state."
+     "default": "'active'",
+     "notes": "Target state. Also back-filled to `'active'` on load when missing [source-derived 2026-09-29 — models/actions/UpdateAffiliate.ts:14-18]."
+    },
+    {
+     "name": "type",
+     "type": "'update_affiliate'",
+     "required": false,
+     "default": "'update_affiliate'",
+     "notes": "Added by the drawer's `save()` [source-derived 2026-09-29 — models/actions/UpdateAffiliate.ts:31-36]."
+    }
+   ],
+   "conditions": [
+    {
+     "label": "\"Action name\"",
+     "field": "text",
+     "type": "\"Update affiliate\"",
+     "operator": "1-100 characters, trimmed on save; error after a save attempt \"Name should be between 1-100 characters. {n}/100\" (hard-coded English)"
+    },
+    {
+     "label": "\"Affiliate state\"",
+     "field": "radio group",
+     "type": "\"Mark affiliate as Active\" (`active`) selected",
+     "operator": "\"Mark affiliate as Active\" → `active` · \"Mark affiliate as Inactive\" → `inactive`"
     }
    ],
    "validator": "`updateAffiliateValidator` (per `sniffs/bundle/validators.json`):\n\n- `affiliate_state` set, else `affiliate_state_required` warning.\n\nPer `validators-summary.json`: 1 field referenced; result level `warning`.",
-   "notes": "- Operates on the contact's affiliate record at the location level — no explicit affiliate ID field; the runtime links by contact identity.\n- Validator doesn't enforce that the affiliate exists; the runtime presumably no-ops or errors when not.",
+   "notes": "- The drawer has no affiliate, campaign or contact picker, only the state radio. Which affiliate record the runtime updates is not in the builder source; linking by the enrolled contact is assumed. [ASSUMPTION — runtime not in the builder source]\n- Validator doesn't enforce that the affiliate exists; the runtime presumably no-ops or errors when not.",
    "hasCanonicalExample": true
   },
   {
@@ -29316,7 +29455,7 @@
    "family": "steps",
    "title": "update_contact_field",
    "status": "source-derived",
-   "lastVerified": "2026-09-29",
+   "lastVerified": "2026-09-30",
    "summary": "Write one or more standard or custom contact fields. Three modes per the `actionType` discriminator: update (replace), add (append to a multi-value field) or clear `[source-derived 2026-09-26 — models/actions/ContactField.ts:8]`.",
    "meta": {
     "Section": "`contact`",
@@ -29324,7 +29463,7 @@
     "Hybrid / multi-path?": "Linear",
     "Corpus frequency": "186 occurrences across 53 workflows in 4 locations",
     "Premium / beta?": "No",
-    "UI editor source": "`recovered-source/src/models/actions/ContactField.ts` + `recovered-source/src/components/actions/crm/Field.vue`"
+    "UI editor source": "`recovered-source/src/components/actions/crm/UpdateContactField.vue` (drawer: Action type, Add field, date hint) + `recovered-source/src/models/actions/ContactField.ts` + `recovered-source/src/components/actions/crm/Field.vue` (rows)"
    },
    "fields": [
     {
@@ -29357,7 +29496,7 @@
     }
    ],
    "validator": "`updateContactFieldValidator` (length 680, result level `warning`). Per `sniffs/bundle/validators.json::updateContactFieldValidator`:\n\n1. If `attributes.fields` is missing or empty → push `{ field: \"fields\", message: \"at_least_one_field_required\" }`.\n2. For each entry in `fields[]`:\n   - If `field` is not in `contactStandardFields` → push `{ field: <field>, resource: \"custom_field\" }` to trigger a custom-field-existence lookup against the location.\n   - If `actionType` is `\"update_field_data\"` or `\"add_field_data\"` and the value is missing (`null`/`\"\"`/empty array; `false` and `0` count as present; `date: \"currentDate\"` exempts it) → push `{ field: <field>, message: missing_value_for_field }` `[source-derived 2026-09-26 — utils/validators/contact-action-validators.ts:12-18,44-75]`.\n\nSo a publishable step requires:\n\n- `actionType: \"update_field_data\"` or `\"add_field_data\"` with at least one `fields[]` entry whose `value` is present (or `date: \"currentDate\"`); OR\n- `actionType: \"clear_field_data\"` with at least one `fields[]` entry (value can be empty).",
-   "notes": "- **`add_field_data` appends on a CHECKBOX field too; `update_field_data` replaces** `[proven-live 2026-09-29]`: an own CHECKBOX field seeded `[\"a\"]` read back `[\"a\",\"b\"]` after an add of `[\"b\"]`, then `[\"c\"]` after an update of `[\"c\"]`. The row's type hint is `multiselect`, as for MULTIPLE_OPTIONS (`utils/conditions.ts:494-496`) (`sniffs/workflows-wave1-2026-09-25/live-W25-checkbox-add.json`).\n- 🔴 **A multi-option field's `type` hint must be `multiselect`** `[proven-live 2026-09-28]`: `type: \"array\"` was refused by GHL's validator at save — \"textbox_list takes a string or an object of string values; multiselect takes a string or an array of strings/numbers; every other type takes a string or a number\" (`live-3B-fields-math-run1-multiselect-type.json`).\n- **All three `actionType`s and all three date modes run** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3B-fields-math.json`: `update_field_data` wrote NUMERICAL `10`, MONETORY `100.5`, TEXT, MULTIPLE_OPTIONS `[\"a\"]`, DATE `specificDate` `2026-01-31`, DATE `currentDate` (the run's date); `add_field_data` on the MULTIPLE_OPTIONS field turned `[\"a\"]` into `[\"a\",\"b\"]`; `customDate` `03-15-2026` stored `2026-03-15`; `clear_field_data` emptied a NUMERICAL and a MULTIPLE_OPTIONS field (read back `null`). Custom fields are addressed by field ID.\n- **Standard vs custom is decided by the key.** A key in the builder's `contactStandardFields` list (camelCase — see the `field` row) is a standard field; anything else is treated as a custom-field id and checked to exist. A snake_case key such as `first_name` is NOT a standard key. Proof: 2026-09-25, `firstName: \"WaveOneFirst\"` and `companyName: \"WaveOneCo\"` written by a live run and read back on the contact (`sniffs/workflows-wave1-2026-09-25/live-A-formatters.json`) `[proven-live 2026-09-25]`.\n- **Clearing requires the field id in `fields[]`** with empty `value`. Sending `actionType: \"clear_field_data\"` with `fields: []` still trips the empty-array warning.\n- **Clear mode cannot clear `country`, `timezone`, `firstName` or `dnd`** — the builder drops them from the clear picker (`excludeFromClearFields`) `[source-derived 2026-09-26 — utils/ContactFieldEditing.ts:20,228-232]`.\n- **FILE_UPLOAD custom fields can only be cleared, not written** — the update picker filters them out; only the clear picker lists them `[source-derived 2026-09-26 — utils/ContactFieldEditing.ts:200-204]`.\n- **`dnd` is a true/false select (\"Enable/Disable DND for all channels\")** but the builder disables it with \"Please use the Enable/Disable DND Action instead.\" — use `dnd_contact` for DND `[source-derived 2026-09-26 — utils/ContactFieldEditing.ts:136-155]`. **`timezone` is an enum select** over the builder's timezone list `[source-derived 2026-09-26 — utils/ContactFieldEditing.ts:157-166]`.\n- **`title` is UI-only** — don't rely on it. The runtime resolves by `field` id alone.\n- **`date: \"currentDate\"` is a sentinel** that means \"use the current date at execution time\" — bypasses the value-required check.\n- **`value`'s type hint (`\"numerical\"`, `\"date\"`, etc.)** affects how the value is parsed at execution; mismatches haven't been exhaustively tested but corpus shows numeric values stored as JSON numbers when `type: \"numerical\"`.\n- This step only writes to the workflow's running contact. To write to a different contact, use `create_update_contact` (separate type).",
+   "notes": "- **`add_field_data` appends on a CHECKBOX field too; `update_field_data` replaces** `[proven-live 2026-09-29]`: an own CHECKBOX field seeded `[\"a\"]` read back `[\"a\",\"b\"]` after an add of `[\"b\"]`, then `[\"c\"]` after an update of `[\"c\"]`. The row's type hint is `multiselect`, as for MULTIPLE_OPTIONS (`utils/conditions.ts:494-496`) (`sniffs/workflows-wave1-2026-09-25/live-W25-checkbox-add.json`).\n- 🔴 **A multi-option field's `type` hint must be `multiselect`** `[proven-live 2026-09-28]`: `type: \"array\"` was refused by GHL's validator at save — \"textbox_list takes a string or an object of string values; multiselect takes a string or an array of strings/numbers; every other type takes a string or a number\" (`live-3B-fields-math-run1-multiselect-type.json`).\n- **All three `actionType`s and all three date modes run** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3B-fields-math.json`: `update_field_data` wrote NUMERICAL `10`, MONETORY `100.5`, TEXT, MULTIPLE_OPTIONS `[\"a\"]`, DATE `specificDate` `2026-01-31`, DATE `currentDate` (the run's date); `add_field_data` on the MULTIPLE_OPTIONS field turned `[\"a\"]` into `[\"a\",\"b\"]`; `customDate` `03-15-2026` stored `2026-03-15`; `clear_field_data` emptied a NUMERICAL and a MULTIPLE_OPTIONS field (read back `null`). Custom fields are addressed by field ID.\n- **Standard vs custom is decided by the key.** A key in the builder's `contactStandardFields` list (camelCase — see the `field` row) is a standard field; anything else is treated as a custom-field id and checked to exist. A snake_case key such as `first_name` is NOT a standard key. Proof: 2026-09-25, `firstName: \"WaveOneFirst\"` and `companyName: \"WaveOneCo\"` written by a live run and read back on the contact (`sniffs/workflows-wave1-2026-09-25/live-A-formatters.json`) `[proven-live 2026-09-25]`.\n- **Clearing requires the field id in `fields[]`** with empty `value`. Sending `actionType: \"clear_field_data\"` with `fields: []` still trips the empty-array warning.\n- **Clear mode cannot clear `country`, `timezone`, `firstName` or `dnd`** — the builder drops them from the clear picker (`excludeFromClearFields`); the clear picker does offer Contact ID (`id`), which the update picker omits `[source-derived 2026-09-30 — utils/ContactFieldEditing.ts:20,228-246]`.\n- **FILE_UPLOAD custom fields can only be cleared, not written** — the update picker filters them out; only the clear picker lists them `[source-derived 2026-09-26 — utils/ContactFieldEditing.ts:200-204]`.\n- **`dnd` is a true/false select (\"Enable DND for all channels\" / \"Disable DND for all channels\") and is selectable in the Update picker**: the catalogue marks it disabled, but `filterFieldOptions()` overwrites `isDisabled` with \"already used\", so only the info tooltip \"Please use the Enable/Disable DND Action instead.\" remains — the builder points to `dnd_contact` for DND `[source-derived 2026-09-30 — utils/ContactFieldEditing.ts:137-155; models/actions/ContactField.ts:170-180]` `[ASSUMPTION — clickable live not yet walked; from ContactField.ts:174-176 overriding ContactFieldEditing.ts:153]`. **`timezone` is an enum select** over the builder's timezone list `[source-derived 2026-09-26 — utils/ContactFieldEditing.ts:157-166]`.\n- **`title` is UI-only** — don't rely on it. The runtime resolves by `field` id alone.\n- **`date: \"currentDate\"` is a sentinel** that means \"use the current date at execution time\" — bypasses the value-required check.\n- **`value`'s type hint (`\"numerical\"`, `\"date\"`, etc.)** affects how the value is parsed at execution; mismatches haven't been exhaustively tested but corpus shows numeric values stored as JSON numbers when `type: \"numerical\"`.\n- This step only writes to the workflow's running contact. To write to a different contact, use `create_update_contact` (separate type).",
    "hasCanonicalExample": true
   },
   {
@@ -29399,7 +29538,7 @@
    "family": "steps",
    "title": "update_custom_object",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Update fields on an existing custom-object record. Resolved from `!ident:CustomObjectActionTypes.UPDATE`.",
    "meta": {
     "Section": "`customObjects` (per `sniffs/bundle/registry-parsed.json::entries[2]`)",
@@ -29423,7 +29562,7 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "The object's key, `custom_objects.<object>`."
+     "notes": "The target object's key: `custom_objects.<object>`, or `contact` for an associated contact. Never `business` or `opportunity`."
     },
     {
      "name": "fields",
@@ -29436,15 +29575,15 @@
      "name": "makeAssociation",
      "type": "boolean",
      "required": false,
-     "default": "true",
-     "notes": "Associate the record with the workflow's object."
+     "default": "false",
+     "notes": "No drawer control; the builder writes `false` on a new step and on every Object change."
     },
     {
      "name": "associations",
      "type": "array",
      "required": false,
      "default": "[]",
-     "notes": "Association labels, when the target is not the workflow's own object."
+     "notes": "Association ids from the **Association label** select, or `[\"all_related_associations\"]` for `All associated {objectName}`. Required when the target is not the workflow's own object; also offered for the workflow's own object when it has self-association labels."
     },
     {
      "name": "followers",
@@ -29472,7 +29611,7 @@
     }
    ],
    "validator": "No validator registered. Per `sniffs/bundle/validators.json` and `sniffs/bundle/validators-summary.json`. Publish-time enforcement appears absent for this action.",
-   "notes": "- Resolves from `CustomObjectActionTypes.UPDATE` enum, not a literal string in the registry source. See `_resolved_from` in the registry entry.\n- Server-side behavior on missing `recordId` (e.g. fallback to associated record from contact) is untested.",
+   "notes": "- Resolves from `CustomObjectActionTypes.UPDATE` enum, not a literal string in the registry source. See `_resolved_from` in the registry entry.\n- The step has no `recordId`: the records to update are chosen by `key` plus `associations` — the enrolled record when the target is the workflow's own object, or the associated records carrying the chosen labels (`all_related_associations` = all of them) `[ASSUMPTION — runtime not in builder source; the drawer's own description reads \"If specified, the related records with the selected association labels will be updated\"]`.",
    "hasCanonicalExample": true
   },
   {
@@ -29916,7 +30055,7 @@
    "family": "steps",
    "title": "voicemail",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-30",
    "summary": "Drop a pre-recorded voicemail to the contact's number.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[18]`)",
@@ -29935,8 +30074,28 @@
      "notes": "The voicemail audio file. Validator requires `attachment.url`."
     }
    ],
+   "conditions": [
+    {
+     "label": "\"Action name\"",
+     "field": "text, no `maxlength`",
+     "type": "\"Voicemail\"",
+     "operator": "inline error \"Name should be between 1-100 characters. {n}/100\" (hard-coded English). Save is blocked above **50** characters (see Save gate)"
+    },
+    {
+     "label": "\"Drop your File\"",
+     "field": "file row (attachment icon, file name, remove icon)",
+     "type": "none",
+     "operator": "one file. The remove icon hides while a check or upload runs"
+    },
+    {
+     "label": "\"Add attachments\"",
+     "field": "primary button opening a menu",
+     "type": "—",
+     "operator": "shown **only while no file is attached**; disabled while loading. Menu: \"Upload from system\" · \"Choose from media storage\""
+    }
+   ],
    "validator": "`voicemailValidator` (per `sniffs/bundle/validators.json`):\n\n- `attachment.url` must be set, else `voicemail_attachment_required` warning.\n\nPer `validators-summary.json`: 1 field referenced; result level `warning`.",
-   "notes": "- `incompleteData: true` is a step-level (not attribute-level) field that the builder sets when a step is saved without required values. Server-side may reject publish — uncertain.\n- The `IStoredFile` shape isn't documented in the bundle; assume `{url, name, size, ...}` based on conventional file-upload responses.\n- Voicemail drop typically uses a single audio file pre-uploaded via the media API; not a TTS step.",
+   "notes": "- `incompleteData: true` is a step-level (not attribute-level) field that the builder sets when a step is saved without required values. Server-side may reject publish — uncertain.\n- `IStoredFile` is `{name: string, url: string, size?: number}`; neither drawer path writes `size` [source-derived 2026-09-29 — models/actions/Email.ts:30-34; states/app.ts:583-593; components/actions/Voicemail.vue:285-290].\n- One MP3/WAV audio file of 2 minutes or less, not a TTS step. The drawer uploads it through the workflow upload route `POST /workflow/{locationId}/{workflowId}/upload`, or stores a media-storage file by its library URL without re-uploading [source-derived 2026-09-29 — models/actions/Voicemail.ts:86-98; states/app.ts:583-593; components/actions/Voicemail.vue:285-290].",
    "hasCanonicalExample": true
   },
   {
@@ -29944,15 +30103,15 @@
    "family": "steps",
    "title": "wait",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "Pause execution until a time elapses, a condition becomes true, an event fires, or a reply arrives — discriminated by `attributes.type`.",
    "meta": {
     "Section": "`internal`",
-    "Validator": "`waitValidator` (delegates to 7 sub-validators by `attributes.type`)",
+    "Validator": "`waitValidator` (dispatches its 13 types to 9 sub-validators by `attributes.type`, plus `validateTimeout`)",
     "Hybrid / multi-path?": "Hybrid — runs linear by default, becomes multi-path when `convertToMultipath: true`. Branching is allowed only for `type` `condition`, `reply`, `link_clicked`, `email_event`, `user_replied`; a branching wait needs an array `next` with at least 2 entries, and every transition id must exist as a template. Anything else is a blocking publish error [source-derived 2026-09-26 — utils/WorkflowValidator.ts:925-968]. Carries `isHybridAction: true` and `hybridActionType: \"wait\"` markers. See [`docs/04-workflow-anatomy.md §4`](../../10-anatomy/04-workflow-anatomy.md)",
     "Corpus frequency": "550 occurrences across 133 workflows in 6 locations",
     "Premium / beta?": "No",
-    "UI editor source": "No single recovered `.ts` file — split across `recovered-source/src/components/workflow/` and condition validators"
+    "UI editor source": "`recovered-source/src/models/conditions/Wait.ts` (model) + `components/conditions/wait-step-v2/` (drawer, `WaitStepV2.vue`) + `components/conditions/WaitForUserReplied.vue`"
    },
    "fields": [
     {
@@ -29981,21 +30140,21 @@
      "type": "string",
      "required": "conditional",
      "default": "`skip` (compiler + GHL model)",
-     "notes": "`\"next\" | \"exit\" | \"specific_step\" | \"skip\"` — what happens when a `specific_date` wait's date is ALREADY PAST. Drawer: *If date has already passed*. `next` = Continue to next action (released immediately, fails LOUD); `exit` = Exit from automation; `skip` = **Skip outbound communication** (proceeds with messages SUPPRESSED, fails SILENT) — note this is NOT \"skip the step\", the contact still advances; `specific_step` = Go to specific step, and the validator refuses without `specificDateStep`. 🔴 The default is `skip`, the SILENT one: author `\"next\"` explicitly if a stale date should be visible. 🔴 The drawer's radio falls back to `next` for DISPLAY when the key is absent, while the model writes `skip` on its own save — an API step that omits it reads in the builder as something it is not, so always write the key."
+     "notes": "`\"next\" | \"exit\" | \"specific_step\" | \"skip\"` — what happens when a `specific_date` wait's date is ALREADY PAST. Drawer: *If this date has already passed*. `next` = Continue to next action (released immediately, fails LOUD); `exit` = Exit contact from automation; `skip` = **Skip all outbound communication actions till next wait or event start date action** (hint \"Email, SMS, call & voicemail\"; proceeds with messages SUPPRESSED, fails SILENT) — note this is NOT \"skip the step\", the contact still advances; `specific_step` = Go to specific step, and the validator refuses without `specificDateStep`. 🔴 The default is `skip`, the SILENT one: author `\"next\"` explicitly if a stale date should be visible. 🔴 The drawer's radio falls back to `next` for DISPLAY when the key is absent, while the drawer writes `skip` when the specific-date type is first chosen (`setInitialSpecificDate`) — an API step that omits it reads in the builder as something it is not, so always write the key."
     },
     {
      "name": "specificDateProceed",
      "type": "string",
      "required": "conditional",
      "default": "on",
-     "notes": "`on` and `after` accepted (live-probed 2026-09-16 via `validate_workflow`, with a nonsense control that was correctly refused naming the field and value). If `before`/`after`, at least one of `specificDateOffsetDays/Hours/Minutes` must be non-zero. Not exhaustively enumerated."
+     "notes": "`\"on\" | \"before\" | \"after\"` — the drawer's three radios \"On this date and time\" / \"Before this date\" / \"After this date\". `on` and `after` passed `validate_workflow` in a live probe on 2026-09-16, with a nonsense control refused naming the field and value. If `before`/`after`, at least one of `specificDateOffsetDays/Hours/Minutes` must be non-zero."
     },
     {
      "name": "appointmentStartAfter",
      "type": "object",
      "required": "conditional",
      "default": "—",
-     "notes": "`{ when: \"now\" | \"before\" | \"after\", type, value, distributed }`. Required for `appointment` / `service_booking` / `overdue`. `distributed` is the drawer's `{months, days, hours, minutes}` offset breakdown, clamped to 9999 / 30 / 23 / 59. On save (appointment, overdue, service_booking, rental_booking, attendee_event_date) it collapses into `type: \"minutes\"` and `value` = the total minutes. With `when` `before`/`after` the offset must be non-zero [source-derived 2026-09-26 — models/conditions/Wait.ts:1025-1036,1106-1112,1395-1420; models/Workflow.ts:680-709]. 9.3%."
+     "notes": "`{ when: \"now\" | \"before\" | \"after\", type, value, distributed }`. Required for `appointment` / `service_booking` / `rental_booking` / `attendee_event_date` / `overdue`. `distributed` is the drawer's `{months, days, hours, minutes}` offset breakdown, clamped to 9999 / 30 / 23 / 59. On save (appointment, overdue, service_booking, rental_booking, attendee_event_date) it collapses into `type: \"minutes\"` and `value` = the total minutes. With `when` `before`/`after` the offset must be non-zero [source-derived 2026-09-26 — models/conditions/Wait.ts:1025-1036,1106-1112,1395-1420; models/Workflow.ts:680-709]. 9.3%."
     },
     {
      "name": "appointmentCondition",
@@ -30065,7 +30224,7 @@
      "type": "object",
      "required": false,
      "default": "{ field:\"\", operator:\"\", value:\"\" }",
-     "notes": "Sidecar shape, mostly empty. 22.2%."
+     "notes": "The drawer's \"Additional filter\" under Advance window: `field` `day_month` | `month` | `year`, `operator` `==` | `!=`, `value` 1–31, a zero-based month \"0\"–\"11\", or a year; empty strings when unused. 22.2%."
     },
     {
      "name": "convertToMultipath",
@@ -30104,7 +30263,7 @@
     }
    ],
    "validator": "`waitValidator` runs on publish. Per `sniffs/bundle/validators.json::waitValidator`:\n\n1. Checks `name` against `isWithinLimits` if present (error: `wait_name_too_long`).\n2. Switches on `attributes.type` to delegate.\n3. Also runs `validateTimeout` if `convertToMultipath && startAfter`.\n\nValidator length: 794 chars. Result level: `error` (one of the few validators that emits errors rather than warnings — `wait_type_required`, `wait_window_start_required`, `wait_appointment_when_required`).",
-   "notes": "- **A legacy wait — stored WITHOUT the `convertToMultipath` key — opens in the old UI.** `shouldMoveToBranchingUI()` tests the key's PRESENCE, not its value (`Wait.ts:460-466`); without it `enableBranchingUI` is false and `prepareMultiPathAttr()` never writes `convertToMultipath` or rebuilds `transitions` (`Wait.ts:1008-1019`), so the Timeout switch does not branch that step. Any wait our engine builds carries the key `[source-derived]` `sniffs/workflows-completeness-2026-09-29/bundle-2026-09-29/recovered-source/src/models/conditions/Wait.ts` (promoted from `70-research/ACTION-DRAWERS-2.md`, which records the same presence test on Find Contact).\n- **`appointment` waits read the `event_start_date` anchor when the run has no appointment** `[proven-live 2026-09-28]` (`sniffs/workflows-wave1-2026-09-25/live-3L-event-start.json`): before/after offsets resolve against the anchor (before 3 min ≈ T−3; after 1 min = T+1), and a past anchor follows `appointmentCondition` (`next` → continues at once).\n- **`specificDateStep` (and `appointmentSpecificStep`, `reply`, `emailEventSteps`) can be authored by step REF with our build** since plugin workflows/wave3: the compiler maps the ref to the minted id; before, `specific_step` could only be set by a post-build edit `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3D-flow.json`.\n- **Time waits, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`, `live-3C2-windows.json`: a 1-minute wait released after ~63 s. **Dynamic period**: `timePeriodInputMode: \"dynamic\"`, `dynamicTimePeriod: \"{{contact.<num field>}}\"` = 3 held 3 min 4 s although `startAfter.value` was 1 — the dynamic value wins. **Dynamic unit**: `unitInputMode: \"dynamic\"`, `dynamicUnit: \"{{contact.<text field>}}\"` = `minutes` with a dynamic period of 2 held 2 min 2 s although `startAfter.type` was `hour`. `startAfter` still ships in both.\n- **Windows hold until they open; the release lag after the opening varies from run to run** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3C2R-windows-clean.json; first run live-3C2-windows.json]`. In both runs, after a 1-minute wait, an all-day `when` window (the control) released at about +1:01, and a `when` window or `exact` time set about 6–8 min ahead held well past the 1-minute delay. The two runs disagree on the lag after the window opened. **Clean rerun (3C2R):** an `exact` 22:47 and a `when` 22:47–22:52 window (account timezone) both released at 22:47:01–02, one to two seconds after opening. **First run (3C2):** a `when` window released 2:51 after opening, and an `exact` one 3:47 after. So do not rely on the exact moment. Expect anywhere from seconds to a few minutes, unlike `specific_date` / `recurring_schedule`, which released at hh:mm:00 in every run.\n- **`specific_date`, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`: a future date+time (12-hour `specificTimeHour` + `specificTimePeriod`, account timezone) released at exactly hh:mm:00. With the date already passed: `next` continued at once; `exit` ended the run (the next step never ran); `skip` continued (outbound suppression itself not yet exercised); `specific_step` jumped to `specificDateStep` and skipped the step in between. Dynamic `dynamicSpecificDate: \"{{contact.<date field>}}\"` holding a past date followed `next`.\n- **`recurring_schedule` monthly and yearly, proven live, with controls** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3AL-waits-condition-recurring.json`: on Monday 28 September, time set 5 minutes ahead (account zone), each of these released at exactly hh:mm:00: monthly by day (`recurringMonthlyMode: \"day\"`, day 28, `recurringMonths: [9]`), monthly `nth_weekday` `'4th'` Monday, monthly `nth_weekday` `'last'` Monday, and yearly (`recurringYearlyMonth: 9`, day 28). Both controls with month `8` held. So **months are 1-based** (9 = September), as the drawer's options say. The run log records the release as `wait_time` → `wait_finished`, not a recurring-specific type.\n- **A `condition` wait with a timeout, both paths, authored by our engine** `[proven-live 2026-09-28]` `live-3AL-waits-condition-recurring.json`: `kind: \"wait\"`, `waitType: \"condition\"`, `timeout: {value: 2, unit: \"minutes\"}`, `onEvent` / `onTimeout`. The contact whose own text field was set 40 s in left by the event path about 3 s after the write. The other left by the timeout path 2 min 1 s after enrolment.\n- **`recurring_schedule` weekly, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`: `recurringWeeklyDays: [1]` on a Monday with the time set a few minutes ahead released at exactly hh:mm:00 — **`1` = Monday** (the drawer's default `[1,2,3,4,5]` is Mon–Fri).\n- **A `condition` wait (\"contact field has a value\") releases within seconds of the field being set.** Set at 05:05:48, the run moved at 05:05:51. With no change, it took the timeout branch when the timeout ran out `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **Hybrid actions split**. A `wait` with `convertToMultipath: true` carries both `next: \"<uuid>\"` (the timeout path) AND a `transitions[]` array (the event-fired paths). The runtime takes whichever fires first.\n- **`type` is the discriminator** — change it and the entire required-field set changes. Don't migrate without re-validating.\n- **`window` is timezone-naive**. `start`/`end` are `HH:MM` strings without zone; resolution depends on the location's timezone (`samples` show wait windows like `\"04:00\"`–`\"04:15\"`).\n- **`appointmentStartAfter.distributed`** is the drawer's months/days/hours/minutes offset (clamped 9999/30/23/59). Save folds it into `type: \"minutes\"` + `value` (total minutes); the runtime reads `type`/`value`. Choosing `when: \"now\"` sets `distributed: {}`, `type: \"minutes\"`, `value: 0`. With `before`/`after`, an all-zero offset is refused by the drawer [source-derived 2026-09-26 — models/conditions/Wait.ts:777-782,1106-1112,1395-1420].\n- **Only five wait types can branch.** `convertToMultipath` / an array `next` on a `time`, `appointment`, `specific_date`, etc. wait is a blocking publish error (`unsupportedBranchingWaitType`); a branching wait with fewer than 2 `next` entries fails `requiresAtLeastTwoTransitions`; a transition id with no matching template fails `missingTransition` [source-derived 2026-09-26 — utils/WorkflowValidator.ts:925-968].\n- For appointment subtypes the validator's three triggers (`appointment` / `service_booking` / `overdue`) all share `validateAppointmentWait`. Whether the runtime treats them identically isn't verified — likely they share the wait shape but differ in event source.\n- The validator returns `result: \"error\"` for several missing-field cases (rather than `\"warning\"`). The publish endpoint treats both equivalently (rejects), but the UI distinguishes them.",
+   "notes": "- **A legacy wait — stored WITHOUT the `convertToMultipath` key — opens in the old UI.** `shouldMoveToBranchingUI()` tests the key's PRESENCE, not its value (`Wait.ts:460-466`); without it `enableBranchingUI` is false and `prepareMultiPathAttr()` never writes `convertToMultipath` or rebuilds `transitions` (`Wait.ts:1008-1019`), so the Timeout switch does not branch that step. Any wait our engine builds carries the key `[source-derived]` `sniffs/workflows-completeness-2026-09-29/bundle-2026-09-29/recovered-source/src/models/conditions/Wait.ts` (promoted from `70-research/ACTION-DRAWERS-2.md`, which records the same presence test on Find Contact).\n- **`appointment` waits read the `event_start_date` anchor when the run has no appointment** `[proven-live 2026-09-28]` (`sniffs/workflows-wave1-2026-09-25/live-3L-event-start.json`): before/after offsets resolve against the anchor (before 3 min ≈ T−3; after 1 min = T+1), and a past anchor follows `appointmentCondition` (`next` → continues at once).\n- **`specificDateStep` (and `appointmentSpecificStep`, `reply`, `emailEventSteps`) can be authored by step REF with our build** since plugin workflows/wave3: the compiler maps the ref to the minted id; before, `specific_step` could only be set by a post-build edit `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3D-flow.json`.\n- **Time waits, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`, `live-3C2-windows.json`: a 1-minute wait released after ~63 s. **Dynamic period**: `timePeriodInputMode: \"dynamic\"`, `dynamicTimePeriod: \"{{contact.<num field>}}\"` = 3 held 3 min 4 s although `startAfter.value` was 1 — the dynamic value wins. **Dynamic unit**: `unitInputMode: \"dynamic\"`, `dynamicUnit: \"{{contact.<text field>}}\"` = `minutes` with a dynamic period of 2 held 2 min 2 s although `startAfter.type` was `hour`. `startAfter` still ships in both.\n- **Windows hold until they open; the release lag after the opening varies from run to run** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3C2R-windows-clean.json; first run live-3C2-windows.json]`. In both runs, after a 1-minute wait, an all-day `when` window (the control) released at about +1:01, and a `when` window or `exact` time set about 6–8 min ahead held well past the 1-minute delay. The two runs disagree on the lag after the window opened. **Clean rerun (3C2R):** an `exact` 22:47 and a `when` 22:47–22:52 window (account timezone) both released at 22:47:01–02, one to two seconds after opening. **First run (3C2):** a `when` window released 2:51 after opening, and an `exact` one 3:47 after. So do not rely on the exact moment. Expect anywhere from seconds to a few minutes, unlike `specific_date` / `recurring_schedule`, which released at hh:mm:00 in every run.\n- **`specific_date`, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`: a future date+time (12-hour `specificTimeHour` + `specificTimePeriod`, account timezone) released at exactly hh:mm:00. With the date already passed: `next` continued at once; `exit` ended the run (the next step never ran); `skip` continued (outbound suppression itself not yet exercised); `specific_step` jumped to `specificDateStep` and skipped the step in between. Dynamic `dynamicSpecificDate: \"{{contact.<date field>}}\"` holding a past date followed `next`.\n- **`recurring_schedule` monthly and yearly, proven live, with controls** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3AL-waits-condition-recurring.json`: on Monday 28 September, time set 5 minutes ahead (account zone), each of these released at exactly hh:mm:00: monthly by day (`recurringMonthlyMode: \"day\"`, day 28, `recurringMonths: [9]`), monthly `nth_weekday` `'4th'` Monday, monthly `nth_weekday` `'last'` Monday, and yearly (`recurringYearlyMonth: 9`, day 28). Both controls with month `8` held. So **months are 1-based** (9 = September), as the drawer's options say. The run log records the release as `wait_time` → `wait_finished`, not a recurring-specific type.\n- **A `condition` wait with a timeout, both paths, authored by our engine** `[proven-live 2026-09-28]` `live-3AL-waits-condition-recurring.json`: `kind: \"wait\"`, `waitType: \"condition\"`, `timeout: {value: 2, unit: \"minutes\"}`, `onEvent` / `onTimeout`. The contact whose own text field was set 40 s in left by the event path about 3 s after the write. The other left by the timeout path 2 min 1 s after enrolment.\n- **`recurring_schedule` weekly, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3C-waits.json`: `recurringWeeklyDays: [1]` on a Monday with the time set a few minutes ahead released at exactly hh:mm:00 — **`1` = Monday** (the drawer's default `[1,2,3,4,5]` is Mon–Fri).\n- **A `condition` wait (\"contact field has a value\") releases within seconds of the field being set.** Set at 05:05:48, the run moved at 05:05:51. With no change, it took the timeout branch when the timeout ran out `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **Hybrid actions split**. A `wait` with `convertToMultipath: true` carries both `next: \"<uuid>\"` (the timeout path) AND a `transitions[]` array (the event-fired paths). The runtime takes whichever fires first.\n- **`type` is the discriminator** — change it and the entire required-field set changes. Don't migrate without re-validating.\n- **`window` is timezone-naive**. `start`/`end` are `HH:MM` strings without zone; resolution depends on the location's timezone (`samples` show wait windows like `\"04:00\"`–`\"04:15\"`).\n- **`appointmentStartAfter.distributed`** is the drawer's months/days/hours/minutes offset (clamped 9999/30/23/59). Save folds it into `type: \"minutes\"` + `value` (total minutes); the runtime reads `type`/`value`. Choosing `when: \"now\"` sets `distributed: {}`, `type: \"minutes\"`, `value: 0`. With `before`/`after`, an all-zero offset is refused by the drawer [source-derived 2026-09-26 — models/conditions/Wait.ts:777-782,1106-1112,1395-1420].\n- **Only five wait types can branch.** `convertToMultipath` / an array `next` on a `time`, `appointment`, `specific_date`, etc. wait is a blocking publish error (`unsupportedBranchingWaitType`); a branching wait with fewer than 2 `next` entries fails `requiresAtLeastTwoTransitions`; a transition id with no matching template fails `missingTransition` [source-derived 2026-09-26 — utils/WorkflowValidator.ts:925-968].\n- All five appointment-family types (`appointment` / `service_booking` / `rental_booking` / `attendee_event_date` / `overdue`) share `validateAppointmentWait` and one drawer; the drawer names each one's source trigger (see *Until a scheduled date/time* above). Whether the runtime treats them identically isn't verified.\n- The validator returns `result: \"error\"` for several missing-field cases (rather than `\"warning\"`). The publish endpoint treats both equivalently (rejects), but the UI distinguishes them.",
    "hasCanonicalExample": true
   },
   {
@@ -30112,7 +30271,7 @@
    "family": "steps",
    "title": "webhook",
    "status": "source-derived",
-   "lastVerified": "2026-09-29",
+   "lastVerified": "2026-09-30",
    "summary": "Simple outbound HTTP request — POST or GET — with custom key/value data and headers. Lighter-weight than [`custom_webhook`](./custom_webhook.md) (no auth, no body content-type, no response capture).",
    "meta": {
     "Section": "`send_data`",
@@ -30134,15 +30293,15 @@
      "name": "method",
      "type": "MethodType",
      "required": true,
-     "default": "—",
-     "notes": "`\"GET\" | \"POST\"`. Corpus shows both. 100%."
+     "default": "`\"POST\"` (builder)",
+     "notes": "`\"POST\" | \"GET\"`. Corpus shows both. 100%."
     },
     {
      "name": "customData",
      "type": "IKeyValue[]",
      "required": true,
      "default": "[]",
-     "notes": "Array of `{ key, value }`. POST: labelled \"Custom data\" — \"These custom key-value pairs will be included along with the standard data\" (GHL's standard contact payload). GET: labelled \"Query string params\" `[source-derived 2026-09-26 — components/actions/Webhook.vue:66-81; i18n 871-872,3058-3059]`. 100%."
+     "notes": "Array of `{ key, value }`. POST: labelled \"Custom data\" — \"These custom key-value pairs will be included along with the standard data\" (GHL's standard contact payload). GET: labelled \"Query string params\" `[source-derived 2026-09-29 — components/actions/Webhook.vue:66-82; i18n 871-872,3058-3059]`. 100%."
     },
     {
      "name": "headers",
@@ -30152,8 +30311,40 @@
      "notes": "HTTP headers. Same key/value entry shape. 100% (often empty)."
     }
    ],
-   "validator": "`webhookValidator` (length 672, result level `warning`). Per `sniffs/bundle/validators.json::webhookValidator`:\n\n```\nif (!url || !url.trim())   push { field: \"url\",    message: \"webhook_url_required\" }\nif (!method)               push { field: \"method\", message: \"http_method_required\" }\nif (customData.some(row => !row.key?.trim() || row.value === null || row.value === undefined))\n                           push { field: \"customData\", message: \"custom_data_has_empty_fields\" }\nif (headers.some(row => !row.key?.trim() || row.value === null || row.value === undefined))\n                           push { field: \"headers\",    message: \"headers_has_empty_fields\" }\n```\n\n`fields_referenced: [\"customData\", \"headers\", \"method\", \"url\"]`.\n\nEmpty arrays are OK; but each entry in a non-empty array must have a non-empty `key` and a defined `value` — the **validator** lets an empty-string `value` through (only `null`/`undefined` fail) `[source-derived 2026-09-26 — utils/validators/webhook-validators.ts:34-56]`. The **builder drawer is stricter**: it refuses to save a row with an empty `value` (\"empty field is not allowed\", `emptyValues` tests `!data.value`) or a URL that fails its pattern (anything containing `{{` passes) `[source-derived 2026-09-26 — utils/validation.ts:68-80,179-186; models/actions/Webhook.ts:53-65]`.",
-   "notes": "- **Merge tags in the URL are rendered, custom values included** `[proven-live 2026-09-29]`: a POST whose `url` ended `?cv={{custom_values.<key>}}&ln={{contact.last_name}}` called the URL with both resolved. The execution log keeps the URL it actually called at `meta.response.internalData.webhook.url` (read back with the workflow's logs), and `meta.response.response.msg` holds the receiver's reply. The same custom value in `customData` was sent alongside (`sniffs/workflows-wave1-2026-09-25/live-W25-webhook-cv-url.json`).\n- **This action has no body editor, content-type or auth setting** — only `url`, `method`, `customData` and `headers` `[source-derived 2026-09-26 — models/actions/Webhook.ts]`. A POST sends GHL's standard contact payload plus the `customData` pairs; the wire encoding is not stated in the builder source. For a body you control, use [`custom_webhook`](./custom_webhook.md).\n- **GET: `customData` is \"Query string params\"; POST: the pairs ride with the standard data** `[source-derived 2026-09-26 — components/actions/Webhook.vue:66-81]`.\n- **No response capture.** This action doesn't save the response — downstream `{{webhook.<order>.response}}` references won't work. Use `custom_webhook` if you need the response.\n- **No authorization.** Embed any required auth tokens in `headers` (e.g. `{ key: \"Authorization\", value: \"Bearer ...\" }`).\n- **`customData[].value: \"\"` passes the publish validator but not the builder drawer** — the drawer's save check refuses empty values, so a UI re-save of an API-built step with `\"\"` will fail until filled `[source-derived 2026-09-26 — utils/validation.ts:179-186]`. `null`/`undefined` fail both.\n- **Handlebars** work in `url`, `customData[].value`, and `headers[].value`. Resolved at execution time.",
+   "conditions": [
+    {
+     "label": "\"Action name\"",
+     "field": "text",
+     "type": "\"Webhook\" (hard-coded English, not translated)",
+     "operator": "1-100 characters; error \"Name should be between 1-100 characters. {n}/100\""
+    },
+    {
+     "label": "\"Method\"",
+     "field": "select, placeholder \"Select a Method\", not searchable",
+     "type": "`POST`",
+     "operator": "`POST`, `GET`, in that order"
+    },
+    {
+     "label": "\"URL\"",
+     "field": "text with custom-value picker, placeholder \"https://sample-url.com\"",
+     "type": "`''`",
+     "operator": "error \"Please enter a valid URL\". Any value containing `{{` passes; otherwise the regex `^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.%]+$` applies: the scheme is **optional** and the host must contain a dot (so `localhost/x` fails)"
+    },
+    {
+     "label": "\"Custom data\" (POST) / \"Query string params\" (GET)",
+     "field": "heading over `customData` rows",
+     "type": "no rows",
+     "operator": "POST only: the sub-text ends in a \"standard data\" link to an external ClickUp-hosted doc (opens in a new tab). GET has no sub-text"
+    },
+    {
+     "label": "\"Headers\"",
+     "field": "heading over `headers` rows",
+     "type": "no rows",
+     "operator": "—"
+    }
+   ],
+   "validator": "`webhookValidator` (length 672, result level `warning`). Per `sniffs/bundle/validators.json::webhookValidator`:\n\n```\nif (!url || !url.trim())   push { field: \"url\",    message: \"webhook_url_required\" }\nif (!method)               push { field: \"method\", message: \"http_method_required\" }\nif (customData.some(row => !row.key?.trim() || row.value === null || row.value === undefined))\n                           push { field: \"customData\", message: \"custom_data_has_empty_fields\" }\nif (headers.some(row => !row.key?.trim() || row.value === null || row.value === undefined))\n                           push { field: \"headers\",    message: \"headers_has_empty_fields\" }\n```\n\n`fields_referenced: [\"customData\", \"headers\", \"method\", \"url\"]`.\n\nEmpty arrays are OK; but each entry in a non-empty array must have a non-empty `key` and a defined `value` — the **validator** lets an empty-string `value` through (only `null`/`undefined` fail) `[source-derived 2026-09-26 — utils/validators/webhook-validators.ts:34-56]`. The **builder drawer is stricter**: it refuses to save a row with an empty `value` (\"Empty field is not allowed\", `emptyValues` tests `!data.value`) or a URL that fails its pattern (anything containing `{{` passes) `[source-derived 2026-09-29 — utils/validation.ts:68-82,179-186; models/actions/Webhook.ts:54-66]`.",
+   "notes": "- **Merge tags in the URL are rendered, custom values included** `[proven-live 2026-09-29]`: a POST whose `url` ended `?cv={{custom_values.<key>}}&ln={{contact.last_name}}` called the URL with both resolved. The execution log keeps the URL it actually called at `meta.response.internalData.webhook.url` (read back with the workflow's logs), and `meta.response.response.msg` holds the receiver's reply. The same custom value in `customData` was sent alongside (`sniffs/workflows-wave1-2026-09-25/live-W25-webhook-cv-url.json`).\n- **This action has no body editor, content-type or auth setting** — only `url`, `method`, `customData` and `headers` `[source-derived 2026-09-26 — models/actions/Webhook.ts]`. A POST sends GHL's standard contact payload plus the `customData` pairs; the wire encoding is not stated in the builder source. For a body you control, use [`custom_webhook`](./custom_webhook.md).\n- **GET: `customData` is \"Query string params\"; POST: the pairs ride with the standard data** `[source-derived 2026-09-29 — components/actions/Webhook.vue:66-82]`.\n- **No response capture.** This action doesn't save the response — downstream `{{webhook.<order>.response}}` references won't work. Use `custom_webhook` if you need the response.\n- **No authorization.** Embed any required auth tokens in `headers` (e.g. `{ key: \"Authorization\", value: \"Bearer ...\" }`).\n- **`customData[].value: \"\"` passes the publish validator but not the builder drawer** — the drawer's save check refuses empty values, so a UI re-save of an API-built step with `\"\"` will fail until filled `[source-derived 2026-09-26 — utils/validation.ts:179-186]`. `null`/`undefined` fail both.\n- **Handlebars** work in `url`, `customData[].value`, and `headers[].value`. Resolved at execution time.",
    "hasCanonicalExample": true
   },
   {
@@ -30520,7 +30711,7 @@
    "family": "steps",
    "title": "workflow_ai_generate_image",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-09-30",
    "summary": "\"AI image generation\": generates one image from a text prompt (optionally with reference images) using an OpenAI or Google (Vertex) image model, and exposes the image URL and file to later steps.",
    "meta": {
     "Section": "`external_ai_models` (\"AI Actions\") [source-derived 2026-09-26 — utils/workflows.ts:852-900]",
@@ -30528,7 +30719,7 @@
     "Hybrid / multi-path?": "Linear",
     "Corpus frequency": "0 (no corpus example)",
     "Premium / beta?": "Premium (`isPremiumAction: true`), billable (`additionalConfig.isBillable: true`), contact-less capable (`isContactLess: true`) [source-derived 2026-09-26 — utils/workflows.ts:858,893-896]",
-    "UI editor source": "`models/actions/premium-actions/GenerateImageAI.ts`",
+    "UI editor source": "`models/actions/premium-actions/GenerateImageAI.ts`; drawer `components/actions/premium-actions/GenerateImageAI.vue` with `GenerateImageModelPicker.vue`, `GenerateImageTemplateCarousel.vue`, `GenerateImageReferenceImages.vue`, `PromptEnhanceButton.vue`, `hooks/use-generate-image-ai.ts`",
     "Icon": "`ri:image-ai-fill`"
    },
    "fields": [
@@ -30544,7 +30735,7 @@
      "type": "string",
      "required": true,
      "default": "gpt-image-2",
-     "notes": "One of 6: `gpt-image-2` (recommended), `gpt-image-2.5-flare`, `gpt-image-2.5-sunburst` (provider `openai`); `gemini-3-pro-image`, `gemini-3.1-flash-image`, `gemini-2.5-flash-image` (provider `vertex`). An empty model is filled with `gpt-image-2` on load."
+     "notes": "One of 6: `gpt-image-2` (flagged `recommended` in the model list; the drawer does not display the flag), `gpt-image-2.5-flare`, `gpt-image-2.5-sunburst` (provider `openai`); `gemini-3-pro-image`, `gemini-3.1-flash-image`, `gemini-2.5-flash-image` (provider `vertex`). An empty model is filled with `gpt-image-2` on load."
     },
     {
      "name": "prompt",
@@ -30607,7 +30798,7 @@
      "type": "array of `{name, url, size?}`",
      "required": false,
      "default": "—",
-     "notes": "Static reference images. `url` must be absolute http(s); each at most 7 MB; uploads must be JPEG, PNG or WebP."
+     "notes": "Static reference images. `url` must be absolute http(s); each at most 7 MB; uploads must be JPEG, PNG or WebP. A plain URL pasted in the drawer is downloaded by the browser and re-uploaded at Save, so the drawer stores the re-hosted upload URL; only an API-written step stores an arbitrary URL."
     },
     {
      "name": "__dynamicAttachments__.referenceImages",

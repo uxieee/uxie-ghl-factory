@@ -81,7 +81,7 @@ uxie-ghl-factory plugin is installed — same data.
 |---|---|---|
 | `add_appointment_booking_ai_bot` | source-derived | Hand the contact off to an AI bot that books an appointment on a specified calendar via conversational flow. |
 | `add_contact_tag` | source-derived | Apply one or more tags to the running contact. |
-| `add_notes` | source-derived | Attach an HTML note to the contact, optionally with title and color. |
+| `add_notes` | source-derived | Attach an HTML note to the contact, optionally with a title and color. In an object-based workflow the card reads "Adds a note to the {objectName} record" and the drawer offers no title or color. |
 | `add_to_affiliate_campaign` | source-derived | Add the contact to a specific affiliate campaign. |
 | `add_to_affiliate_manager` | source-derived | Add the contact to the location's Affiliate Manager (becomes an affiliate). |
 | `add_to_workflow` | source-derived | Enroll the running contact into another published workflow. |
@@ -105,8 +105,8 @@ uxie-ghl-factory plugin is installed — same data.
 | `create_custom_object` | source-derived | Create a new custom-object record on the contact's location. Resolved from `!ident:CustomObjectActionTypes.CREATE`. |
 | `create_opportunity` | source-derived | Create or update an opportunity record on a pipeline+stage for the running contact. The builder shows a deprecation banner on this step: "The Create/Update Action will soon be deprecated. Existing Workflows will be unaffected; however, the new Create Opportunity and Update Opportunity actions will b |
 | `create_update_contact` | source-derived | Create a contact (or update if one matches on email/phone) by writing one or more field values. |
-| `custom_code` | source-derived | Execute user-supplied JavaScript and yield an `output` object that downstream steps can reference (e.g. `{{custom_code.<order>.output.<key>}}`). |
-| `custom_webhook` | source-derived | Premium HTTP request action — POST/GET/PUT/DELETE to an external URL with JSON or form-encoded body, headers, query parameters, and an event-classification tag. Distinct from the simpler `webhook` action by supporting authorization, parameters, response capture, and event metadata. |
+| `custom_code` | source-derived | Execute user-supplied JavaScript or Python and yield an `output` object that downstream steps can reference (e.g. `{{custom_code.<order>.output.<key>}}`). |
+| `custom_webhook` | source-derived | Premium HTTP request action: POST, GET, PUT, DELETE, PATCH, HEAD or OPTIONS to an external URL, with a JSON or form-encoded body, headers, query parameters and an Event preset (`CUSTOM`, `POST` or `GET`) that sets which of those the drawer offers. It differs from the simpler `webhook` action in havi |
 | `datetime_formatter` | source-derived | "Date/Time Formatter": reformat a date, reformat a date-and-time, or count the days between two dates, and hand the result to later steps as a merge tag. |
 | `dnd_contact` | source-derived | Toggle the contact's "Do Not Disturb" flag globally, per-channel, or per-direction. |
 | `drip` | source-derived | Throttle downstream execution into batches with an inter-batch delay. The `drip` step itself is a control wrapper — downstream actions execute under the batch schedule it defines. |
@@ -117,7 +117,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `facebook_conversion_api` | source-derived | Send a server-side conversion event to Meta via the Conversion API (CAPI), bypassing browser-side pixel tracking. |
 | `facebook_remove_from_custom_audience` | source-derived | Remove the contact from a Facebook (Meta) custom audience. |
 | `fb_interactive_messenger` | source-derived | Send an interactive Facebook Messenger message with buttons and/or quick replies, branching on the contact's choice. Resolved from `!ident:FB_INTERACTIVE_MESSENGER`. |
-| `find_contact` | source-derived | Look up a contact by one or more field values; branch into "Contact Found" / "Contact Not Found" paths. |
+| `find_contact` | source-derived | Look up a contact by one or more field values; branch into "Contact found" / "Contact not found" paths. |
 | `find_opportunity` | source-derived | Multi-path search: look up an opportunity matching a filter spec; branches to `"Opportunity Found"` or `"Opportunity Not Found"`. |
 | `gmb` | source-derived | Send a Google Business Profile (formerly Google My Business / GMB) message to the contact via the connected GBP integration. |
 | `google_adword` | source-derived | Send a conversion event to Google Ads (Adwords), optionally with custom click-ID mapping. README also references this as `add_to_google_adword`. |
@@ -139,7 +139,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `manual-call` | source-derived | Create a queued call task for a user — they manually initiate the call. Differs from `call` (auto-dial). |
 | `manual-sms` | source-derived | Queue an SMS draft for a user to manually review and send. Differs from `sms` (automatic send). |
 | `math_operation` | source-derived | Apply arithmetic to a numeric field and (optionally) write the result to another field. This is NOT `number_formatter` — that is a separate current step type (text↔number, phone, currency, random; see [`number_formatter`](./number_formatter.md)) `[source-derived 2026-09-25: both are members of Workf |
-| `membership_grant_offer` | source-derived | Grant the contact a specific membership offer (course access, community membership, etc.). |
+| `membership_grant_offer` | source-derived | Grant the contact access to the course product behind a membership offer. The builder names it "Course grant offer" and describes it as "Grant contact access to a specific course product". |
 | `membership_revoke_offer` | source-derived | Revoke a membership offer from the contact. |
 | `messenger` | source-derived | Send a Facebook Messenger message via the connected Facebook page integration. |
 | `number_formatter` | source-derived | "Number Formatter": turn text into a number, format a number, a phone number or a currency amount, or generate a random number — and hand the result to later steps as `{{number_formatter.N.result}}`. |
