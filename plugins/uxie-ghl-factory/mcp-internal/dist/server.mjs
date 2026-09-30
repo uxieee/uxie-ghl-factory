@@ -76609,9 +76609,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_account_entities: {
-        description: "List account entities \u2014 proof: live-runtime (2026-09-29), floor: documented; risk: read",
+        description: "List account entities \u2014 proof: live-runtime (2026-09-30), floor: documented; risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "documented",
         proofRows: [
           "entities-ai-employees-agents-list",
@@ -76676,9 +76676,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_courses: {
-        description: "List courses \u2014 proof: documented; risk: read",
+        description: "List courses \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "documented",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "documented",
         proofRows: [
           "memberships-products-list"
@@ -76712,9 +76712,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_forms: {
-        description: "List forms in a sub-account \u2014 proof: live-runtime (2026-09-29); risk: read",
+        description: "List forms in a sub-account \u2014 proof: live-runtime (2026-09-30); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-29)",
+        proof: "live-runtime (2026-09-30)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-list",
