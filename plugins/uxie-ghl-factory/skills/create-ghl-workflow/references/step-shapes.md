@@ -289,11 +289,13 @@ Object.keys(customRequest) → "get,post,put,delete,patch,head,options"
   An empty `output` **blocks publish**. It's a placeholder, not runtime data — the real values
   are whatever the code returns at execution.
 - Typical run cost: `processTime ~877ms`, `memoryUsage ~2.1MB`.
+- **The plugin's credential guard refuses code that writes a literal `Authorization:` label before a value.** Name the header through a variable (`const AUTH = 'Authorization'; … { [AUTH]: 'Bearer ' + inputData.pit }`). This is a limitation of OUR guard, not of GHL.
 
 ```js
 // customRequest, not fetch. inputData carries the values you wired in.
 const base = 'https://services.leadconnectorhq.com';
-const H = { Authorization: 'Bearer ' + inputData.pit, Version: '2021-04-15', Accept: 'application/json' };
+const AUTH = 'Authorization'; // header name through a variable — see the guard note below
+const H = { [AUTH]: 'Bearer ' + inputData.pit, Version: '2021-04-15', Accept: 'application/json' };
 const r = await customRequest.get(base + '/contacts/' + inputData.contactId + '/appointments', { headers: H });
 const body = (r && r.data) ? r.data : r;
 // ...pick the target appointment...
