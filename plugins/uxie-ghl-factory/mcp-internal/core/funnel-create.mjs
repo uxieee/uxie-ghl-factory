@@ -18,6 +18,8 @@
 // location's own form reads 200) — so a store comes back with a dangling form reference to rebind.
 
 export const KINDS = Object.freeze(['funnel', 'website', 'store', 'webinar', 'blog']);
+/** The kinds whose New screen files the document in the folder you are in (`parentId`), measured 2026-09-30: a funnel folder holds funnels, a website folder websites. */
+export const FOLDER_KINDS = Object.freeze(['funnel', 'website']);
 
 // GHL's own blank templates, as the New store / New webinar screens load them (captured 2026-09-28 / 2026-09-25).
 export const BLANK_TEMPLATES = Object.freeze({ store: '6841a9953740196dc6e4031a', webinar: '684001d9bd9f6a3e0b118e89', webinarOnDemand: '683fff83bd9f6ac22b118e81' });
@@ -75,14 +77,16 @@ const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
  * endDate is sent as the start converted from `timezone` to UTC. GHL's own one-off wizard sends the BROWSER's offset
  * instead, so the session runs at the saver's local time (knowledge funnels rule 47); this tool does not copy that.
  */
-export function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName, video, now }) {
+export function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName, video, now, folderId }) {
   if (!KINDS.includes(kind)) return { refuse: `kind must be one of ${KINDS.join(', ')}` };
   if (typeof name !== 'string' || !name.trim()) return { refuse: 'name is required' };
+  if (folderId !== undefined && !FOLDER_KINDS.includes(kind)) return { refuse: `folderId files a ${FOLDER_KINDS.join(' or ')} in a folder; for a ${kind} the folder scoping of its list was not measured, so it is not offered — create it and move it on the Sites screen` };
+  if (folderId !== undefined && (typeof folderId !== 'string' || !folderId.trim())) return { refuse: 'folderId is a folder id (find_ghl_site list:true folders:true)' };
   const n = name.trim();
   switch (kind) {
     case 'funnel':
     case 'website':
-      return { method: 'POST', path: '/funnels/funnel/create', body: { locationId, name: n, type: kind } };
+      return { method: 'POST', path: '/funnels/funnel/create', body: { locationId, name: n, type: kind, ...(folderId ? { parentId: folderId } : {}) } };
     case 'blog':
       return { method: 'POST', path: '/blogs/site', body: { locationId, title: n, description: description ?? '' } };
     case 'store':
@@ -228,6 +232,25 @@ export async function listAllDocuments(gw, locationId, { pageSize = 100, maxPage
     if (!page.length || page.length < pageSize || (count != null && byId.size >= count) || byId.size === before) return { res: r, rows: [...byId.values()], count: count ?? byId.size, pages: i + 1 };
   }
   return { res: null, rows: [...byId.values()], count: count ?? byId.size, truncated: true };
+}
+
+/**
+ * The folders of one kind's tab: the list with `category=all` also returns the folders, as rows with `category: 'folder'` and the tab's `type`
+ * (a Funnels-tab folder is type funnel and a Websites-tab folder type website; the two tabs do not share folders — measured 2026-09-30).
+ * Each row: {id, name, type}. `rows: null` when the list could not be read.
+ */
+export async function listFolders(gw, locationId, type, { pageSize = 100, maxPages = 50 } = {}) {
+  const byId = new Map();
+  for (let offset = 0, i = 0; i < maxPages; i++) {
+    const r = await gw.call('GET', `/funnels/funnel/list?locationId=${encodeURIComponent(locationId)}&type=${encodeURIComponent(type)}&category=all&limit=${pageSize}&offset=${offset}`);
+    if (!r.ok) return { res: r, rows: null };
+    const page = r.json?.funnels ?? r.json?.data ?? [];
+    for (const f of page) if (f.category === 'folder' && f.type === type) byId.set(f._id ?? f.id, { id: f._id ?? f.id, name: f.name, type: f.type });
+    offset += page.length;
+    const total = r.json?.count;
+    if (!page.length || page.length < pageSize || (total != null && offset >= total)) return { res: r, rows: [...byId.values()] };
+  }
+  return { res: null, rows: [...byId.values()], truncated: true };
 }
 
 /** The video files in a location's Media Storage that match `ref` (an id or an exact name) — the wizard's Browse → Media Storage read. limit is 20 (this list's cap is unmeasured above it). */

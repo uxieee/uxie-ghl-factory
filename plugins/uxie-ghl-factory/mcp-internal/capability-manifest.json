@@ -1667,6 +1667,26 @@
   {
     "tool": "find_ghl_site",
     "method": "GET",
+    "path": "/countdown-timer/"
+  },
+  {
+    "tool": "find_ghl_site",
+    "method": "GET",
+    "path": "/countdown-timer/fetch/{locationId}/{id}"
+  },
+  {
+    "tool": "find_ghl_site",
+    "method": "GET",
+    "path": "/funnels/lookup/domain-and-path"
+  },
+  {
+    "tool": "find_ghl_site",
+    "method": "GET",
+    "path": "/funnels/funnel/fetch/{id}"
+  },
+  {
+    "tool": "find_ghl_site",
+    "method": "GET",
     "path": "/funnels/domain"
   },
   {
@@ -2135,6 +2155,11 @@
     "path": "/funnels/custom-fonts"
   },
   {
+    "tool": "build_funnel_page",
+    "method": "GET",
+    "path": "/countdown-timer/fetch/{locationId}/{id}"
+  },
+  {
     "tool": "create_funnel",
     "method": "GET",
     "path": "/funnels/funnel/list"
@@ -2273,6 +2298,16 @@
     "tool": "edit_funnel",
     "method": "GET",
     "path": "/locations/{id}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/funnel/cookie-consent"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/cookie-consent"
   },
   {
     "tool": "edit_funnel",

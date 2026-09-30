@@ -93,6 +93,15 @@
         "commit:e33fdb9d"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:5fba2958"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -102,6 +111,7 @@
       "DELETE https://backend.leadconnectorhq.com /funnels/order-form/products/{}": "f902c25a2f76f7ce61c2002c6222ba36b4b2ec286bf0e9b1e6563cdc124d856c",
       "GET https://backend.leadconnectorhq.com /funnels/domain": "c5b3c268c5e5f235ed1b1a8c81b05a9fcbcff4f25c53173a9643b08828993523",
       "GET https://backend.leadconnectorhq.com /funnels/event": "eb7f84d6b3af2310e5c90a55c2c99f270aeb8db039ea0503f8d6644285dd4b77",
+      "GET https://backend.leadconnectorhq.com /funnels/funnel/cookie-consent": "5189941f35c4396096720e3cfc60302ab543dc7f100e64908b31d22915b9a7e9",
       "GET https://backend.leadconnectorhq.com /funnels/funnel/fetch/{}": "f8882ab1b0d06b2d4806af0b9032cc3373aaed5c54184a9f5fea3a984fb1bd9a",
       "GET https://backend.leadconnectorhq.com /funnels/funnel/list": "a46307268f695398a8ae97eecb8b1e2c3174eef69d6fc11550b0857d5b6de8fb",
       "GET https://backend.leadconnectorhq.com /funnels/lookup/list": "962f65054f5b6f0e185aacea82a8b71253217cad24eb73aabe3d7cc469e7f5c5",
@@ -117,6 +127,7 @@
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-control-page": "d183c05c291ca64bf51f55a9664a7425ca494953e4644dfb2254661b7231bead",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-funnel-step": "2625afaef8d395f484583a653d8f063f323ad26609404ba47bac5dd4625f1bd4",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-funnel-to-locations": "e4c8f7e43c4a168c1d55f276a6ac8b0645156f76f05091de39d7cb9334ac95be",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/cookie-consent": "2c7965cc6b314f279870d0aabf96a1b3ab6054546cbe1c17421db0677354ae98",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/create-step": "14bcb50dd0ec4702536cc9cc89def97c4ccbc06f6b0c4936db4bc54236d9ffe6",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/delete": "03b76962c956f54258f3e1dd609012e2375bd78d70c0333c15c6a5c6c2067348",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/delete-step": "38ad4ca5e07c2267e3b2c766fc494445d2142eadaa9091512e6fe3b958810ad7",
@@ -141,13 +152,14 @@
       "redirectApp": 222
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_funnel": "44ee8cefdd747fccd94ed428088444572a7b641116f6551f6cb7e02f5cecf019",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_funnel": "1342aa1c214a45e525bca97556f3d79b45cb73870106e434f75f8720cb2be85e",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/cookie-consent.mjs": "44e10ea44ceb283311fb9c14fd67ff39d5d8990ace1b0d358a61c08bb016c992",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
-      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "1721423167ba842e4dff1f50006937ccf2ec68a99988af39e5370b948755a3fd",
-      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "c5a8d6e443d7bd102416924a92790456b885643498c65b62fa5e621db0fc826c",
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "e643d74b3e42bddbed538584740d42f0a9e58c8de0a0bd5560867d76fd083c5f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "5161bb246496714f08e150205eaa5bed28868bd2d53dd1109b2d97c6ff8df379",
       "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "6236f0072fee6aae198c0ee1377bd60bc630e7e1064ac728c7e4cccce39921b8"
     }
   }

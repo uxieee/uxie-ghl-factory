@@ -245,7 +245,7 @@ export const emptyFor = (prop, meta) => {
 // obtained by installing a blogs template (`POST /templates/template/load`, product `blogs`).
 export { KIND_DEFAULT_EXTRA };
 import { KIND_DEFAULT_STYLES, KIND_CONFIG_EXTRA } from './kind-style-defaults.mjs';
-import { KIND_TAGNAME, KIND_ORACLE_EXTRA, KIND_ORACLE_STYLES, KIND_OMIT_EXTRA } from './kind-oracle-defaults.mjs';
+import { KIND_TAGNAME, KIND_ORACLE_EXTRA, KIND_ORACLE_STYLES, KIND_OMIT_EXTRA, KIND_TITLE, KIND_OMIT_CLASS, KIND_ORACLE_NEW_KEYS } from './kind-oracle-defaults.mjs';
 
 export const NEEDS_STEP_TYPE = Object.freeze({
   'store-cart': 'store', 'store-checkout': 'store', 'store-thank-you': 'store',
@@ -554,9 +554,11 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
   const routed = routeEmbedExtra(meta, routeClickAction(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra));
   const oracleExtra = KIND_ORACLE_EXTRA[meta]?.(new Date().toISOString()) ?? {};
   const filled = fillTextFieldInitials(meta, unshare(completeExtra(meta, routed)));
-  for (const [k, v] of Object.entries(oracleExtra)) if (!Object.prototype.hasOwnProperty.call(routed, k) && k in filled) filled[k] = structuredClone(v);
+  for (const [k, v] of Object.entries(oracleExtra)) if (!Object.prototype.hasOwnProperty.call(routed, k) && (k in filled || KIND_ORACLE_NEW_KEYS[meta]?.includes(k))) filled[k] = structuredClone(v);
   if (KIND_OMIT_EXTRA[meta]) for (const k of Object.keys(filled)) if (KIND_OMIT_EXTRA[meta].test(k) && !Object.prototype.hasOwnProperty.call(routed, k)) delete filled[k];
   const node = envelope(id, 'element', meta, KIND_TAGNAME[meta] ?? ELEMENTS[meta].tagName, filled, withDefaults, cls, TOOL_COMPILED_KINDS.has(meta) ? undefined : KIND_FACTORY_WRAPPER[meta]);
+  if (KIND_TITLE[meta]) node.title = KIND_TITLE[meta];
+  for (const k of KIND_OMIT_CLASS[meta] ?? []) if (!Object.prototype.hasOwnProperty.call(cls, k)) delete node.class[k];
   // The wrapper and per-device maps a caller gave (numbers are px), over the envelope's.
   if (wrapper) node.wrapper = { ...node.wrapper, ...storedMap(wrapper) };
   for (const [k, v] of Object.entries({ tabletStyles, mobileStyles, tabletWrapper, mobileWrapper })) if (v) node[k] = storedMap(v);
