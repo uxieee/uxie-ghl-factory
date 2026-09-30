@@ -2221,6 +2221,12 @@
     "POST /workflows-marketplace/triggers/dynamic-source/{key}": {
       "kind": "read",
       "note": "The trigger twin of actions/dynamic-source: a READ sent as POST, body = the trigger's current attributes (source-derived, workflows wave25)."
+    },
+    "DELETE /vibe-ai/projects/{projectId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Deletes an AI Studio project: ?alt_id={locationId}&alt_type=location, no body → 200 {project_id, status:'deleted'}; a later project read answers 404. Its secrets and published route go with it (proven live 2026-09-30 on an own unpublished project, ai-agents reproof; knowledge corpus ai-studio/20-api/projects.md)."
     }
   }
 }
