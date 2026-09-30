@@ -60,6 +60,15 @@
         "commit:00661fd8"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:7b3f5765"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {

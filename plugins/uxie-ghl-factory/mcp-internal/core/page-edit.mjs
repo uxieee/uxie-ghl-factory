@@ -21,6 +21,7 @@ export function findNode(pageData, nodeId) {
 import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch, withElement } from './funnel-pages.mjs';
 import { randomId, allIds, subtreeIds, parentOf, positionIn, movedIndex, cloneSubtree, copyRulesUnderNewIds, stripRulesNaming, findPopup, popupRoot } from './page-structure.mjs';
 import { nodeLayerCss, storedMap, LAYER_SPEC_KEYS } from './style-layer.mjs';
+import { applyDynamicText, DTR_KINDS } from './dynamic-text.mjs';
 import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, customFamily, setPageColors, pageColorValue, PAGE_COLOR_SLOTS } from './page-fonts.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
 
@@ -269,9 +270,23 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
         if (!given.type) next.type = given.selfHostedVideo?.id ? 'selfHosted' : (given.url ? (videoTypeOf(given.url) ?? cur.type) : cur.type);
         o.extra = { ...o.extra, videoProperties: { value: next } };
       }
+      // Dynamic text from URL: the placeholders in the text become the builder's pills and the node's extra.dtr map is written.
+      if (o.dynamicText !== undefined) {
+        try {
+          if (!DTR_KINDS.includes(hit.node.meta)) throw new Error(`dynamicText is offered on ${DTR_KINDS.join(', ')} — not on ${hit.node.meta}`);
+          const html = o.extra?.text?.value ?? hit.node.extra?.text?.value;
+          const d = applyDynamicText(html, o.dynamicText);
+          o.extra = { ...(o.extra ?? {}), text: { value: d.html }, dtr: { ...(hit.node.extra?.dtr ?? {}), ...d.dtr } };
+        } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
+      }
       // An image or svg keeps its click action in imageActions / svgImageActions, not `action` (funnel-pages.mjs).
       if (o.extra) {
         try { o.extra = routeClickAction(hit.node.meta, o.extra); } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
+      }
+      // The Element name (Layers panel / Settings → Element name) is the node's own `title`; a builder-saved node has no separate copy.
+      if (typeof o.title === 'string') {
+        hit.node.title = o.title; if (hit.node.element && typeof hit.node.element === 'object') hit.node.element.title = o.title;
+        changed.push('title');
       }
       if (o.extra && Object.keys(o.extra).length) { mergeInto(hit.node, 'extra', o.extra); changed.push(...Object.keys(o.extra).map((k) => `extra.${k}`)); }
       if (o.styles && Object.keys(o.styles).length) {
@@ -328,7 +343,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
         if (stale) changed.push('note: the old rules of this node were not found verbatim (a builder-saved sheet is minified); they stay until the page is next saved in the builder');
       }
       hit.node.updated = true;
-      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...layerPatch } });
+      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...(typeof o.title === 'string' ? { title: o.title } : {}), ...layerPatch } });
     } else if (o.op === 'append-section') {
       // At the end, or at a position among the sections (index | after | before — a section id).
       const secs = next.sections ?? [];
@@ -467,6 +482,7 @@ export function verifyEdits(stored, report) {
           if (JSON.stringify(hit?.node?.[key]?.[k]) !== JSON.stringify(v)) wrong.push(`${key}.${k}`);
         }
       }
+      if (typeof r.expect?.title === 'string' && hit?.node?.title !== r.expect.title) wrong.push('title');
       out.push({ nodeId: r.nodeId, present: !!hit, applied: !!hit && wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}) });
     } else if (r.op === 'append-section') {
       const at = (stored.sections ?? []).findIndex((s) => s.id === r.sectionId);

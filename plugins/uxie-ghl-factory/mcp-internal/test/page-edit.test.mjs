@@ -106,3 +106,16 @@ test('an empty page op is refused, and seoMeta keeps every builder key while the
   assert.deepEqual(seoDiff({ title: 'New', description: 'D' }, { title: 'New', description: 'D' }), []);
   assert.deepEqual(seoDiff({ title: 'Old' }, { title: 'New' }), ['title']);
 });
+
+test('set title renames the element (Element name), verifies by value, and leaves siblings alone', () => {
+  const { h, p, data } = fixture();
+  const { pageData, report, errors } = applyPageEdits(data, [{ op: 'set', nodeId: p.id, title: 'Intro copy' }]);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(report[0].changed, ['title']);
+  assert.equal(findNode(pageData, p.id).node.title, 'Intro copy');
+  assert.equal(findNode(pageData, h.id).node.title, 'heading');
+  assert.equal(findNode(data, p.id).node.title, 'paragraph', 'input is not mutated');
+  assert.equal(verifyEdits(pageData, report)[0].applied, true);
+  const stale = structuredClone(pageData); findNode(stale, p.id).node.title = 'paragraph';
+  assert.deepEqual(verifyEdits(stale, report)[0].notApplied, ['title'], 'a title that did not land is reported');
+});

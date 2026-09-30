@@ -6,6 +6,7 @@
 // or the animation tables composeLeaf checks, so the allow-list cannot drift from what is read.
 import { ELEMENTS } from './funnel-pages.mjs';
 import { ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
+import { DTR_KINDS } from './dynamic-text.mjs';
 
 const props = (meta) => ELEMENTS[meta]?.extraProps ?? [];
 
@@ -28,11 +29,13 @@ export const ELEMENT_SPEC_KEYS = Object.freeze({
   mobileStyles: () => true,
   tabletWrapper: () => true,
   mobileWrapper: () => true,
+  title: () => true, // the element's name (Layers)
+  dynamicText: (meta) => DTR_KINDS.includes(meta), // {param: {default, transform}} — `{{query_param.param}}` pills in html
 });
 
 // Keys people reach for, and the key that does the job.
 const DID_YOU_MEAN = Object.freeze({
-  text: 'html', content: 'html', label: 'html', innerHTML: 'html', value: 'html', title: 'html',
+  text: 'html', content: 'html', label: 'html', innerHTML: 'html', value: 'html', name: 'title', elementName: 'title', urlParam: 'dynamicText', queryParam: 'dynamicText',
   style: 'styles', class: 'extra.customClass', className: 'extra.customClass', classes: 'extra.customClass',
   animation: 'entranceAnimation', hover: 'hoverAnimation', popup: 'openPopup', popupId: 'openPopup',
   fontFamily: 'css.font (or font: "headline" | "content")', typography: 'font', type: 'meta', kind: 'meta',
