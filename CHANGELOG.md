@@ -11,6 +11,30 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.36.0] — 2026-09-30
+
+**Forms: a form made by the tool now opens correctly in GHL's form builder, and submissions can be filtered.
+Executed live on the test account.**
+
+### Fixed
+- 🔴 A form made by `create_form` opened EMPTY in GHL's form builder ("Drag and drop components"), and the next
+  builder save would have written that empty canvas over the form. The Submit button lacked the styling keys the
+  builder reads. Every built-in element now carries the keys the builder writes, measured from every palette tile.
+  Live: a new tool-made form opens with its fields and its button, a builder save leaves the fields unchanged, and the
+  public form renders all four. Forms made before this release can be opened in the builder and saved only after
+  their button is fixed with `update_form_data`.
+- The address group key is `group_address`, as the builder writes it.
+
+### Added
+- `list_form_submissions` filters by date window, search text and product type, as the Submissions tab does.
+
+### Docs
+- ⚠️ Dropping a question tile (dropdown, checkbox, date, file upload…) in the form builder creates a real contact
+  custom field immediately, before any save.
+- The first builder save re-themes a form once (font, button radius, 41 form-level theme keys).
+- Location-wide form settings (conversation feed, submission document, sticky contact, save progress, timezone,
+  GDPR font) and their per-form overrides: `raw_request` reaches them; the forms skill says where they live.
+
 ## [1.35.2] — 2026-09-30
 
 **Fixes: birthday reminders and inbound-email trigger filters are written the way the builder writes them; AI,
