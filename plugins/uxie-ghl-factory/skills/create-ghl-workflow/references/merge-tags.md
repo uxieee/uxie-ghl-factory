@@ -31,3 +31,11 @@ The **Right now** family renders in the location's time zone: `{{right_now.middl
 ## Picking in the editor
 
 The editor's merge-tag picker (tag icon) lists Contact, Company, User, Appointment, Calendar, Message, Account, Right now, Phone Call, Client Portal Contact, Attribution, Voice AI, Conversation AI and Custom Values, plus one family per trigger that has a pinned sample. The SMS editor also has a lightning icon for trigger links. A marketplace step's rich-text field has an **@** Mention tool instead, and no lightning icon. `search_merge_tags` searches the picker's tags.
+
+## Custom-object workflows
+
+In a workflow that belongs to a custom object, the picker offers only two families, **Custom Object** and **Custom Values**, and the editor shows a `contact.*` chip in red. A run still rendered `{{right_now.year}}`, `{{location.name}}` and `{{default … "x"}}`; `{{contact.first_name}}` and `{{workflow.name}}` came back empty (an object workflow has no contact, and `workflow` is a namespace the picker does not list). Put an *Update record* step after a 1-minute wait, not straight after the trigger: without the wait it failed with "No records were found".
+
+## Voice AI tags
+
+`{{voice_ai.duration}}`, `{{voice_ai.summary}}`, `{{voice_ai.transcript}}` and `{{voice_ai.formattedTranscript}}` store as written and render EMPTY in a run that no Voice AI call started. What they hold when a call starts the run, and the format of the formatted transcript, was not measured.
