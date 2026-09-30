@@ -11,6 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.40.1] — 2026-09-30
+
+**The Custom Code example workflow can be built again.**
+
+### Fixed
+- The plugin's credential guard refused the shipped Custom Code example. Its code wrote a login header as
+  `Authorization: 'Bearer ' + …`, and the guard read that as a pasted credential, so no agent could build the example.
+  The example now names the header through a variable. It was tested live by building it on the sandbox as a draft.
+- The Custom Code guide now says so plainly: the guard refuses code that writes a literal `Authorization:` label
+  before a value, so name the header through a variable instead. This is a limit of the plugin, not of GHL.
+
 ## [1.40.0] — 2026-09-30
 
 **Workflows that run on custom-object records can now use a router and the custom-object steps.**
