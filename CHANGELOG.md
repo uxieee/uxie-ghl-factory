@@ -11,6 +11,19 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.41.7] — 2026-10-01
+
+**`edit_pipeline` no longer brings back a stage you just removed.**
+
+### Fixed
+- 🔴 GHL can take a moment to show that a stage was removed. The next edit could then start from that stale list and
+  put the removed stage back. Measured live: 1 of 3 runs of rapid add-and-remove edits on the old code brought a
+  removed stage back. The tool now remembers the stages it has just removed:
+  - if GHL still shows them right after the edit, it re-reads, then reports ok with `verified: false` and a note;
+  - if the pipeline it is about to edit still lists one, it refuses to write.
+- Tested live: 3 runs of 24 add-and-remove cycles each, and none brought a stage back. A stage nobody removed, or a
+  wrong name, is still reported as a real mismatch.
+
 ## [1.41.6] — 2026-10-01
 
 **`restore_workflow_version` no longer wipes the workflow's note, and there are new merge-tag notes.**
