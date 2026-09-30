@@ -31,6 +31,15 @@
         "commit:afe9223b"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-30",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:da8d0f62"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
