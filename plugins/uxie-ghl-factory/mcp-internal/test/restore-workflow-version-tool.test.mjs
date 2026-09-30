@@ -94,3 +94,35 @@ test('the restore PUT carries the current workflow note (the document PUT replac
   assert.equal(r2.ok, true, JSON.stringify(r2));
   assert.equal('workflowNote' in writes(none)[2].body, false, 'control: no note, none sent');
 });
+
+// Wave 49: the create snapshot (v1) holds NO steps; restoring it answered "verified" and left an empty draft.
+const emptyV3 = { _id: 'W-3', version: 3, status: 'draft', name: 'TEST wf', timezone: 'account', workflowData: { templates: [] }, triggersData: [] };
+
+test('a version with NO steps over a workflow that has steps is refused, on the preview AND on confirm, with nothing written', async () => {
+  for (const confirm of [false, true]) {
+    const f = fake({ version3: emptyV3 });
+    const r = await tool().handler(args({ confirm }), f.deps);
+    assert.equal(r.ok, false); assert.equal(r.code, 'VALIDATION_FAILED');
+    assert.match(JSON.stringify(r), /holds 0 steps/); assert.match(JSON.stringify(r), /EMPTY draft/);
+    assert.match(JSON.stringify(r), /after a publish|only after a publish|on each publish/);
+    assert.deepEqual([r.data?.versionSteps, r.data?.currentSteps], [0, 1]);
+    assert.equal(writes(f).length, 0, `no write (confirm:${confirm})`);
+  }
+});
+
+test('control: a version that holds steps is not refused, and the preview shows the step count of both sides', async () => {
+  const f = fake();
+  const r = await tool().handler(args(), f.deps);
+  assert.equal(r.code, 'CONFIRM_REQUIRED');
+  assert.deepEqual(r.data.preview.steps, { target: 1, current: 1 });
+  assert.equal(writes(f).length, 0);
+});
+
+test('allowEmpty:true is the explicit opt-in: the preview shows 0 vs 1 steps and a confirmed restore empties the draft on purpose', async () => {
+  const f = fake({ version3: emptyV3 });
+  const p = await tool().handler(args({ allowEmpty: true }), f.deps);
+  assert.equal(p.code, 'CONFIRM_REQUIRED'); assert.deepEqual(p.data.preview.steps, { target: 0, current: 1 });
+  assert.equal(writes(f).length, 0);
+  const c = await tool().handler(args({ allowEmpty: true, confirm: true }), f.deps);
+  assert.equal(c.ok, true, JSON.stringify(c).slice(0, 300)); assert.equal(c.data.to.steps, 0);
+});
