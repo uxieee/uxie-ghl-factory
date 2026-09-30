@@ -11808,6 +11808,7 @@ export const TOOLS = [
         closeOnOutsideClick: z.boolean().optional().describe('set-popup: close on clicking outside'),
         showOn: z.union([z.enum(['exit', 'none']), z.object({ delay: z.number().min(0) })]).optional().describe("set-popup: 'exit' | 'none' | {delay: seconds}"),
         nodeId: z.string().optional(),
+        title: z.string().optional().describe("set: the element's name (Settings → Element name; shown in Layers)"),
         extra: z.record(z.any()).optional(),
         styles: z.record(z.any()).optional(),
         entranceAnimation: z.object({ name: z.enum(ENTRANCE_ANIMATIONS), duration: z.number().positive().optional(), delay: z.number().min(0).optional(), scale: z.number().positive().optional(), easing: z.enum(['linear', 'ease-in', 'ease-out', 'ease-in-out']).optional(), disableOnMobile: z.boolean().optional() }).optional(),
@@ -11927,6 +11928,7 @@ export const TOOLS = [
           salt,
           wrapper: e.wrapper, tabletStyles: e.tabletStyles, mobileStyles: e.mobileStyles, tabletWrapper: e.tabletWrapper, mobileWrapper: e.mobileWrapper,
         });
+        if (typeof e.title === 'string' && e.title) leaf.title = e.title; // Element name (Layers); the builder's fresh node names itself after its kind
         // An explicit `css` block wins — it can express breakpoints, descendant selectors and
         // pseudo-states that a flat style map cannot. Otherwise the leaf's `styles` are
         // COMPILED, so styling set through `styles` alone reaches the public renderer instead

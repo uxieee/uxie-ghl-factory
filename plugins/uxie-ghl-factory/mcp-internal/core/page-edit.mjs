@@ -273,6 +273,11 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       if (o.extra) {
         try { o.extra = routeClickAction(hit.node.meta, o.extra); } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
       }
+      // The Element name (Layers panel / Settings → Element name) is the node's own `title`; a builder-saved node has no separate copy.
+      if (typeof o.title === 'string') {
+        hit.node.title = o.title; if (hit.node.element && typeof hit.node.element === 'object') hit.node.element.title = o.title;
+        changed.push('title');
+      }
       if (o.extra && Object.keys(o.extra).length) { mergeInto(hit.node, 'extra', o.extra); changed.push(...Object.keys(o.extra).map((k) => `extra.${k}`)); }
       if (o.styles && Object.keys(o.styles).length) {
         mergeInto(hit.node, 'styles', o.styles); changed.push(...Object.keys(o.styles).map((k) => `styles.${k}`));
@@ -328,7 +333,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
         if (stale) changed.push('note: the old rules of this node were not found verbatim (a builder-saved sheet is minified); they stay until the page is next saved in the builder');
       }
       hit.node.updated = true;
-      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...layerPatch } });
+      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...(typeof o.title === 'string' ? { title: o.title } : {}), ...layerPatch } });
     } else if (o.op === 'append-section') {
       // At the end, or at a position among the sections (index | after | before — a section id).
       const secs = next.sections ?? [];
@@ -467,6 +472,7 @@ export function verifyEdits(stored, report) {
           if (JSON.stringify(hit?.node?.[key]?.[k]) !== JSON.stringify(v)) wrong.push(`${key}.${k}`);
         }
       }
+      if (typeof r.expect?.title === 'string' && hit?.node?.title !== r.expect.title) wrong.push('title');
       out.push({ nodeId: r.nodeId, present: !!hit, applied: !!hit && wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}) });
     } else if (r.op === 'append-section') {
       const at = (stored.sections ?? []).findIndex((s) => s.id === r.sectionId);

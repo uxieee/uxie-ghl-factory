@@ -98,6 +98,8 @@ with a 201. Everything the ops do not name is written back as read, and each op 
 on a separate read. Node ids come from `GET /funnels/builder/page/data?pageId=`. Prefer this over
 recomposing a page: `sections` REPLACES the whole page.
 
+**Element name** (Settings → Element name, the row label in Layers): a compose element takes `title`, and `set` takes `title` on any node id; it is the node's own `title` (a fresh node is named after its kind), read back by value after the write.
+
 **Structure and motion** (`build_funnel_page`, both modes; shapes measured from the builder's own saves):
 a section takes `sticky` (`none|top|bottom`), `width` (`full|wide|midWide|small`) and `fullWidthRows`
 (rows span the section; not with `maxWidth`) — in edit mode as `set` on the section's id. A leaf takes
