@@ -137,6 +137,7 @@ import { compileDeploymentIntent, executeDeployment, DEPLOY_PATH, CHANNELS } fro
 import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
 import { submitActionWarning } from './submit-action.mjs';
 import { renderableFields, blankSubmitWarning, addressGroup, carries } from './form-fields.mjs';
+import { shapeForBuilder } from './form-builder-shapes.mjs';
 import { StudioApi, queryProjectHistory, filterRoutes, classifySite, nameWarning,
          sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor } from './ai-studio.mjs';
 
@@ -10341,7 +10342,9 @@ export const TOOLS = [
           'Give each element a renderer `type`. Built-in tags (first_name, email, phone, button, …) get the builder\'s shape when type is left out.');
       }
       // The builder's save of an address group: children after it in `fields`, settings in `form.address`.
-      const grouped = addressGroup(fields);
+      // The keys the builder writes on each built-in element; without them (the Submit button's styling above all) the form builder opens the form EMPTY.
+      const builderShaped = shapeForBuilder(fields);
+      const grouped = addressGroup(builderShaped.fields);
       const blank = blankSubmitWarning(grouped.fields);
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const document = {
@@ -10357,6 +10360,7 @@ export const TOOLS = [
         document,
         fieldTags: grouped.fields.map((f) => f.tag),
         ...(filled.length ? { completed: filled } : {}),
+        ...(builderShaped.added.length ? { builderShape: builderShaped.added.map((a) => ({ tag: a.tag, keysAdded: a.keys.length })) } : {}),
         warning: 'The form is PUBLIC the moment it is created — there is no draft state, and formData is readable with no credentials.',
         ...(blank ? { blankSubmit: blank } : {}),
       };
@@ -10413,6 +10417,7 @@ export const TOOLS = [
         fieldTags: back.hit ?? want,
         widgetUrl: `https://api.leadconnectorhq.com/widget/form/${formId}`,
         ...(filled.length ? { completed: filled } : {}),
+        ...(builderShaped.added.length ? { builderShape: builderShaped.added.map((a) => ({ tag: a.tag, keysAdded: a.keys.length })) } : {}),
         ...(blank ? { blankSubmit: blank } : {}),
         ...(back.hit ? {} : { note: `Saved, but the document had not appeared after ${back.attempts} read-backs. Reads lag writes by seconds — read it again with get_form before assuming it is wrong.` }),
       });
@@ -10452,7 +10457,8 @@ export const TOOLS = [
         return fail(CODES.VALIDATION_FAILED, `${shaped.problems.length} field(s) would not render: ${shaped.problems.join(' ')}`,
           'Give each element a renderer `type`. Built-in tags (first_name, email, phone, button, …) get the builder\'s shape when type is left out.');
       }
-      const grouped = shaped ? addressGroup(shaped.fields) : null;
+      const builderShaped = shaped ? shapeForBuilder(shaped.fields) : null;
+      const grouped = shaped ? addressGroup(builderShaped.fields) : null;
       if (shaped) args = { ...args, fields: grouped.fields };
       const blank = shaped ? blankSubmitWarning(grouped.fields) : null;
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -10482,6 +10488,7 @@ export const TOOLS = [
         ...(args.name !== undefined && args.name !== form.name ? { rename: { from: form.name, to: args.name } } : {}),
         preservedKeys: Object.keys(before).filter((k) => !patch.includes(k)),
         ...(shaped?.filled.length ? { completed: shaped.filled } : {}),
+        ...(builderShaped?.added.length ? { builderShape: builderShaped.added.map((a) => ({ tag: a.tag, keysAdded: a.keys.length })) } : {}),
         ...(blank ? { blankSubmit: blank } : {}),
         note: 'Keys under preservedKeys are re-sent verbatim. Without that they would be DELETED — the save replaces the document.',
       };

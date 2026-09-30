@@ -128,7 +128,7 @@ test('image, country and the address group complete to the builder\'s types', ()
   const { fields, problems } = renderableFields([{ tag: 'image', url: 'https://x.test/a.png' }, { tag: 'country' }, { tag: 'group_address' }]);
   assert.deepEqual(problems, []);
   assert.deepEqual(fields.map((f) => f.type), ['img', 'select', 'group']);
-  assert.equal(fields[2].hiddenFieldQueryKey, 'addressId');
+  assert.equal(fields[2].hiddenFieldQueryKey, 'group_address', 'the builder writes group_address (wave43 capture), not addressId');
   assert.equal(fields[0].hiddenFieldQueryKey, 'image_1');
 });
 
