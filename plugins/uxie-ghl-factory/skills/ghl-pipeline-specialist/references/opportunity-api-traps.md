@@ -124,6 +124,14 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
   save through the same create call, with no marker, and can be renamed before saving.
 - 60 tags per pipeline, enforced by the server. Every new tag is saved with `position: 1`.
 
+- **Board Export is a browser-built CSV** (a `blob:` download, no server route). It follows the board's current filters, so
+  an agent gets the same rows from `POST /opportunities/search`. The Export page closes itself, so an automated browser
+  needs a download handler on the context and a spare tab.
+- **Conditional field rules** (Lab "Show & Require Opportunity Fields Conditionally", flag `conditional-rules.settings`):
+  `POST /custom-fields/conditional-fields` with `filters` and `outcomes:[{type:"show_field", targetKey:"custom_fields.<key>"}]`,
+  `DELETE …/{id}?locationId`. A built-in system rule (Lost → show Lost reason) already exists. A saved Show rule was not
+  applied by the Add or Edit form in this build, so do not promise a user that a rule hides or requires a field.
+
 ## Board display
 
 - Card layout (Default / Compact / Unlabeled), card fields and quick actions are saved only on a **saved
