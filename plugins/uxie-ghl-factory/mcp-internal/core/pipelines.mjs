@@ -156,6 +156,64 @@ export function verifyPipeline(body, row) {
 }
 
 /**
+ * True when the ONLY thing wrong with a read-back is that it is short: fewer stages stored than sent, every stored stage
+ * matches what was sent, and the only complaints are the count and stages that are not there yet. GHL's pipeline list can
+ * trail a PUT by a moment (a real edit answered "stage count: sent 8, read back 7" though the write had landed), so this
+ * shape is a read that is still catching up, not a failed write. Anything else — a wrong name, a wrong probability, a
+ * stage in the wrong place, MORE stages than sent — is a real mismatch.
+ */
+export function isReadBackLag(body, row, mismatches) {
+  if (!row || !mismatches?.length) return false;
+  const got = row.stages ?? [];
+  if (got.length >= body.stages.length) return false;
+  return mismatches.every((m) => m.startsWith('stage count:') || (/^stage ".*" \(.*\) is missing after the write$/.test(m)));
+}
+
+/** Read-back delays after the write, ms: about 3 s in total before a short read is called "not confirmed yet". */
+export const READBACK_DELAYS_MS = [0, 500, 1000, 1500];
+
+/**
+ * Read the pipeline back after a write, re-reading a short answer a few times. Returns { row, mismatches, attempts,
+ * lag } where `lag` is true only when the last read was still short and nothing else was wrong (see isReadBackLag).
+ * `read` returns { row } or { failure }; a failure is passed straight back.
+ */
+export async function readBackWithBackoff({ read, body, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), delays = READBACK_DELAYS_MS }) {
+  let last = null;
+  for (let i = 0; i < delays.length; i++) {
+    if (delays[i]) await sleep(delays[i]);
+    const r = await read();
+    if (r.failure) return { failure: r.failure };
+    const mismatches = verifyPipeline(body, r.row);
+    last = { row: r.row, mismatches, attempts: i + 1 };
+    if (!mismatches.length || !isReadBackLag(body, r.row, mismatches)) return { ...last, lag: false };
+  }
+  return { ...last, lag: true };
+}
+
+/** How long after an edit this process sent, a shorter list is read as "still catching up" rather than "someone removed stages". */
+export const RECENT_WRITE_MS = 20000;
+
+/**
+ * The read an edit is PLANNED from can lag too: the list of a pipeline this process just edited may still show the old
+ * stages, and a whole-pipeline PUT built from it silently drops the stage the last edit added (measured 2026-09-30: a
+ * lagged read after an accepted add, then the next edit erased that stage). So when this process sent `lastWrite.count`
+ * stages a moment ago and the list shows fewer, re-read a few times; if it is still short the caller must not write.
+ * Returns { row, stale, attempts } or { failure }.
+ */
+export async function readBaseWithBackoff({ read, lastWrite, now = Date.now(), sleep = (ms) => new Promise((r) => setTimeout(r, ms)), delays = READBACK_DELAYS_MS }) {
+  const recent = lastWrite && now - lastWrite.at <= RECENT_WRITE_MS;
+  let last = null;
+  for (let i = 0; i < delays.length; i++) {
+    if (delays[i]) await sleep(delays[i]);
+    const r = await read();
+    if (r.failure) return { failure: r.failure };
+    last = { row: r.row, attempts: i + 1 };
+    if (!recent || !r.row || (r.row.stages ?? []).length >= lastWrite.count) return { ...last, stale: false };
+  }
+  return { ...last, stale: true };
+}
+
+/**
  * Cards that reached the landing stage without being counted (T12, sweep 2026-09-29). The search index lags a write by
  * seconds, so a card created just before a stage is removed is invisible to every count; GHL then moves it to the
  * pipeline's first stage and nothing says so. After the write, a card in the landing stage that was NOT in the
