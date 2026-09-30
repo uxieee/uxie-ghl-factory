@@ -302,6 +302,13 @@ function marketplaceAttributes(node, ctx) {
       `marketplace step '${node.ref}' (${node.type}, "${entry.appName}") is missing required `
       + `input(s): ${missing.join(', ')}. The builder would show "Resolve N Errors".`);
 
+  // Values the SERVER refused when a step was run with them (measured live, GROM Sandbox 2026-09-30, knowledge
+  // sniffs/workflows-wave1-2026-09-25/live-W37-rec-read*.json): refuse at author time instead of publishing a step that
+  // fails or is skipped at run time.
+  const refused = ASSET_VALUE_REFUSALS[node.type]?.(out);
+  if (refused)
+    throw new IRError('MARKETPLACE_VALUE_REFUSED', `marketplace step '${node.ref}' (${node.type}, "${entry.appName}"): ${refused}`);
+
   // Unknown keys WARN rather than throw: `connected_phone` in the live capture maps to a
   // DYNAMIC pseudo-field that `inputs` does not list under that name, so a hard allowlist
   // would reject a shape the builder accepts.
@@ -318,7 +325,28 @@ function marketplaceAttributes(node, ctx) {
 
 // What a correct asset step DOES that its drawer does not say — measured live, so an author hears it before the run
 // (coordinator ruling 2026-09-29). Warnings, not refusals: each is legal and sometimes intended.
+// Values the server refused at run time. Each returns the reason, or null.
+const RECURRING_WEEKDAYS = new Set(['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su', 'td']);
+const ASSET_VALUE_REFUSALS = {
+  // Run 1: dayOfWeek 1 -> HTTP 500 'InvoiceSchedule validation failed: schedule.rrule.dayOfWeek: `1` is not a valid enum value'
+  // (the run failed). Run 2: numOfWeek 0 -> 422 'data.numOfWeek value must be between -2 and 4 and not equal to 0' (the run was skipped).
+  create_recurring_invoice: (a) => {
+    const dow = a?.dayOfWeek;
+    if (dow !== undefined && dow !== null && dow !== '' && !RECURRING_WEEKDAYS.has(String(dow)))
+      return `dayOfWeek must be one of mo, tu, we, th, fr, sa, su, td (got ${JSON.stringify(dow)}); the server refuses any other value and the run fails.`;
+    const nw = a?.numOfWeek;
+    if (nw === 0 || nw === '0')
+      return 'numOfWeek 0 is refused by the server (422 "value must be between -2 and 4 and not equal to 0") and the run is skipped; use 1-4, -1 (last) or -2 (action date).';
+    return null;
+  },
+};
+
 const ASSET_BEHAVIOUR_WARNINGS = {
+  // A stored `count` does not end the schedule when an endDate is also present: the schedule kept its endDate, showed 31
+  // invoices remaining and stayed ACTIVE (live-W37-rec-readback.json; cancelled in its own call).
+  create_recurring_invoice: (a) => (a?.endType === 'after' && a?.endDate !== undefined && a?.endDate !== null && String(a.endDate).trim() !== '' ? { code: 'RECURRING_COUNT_IGNORED',
+    message: `endType 'after' with count ${JSON.stringify(a.count)} AND endDate ${JSON.stringify(a.endDate)}: the stored count was NOT applied when measured; the schedule ran until its endDate (31 invoices remaining) and stayed active. `
+      + 'Treat endDate as the real end, or cancel the schedule right after the first run (POST /invoices/schedule/{id}/cancel).' } : null),
   // A differential on two PUBLISHED company workflows: the step named one, and the record's runs in BOTH ended in the
   // same second (knowledge sniffs/workflows-wave1-2026-09-25/live-R7-7-remove-differential.json; corpus 40-rules/
   // remove-associated-records-ends-every-run.md).
