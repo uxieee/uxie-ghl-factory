@@ -11,6 +11,26 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.34.0] — 2026-09-30
+
+**Pages: step and path guards, richer layouts, step products, split-test routes, and a sharper site audit. Executed
+live on the test account.**
+
+### Added
+- `build_funnel_page` composes several rows in a section, column backgrounds, button entrance animations (including
+  loop, and off on mobile), and videos from HTML, Vimeo or a custom embed. Form, calendar and survey embeds are stored
+  as the builder stores them. Live: a builder save changed nothing on the page.
+- `edit_funnel` edits and deletes a step's product, with the same body the builder sends. A split test can route every
+  request and additional routes, and declaring a winner resets both.
+
+### Changed
+- ⚠️ Creating a step refuses what the builder refuses: an unknown type, an uppercase or over-deep path, and reserved
+  paths such as `/store/account`. Nested paths of up to three segments work and are public.
+
+### Fixed
+- `audit_site` flags a sell-product button whose step product was deleted. An empty default product id on an ordinary
+  button is not flagged.
+
 ## [1.33.1] — 2026-09-30
 
 **Fixes: tool results no longer blank out ordinary words after "session:", and the capitalised-tag check states
