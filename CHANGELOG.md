@@ -11,6 +11,16 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.39.3] — 2026-09-30
+
+**Privacy fix: six example workflows no longer carry another project's details.**
+
+### Fixed
+- 🔴 Six hand-written step examples (web request, AI agent, ChatGPT, add note, update contact field, AI decision
+  maker) carried another of the author's projects: a personal test-worker URL, that project's agent prompts and field
+  titles. The values are now neutral placeholders; each example's structure is unchanged. The privacy gate now refuses
+  those strings, and a test proves the old examples would be refused.
+
 ## [1.39.2] — 2026-09-30
 
 **Docs: page merge fields, store pickup, form themes, and the page AI assistant. Measured live on the test
