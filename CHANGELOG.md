@@ -22,7 +22,8 @@ Executed live on the test account.**
   builder reads. Every built-in element now carries the keys the builder writes, measured from every palette tile.
   Live: a new tool-made form opens with its fields and its button, a builder save leaves the fields unchanged, and the
   public form renders all four. ⚠️ A form made by an earlier version may still open empty in the builder: don't save
-  it there. Whether `update_form_data` repairs such a form has not been tested yet.
+  it there. `update_form_data` repairs it when you pass its fields back (proven live on an old-shape form); an update
+  that names no `fields` does not.
 - The address group key is `group_address`, as the builder writes it.
 
 ### Added
