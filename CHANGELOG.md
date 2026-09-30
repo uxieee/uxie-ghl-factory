@@ -11,6 +11,24 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.35.0] — 2026-09-30
+
+**Pages: countdown timers render, element defaults match what the builder creates, and page text and link colours
+are settable. Executed live on the test account.**
+
+### Added
+- `build_funnel_page` / `edit_funnel` `page` set the page's text and link colour (`typography {textColor, linkColor}`),
+  by palette name or hex. Live: stored, kept by a builder save, served in the public CSS.
+
+### Fixed
+- 🔴 A day or minute countdown timer built by the tool rendered nothing in the builder canvas (since 1.18.0). The
+  tool wrote no tag name where the builder writes `c-countdown`. The timers now mount and count.
+- Element defaults match the node the builder creates: timer and nav fonts; a fresh countdown dated now, without the
+  webinar fields a save would drop; nav menu v2 hover colour, spacing, alignment and size; blog posts (6 posts); and
+  product-detail labels. Five builder-made nodes pin them. Live: the tool's nodes survive a builder save with no
+  difference.
+- `audit_site` no longer flags props that a fresh builder element doesn't carry either.
+
 ## [1.34.0] — 2026-09-30
 
 **Pages: step and path guards, richer layouts, step products, split-test routes, and a sharper site audit. Executed
