@@ -33,6 +33,7 @@ import { planCreateFunnel, createdId, findMediaVideo, webinarView, sessionWarnin
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { elementSpecProblem } from './element-spec.mjs';
+import { planCookieConsent, cookieConsentNotApplied } from './cookie-consent.mjs';
 import { applyDynamicText } from './dynamic-text.mjs';
 import { makePopup, popupRefProblems } from './page-popup.mjs';
 import { normalizeStyles } from './style-values.mjs';
@@ -12653,16 +12654,16 @@ export const TOOLS = [
       + 'while a page serves) · clone-funnel {name} (this location; no domain, no paths) · archive-page / '
       + 'restore-page (restore mints a NEW path) · import-page · add-store (🔴 a builder save of the checkout creates '
       + '7 location-wide billing fields) · add-step-product {stepId, expectName, productId, priceId; quantity.max 1-999} · edit-step-product / delete-step-product {stepId, stepProductId, expectName = the step product\'s name} (returns '
-      + 'stepProductId, what a sell-product button stores). Not offered: sharing (opening Share creates a link anyone '
+      + 'stepProductId, what a sell-product button stores) · set-cookie-consent {cookieConsent: {enabled, acknowledged, complianceType ask-opt-in | do-not-ask, message, consentExpiration, position bottom-banner | top-banner | center-floating, buttons}} (the FUNNEL-level banner; turning it on needs acknowledged:true, the panel\'s disclaimer; colours, fonts and the cookie list stay on the builder panel). Not offered: sharing (opening Share creates a link anyone '
       + 'can import, not removable below the $497 plan — read one with get_funnel view share), a bare orphan page, '
-      + 'folders; page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps '
+      + 'creating / renaming / deleting folders (create_funnel folderId files a new funnel or website in one); page SEO, tracking code, CSS and background are build_funnel_page edit mode. Arguments and traps '
       + 'per op: ghl-funnels-pages SKILL → references/edit-funnel.md. Siblings: create_funnel, get_funnel, '
       + 'build_funnel_page, audit_site.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
       op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header', 'edit-header', 'delete-header', 'add-event', 'edit-event', 'delete-event', 'split-test', 'delete-funnel',
-        'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store', 'add-step-product', 'edit-step-product', 'delete-step-product']),
+        'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store', 'add-step-product', 'edit-step-product', 'delete-step-product', 'set-cookie-consent']),
       action: z.enum(['add-variation', 'start', 'declare-winner']).optional(),
       sourceFunnelId: z.string().optional(),
       sourceStepId: z.string().optional(),
@@ -12683,6 +12684,12 @@ export const TOOLS = [
       event: z.object({ eventId: z.string().optional(), expectPixelId: z.string().optional(), pixelId: z.string().optional(), level: z.enum(['funnel', 'page']).optional(), pageIds: z.array(z.string()).optional(),
         events: z.array(z.enum(['page_view', 'view_content', 'initiate_checkout', 'add_payment_info', 'purchase'])).optional(), conversionApi: z.literal(false).optional() }).optional()
         .describe('add-event: pixelId, level, events (+ pageIds for level page); the Conversions API stays off (its token is a credential — set it on the Events screen). edit-event / delete-event: eventId + expectPixelId (the target check); edit changes the rest; conversionApi:false turns the API off'),
+      cookieConsent: z.object({
+        enabled: z.boolean().optional(), acknowledged: z.boolean().optional().describe('required to turn the banner ON: the panel\'s disclaimer ("I\'ve read and understood") — banners block marketing / performance / analytics cookies until consent, and third-party widgets and custom code stay the owner\'s responsibility'),
+        complianceType: z.enum(['ask-opt-in', 'do-not-ask']).optional(), message: z.string().optional(), consentExpiration: z.number().int().optional().describe('days the visitor\'s choice is remembered'),
+        position: z.enum(['bottom-banner', 'top-banner', 'center-floating']).optional(),
+        buttons: z.object({ acceptAll: z.string().optional(), acceptEssential: z.string().optional(), ok: z.string().optional() }).optional(),
+      }).optional().describe('set-cookie-consent: the funnel-level banner (every page of the funnel). Colours, fonts, the policy link, the cookie list and regions stay on the builder panel'),
       productId: z.string().optional(),
       priceId: z.string().optional(),
       routeAdditional: z.boolean().optional().describe('split-test start: when the step is also served at other domains/paths, the modal asks whether to route them through the split (true) or not (false)'),
@@ -12697,6 +12704,8 @@ export const TOOLS = [
     capabilities: [
       { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },
       { method: 'GET', path: '/locations/{id}' },
+      { method: 'GET', path: '/funnels/funnel/cookie-consent' },
+      { method: 'POST', path: '/funnels/funnel/cookie-consent' },
       { method: 'GET', path: '/funnels/lookup/redirect/regex/bulk' },
       { method: 'GET', path: '/funnels/lookup/list' },
       { method: 'GET', path: '/funnels/domain/' },
@@ -12821,6 +12830,15 @@ export const TOOLS = [
             else if (!args.event.eventId) plan = { refuse: `${args.op} needs event.eventId and event.expectPixelId (read them with get_funnel view events)` };
             else if (args.op === 'edit-event') plan = planEditEvent({ funnel, locationId: args.locationId, rows: ev.rows, eventId: args.event.eventId, expectPixelId: args.event.expectPixelId, event: args.event });
             else plan = planDeleteEvent({ rows: ev.rows, eventId: args.event.eventId, expectPixelId: args.event.expectPixelId });
+            break;
+          }
+          case 'set-cookie-consent': {
+            if (need('cookieConsent')) { plan = { refuse: need('cookieConsent') }; break; }
+            const r = await gw.call('GET', `/funnels/funnel/cookie-consent?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
+            let stored = null;
+            if (r.ok) stored = r.json?.data ?? r.json;
+            else if (!(r.status === 404 && /data url not found/i.test(JSON.stringify(r.json ?? '')))) return fromHttp(r.status, r.json);
+            plan = planCookieConsent({ funnel, locationId: args.locationId, pageId: args.pageId, stored, cc: args.cookieConsent });
             break;
           }
           case 'delete-funnel': {
@@ -13049,6 +13067,17 @@ export const TOOLS = [
             const bad = badOf(rows);
             const out = { op: args.op, lookups: rows.map(lookupView), note: CACHE_NOTE };
             if (bad.length || rows.length !== ids.size) return withFailureData(fail(CODES.VERIFY_FAILED, 'the lookup rows did not read back in the requested publish state', 'Compare data.lookups.'), out);
+            return ok(out);
+          }
+          case 'set-cookie-consent': {
+            const r = await reread(async () => (await gw.call('GET', `/funnels/funnel/cookie-consent?funnelId=${encodeURIComponent(fid)}&locationId=${encodeURIComponent(args.locationId)}`)).json ?? {},
+              (j) => cookieConsentNotApplied(j?.data ?? j, plan).length === 0, deps.rereadOptions ?? {});
+            const read = r.value?.data ?? r.value;
+            const bad = cookieConsentNotApplied(read, plan);
+            const after = await fresh();
+            const out = { op: 'set-cookie-consent', changes: plan.changes.map((c) => ({ key: c.key, from: c.from, to: c.to })), enabled: read?.isCookieEnabled ?? null, position: read?.layoutSettings?.position ?? null, funnelBannerUrl: after?.cookieConsent ?? null,
+              note: 'Cookie consent is FUNNEL-level: it applies to every page of the funnel once the pages are published (a page serves the banner with its next published version).' };
+            if (bad.length) return withFailureData(fail(CODES.VERIFY_FAILED, `the cookie-consent save answered ${plan.status} but ${bad.length} field(s) did not read back as sent`, 'Compare data.notApplied; the GET can lag.'), { ...out, notApplied: bad });
             return ok(out);
           }
           case 'add-header': {
