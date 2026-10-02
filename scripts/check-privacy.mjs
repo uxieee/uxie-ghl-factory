@@ -201,6 +201,16 @@ const NAME_HASHES = new Set([
   'd47bf56312ee8eb99b7f945306a7c804d6dc35726391c54af7cb75cf98119fc5',
   'af56a0419031ae138a3f3a88256ec97aa34e77ea85c12556bdf6d063a48a10a7',
   '327b59e7f26ffe855ebbc5e65687bbe0cb32eafee7732d7d5dc80782a7dff066',
+
+  // 2026-10-02 roster addition, from a live engagement. The BUSINESS name was already
+  // covered (345aa074…, the 2026-08-31 sweep); the person's name and the product/brand
+  // name were not, so both sat unguarded beside the account they label.
+  // norm() collapses every non-[a-z0-9] run, so an umlaut spelling and its ASCII
+  // transliteration normalise differently and hash differently — both are listed.
+  '05a59bebc0a4899fe9baa294cf1c402c3f41f57cd3d8849b720bbd312dc333bb',
+  'c91f6772caec84b51c527c31ab1162300b74236736ab18a9330dcec15fe57e46',
+  '2c05827437f6644423ee860281a2d9ec9926227da9db697e73584b9990f560c0',
+  '511545a50b269e70e5ffa84ce7d388a41e3c15e06d266f218033fc5a6ecaa4ab',
 ]);
 
 // Normalize a candidate the way the hashes were generated: lowercase, collapse any

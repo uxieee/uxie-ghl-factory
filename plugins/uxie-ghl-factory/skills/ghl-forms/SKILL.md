@@ -89,10 +89,10 @@ safe shape.
 
 Never executed on any account, so no tool exposes them and the corpus marks them unproven:
 `POST /forms/share/{id}` copies the form **to another account**; `DELETE /forms/{id}`;
-`POST /forms/image` (multipart); `POST /forms/schedule-form-export`. Quiz and survey **saves** were
-never executed either — their `formData` carries `slides[]`, `logic`, `resultTemplate`, `category`
-and `categoryCustomFields` instead of `form.fields[]`, read from the builder's source and never
-written. A submission through the widget creates a contact and fires `form_submission` triggers on
+`POST /forms/image` (multipart); `POST /forms/schedule-form-export`. Survey **saves** were never
+executed either — their `formData` carries `slides[]`, `logic`, `resultTemplate`, `category` and
+`categoryCustomFields` instead of `form.fields[]`, read from the builder's source and never
+written. **Quiz saves ARE now proven end to end — see `references/quizzes.md`.** A submission through the widget creates a contact and fires `form_submission` triggers on
 any published workflow filtered to that form, so never submit on a client account to test.
 
 **Location Forms settings are a UI-only job on purpose.** Forms → Settings holds six location-wide switches (create conversation on submission, submission PDF, sticky contact,
@@ -102,3 +102,12 @@ No tool writes them: the bulk switch reaches every form on the account, other pe
 `update-capture-timezone`, `update-gdpr-font` each `{locationId, value, productType}`; a per-form override adds `formId` — proven live on an own form), so when a user asks for one, tell
 them it lives at **Forms → Settings** (per form: Manage individual forms) and, if they want it scripted, that `raw_request` reaches it with the body above.
 Also: dropping a question tile in the form builder (dropdown, checkbox, radio, number, date, signature, file upload, rating…) creates a real contact custom field at once, not at Save.
+
+## References
+
+- `references/quizzes.md` — the quiz surface end to end: the question element shapes (and the
+  `type` vs `dataType` trap that stores an element and never renders it), scoring via
+  `scoreByCategory`, the percentage formula and why a UI-set tier band silently empties the
+  results page, `formData.logic` conditional branching (NOT `form.conditionalLogic`), the
+  `sections[]` results schema, outcome-to-contact mapping, the consent element, and the
+  builder/API lost-update pair. Read it before touching a quiz.
