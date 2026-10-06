@@ -5,7 +5,8 @@ description: "Build and operate GoHighLevel Events — create ticketed or RSVP e
 
 # GHL Events
 
-Base: `services.leadconnectorhq.com/events-management`.
+Base: `backend.leadconnectorhq.com/events-management`. That is the host the web UI calls (events app build 2661,
+2026-10-06); `services` also answers some routes, such as `events/options`.
 
 **There is no public-API events surface.** Everything below is the internal rail, so the write
 gates in `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md` apply: draft first, confirm before any
@@ -32,6 +33,8 @@ return "not found" — it fails authorisation. Confirm the location before you w
 ISO timestamp to a session is a 422; sending `HH:MM` to an event is a 422.
 
 **4. `startDate` must not be in the past**, and `productIds` must be non-empty where required.
+(2026-10-06: a new event whose `dates[]` were all in the past was accepted and published. Re-check which
+field this 422 really comes from before relying on it.)
 
 **5. Accepted is not applied.** A `PUT /events-management/settings/{eventId}` carrying both
 `branding` and `checkIn` returned **200** and did not persist both. Read the settings back on a
@@ -48,13 +51,14 @@ Two worth naming here because they are where the surface hides things:
 - **`settings/{eventId}`** is the event PAGE — it carries `customCss` and `pageSections`
   alongside branding and check-in, so "edit the event page" is a settings write, not a
   separate resource.
-- **`attendees/list`** is a POST, and the only admin read of the roster. Creating or removing a
-  registration as an admin is still unlocated — registrations made while testing can only be
-  cleaned up through the UI.
+- **`attendees/list`** is a POST, and the only admin read of the roster. Admin registration,
+  cancel, refund and delete are now located: see `docs/events-sandbox-recon-2026-10.md`.
+  Deletes are soft, and a bulk delete takes `?attendeeIds=a,b`.
 
-## Public registration (the buyer's side)
+## Admin registration ("Add Attendee")
 
-A three-step flow, and the steps are bound together by a client-generated id:
+A three-step flow, and the steps are bound together by a client-generated id. Orders made this
+way carry `origin: crm_events_admin`:
 
 ```
 POST /events-management/attendees/registration/prepare
@@ -62,6 +66,10 @@ POST /payments/orders/internal
 POST /events-management/attendees/registration/{orderId}/complete
 GET  /events-management/public/events/{eventId}/registrations/{attendeeId}/fulfillment
 ```
+
+The public page uses a different chain: `public/events/{eventId}/contact` → `payments/orders` →
+`public/events/{eventId}/orders/{orderId}/complete`. Both public writes carry a reCAPTCHA
+Enterprise token, so a server cannot drive it.
 
 ⚠️ The `fingerprint` uuid is generated **client-side** and must be the **same value** across the
 prepare and complete steps. Generate it once, reuse it; a fresh uuid per call breaks the flow.
