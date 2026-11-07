@@ -46,19 +46,28 @@
         "row:smartlist-detail"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /contacts/smartlist/search": "18e4d23414aae56d45bbb9ec2c8530ea7469c8397305054ba5847a3c08e5680f",
       "GET https://backend.leadconnectorhq.com /contacts/smartlist/{}": "942b10d20e0a8ede0c27ae52c9dccd63b41e2e6b2dc36a2f571dbf5687e23b2e",
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields": "ddfd8b108e4edca220a7ec6fb20e7bcff3b7797a0db83aa91ca847eefe980d8e"
     },
     "builds": {
-      "contactsApp": 2444,
-      "customFieldsApp": 2079,
-      "snapshotsApp": 1900
+      "contactsApp": 2940,
+      "customFieldsApp": 2916,
+      "snapshotsApp": 2210
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#check_smart_lists": "dc01655dd80e2d8281800721ab192667e03a937c5895a0c0bdae89e4ee9ef72d",

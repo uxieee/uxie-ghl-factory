@@ -44,19 +44,28 @@
         "row:platform--snapshots-prefetch"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
       "GET https://backend.leadconnectorhq.com /snapshots/assets/asset-names": "d791f8ad9ef223ccd9c3e49384bd680a7bde3a3c586db5a0653e9e61faac6a8c",
       "GET https://backend.leadconnectorhq.com /snapshots/v2/preFetchAssets/{}": "36ccd519c4f8d6e288be54b1ff353aea3537f746d8b0c9105404c2db4636589a"
     },
     "builds": {
-      "contactsApp": 2444,
-      "customFieldsApp": 2079,
-      "snapshotsApp": 1900
+      "contactsApp": 2940,
+      "customFieldsApp": 2916,
+      "snapshotsApp": 2210
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_snapshot_manifest": "9445af4a3884dd6165dc3b4502f647e1f33d2cde8c66e1517644296703cce6cc",

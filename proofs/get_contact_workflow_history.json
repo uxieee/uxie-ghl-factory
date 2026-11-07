@@ -23,10 +23,19 @@
         "commit:2b4c0f19"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "eb7d0149e959efe4c9cc0a7b8615c8688463787b3960a56be91eae1d7be9fa7a",
       "GET https://backend.leadconnectorhq.com /workflows/status/search/contact-executions": "99a8401876da5895f7afde56703b1dd54fb21edc5591d9028e4119bfb3693ac6",

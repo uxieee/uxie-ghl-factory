@@ -261,10 +261,23 @@
         "commit:d073ed76"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "fail",
+      "how": "suite",
+      "suite": "funnels",
+      "evidence": [
+        "receipt:2026-10-29-0659"
+      ],
+      "location": "…zn6B",
+      "failures": [
+        "read-back-bl-a-leaf-styled-only-through-css-also-stores-the-node-styles-it-impli"
+      ]
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /countdown-timer/fetch/{}/{}": "9ac268cbcb5c0004f3df6b4ead533069d2d3980155ab8d881c406d096926289e",
       "GET https://backend.leadconnectorhq.com /funnels/builder/get-versions": "32754c990877d14c51c299475ab6da2d3cd5cad0760a62c446bd090f473891b6",
@@ -275,8 +288,8 @@
       "POST https://backend.leadconnectorhq.com /funnels/builder/publish-version": "a2d219d9fe999422fe67496c27a78c256e447f2814656df633c595d724730f97"
     },
     "builds": {
-      "domainConnectApp": 228,
-      "funnelWebsiteApp": 230,
+      "domainConnectApp": 243,
+      "funnelWebsiteApp": 248,
       "funnelWebsiteDomainApp": 222,
       "redirectApp": 222
     },

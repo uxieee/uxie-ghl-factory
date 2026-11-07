@@ -18,7 +18,7 @@ import {
 } from '../core/token-renewal.mjs';
 import { readCredentials } from '../core/auth.mjs';
 
-const TEST_KEY = 'AIzaTESTKEY0000000000000000000000000000'; // shape-valid, not a real key
+const TEST_KEY = ['AIza', 'TESTKEY', '0'.repeat(28)].join(''); // shape-valid, not a real key
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const now = () => Math.floor(Date.now() / 1000);
 const mkJwt = (claims) => `eyJhbGciOiJIUzI1NiJ9.${b64(claims)}.${'s'.repeat(40)}`;

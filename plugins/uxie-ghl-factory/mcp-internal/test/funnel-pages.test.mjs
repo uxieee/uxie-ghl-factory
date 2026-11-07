@@ -19,8 +19,12 @@ const page = (over = {}) => {
   return { leaf, col, section, data: buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [section], ...over }) };
 };
 
-test('the element vocabulary is the closed set of 72', () => {
-  assert.equal(ELEMENT_KINDS.length, 72);
+// 72 kinds on page builder e1b163ff, plus the five that only the 976028e2 builder serves (w7-6: quiz, order-form, rentals,
+// services, blog-comments). Their defaults are not in the kind factory yet (w7-5b re-pin), so makeLeaf still builds them from
+// the registry alone; the vocabulary count is the registry's.
+test('the element vocabulary is the closed set: 72 on e1b163ff + 5 on 976028e2', () => {
+  assert.equal(ELEMENT_KINDS.length, 77);
+  for (const k of ['quiz', 'order-form', 'rentals', 'services', 'blog-comments']) assert.ok(ELEMENTS[k], `${k} is in the closed set`);
   assert.ok(ELEMENTS['two-setp-order'], 'the misspelling is the stored value and must survive');
   assert.equal(ELEMENTS['two-setp-order'].tagName, 'c-order');
   assert.equal(ELEMENTS['one-step-order'].tagName, 'c-order', 'tagName does not identify a kind');

@@ -351,7 +351,7 @@ test('StudioApi returns response on unrecognized error status', async () => {
   assert.equal(res.ok, false);
 });
 
-import { sessionFor, isTerminal, awaitTurn } from '../core/ai-studio.mjs';
+import { sessionFor, isTerminal, awaitTurn, turnSpend } from '../core/ai-studio.mjs';
 
 test('session ids are owned by the server and stable per project', () => {
   const state = {};
@@ -1205,4 +1205,148 @@ test('a cancelled row for a DIFFERENT message id does not cancel this turn', asy
     { role: 'assistant', id: 'm1', buildStatus: 'ready', versionId: 'v1' }]);
   assert.equal(result.data.buildStatus, 'ready');
   assert.equal(result.data.versionId, 'v1');
+});
+
+// ----------------------------------------------------------------------------------------------------
+// W5b Task 1 (2026-10-30 walk, knowledge/sniffs/ai-studio-wave-2026-10-30): a build that failed in the UI
+// is stored afterwards as buildStatus "superseded", and under billingModeIfCharged "agency_free_ai" the
+// AI_STUDIO snapshot never moves — only the project policy's fup.usedAmount does.
+// ----------------------------------------------------------------------------------------------------
+
+test('superseded is terminal; passed (source vocabulary only, never observed) is not', () => {
+  assert.equal(isTerminal({ buildStatus: 'superseded' }), true);
+  assert.equal(isTerminal({ buildStatus: 'passed' }), false);
+});
+
+test('awaitTurn stops on a superseded row instead of polling to the ceiling', async () => {
+  let polls = 0;
+  const firestore = { messages: async () => { polls += 1; return [{ role: 'assistant', id: 'M1', buildStatus: 'superseded', versionId: 'V1' }]; } };
+  let t = 0;
+  const turn = await awaitTurn({ firestore, projectId: 'P1', messageId: 'M1', waitMs: 60_000, pollMs: 1,
+    nowMs: () => t, sleep: async (ms) => { t += ms; } });
+  assert.equal(turn.pending, false);
+  assert.equal(turn.assistant.buildStatus, 'superseded');
+  assert.equal(polls, 1);
+});
+
+test('turnSpend reads the policy meter when the snapshot does not move under agency_free_ai', () => {
+  const policy = (used) => ({ billingModeIfCharged: 'agency_free_ai', fup: { applies: true, usedAmount: used, includedAmount: 75 } });
+  assert.deepEqual(turnSpend({ snapBefore: 46.594729, snapAfter: 46.594729, policyBefore: policy(0), policyAfter: policy(0.014777) }),
+    { usd: 0.014777, meter: 'policy.fup', billingMode: 'agency_free_ai' });
+  // A moving snapshot is still the meter on pay-per-use.
+  assert.deepEqual(turnSpend({ snapBefore: 1, snapAfter: 1.25, policyBefore: { billingModeIfCharged: 'pay_per_use' }, policyAfter: { billingModeIfCharged: 'pay_per_use' } }),
+    { usd: 0.25, meter: 'snapshots', billingMode: 'pay_per_use' });
+  // The fup window reset during the turn: the delta is meaningless, so no number is claimed.
+  assert.deepEqual(turnSpend({ snapBefore: 5, snapAfter: 5, policyBefore: policy(0.5), policyAfter: policy(0.01) }),
+    { usd: null, meter: 'policy.fup', billingMode: 'agency_free_ai', note: 'the usage window reset during the turn' });
+  // Nothing readable at all.
+  assert.deepEqual(turnSpend({ snapBefore: null, snapAfter: null, policyBefore: {}, policyAfter: {} }),
+    { usd: null, meter: null, billingMode: null });
+});
+
+test('generate_studio_site reports the policy-meter spend, not $0, under agency_free_ai', async () => {
+  const tool = TOOLS.find((t) => t.name === 'generate_studio_site');
+  let policyReads = 0;
+  const gw = {
+    call: async (method, path) => {
+      if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
+      if (path.includes('/usage/policy')) {
+        policyReads += 1;
+        return { status: 200, ok: true, json: { allowed: true, billingModeIfCharged: 'agency_free_ai',
+          fup: { applies: true, usedAmount: policyReads === 1 ? 0 : 0.014777, includedAmount: 75 } } };
+      }
+      if (path.includes('/ai-wrapper/usage')) return { status: 200, ok: true, json: { snapshots: [{ product: 'AI_STUDIO', used: 46.594729 }] } };
+      if (method === 'POST' && path.includes('/chat')) return { status: 200, ok: true, json: { message_id: 'M1', status: 'accepted' } };
+      throw new Error(`unexpected call: ${method} ${path}`);
+    },
+  };
+  const fb = { call: async () => { throw new Error('no firestore read with waitSeconds:0'); } };
+  const deps = { state: {}, makeGw: (opts) => (opts.rail === 'firebase' ? fb : gw) };
+  const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', prompt: 'build me a site', waitSeconds: 0 }, deps);
+  assert.equal(result.ok, true);
+  assert.equal(result.data.spendUsd, 0.014777);
+  assert.equal(result.data.spendMeter, 'policy.fup');
+  assert.equal(result.data.billingMode, 'agency_free_ai');
+  assert.equal(result.data.sessionSpendUsd, 0.014777);
+});
+
+test('create_studio_site names the stack the server stored, not a fixed vite scaffold', async () => {
+  const tool = TOOLS.find((t) => t.name === 'create_studio_site');
+  const gw = { call: async (method, path) => {
+    if (method === 'POST' && path.includes('/projects')) {
+      return { status: 201, ok: true, json: { project: { id: 'P1', name: 'x', slug: 'x', tech_stack: 'tanstack_start_ts' } } };
+    }
+    throw new Error(`unexpected call: ${method} ${path}`);
+  } };
+  const result = await tool.handler({ locationId: 'LOC', name: 'x' }, { state: {}, makeGw: () => gw });
+  assert.equal(result.data.techStack, 'tanstack_start_ts');
+  assert.match(result.data.note, /tanstack_start_ts/);
+  assert.match(result.data.note, /TanStack Start/);
+  assert.doesNotMatch(result.data.note, /vite_react_shadcn_ts/);
+});
+
+// ---- W5b final review fixes (2026-10-30) ----
+test('review I1: an unreadable policy meter under agency_free_ai is reported unknown, never $0', () => {
+  const pol = (used) => ({ billingModeIfCharged: 'agency_free_ai', fup: { usedAmount: used } });
+  const r = turnSpend({ snapBefore: 46.59, snapAfter: 46.59, policyBefore: pol(0.1), policyAfter: { message: 'boom' } });
+  assert.equal(r.usd, null);
+  assert.equal(r.meter, 'policy.fup');
+  assert.match(r.note, /unreadable/);
+});
+
+test('review m6: a usage window that reset mid-turn (resetAt moved) claims no figure even when the number grew', () => {
+  const r = turnSpend({ snapBefore: 1, snapAfter: 1,
+    policyBefore: { billingModeIfCharged: 'agency_free_ai', fup: { usedAmount: 0.01, resetAt: '2026-10-30T00:00:00Z' } },
+    policyAfter: { billingModeIfCharged: 'agency_free_ai', fup: { usedAmount: 0.05, resetAt: '2026-10-30T05:00:00Z' } } });
+  assert.equal(r.usd, null);
+  assert.match(r.note, /reset/);
+});
+
+test('review I1: generate_studio_site flags the session total incomplete when a turn cost is unknown', async () => {
+  const tool = TOOLS.find((t) => t.name === 'generate_studio_site');
+  let policyReads = 0;
+  const gw = { call: async (method, path) => {
+    if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
+    if (path.includes('/usage/policy')) { policyReads += 1; return policyReads === 1
+      ? { status: 200, ok: true, json: { allowed: true, billingModeIfCharged: 'agency_free_ai', fup: { usedAmount: 0 } } }
+      : { status: 502, ok: false, json: { message: 'bad gateway' } }; }
+    if (path.includes('/ai-wrapper/usage')) return { status: 200, ok: true, json: { snapshots: [{ product: 'AI_STUDIO', used: 5 }] } };
+    if (method === 'POST' && path.includes('/chat')) return { status: 200, ok: true, json: { message_id: 'M1' } };
+    throw new Error(`unexpected call: ${method} ${path}`);
+  } };
+  const deps = { state: {}, makeGw: (o) => (o.rail === 'firebase' ? { call: async () => { throw new Error('no'); } } : gw) };
+  const r = await tool.handler({ locationId: 'LOC', projectId: 'P1', prompt: 'x', waitSeconds: 0 }, deps);
+  assert.equal(r.ok, true);
+  assert.equal(r.data.spendUsd, null);
+  assert.equal(r.data.sessionSpendIncomplete, true);
+});
+
+test('review m7: a throwing after-turn read does not lose the turn (messageId kept, spend unknown)', async () => {
+  const tool = TOOLS.find((t) => t.name === 'generate_studio_site');
+  let policyReads = 0;
+  const gw = { call: async (method, path) => {
+    if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
+    if (path.includes('/usage/policy')) { policyReads += 1; if (policyReads > 1) throw new Error('ECONNRESET'); return { status: 200, ok: true, json: { allowed: true } }; }
+    if (path.includes('/ai-wrapper/usage')) return { status: 200, ok: true, json: { snapshots: [] } };
+    if (method === 'POST' && path.includes('/chat')) return { status: 200, ok: true, json: { message_id: 'M-KEEP' } };
+    throw new Error(`unexpected call: ${method} ${path}`);
+  } };
+  const deps = { state: {}, makeGw: (o) => (o.rail === 'firebase' ? { call: async () => { throw new Error('no'); } } : gw) };
+  const r = await tool.handler({ locationId: 'LOC', projectId: 'P1', prompt: 'x', waitSeconds: 0 }, deps);
+  assert.equal(r.ok, true, JSON.stringify(r).slice(0, 300));
+  assert.equal(r.data.messageId, 'M-KEEP');
+  assert.equal(r.data.spendUsd, null);
+});
+
+test('review I3: passed with a versionId is a settled build (the UI treats passed like ready); without one it is not', () => {
+  assert.equal(isTerminal({ buildStatus: 'passed', versionId: 'v1' }), true);
+  assert.equal(isTerminal({ buildStatus: 'passed' }), false);
+});
+
+test('review I2: get_studio_generation_status explains a superseded build instead of returning a bare versionId', async () => {
+  const { result } = await statusWith([{ role: 'assistant', id: 'm1', buildStatus: 'superseded', versionId: 'v9' }]);
+  assert.equal(result.ok, true);
+  assert.equal(result.data.buildStatus, 'superseded');
+  assert.match(result.data.note ?? '', /superseded/i);
+  assert.match(result.data.note ?? '', /history/i);
 });

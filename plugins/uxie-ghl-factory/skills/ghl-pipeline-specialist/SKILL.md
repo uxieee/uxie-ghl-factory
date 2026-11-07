@@ -48,6 +48,47 @@ Tell the user GHL does these, and where. Do not say they are impossible.
 | Nothing to author: the opportunity `sync` call (no screen uses it, no observable effect) and `filterType:"smartlist"` smart-filters (inert; saved views are `/lists/dynamic`) | — | no task needs them |
 | Notes, tasks, appointments, invoices on a card | the card's edit form tabs | contact-level records; see the traps page before scripting them |
 
+## Which rail, per job
+
+Pipelines and opportunities are served by both rails, mostly on the same paths.
+
+<!-- rail-ledger:pipelines -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | both | split | `raw_request:GET /opportunities/pipelines` | `opportunities-v3__get-pipelines`, `opportunities__get-pipelines`, `opportunities-v3__get-pipeline`, `opportunities__get-pipeline` |
+| create | undecided | public | `raw_request:POST /opportunities/pipelines` | `opportunities-v3__create-pipeline`, `opportunities__create-pipeline` |
+| edit | undecided | internal | `edit_pipeline` | `opportunities-v3__update-pipeline`, `opportunities__update-pipeline` |
+| delete | undecided | public | `raw_request:DELETE /opportunities/pipelines/{pipelineId}` | `opportunities-v3__delete-pipeline`, `opportunities__delete-pipeline` |
+
+- **read:** Reads run on either rail.
+- **create:** The pipeline specialist creates pipelines on the public rail; its proven rules ship as patches in the public catalogue.
+- **edit:** edit_pipeline is the typed tool, and it calls the very path the public update-pipeline calls, with a different token.
+- **delete:** The pipeline specialist deletes on the public rail, behind its confirmation gate.
+
+Internal only: forecast; clone; reorder; permissions; restore.
+Public only: nothing recorded.
+<!-- /rail-ledger:pipelines -->
+<!-- rail-ledger:opportunities -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | undecided | public | `raw_request:GET /opportunities/{id}` | `opportunities-v3__get-opportunity`, `opportunities__get-opportunity`, `opportunities-v3__search-opportunities-advanced`, `opportunities__search-opportunities-advanced`, `opportunities-v3__get-lost-reason`, `opportunities__get-lost-reason` |
+| create | undecided | public | `raw_request:POST /opportunities` | `opportunities-v3__create-opportunity` |
+| edit | undecided | public | `raw_request:PUT /opportunities/{id}` | `opportunities-v3__update-opportunity`, `opportunities-v3__add-followers-opportunity`, `opportunities__add-followers-opportunity`, `opportunities-v3__remove-followers-opportunity`, `opportunities__remove-followers-opportunity` |
+| delete | undecided | public | `raw_request:DELETE /opportunities/{id}` | `opportunities-v3__delete-opportunity`, `opportunities__delete-opportunity` |
+
+- **read:** Record reads run on the public rail.
+- **create:** Record writes run on the public rail.
+- **edit:** Record writes run on the public rail.
+- **delete:** Record writes run on the public rail.
+
+Internal only: smart tags and views; bulk actions.
+Public only: upsert.
+<!-- /rail-ledger:opportunities -->
+
 ## Scope
 IN: pipeline/stage design + build + diagnosis, opportunity hygiene, forecast reading. OUT: the
 workflows that fire on stage changes (use ghl-workflow-specialist), funnels/pages.

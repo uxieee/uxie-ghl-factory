@@ -32,7 +32,7 @@ test('there is NO default location — the account must be named by the caller',
 
 test('a location is redacted to its last four characters', () => {
   // Enough to tell two accounts apart in a log; not enough to be one.
-  assert.equal(tail4('rW9hsvyrwCgaaySWzn6B'), '…zn6B');
+  assert.equal(tail4('Lq7TestLoc0000000001'), '…0001');
   assert.equal(tail4('abcd'), '…abcd');
   assert.equal(tail4('abc'), null);
   assert.equal(tail4(null), null);

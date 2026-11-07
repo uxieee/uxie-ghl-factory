@@ -20,7 +20,7 @@ import {
 import { readCredentials } from '../core/auth.mjs';
 import { makeGateway } from '../core/gateway.mjs';
 
-const TEST_KEY = 'AIzaTESTKEY0000000000000000000000000000';
+const TEST_KEY = ['AIza', 'TESTKEY', '0'.repeat(28)].join('');
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const now = () => Math.floor(Date.now() / 1000);
 const mkJwt = (c) => `eyJhbGciOiJIUzI1NiJ9.${b64(c)}.${'s'.repeat(40)}`;

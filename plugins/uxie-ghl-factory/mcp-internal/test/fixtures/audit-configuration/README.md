@@ -166,6 +166,46 @@ therefore fails here rather than passing against a lenient stub.
   `applicable:'unknown'` with `items: null` — NOT `applicable:false` with `items: []`, which
   is the sentence "this account has no agents" over evidence that says five exist.
 
+### The Conversation AI outbound phase (W5a, contract 1.1.0)
+
+- `outbound: { "<agentId>": { "configs": {body|gateway}, "triggers": {body|gateway} } }` on the
+  `conversation_ai` component serves the two per-agent outbound reads; `outboundDefault`
+  fails every outbound read on the component. The DEFAULT body is the live-observed EMPTY
+  envelope, `{configs: [], traceId}` / `{triggers: [], traceId}`, so every scenario written
+  before this phase keeps its completeness verdict.
+- `capturedOutbound` (top level of `ai-configuration.json`) holds the VERBATIM 2026-10-30 GET
+  bodies from `knowledge/sniffs/convai-wave-2026-10-29/live-outbound-envelopes.json` with every
+  identifier replaced by a structural placeholder (`config_1`, `trigger_1`, `agent_1`,
+  `user_1`, `sending_number_1`, `tag_1`, `trace_1`, location `LOC1`). Field names, order, types
+  and timestamps are as captured; nothing real from the sandbox is in this public repo.
+- Expectation keys: `outboundEnabled`, `outboundArmed`, `outboundUnread` (deep-equal, agent
+  ids in discovery order) and `itemOutbound: { "<agentId>": {outboundRead, outboundArmed} }`.
+  On EVERY scenario the harness also checks that the three floors are all `null` (Voice AI,
+  Agent Studio) or all lists, that each item's `outboundArmed` agrees with the floors, that an
+  unread item is `outbound: null` / `outboundArmed: null`, and that a complete component has an
+  empty `outboundUnread`.
+- Scenarios: `outbound-captured-envelopes` (the captured shape, both rows disabled, mode
+  auto-pilot → not armed), `outbound-armed-auto-pilot`, `outbound-armed-suggestive`,
+  `outbound-three-negatives` (config off / trigger off / mode off, one agent each),
+  `outbound-404-is-unread-never-not-armed` (one agent armed, one 404 → `outboundUnread`),
+  `outbound-403-is-a-read-failure` (the TRIGGERS half fails after a good configs read).
+
+**Why `contractVersion` is 1.1.0 and not 2.0.0.** The change is additive: new per-item keys
+(`outbound`, `outboundRead`, `outboundArmed`), new component keys (`outboundEnabled`,
+`outboundArmed`, `outboundUnread`), a new error `phase` value (`outbound`) and two new codes in
+the warning vocabulary (`AI_OUTBOUND_READ_FAILED`, `AI_OUTBOUND_UNREADABLE`). No key was removed
+or renamed and `complete` keeps its meaning — any warning on a component still makes it
+incomplete. The warning vocabulary is closed, so a reader that switches on it exhaustively must
+learn the two codes; that is the cost of the minor bump. A measured Lab-off response could
+later justify an "unavailable" grade that does NOT make the component incomplete — that would
+change what `complete` means and would be 2.0.0 (REV-C3).
+
+`AI_BUNDLE_CAPABILITY_VERSION` changed with the two new descriptors and is pinned as a literal
+in `test/audit-configuration.test.mjs` (a test that recomputes it from the same descriptors
+could never fail). The `audit-canary-receipt-*.json` files in `mcp-internal/` still carry the
+OLD hash and are deliberately NOT edited: they are gitignored, approver-stamped leftovers of a
+canary removed on 2026-09-16, and rewriting their hash would forge a signed record (REV-I14).
+
 ## The tombstone rule these fixtures pin at its edges
 
 Plan line 548. A discovery row is a NON-APPLICABLE TOMBSTONE only when the schema-valid row

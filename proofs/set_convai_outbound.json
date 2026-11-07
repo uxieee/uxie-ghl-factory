@@ -1,0 +1,58 @@
+{
+  "tool": "set_convai_outbound",
+  "surfaces": [
+    "ai-agents"
+  ],
+  "runs": [
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a82feaaf"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:4f92fd57"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-10-29",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /ai-employees/employees/{}": "b393d4db09f97c8b65072746cc5d1368fbaa88cff9742193e1e48cf75c46dee7",
+      "GET https://services.leadconnectorhq.com /agent-deployment/outbound-configs": "40bcd5d078afe375a0a37b2e540e3425eb324dd0e765e00a670e7739e3d453e5",
+      "GET https://services.leadconnectorhq.com /agent-deployment/outbound-triggers": "9cadde1b85e8e34b2367e175b241936c0b6ef60322c131f1fd1ec5fd1cf15eb5",
+      "GET https://services.leadconnectorhq.com /ai-employees/employees/{}": "0ccc965180a8834dea40404c7716bc7c0a072f1f778ea6f8f3909f4c72d14f30",
+      "GET https://services.leadconnectorhq.com /phone-system/numbers/v2/location/{}": "25eb0107c7e44d81b90699721e3afc085e8d9c46e3b65407eaac3f816e0aa1f9",
+      "PATCH https://services.leadconnectorhq.com /agent-deployment/outbound-configs/{}": "4175b70a33d885fb79758518edf3273ccc01e806b763a0fc9f0af9d6ecceef31",
+      "POST https://services.leadconnectorhq.com /agent-deployment/outbound-configs": "cc832a7d71433d2bfcde6fae4a223d4ad52191525036f5ab7b70ea692ede4cb6",
+      "POST https://services.leadconnectorhq.com /agent-deployment/outbound-triggers": "9e8f75b629a9ce469b72015ad643bed8dc673fc8ba67adefc3fe1da770951956",
+      "PUT https://services.leadconnectorhq.com /agent-deployment/outbound-triggers/{}": "5f545d1e09608d6c2534c0d76c0b90f91aa9069a786d28168efbce0a91d7992b"
+    },
+    "builds": {
+      "agentBuilderApp": 596,
+      "agentLogsApp": 562,
+      "agentStudioApp": 599,
+      "aiEmployeesApp": 2449,
+      "aiGrowthApp": 601,
+      "superagentsApp": 599,
+      "voiceAiApp": 597
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#set_convai_outbound": "3913e003c023ae3ee357ac2630a7be07fa4154c8f039ba92a2f7cdc5f9be87a7",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
+      "plugins/uxie-ghl-factory/engines/ai/outbound.mjs": "6a8a42d1658c61705836a17c2ac7d933c30504438f82200618414dec5c4ad7e9",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "194c8ebb47baed6c5285c3ce51f95fa4fd258be4fb1f373bc96394b3f3261a2c",
+      "plugins/uxie-ghl-factory/mcp-internal/core/send-class.mjs": "c690868e0348d87be3fa64ca2f9ad229eb61c3c4ee252f8dcd944573fca5177b"
+    }
+  }
+}

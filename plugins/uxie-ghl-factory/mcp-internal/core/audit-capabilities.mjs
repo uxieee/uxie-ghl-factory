@@ -330,6 +330,35 @@ export const AUDIT_CAPABILITIES = Object.freeze([
     locationBinding: 'query',
     sealedBy: 'conversation_ai_agent_discovery',
   }),
+  // The OUTBOUND pair for Conversation AI agents (W5a): the agent's outbound configs (the
+  // per-channel activation, sending number and compliance stamp) and its outbound triggers
+  // (the CRM events that make it start a conversation). LIVE-CAPTURED 2026-10-30 (designated
+  // sandbox, read-only GETs): both answer a WRAPPED envelope — `{configs:[…], traceId}` and
+  // `{triggers:[…], traceId}` — unlike routing's bare array, and every row SELF-IDENTIFIES
+  // with `agentId` and `locationId`, so the gateway's response-side identity inspection has
+  // real fields to check here too. Query-bound `agentId`, SEALED by the Conversation AI
+  // discovery result exactly like the routing read above. Conversation AI only: no outbound
+  // surface has been captured for Voice AI or Agent Studio.
+  descriptor({
+    capabilityId: 'conversation_ai_outbound_configs',
+    host: 'services',
+    authRail: 'ai',
+    normalizedPath: '/agent-deployment/outbound-configs',
+    queryBindings: { agentId: 'agentId' },
+    requiredQueryKeys: ['locationId', 'agentId'],
+    locationBinding: 'query',
+    sealedBy: 'conversation_ai_agent_discovery',
+  }),
+  descriptor({
+    capabilityId: 'conversation_ai_outbound_triggers',
+    host: 'services',
+    authRail: 'ai',
+    normalizedPath: '/agent-deployment/outbound-triggers',
+    queryBindings: { agentId: 'agentId' },
+    requiredQueryKeys: ['locationId', 'agentId'],
+    locationBinding: 'query',
+    sealedBy: 'conversation_ai_agent_discovery',
+  }),
   descriptor({
     capabilityId: 'agent_studio_agent_discovery',
     host: 'services',

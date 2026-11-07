@@ -64,7 +64,13 @@ import { createHash } from 'node:crypto';
 import { AUDIT_CAPABILITIES } from './audit-capabilities.mjs';
 import { CODES } from './errors.mjs';
 
-export const AUDIT_CONFIGURATION_CONTRACT_VERSION = '1.0.0';
+// 1.1.0 (W5a, 2026-10-30): ADDITIVE. The Conversation AI outbound phase added per-item
+// `outbound`/`outboundRead`/`outboundArmed`, component floors `outboundEnabled`/`outboundArmed`/
+// `outboundUnread`, the error phase 'outbound', and two warning codes (AI_OUTBOUND_READ_FAILED,
+// AI_OUTBOUND_UNREADABLE). No key was removed or renamed, and `complete` keeps its meaning — any
+// warning on a component makes it incomplete — so a 1.0.0 reader keeps working; a reader that
+// branches on the closed warning vocabulary must learn the two new codes.
+export const AUDIT_CONFIGURATION_CONTRACT_VERSION = '1.1.0';
 
 // Budgets are inputs; page sizes are NOT. Both page sizes below are the maximum the
 // descriptor's own numericQueryBounds allow, and both are pinned rather than exposed:
@@ -158,6 +164,14 @@ export const AI_BUNDLE_WARNINGS = Object.freeze({
   // fault on a given agent.
   AI_ROUTING_READ_FAILED: 'AI_ROUTING_READ_FAILED',
   AI_ROUTING_UNREADABLE: 'AI_ROUTING_UNREADABLE',
+  // The OUTBOUND twins (W5a), for the per-agent outbound configs + triggers read (Conversation
+  // AI only — see AI_SURFACES.outboundCapabilityIds). READ_FAILED is EVERY non-2xx, 404 and 403
+  // included: what these routes answer with the outbound Lab off was never measured (the Lab is
+  // one-way on the sandbox), so no "feature unavailable" grade is invented and a 403 — which
+  // can be a scope or policy fault — is never read as absence. UNREADABLE is a 200 whose
+  // envelope this rail cannot read. Both keep the agent in `outboundUnread`.
+  AI_OUTBOUND_READ_FAILED: 'AI_OUTBOUND_READ_FAILED',
+  AI_OUTBOUND_UNREADABLE: 'AI_OUTBOUND_UNREADABLE',
   // A detail response that is perfectly readable and describes SOMEBODY ELSE. See
   // readAgentRecord: the record was previously accepted on the strength of carrying an id at
   // all, never on that id being the one the request was issued for.
@@ -225,6 +239,13 @@ const AI_SURFACES = Object.freeze({
     // NOTHING has been captured for Voice AI or Agent Studio deployment routing, so
     // declaring it there would drop or invent evidence on the strength of a guess.
     routingCapabilityId: 'conversation_ai_deployment_routing',
+    // The outbound pair (W5a) — configs then triggers, one GET each per discovered agent,
+    // after routing(). THIS surface ONLY, on the same precedent: captured for Conversation
+    // AI agents (2026-10-30, designated sandbox) and for nothing else.
+    outboundCapabilityIds: Object.freeze({
+      configs: 'conversation_ai_outbound_configs',
+      triggers: 'conversation_ai_outbound_triggers',
+    }),
   }),
   voice_ai: Object.freeze({
     discoveryCapabilityId: 'voice_ai_agent_discovery',
@@ -255,6 +276,8 @@ export const AI_BUNDLE_CAPABILITY_IDS = Object.freeze([
   'conversation_ai_agent_discovery',
   'conversation_ai_agent_detail',
   'conversation_ai_deployment_routing',
+  'conversation_ai_outbound_configs',
+  'conversation_ai_outbound_triggers',
   'voice_ai_agent_discovery',
   'voice_ai_agent_detail',
   'agent_studio_agent_discovery',
@@ -466,6 +489,19 @@ const AI_TOTAL_KEYS = Object.freeze(['total', 'totalCount']);
 // no routing response has ever reported one, and a page count invented as a surface total is
 // the false terminal this module exists to refuse.
 const ROUTING_ROW_KEYS = Object.freeze(['configs', 'data']);
+
+// OUTBOUND — `/agent-deployment/outbound-configs` answers `{configs:[…], traceId}` and
+// `/agent-deployment/outbound-triggers` answers `{triggers:[…], traceId}` (live-captured
+// 2026-10-30, designated sandbox, read-only). ONE key each, and NO bare-array reading: unlike
+// routing, these routes were observed wrapped, so a bare array is an envelope nobody has seen
+// and reads as AI_OUTBOUND_UNREADABLE rather than as "no outbound". No total is read.
+const OUTBOUND_ROW_KEYS = Object.freeze({
+  configs: Object.freeze(['configs']),
+  triggers: Object.freeze(['triggers']),
+});
+// The two modes in which an agent answers on its own (convai-ir MODES minus 'off'). Suggestive
+// counts: it still sends the outbound opener a trigger fires (W5a Decision 5, REV-I3).
+const OUTBOUND_ARMING_MODES = Object.freeze(['auto-pilot', 'suggestive']);
 
 // The real Mongo/BSON wrappers an id can arrive inside. This list is a deliberate COPY of
 // `ID_WRAPPER_KEYS` in core/audit-gateway.mjs — that module's copy is private, and the two are
@@ -1085,6 +1121,18 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
       // summary, never a warning: a pinned row is legal live configuration (see routing()).
       routingPinned: AI_SURFACES[name].routingCapabilityId ? [] : null,
       routingRead: AI_SURFACES[name].routingCapabilityId ? 0 : null,
+      // The outbound phase's component FLOORS (W5a), `null` — never [] — on every surface
+      // with no outbound read. Agent ids, in discovery order:
+      //   outboundEnabled — a READ config row has STRICT `enabled === true`;
+      //   outboundArmed   — the item's outboundArmed is true;
+      //   outboundUnread  — the item's outboundArmed is null: its outbound rows were not
+      //                     read, or both legs are enabled and its mode is unknown.
+      // Floors, not a census: they are derived only from what was read, so on complete:false
+      // an agent may be missing from the first two — but an agent whose arming is unknown is
+      // in the third, never silently absent (REV-I15). They say nothing when items is null.
+      outboundArmed: AI_SURFACES[name].outboundCapabilityIds ? [] : null,
+      outboundEnabled: AI_SURFACES[name].outboundCapabilityIds ? [] : null,
+      outboundUnread: AI_SURFACES[name].outboundCapabilityIds ? [] : null,
       sourceRoutes: [],
       // One entry per page READ, `null` where that page reported no total — the roster's
       // `totalHistory`, per component, and published for the same reason: a walk whose whole
@@ -1262,6 +1310,9 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
     // of agents detail() owes (detailDenominator), which is why no routing denominator
     // exists — see the component seed.
     if (surface.routingCapabilityId) await routing(name, surface, component);
+    // The fourth per-item phase (W5a): outbound configs + triggers, after routing and before
+    // the completeness verdict, owing the same agents detail() and routing() owe.
+    if (surface.outboundCapabilityIds) await outbound(name, surface, component);
     // A component is complete only when it was read end to end AND nothing was recorded
     // against it. Errors are the read failures; warnings additionally carry the gradings
     // (an ambiguous deletion signal is not a failed read, but it is an unknown, and an
@@ -1448,6 +1499,12 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
           // surface with no routing capability they simply never change.
           routingRead: false,
           routing: null,
+          // The outbound phase's per-item fields (W5a), seeded on EVERY component's items so
+          // a consumer never meets undefined. `outboundArmed` is three-valued and stays null
+          // wherever it was not decided — on Voice AI and Agent Studio always.
+          outboundRead: false,
+          outbound: null,
+          outboundArmed: null,
         });
       }
 
@@ -1745,6 +1802,105 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
           specificIdentifiers: row.specificIdentifiers ?? null,
         });
       }
+    }
+  }
+
+  // The OUTBOUND read (W5a): per applicable agent, GET outbound-configs then GET
+  // outbound-triggers, both sealed and typed like routing(). What it publishes:
+  //
+  //   - `item.outbound` — `{configs, triggers}`, the READ rows VERBATIM (the envelope's
+  //     traceId is not configuration and is dropped). `null` unless BOTH halves were read:
+  //     half an outbound state is not an outbound state.
+  //   - `item.outboundArmed` — `true` iff some config has STRICT `enabled === true`, some
+  //     trigger has STRICT `enabled === true`, and the agent's detail `mode` is auto-pilot or
+  //     suggestive; `false` when either leg is provably off (whatever the mode) or the mode is
+  //     literal "off"; `null` when the rows were not read, or both legs are on and the mode is
+  //     unknown (detail unread, no string `mode`, or a string outside off/suggestive/
+  //     auto-pilot). EVIDENCE, never a verdict: it says what the configuration reads as, not
+  //     what GHL will send.
+  //   - the component floors (see the seed).
+  //
+  // IDENTITY. The rows self-identify with `agentId`, which the gateway's response-side
+  // inspection already judges against the typed agentId (a foreign row comes back
+  // ok:false/IDENTITY_CONFLICT). The composite checks it AGAIN on each row, as detail() checks
+  // its record: a row naming another agent is a read failure graded IDENTITY_CONFLICT_QUARANTINE
+  // — the same code either check produces — and is never published as this agent's outbound.
+  async function outbound(name, surface, component) {
+    const ids = surface.outboundCapabilityIds;
+    const discoveredAgentIds = {
+      [surface.discoveryCapabilityId]: component.items
+        .filter((item) => item.id !== null)
+        .map((item) => item.id),
+    };
+    const readHalf = async (item, half) => {
+      const capabilityId = ids[half];
+      let response;
+      try {
+        response = await read(name, capabilityId, {
+          locationId: boundLocationId,
+          agentId: item.id,
+          discoveredAgentIds,
+        }, { locationId: boundLocationId, agentId: item.id });
+      } catch (error) {
+        absorbThrow(error, name, capabilityId, 'outbound');
+        return null;
+      }
+      if (!response.ok) {
+        recordError(name, response.failureClass ?? CODES.INVALID_RESPONSE_BODY, capabilityId, 'outbound',
+          failureDetail(response, capabilityId));
+        warnAggregated(warningForFailure(response.failureClass, AI_BUNDLE_WARNINGS.AI_OUTBOUND_READ_FAILED), name,
+          failureDetail(response, capabilityId));
+        return null;
+      }
+      const rowsRead = Array.isArray(response.json)
+        ? { rows: null, conflict: null }
+        : readRows(response.json, OUTBOUND_ROW_KEYS[half]);
+      if (rowsRead.rows === null) {
+        recordError(name, AI_BUNDLE_WARNINGS.AI_OUTBOUND_UNREADABLE, capabilityId, 'outbound',
+          `the ${half} response carried no readable {${half}:[…]} list`);
+        warnAggregated(AI_BUNDLE_WARNINGS.AI_OUTBOUND_UNREADABLE, name,
+          `capability ${capabilityId} answered 200 with an envelope this rail cannot read`);
+        return null;
+      }
+      const foreign = rowsRead.rows.some((row) => row && typeof row === 'object' && !Array.isArray(row)
+        && row.agentId !== undefined && row.agentId !== null && String(row.agentId) !== String(item.id));
+      if (foreign) {
+        recordError(name, CODES.IDENTITY_CONFLICT, capabilityId, 'outbound',
+          `the ${half} response carried a row identifying a different agent from the one it was requested for`);
+        warnAggregated(AI_BUNDLE_WARNINGS.IDENTITY_CONFLICT_QUARANTINE, name,
+          `capability ${capabilityId} answered a request for one agent with a row identifying another`);
+        return null;
+      }
+      return rowsRead.rows;
+    };
+    const enabledIn = (rows) => rows.some((row) => row && typeof row === 'object' && row.enabled === true);
+
+    for (const item of component.items) {
+      // detail()'s and routing()'s skip rules, verbatim.
+      if (item.tombstone === true) continue;
+      if (item.id === null) continue;
+      const configs = await readHalf(item, 'configs');
+      // A failed configs half already decides the item (outbound null, arming unknown), so
+      // the triggers half is not spent on it.
+      const triggers = configs === null ? null : await readHalf(item, 'triggers');
+      if (configs === null || triggers === null) {
+        component.outboundUnread.push(item.id);
+        continue;
+      }
+      item.outbound = { configs, triggers };
+      item.outboundRead = true;
+      const configOn = enabledIn(configs);
+      const triggerOn = enabledIn(triggers);
+      if (configOn) component.outboundEnabled.push(item.id);
+      const mode = item.detailRead && typeof item.detail?.mode === 'string' ? item.detail.mode : null;
+      // Three-valued on the mode too (final review M2): only literal "off" is provably not armed; a string outside
+      // the known enum (one GHL adds tomorrow) is unknown, never "not armed".
+      if (!configOn || !triggerOn) item.outboundArmed = false;
+      else if (mode === 'off') item.outboundArmed = false;
+      else if (OUTBOUND_ARMING_MODES.includes(mode)) item.outboundArmed = true;
+      else item.outboundArmed = null;
+      if (item.outboundArmed === true) component.outboundArmed.push(item.id);
+      if (item.outboundArmed === null) component.outboundUnread.push(item.id);
     }
   }
 }

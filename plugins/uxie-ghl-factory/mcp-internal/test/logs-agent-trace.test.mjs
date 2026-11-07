@@ -100,3 +100,21 @@ test('sortBy durationMs carries the measured "not a true sort" warning; the corr
   for (const k of ['timestamp', 'totalTokens']) assert.equal(sortNote(k), null, `${k} is sorted correctly by GHL`);
   assert.ok(SORT_FIELDS.includes('durationMs'), 'the field stays selectable — the rows are real, only the order is not');
 });
+
+// W5a Task 7 (2026-10-30): an outbound turn has no inbound message. Live (knowledge/sniffs/convai-wave-2026-10-29/
+// live-claude-runtime-L2b.json) the spans route answered for an outbound turn keyed by the interaction traceId (a UUID).
+const msgTrace = () => TOOLS.find((t) => t.name === 'get_agent_message_trace');
+
+test('get_agent_message_trace description: an outbound turn is keyed by the interaction traceId from get_agent_session', () => {
+  const d = msgTrace().description;
+  assert.match(d, /outbound/i);
+  assert.match(d, /traceId/);
+  assert.match(d, /get_agent_session/);
+});
+
+test('get_agent_message_trace 404 text names the outbound case (interaction traceId), not only "the inbound message id"', async () => {
+  const deps = { state: {}, makeGw: () => ({ call: async () => ({ ok: false, status: 404, json: {} }) }) };
+  const r = await msgTrace().handler({ locationId: 'L', messageId: 'trace_1' }, deps);
+  assert.equal(r.code, 'VALIDATION_FAILED');
+  assert.match(r.detail, /outbound[^.]*traceId/i);
+});

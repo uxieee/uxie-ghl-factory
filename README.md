@@ -76,9 +76,11 @@ are on. Throughout this repo they're called the **public rail** and the **intern
 |---|---|---|
 | What | GHL's official, documented v2/v3 API | the same endpoints GHL's own web app calls |
 | Auth | a Private Integration Token, long-lived | a browser session JWT, auto-renewed |
-| Surface | **671 operations across 45 categories** | **892 catalogued endpoints** |
+| Surface | **<!-- doc-counts:publicOperations -->1520<!-- /doc-counts --> operations across <!-- doc-counts:categories -->90<!-- /doc-counts --> categories** | **<!-- doc-counts:internalEndpoints -->1763<!-- /doc-counts --> catalogued endpoints** |
 | Server | `@uxieee/ghl-mcp` (npm, runs locally) | `uxie-ghl-internal-mcp` (bundled, local stdio) |
 | Status | supported, stable | undocumented, can change without notice |
+
+Counts as of <!-- doc-counts:asof -->2026-11-07<!-- /doc-counts -->, from `scripts/doc-counts.mjs`. Public operations are the non-deprecated entries of `mcp-internal/catalog/public-ops.json`; catalogued endpoints are the compiled catalogue, `mcp-internal/catalog/internal-endpoints.json`.
 
 **Default to public.** The internal rail exists because the public API cannot reach the workflow
 builder, memberships and courses, events, funnel/page content, Voice AI behaviour, or knowledge
@@ -157,7 +159,7 @@ the execution and the catalogue does the lookup, so what a skill carries is what
 | `ghl-funnels-pages` | funnels, steps, pages, full-bleed HTML, tracking code, and the three-call public-path fix |
 | `ghl-events` | ticketed and RSVP events: tickets, sessions, speakers, attendees, public registration |
 | `ghl-voice-ai` | phone agents — the behaviour layer the public API cannot see (27 fields vs 51) |
-| `ghl-conversation-ai` | the chat AI Employee. **Mostly a public-rail product** — internal only for the per-contact switch, prompt history and the deployment routing table |
+| `ghl-conversation-ai` | the chat AI Employee. **Configure on the internal rail** (`update_convai_agent` reads, merges and verifies the whole record); the public rail reads the same agents, and the 2026-09/10 wave is internal-only |
 | `ghl-knowledge-base` | the content both AI products consume. 5 of its 9 source types have no public equivalent |
 | `ghl-workflow-fast-forward` | move contacts parked at a wait to the next step. Turns a multi-day ladder into minutes. **Write skill, three gates** |
 

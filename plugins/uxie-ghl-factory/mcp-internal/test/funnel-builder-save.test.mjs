@@ -133,6 +133,8 @@ test('the palette is declared the way a GHL page declares it, and never override
     resetIds(); let leaf; try { leaf = makeLeaf({ meta }); } catch { continue; }
     for (const m of JSON.stringify([leaf.styles, leaf.extra]).matchAll(/var\((--[a-z-]+)\)/g)) {
       if (['--headlinefont', '--contentfont'].includes(m[1])) continue;
+      // w7-5b: the 976028e2 order-form writes its own input border variable; its own CSS declares it (not a page palette variable).
+      if (meta === 'order-form' && m[1] === '--of-input-border') continue;
       assert.ok(declared.has(m[1]), `${meta} writes var(${m[1]}), which no page declares`);
     }
   }

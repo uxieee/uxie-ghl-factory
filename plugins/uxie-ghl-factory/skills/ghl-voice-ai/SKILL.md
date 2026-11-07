@@ -23,9 +23,36 @@ The 24-field gap is the **entire behaviour layer**: every action array
 `knowledgeBaseIds`, `llmModel`, `extractDataFields`, `mcpServers`, `aiDisclaimerConfiguration`.
 
 Public exposes how the agent **sounds and paces** (`voiceId`, `responsiveness`,
-`maxCallDuration`, `spamConfig`). It cannot see or set what the agent **does**.
+`maxCallDuration`, `spamConfig`). Its agent object does not carry what the agent **does** — the fields above. The
+public API documents attaching actions separately (`/voice-ai/actions`, eight action types); that is not yet proven live.
 
 Use the public rail for a quick read; use this for anything that configures behaviour.
+
+## Which rail, per job
+
+Both rails returned the same agents on the sandbox (2026-10-29). The read stays undecided: the public list carries more
+fields per agent, the internal single-agent read carries more than the public one.
+
+<!-- rail-ledger:voice-ai -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | undecided | internal | `raw_request:GET /voice-ai/agents` | `voice-ai-v3__get-agents`, `voice-ai__get-agents`, `voice-ai-v3__get-agent`, `voice-ai__get-agent` |
+| create | undecided | internal | `create_voiceai_agent` | `voice-ai-v3__create-agent`, `voice-ai__create-agent`, `voice-ai-v3__create-action`, `voice-ai__create-action` |
+| edit | undecided | internal | `update_voiceai_agent` | `voice-ai-v3__patch-agent`, `voice-ai__patch-agent`, `voice-ai-v3__update-action`, `voice-ai__update-action` |
+| delete | undecided | internal | `raw_request:DELETE /voice-ai/agents/{agentId}` | `voice-ai-v3__delete-agent`, `voice-ai__delete-agent` |
+| logs | undecided | internal | `get_voice_call_logs` | `voice-ai-v3__get-call-logs`, `voice-ai__get-call-logs` |
+
+- **read:** The internal read returns the whole agent; the public one leaves out what the agent does.
+- **create:** Same backend path; the internal token reaches the fields the public schema omits.
+- **edit:** Same backend path; internal reaches every field.
+- **delete:** Same backend path; routed with the rest of Voice AI.
+- **logs:** Same backend path; the typed tool is internal.
+
+Internal only: llmModel; mcpServers; transfer; disclaimer; publish mode; folders.
+Public only: nothing recorded.
+<!-- /rail-ledger:voice-ai -->
 
 ## Contract
 
@@ -170,5 +197,5 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 
 ## Scope
 
-Voice AI only. Conversation AI is a **public-rail** product — see `ghl-orientation`.
+Voice AI only. Conversation AI is reachable on both rails, and its configuration goes on the internal rail (see `ghl-conversation-ai`, Rail routing: 17 sub-accounts measured, both rails address the same agent objects).
 Knowledge bases are `ghl-knowledge-base`. Agent Studio is out of scope.

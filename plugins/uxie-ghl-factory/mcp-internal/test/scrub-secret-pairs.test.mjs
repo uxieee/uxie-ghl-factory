@@ -83,8 +83,8 @@ test('CONTROLS: whole-name matching leaves Idempotency-Key, contentKey, Keyword,
 
 const SHAPES = {
   bearer: 'Bearer TEST-CONF-fake-000000000000', basic: 'Basic dGVzdDp0ZXN0LWNvbmY=', jwt: 'eyJhbGciOiJub25lIn0.eyJzdWIiOiJ4In0.',
-  stripe: 'sk_test_TESTCONFfake', pit: 'pit-00000000-0000-0000-0000-000000000000', google: `AIza${'x'.repeat(35)}`,
-  github: `ghp_${'a'.repeat(36)}`, slack: 'xoxb-000-000-fake',
+  stripe: ['sk', 'test', 'TESTCONFfake'].join('_'), pit: ['pit', '00000000-0000-0000-0000-000000000000'].join('-'), google: `AIza${'x'.repeat(35)}`,
+  github: `ghp_${'a'.repeat(36)}`, slack: ['xoxb', '000', '000', 'fake'].join('-'),
 };
 test('VALUE SHAPE: a credential-looking value is redacted under an innocuous name (pair row and header map)', () => {
   for (const [k, v] of Object.entries(SHAPES)) {

@@ -36,8 +36,18 @@ test('drift pin: the layer, the factory defaults and the fixture were all measur
 test('drift pin: the pinned chunk is still the newest page-builder capture in knowledge/', (t) => {
   const sniffs = fileURLToPath(new URL('../../../../../knowledge/sniffs/', import.meta.url));
   if (!existsSync(sniffs)) { t.skip('knowledge/ is not beside this checkout — the release pair runs this check'); return; }
-  const captures = readdirSync(sniffs).filter((d) => existsSync(join(sniffs, d, 'bundle'))).sort()
-    .flatMap((d) => readdirSync(join(sniffs, d, 'bundle')).filter((b) => /^pageBuilder-[0-9a-f]+$/.test(b)).map((b) => ({ dir: d, chunk: `pageBuilder index.${b.slice('pageBuilder-'.length)}.js` })));
+  // Two capture layouts: <dir>/bundle/pageBuilder-<hash>/ (recon folders) and bundle-<date>-<hash>/index.<hash>.js (w7-5b, 976028e2).
+  // Ordered by the date in the folder name, so the newest capture is the last one, whatever its layout.
+  const dated = (d) => (d.match(/\d{4}-\d{2}-\d{2}/) ?? [''])[0];
+  const captures = readdirSync(sniffs).flatMap((d) => {
+    const recon = existsSync(join(sniffs, d, 'bundle'))
+      ? readdirSync(join(sniffs, d, 'bundle')).filter((b) => /^pageBuilder-[0-9a-f]+$/.test(b)).map((b) => ({ dir: d, date: dated(d), chunk: `pageBuilder index.${b.slice('pageBuilder-'.length)}.js` }))
+      : [];
+    const direct = /^bundle-\d{4}-\d{2}-\d{2}-[0-9a-f]+$/.test(d)
+      ? readdirSync(join(sniffs, d)).filter((f) => /^index\.[0-9a-f]+\.js$/.test(f)).map((f) => ({ dir: d, date: dated(d), chunk: `pageBuilder ${f}` }))
+      : [];
+    return [...recon, ...direct];
+  }).sort((a, b) => a.date.localeCompare(b.date));
   const newest = captures.at(-1);
   assert.ok(newest, 'no page-builder capture found in knowledge/sniffs/*/bundle');
   assert.equal(newest.chunk, STYLE_LAYER_SOURCE.chunk,

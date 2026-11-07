@@ -52,6 +52,8 @@ const CAPABILITY_ORDER = [
   'conversation_ai_agent_discovery',
   'conversation_ai_agent_detail',
   'conversation_ai_deployment_routing',
+  'conversation_ai_outbound_configs',
+  'conversation_ai_outbound_triggers',
   'agent_studio_agent_discovery',
   'agent_studio_agent_detail',
   'marketplace_module_search',
@@ -242,6 +244,27 @@ const EXPECTED = {
     locationBinding: 'query',
     sealedBy: 'conversation_ai_agent_discovery',
   }),
+  // The outbound pair (W5a, live-captured 2026-10-30): query-bound agentId, sealed like routing.
+  conversation_ai_outbound_configs: descriptor({
+    capabilityId: 'conversation_ai_outbound_configs',
+    host: 'services',
+    authRail: 'ai',
+    normalizedPath: '/agent-deployment/outbound-configs',
+    queryBindings: { agentId: 'agentId' },
+    requiredQueryKeys: ['locationId', 'agentId'],
+    locationBinding: 'query',
+    sealedBy: 'conversation_ai_agent_discovery',
+  }),
+  conversation_ai_outbound_triggers: descriptor({
+    capabilityId: 'conversation_ai_outbound_triggers',
+    host: 'services',
+    authRail: 'ai',
+    normalizedPath: '/agent-deployment/outbound-triggers',
+    queryBindings: { agentId: 'agentId' },
+    requiredQueryKeys: ['locationId', 'agentId'],
+    locationBinding: 'query',
+    sealedBy: 'conversation_ai_agent_discovery',
+  }),
   agent_studio_agent_discovery: descriptor({
     capabilityId: 'agent_studio_agent_discovery',
     host: 'services',
@@ -368,6 +391,8 @@ test('every agent-addressing descriptor is sealed by its own product discovery c
     voice_ai_agent_detail: 'voice_ai_agent_discovery',
     conversation_ai_agent_detail: 'conversation_ai_agent_discovery',
     conversation_ai_deployment_routing: 'conversation_ai_agent_discovery',
+    conversation_ai_outbound_configs: 'conversation_ai_agent_discovery',
+    conversation_ai_outbound_triggers: 'conversation_ai_agent_discovery',
     agent_studio_agent_detail: 'agent_studio_agent_discovery',
   };
   const known = new Set(AUDIT_CAPABILITIES.map((c) => c.capabilityId));
@@ -458,7 +483,7 @@ test('every descriptor is schema-valid', () => {
   }
 });
 
-test('the descriptor set is exactly the 18 planned capability IDs, in plan order', () => {
+test('the descriptor set is exactly the 20 planned capability IDs, in plan order', () => {
   assert.deepEqual(AUDIT_CAPABILITIES.map((c) => c.capabilityId), CAPABILITY_ORDER);
 });
 
@@ -589,7 +614,7 @@ test('resolveCapability refuses absolute, scheme-bearing, and unrooted paths by 
   );
 });
 
-// M4: AMBIGUOUS_CAPABILITY is unreachable against the real 18-descriptor set (the test
+// M4: AMBIGUOUS_CAPABILITY is unreachable against the real 20-descriptor set (the test
 // below proves exactly that), so without an injectable descriptor list the rule has no
 // positive test and could be deleted with everything still green.
 test('resolveCapability rejects a genuine specificity tie as AMBIGUOUS_CAPABILITY', () => {

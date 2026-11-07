@@ -11,16 +11,29 @@
 import { IRError } from './convai-ir.mjs';
 export { IRError };
 
-// Underlying model, per BOTH studio-create.json and studio-update.json's captured
-// config.model — the only value ever observed live. Not proven to be the only value
-// the builder can emit, but it's the only one this engine can vouch for, so it's
-// also the default studio-compiler.mjs falls back to when the IR omits `model`.
-export const DEFAULT_MODEL = 'anthropic/claude-sonnet-4-6';
+// Underlying model. Since the 2026-10 wave the server, the AI builder and the n8n import all default a new agent to
+// sonnet-5-5 (live 2026-10-30); 4-6 was the default before and still runs. Used when the IR omits `model`.
+export const DEFAULT_MODEL = 'anthropic/claude-sonnet-5-5';
+
+// The server validates a SUBAGENT's model against this list, verbatim from its 422 (live 2026-10-30, a
+// subagent on anthropic/claude-haiku-4-5). It does NOT validate the parent's model: anthropic/claude-bogus-0-0
+// was stored with a 200. So the parent is held to this roster plus the defaults seen running.
+export const SUBAGENT_MODELS = ['anthropic/claude-sonnet-4-6', 'openrouter/z-ai/glm-5.3-flash',
+  'openrouter/deepseek/deepseek-v4-flash-0731', 'openrouter/qwen/qwen3.8-27b', 'openrouter/deepseek/deepseek-v4-pro-0813',
+  'openrouter/google/gemini-3.8-flash'];
+const PARENT_MODELS = [DEFAULT_MODEL, ...SUBAGENT_MODELS];
+// Accepted ≠ works: a subagent on this model was saved and read back, then failed EVERY delegation at run time
+// (tool_completed error subagent_failed, recoverable:false, twice — the parent silently did the work itself).
+const RUNTIME_FAILED_MODELS = { 'openrouter/google/gemini-3.8-flash': 'saved and read back, then failed every delegation at run time (subagent_failed, 2026-10-30)' };
 
 // config.tools[] — the built-in capability ids. Each was written to a Managed Agent and read back live
 // (2026-09-28), and the editor lists them under Capabilities / Knowledge / Apps. The server does NOT
 // validate this list (an unknown id was stored), so this engine does. Attaching a KB auto-adds kb_search.
 export const TOOLS = ['web_search', 'kb_search', 'web_fetch', 'image_generation', 'tts_generation', 'video_generation', 'mcp'];
+// Switch-owned tool ids (2026-10): the editor's Computer switch adds the three sandbox ids, its Wait & follow up switch adds
+// wait_until. They are set through `computer` / `followUp`, never listed in tools[], so a switch and its ids cannot disagree.
+export const COMPUTER_TOOLS = ['sandbox_browser', 'sandbox_file', 'sandbox_exec'];
+export const FOLLOW_UP_TOOL = 'wait_until';
 
 // config.triggers[].type — the 13 types the editor's Add-trigger picker offers. Each type's config was
 // written and read back live (2026-09-28). The server enforces one rule about them, the chat-alone rule
@@ -28,11 +41,15 @@ export const TOOLS = ['web_search', 'kb_search', 'web_fetch', 'image_generation'
 export const VERIFIED_TRIGGER_TYPES = ['chat', 'form', 'tag', 'schedule', 'appointment_booked', 'appointment_status',
   'contact_created', 'opportunity_created', 'opportunity_status_changed', 'survey_submission', 'facebook_lead_gen',
   'facebook_comment', 'workflows'];
+// The server's own trigger vocabulary as of 2026-10-30 (its 400 lists them): the 13 above plus three the Add-trigger picker
+// gained. Their configs were not written live — inbound_webhook mints a public URL, api needs a token — so they are accepted
+// by type only. Two of the 15 "supported" picker entries (`workflows`, `api`) are invocations, not events.
+export const SERVER_TRIGGER_TYPES = [...VERIFIED_TRIGGER_TYPES, 'customer_reply', 'inbound_webhook', 'api'];
 
-// The server's own rule, verbatim from its 400: "A Managed Agent can be triggered by chat alone, or by a
-// combination of non-chat triggers (…), but not both. Being invoked from a workflow is an exception — it
-// can be combined with either."
-export const TRIGGER_MIX_RULE = 'A Managed Agent can be triggered by chat alone, or by a combination of non-chat triggers, but not both; "workflows" can be combined with either.';
+// The server's own rule, verbatim from its 400 (2026-10-30 wording): "…chat alone, or by a combination of non-chat
+// triggers (…), but not both. Being invoked from a workflow or over the API is an exception — either can be combined with both."
+export const TRIGGER_MIX_RULE = 'A Managed Agent can be triggered by chat alone, or by a combination of non-chat triggers, but not both; "workflows" and "api" can be combined with either.';
+const MIX_EXEMPT = new Set(['chat', 'workflows', 'api']);
 
 export const IMAGE_QUALITIES = ['low', 'medium', 'high'];
 
@@ -70,6 +87,9 @@ function checkTools(tools) {
 function checkTriggerShape(t, field) {
   if (!t || typeof t !== 'object' || Array.isArray(t)) throw new IRError('SCHEMA', `${field} must be an object`);
   assertNonEmptyString(t.type, `${field}.type`);
+  if (!SERVER_TRIGGER_TYPES.includes(t.type)) {
+    throw new IRError('BAD_TRIGGER', `${field}.type ${JSON.stringify(t.type)} is not in the server's trigger vocabulary (${SERVER_TRIGGER_TYPES.join(', ')})`);
+  }
   assertStringIfPresent(t.name, `${field}.name`);
   assertBooleanIfPresent(t.enabled, `${field}.enabled`);
   if (t.config !== undefined) assertObject(t.config, `${field}.config`);
@@ -88,7 +108,7 @@ function checkTrigger(ir) {
   const list = hasSingle ? [ir.trigger] : hasArray ? ir.triggers : [];
   list.forEach((t) => checkTriggerShape(t, hasSingle ? 'trigger' : 'triggers[]'));
   const types = list.map((t) => t.type);
-  if (types.includes('chat') && types.some((t) => t !== 'chat' && t !== 'workflows')) throw new IRError('TRIGGER_MIX', TRIGGER_MIX_RULE);
+  if (types.includes('chat') && types.some((t) => !MIX_EXEMPT.has(t))) throw new IRError('TRIGGER_MIX', TRIGGER_MIX_RULE);
   for (const t of list.filter((x) => x.type === 'schedule')) {
     const sch = t.config?.schedule;
     if (!sch || typeof sch !== 'object') throw new IRError('SCHEMA', 'a schedule trigger needs config.schedule {mode, startDate, startTime, …}');
@@ -115,6 +135,45 @@ function checkMedia(ir) {
   if (ir.mediaSettings !== undefined) assertObject(ir.mediaSettings, 'mediaSettings');
 }
 
+function checkModel(model) {
+  if (model === undefined) return;
+  assertNonEmptyString(model, 'model');
+  // RUNTIME_FAILED_MODELS is a SUBAGENT finding; it is not applied to the parent, where it was never observed.
+  if (!PARENT_MODELS.includes(model)) {
+    throw new IRError('BAD_MODEL', `model ${JSON.stringify(model)} is not one the server runs — it stores any string as an agent's model without checking. `
+      + `Use one of ${PARENT_MODELS.join(', ')}, or omit it for ${DEFAULT_MODEL}.`);
+  }
+}
+
+// subagents[] — inline in the agent config, not records of their own: {name, description, systemPrompt, model?}. The parent
+// delegates through a `Task` tool; [] turns delegation off. The server stores unknown subagent keys verbatim, so only these
+// four are accepted.
+const SUBAGENT_KEYS = ['name', 'description', 'systemPrompt', 'model'];
+function checkSubagents(list) {
+  if (list === undefined) return;
+  if (!Array.isArray(list)) throw new IRError('SCHEMA', 'subagents must be an array ([] turns delegation off)');
+  list.forEach((sa, i) => {
+    if (!sa || typeof sa !== 'object' || Array.isArray(sa)) throw new IRError('SCHEMA', `subagents[${i}] must be an object`);
+    for (const k of ['name', 'description', 'systemPrompt']) assertNonEmptyString(sa[k], `subagents[${i}].${k}`);
+    const extra = Object.keys(sa).filter((k) => !SUBAGENT_KEYS.includes(k));
+    if (extra.length) throw new IRError('SCHEMA', `subagents[${i}] (${sa.name}) has key(s) the server would store and never use: ${extra.join(', ')}`);
+    if (sa.model === undefined) return;
+    const why = RUNTIME_FAILED_MODELS[sa.model];
+    if (why) throw new IRError('BAD_MODEL', `subagents[${i}] (${sa.name}) model ${sa.model}: ${why}. Omit model to run it on the parent's.`);
+    if (!SUBAGENT_MODELS.includes(sa.model)) {
+      throw new IRError('BAD_MODEL', `subagents[${i}] (${sa.name}) model ${JSON.stringify(sa.model)} is not on the server's subagent roster (${SUBAGENT_MODELS.join(', ')}); the save would answer 422.`);
+    }
+  });
+}
+
+// The two 2026-10 editor switches. Each is {enabled: boolean} and owns its tool ids (COMPUTER_TOOLS, FOLLOW_UP_TOOL).
+function checkSwitch(v, field) {
+  if (v === undefined) return;
+  if (!v || typeof v !== 'object' || Array.isArray(v) || typeof v.enabled !== 'boolean') {
+    throw new IRError('SCHEMA', `${field} must be {enabled: true|false}`);
+  }
+}
+
 function checkKnowledgeBaseIds(ids) {
   if (ids === undefined) return;
   if (!Array.isArray(ids)) throw new IRError('SCHEMA', 'knowledgeBaseIds must be an array');
@@ -134,9 +193,11 @@ function checkStarterPrompts(prompts) {
 // The keys create_studio_agent applies (buildPrompt is the build message; the rest land in the config PUT). Anything
 // else is refused before the build starts: the compiler used to copy only what it knew, so an unknown key was dropped
 // and the create still reported success.
+// memoryEnabled is deliberately absent: the proven write is PATCH …/memory/settings (it sets config.memoryEnabled), and
+// whether a config PUT carrying it does the same was not tested.
 export const CREATE_KEYS = ['name', 'buildPrompt', 'systemPrompt', 'description', 'model', 'tools', 'trigger', 'triggers',
   'plugins', 'reasoningEffort', 'knowledgeBaseIds', 'starterPrompts', 'imageGeneration', 'mediaSettings',
-  'templateId', 'folderId', 'folderName', 'customApiEnabled'];
+  'templateId', 'folderId', 'folderName', 'customApiEnabled', 'subagents', 'computer', 'followUp'];
 // The "Start from a use case" cards — a CLIENT-side list (superagentsApp 1a50@63158); the server creates from these ids.
 export const STUDIO_TEMPLATE_IDS = ['knowledge-base-assistant', 'social-media-posting', 'lead-qualifier', 'welcome-email',
   'review-request', 'deal-brief', 'opportunity-pipeline', 'email-campaign', 'weekly-creative-studio', 'prospect-finder',
@@ -177,8 +238,11 @@ export function parseSuperAgentTemplateIR(ir) {
   assertNonEmptyString(ir.name, 'name');
   assertStringIfPresent(ir.systemPrompt, 'systemPrompt');
   assertStringIfPresent(ir.description, 'description');
-  assertStringIfPresent(ir.model, 'model');
+  checkModel(ir.model);
   checkTools(ir.tools);
+  checkSubagents(ir.subagents);
+  checkSwitch(ir.computer, 'computer');
+  checkSwitch(ir.followUp, 'followUp');
   checkTrigger(ir);
   checkPlugins(ir.plugins);
   checkMedia(ir);
@@ -196,8 +260,11 @@ export function parseSuperAgentIR(ir) {
   assertNonEmptyString(ir.name, 'name');
   assertNonEmptyString(ir.systemPrompt, 'systemPrompt');
   assertStringIfPresent(ir.description, 'description');
-  assertStringIfPresent(ir.model, 'model');
+  checkModel(ir.model);
   checkTools(ir.tools);
+  checkSubagents(ir.subagents);
+  checkSwitch(ir.computer, 'computer');
+  checkSwitch(ir.followUp, 'followUp');
   checkTrigger(ir);
   checkPlugins(ir.plugins);
   checkMedia(ir);

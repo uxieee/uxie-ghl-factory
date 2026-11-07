@@ -27,6 +27,10 @@ export const CODES = Object.freeze({
   // gate: an empty start-workflow body enrolled a phantom (measured), and an empty write elicits
   // nothing safe. allowEmptyBody:true is the way through for a route that really takes no body.
   EMPTY_WRITE_BODY: 'EMPTY_WRITE_BODY',
+  // A send-class write (core/send-class.mjs: it can make GHL text people on its own, sign SMS compliance
+  // in the caller's name, or flip a one-way Lab) sent with confirm:true but without acknowledge set to
+  // the ackToken its preview handed out for THIS exact request. Nothing was sent.
+  SEND_CLASS_ACK_REQUIRED: 'SEND_CLASS_ACK_REQUIRED',
   // The registration declares no permitted locations, and this call would write. Reads are
   // unaffected: refusing everything would break every registration on upgrade, and refusing
   // nothing would ship the guard to nobody.
@@ -115,6 +119,10 @@ export const CODES = Object.freeze({
   // fault demand four different operator responses.
   INVALID_RESPONSE_BODY: 'INVALID_RESPONSE_BODY',
   IDENTITY_CONFLICT: 'IDENTITY_CONFLICT',
+  WINNER_ALREADY_DECLARED: 'WINNER_ALREADY_DECLARED', // w6c-6: an A/B Test's winner is already declared (GHL 409 on declare-winner)
+  RETENTION: 'RETENTION', // w6c-9: a log window older or longer than GHL keeps (60 days)
+  WINDOW_INVERTED: 'WINDOW_INVERTED', // w6c-9: a window whose end is before its start
+  TEST_RUN_SENDS: 'TEST_RUN_SENDS', // w6c-9: a workflow test run sends for real (send-class); refused without an acknowledgement
   AUTH_REJECTED: 'AUTH_REJECTED',
   TRANSPORT_FAILED: 'TRANSPORT_FAILED',
 
@@ -169,7 +177,7 @@ const SECRET_KEYS = new Set([
   'session', 'sessionid', 'sessiontoken', 'sessionkey', 'sessionsecret', 'sessioncookie',
   'sessioncredential', 'sessioncredentials',
 ]);
-const isSecretKey = (key) => SECRET_KEYS.has(String(key).replace(/[-_\s]/g, '').toLowerCase());
+export const isSecretKey = (key) => SECRET_KEYS.has(String(key).replace(/[-_\s]/g, '').toLowerCase());
 const isNoAuthObject = (key, value) => String(key).toLowerCase() === 'authorization'
   && value && typeof value === 'object' && !Array.isArray(value)
   && Object.keys(value).every((k) => k === 'type' || k === 'data')
@@ -438,6 +446,11 @@ export function fromHttp(status, body) {
     return fail(CODES.ACCESS_DENIED, detail,
       'Authenticated, but the server refused this operation — a permission or business rule, '
       + 'NOT an expired token. Re-capturing the JWT will not help; read `detail` for the reason.');
+  }
+  // A stale version is a VERSION CONFLICT whatever the status says (the status for it is unsettled, see the workflows
+  // gotchas §3): match the text, not the code. Keyed on the text GHL returned in the 2026-08-26 probe.
+  if (/Your version is outdated/i.test(detail)) {
+    return fail(CODES.VERSION_CONFLICT, detail, 'Re-read the workflow to get the current version, then retry.');
   }
   if (status === 409) return fail(CODES.VERSION_CONFLICT, detail, 'Re-read the workflow to get the current version, then retry.');
   if (status === 422) {

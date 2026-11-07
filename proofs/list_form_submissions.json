@@ -31,15 +31,24 @@
         "commit:00661fd8"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://services.leadconnectorhq.com /forms/submissions": "844fc661a8a5ee24c5acc13d6956ec48a8377ebbfcebe15365448c4f66e66cac"
     },
     "builds": {
-      "formSurveyApp": 326
+      "formSurveyApp": 342
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_form_submissions": "b460535e3eda97c164a4f5c5579b8afe710cfdefeeb0109b79aae5333e0b624b",

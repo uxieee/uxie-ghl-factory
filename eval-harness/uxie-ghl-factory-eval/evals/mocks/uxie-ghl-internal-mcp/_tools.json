@@ -1,0 +1,335 @@
+{
+  "tools": [
+    {
+      "name": "build_workflow",
+      "description": "Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes. The spec is an IR with `triggers[]` and `graph[]` (the step list is `graph`, not `steps`), and a trigger's filter rows are `filters`. A trigger POST that fails after retries is reported in data.triggerIntegrity and flips data.partial to true — the draft then has no working trigger for it. data.triggerIntegrity also reports a trigger GHL stored WITHOUT the filters it was authored with: that trigger exists but is unscoped and fires on everything of its type — proof: live-runtime (2026-10-29), floor: documented; risk: write",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {},
+            "description": "The workflow IR: {name, triggers: [{type, name, filters: [{field, operator, value}]}], graph: [{ref, kind, type, name, attributes}]}. The step list is `graph`, NOT `steps`. A trigger's filter rows are `filters` — `conditions` is how GHL STORES them and is refused here, because nothing reads it and the trigger would go live unscoped. `locationId` is this tool's own argument and does not belong inside spec."
+          },
+          "ignoreUnresolved": {
+            "default": false,
+            "type": "boolean"
+          },
+          "ignoreAssetErrors": {
+            "default": false,
+            "type": "boolean"
+          },
+          "skipWorkflowRules": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "strictCustomCode": {
+            "default": false,
+            "type": "boolean"
+          },
+          "skipCustomCodeTest": {
+            "default": false,
+            "type": "boolean"
+          },
+          "strictMergeTags": {
+            "type": "boolean"
+          },
+          "skipMergeTagCheck": {
+            "type": "boolean"
+          },
+          "pinWebhookSample": {
+            "type": "boolean"
+          },
+          "allowValidationFailure": {
+            "description": "Write even though the validation gate refused. The gate runs every layer over the document: GHL's own WorkflowValidator rules (including the publish-only ones when this write publishes), the advanced canvas's stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL's live validator. Findings are still reported in full.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "locationId",
+          "spec"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "create_convai_agent",
+      "description": "Create Conversation AI agent — proof: live-runtime (2026-10-29); risk: write. POST the agent, then each action, then a verified re-read. spec: name, mode (off|suggestive|auto-pilot), channels, and a prompt: fullPrompt (the current builder's one prompt, \"## Personality … ## Goal … ## Instructions …\"; the three fields go as \"\" and llm.primary defaults to gpt-4.1, as the builder creates) OR goal/personality/instructions, never both. Also botType (PROMPT_BASED_BOT | FLOW_BUILDER_BOT), businessName, wait, sleep, autoPilotMaxMessages, tones (flow), knowledgeBaseIds, knowledgeBaseTriggers [{mode custom|all, knowledgeBaseIds, triggerCondition}] (≤4, priority renumbered), summary, respondToImages/Audio, responseLength, llm {primary, secondary} (ids from get_ai_agent_options models, e.g. Claude/Gemini), emailWaitTime + emailWaitTimeUnit + emailSettings {senderDetails, replyBehavior, emailFormat plain_text|design_editor, signature, templateId} (only with \"Email\" in channels; the editor's wait ranges), cancelEnabled/rescheduleEnabled (FLOW bots only; on a prompt bot they belong on the appointmentBooking action), actions[] (humanHandOver, appointmentBooking single|multiple (service: raw_request), triggerWorkflow, updateContactField, stopBot, transferBot, advancedFollowup). Refused before anything is sent: botType FLOW_BUILDER_BOT_V2 (V2_CREATE_UNSUPPORTED: build V2 in the editor), any other spec key (SPEC_KEY_UNAPPLIED names where it lives: the outbound opener/disclaimer and rich elements are update_convai_agent; working hours, folders and form bots are raw_request), isPrimary:true (the primary agent is location-wide; set it in the Conversation AI UI), a prompt bot with no prompt. A flow bot is the agent shell only: build its workflow with build_workflow, then link it with update_convai_agent. Does not deploy to a channel (set_agent_deployment). To change an existing agent use update_convai_agent. Confirmation-gated: preview compiles a no-write plan. acknowledge: accepted, unused (a new agent has no outbound).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "acknowledge": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId",
+          "spec"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "describe_endpoint",
+      "description": "Detail for one internal endpoint — risk: read. Full record for ONE endpoint: the absolute url, its path parameters, every query key known (including ones learned by CALLING it and reading what GHL asked for), the request body and response shape where the source declares them, and the typed tools that already cover it. Ends with callWith — a copy-pasteable raw_request path — EXCEPT where raw_request cannot make the call at all (multipart, blob, SSE, or a header it has no way to set), where it says so instead. Address it by `id` from search_endpoints; method+path still works. Reads no account data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "the endpoint id from search_endpoints — the preferred key",
+            "type": "string"
+          },
+          "method": {
+            "description": "HTTP method, if addressing by method+path",
+            "type": "string"
+          },
+          "path": {
+            "description": "the full wire path, if addressing by method+path",
+            "type": "string"
+          }
+        },
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "get_ai_agent_options",
+      "description": "List the models and MCP connections an ai_agent step can use — risk: read — proof: live-runtime (2026-10-29); risk: read. Read what an `ai_agent` workflow step may be configured with on this sub-account: the MODELS it can pick (with context window, tool support, reasoning level and which is default) and the MCP CONNECTIONS available as tools, plus the OAuth tokens those connections can bind to. 🔴 An ai_agent step stores only a `connectionId` in `attributes.mcpConnections[]`; the connection itself is a separate location-level document, so a connectionId that is not in this list will not resolve. GHL caps built-in tools + MCP connections at 10 COMBINED. This tool READS the options. 🔴 CREATING, EDITING, TESTING OR DELETING an MCP connection is deliberately NOT done by this plugin (operator decision 2026-09-23): a connection stores credentials for an external server. When a workflow needs an MCP server that is not in mcpConnections, TELL THE USER to add it themselves in the GHL builder (open the workflow, the AI Agent step, its MCP servers panel, add a connection), then re-run this tool for the new connectionId. Do not reach for raw_request to create one. product:\"conversation_ai\" instead reads the models a CONVERSATION AI agent can use (its llm.primary / llm.secondary): GET /ai-employees/employees/models, a different roster from the workflow step's, with per-million-token prices and deprecations: OpenAI, Anthropic (Claude) and Google (Gemini) ids, all writable as llm (the provider Lab gates only the editor menu).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "product": {
+            "default": "workflow_ai_agent",
+            "type": "string",
+            "enum": [
+              "workflow_ai_agent",
+              "conversation_ai"
+            ]
+          }
+        },
+        "required": [
+          "locationId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "get_ai_configuration_bundle",
+      "description": "Sweep Conversation AI, Voice AI and Agent Studio discovery plus detail All three surfaces are always attempted; a failed or malformed component is complete:false with null items, never an empty agent list. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned — legal live config reported for review, never a failure. Also reads each agent's outbound configs and triggers (item.outbound; outboundArmed true|false|null = enabled config AND enabled trigger AND mode on — it excludes campaign eligibility, for which outboundEnabled is the floor; floors outboundEnabled/outboundArmed/outboundUnread). Live canary required before Full audit — proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim on the item); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned — legal live config reported for review, never a failure. It also reads each Conversation AI agent's outbound configs and outbound triggers (verbatim as item.outbound, null when unread) and reports per agent outboundArmed true|false|null — true only when a config and a trigger are both enabled and the mode is auto-pilot or suggestive — with component floors outboundEnabled, outboundArmed and outboundUnread (an agent whose arming could not be read is listed there, never counted as not armed). Live canary required before Full audit.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "maxPages": {
+            "default": 100,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "locationId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "raw_request",
+      "description": "Escape hatch for internal endpoints the typed tools do not cover. GET remains read-only; non-GET requests require confirm:true and report ambiguous transport outcomes. A POST/PUT/PATCH with an EMPTY body ({}, [] or none) is refused before sending (EMPTY_WRITE_BODY): an empty start-workflow body enrolled a phantom execution, and an empty write elicits nothing safe — never probe a write route for its schema. Take the body from describe_endpoint, a builder capture or the source. Pass allowEmptyBody:true only for a route that really takes no body (a bodiless enrol or publish). DELETE is not affected. SEND-CLASS writes (outbound configs/triggers, a messaging bulk action, Build with AI, the builder test panel, an agent mode other than off, turning on a one-way Lab) also need acknowledge:<ackToken> — the token is in the preview's sendClass, beside the consequence; ask the human first (SEND_CLASS_ACK_REQUIRED otherwise). host:\"ai\" targets services.leadconnectorhq.com on the dual-credential AI rail (Bearer + token-id); default \"workflow\" hits backend.leadconnectorhq.com on the Bearer rail.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "pattern": "^[!#$%&'*+\\-.^_`|~0-9A-Za-z]+$"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^\\/.*",
+            "description": "Internal path beginning with / — the gateway adds the base URL"
+          },
+          "body": {},
+          "host": {
+            "default": "workflow",
+            "type": "string"
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "allowEmptyBody": {
+            "default": false,
+            "type": "boolean"
+          },
+          "acknowledge": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId",
+          "method",
+          "path"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "search_endpoints",
+      "description": "Search the internal API surface — risk: read. Ranked search over 1730 internal endpoints across EVERY GHL surface this project knows: the workflow builder, memberships and courses, conversation AI, voice AI, agent studio, funnels, calendars, media, billing. Not workflows only. Returns compact stubs — id, method, path, kind, and where known a one-line summary, the typed tool that already covers it, the one trap worth knowing, and whether a credential has been proven to reach it. Reach is PER CREDENTIAL CLASS: refusedFor names classes that were refused, and reachForYou appears when the evidence does not cover YOUR class (refused for it, or reached only by others). Call describe_endpoint with the id you pick. Use this whenever no typed tool obviously covers what you need, BEFORE reaching for raw_request. Reads no account data. A hit proves a GHL front-end calls that path — NOT that your token reaches it, and not that calling it is safe. A hit whose note starts NO TASK NEEDS THIS or FENCED is a REAL GHL CAPABILITY this plugin deliberately does not call. When the user wants it, tell them GHL can do it and, where the note says, where in the UI; never tell them GHL cannot, and never work around the decision with raw_request.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "intent": {
+            "type": "string",
+            "description": "what you want to do, in plain words — e.g. \"list workflow folders\", \"erroring workflows\", \"scheduled pause\""
+          },
+          "method": {
+            "description": "filter to one HTTP method, e.g. GET",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "type": "number"
+          }
+        },
+        "required": [
+          "intent"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "set_convai_outbound",
+      "description": "Make a Conversation AI agent START conversations on CRM events, or stop it: switch its SMS outbound config on/off and create or edit its outbound triggers. activate: {sendingNumber} (E.164, one of the location's numbers reading sms:true; checked) or false. triggers: [{type, config, enabled}] — type one of contact_tag, contact_created, form_submitted, appointment_status_updated, opportunity_status_updated, missed_call; config per the captured bodies (contact_tag {tagFilter:{action:\"added\", tagNames}}, contact_created {}, form_submitted {formIds}, appointment_status_updated {calendarIds, events booked|confirmed}, opportunity_status_updated {events created|stage_changed, pipelineIds, stageIds, statuses}, missed_call {callStatuses noanswer|busy}); all six created live, only contact_tag has fired; unknown keys refused; config may be omitted to switch an existing trigger. Lead-form types (facebook/google/tiktok) are refused: no body was ever captured. An existing type is edited by PUT (type is fixed), a new one created; there is no delete — disable instead. 🔴 Switching a config on makes GHL record the SMS compliance acknowledgement (A2P, opt-out, Sender ID, Texas Safeguard) in the token owner's name. The agent's MODE gates firing (measured: mode off sent nothing, auto-pilot sent the opener); this tool does not change mode (update_convai_agent). Preview (reads configs, triggers, the agent, and the numbers when switching on; no write) returns calls, armedAfter true|false|null and consequence. SEND-CLASS: any enabling call (config on, trigger create or enable) also needs acknowledge:<data.preview.sendClass.ackToken> — ask the human first; a plan that only switches off needs confirm alone. Writes run in order, then configs and triggers are read back; a 2xx not reflected is OUTBOUND_NOT_APPLIED, a failure mid-way reports partialProgress with a re-read armedAfter. One config per channel and one trigger per type are assumed [source-derived] — proof: live-runtime (2026-10-29); risk: write",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "agentId": {
+            "type": "string"
+          },
+          "activate": {
+            "anyOf": [
+              {
+                "type": "boolean",
+                "const": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "sendingNumber": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "sendingNumber"
+                ],
+                "additionalProperties": {}
+              }
+            ]
+          },
+          "triggers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "config": {},
+                "enabled": {}
+              },
+              "required": [
+                "type",
+                "enabled"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "acknowledge": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId",
+          "agentId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "update_convai_agent",
+      "description": "Update a Conversation AI agent by READ-MERGE-WRITE GETs the current record, overlays your spec, applies the builder's own bot-type cleanup, PUTs the WHOLE record, re-reads, and diffs every field the update did not set (a partial PUT merged on 2026-10-30; a reset was reported 2026-08-28, so the whole record is still sent). Any collateral change fails with AGENT_COLLATERAL_CHANGED. llm {primary, secondary} takes ids from get_ai_agent_options product:\"conversation_ai\" models (e.g. Claude/Gemini). outboundOpeningMessage {mode ai_generated|static, body ≤200 words}, outboundDisclaimer {enabled, style concise|custom, customText}, richElementSettings {enabled, customRulesOnly, elements, customInstructions} (prompt bots only) are sent whole: omitting or emptying customInstructions DELETES the stored rules. FLOW_BUILDER_BOT_V2: only cancelEnabled/rescheduleEnabled, as the V2 editor's partial PUT; anything else (name, mode, prompt…) is refused, edit it in the editor. PROMPT: an agent saved in the current builder stores its prompt as one fullPrompt document; the bot then answers from it and GHL ignores writes to personality/goal/instructions (live 2026-09-29). Pass spec.fullPrompt (the whole text; it switches the agent to fullPrompt for good). The three fields on such an agent, or with fullPrompt, refuse with FULLPROMPT_OWNS_PROMPT before any write, returning currentFullPrompt. The result names promptOwner. cancelEnabled/rescheduleEnabled apply to a FLOW bot; on a prompt bot they are refused (set them on the appointmentBooking action). SEND-CLASS: changing mode to auto-pilot or suggestive reads the agent's outbound configs and triggers; if a trigger or config is enabled, or they cannot be read, the preview names data.preview.arms and sendClass, and the write also needs acknowledge:<sendClass.ackToken> (ask the human first; SEND_CLASS_ACK_REQUIRED otherwise). Previews by default; confirm:true writes — proof: live-runtime (2026-10-29); risk: write",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "agentId": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "acknowledge": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId",
+          "agentId",
+          "spec"
+        ],
+        "additionalProperties": {}
+      }
+    }
+  ]
+}

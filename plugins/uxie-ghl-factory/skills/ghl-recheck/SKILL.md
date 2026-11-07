@@ -60,7 +60,7 @@ For each `FAIL <tool> <assertionId…>` line, when `$GHL_CONSOLE_DIR/bin/backlog
 2. If a row exists, append to it:
    `node "$GHL_CONSOLE_DIR/bin/backlog.mjs" update <id> --note "failed again in receipt <stamp>"`
 3. If none exists, add one:
-   `node "$GHL_CONSOLE_DIR/bin/backlog.mjs" add "check run: <tool> <assertionId>" --surface <suite's surface, from §1> --basis executed --kind behaviour --source "check run" --body "receipt <stamp>, suite <suite>: <assertionId>. Also serves <any other entries in plugin/proofs/<tool>.json's surfaces array>."`
+   `node "$GHL_CONSOLE_DIR/bin/backlog.mjs" add "check run: <tool> <assertionId>" --surface <suite's surface, from §1> --basis executed --kind behaviour --workstream <W6 for workflows, W7 for funnels, W8 for memberships-courses, W9 otherwise> --source "check run" --body "receipt <stamp>, suite <suite>: <assertionId>. Also serves <any other entries in plugin/proofs/<tool>.json's surfaces array>."`
 
 `plugin/proofs/<tool>.json`'s `surfaces` is an array — some tools carry more than one (`find_ghl_site`
 carries `ai-studio` and `funnels` both). `--surface` takes one value: use the surface of the SUITE
@@ -68,8 +68,8 @@ that just exercised the tool (§1's mapping), never a value picked from the arra
 every other surface the tool also serves in `--body` so none of them is lost.
 
 Every command above uses only flags `backlog.mjs` accepts today (`add` takes `--surface`, `--basis`,
-`--kind`, `--body`, `--source`; `update` takes an id plus any of `--state`, `--note`, `--title`,
-`--basis`, `--kind`, `--proof`). This skill never passes `--state done` — that transition needs a
+`--kind`, `--workstream`, `--body`, `--source`, and requires `--kind` and `--workstream`; `update` takes an id plus any of
+`--state`, `--note`, `--title`, `--basis`, `--kind`, `--workstream`, `--surface`, `--duplicate-of`, `--proof`). This skill never passes `--state done` — that transition needs a
 `--kind`, a note, and a proof reference that resolves, and deciding a finding is *done* is a fix
 judgment, not a recording one.
 

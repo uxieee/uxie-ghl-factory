@@ -194,7 +194,8 @@ test('edit_workflow registers through a real McpServer with a permissive ops sch
     const listed = await client.listTools();
     const input = listed.tools[0].inputSchema;
     assert.equal(input.type, 'object');
-    assert.deepEqual(input.required.sort(), ['locationId', 'ops', 'workflowId']);
+    // ops is optional since opsPath (bl-393): exactly one of the two, checked in the handler
+    assert.deepEqual(input.required.sort(), ['locationId', 'workflowId']);
     assert.equal(input.properties.ops.type, 'array');
     assert.notEqual(input.properties.ops.items.additionalProperties, false,
       'ops must pass through permissively to the canonical engine');

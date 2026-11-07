@@ -47,6 +47,19 @@ One op per call. Preview by default; `confirm: true` writes and reads back on a 
   page, and `split-test add-variation` adds a second page.
 - **Funnel FOLDERS** (create, rename, move). They are organisational only, and are left to the Sites screen.
 
+## Page op: replace or append (build_funnel_page edit mode)
+
+The page op's `customCss` and `trackingCode.headerCode` / `footerCode` REPLACE what is stored. A replace that drops
+stored lines still succeeds, and the op reports them as `droppedContent: [{field, storedChars, sentChars, droppedLines}]`
+— read it before you accept the write. To ADD instead, use the append keys (w7-1, bl-498, bl-530):
+
+- `appendCss` — CSS added after the stored custom CSS. Not in the same op as `customCss`.
+- `appendHeaderCode` / `appendFooterCode` — HTML added after the stored header or footer code (e.g. a Google Fonts `<link>`
+  next to an existing `<script>`).
+
+Each appended block is fenced with a hash of its own text (`/* uxie:append:<sha1-8> */…/* /uxie:append */`, or the
+`<!-- … -->` form for HTML). The same block sent twice is appended once. Read-back checks the block is present exactly once.
+
 ## Siblings
 
 - `create_funnel` makes the document.

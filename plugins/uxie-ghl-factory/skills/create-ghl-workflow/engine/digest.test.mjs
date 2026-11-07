@@ -98,3 +98,24 @@ test('CONTROL: only past windows, or none at all, adds no key', () => {
   assert.equal('scheduledPauses' in digestWorkflow({ now, triggers: triggers(), doc: { ...doc(), scheduledPauseDates: past } }), false);
   assert.equal('scheduledPauses' in digestWorkflow({ now, triggers: triggers(), doc: doc() }), false);
 });
+
+// W6b: a disabled step is stored as advanceCanvasMeta.isDisabled (the builder's own key, and what the compiler writes);
+// the digest read t.disabled, which nothing stores, so it never flagged one.
+test('a step disabled the way GHL stores it is flagged disabled', () => {
+  const d = doc();
+  d.workflowData.templates[0].advanceCanvasMeta = { isDisabled: true };
+  const s = digestWorkflow({ doc: d }).steps.find((x) => x.id === 's1');
+  assert.ok(s.flags.includes('disabled'), JSON.stringify(s.flags));
+});
+
+// bl-425: after a repair moved a step into the other branch, its stale `parent` still named the old branch and the
+// digest labelled it there. The runtime follows `next`, so the branch is the chain the step is reached on.
+test('the branch label follows next, not a stale parent field', () => {
+  const d = doc();
+  const T = d.workflowData.templates;
+  T.find((t) => t.id === 'b1').next = null;                    // moved: Yes is empty now ...
+  T.find((t) => t.id === 'b2').next = 's2';                    // ... and the text hangs off No
+  Object.assign(T.find((t) => t.id === 's2'), { parentKey: 'b2', parent: 'b1' });   // `parent` left stale
+  const s = digestWorkflow({ doc: d }).steps.find((x) => x.id === 's2');
+  assert.equal(s.branch, 'VIP?/No');
+});

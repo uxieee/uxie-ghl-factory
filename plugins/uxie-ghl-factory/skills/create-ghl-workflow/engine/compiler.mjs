@@ -11,6 +11,7 @@ import { stripNullNext } from './terminals.mjs';
 import { stepNotesToComments } from './step-notes.mjs';
 import { disableRefusal } from './disable-rules.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
+import { normalizeContactRows } from './contact-row-types.mjs';
 import { numberFormatterFieldTypes, isZeroSkip } from './lints/formatter-skips.mjs';
 import { lintContactLessSteps } from './lints/contact-less-steps.mjs';
 import { lintSmsTemplateBody } from './lints/sms-template-body.mjs';
@@ -23,7 +24,11 @@ import { applyUiDefaults } from './ui-defaults.mjs';
 import { checkIfElseVocab } from './ifelse-vocab.mjs';
 import { checkMergeTags } from './merge-tags.mjs';
 import { gotoLoops } from './goto-loops.mjs';
+import { storedLayerIds, frozenTemplates, overlayStored } from './stored.mjs';
 import { applyHtmlDefaults } from './email-defaults.mjs';
+import { checkRouters } from './router-authoring.mjs';
+import { checkLoops } from './loop-authoring.mjs';
+import { MAX_SPLIT_PATHS, STORED_SPLIT_CONDITION, splitModeOf, TYPES_OUTSIDE_CATALOG } from './ir.mjs';
 import OBSERVED_TRIGGER_FILTERS from '../catalog/observed-trigger-filters.json' with { type: 'json' };
 
 // NINE step types take a DEDICATED attribute builder instead of the generic normalizeAttrs path,
@@ -68,7 +73,11 @@ function attributesFor(node, ctx) {
   // create_update_contact rows are titled (and the documented object-map form converted) BEFORE
   // normalizeAttrs: its required-field checks iterate fields[] and threw a TypeError on the map form.
   const attrsIn = node.type === 'create_update_contact' ? withContactRowTitles(node.attributes ?? {}) : (node.attributes ?? {});
-  const out = normalizeAttrs(node, attrsIn, ctx);
+  const normalized = normalizeAttrs(node, attrsIn, ctx);
+  // w6d-3 (bl-386): each contact-field row stores the builder's type, not the author's word (contact-row-types.mjs). Advisory.
+  const out = node.type === 'update_contact_field' && Array.isArray(normalized?.fields)
+    ? { ...normalized, fields: normalizeContactRows(normalized.fields, { customFields: ctx?.customFields, warn: ctx?.warn, ref: node.ref ?? node.name ?? '?' }) }
+    : normalized;
   // Advisory only — see contact-field-shapes.mjs for why this warns rather than throws.
   // Runs on the compiled attrs (post-normalize) so it sees exactly what will be sent.
   if (node.type === 'update_contact_field')
@@ -391,7 +400,7 @@ function normalizeAttrs(node, attrs, ctx) {
       ? (['sms', 'email', 'notification', 'whatsapp'].find((c) => c in out) ?? node.type)
       : (INNER_ATTRIBUTE_TYPE[node.type] ?? node.type);
   }
-  checkAttrKeys(node, out, meta);
+  checkAttrKeys(node, out, meta, ctx);
   if (node.type === 'ai_agent') checkAiAgentAttrs(node, out, ctx);
   if (node.type === 'google_sheets') checkGoogleSheetsAttrs(node, out);
   return out;
@@ -507,13 +516,30 @@ export function checkGoogleSheetsAttrs(node, a) {
 // Limits are the builder's: MAX_SKILLS_PER_ACTION = 10 (hooks/use-agent-skill-attachment.ts:26), a budget separate
 // from AIAgent.MAX_TOOLS = 10, which counts tools + MCP connections (models/actions/AIAgent.ts:155-162). The tool cap
 // is a picker limit, not a save gate (hasErrors does not read it), so exceeding it warns rather than refuses.
-// The Skills section is behind a DATE gate, isLevelUp2026Enabled (states/app.ts:1080-1094): hidden before
-// 2026-10-25T00:00Z except in non-production and one GHL company.
+// The Skills section is behind a DATE gate, isLevelUp2026Enabled (states/app.ts:1080-1094): the gate date moved to
+// 2026-10-27T16:00Z (RL). Skills before it are REFUSED (the builder does not show them, and the skills service answered 404 on the
+// test sub-account), not warned. Web search is `nativeTools`: the engine default is OFF; it is emitted only when the spec asks for it.
 export const AI_AGENT_MAX_SKILLS = 10;
 export const AI_AGENT_MAX_TOOLS = 10;
-export const AI_AGENT_SKILLS_PUBLIC_AT = Date.parse('2026-10-25T00:00:00.000Z');
+export const AI_AGENT_SKILLS_PUBLIC_AT = Date.parse('2026-10-27T16:00:00.000Z');
+export const AI_AGENT_NATIVE_TOOL_NAMES = ['web_search'];
+const NATIVE_TOOL_KEYS = ['id', 'toolName', 'description', 'attributes'];
 export function checkAiAgentAttrs(node, a, ctx, now = ctx?.now ?? Date.now()) {
   const where = `ai_agent '${node.ref ?? node.name ?? node.id}'`;
+  if (a.nativeTools !== undefined) {
+    if (!Array.isArray(a.nativeTools))
+      throw new IRError('AGENT_NATIVE_TOOLS', `${where}: nativeTools must be an array of {id, toolName, description, attributes}, not ${typeof a.nativeTools}.`);
+    // An empty list deletes the key, as the builder does: no web search is switched on.
+    if (a.nativeTools.length === 0) delete a.nativeTools;
+    else for (const t of a.nativeTools) {
+      const keys = t && typeof t === 'object' && !Array.isArray(t) ? Object.keys(t) : null;
+      if (!keys || keys.length !== NATIVE_TOOL_KEYS.length || keys.some((k) => !NATIVE_TOOL_KEYS.includes(k))
+        || typeof t.id !== 'string' || !t.id.trim() || typeof t.description !== 'string' || !t.attributes || typeof t.attributes !== 'object' || Array.isArray(t.attributes))
+        throw new IRError('AGENT_NATIVE_TOOLS', `${where}: each nativeTools entry is exactly {id, toolName, description, attributes}; got ${JSON.stringify(t)}.`);
+      if (!AI_AGENT_NATIVE_TOOL_NAMES.includes(t.toolName))
+        throw new IRError('AGENT_NATIVE_TOOLS', `${where}: toolName '${t.toolName}' is not a native tool the engine knows (${AI_AGENT_NATIVE_TOOL_NAMES.join(', ')}).`);
+    }
+  }
   if (a.skills !== undefined) {
     if (!Array.isArray(a.skills))
       throw new IRError('AGENT_SKILLS', `${where}: skills must be an array of {id, name}, not ${typeof a.skills}.`);
@@ -530,10 +556,9 @@ export function checkAiAgentAttrs(node, a, ctx, now = ctx?.now ?? Date.now()) {
       seen.add(s.id);
     }
     if (a.skills.length && now < AI_AGENT_SKILLS_PUBLIC_AT)
-      ctx?.warn?.(`${where}: ${a.skills.length} skill(s) attached. Until 2026-10-25 GHL's builder hides the Skills `
-        + 'section on most accounts (a date gate), so the skills are stored but a person opening this step will not see them — '
-        + 'and on the test sub-account the skills service itself answered 404 to list and resolve (2026-09-29), so a skill '
-        + 'may not resolve when the agent runs before then. Check GET /workflow/agent/{loc}/skills on the target account.');
+      throw new IRError('AGENT_SKILLS_GATE', `${where}: skills are refused before 2026-10-27T16:00Z — GHL's builder hides the Skills `
+        + 'section until then (a date gate), and the skills service answered 404 to list and resolve on the test sub-account '
+        + '(2026-09-29). Remove the skills, or build after the gate and check GET /workflow/agent/{loc}/skills on the target account.');
   }
   if (a.mcpConnections !== undefined && (!Array.isArray(a.mcpConnections)
     || a.mcpConnections.some((c) => !c || typeof c !== 'object' || typeof c.connectionId !== 'string' || !c.connectionId)))
@@ -561,10 +586,14 @@ export const ENGINE_ATTR_KEYS = new Set(['type', '__customInputs__', '__customIn
 // but renders a blank step at runtime — fail at compile instead. Enforced only
 // where the catalog carries a verified-live example whose key set we trust;
 // bundle-derived/marketplace shapes are too loosely known to fail closed on.
-function checkAttrKeys(node, out, meta) {
+const knownAttrKeySet = (meta) => new Set([...(meta.attrKeys ?? []), ...(meta.requiredFields ?? []).map((k) => k.split('.')[0]), ...ENGINE_ATTR_KEYS]);
+// ctx.__storedAttrKeys: on modifyStep, the keys the STORED step already carried. Those are GHL's, not an author's guess — a
+// key GHL added to the type after the catalogue was cut must not refuse every later edit of the step (W6a item 13).
+function checkAttrKeys(node, out, meta, ctx) {
   if (meta.confidence !== 'verified-live' || !Array.isArray(meta.attrKeys) || meta.attrKeys.length === 0) return;
-  const known = new Set([...meta.attrKeys, ...(meta.requiredFields ?? []).map((k) => k.split('.')[0]), ...ENGINE_ATTR_KEYS]);
-  const bad = Object.keys(out).filter((k) => !known.has(k));
+  const known = knownAttrKeySet(meta);
+  const stored = ctx?.__storedAttrKeys;
+  const bad = Object.keys(out).filter((k) => !known.has(k) && !stored?.has(k));
   if (bad.length)
     throw new IRError('ATTR_KEY',
       `unknown attribute key(s) [${bad.join(', ')}] on '${node.ref}' (${node.type}) — ` +
@@ -592,8 +621,9 @@ function coerceOppValue(value, valueFieldType) {
   }
   return value;
 }
-function oppField(filterField, value, dataType, valueFieldType) {
-  const f = { __customInputs__: {}, filterField, value: coerceOppValue(value, valueFieldType), valueFieldType };
+// customInputs: the row's __customInputs__ — empty for most rows; a DATE custom field carries {value:'date'} (bl-407).
+function oppField(filterField, value, dataType, valueFieldType, customInputs = {}) {
+  const f = { __customInputs__: customInputs, filterField, value: coerceOppValue(value, valueFieldType), valueFieldType };
   if (dataType !== undefined) f.dataType = dataType;   // absence is legal; never inject a dialect
   return f;
 }
@@ -657,6 +687,7 @@ const CREATE_OPP_AUTHOR_KEYS = new Set([
   'pipelineId', 'stageId', 'status', 'name', 'source', 'value',
   'lostReasonId', 'forecastExpectedCloseDate', 'forecastProbability',
   'pipeline', 'stage', 'lostReason',    // pre-resolve name path (resolve.mjs → *Id)
+  'customFields',   // w6d-4 (bl-402): [{field:'custom_fields.<id>', value}], the same rows as updates[] on the update step
 ]);
 const CREATE_OPP_ALIASES = {
   pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_stage_id: 'stageId',
@@ -828,6 +859,8 @@ function createOpportunityStrictAttributes(a, ref, ctx) {
   if (a.value != null) f.push(oppField('monetaryValue', a.value, 'NUMERICAL', 'numerical'));
   if (a.forecastExpectedCloseDate != null) f.push(stdOppField('forecastExpectedCloseDate', a.forecastExpectedCloseDate));
   if (a.forecastProbability != null) f.push(stdOppField('forecastProbability', a.forecastProbability));
+  // Custom fields go AFTER the standard rows (w6d-4, bl-402), in the same row shape as an update step's updates[] (resolveOppUpdateField).
+  if (Array.isArray(a.customFields)) for (const u of a.customFields) f.push(resolveOppUpdateField(u, ref, ctx));
   enforceLostReasonPrerequisite(f, ref, 'create_opportunity_strict');
   for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   return { pipelineId: a.pipelineId, type: 'internal_create_opportunity', __customInputFields__: f, __customInputs__: {} };
@@ -861,6 +894,16 @@ const UPDATE_OPP_AUTHOR_KEYS = new Set([
 ]);
 const UPDATE_OPP_ALIASES = { pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_id: 'pipelineId', monetaryValue: 'value' };
 
+// The row shape the builder stores for a custom opportunity field, by its dataType (w6d-4, bl-407 and bl-409). Only the dataTypes whose
+// shape is evidenced are listed; the rest keep the engine's 'string' default. DATE: the UI's custom-input shape (a live UI-built row:
+// __customInputs__ {value:'date'}, the value a merge tag such as {{right_now.middle_endian_date}}). NUMERICAL and MONETORY: 'numerical',
+// the value a JSON number (a live UI-built row, bl-410).
+const CUSTOM_ROW_SHAPE = Object.freeze({
+  DATE: Object.freeze({ valueFieldType: 'custom-input', customInputs: Object.freeze({ value: 'date' }) }),
+  NUMERICAL: Object.freeze({ valueFieldType: 'numerical' }),
+  MONETORY: Object.freeze({ valueFieldType: 'numerical' }),
+});
+
 // Resolve one updates[] entry to a compiled oppField, classifying its filterField:
 //   standard opp field  -> attested shape (omitted valueFieldType resolves from the table)
 //   known custom field  -> row 2: warn, pass through (shape join is §7b, still blocked)
@@ -883,8 +926,17 @@ function resolveOppUpdateField(u, ref, ctx) {
   if (cf) {
     // entities.mjs already carries dataType per field, so the join this used to defer is
     // available: emit the account's own dataType rather than warning that it went unvalidated.
-    return oppField(`${OPP_CUSTOM_FIELD_PREFIX}${cf.id}`, u.value,
-      u.dataType ?? cf.dataType, u.valueFieldType ?? 'string');
+    const dataType = u.dataType ?? cf.dataType;
+    const shape = CUSTOM_ROW_SHAPE[cf.dataType];
+    // The drawer's own shapes (w6d-4): a DATE row is the custom-input shape with __customInputs__ {value:'date'} (bl-407); a NUMERICAL
+    // row is 'numerical' and holds a JSON number (bl-409). Other custom fields keep the engine's 'string' default.
+    const valueFieldType = u.valueFieldType ?? shape?.valueFieldType ?? 'string';
+    if (valueFieldType === 'numerical' && typeof u.value === 'string' && /\{\{/.test(u.value))
+      throw new IRError('OPP_NUMERIC_MERGE_TAG',
+        `update_opportunity '${ref}': the numeric field '${cf.name ?? ff}' takes a merge tag (${u.value}). The builder's `
+        + `numeric row does not take a merge tag from the UI (bl-410), so the value would not render. Author a literal number, `
+        + `or put the merge tag in a text field.`);
+    return oppField(`${OPP_CUSTOM_FIELD_PREFIX}${cf.id}`, u.value, dataType, valueFieldType, { ...(shape?.customInputs ?? {}) });
   }
   // Row 3 is a claim: "this field is genuinely unknown." The engine may only make that
   // claim when it actually HAS the account's field list. Only throw when a customFields
@@ -914,8 +966,27 @@ function updateOpportunityAttributes(a, ref, ctx) {
       }. Author keys: ${[...UPDATE_OPP_AUTHOR_KEYS].join(', ')}. NOTE the asymmetry — you author 'stageId', `
       + `which compiles to the filterField 'pipelineStageId'; 'pipelineId' is the same on both sides. `
       + `An ignored key compiles to a step that saves, round-trips clean, and no-ops at runtime.`);
-  const f = (a.updates ?? []).map((u) => resolveOppUpdateField(u, ref, ctx));
-  if (!f.length) {
+  const explicit = (a.updates ?? []).map((u) => resolveOppUpdateField(u, ref, ctx));
+  const f = [];
+  // bl-731: a pipeline and a stage authored beside updates[] are written too. Before this, the name path below ran only when updates[] was
+  // empty, so a new step with pipelineId, stageId and updates[] kept only its custom-field rows and the card did not move.
+  if (explicit.length) {
+    // w6d-4 QA FAIL item 1 (orchestrator ruling): every name-path key authored beside updates[] is written too, as the same rows the name
+    // path writes (the step's own __customInputFields__ list holds them with the pipeline and stage). A key already carried by an explicit
+    // updates[] row is not written twice: the explicit row wins. Nothing authored is silently dropped (live readback: TEST-CONF-W6D-4-rows).
+    const has = (ff) => explicit.some((x) => x.filterField === ff);
+    if (a.pipelineId != null && !has('pipelineId')) f.push(oppField('pipelineId', a.pipelineId, 'SINGLE_OPTIONS', 'select'));
+    if (a.stageId != null && !has('pipelineStageId')) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
+    if (a.status != null && !has('status')) f.push(oppField('status', a.status, 'SINGLE_OPTIONS', 'select'));
+    if (a.lostReasonId != null && !has('lostReasonId')) f.push(stdOppField('lostReasonId', a.lostReasonId));
+    if (a.name != null && !has('name')) f.push(oppField('name', a.name, 'TEXT', 'string'));
+    if (a.source != null && !has('source')) f.push(oppField('source', a.source, 'TEXT', 'string'));
+    if (a.value != null && !has('monetaryValue')) f.push(oppField('monetaryValue', a.value, 'NUMERICAL', 'numerical'));
+    if (a.forecastExpectedCloseDate != null && !has('forecastExpectedCloseDate')) f.push(stdOppField('forecastExpectedCloseDate', a.forecastExpectedCloseDate));
+    if (a.forecastProbability != null && !has('forecastProbability')) f.push(stdOppField('forecastProbability', a.forecastProbability));
+    f.push(...explicit);
+  }
+  if (!explicit.length) {
     if (a.pipelineId != null) f.push(oppField('pipelineId', a.pipelineId, 'SINGLE_OPTIONS', 'select'));
     if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
     if (a.status != null) f.push(oppField('status', a.status, 'SINGLE_OPTIONS', 'select'));
@@ -1409,11 +1480,15 @@ function emailAttributes(node, ctx) {
 // table is exactly the divergence this whole change exists to remove.
 // Only types whose AUTHOR shape is their WIRE shape can be re-run; template-normalize.mjs's
 // NORMALIZE_SKIP holds the rest and routes them to retypeStep.
-export function normalizeStoredAttributes(template, ctx) {
+// opts.storedKeys — the attribute keys the stored step carried before the patch. They are exempt from the ATTR_KEY check, and
+// one the catalogue does not know is put back if the type's builder dropped it: what GHL stored and we do not understand is
+// kept, never lost (W6a item 13).
+export function normalizeStoredAttributes(template, ctx, opts = {}) {
   const warnings = [];
   // COLLECT only — do not forward to ctx.warn here. The caller re-emits what it wants, and
   // forwarding as well reported every warning twice.
-  const wctx = { ...ctx, warn: (m) => { warnings.push(m); } };
+  const storedKeys = new Set(opts.storedKeys ?? []);
+  const wctx = { ...ctx, warn: (m) => { warnings.push(m); }, __storedAttrKeys: storedKeys };
   const node = {
     ref: template.id,
     kind: template.type === 'wait' ? 'wait' : 'action',
@@ -1421,7 +1496,13 @@ export function normalizeStoredAttributes(template, ctx) {
     name: template.name,
     attributes: template.attributes ?? {},
   };
-  return { attributes: attributesFor(node, wctx), warnings };
+  const attributes = attributesFor(node, wctx);
+  const meta = ctx?.catalog?.step?.(template.type);
+  if (meta && attributes && storedKeys.size) {
+    const known = knownAttrKeySet(meta);
+    for (const k of storedKeys) if (!known.has(k) && !(k in attributes) && k in (template.attributes ?? {})) attributes[k] = template.attributes[k];
+  }
+  return { attributes, warnings };
 }
 
 function typeFor(node) {
@@ -1469,6 +1550,17 @@ function idForRef(refMap, ctx, ref) {
   return refMap.get(ref);
 }
 
+// Every id the compiler mints for itself (a transition, a segment, a condition, a branch key, a None lane) is named
+// by the id that owns it and a slot, e.g. `<containerId>:transition:1`. With ctx.pinIds a stored workflow read back
+// as a spec carries those ids in pins.slots, so the recompile reuses them instead of re-minting (W6 item 2). Without
+// pinIds the lookup is skipped and idGen is called exactly as before. ctx.mintLog (a Map) records what was minted.
+function mint(ctx, ownerId, slot) {
+  const key = `${ownerId}:${slot}`;
+  const id = (ctx.pinIds ? ctx.pins?.slots?.[key] : undefined) ?? ctx.idGen();
+  ctx.mintLog?.set(key, id);
+  return id;
+}
+
 // Frozen UI-hint arrays present on every live UI-built if_else condition (harvested
 // 2026-07-15 from the ghl-internal-api-research corpus; the 10-item UI capture —
 // correct-ifelse-reference.json). Constant across conditions — copied verbatim; the
@@ -1501,8 +1593,8 @@ function conditionExtras(c) {
 //   Tag       { conditionType:'contact_detail', tag:'vip' }            (add not:true for "does not have")
 //     → conditionSubType:'tags', conditionOperator:'index-of-true'|'index-of-false',
 //       conditionValue:['vip']   (ALWAYS an array; subType is 'tags' PLURAL, not 'tag')
-//   Opp stage { conditionType:'opportunities', stage:'<id or name>' }  (name→id resolved in resolve.mjs)
-//     → conditionSubType:'pipelineStageId', conditionOperator:'==', conditionValue:'<stageId>' (string)
+//   Opp stage { conditionType:'opportunities', stage:'<id or name>' }  (name→id resolved in resolve.mjs; not:true or '!=' for "is not")
+//     → conditionSubType:'pipelineStageId', conditionOperator:'=='|'!=', conditionValue:'<stageId>' (string)
 //   Field     { conditionType:'contact_detail', conditionSubType:'<fieldId>', conditionValue:'X' }
 //     → conditionOperator:'contain', conditionValue lowercased  (UI "Is <value>" → contain + lowercase)
 //       number/date fields: pass conditionOperator:'==' explicitly (no lowercasing).
@@ -1543,11 +1635,18 @@ export function normalizeCondition(rawC, ctx) {
   const stageIntent = c.stage !== undefined || c.conditionSubType === OPP_STAGE_SUBTYPE;
   if (type === OPP_STAGE_TYPE && stageIntent) {
     const raw = c.conditionValue ?? c.stage;
+    // The builder offers exactly "is" (==) and "is not" (!=) here (Condition.ts opportinityOperatorOptions).
+    // Forcing '==' stored a "stage is not Live" row as "is Live" and inverted the branch (bl-369).
+    const op = c.conditionOperator;
+    if ((op != null && op !== '==' && op !== '!=') || (c.not === true && op === '==')) {
+      throw new IRError('OPP_STAGE_OPERATOR', `if_else pipeline stage condition: operator '${op}'${c.not === true ? ' with not:true' : ''} — `
+        + 'the builder offers only is (==) or is not (!=) on a pipeline stage. Write conditionOperator:"!=" or not:true for "is not".');
+    }
     return {
       ...extras,
       conditionType: OPP_STAGE_TYPE,
       conditionSubType: OPP_STAGE_SUBTYPE,
-      conditionOperator: '==',
+      conditionOperator: op === '!=' || c.not === true ? '!=' : '==',
       conditionValue: Array.isArray(raw) ? raw[0] : raw,
     };
   }
@@ -1609,7 +1708,7 @@ export function normalizeCondition(rawC, ctx) {
 // by type (normalizeCondition), then add the envelope real conditions carry: a generated
 // __conditionId, ifElseNodeId:"", isWait:false, the two constant UI-hint arrays, and (for
 // contact_detail) __customFieldType__:"standard". Any envelope value the author supplied wins.
-export function expandCondition(c, ctx) {
+export function expandCondition(c, ctx, slotOwner = null) {
   // normalizeCondition canonicalizes every alias it recognizes; the lint is the
   // fail-closed backstop for a shape it could not (e.g. an opp type paired with an
   // unrecognized subType), which would otherwise be stored as a silently-dead branch.
@@ -1619,7 +1718,7 @@ export function expandCondition(c, ctx) {
     conditionSubType: n.conditionSubType,
     conditionOperator: n.conditionOperator,
     conditionValue: n.conditionValue,
-    __conditionId: n.__conditionId ?? ctx.idGen(),
+    __conditionId: n.__conditionId ?? (slotOwner ? mint(ctx, slotOwner.id, slotOwner.slot) : ctx.idGen()),
     ifElseNodeId: n.ifElseNodeId ?? '',
     isWait: n.isWait ?? false,
     nestedDropdownTypes: n.nestedDropdownTypes ?? IFELSE_NESTED_DROPDOWN_TYPES,
@@ -1636,8 +1735,13 @@ export function expandCondition(c, ctx) {
     out.__customFieldType__ = n.__customFieldType__ ?? 'standard';
   // carry any extra author-specified keys through untouched (forward-compat)
   for (const k of Object.keys(n)) if (!(k in out)) out[k] = n[k];
+  // A value-less operator is stored with NO conditionValue (bl-415): a sent one read back missing and failed the round trip.
+  if (VALUELESS_CONDITION_OPERATORS.has(out.conditionOperator)) delete out.conditionValue;
   return out;
 }
+
+// GHL stores these rows without a conditionValue key (16 has_value + 9 has_no_value stored client rows, none with one).
+export const VALUELESS_CONDITION_OPERATORS = new Set(['has_value', 'has_no_value']);
 
 // Flatten a linear scope into template objects, wiring next/parentKey/order.
 // parentScopeId: the id set as `parent` for nodes in this scope (null at root).
@@ -1645,13 +1749,84 @@ export function expandCondition(c, ctx) {
 export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
   const templates = [];
   const ids = nodes.map((n) => idForRef(refMap, ctx, n.ref));
+  // w6c-11b: the step that a node's chain comes FROM. For a Loop with a body that is its last body step (the one whose next is the
+  // continuation); otherwise the previous sibling. GHL checks that a node's parentKey is the step whose next points at it.
+  const chainTail = new Map();
   nodes.forEach((n, i) => {
     // Record that this node was actually reached by the flattener. compile() diffs this
     // against the authored graph to prove nothing was silently dropped (see NODE_DROPPED).
     ctx.__visited?.add(n);
     const id = ids[i];
     const next = i < nodes.length - 1 ? ids[i + 1] : null;
-    const parentKey = i > 0 ? ids[i - 1] : (parentScopeId ?? null);
+    const parentKey = i > 0 ? (chainTail.get(ids[i - 1]) ?? ids[i - 1]) : (parentScopeId ?? null);
+
+    // A frozen node (stored.mjs): its stored templates are emitted by compile() after every pass, linked here.
+    if (n.kind === 'stored') {
+      ctx.__frozenLinks?.push({ storedId: n.ref, id, next, parentKey, parent: parentScopeId });
+      return;
+    }
+
+    // w6c-1 (bl-784): an authored Router in GHL's stored shape (utils/router.ts:616-760; the bare-router fixture of w6c-0):
+    // a condition-node root whose next is its lane ids in branch order, and one branch-yes lane per branch (parentKey = the
+    // root, attributes.routerBranch true), each lane holding its own child sequence under `then`. The offline refusals
+    // (checkRouters) ran before this pass.
+    if (n.kind === 'router') {
+      const bs = n.branches ?? [];
+      const laneIds = bs.map((b) => idForRef(refMap, ctx, b.ref));
+      const branchAttrs = bs.map((b, bi) => {
+        const custom = (b.branchType ?? 'custom') === 'custom';
+        const conds = Array.isArray(b.conditions) ? b.conditions : (b.segments?.[0]?.conditions ?? []);
+        const op = b.op ?? b.segments?.[0]?.operator ?? 'and';
+        const segments = custom && conds.length
+          ? [{ __segmentId: mint(ctx, laneIds[bi], 'segment:0'), operator: op,
+            conditions: conds.map((c, ci) => expandCondition(c, ctx, { id: laneIds[bi], slot: `segment:0:condition:${ci}` })) }]
+          : [];
+        return { id: laneIds[bi], name: b.name, branchType: b.branchType ?? 'custom', segments, operator: 'and',
+          showErrors: false, branchNameError: 'Branch name cannot be empty!' };
+      });
+      const routerContainer = {
+        id, type: 'router', name: n.name ?? 'Router', order: i, parentKey, next: laneIds, nodeType: 'condition-node',
+        cat: 'conditions', comments: [],
+        attributes: { routerName: n.name ?? 'Router', version: 1, branches: branchAttrs },
+      };
+      if (parentScopeId !== null) routerContainer.parent = parentScopeId;
+      templates.push(withStepDisabled(n, routerContainer, ctx));
+      bs.forEach((b, bi) => {
+        const child = flattenGraph(b.then ?? [], ctx, refMap, laneIds[bi]);
+        const lane = { id: laneIds[bi], type: 'router', name: b.name, order: 1, parent: id, parentKey: id, cat: 'conditions',
+          comments: [], sibling: laneIds.filter((x) => x !== laneIds[bi]), nodeType: 'branch-yes', attributes: { routerBranch: true } };
+        if (child.entryId) lane.next = child.entryId;
+        templates.push(lane, ...child.templates);
+      });
+      return;
+    }
+
+    // w6c-2 (bl-785): an authored Loop. One loop step whose next is its first body step (or its continuation when the body is
+    // empty); the body steps are tagged parentContainerId = the loop; the last body step's next = attributes.exitNext, the
+    // continuation, which is the next step in this list. loop-authoring.mjs refused GHL's offline cases before this pass.
+    if (n.kind === 'loop') {
+      const range = (n.loopOver ?? 'list') === 'range';
+      const exitNext = next;   // the continuation: the next step in this list, null when the loop ends the list
+      const body = flattenGraph(n.body ?? [], ctx, refMap, id);
+      for (const t of body.templates) t.parentContainerId = id;
+      if (exitNext && body.lastId) {
+        const last = body.templates.find((t) => t.id === body.lastId);
+        if (last && !Array.isArray(last.next) && last.type !== 'transition') {
+          last.next = exitNext;
+          chainTail.set(id, last.id);   // w6c-11b: the continuation is parented to this step
+        }
+      }
+      const attributes = { type: 'loop', items: range ? '' : String(n.items ?? '').trim(), limit: null,
+        mode: n.mode ?? 'sequential', loopOver: range ? 'range' : 'list' };
+      if (range) { attributes.startNumber = String(n.startNumber ?? '1'); attributes.endNumber = String(n.endNumber ?? '10'); }
+      if (exitNext) attributes.exitNext = exitNext;
+      const loopT = { id, type: 'loop', name: n.name ?? 'Loop', order: i, attributes, parentKey };
+      const entry = body.entryId ?? exitNext;
+      if (entry) loopT.next = entry;
+      if (parentScopeId !== null) loopT.parent = parentScopeId;
+      templates.push(withStepDisabled(n, loopT, ctx), ...body.templates);
+      return;
+    }
 
     if (n.kind === 'if_else') {
       // Runtime-correct structure, diffed against a live UI-built condition-node
@@ -1674,7 +1849,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       const elseBranch = n.branches.find((b) => b.else === true);
       const conditionedIds = conditioned.map((b) => idForRef(refMap, ctx, b.ref));
       // else id reuses its ref (goto/reply targeting); a synthesized None gets a fresh id.
-      const noneId = elseBranch ? idForRef(refMap, ctx, elseBranch.ref) : ctx.idGen();
+      const noneId = elseBranch ? idForRef(refMap, ctx, elseBranch.ref) : mint(ctx, id, 'none');
       const allBranchIds = [...conditionedIds, noneId];
       const noneName = elseBranch?.name ?? 'None';
       const ifElseContainer = {
@@ -1686,7 +1861,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           branches: conditioned.map((b, bi) => ({
             id: conditionedIds[bi], name: b.name,
             segments: (b.conditions && b.conditions.length)
-              ? [{ __segmentId: ctx.idGen(), operator: b.op ?? 'and', conditions: b.conditions.map((c) => expandCondition(c, ctx)) }]
+              ? [{ __segmentId: mint(ctx, conditionedIds[bi], 'segment:0'), operator: b.op ?? 'and',
+                conditions: b.conditions.map((c, ci) => expandCondition(c, ctx, { id: conditionedIds[bi], slot: `segment:0:condition:${ci}` })) }]
               : [],
             operator: 'and',
             showErrors: false, branchNameError: 'Branch name cannot be empty!',
@@ -1740,7 +1916,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // compiled to `undefined` and the builder rendered "Select Calendar is a required
       // field" while the engine reported a clean pass.
       const attrs = enforceRequiredFields(n, n.attributes ?? {});
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const t1 = mint(ctx, id, 'transition:0'), t2 = mint(ctx, id, 'transition:1');
       const container = {
         id, type: 'conversationai_book_appointment', name: n.name ?? 'Book appointment',
         order: i, parentKey, cat: 'multi-path', workflowsActionType: 'INTERNAL', next: [t1, t2],
@@ -1750,8 +1926,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           type: 'conversationai_book_appointment', __customInputs__: {},
           cat: 'multi-path', convertToMultipath: true,
           transitions: [
-            { id: t1, name: 'Appointment Booked', fields: { appointmentBooked: true, appointmentNotBooked: false }, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
-            { id: t2, name: 'Appointment Not booked', fields: { appointmentNotBooked: true }, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: t1, name: 'Appointment Booked', fields: { appointmentBooked: true, appointmentNotBooked: false }, meta: { __branchKey__: mint(ctx, t1, 'branchKey') }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Appointment Not booked', fields: { appointmentNotBooked: true }, meta: { __branchKey__: mint(ctx, t2, 'branchKey') }, conditionType: 'pre-defined' },
           ],
           __name__: n.name ?? 'Book appointment',
         },
@@ -1781,7 +1957,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // shared, because GHL is not consistent and the name is what the builder matches on.
     if (n.type === 'conversationai_services_booking') {
       const attrs = enforceRequiredFields(n, n.attributes ?? {});
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const t1 = mint(ctx, id, 'transition:0'), t2 = mint(ctx, id, 'transition:1');
       const container = {
         id, type: 'conversationai_services_booking', name: n.name ?? 'Services booking',
         order: i, parentKey, cat: 'multi-path', workflowsActionType: 'INTERNAL', next: [t1, t2],
@@ -1792,8 +1968,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           type: 'conversationai_services_booking', __customInputs__: {},
           cat: 'multi-path', convertToMultipath: true,
           transitions: [
-            { id: t1, name: 'Appointment Booked', fields: { appointmentBooked: true, appointmentNotBooked: false }, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
-            { id: t2, name: 'Appointment Not Booked', fields: { appointmentNotBooked: true }, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: t1, name: 'Appointment Booked', fields: { appointmentBooked: true, appointmentNotBooked: false }, meta: { __branchKey__: mint(ctx, t1, 'branchKey') }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Appointment Not Booked', fields: { appointmentNotBooked: true }, meta: { __branchKey__: mint(ctx, t2, 'branchKey') }, conditionType: 'pre-defined' },
           ],
           __name__: n.name ?? 'Services booking',
         },
@@ -1822,8 +1998,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // node with a red badge.
       const attrs = enforceRequiredFields(n, n.attributes ?? {});
       const authorBranches = n.branches ?? [];
-      const noneId = ctx.idGen();
-      const branchIds = authorBranches.map(() => ctx.idGen());
+      const noneId = mint(ctx, id, 'transition:0');
+      const branchIds = authorBranches.map((_, bi) => mint(ctx, id, `transition:${bi + 1}`));
       const container = {
         id, type: 'conversationai_ai_splitter', name: n.name ?? 'AI splitter',
         order: i, parentKey, cat: 'multi-path', workflowsActionType: 'INTERNAL',
@@ -1833,7 +2009,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           type: 'conversationai_ai_splitter', __customInputs__: {},
           cat: 'multi-path', convertToMultipath: true,
           transitions: [
-            { id: noneId, name: 'No condition met', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: noneId, name: 'No condition met', fields: {}, meta: { __branchKey__: mint(ctx, noneId, 'branchKey') }, conditionType: 'pre-defined' },
             ...authorBranches.map((b, bi) => ({ id: branchIds[bi], name: b.name, fields: b.fields ?? {}, meta: {}, conditionType: 'user-defined' })),
           ],
           __name__: n.name ?? 'AI splitter',
@@ -1857,7 +2033,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // type:"transition" entry steps that children hang off. Live-verified shape 2026-07-10.
     if (n.kind === 'wait' && (n.onEvent || n.onTimeout)) {
       const wt = n.waitType ?? 'reply';
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const t1 = mint(ctx, id, 'transition:0'), t2 = mint(ctx, id, 'transition:1');
       const eventDesc = n.reply?.labels?.length ? `What will happen when a contact replies on ${n.reply.labels.join(', ')}` : 'What will happen when the event fires';
       const timeoutDesc = n.timeout ? `What will happen after ${n.timeout.value} ${n.timeout.unit}` : 'What will happen on timeout';
       const startAfter = n.timeout ? { type: n.timeout.unit, value: n.timeout.value, when: n.timeout.when ?? 'after' } : undefined;
@@ -1925,7 +2101,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           + `step IGNORES — that is the emitted shape, not the author shape. Move it to the node-level `
           + `find.filters: [{ field: 'pipeline_id', operator: 'eq', value: '<pipelineId>' }]. Left as `
           + `authored, the finder compiles with NO filters and matches an arbitrary opportunity.`);
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const t1 = mint(ctx, id, 'transition:0'), t2 = mint(ctx, id, 'transition:1');
       const fields = (n.find?.filters ?? []).map((f) => ({ __customInputs__: {}, filterField: f.field, value: f.operator ?? 'eq', secondValue: f.value }));
       const container = {
         id, type: 'find_opportunity', name: n.name, order: i, parentKey, cat: 'multi-path',
@@ -1972,7 +2148,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       const filterOn = n.find?.filter_on ?? 'earliest';
       if (!['earliest', 'latest'].includes(filterOn))
         throw new IRError('FIND_COMPANY_FILTER', `co_find_company_record '${n.ref ?? n.name}': find.filter_on is 'earliest' or 'latest'.`);
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const t1 = mint(ctx, id, 'transition:0'), t2 = mint(ctx, id, 'transition:1');
       const container = {
         id, type: 'co_find_company_record', name: n.name, order: i, parentKey, cat: 'multi-path',
         workflowsActionType: 'INTERNAL', next: [t1, t2],
@@ -1981,8 +2157,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           __customInputFields__: filters.map((f) => ({ __customInputs__: {}, filterField: f.field, valueField: f.value })),
           __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
           transitions: [
-            { id: t1, name: 'Company Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
-            { id: t2, name: 'Company Not Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: t1, name: 'Company Found', fields: {}, meta: { __branchKey__: mint(ctx, t1, 'branchKey') }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Company Not Found', fields: {}, meta: { __branchKey__: mint(ctx, t2, 'branchKey') }, conditionType: 'pre-defined' },
           ],
           __name__: n.name,
         },
@@ -2021,6 +2197,83 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
 
+    // w6c-5 (bl-788): the A/B Test step, GHL's workflow_ab_test container (fixtures/ab-test-event.json). Paths are the transitions
+    // (2 to 10); extras carry the win criterion (metric: an event goal), the endCondition and afterEnd. No split weights: an A/B test
+    // splits evenly by design. The event goal's condition is minted an id under the container (pinned on a recompile).
+    if (n.kind === 'ab_test') {
+      const pathIds = n.paths.map((p) => idForRef(refMap, ctx, p.ref));
+      if (n.paths.length < 2 || n.paths.length > 10)
+        throw new IRError('ab_test_paths_required', `ab_test_paths_required: an A/B test has 2 to 10 paths; '${n.ref}' has ${n.paths.length}.`);
+      if (!n.metric) throw new IRError('ab_test_metric_required', `ab_test_metric_required: A/B test '${n.ref}' has no metric (the win criterion).`);
+      if (n.metric.kind !== 'event')
+        throw new IRError('ab_test_metric_unsupported', `ab_test '${n.ref}' metric '${n.metric.kind}': only the event metric is authored (contact-condition has no fixture yet).`);
+      const GOALS = ['email_event', 'link_click', 'appointment_status', 'form_submission', 'payment_received', 'invoice_paid',
+        'review_request_clicked', 'document_status', 'task_status', 'add_contact_tag', 'remove_contact_tag'];
+      if (!GOALS.includes(n.metric.goal))
+        throw new IRError('ab_test_goal_unsupported', `ab_test_goal_unsupported: goal '${n.metric.goal}' is not an A/B win criterion (allowed: ${GOALS.join(', ')}).`);
+      // A goal must carry the reference its criterion watches, or the saved criterion is empty (QA follow-up 2). The keys are GHL's
+      // (goal-action-validator.ts; ab-test-linked-steps.ts; InvoicePaidGoalCondition.ts). Tag and review goals have no confirmed key.
+      const nonEmpty = (v) => Array.isArray(v) && v.length > 0;
+      const GOAL_REFERENCE = {
+        form_submission: (x) => nonEmpty(x.formIds),
+        email_event: (x) => nonEmpty(x.stepIds),
+        invoice_paid: (x) => nonEmpty(x.invoiceStepIds) && nonEmpty(x.invoiceStatuses),
+        link_click: (x) => nonEmpty(x.linkIds),
+        appointment_status: (x) => Boolean(x.calendarId),
+        payment_received: (x) => nonEmpty(x.globalProductIds),
+        document_status: (x) => Boolean(x.templateId),
+      };
+      const referenceOk = GOAL_REFERENCE[n.metric.goal];
+      if (referenceOk && !referenceOk(n.metric.goalExtras ?? {}))
+        throw new IRError('ab_test_goal_extras_missing', `ab_test_goal_extras_missing: a '${n.metric.goal}' goal has no reference to watch (its ${n.metric.goal === 'invoice_paid' ? 'invoiceStepIds and invoiceStatuses' : 'reference key'} is empty), so the criterion would save empty.`);
+      if (!n.endCondition) throw new IRError('ab_test_end_condition_required', `ab_test_end_condition_required: A/B test '${n.ref}' has no endCondition.`);
+      const ec = n.endCondition;
+      let endCondition;
+      // GHL stores the count under its own key (contacts: numberOfContacts; conversions: numberOfConversions) and marks a zero or
+      // missing count invalid (AbTest.ts:447-448, `!n`). A date ends on endDate (AbTest.ts:360, :450), not value.
+      if (ec.type === 'contacts' || ec.type === 'conversions') {
+        const key = ec.type === 'contacts' ? 'numberOfContacts' : 'numberOfConversions';
+        if (!(Number.isInteger(ec[key]) && ec[key] > 0))
+          throw new IRError('ab_test_end_count_required', `ab_test_end_count_required: a ${ec.type} end needs a count above 0 (${key}); GHL marks a zero or missing count invalid.`);
+        endCondition = { type: ec.type, [key]: ec[key] };
+      } else if (ec.type === 'date') {
+        // A local time in the location's zone, YYYY-MM-DDTHH:mm:ss. A Z or an offset is refused (ab_test_date_local).
+        if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(String(ec.endDate ?? '')))
+          throw new IRError('ab_test_date_local', `ab_test_date_local: the end date '${ec.endDate}' must be a local time YYYY-MM-DDTHH:mm:ss in the location's zone, never Z or an offset.`);
+        endCondition = { type: 'date', endDate: ec.endDate };
+      } else throw new IRError('ab_test_end_condition_required', `ab_test_end_condition_required: endCondition type '${ec.type}' is not contacts, conversions or date.`);
+      // afterEnd is one of the two endings the builder offers (ab-test.interface.ts:39-42).
+      const afterEnd = n.afterEnd ?? 'route_to_winner';
+      if (afterEnd !== 'route_to_winner' && afterEnd !== 'keep_splitting')
+        throw new IRError('ab_test_after_end_unknown', `ab_test_after_end_unknown: afterEnd '${afterEnd}' is not route_to_winner or keep_splitting.`);
+      const names = n.paths.map((p, pi) => p.name ?? `Path ${String.fromCharCode(65 + pi)}`);
+      const condId = mint(ctx, id, 'metric:condition:0');
+      const extras = {
+        metric: { kind: 'event', matchCriteria: { segments: [{ op: 'or', conditions: [{ id: condId, goal_condition: n.metric.goal, extras: n.metric.goalExtras ?? {} }] }] } },
+        endCondition,
+        afterEnd,
+        ...(n.resetTestRun === true ? { resetTestRun: true } : {}),
+      };
+      const container = {
+        id, type: 'workflow_ab_test', name: n.name ?? 'A/B Test', order: i, parentKey, cat: 'multi-path', next: pathIds,
+        attributes: {
+          name: n.name ?? 'A/B Test', cat: 'multi-path', type: 'workflow_ab_test',
+          transitions: names.map((nm, pi) => ({ id: pathIds[pi], name: nm, condition: nm, conditionType: 'default', isPrimaryBranch: false, description: '', attributes: {} })),
+          paths: names.map((nm, pi) => ({ name: nm, id: pathIds[pi] })),
+          extras,
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      n.paths.forEach((p, pi) => {
+        const child = flattenGraph(p.then ?? [], ctx, refMap, pathIds[pi]);
+        templates.push({ id: pathIds[pi], type: 'transition', name: names[pi], cat: 'transition',
+          parentKey: id, parent: id, order: pi, attributes: {}, next: child.entryId });
+        templates.push(...child.templates);
+      });
+      return;
+    }
+
     // workflow_split — random/weighted A/B/N-way split (live-verified shape mirrors
     // catalog/step-examples/workflow_split.json). Each path gets a `transition` entry
     // step (conditionType:"default") that its children hang off. Weights live in
@@ -2030,20 +2283,44 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // its branches, so `appendToBranch { branchRef }` can anchor to a path authored earlier
       // in the same call. An unnamed path still gets a fresh id.
       const pathIds = n.paths.map((p) => idForRef(refMap, ctx, p.ref));
-      const weighted = n.mode === 'weighted' || n.mode === 'random';
-      // The drawer's rules (models/Split/Split.ts): at most 5 paths (MAX_TRANSITION_COUNT), only `random-split` is
-      // offered, and the weights must total exactly 100 (randomSplitWeightageInvalid, one-decimal rounding). An even
-      // default of Math.round(100/3) = 33 each totalled 99 and opened red; the remainder now goes to the last path.
-      if (n.paths.length > 5) throw new IRError('SPLIT_ARITY', `split '${n.ref}' has ${n.paths.length} paths; the builder allows at most 5.`);
-      if ((n.condition ?? 'random-split') !== 'random-split')
-        throw new IRError('SPLIT_MODE', `split '${n.ref}' condition '${n.condition}': the builder offers only 'random-split' (Split.ts splitConditionOptions).`);
+      // w6c-4 (plan Task 4, bl-786): the Split modes and up to MAX_SPLIT_PATHS (10) paths. even-split stores no weights;
+      // weighted-split and random-split store whole percentages summing to exactly 100 (the drawer's randomSplitWeightageInvalid).
+      // conditional-split is refused until its stored names are proven (SPLIT_MODE_UNPROVEN; w6c-4b). A split with no mode keeps
+      // today's shape (random-split, even shares).
+      const mode = splitModeOf(n);
+      const storedName = STORED_SPLIT_CONDITION[mode];
+      if (n.paths.length > MAX_SPLIT_PATHS) throw new IRError('SPLIT_ARITY', `split '${n.ref}' has ${n.paths.length} paths; the builder allows at most ${MAX_SPLIT_PATHS}.`);
+      if (mode === 'conditional')
+        throw new IRError('SPLIT_MODE_UNPROVEN', `split '${n.ref}': conditional-split is not authored. Its stored names are unproven: there is no split-conditional fixture, and the builder offered only Even, Weighted and Random on GROM Sandbox (2026-11-07). w6c-11's live differential must prove them before w6c-4b unlocks the mode.`);
+      if (!storedName) throw new IRError('SPLIT_MODE', `split '${n.ref}' mode '${mode}': the builder offers even, weighted and random splits.`);
+      const weighted = mode === 'weighted' || mode === 'random';
+      // A weight is a whole percentage from 1 to 99 (w6c-11b, live: GHL refused 33.3 with "weightDistribution values must be integers
+      // between 1 and 99"; 33 / 33 / 34 was accepted). A fraction, a 0 or 100, or a negative weight is refused: a -10 misroutes traffic
+      // silently even when the total is 100 (QA fail #1).
+      if (weighted && n.paths.some((p) => typeof p.weight === 'number' && (!Number.isInteger(p.weight) || p.weight < 1 || p.weight > 99)))
+        throw new IRError('SPLIT_WEIGHT', `split '${n.ref}' weights are whole percentages from 1 to 99 that sum to 100; a weight outside that is refused.`);
+      // A split with no mode drops authored weights (it keeps even shares). That is kept, for the existing shape, but it warns.
+      if (mode === 'default' && n.paths.some((p) => p.weight !== undefined))
+        ctx.warn?.(`split '${n.ref}': weights are authored but the split has no mode, so they are dropped and the paths get even shares. Set mode: weighted to use them.`);
+      // An even split takes no weights. An authored weight would be dropped silently, so it is refused (QA fail #2).
+      if (mode === 'even' && n.paths.some((p) => p.weight !== undefined))
+        throw new IRError('SPLIT_WEIGHT', `split '${n.ref}': even-split takes no weights (its shares are equal); use mode weighted to set them.`);
       const evenShare = Math.floor(100 / n.paths.length);
       const even = (pi) => (pi === n.paths.length - 1 ? 100 - evenShare * (n.paths.length - 1) : evenShare);
       const weightDistribution = {};
       n.paths.forEach((p, pi) => { weightDistribution[pathIds[pi]] = weighted && typeof p.weight === 'number' ? p.weight : even(pi); });
-      const total = Math.round(Object.values(weightDistribution).reduce((a, b) => a + b, 0) * 10) / 10;
-      if (total !== 100)
-        throw new IRError('SPLIT_WEIGHT', `split '${n.ref}' weights total ${total}; the builder requires exactly 100 and marks the step invalid otherwise.`);
+      // The remainder of an even default goes to the last path, so the shares total 100 (an even default of 33 each totalled 99).
+      if (mode !== 'even') {
+        // Weights are whole percentages 1-99 (w6c-11b), so the total is an exact integer sum. Tenths are kept for the message only.
+        const tenths = Object.values(weightDistribution).reduce((a, b) => a + Math.round(b * 10), 0);
+        if (tenths !== 1000)
+          throw new IRError('SPLIT_WEIGHT', `split '${n.ref}' weights total ${tenths / 10}; the builder requires exactly 100.0 and marks the step invalid otherwise.`);
+      }
+      // rememberPath: the builder writes it on even and weighted splits; a random split carries it only when the IR says so.
+      const rememberPath = n.rememberPath === true || (n.rememberPath !== false && (mode === 'even' || mode === 'weighted'));
+      const extras = {};
+      if (rememberPath) extras.rememberPath = true;
+      if (mode !== 'even') extras.weightDistribution = weightDistribution;
       const container = {
         id, type: 'workflow_split', name: n.name ?? 'Split', order: i, parentKey, cat: 'multi-path', next: pathIds,
         attributes: {
@@ -2054,8 +2331,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
             conditionType: 'default', isPrimaryBranch: false, description: '', attributes: {},
           })),
           paths: n.paths.map((p, pi) => ({ name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`, id: pathIds[pi] })),
-          condition: n.condition ?? 'random-split',
-          extras: { weightDistribution },
+          condition: storedName,
+          extras,
         },
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
@@ -2074,12 +2351,13 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // mechanics as find_opportunity; shapes mirror the verified-live corpus examples.
     // Always a container, for the reason given at find_opportunity (harvest: 7/7 and 3/3).
     if (n.type === 'find_contact' || n.type === 'lc_merge_contact') {
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const t1 = mint(ctx, id, 'transition:0'), t2 = mint(ctx, id, 'transition:1');
       const isFC = n.type === 'find_contact';
       const container = {
         id, type: n.type, name: n.name ?? (isFC ? 'Find Contact' : 'Merge Contact'), order: i, parentKey, cat: 'multi-path', next: [t1, t2],
         attributes: isFC ? {
-          type: 'find_contact', fields: n.find?.fields ?? [], convertToMultipath: true,
+          // w6d-4 (bl-751): the rows may be authored as find.fields or as attributes.fields (the key GHL stores); both are read.
+          type: 'find_contact', fields: normalizeContactRows(n.find?.fields ?? n.attributes?.fields ?? [], { customFields: ctx?.customFields, warn: ctx?.warn, ref: n.ref ?? n.name ?? '?' }), convertToMultipath: true,
           name: n.name ?? 'Find Contact', cat: 'multi-path', isHybridAction: true, hybridActionType: 'find_contact',
           transitions: [
             { id: t1, name: 'Contact Found', condition: 'contact_found', conditionType: 'user-defined', isPrimaryBranch: true, description: '', attributes: { type: 'contact_found', description: 'Contact Found', cat: 'multi-path' } },
@@ -2088,8 +2366,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         } : {
           match_by: n.match_by ?? 'email', type: 'lc_merge_contact', __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
           transitions: [
-            { id: t1, name: 'Duplicate Contact Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
-            { id: t2, name: 'Duplicate Contact Not Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: t1, name: 'Duplicate Contact Found', fields: {}, meta: { __branchKey__: mint(ctx, t1, 'branchKey') }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Duplicate Contact Not Found', fields: {}, meta: { __branchKey__: mint(ctx, t2, 'branchKey') }, conditionType: 'pre-defined' },
           ],
           __name__: n.name ?? `Merge Contact by ${n.match_by ?? 'email'}`,
         },
@@ -2116,7 +2394,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       const name = n.name ?? 'AI intent detection';
       const byKey = Object.fromEntries((n.branches ?? []).map((b) => [String(b.name).trim().toLowerCase(), b]));
       const lanes = [['positive', 'Positive', 'POSITIVE'], ['negative', 'Negative', 'NEGATIVE'], ['none', 'None', 'NONE']]
-        .map(([key, label, branchKey]) => ({ key, label, branchKey, b: byKey[key], id: byKey[key]?.ref !== undefined ? idForRef(refMap, ctx, byKey[key].ref) : ctx.idGen() }));
+        .map(([key, label, branchKey]) => ({ key, label, branchKey, b: byKey[key], id: byKey[key]?.ref !== undefined ? idForRef(refMap, ctx, byKey[key].ref) : mint(ctx, id, `lane:${key}`) }));
       const container = {
         id, type, name, attributes: {
           inputText: n.inputText ?? n.attributes?.inputText, type, __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
@@ -2144,14 +2422,14 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // `ai_decision` is the IR kind, not a GHL step type — an author who spelled the type that
       // way (KIND_BY_TYPE accepts it) must still get the wire type on the step.
       const type = (n.type === undefined || n.type === 'ai_decision') ? 'workflow_ai_decision_maker' : n.type;
-      const defId = ctx.idGen();
+      const defId = mint(ctx, id, 'transition:0');
       const branchIds = n.branches.map((b) => idForRef(refMap, ctx, b.ref));   // see the split note above
       const transitions = [
         { id: defId, name: 'Default Branch', fields: { description: 'Go in this branch if none of the other branches make sense.', branchKey: 'none' }, meta: { __branchKey__: 'predefined_Default Branch' }, conditionType: 'pre-defined' },
         ...n.branches.map((b, bi) => ({
           id: branchIds[bi], name: b.name,
           fields: { description: b.description ?? '', branchKey: b.branchKey ?? `branch_${bi}` },
-          meta: { __branchKey__: ctx.idGen() }, conditionType: 'user-defined',
+          meta: { __branchKey__: mint(ctx, branchIds[bi], 'branchKey') }, conditionType: 'user-defined',
         })),
       ];
       const container = {
@@ -2225,7 +2503,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
   // Only the root scope is affected — a nested scope passes a non-null parentScopeId, so its
   // entry node keeps a real parentKey. See notes/2026-08-21-workflow-shape-findings.md F1.
   for (const t of templates) if (t.parentKey === null) delete t.parentKey;
-  return { templates, entryId: ids[0] ?? null };
+  return { templates, entryId: ids[0] ?? null, lastId: ids[ids.length - 1] ?? null };
 }
 
 export function casingLint({ triggerBodies, autoSaveBody }) {
@@ -2648,6 +2926,12 @@ function expandFilter(f, rows, extra = {}) {
       const exact = row.options.find((o) => o.value === v);
       if (exact) return v;
       const byLabel = row.options.find((o) => normOpt(o.label) === normOpt(v) || normOpt(o.value) === normOpt(v));
+      // An option value must be what the drawer stores — a string or a number. An object here is an enum the catalogue
+      // never resolved, and writing it stores garbage the trigger never matches (bl-481).
+      if (byLabel && byLabel.value !== null && typeof byLabel.value === 'object') {
+        throw new IRError('FILTER_VALUE_UNRESOLVED', `trigger filter '${row.value}' option "${byLabel.label}" has no usable value in the catalogue `
+          + `(${JSON.stringify(byLabel.value)}). Write the stored value itself, or fix the catalogue correction in required-fields.mjs.`);
+      }
       if (byLabel) return byLabel.value;
       extra?.ctx?.warn?.(`TRIGGER_FILTER_VALUE_UNKNOWN: filter '${row.value}' value '${v}' is not one of the row's options `
         + `(${row.options.map((o) => `${o.value} = "${o.label}"`).join(', ')}) — it is stored as written and will match nothing.`);
@@ -3082,8 +3366,11 @@ function checkFlowTriggers(triggers, ctx) {
 // refMap was empty and `seen` held one ref, so a goto to a step on the canvas threw
 // REF_DANGLING (F5-12). Live ids resolve to themselves; a UNIQUE live name resolves to its id;
 // an authored ref always wins a collision with a live name.
-function seedRefMap(norm, externalRefs) {
+function seedRefMap(norm, externalRefs, pinIds = false, pinnable = null) {
   const refMap = new Map();
+  // A spec read from a stored document names each step by its stored id: with pinIds the ref IS the id (W6 item 2). With
+  // a stored layer only the ids it holds are pinned; a node an author added to the spec gets a fresh id, not its ref.
+  if (pinIds) for (const r of collectRefs(norm)) if (!pinnable || pinnable.has(r)) refMap.set(r, r);
   if (!externalRefs) return refMap;
   const authored = new Set(collectRefs(norm));
   for (const id of externalRefs.ids ?? []) if (!authored.has(id)) refMap.set(id, id);
@@ -3143,7 +3430,16 @@ function checkTriggerRules(norm, ctx) {
 }
 
 export function compile(ir, ctx) {
-  const norm = parseIR(ir, { externalRefs: ctx.externalRefs });
+  // A spec lifted from a stored workflow carries its stored layer (stored.mjs): frozen subtrees and detached steps
+  // live outside the graph, so their ids are known refs for the parse and for every reference check below.
+  const stored = ir?.stored && typeof ir.stored === 'object' ? ir.stored : null;
+  const layerIds = stored ? storedLayerIds(stored) : [];
+  const externalRefs = layerIds.length
+    ? { ...(ctx.externalRefs ?? {}), ids: new Set([...(ctx.externalRefs?.ids ?? []), ...layerIds]) }
+    : ctx.externalRefs;
+  checkLoops(ir?.graph, ctx);         // w6c-2: GHL's loop refusals on the raw IR (loop-authoring.mjs), before parse
+  const norm = parseIR(ir, { externalRefs });
+  checkRouters(norm.graph);           // w6c-1: GHL's offline router refusals (router-authoring.mjs), before any emit
   checkMarketplaceFilters(norm.triggers, ctx);
   checkFlowTriggers(norm.triggers, ctx);
   checkTriggerRules(norm, ctx);
@@ -3151,8 +3447,11 @@ export function compile(ir, ctx) {
   // invariant with the catalog-derived set of opportunity-attaching triggers.
   const oppTriggerTypes = new Set(
     ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === 'opportunities'));
-  checkOpportunityAssociation(norm, oppTriggerTypes);
-  const refMap = seedRefMap(norm, ctx.externalRefs);
+  checkOpportunityAssociation(norm, oppTriggerTypes, new Set(stored?.accepted?.oppUnassociated ?? []), ctx);
+  const storedIdSet = new Set([...(stored?.order ?? []), ...layerIds, ...(stored?.triggerIds ?? [])]);
+  const refMap = seedRefMap(norm, externalRefs, ctx.pinIds === true, stored ? storedIdSet : null);
+  // A NEW workflow from a lifted spec (no pinIds) takes fresh ids for its frozen and detached steps too.
+  if (ctx.pinIds !== true) for (const lid of layerIds) refMap.set(lid, ctx.idGen());
   // ─── Authored-vs-compiled assertion ────────────────────────────────────────────────
   // Round-trip verification only ever proved that what was SENT came back. It never
   // checked that what was AUTHORED was sent — so a dropped subtree reported a clean
@@ -3174,11 +3473,21 @@ export function compile(ir, ctx) {
   // for all new triggers". Emitting it everywhere would be exactly the off-dialect guess this
   // engine exists to prevent.
   const triggerRefs = new Map();
-  norm.triggers.forEach((t, i) => triggerRefs.set(t.ref ?? `__trigger_${i}`, ctx.idGen()));
+  // With pinIds (a spec lifted from a stored workflow, repaired in place) a trigger's ref IS its stored id: the triggers
+  // already exist, nothing re-posts them, so a condition routing on trigger identity keeps pointing at them.
+  norm.triggers.forEach((t, i) => triggerRefs.set(t.ref ?? `__trigger_${i}`,
+    ctx.pinIds === true && t.ref != null && (!stored || storedIdSet.has(t.ref)) ? t.ref : ctx.idGen()));
 
   const gotoTargets = new Set();
   walkNodes(norm.graph, (n) => { if (n.kind === 'goto' && n.target) gotoTargets.add(n.target); });
-  const { templates } = flattenGraph(norm.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs, __gotoTargets: gotoTargets }, refMap, null);
+  const frozenLinks = [];
+  const { templates } = flattenGraph(norm.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs, __gotoTargets: gotoTargets, __frozenLinks: frozenLinks }, refMap, null);
+  // Stored ids renamed for a new workflow: only ids the stored document holds, never a short authored ref name — and the
+  // source's trigger ids, which a frozen step can route on, become the new triggers' ids (final review W6b).
+  const idMap = stored && ctx.pinIds !== true ? new Map([...refMap].filter(([k]) => storedIdSet.has(k))) : null;
+  if (idMap) for (const tid of stored.triggerIds ?? []) if (triggerRefs.has(tid)) idMap.set(tid, triggerRefs.get(tid));
+  const frozenT = stored ? frozenTemplates(stored, frozenLinks, idMap) : [];
+  const detachedIds = (stored?.detached ?? []).map((t) => idMap?.get(t.id) ?? t.id);
 
   const missing = [];
   let authored = 0;
@@ -3212,7 +3521,7 @@ export function compile(ir, ctx) {
     const unknown = [...new Set(templates
       // …and that includes a LABELLED asset step, which carries `workflowsActionType` instead of
       // isMarketplaceAction (the builder's shape) and was validated against the same live index.
-      .filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type)
+      .filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type) && !TYPES_OUTSIDE_CATALOG.has(t.type)
         && !(typeof t.workflowsActionType === 'string' && ctx?.marketplace?.get?.(t.type, 'action')))
       .map((t) => t.type))];
     if (unknown.length) {
@@ -3261,15 +3570,38 @@ export function compile(ir, ctx) {
   // meta.stepIndexCounter {send_outbound_whatsapp_message: 1} — the same counter recorded
   // twice, running on the step and tallied at workflow level. That type is NOT premium in the
   // catalogue, which is exactly why it took the correct branch and looked fine.
-  const stepIndexCounter = new Map();
+  //
+  // A stored step's stepIndex is kept (W6 item 2): a node that carries `stepIndex` gets that number, and the stored
+  // meta.stepIndexCounter (ctx.pins.stepIndexCounter) seeds the tally, so a step added on repair continues past every
+  // index the workflow ever issued — GHL never reuses one, and {{custom_code.N}} names the step by it.
+  if (ctx.refLog) for (const [r, rid] of refMap) ctx.refLog.set(r, rid);
+  const storedIndex = new Map();
+  // Only a step the stored document holds keeps its index (a copied or added node does not), only while its type is the
+  // stored type, and only once per type — a duplicate is renumbered (final review W6b).
+  const storedOrder = new Set(stored?.order ?? []);
+  walkNodes(norm.graph, (n) => {
+    if (!Number.isInteger(n.stepIndex) || n.ref == null || !refMap.has(n.ref)) return;
+    if (stored && !storedOrder.has(n.ref)) return;
+    storedIndex.set(refMap.get(n.ref), { index: n.stepIndex, ref: n.ref });
+  });
+  const usedIndex = new Map();
+  const stepIndexCounter = new Map(Object.entries((ctx.pinIds && ctx.pins?.stepIndexCounter) || stored?.pins?.stepIndexCounter || {}));
   for (const t of templates) {
     const meta = ctx.catalog.step(t.type);
     if (meta && meta.situational?.includes('workflowsActionType') && !('workflowsActionType' in t))
       t.workflowsActionType = 'INTERNAL';
-    if (t.stepIndex === null || (requiresStepIndex(t) && !('stepIndex' in t))) {
+    const kept = storedIndex.get(t.id);
+    if (!usedIndex.has(t.type)) usedIndex.set(t.type, new Set());
+    const used = usedIndex.get(t.type);
+    if (kept && (!stored?.types?.[kept.ref] || stored.types[kept.ref] === t.type) && !used.has(kept.index)) {
+      t.stepIndex = kept.index;
+      used.add(kept.index);
+      stepIndexCounter.set(t.type, Math.max(stepIndexCounter.get(t.type) ?? 0, t.stepIndex));
+    } else if (t.stepIndex === null || (requiresStepIndex(t) && !('stepIndex' in t))) {
       const next = (stepIndexCounter.get(t.type) ?? 0) + 1;
       stepIndexCounter.set(t.type, next);
       t.stepIndex = next;
+      used.add(next);
     }
   }
 
@@ -3362,16 +3694,21 @@ export function compile(ir, ctx) {
   // A goto that closes a cycle gets the WORKFLOW stamped loopIdentified by GHL's backend and
   // demoted to draft — for a published client flow that means it silently stops running. Refuse
   // it at author time rather than shipping a workflow the platform will lock. See goto-loops.mjs.
-  const loops = gotoLoops(templates);
+  // A loop the stored document already holds (stored.accepted.gotoLoops, the exact goto -> target pair) warns
+  // instead: GHL accepted it once, and refusing would make the workflow unrepairable. A changed target is new.
+  const acceptedLoops = new Set((stored?.accepted?.gotoLoops ?? []).map((k) => k.split('>').map((x) => idMap?.get(x) ?? x).join('>')));
+  const allLoops = gotoLoops([...templates, ...frozenT]);
+  for (const l of allLoops.filter((x) => acceptedLoops.has(`${x.id}>${x.target}`)))
+    ctx?.warn?.(`GOTO_LOOP_STORED: goto '${l.name ?? l.id}' -> '${l.targetName ?? l.target}' closes a loop the stored workflow already holds; kept as stored.`);
+  const loops = allLoops.filter((x) => !acceptedLoops.has(`${x.id}>${x.target}`));
   if (loops.length) {
-    throw new IRError('GOTO_LOOP',
+    throw Object.assign(new IRError('GOTO_LOOP',
       `GOTO_LOOP: ${loops.length} goto step(s) jump BACKWARD to a step that can reach them again: `
       + loops.map((l) => `'${l.name ?? l.id}' -> '${l.targetName ?? l.target}'`).join('; ')
       + '. GHL detects the cycle server-side, marks the node "Loop Locked", stamps the workflow '
       + 'loopIdentified and forces its status to draft — a published workflow silently stops. '
-      + 'Loops are not a legal flow shape here: restructure so the goto points forward. GHL\'s dedicated '
-      + '`loop` step repeats steps properly, but the engine does not author it (the builder offers Loop only on '
-      + 'allowlisted locations) — add it in the builder where it is offered.');
+      + 'Loops are not a legal flow shape here: restructure so the goto points forward. To repeat steps, use a '
+      + 'loop step (kind loop, with its steps under `body`) instead of a goto.'), { loops });
   }
   // custom_code needs a SERVER test run before the builder accepts it: the drawer's Save requires
   // attributes.output to be the non-empty object returned by POST /custom-code/run-test, and editing
@@ -3433,7 +3770,7 @@ export function compile(ir, ctx) {
   // Same chokepoint, third class: every intra-workflow step reference must resolve. The goto
   // emit above already throws with the authored ref name; this sweep catches every OTHER path
   // (wait reply/emailEventSteps/appointmentSpecificStep, workflow_goal ids, edit-composed graphs).
-  checkStepRefs(templates, IRError, [...(ctx.externalRefs?.ids ?? [])]);
+  checkStepRefs([...templates, ...frozenT], IRError, [...(ctx.externalRefs?.ids ?? []), ...detachedIds]);
 
   // Terminals ship with no `next` key. The graph keeps `next: null` internally because the
   // flattener and every edit op above read it as "end of chain"; it is stripped here, once,
@@ -3462,6 +3799,12 @@ export function compile(ir, ctx) {
   // the copy that reaches the wire.
   const _templates = templates;
   autoSaveBody.workflowData.templates = stripNullNext(templates);
+  // The stored layer goes on last, after every pass: frozen and detached steps are GHL's own stored form and are not
+  // re-normalised, and the residual restores what the compiler does not reproduce (stored.mjs).
+  if (stored) {
+    autoSaveBody.workflowData.templates = overlayStored(autoSaveBody.workflowData.templates, stored, { frozen: frozenT, idMap });
+    autoSaveBody.createdSteps = autoSaveBody.workflowData.templates.map((t) => t.id);
+  }
 
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, _triggerRefs: triggerRefs, authored, compiled: templates.length };
   casingLint(result);

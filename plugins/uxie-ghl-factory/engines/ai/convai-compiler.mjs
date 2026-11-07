@@ -4,7 +4,7 @@
 // (the 6 additional action types) for the ground truth this traces to. This module
 // produces request DESCRIPTORS ({method, path, body}) — it never makes a live call.
 // Auth uses the gateway's `ai` rail: Bearer JWT and Firebase token-id together.
-import { parseConvaiIR, parseConvaiPartialIR, IRError } from './convai-ir.mjs';
+import { parseConvaiIR, parseConvaiPartialIR, IRError, checkRichElementSettings } from './convai-ir.mjs';
 
 const PROMPT_KEYS = ['goal', 'personality', 'instructions'];
 const nonEmpty = (v) => typeof v === 'string' && v.trim() !== '';
@@ -128,7 +128,18 @@ const CREATE_ELSEWHERE = {
   botInitialMessage: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
   skipIfAlreadyFilled: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
   notificationSettings: 'form bots (FORM_BASED_BOT) are not built by this tool: raw_request with the Guided Form Setup body',
+  outboundOpeningMessage: 'set it after create with update_convai_agent (the outbound opener)',
+  outboundDisclaimer: 'set it after create with update_convai_agent (the outbound AI disclaimer)',
+  richElementSettings: 'set it after create with update_convai_agent (prompt bots only)',
 };
+
+// FLOW_BUILDER_BOT_V2 (W5a Decision 8, review REV-I6). A V2 agent is an employee record PLUS an agent-studio agent and
+// version holding its graph; the editor makes all three, and its graph saves are a whole-graph PATCH no tool writes.
+const V2 = 'FLOW_BUILDER_BOT_V2';
+const V2_EDITOR = 'Build and edit V2 flow agents in the Conversation AI editor (Flow Builder V2): the agent\'s logic, name, '
+  + 'mode, channels and prompt live on its agent-studio agent and version, which this tool does not write.';
+// The V2 editor's only employee write (ui-capture-10-flowv2.json): PUT {locationId, cancelEnabled, rescheduleEnabled}.
+const V2_KEYS = ['cancelEnabled', 'rescheduleEnabled'];
 
 // Email-channel settings AT CREATE — the current builder's own create body carries them whenever `channels` includes
 // "Email" (agentBuilderApp AB/853927@544724 deletes them otherwise), and the server stores them from the create
@@ -531,6 +542,10 @@ export function uiSaveViolations(body, botType) {
 const FATAL_FOR_FLOW_BOT = new Set(['toneEmpty', 'errorMaxTones', 'selectChannel']);
 
 export function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
+  if (ir?.botType === V2) {
+    throw new IRError('V2_CREATE_UNSUPPORTED', `create_convai_agent does not create ${V2} agents: GHL makes one as an employee `
+      + `plus an agent-studio agent and version (two creates), and only the editor's create was captured. ${V2_EDITOR} Nothing was sent.`);
+  }
   refuseUnappliedCreateKeys(ir);
   checkEmailCreate(ir);
   const norm = parseConvaiIR(ir);
@@ -629,14 +644,19 @@ const UPDATE_FIELD_MAP = {
   llm: 'llm',
   responseLength: 'responseLength',
   aiResponseLengthEnabled: 'aiResponseLengthEnabled',
+  // The 2026-10 wave (W5a): each object sent whole as authored (checks in convai-ir.mjs). richElementSettings is
+  // prompt-bot only, enforced below against the stored bot type.
+  outboundOpeningMessage: 'outboundOpeningMessage',
+  outboundDisclaimer: 'outboundDisclaimer',
+  richElementSettings: 'richElementSettings',
 };
 
-// PUT /ai-employees/employees/:agentId — this is a PARTIAL-BODY PUT. Whether the backend merges
-// is NOT proven: the one capture behind the old "MERGES" claim (convai-kb.json) had
-// cancelEnabled/rescheduleEnabled already false, so a reset-to-false was invisible in it; a live
-// partial PUT on 2026-08-28 did reset both agent-level toggles (F5-04). Until the read-merge-write
-// update lands (Phase-5 plan 3), callers must resend every agent-level field they care about and
-// read the echo back. Only keys present on `partialIr` are emitted; no defaults (unlike create).
+// PUT /ai-employees/employees/:agentId takes a PARTIAL body. Measured 2026-10-30 with the at-risk booleans set AWAY
+// from default first (knowledge sniffs/convai-wave-2026-10-29/live-partial-put-booleans.json): it MERGES on prompt,
+// V1 flow and V2 agents. A reset of cancelEnabled/rescheduleEnabled was reported on 2026-08-28 (F5-04) and did not
+// reproduce; what differed then is not known. compileConvaiUpdate (below) is the bare partial compiler, used only by
+// compileLinkFlowWorkflow; update_convai_agent uses the read-merge-write compileConvaiUpdateFromRecord, which is safe
+// either way. Only keys present on `partialIr` are emitted; no defaults (unlike create).
 // THE UI'S OWN PRE-PUT CLEANUP, ported verbatim from useAIEmployee's `eo`
 // (conversation-ai-2026-08-25/js/ai-employees.9a1987ebd670b158.js):
 //
@@ -670,8 +690,28 @@ const SERVER_KEYS = new Set(['id', '_id', 'dateAdded', 'dateUpdated', 'createdAt
 // id the write rail accepts.
 const EMPTY_OBJECT_REFUSED_KEYS = ['summary', 'emailSettings'];
 
-export function applyBotTypeCleanup(body) {
+// The editor moved to ai/agent-builder (build 872, captured 2026-10-29:
+// analysis/2026-10-29-plugin-improvement-recon/conversation-ai-bundles/bundles/agentBuilderApp-872/
+// static_js_async_agent-builder.b09001e57c95de06.js, the save function `X`). Its cleanup adds three rules
+// before the ones above:
+//   isOutboundEnabled (a LOCATION feature flag, not an agent field) off -> delete outboundOpeningMessage, outboundDisclaimer
+//   not (PROMPT_BASED_BOT and richElementSettings set)                  -> delete richElementSettings
+//   isChannelManagementEnabled off and no "Email" in channels           -> delete emailWaitTime, emailWaitTimeUnit, emailSettings
+// The two flags come from the account, so they are `flags` here. A flag we were not given is UNKNOWN, and its rule
+// is skipped: the old behaviour, not a guess. The editor also blanks personality/goal/instructions on every save;
+// that is NOT ported, because FULLPROMPT_OWNS_PROMPT already governs prompt ownership and blanking a legacy
+// three-field agent is unproven.
+const OUTBOUND_KEYS = ['outboundOpeningMessage', 'outboundDisclaimer'];
+const EMAIL_KEYS = ['emailWaitTime', 'emailWaitTimeUnit', 'emailSettings'];
+
+export function applyBotTypeCleanup(body, flags = {}) {
   const b = { ...body };
+  const { isOutboundEnabled, isChannelManagementEnabled } = flags ?? {};
+  if (isOutboundEnabled === false) for (const k of OUTBOUND_KEYS) delete b[k];
+  if (!(b.botType === 'PROMPT_BASED_BOT' && b.richElementSettings)) delete b.richElementSettings;
+  if (isChannelManagementEnabled === false && !(Array.isArray(b.channels) && b.channels.includes('Email'))) {
+    for (const k of EMAIL_KEYS) delete b[k];
+  }
   if (b.botType !== 'FLOW_BUILDER_BOT') for (const k of FLOW_ONLY_KEYS) delete b[k];
   if (b.botType === 'FORM_BASED_BOT') {
     delete b.personality; delete b.goal;
@@ -687,10 +727,14 @@ export function applyBotTypeCleanup(body) {
   return b;
 }
 
-// READ-MERGE-WRITE. `PUT /ai-employees/employees/:agentId` takes a partial body, and the old
-// claim that it MERGES came from a capture whose at-risk booleans were already false — so a
-// reset could not have been seen. A live partial PUT reset cancelEnabled and rescheduleEnabled
-// (2026-08-28, F5-04). The UI never sends a partial: it PUTs the whole record. So do we.
+// READ-MERGE-WRITE. `PUT /ai-employees/employees/:agentId` takes a partial body. It MERGED on 2026-10-30 with
+// non-default booleans set first (live-partial-put-booleans.json); a reset of cancelEnabled/rescheduleEnabled was
+// reported 2026-08-28 (F5-04) and did not reproduce. The prompt-bot editor PUTs the whole record, and so do we: the
+// read-merge-write is kept because it is safe whichever of the two is true.
+//
+// EXCEPT FLOW_BUILDER_BOT_V2: the only V2 employee write ever captured is the V2 editor's partial
+// {locationId, cancelEnabled, rescheduleEnabled} (ui-capture-10-flowv2.json), and a whole-record PUT on V2 was never
+// measured. So V2 gets exactly that body and nothing else; every other spec key is refused (V2_KEY_REFUSED).
 //
 // `collateralKeys` is every writable key this update does NOT set — the keys the caller must
 // prove unchanged after the write, which is the only way to know a reset did not happen.
@@ -698,10 +742,16 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
   if (!agentId) throw new IRError('MISSING_FIELD', 'compileConvaiUpdateFromRecord requires agentId');
   if (!current || typeof current !== 'object' || Array.isArray(current)) {
     throw new IRError('SCHEMA',
-      'compileConvaiUpdateFromRecord requires the CURRENT record — GET it first. A partial PUT '
-      + 'resets omitted agent-level booleans (measured live 2026-08-28).');
+      'compileConvaiUpdateFromRecord requires the CURRENT record — GET it first. The update is a read-merge-write: '
+      + 'a partial PUT merged on 2026-10-30, but a reset of omitted booleans was reported on 2026-08-28.');
+  }
+  if (current.botType === V2) return compileV2Update(current, partialIr, { agentId, locationId });
+  if (partialIr?.botType === V2) {
+    throw new IRError('V2_CREATE_UNSUPPORTED', `an agent cannot be turned into a ${V2} agent here: a V2 agent is an employee plus `
+      + `an agent-studio agent and version. ${V2_EDITOR} Nothing was sent.`);
   }
   const norm = parseConvaiPartialIR(partialIr);
+  checkRichElementSettings(norm.richElementSettings, { botType: norm.botType ?? current.botType ?? 'PROMPT_BASED_BOT' });
   // THE BUILDER NOW SAVES ONE PROMPT. The current Conversation AI builder writes the prompt as a single
   // `fullPrompt` markdown document ("## Personality … ## Goal … ## Instructions …") and sends the three
   // fields as "". Live on the designated test sub-account 2026-09-29: once `fullPrompt` is stored the
@@ -844,6 +894,29 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
     // Which field the bot answers from after this write: fullPrompt once one is stored, else the three fields.
     promptOwner: nonEmpty(cleaned.fullPrompt) ? 'fullPrompt' : 'fields',
   };
+}
+
+// The V2 editor's own employee write, and nothing else (see compileConvaiUpdateFromRecord's header). A switch the spec
+// does not name goes with its stored value, as the editor sends both switches' state on every save; one never stored
+// goes as false, the state the editor's switch shows for it.
+function compileV2Update(current, partialIr, { agentId, locationId }) {
+  const keys = Object.keys(partialIr ?? {});
+  const refused = keys.filter((k) => !V2_KEYS.includes(k));
+  if (refused.length || !keys.length) {
+    throw new IRError('V2_KEY_REFUSED',
+      `this agent is ${V2}, and update_convai_agent writes only ${V2_KEYS.join(' and ')} on it (the V2 editor's own partial `
+      + `PUT, the one V2 employee write that was captured). ${refused.length ? `Refused: [${refused.join(', ')}]. ` : 'The spec names neither. '}`
+      + `${V2_EDITOR} A rename touches three records. Nothing was sent.`);
+  }
+  for (const k of V2_KEYS) {
+    if (partialIr[k] !== undefined && typeof partialIr[k] !== 'boolean') throw new IRError('SCHEMA', `${k} must be a boolean. Nothing was sent.`);
+  }
+  const body = { locationId: locationId ?? current.locationId };
+  for (const k of V2_KEYS) body[k] = partialIr[k] !== undefined ? partialIr[k] : current[k] === true;
+  const setKeys = new Set(['locationId', ...keys]);
+  const collateralKeys = Object.keys(current).filter((k) => !SERVER_KEYS.has(k) && !setKeys.has(k));
+  return { method: 'PUT', path: `/ai-employees/employees/${agentId}`, body, authHeader: AUTH_HEADER, collateralKeys,
+    writeOnlyKeys: [], promptOwner: null, partialV2: true };
 }
 
 export function compileConvaiUpdate(partialIr, { agentId, locationId } = {}) {

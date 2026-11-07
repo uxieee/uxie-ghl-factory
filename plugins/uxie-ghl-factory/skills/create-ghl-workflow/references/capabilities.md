@@ -4,7 +4,7 @@
 > Regenerate: `node scripts/query-catalog-cli.mjs --md > references/capabilities.md`
 > Look one type up (full shape card): `node scripts/query-catalog-cli.mjs <term>`
 
-**400 step types / 216 trigger types.** This index — not your recall of "what GHL supports" — is the capability truth. NEVER tell the user a step or trigger "isn't supported", and never substitute a webhook/custom-code workaround for a native action, without searching here first.
+**401 step types / 216 trigger types.** This index — not your recall of "what GHL supports" — is the capability truth. NEVER tell the user a step or trigger "isn't supported", and never substitute a webhook/custom-code workaround for a native action, without searching here first.
 
 **Native switch-off (actions):** set IR `disabled: true` to emit top-level `advanceCanvasMeta.isDisabled: true`, the same flag as GHL's ⏸ button. It keeps the step config, and at runtime the action is skipped (log status `skipped`, "This Action is disabled."). 🔴 **A disabled WAIT still waits**: GHL stores the flag and ignores it. The ⏸ button is not offered on wait, goto, drip, goal, loop, condition roots and multi-path containers, but the advanced canvas's ⇧D DOES disable a goto and a single-path wait (live 2026-09-29; ⇧E is the re-enable key). To take a wait out, delete it.
 
@@ -35,7 +35,6 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ◐ `messenger` — attrs: `body`, `template_id`, `attachments`, `urlAttachments`, `to`, `testPhones`, `userType`, `selectedUser`, `assignedUser`, `standardAssignedUser`, `customAssignedUser`, `assignedOwners` +2 more (see card)
 - ◐ `respond_on_comment`
 - ✅ `review_request` — attrs: `type`, `review_type`, `overrideReviewLink`
-- ✅ `slack_message` — attrs: `action`, `integration`, `channel`, `text`, `type`, `userSource`; premium
 - ✅ `sms` — attrs: `body`, `attachments`, `template_id`, `urlAttachments`, `to`, `testPhones`, `userType`, `selectedUser`, `assignedUser`, `standardAssignedUser`, `customAssignedUser`, `assignedOwners` +2 more (see card)
 - ✅ `voice_ai_outbound_call` — attrs: `agentId`, `fromPhoneNumber`, `outboundGuidelines`, `type`, `__customInputs__`. live-verified 2026-07-11 (Client Clinic / GROM); needs outbound-enabled + KYC location to publish
 - ✅ `voicemail` — attrs: `attachment`
@@ -71,6 +70,9 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `chatgpt` — attrs: `type`, `apiKey`, `event`, `model`, `temperature`, `promptText`, `actionType`, `actionParams`, `memoryKey`, `excludeFromHistory`, `excludeInstructionsFromHistory`, `instructions`; premium
 - ◐ `workflow_ai_generate_image` — attrs: `model`, `prompt`, `additionalSettings`, `referenceImages`; premium
 
+### googleSheets
+- ✅ `google_sheets` — attrs: `type`, `action`, `account`, `drive`, `spreadsheet`, `sheet`, `columnRange`, `values`, `sheetHeaders`, `options`, `targetRow`, `rowCount` +3 more (see card); premium. GHL refuses to save (hasErrors) unless `action.id`, `account.id` (the Google connection: its altId or id from GET /integrations/google/connections), `drive.id`, `spreadsheet.id` and `sheet.id` are all set; the engine refuses the same. Per action: create/update rows (and createOnEmptyLookup) need `columnRange` [from, to] and at least one non-empty `values`; update/delete/format/remove need `targetRow` (format_row and remove_row take a row spec `2, 4-6`, which must include a data row above 1); lookup_multiple_rows needs `rowCount`; lookup_row / lookup_multiple_rows need `lookupColumns.main {column, value}` (an `extra` pair must name a different column); format_row needs `formatting` with at least one of backgroundColor / textColor (hex, merge tag or theme token) / bold / italic / strikethrough / fontSize (whole number 1-400). `*_from_lookup` actions take `lookupStep` {label, value, id, stepIndex} naming an earlier lookup_row and copy its account/drive/spreadsheet/sheet. Outputs: `{{sheet.N.<column letter>}}` and `{{sheet.N.rowNumber}}` from lookup_row #N; `{{sheet.N.rowCount}}` and `{{sheetLookupResult.N.result}}` from lookup_multiple_rows #N. The Google account must be connected in the sub-account first; the engine cannot connect one.
+
 ### internal
 - ✅ `add_to_workflow` — attrs: `input_trigger_params`, `type`, `workflow_id`
 - ◐ `array_functions` — attrs: `name`, `action`, `referenceObject`, `referenceMappings`, `referencePath`, `format_as_text`, `selectedArray`
@@ -80,14 +82,15 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `event_start_date` — attrs: `type`, `event_start_type`, `value`, `recurring_type`, `recurring_time`
 - ✅ `goto` — attrs: `targetNodeId`, `type`, `loopIdentified`
 - ✅ `if_else` — attrs: `else`; container → IR kind `if_else`
-- ◐ `loop`. ⛔ **NOT authored** — refused with LOOP_NOT_AUTHORED. GHL stores the body as steps tagged parentContainerId, from the loop's next to attributes.exitNext, and offers Loop only on allowlisted locations (isLoopActionEnabled). Add the loop in the builder where it is offered; edits carry an existing loop as stored.
+- ◐ `loop`. Authored as a Loop: `loopOver` is `list` (with `items` as ONE {{expression}} that resolves to a list) or `range` (`startNumber`..`endNumber`, at most 500 numbers, `{{loopCounter}}` only in range). The steps to repeat go under `body`. Inside a body: no nested loop, goto, goal or remove-from-workflow, no appointment, booking, reply or condition wait. The loop offers Loop on the accounts the builder enables it for; the engine writes the stored shape.
 - ✅ `math_operation` — attrs: `selectField`, `selectFieldtype`, `sourceCustomValueId`, `updateField`, `updateFieldType`, `targetCustomValueId`, `operators`, `operator`, `value`
 - ◐ `number_formatter` — attrs: `action`
 - ✅ `remove_from_workflow` — attrs: `type`, `workflow_id`, `includeCurrent`, `allWorkflows`
-- ◐ `router`. ⛔ **NOT authored** — refused with ROUTER_NOT_AUTHORED. GHL stores a router as a condition-node root plus one template per lane, and offers it only on allowlisted locations (IS_ROUTER_ACTION_SHIPPED false). Use `if_else`, or add the Router in the builder where it is offered; edits carry an existing router as stored.
+- ◐ `router`. Authored as a Router: give it `branches` (up to 10, one fallback at most, no always-run beside a fallback), each custom branch with one complete condition, and the steps of each branch under `then`. A goto or a goal cannot sit in a branch. Routers may nest up to 10 deep. The builder offers Router on the account it is enabled for; the engine writes the stored shape.
 - ✅ `text_formatter` — attrs: `type`, `extras`, `formatterType`, `field`; premium
 - ◐ `update_custom_value` — attrs: `name`, `custom_value_id`, `current_value`, `new_value`
 - ✅ `wait` — attrs: `type`, `startAfter`, `window`, `condition`, `appointmentStartAfter`, `appointmentCondition`, `appointmentSpecificStep`, `reply`, `replyLabel`, `emailEventSteps`, `emailEventStepsLabel`, `emailEventTypes` +45 more (see card)
+- ✅ `workflow_ab_test` — attrs: `name`, `cat`, `transitions`, `type`, `paths`, `extras`; container → IR kind `workflow_ab_test`; premium
 - ✅ `workflow_goal` — attrs: `op`, `segments`, `type`, `action`
 - ✅ `workflow_split` — attrs: `name`, `cat`, `transitions`, `type`, `paths`, `condition`, `extras`, `distributionType`; container → IR kind `split`
 
@@ -144,18 +147,23 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### send_data
 - ✅ `custom_webhook` — attrs: `event`, `method`, `url`, `body`, `headers`, `parameters`, `authorization`, `saveResponse`, `webhookResponse`, `runSingleAction`; premium
-- ✅ `google_sheets` — attrs: `type`, `action`, `account`, `drive`, `spreadsheet`, `sheet`, `columnRange`, `values`, `sheetHeaders`, `options`, `targetRow`, `rowCount` +3 more (see card); premium. GHL refuses to save (hasErrors) unless `action.id`, `account.id` (the Google connection: its altId or id from GET /integrations/google/connections), `drive.id`, `spreadsheet.id` and `sheet.id` are all set; the engine refuses the same. Per action: create/update rows (and createOnEmptyLookup) need `columnRange` [from, to] and at least one non-empty `values`; update/delete/format/remove need `targetRow` (format_row and remove_row take a row spec `2, 4-6`, which must include a data row above 1); lookup_multiple_rows needs `rowCount`; lookup_row / lookup_multiple_rows need `lookupColumns.main {column, value}` (an `extra` pair must name a different column); format_row needs `formatting` with at least one of backgroundColor / textColor (hex, merge tag or theme token) / bold / italic / strikethrough / fontSize (whole number 1-400). `*_from_lookup` actions take `lookupStep` {label, value, id, stepIndex} naming an earlier lookup_row and copy its account/drive/spreadsheet/sheet. Outputs: `{{sheet.N.<column letter>}}` and `{{sheet.N.rowNumber}}` from lookup_row #N; `{{sheet.N.rowCount}}` and `{{sheetLookupResult.N.result}}` from lookup_multiple_rows #N. The Google account must be connected in the sub-account first; the engine cannot connect one.
 - ✅ `webhook` — attrs: `method`, `url`, `customData`, `headers`
 
+### slack
+- ✅ `slack_message` — attrs: `action`, `integration`, `channel`, `text`, `type`, `userSource`, `sendAs`, `username`, `icon`, `icon_url`, `icon_emoji`, `thread` +3 more (see card); premium
+
 ### workflow_ai
-- ✅ `ai_agent` — attrs: `prompt`, `structuredResponse`, `model`, `tools`, `outputFormat`, `outputDescription`, `memoryEnabled`, `skills`, `mcpConnections`, `templateId`, `disableToolOutputGuards`; premium. `skills: [{id, name}]` attaches Skills: at most 10 per step, a budget separate from tools. `id` is `builtin:<key>` or a skill document id (list them read-only with GET /workflow/agent/{loc}/skills); `name` is display-only. Until 2026-10-25 the builder hides the Skills section on most accounts (a date gate, `isLevelUp2026Enabled`), so an attached skill is stored but a person cannot see it in the drawer, and on the test sub-account the skills service answered 404 to list and resolve (2026-09-29) — a skill may not resolve at runtime before release. `templateId` (an applied agent template), `mcpConnections` (MCP servers, counted with tools against the drawer's 10-tool cap) and `disableToolOutputGuards` are written by the drawer; the engine keeps them on edit and passes them through verbatim, but does not author templates or MCP connections — attach those in the builder.
+- ✅ `ai_agent` — attrs: `prompt`, `structuredResponse`, `model`, `tools`, `outputFormat`, `outputDescription`, `memoryEnabled`, `skills`, `mcpConnections`, `templateId`, `disableToolOutputGuards`, `nativeTools`; premium. The builder turns web search ON by default for steps made in the UI, at about 1¢ per search (1.4¢ on Gemini). The engine's default is OFF: `nativeTools: [{id, toolName, description, attributes}]` is web search, emitted only when the spec asks for it (no key otherwise); `toolName` is `web_search`; an empty list deletes the key. `skills: [{id, name}]` attaches Skills: at most 10 per step, a budget separate from tools. `id` is `builtin:<key>` or a skill document id (list them read-only with GET /workflow/agent/{loc}/skills); `name` is display-only. Before 2026-10-27T16:00Z the engine REFUSES skills (the builder hides the Skills section; a date gate, `isLevelUp2026Enabled`), so an attached skill is stored but a person cannot see it in the drawer, and on the test sub-account the skills service answered 404 to list and resolve (2026-09-29) — a skill may not resolve at runtime before release. `templateId` (an applied agent template), `mcpConnections` (MCP servers, counted with tools against the drawer's 10-tool cap) and `disableToolOutputGuards` are written by the drawer; the engine keeps them on edit and passes them through verbatim, but does not author templates or MCP connections — attach those in the builder.
 
 ## Containers / control flow (IR node kinds)
 
 | IR kind | step type | shape |
 |---|---|---|
 | `if_else` | `if_else` | N≥2 branches, one optional `else: true` |
-| `split` | `workflow_split` | weighted/random branches |
+| `split` | `workflow_split` | up to 10 paths by mode: `even`, `weighted` (weights 0–100, one decimal) or `random`; conditional mode refused (`SPLIT_MODE_UNPROVEN`) |
+| `router` | `router` (condition-node root + branch lanes) | up to 10 branches, at most one fallback, each custom branch one complete condition; no goto or goal inside a branch; nests up to 10 deep |
+| `loop` | `loop` | `loopOver` `list` (one `{{expression}}` that resolves to a list) or `range` (500 numbers at most, `{{loopCounter}}` in range only); steps to repeat under `body`; an empty body is refused when you author it (build, or an edit that adds or empties a loop: `loop-body-empty`); a stored empty loop that the edit does not touch warns |
+| `ab_test` | `workflow_ab_test` | A/B container: 2–10 paths; event goal metric, one of 11 goals (`email_event`, `link_click`, `appointment_status`, `form_submission`, `payment_received`, `invoice_paid`, `review_request_clicked`, `document_status`, `task_status`, `add_contact_tag`, `remove_contact_tag`), each with its reference (e.g. `form_submission` + `formIds`; `email_event` + `stepIds`; `invoice_paid` + `invoiceStepIds` and `invoiceStatuses`); `user_replied` and the contact-condition metric are refused; endCondition `contacts`, `conversions` or `date`; afterEnd `route_to_winner` or `keep_splitting`; paths and metric lock once contacts enter (source-derived) |
 | `ai_decision` | `workflow_ai_decision_maker` | Default + N LLM branches |
 | `ai_intent` | `workflow_ai_intent_detection` | fixed Positive / Negative / None (`branches[].name`), `inputText` |
 | `wait` | `wait` | plain wait, or multipath on outcomes |
@@ -354,7 +362,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ◐ `affiliate_created` (highlevel) — filters: In campaign (`campaign.id`), Has tag (`contact.tags`), Doesn't have tag (`contact.tags`)
 
 ### appointments
-- ✅ `appointment` (highlevel) — filters: In calendar (`calendar.id`), Appointment status is (`appointment.status`), Has tag (`contact.tags`), Event type (`appointment.eventType`), Created by/modified by (`appointment.modifiedBy`)
+- ✅ `appointment` (highlevel) — filters: In calendar (`calendar.id`), Appointment status is (`appointment.statusId`), Appointment status is (`appointment.status`), Has tag (`contact.tags`), Event type (`appointment.eventType`), Created by/modified by (`appointment.modifiedBy`)
 - ✅ `customer_appointment` (highlevel) — filters: In calendar (`calendar.id`), Has tag (`contact.tags`)
 - ▫ `rental_booking` (internal) — filters: Has Tag (`contact.tags`), Created By / Modified By (`modifiedBy`), Booking Status (`status`), In Listing (`listings`), In Rental Categories (`listingCategories`)
 - ▫ `service_booking` (internal) — filters: In Service (`services`), In Service Category (`serviceCategories`), Appointment Status (`status`), Has Tag (`contact.tags`), Created By / Modified By (`modifiedBy`), In Service Locations (`serviceLocations`)

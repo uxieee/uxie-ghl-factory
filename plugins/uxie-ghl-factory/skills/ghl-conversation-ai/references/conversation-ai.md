@@ -1,8 +1,10 @@
 
-> **Scope: the internal rail.** Conversation AI reads and most writes go through the public
-> rail (see `SKILL.md`). The internal endpoints below are what you need for the per-contact AI
-> switch (`/conversations-ai/employeeConfigs`), prompt version history (`oldPromptIds`) and the
-> Agent Deployment routing table (`/agent-deployment/routing-config/configs`).
+> **Scope: the internal rail.** Conversation AI is listed and configured on the internal rail (see `SKILL.md` → Rail
+> routing): the public search leaves out flow-builder bots, and the per-contact AI switch
+> (`/conversations-ai/employeeConfigs`), prompt version history (`oldPromptIds`), the Agent Deployment routing table
+> (`/agent-deployment/routing-config/configs`), outbound configs and triggers, AI Campaigns, models beyond GPT, rich
+> elements, MCP servers, Build with AI and the new test panel exist only here. Outbound and campaigns:
+> `outbound-and-campaigns.md`.
 
 # Conversation AI (chat "AI Employee")
 
@@ -30,14 +32,14 @@ into three parts, not a tool-calling system prompt.
 | Operation | Method | Path |
 |---|---|---|
 | Create agent | `POST` | `/ai-employees/employees` |
-| Update agent (PUT — replace-what-you-omit for booleans, see "Update-PUT semantics") | `PUT` | `/ai-employees/employees/:agentId` |
+| Update agent (PUT — a partial body merges, live 2026-10-30; see "Update-PUT semantics") | `PUT` | `/ai-employees/employees/:agentId` |
 | Get agent | `GET` | `/ai-employees/employees/:agentId` |
 | List / search agents | `GET` | `/ai-employees/employees/search` · `/ai-employees/employees/dashboard/search` |
 | Delete agent | `DELETE` | `/ai-employees/employees/:agentId` |
 | Create action | `POST` | `/ai-employees/actions` |
 | Search actions | `GET` | `/ai-employees/actions/search?employeeId=…` |
 | List knowledge bases | `GET` | `/knowledge-base/all?locationId=…` |
-| Default KB (idempotent get-or-create) | `POST` | `/knowledge-base/default` (`{locationId, migrateDocs:true}`) |
+| Default KB (get-or-create; the Conversation AI dashboard fires it on every visit, 2026-10-29) | `POST` | `/knowledge-base/default` (`{locationId, migrateDocs:true}`) |
 | Default prompt template | `GET` | `/conversations-ai/prompt/default?locationId=…&intentType=…` |
 | Deployment routing rows (one per channel) | `GET` | `/agent-deployment/routing-config/configs?locationId=…&agentId=…` |
 | Update a routing row (the PATCH merges; `set_agent_deployment` sends the full row and verifies the whole table) | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
@@ -51,7 +53,11 @@ into three parts, not a tool-calling system prompt.
 | Dashboard metrics (a read with a body; answers 201) | `POST` | `/ai-employees/employees/:locationId/fetch-dashboard-data` |
 | Conversation table under the dashboard | `GET` | `/ai-employees/employees/:locationId/conversation-logs` |
 | A contact's stored conversation summaries (the table's Summary action; a read, never generates) | `GET` | `/ai-employees/summary/:locationId/contact/:contactId?page=1&limit=100&channelName=…` |
-| Test chat (billed per message) | `POST` | `/ai-employees/interactions/trial` |
+| Test chat, **legacy** trial (billed per message; not in Agent Logs) | `POST` | `/ai-employees/interactions/trial` |
+| Test chat, the editor's current panel (runs on the location's business-email contact) | `POST` | `/ai-employees/employees/:agentId/builder/test` |
+| Build with AI (SSE; saves the agent mid-chat) · its history | `POST` · `GET` | `/ai-employees/employees/builder/build` · `/ai-employees/employees/:agentId/builder/history` |
+| Model roster (`get_ai_agent_options product:"conversation_ai"`) | `GET` | `/ai-employees/employees/models` |
+| Outbound configs and triggers (`set_convai_outbound`) | see `outbound-and-campaigns.md` | `/agent-deployment/outbound-configs` · `/agent-deployment/outbound-triggers` |
 | Reset the test chat (the panel's ↻; no body) | `DELETE` | `/ai-employees/employees/:agentId/reset-memory` |
 | The location prompt for an intent (falls back to the default template) | `GET` | `/conversations-ai/prompt?locationId=…&intentType=…` |
 | Prompt templates | `GET` | `/conversations-ai/prompt/templates?locationId=…&intentType=…` |
@@ -94,10 +100,15 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   `FULLPROMPT_OWNS_PROMPT` before any write, returning `currentFullPrompt`. What `fullPrompt: ""` does is not measured,
   so the tool never writes an empty one. The header's token estimate and the `n/2000 words left` counter are computed
   in the browser from `fullPrompt` (no request fires while typing), and the counter shows words USED.
-- `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT` | `FORM_BASED_BOT`** (three, per the bundle's own enum; `convai-ir.mjs` `BOT_TYPES`). The prompt bot is the
-  three-part-prompt agent above; the flow bot's logic is a **workflow** (see "Flow-Based
-  Builder" below). Both are buildable via the engine (`convai-ir.mjs` `BOT_TYPES`).
-  - **The editor's Create Agent offers only Prompt Based and Flow Based** (2026-09-28). A **form bot**
+- `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT` | `FLOW_BUILDER_BOT_V2` | `FORM_BASED_BOT`**
+  (`FLOW_BUILDER_BOT_V2` proven live 2026-10-29; `convai-ir.mjs` `BOT_TYPES`). The prompt bot is the
+  three-part-prompt agent above; a V1 flow bot's logic is a **workflow** (see "Flow-Based
+  Builder" below); a V2 flow agent's logic is an Agent Studio graph (see "V2 flow agents" below). The prompt bot and
+  the V1 flow bot are buildable via the engine; V2 is refused at create (`V2_CREATE_UNSUPPORTED`).
+  - **Create Agent's doors.** On 2026-09-28 the editor offered Prompt Based and Flow Based. On 2026-10-29, with the
+    Build-with-AI and flow-builder-V2 Labs on, it also leads to **Create with AI** (`/conversation-ai/builder`: a
+    description box, sample prompts and nine templates tagged In or Out), and its Flow Based card creates a **V2**
+    flow agent. A **form bot**
     ("Guided Form Setup") is API-only for new agents. It needs a `brandId` (a brand-voice record,
     `POST /brand-boards/voices/`; the server says "Brand ID is required for Form Based Bot"), refuses `goal`,
     `personality` and `instructions`, and gets instructions written by the server. Its editor collects Name,
@@ -157,10 +168,27 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   create. `create_convai_agent` takes them (Email in channels required; the editor's ranges 1–21600 s / 1–360 m /
   1–6 h). The design template is a separate call, `POST backend…/email-ai/chat/create-template {locationId,
   sourceType:"conversation-ai"}`, whose `templateId` then goes in by PUT (not written by the tools).
-- `llm{primary, secondary}` — model selection. The server's enum is GHL's current model roster (15 GPT ids on
-  2026-09-26, 14 on 2026-09-29; `GET /ai-employees/employees/models` serves it, read it with
-  `get_ai_agent_options product:"conversation_ai"` — prices, default, deprecations) and its 422 lists the valid ids. Primary and
-  secondary cannot be the same model (server-enforced). Settable on create and update.
+- `llm{primary, secondary}` — model selection from GHL's server-driven roster (`GET /ai-employees/employees/models`;
+  read it with `get_ai_agent_options product:"conversation_ai"` — provider, cost tier, prices, default, `deprecation`).
+  On 2026-10-29 it held **22 models from three providers**: 15 OpenAI (`gpt-4.1` default and recommended), Anthropic
+  `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`, `claude-haiku-4-5-20251001`, and Google
+  `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.5-flash-lite` (`live-llm-provider-differential.json`). A Claude
+  primary with a Gemini secondary was written, read back, and the Claude model ran at runtime (the Agent Logs trace
+  named it, `live-claude-runtime-L2b.json`). Primary and secondary cannot be the same model (server-enforced); whether
+  the secondary must come from another provider, and whether an off-roster id is refused, were not measured. 🔴
+  `gpt-5` and `gpt-5-mini` carry `deprecation {replacement: "gpt-4.1" | "gpt-4.1-mini", effectiveAt:
+  "2026-10-30T23:59:59.999Z"}`; whether agents left on them are migrated automatically is open. The Lab
+  `conversationsAI.provider` gated neither the roster nor the write. Settable on create and update. An agent created
+  over the API may have no `llm.secondary`; the first UI save writes one.
+- `outboundOpeningMessage {mode: "ai_generated" | "static", body}` and `outboundDisclaimer {enabled, style: "concise" |
+  "custom", customText}` — the outbound opener and its disclaimer (`outbound-and-campaigns.md`). Settable on update
+  (sent whole); the tool checks a static body is present and ≤ 200 words, and that `custom` has `customText`. 🔴 Any UI
+  save stamps the defaults (`ai_generated`, `concise`) onto an agent that never stored them; an API-created agent has
+  neither until then. An `ai_generated` opener runs the primary model on every send.
+- `richElementSettings {enabled, customRulesOnly, elements{…}, customInstructions[]}` — rich replies, **prompt bots
+  only** (one-way Lab `conversationsAI.richElement`). Settable on update (sent whole). The server adds `carousel:
+  {enabled:false}` and mints an `id` for every rule sent without one — and re-mints it on a later save, so never key on
+  a rule id. Per-channel rendering is in `SKILL.md` → "The 2026-09/10 wave".
 - `businessName` — settable on create and update. `""` answers 200 and does NOT clear a stored name, so the tools
   refuse an empty value.
 - `respondToImages`, `respondToAudio`, `isObjectiveBuilderEnabled` — secondary knobs, pass through as given.
@@ -217,14 +245,20 @@ until this plugin drives the behaviour itself.
 
 ## Update-PUT semantics
 
-`PUT /ai-employees/employees/:agentId` accepts a partial body, and the old claim that it
-**merges** was drawn from a capture where the fields at risk were already `false` — so a
-reset-to-false could not have been seen. A live partial PUT carrying only `knowledgeBaseIds` +
-`knowledgeBaseTriggers` reset the agent-level `cancelEnabled` and `rescheduleEnabled` to `false`
-(2026-08-28). Treat the PUT as **replace-what-you-omit for booleans** until a differential at
-non-default values says otherwise: send every agent-level field you care about (`cancelEnabled`,
-`rescheduleEnabled`, `tones`, `sleepOnManualMessage`, `summary`, `actions`) on EVERY PUT, and read
-the record back. The UI itself never sends a partial PUT — it PUTs the whole state.
+`PUT /ai-employees/employees/:agentId` accepts a partial body, and **a partial body MERGES** (live 2026-10-30,
+`live-partial-put-booleans.json`): on a V1 flow bot, a prompt bot and a V2 flow agent, booleans first set away from their
+defaults (`cancelEnabled`, `rescheduleEnabled`, `respondToImages`, `sleepEnabled`) survived a PUT of
+`{locationId, autoPilotMaxMessages}` and nothing else moved. On the V1 flow bot that was a whole-record diff of two
+separate GETs; on the prompt bot and the V2 agent it was read from the PUT responses, and separate GETs of the V2 agent's
+Agent Studio agent and version showed them untouched. A two-key `{mode, locationId}` PUT likewise changed only `mode`
+(2026-10-29).
+
+A reset of omitted booleans was recorded on 2026-08-28 (a partial PUT of `knowledgeBaseIds` + `knowledgeBaseTriggers`
+read back `cancelEnabled` / `rescheduleEnabled` false) and did not reproduce; what differed then is not known. So
+`update_convai_agent` still reads the whole record, merges, PUTs it whole, and diffs every field it did not set
+(`AGENT_COLLATERAL_CHANGED` on any drift). The UIs differ: the prompt-bot editor PUTs the whole record on every save,
+and the V2 flow editor sends only `{locationId, cancelEnabled, rescheduleEnabled}`. On a V2 agent the tool sends exactly
+that two-key body.
 
 `convai-ir.mjs` reflects this with two parse functions:
 - `parseConvaiIR(ir)` — full validation for create. Requires `name`, `mode` (enum), `channels`
@@ -252,7 +286,9 @@ previously mute widget ~38 s later. Corpus:
 listing SMS · WhatsApp · Instagram · Facebook · TikTok · Live chat · Chat widget · Email, each with Configure, plus
 "Add channels from marketplace" (rendered 2026-09-28). Each Configure modal offers the identifiers (or a fixed "All
 widgets" / "All emails"), **Has tags** and **Doesn't have tags** with AND/OR, Cancel · Update (UI walk 2026-09-29). There
-is no AI simulation tab, no Phone or Voice-widget card and no per-row hours in this build.
+is no AI simulation tab, no Phone or Voice-widget card and no per-row hours in this build. By 2026-10-29 the Deploy tab
+also held **Outbound** (channels & activation, triggers — `outbound-and-campaigns.md`) and **Schedule** (working hours,
+per agent: below). The routing table is the **inbound** half only.
 
 The routing calls are AI-rail. `set_agent_deployment` writes one agent's row (create, or a full-row PATCH) and proves
 the rest of the table unchanged. Reads are `raw_request` with `host:"ai"`: any "is this agent actually live?" audit
@@ -454,9 +490,18 @@ All executed on a test account on 2026-09-26 and read back, unless a line says o
   and it is **billed** (about US$0.02 a message). It reports `actionData` only for **Stop Bot**; phrases that should
   trigger Human Handover, Trigger a Workflow or Contact Info produced no action in the trial. So a trial proves
   the prompt and the knowledge base, not those three actions. The flow-bot editor also warns that its trial "is
-  currently experiencing some issues". The panel's ↻ resets it: `DELETE /ai-employees/employees/{id}/reset-memory`,
+  currently experiencing some issues". The legacy panel's ↻ reset it: `DELETE /ai-employees/employees/{id}/reset-memory`,
   no body → `200 {success: true, message: "No test contact found for this location"}` when no trial contact exists
   (live 2026-09-29).
+  🔴 **This is now the legacy trial** (2026-10-29): it still answers, also with mode `off`, but shows no model and is
+  not in Agent Logs (`live-claude-runtime-L2b.json`). The editor's Test panel ("Try your agent") calls
+  `POST /ai-employees/employees/{agentId}/builder/test {locationId, channel, history, message}` instead — a strict
+  whitelist (`contactId`, `sourceContact` → 422 `property … should not exist`), stateless per call (the client resends
+  `history`), with **Starts with** Inbound or Outbound and **Preview as** Live chat, WhatsApp, Facebook, Instagram or
+  SMS. On a location with no business email it answers **422 `test_contact_unavailable`**: the test runs on the
+  location's business-email contact, a real contact chosen server-side. The success path was never seen, so its
+  response, billing, logging, which actions fire and whether an outbound test sends are all unmeasured
+  (`ui-capture-08-test-panel.json`, corpus `20-api/conversation-ai-builder.md`).
   **Thumbs on a trial reply:** `PUT /ai-employees/interactions/suggestions/{trialReplyId} {locationId, thumbVote:
   "up"|"down", source: "bot_trial"}` → 200 with an empty body. 🔴 **Nothing reads it back.**
   - `GET …/suggestions/{id}` is 404.
@@ -491,7 +536,10 @@ All executed on a test account on 2026-09-26 and read back, unless a line says o
   step becomes a separate `updateContactField` action; the step keeps only its `actionId` (live 2026-09-29). Not
   typed: `create_convai_agent` refuses form-bot keys.
 - **Gates that hide controls:**
-  - the model and cost panel: `conversationsAI.multiLLM` or `tokenBasedPricing`;
+  - the model and cost panel: `conversationsAI.multiLLM` or `tokenBasedPricing` `[source-derived]`; the Claude and
+    Gemini entries sit behind `conversationsAI.provider`, which gated neither the roster read nor the write (2026-10-29);
+  - the 2026-10 wave's Labs: `conversationsAI.outbound` and `.richElement` (one-way), `.chatBuilder`,
+    `.flowBuilderV2`, `aiEmployeeMCPSupport` (reversible) — corpus `40-rules/labs-feature-flags.md`;
   - Summary Settings: `summarySettings`;
   - Images / Voice Notes: a flag-or-beta check;
   - the whole builder shows a premium paywall unless the billing config has `optIn` and the product is available.
@@ -513,8 +561,9 @@ Create is **async**: the response comes back `status: "training"`; poll
 doc as usable. `compileRichTextDelete(id)` handles cleanup (`DELETE
 /knowledge-base/rich-text/:id`).
 
-`POST /knowledge-base/default` is idempotent — call it to get-or-create the account's default
-KB before attaching content, rather than assuming one exists.
+`POST /knowledge-base/default` is a get-or-create — call it to get the account's default
+KB before attaching content, rather than assuming one exists. (The Conversation AI dashboard fires it on every visit,
+2026-10-29, so it is not a signal that anyone touched the KB.)
 
 **Tables (CSV) and Files (PDF/DOC/DOCX/MD)** were uploaded from the editor, trained, read back, retrieved and
 deleted live on 2026-09-28. Both are **multipart** uploads, and a table is a multi-step pipeline (upload →
@@ -526,7 +575,7 @@ record's own lifecycle are in `ghl-knowledge-base/SKILL.md`.
 ## Flow-Based Builder (`FLOW_BUILDER_BOT`)
 
 Reverse-engineered + engine-captured 2026-07-14/15 (was previously "not captured / out of
-scope"). **A flow bot's logic IS a workflow.** Creating a `FLOW_BUILDER_BOT` and opening its
+scope"). **A V1 flow bot's logic IS a workflow** (a V2 flow agent is an Agent Studio graph — see "V2 flow agents" below). Creating a `FLOW_BUILDER_BOT` and opening its
 "Launch/Edit Flow Builder" loads the normal workflow builder at
 `/automation/workflow/{WID}?triggerType=conv_ai_trigger&convTriggerBotId={AGENT_ID}`.
 On a flow bot with NO workflow yet (live 2026-09-29), the button first sends `POST backend /workflow/{locationId}`
@@ -630,6 +679,30 @@ flow workflow = `backend.leadconnectorhq.com/workflow` + **`Authorization: Beare
 - **Read-only keys to strip before any PUT** (the tool does this since 2026-09-02): `employeeType`,
   `errors`, `isDeleted`, `rootParentAgentId`, plus the usual `id`/dates/`traceId`.
 
+## V2 flow agents (`FLOW_BUILDER_BOT_V2`)
+
+Live-proven 2026-10-29/30 on a test sub-account (`ui-capture-10-flowv2.json`, `live-partial-put-booleans.json`; corpus
+`10-anatomy/flow-agent-shape.md` § The Conversation AI door). Behind the Lab `conversationsAI.flowBuilderV2` (reversible,
+`liveAt` 2026-11-27); with it on, Create Agent → Flow Based makes a V2 agent, not a V1 workflow bot.
+
+- **Two records.** An Agent Studio flow agent (`productSlug: "conversation_ai_flow_builder"`; the graph — prompts,
+  model, tools — in a `staging` version) and a Conversation AI employee that points at it (channels, mode, email
+  settings, summary, the cancel/reschedule switches). Create is two writes, the Agent Studio agent first; a failure
+  between them leaves an agent with no employee.
+- **Save = the whole graph plus a two-key employee PUT**: `PATCH /agent-studio/agents/versions/{versionId}` with the
+  whole graph (about 47 KB), then `PUT /ai-employees/employees/{employeeId}` `{locationId, cancelEnabled,
+  rescheduleEnabled}`. That partial PUT merges and leaves the graph alone (2026-10-30).
+- **The name lives in three places** (employee, Agent Studio agent, the version's `versionName`/`flowName`); the
+  rename's own requests were not captured. Rename in the editor.
+- **What it lacks:** mode Off and Auto-pilot only (no Suggestive), no rich elements, no Outbound deploy section, and
+  the AI Agent node's model list is a hard-coded GPT-only list of 19 (no Claude or Gemini, no roster read). No Publish
+  control was found; the version stays `staging`.
+- **The tools:** `create_convai_agent` refuses V2 (`V2_CREATE_UNSUPPORTED`). `update_convai_agent` on a V2 agent only
+  toggles `cancelEnabled` / `rescheduleEnabled`, sending the editor's own two-key body, and refuses `name`, `mode`,
+  `channels`, the prompt, rich elements and the outbound keys before any write. Everything else is edited in the V2
+  editor. The graph itself is the same canvas as Voice AI's Flow Builder (`agent-studio.md`, corpus
+  `10-anatomy/flow-agent-shape.md`).
+
 ## Driving `convai-compiler.mjs`
 
 ```js
@@ -649,7 +722,8 @@ const { create, actions, authHeader } = compileConvaiAgent({
                          triggerCondition: 'Contact explicitly asks for a person, 3+ times, or expresses frustration.' } }],
 }, { locationId });
 
-// Update: a partial body RESETS omitted agent-level booleans (measured) — resend every field you care about.
+// Update: a partial body merged on 2026-10-30 (a 2026-08-28 reset did not reproduce) — update_convai_agent still
+// read-merge-writes the whole record and diffs what it did not set; prefer it over this raw descriptor.
 const upd = compileConvaiUpdate({ mode: 'autoPilot' }, { agentId, locationId });
 
 // Flow-Based Builder (FLOW_BUILDER_BOT) — build the agent + its flow workflow end to end:

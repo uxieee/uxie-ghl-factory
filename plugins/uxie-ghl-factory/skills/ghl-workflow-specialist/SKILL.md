@@ -25,17 +25,29 @@ blueprint → approval → execute → verify). Recon here = read existing workf
 
 ## Execute
 Decide WHAT to build here; delegate HOW to the create-ghl-workflow skill (workflows
-are created in DRAFT only — publish/runtime untested). Read existing workflows with
+are created in DRAFT; publishing is the gated `publish_workflow`, see Scope). Read existing workflows with
 get-ghl-workflow-json. Never hand-roll internal-API calls those skills own; auth
 lives only in ${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md.
+
+**AI Agent steps: ask, don't default** (Xander, 2026-11-06). If the blueprint has an AI Agent step, ask at intake, before the
+blueprint is approved, two questions per step: web search on or off (about 1¢ per search, 1.4¢ on Gemini), and which model. Write the
+answers into the blueprint. On = the step carries `nativeTools` with a `web_search` entry; off = `nativeTools: []`. Do not pick either
+yourself: the engine keeps the current model and emits no web-search key when the spec is silent, and `build_workflow`'s dry run lists
+any unanswered question as `openQuestions`. `gpt-6-luna` is documented, not defaulted.
 
 **Multi-workflow builds:** when two new workflows reference each other (`add_to_workflow`/
 `remove_from_workflow`), create the referenced workflow FIRST, mark the dependent BLOCKED
 until its id exists, and cross-wire in a second pass. `workflow_id` takes a real workflow
-ID, NOT a name — the engine does not resolve it and the validator does not check it exists,
-so a wrong id publishes clean and silently no-ops.
+ID, NOT a name. The engine resolves a workflow NAME to its id for add_to_workflow/remove_from_workflow; an id you pass
+directly is checked by the asset pre-flight (`ASSET_WORKFLOW_NOT_FOUND`). Never skip that pre-flight: a wrong id that gets past it publishes clean and silently no-ops.
+
+## Diagnostics, review and the overlap check
+- **Before a new trigger:** run the trigger-overlap check (`references/diagnostics.md`, "Trigger overlap"). A published workflow on the same trigger type "may also fire": its filters are not evaluated, so it is a candidate to inspect.
+- **Before publishing or after an edit:** `check_workflow`, then the client's lint pack (`.ghl/<locationId>/lint-pack.json`) if there is one. Lint-pack findings are advisory.
+- **Reading a live workflow or its failures:** the read tools in `references/diagnostics.md` (heat map, journeys, history, step counts, A/B stats, test results, error notifications), with their gates and their "absent is not zero" caveats.
+- **Review mode** (the user asks why a workflow is not getting through, is failing, or whether an A/B test is done): `references/review-mode.md`. It reads and proposes; it never edits, publishes, restores, or declares an A/B winner.
 
 ## Scope
 IN: workflow/automation design + build, multi-workflow architecture, debugging
 existing automations. OUT: pipeline structure (use ghl-pipeline-specialist), funnels/
-pages (use ghl-funnels-pages), publishing workflows (untested — refuse and say why).
+pages (use ghl-funnels-pages), publishing a workflow. This skill says whether a workflow should publish and writes that into the blueprint; the publish itself is the create skill's gated `publish_workflow`, and it runs only after the user's explicit yes naming the workflow.

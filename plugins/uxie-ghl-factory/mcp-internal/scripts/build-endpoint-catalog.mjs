@@ -13,9 +13,10 @@
 // The overlay is HAND-MAINTAINED and this script never writes to it. Regeneration therefore cannot
 // erase a summary, a trap or a live reach result -- the failure mode that made an earlier design
 // lose its own findings on every rebuild.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { publicEquivalentFor, railDecisionFor } from './rail-join.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -28,6 +29,16 @@ const outArg = process.argv.indexOf('--out');
 const OUT = outArg >= 0 && process.argv[outArg + 1]
   ? resolve(process.argv[outArg + 1])
   : resolve(ROOT, 'catalog/internal-endpoints.json');
+
+// The public twin and the rail decision per row (W4). Both copies are REQUIRED: a catalogue built without them would
+// silently say "no public twin" for every row, which is the claim they exist to correct.
+const RAIL_LEDGER = resolve(ROOT, 'catalog/rail-ledger.json');
+const PUBLIC_OPS = resolve(ROOT, 'catalog/public-ops.json');
+for (const f of [RAIL_LEDGER, PUBLIC_OPS]) {
+  if (!existsSync(f)) { console.error(`build-endpoint-catalog: ${f} is missing — run \`npm run sync\` at the plugin root (it copies it from knowledge/catalog/)`); process.exit(1); }
+}
+const railLedger = JSON.parse(readFileSync(RAIL_LEDGER, 'utf8'));
+const publicOps = JSON.parse(readFileSync(PUBLIC_OPS, 'utf8')).ops;
 
 const source = JSON.parse(readFileSync(SOURCE, 'utf8'));
 const overlay = JSON.parse(readFileSync(OVERLAY, 'utf8')).rows ?? {};
@@ -296,6 +307,12 @@ for (const row of adopted) {
   row.id = id;
 }
 endpoints.push(...adopted);
+for (const e of endpoints) {
+  const twins = publicEquivalentFor(e, publicOps);
+  if (twins) e.publicEquivalent = twins;
+  const decided = railDecisionFor(e, railLedger);
+  if (decided) e.railDecision = decided;
+}
 endpoints.sort((a, b) => (a.origin + a.path).localeCompare(b.origin + b.path) || a.method.localeCompare(b.method));
 
 for (const key of seen) unmatchedOverlay.push(key);

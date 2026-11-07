@@ -31,20 +31,29 @@
         "commit:afe9223b"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://services.leadconnectorhq.com /conversations-ai/employeeConfigs": "421c71f0fdb2b24bcf4da98c5cb06d8cf2a0962dfc7088ef9970ff637e3a70e6"
     },
     "builds": {
-      "agentLogsApp": 717,
-      "agentStudioApp": 715,
-      "aiEmployeesApp": 2641,
-      "aiGrowthApp": 714,
-      "superagentsApp": 721,
-      "voiceAiApp": 719
+      "agentLogsApp": 868,
+      "agentStudioApp": 868,
+      "aiEmployeesApp": 2919,
+      "aiGrowthApp": 879,
+      "superagentsApp": 868,
+      "voiceAiApp": 867
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_contact_ai_status": "7749e050174e8d1819f6e96d4af61cdc804e23bac4b49a58e1faa12682f3b0b7",

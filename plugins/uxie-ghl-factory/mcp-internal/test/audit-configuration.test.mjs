@@ -117,6 +117,12 @@ const AI_WARNING_CODES = Object.freeze([
   // fault on a given agent, and an auditor acts on them differently.
   'AI_ROUTING_READ_FAILED',
   'AI_ROUTING_UNREADABLE',
+  // The OUTBOUND twins (W5a, contract 1.1.0), for the per-agent outbound configs + triggers
+  // read (Conversation AI only). READ_FAILED is every non-2xx, 404/403 included — the Lab-off
+  // response was never measured, so no "unavailable" grade exists; UNREADABLE is a 200 whose
+  // envelope this rail cannot read.
+  'AI_OUTBOUND_READ_FAILED',
+  'AI_OUTBOUND_UNREADABLE',
   // Added by adversarial review: a detail read was never checked against the id it was issued
   // for, so a response about another agent was published as this one's configuration.
   'AI_DETAIL_IDENTITY_MISMATCH',
@@ -168,10 +174,14 @@ const BUNDLE_RESULT_KEYS = Object.freeze([
 // the same agents detail() does, so there is deliberately NO routing denominator field), an
 // advisory summary of rows pinned to specific identifiers, and the routing twin of
 // `envelopeShape`. All three are `null` on a surface with no declared routing capability.
+// `outboundEnabled`/`outboundArmed`/`outboundUnread` (W5a, contract 1.1.0) are the outbound
+// phase's component FLOORS: agent ids with an enabled outbound config, agent ids proven armed,
+// and agent ids whose arming could not be determined. `null` — never [] — on a surface with no
+// outbound read (Voice AI, Agent Studio).
 const COMPONENT_KEYS = Object.freeze([
   'applicable', 'complete', 'detailDenominator', 'detailsRead', 'envelopeShape', 'errors',
-  'items', 'pages', 'routingEnvelopeShape', 'routingPinned', 'routingRead', 'sourceRoutes',
-  'totalHistory',
+  'items', 'outboundArmed', 'outboundEnabled', 'outboundUnread', 'pages',
+  'routingEnvelopeShape', 'routingPinned', 'routingRead', 'sourceRoutes', 'totalHistory',
 ]);
 
 // --- fixtures -------------------------------------------------------------------
@@ -407,10 +417,16 @@ const AI_DETAIL_OF = Object.freeze({
 const AI_ROUTING_OF = Object.freeze({
   conversation_ai: 'conversation_ai_deployment_routing',
 });
+// The outbound pair (W5a): configs then triggers, per Conversation AI agent.
+const AI_OUTBOUND_OF = Object.freeze({
+  conversation_ai_outbound_configs: { component: 'conversation_ai', half: 'configs' },
+  conversation_ai_outbound_triggers: { component: 'conversation_ai', half: 'triggers' },
+});
 const COMPONENT_OF_CAPABILITY = Object.freeze(Object.fromEntries([
   ...Object.entries(AI_DISCOVERY_OF).map(([component, id]) => [id, component]),
   ...Object.entries(AI_DETAIL_OF).map(([component, id]) => [id, component]),
   ...Object.entries(AI_ROUTING_OF).map(([component, id]) => [id, component]),
+  ...Object.entries(AI_OUTBOUND_OF).map(([id, { component }]) => [id, component]),
 ]));
 
 function makeAiGateway(spec, { locationId = LOC } = {}) {
@@ -486,6 +502,23 @@ function makeAiGateway(spec, { locationId = LOC } = {}) {
     return { json: [], override: {} };
   };
 
+  // Outbound bodies (W5a), keyed by agent id then by half:
+  // `outbound: { '<agentId>': { configs: {body|gateway}, triggers: {body|gateway} } }`.
+  // The DEFAULT is the live-observed EMPTY envelope (`{configs:[], traceId}` /
+  // `{triggers:[], traceId}`, captured on a location with the outbound Lab on) — a terminal,
+  // schema-valid read that says "no outbound config / no trigger", so every pre-existing
+  // scenario keeps its completeness verdict. `outboundDefault` fails every outbound read on a
+  // component without naming ids one by one.
+  const outboundBody = (component, half, typedBindings) => {
+    const id = String(typedBindings.agentId);
+    const declared = components[component] ?? {};
+    const entry = ((declared.outbound ?? {})[id] ?? {})[half];
+    if (entry && Object.hasOwn(entry, 'body')) return { json: entry.body, override: entry.gateway ?? {} };
+    if (entry?.gateway) return { json: null, override: entry.gateway };
+    if (declared.outboundDefault) return { json: null, override: declared.outboundDefault };
+    return { json: { [half]: [], traceId: 'trace_default' }, override: {} };
+  };
+
   return {
     locationId,
     calls,
@@ -500,11 +533,14 @@ function makeAiGateway(spec, { locationId = LOC } = {}) {
       assert.ok(component, `getAiConfigurationBundle may only read AI capabilities, got ${capability.capabilityId}`);
       const isDiscovery = AI_DISCOVERY_OF[component] === capability.capabilityId;
       const isRouting = AI_ROUTING_OF[component] === capability.capabilityId;
+      const outboundHalf = AI_OUTBOUND_OF[capability.capabilityId]?.half ?? null;
       const { json, override } = isDiscovery
         ? discoveryBody(component, capability, query, nth)
         : isRouting
           ? routingBody(component, typedBindings)
-          : detailBody(component, typedBindings);
+          : outboundHalf !== null
+            ? outboundBody(component, outboundHalf, typedBindings)
+            : detailBody(component, typedBindings);
       return respond(capability, typedBindings, query, json, override);
     },
   };
@@ -663,6 +699,19 @@ function assertComponentExpectations(component, expected, label) {
   if (has('routingEnvelopeShape')) {
     assert.deepEqual(component.routingEnvelopeShape, expected.routingEnvelopeShape, `${label}.routingEnvelopeShape`);
   }
+  if (has('outboundEnabled')) assert.deepEqual(component.outboundEnabled, expected.outboundEnabled, `${label}.outboundEnabled`);
+  if (has('outboundArmed')) assert.deepEqual(component.outboundArmed, expected.outboundArmed, `${label}.outboundArmed`);
+  if (has('outboundUnread')) assert.deepEqual(component.outboundUnread, expected.outboundUnread, `${label}.outboundUnread`);
+  if (has('itemOutbound')) {
+    // Per item: `{outboundRead, outboundArmed, outboundNull?}` keyed by agent id.
+    for (const [agentId, want] of Object.entries(expected.itemOutbound)) {
+      const item = (component.items ?? []).find((candidate) => String(candidate.id) === agentId);
+      assert.ok(item, `${label}: no item ${agentId}`);
+      assert.equal(item.outboundRead, want.outboundRead, `${label}.${agentId}.outboundRead`);
+      assert.equal(item.outboundArmed, want.outboundArmed, `${label}.${agentId}.outboundArmed`);
+      if (want.outboundRead === false) assert.equal(item.outbound, null, `${label}.${agentId}: unread outbound is null`);
+    }
+  }
   if (has('pagesFetched')) assert.equal(component.pages.fetched, expected.pagesFetched, `${label}.pages.fetched`);
   if (has('pagesExhausted')) assert.equal(component.pages.exhausted, expected.pagesExhausted, `${label}.pages.exhausted`);
   if (has('totalHistory')) assert.deepEqual(component.totalHistory, expected.totalHistory, `${label}.totalHistory`);
@@ -716,6 +765,33 @@ function assertComponentExpectations(component, expected, label) {
     assert.equal(component.routingPinned, null, `${label}: no routing surface, no pinned summary`);
     assert.equal(component.routingEnvelopeShape, null, `${label}: no routing surface, no routing shape`);
   }
+  // The outbound invariants (W5a), on EVERY scenario. The three floors are null together or
+  // lists together; on a list surface every item's per-agent verdict agrees with the floors,
+  // and an agent whose arming is unknown is NEVER silently absent (REV-I15).
+  const outboundFloors = [component.outboundEnabled, component.outboundArmed, component.outboundUnread];
+  if (component.outboundUnread === null) {
+    assert.deepEqual(outboundFloors, [null, null, null], `${label}: no outbound surface, all three floors null`);
+    for (const item of component.items ?? []) {
+      assert.equal(item.outboundRead, false, `${label}: no outbound surface, no outbound read`);
+      assert.equal(item.outbound, null, `${label}: no outbound surface, outbound null`);
+      assert.equal(item.outboundArmed, null, `${label}: no outbound surface, arming unknown (null)`);
+    }
+  } else {
+    for (const floor of outboundFloors) assert.ok(Array.isArray(floor), `${label}: outbound floors are lists here`);
+    for (const item of component.items ?? []) {
+      if (item.tombstone === true || item.id === null) continue;
+      const id = String(item.id);
+      assert.equal(component.outboundArmed.includes(id), item.outboundArmed === true, `${label}: ${id} armed floor`);
+      assert.equal(component.outboundUnread.includes(id), item.outboundArmed === null, `${label}: ${id} unread floor`);
+      if (item.outboundRead === false) {
+        assert.equal(item.outbound, null, `${label}: ${id} unread outbound is null, never {configs:[],triggers:[]}`);
+        assert.equal(item.outboundArmed, null, `${label}: ${id} unread outbound cannot be "not armed"`);
+      }
+    }
+    if (component.complete === true) {
+      assert.deepEqual(component.outboundUnread, [], `${label}: a complete component left no agent's arming unknown`);
+    }
+  }
   for (const error of component.errors) {
     // The error vocabulary is CLOSED, exactly as the warning vocabularies are. It used to be
     // asserted only as `typeof === 'string'`, which is not a contract: `component.errors[].code`
@@ -724,7 +800,7 @@ function assertComponentExpectations(component, expected, label) {
     assert.ok(isAiBundleErrorCode(error.code),
       `${label}: ${error.code} is not in the closed AI_BUNDLE_ERROR_CODES vocabulary`);
     assert.equal(typeof error.capabilityId, 'string', `${label}: error metadata must name the capability`);
-    assert.ok(['discovery', 'detail', 'routing'].includes(error.phase), `${label}: error metadata must name the phase`);
+    assert.ok(['discovery', 'detail', 'routing', 'outbound'].includes(error.phase), `${label}: error metadata must name the phase`);
     // Errors carry the SAME uniform shape as warnings, and for the same reason: they are
     // aggregated per (code, capabilityId, phase), so a consumer summing `occurrences` must
     // never meet undefined.
@@ -2064,6 +2140,258 @@ test('the audit composites do not reuse list_account_entities or its best-effort
   }
 });
 
+// --- the outbound phase (Conversation AI only, W5a Task 4) --------------------------------
+//
+// One sealed per-agent phase after routing(): GET outbound-configs then GET outbound-triggers,
+// both `?locationId&agentId`. Evidence only — the bundle publishes the rows and a three-valued
+// per-agent `outboundArmed`, never a sentence about what the agent will do.
+
+const CAPTURED_OUTBOUND = AI_FIXTURES.capturedOutbound;
+const outboundCaiOnly = (conversationAi) => ({
+  components: {
+    conversation_ai: conversationAi,
+    voice_ai: { discovery: [{ rows: [] }] },
+    agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+  },
+});
+const armedOutbound = (agentId) => ({
+  configs: { body: { configs: [{ ...CAPTURED_OUTBOUND.configs.configs[0], agentId, enabled: true }], traceId: 'trace_1' } },
+  triggers: { body: { triggers: [{ ...CAPTURED_OUTBOUND.triggers.triggers[0], agentId, enabled: true }], traceId: 'trace_2' } },
+});
+
+test('outbound: the captured envelopes are read per agent, sealed, after routing, and published with the GET row fields', async () => {
+  const { gateway, result } = await runBundle(AI_FIXTURES.scenarios['outbound-captured-envelopes']);
+  const sequence = gateway.calls.map((call) => call.capabilityId)
+    .filter((id) => id.startsWith('conversation_ai_'));
+  assert.deepEqual(sequence, [
+    'conversation_ai_agent_discovery',
+    'conversation_ai_agent_detail',
+    'conversation_ai_deployment_routing',
+    'conversation_ai_outbound_configs',
+    'conversation_ai_outbound_triggers',
+  ], 'configs then triggers, after the routing phase');
+  for (const id of ['conversation_ai_outbound_configs', 'conversation_ai_outbound_triggers']) {
+    const [call] = callsTo(gateway, id);
+    assert.deepEqual(call.query, { locationId: LOC, agentId: 'agent_1' }, `${id} query`);
+    assert.deepEqual(call.typedBindings.discoveredAgentIds, { conversation_ai_agent_discovery: ['agent_1'] },
+      `${id} is sealed by the Conversation AI discovery result`);
+  }
+  const [item] = result.components.conversation_ai.items;
+  // The rows as GHL sent them — every field kept (agentId, locationId, sendingNumber, the
+  // compliance stamp; the trigger's config, deleted, createdBy…). The envelope's traceId is not
+  // agent configuration and is not kept.
+  assert.deepEqual(item.outbound, {
+    configs: CAPTURED_OUTBOUND.configs.configs,
+    triggers: CAPTURED_OUTBOUND.triggers.triggers,
+  });
+  assert.deepEqual(Object.keys(item.outbound.configs[0]), [
+    'id', 'locationId', 'agentId', 'channel', 'sendingNumber', 'enabled',
+    'complianceSettingsAccepted', 'complianceConfigurationsAccepted', 'acceptedBy', 'acceptedAt',
+  ], 'the captured config row field set (no createdAt/updatedAt on a GET config row)');
+  assert.deepEqual(Object.keys(item.outbound.triggers[0]), [
+    'id', 'locationId', 'agentId', 'type', 'config', 'deleted', 'createdBy', 'createdAt', 'enabled', 'updatedAt',
+  ], 'the captured trigger row field set');
+  assert.equal(item.outboundRead, true);
+  assert.equal(item.outboundArmed, false, 'captured disabled: auto-pilot alone does not arm');
+});
+
+test('outbound: the capability version is PINNED as a literal, and the contract is 1.1.0', () => {
+  // A literal, not a recomputation: a test that hashes the same descriptors the module hashes
+  // can never fail (REV-I14). Any edit to an AI-bundle descriptor — or adding/removing one —
+  // must change this string on purpose.
+  assert.equal(AI_BUNDLE_CAPABILITY_VERSION,
+    'sha256:9c6ae688cd235b2180db61a2b47670f6b095f03df44024f447b7f8878e4db1b7');
+  assert.equal(AUDIT_CONFIGURATION_CONTRACT_VERSION, '1.1.0',
+    '1.1.0: additive keys and two new warning codes; complete semantics unchanged');
+});
+
+test('outbound: an unreadable 200 is AI_OUTBOUND_UNREADABLE, never an empty outbound', async () => {
+  // A bare array was never observed on these routes (they answer wrapped), so it is not read;
+  // a wrong wrapper key, a non-array value and an empty object are each a read that did not
+  // happen.
+  const cases = [
+    { configs: { body: [] } },
+    { configs: { body: {} } },
+    { configs: { body: { configs: 'none' } } },
+    { configs: { body: { triggers: [] } } },
+    { triggers: { body: { configs: [] } } },
+    { triggers: { body: { unexpectedEnvelope: true } } },
+  ];
+  for (const outbound of cases) {
+    const { result } = await runBundle(outboundCaiOnly({
+      discovery: [{ rows: [{ _id: 'agent_1' }] }],
+      outbound: { agent_1: outbound },
+    }));
+    const label = JSON.stringify(outbound);
+    const component = result.components.conversation_ai;
+    assert.equal(component.items[0].outbound, null, `${label}: unreadable is not empty`);
+    assert.equal(component.items[0].outboundRead, false, label);
+    assert.equal(component.items[0].outboundArmed, null, label);
+    assert.deepEqual(component.outboundUnread, ['agent_1'], label);
+    assert.equal(component.complete, false, label);
+    assert.deepEqual(warningCodesOf(result), ['AI_OUTBOUND_UNREADABLE'], label);
+    assert.deepEqual(component.errors.map((error) => [error.code, error.phase]),
+      [['AI_OUTBOUND_UNREADABLE', 'outbound']], label);
+  }
+});
+
+test('outbound: a row naming ANOTHER agent is a read failure, not that agent\'s outbound', async () => {
+  // The fake gateway runs no identity inspection, so this pins the composite's own check: the
+  // rows self-identify with `agentId`, and a row about somebody else is never published as
+  // this agent's configuration.
+  for (const half of ['configs', 'triggers']) {
+    const outbound = armedOutbound('agent_1');
+    outbound[half].body[half][0].agentId = 'agent_2';
+    const { result } = await runBundle(outboundCaiOnly({
+      discovery: [{ rows: [{ _id: 'agent_1' }] }],
+      details: { agent_1: { body: { id: 'agent_1', locationId: LOC, mode: 'auto-pilot' } } },
+      outbound: { agent_1: outbound },
+    }));
+    const component = result.components.conversation_ai;
+    assert.equal(component.items[0].outbound, null, `${half}: a foreign row is not this agent's outbound`);
+    assert.equal(component.items[0].outboundArmed, null, half);
+    assert.deepEqual(component.outboundArmed, [], `${half}: a foreign agent's enabled rows arm nobody`);
+    assert.deepEqual(component.outboundEnabled, [], half);
+    assert.deepEqual(component.outboundUnread, ['agent_1'], half);
+    assert.equal(component.complete, false, half);
+    assert.deepEqual(warningCodesOf(result), ['IDENTITY_CONFLICT_QUARANTINE'], half);
+  }
+});
+
+test('outbound: through the REAL audit gateway, a foreign agentId row is refused and the agent is unread', async () => {
+  const auditGateway = makeAuditGateway({
+    gateways: {
+      backend: backendRosterRail(),
+      ai: aiRailFor({
+        '/ai-employees/employees/search': { json: { employees: [{ id: 'agent_1', locationId: LOC }], totalCount: 1 } },
+        '/ai-employees/employees': { json: { id: 'agent_1', locationId: LOC, mode: 'auto-pilot' } },
+        '/agent-deployment/routing-config/configs': { json: [] },
+        '/agent-deployment/outbound-configs': {
+          json: { configs: [{ ...CAPTURED_OUTBOUND.configs.configs[0], agentId: 'agent_2', enabled: true }], traceId: 'trace_1' },
+        },
+        '/agent-deployment/outbound-triggers': { json: { triggers: [], traceId: 'trace_2' } },
+        '/voice-ai/agents/simple': { json: { agents: [] } },
+        '/agent-studio/agents/agents-with-folders': { json: { items: [], total: 0 } },
+      }),
+    },
+    locationId: LOC,
+    limiter: deterministicLimiter(),
+    circuit: makeAuditCircuit(),
+  });
+  const result = await getAiConfigurationBundle({ auditGateway, input: { locationId: LOC, companyId: COMPANY } });
+  const component = result.components.conversation_ai;
+  assert.equal(component.detailsRead, 1, 'the harness reached the outbound phase');
+  assert.equal(component.items[0].outbound, null);
+  assert.equal(component.items[0].outboundArmed, null);
+  assert.deepEqual(component.outboundUnread, ['agent_1']);
+  assert.deepEqual(component.outboundEnabled, []);
+  assert.equal(component.complete, false);
+  assert.ok(result.warnings.some((warning) => warning.code === 'IDENTITY_CONFLICT_QUARANTINE'),
+    'the identity verdict is stated');
+  const routes = component.sourceRoutes.map((route) => route.appliedPath);
+  assert.ok(routes.includes('/agent-deployment/outbound-configs'), 'the configs read went to the wire on services');
+});
+
+test('outbound: both legs enabled but the mode unknown is outboundArmed null, and the agent is in outboundUnread', async () => {
+  // Arming needs the agent's mode from its detail record. Two ways to not know it: the detail
+  // read failed, or the record carries no `mode`. Neither may publish "not armed".
+  for (const [label, details] of [
+    ['detail failed', { agent_1: { gateway: { ok: false, status: 500, failureClass: 'HTTP_500' } } }],
+    ['mode absent', { agent_1: { body: { id: 'agent_1', locationId: LOC, name: 'agent_1' } } }],
+  ]) {
+    const { result } = await runBundle(outboundCaiOnly({
+      discovery: [{ rows: [{ _id: 'agent_1' }] }],
+      details,
+      outbound: { agent_1: armedOutbound('agent_1') },
+    }));
+    const component = result.components.conversation_ai;
+    assert.equal(component.items[0].outboundRead, true, `${label}: the outbound rows WERE read`);
+    assert.ok(component.items[0].outbound, `${label}: and are published`);
+    assert.equal(component.items[0].outboundArmed, null, `${label}: arming is unknown`);
+    assert.deepEqual(component.outboundEnabled, ['agent_1'], label);
+    assert.deepEqual(component.outboundArmed, [], label);
+    assert.deepEqual(component.outboundUnread, ['agent_1'], `${label}: unknown arming is never silently absent`);
+  }
+  // A config or trigger leg that is provably off decides the verdict whatever the mode is.
+  const offLeg = armedOutbound('agent_1');
+  offLeg.triggers.body.triggers[0].enabled = false;
+  const { result } = await runBundle(outboundCaiOnly({
+    discovery: [{ rows: [{ _id: 'agent_1' }] }],
+    details: { agent_1: { gateway: { ok: false, status: 500, failureClass: 'HTTP_500' } } },
+    outbound: { agent_1: offLeg },
+  }));
+  assert.equal(result.components.conversation_ai.items[0].outboundArmed, false,
+    'no enabled trigger: not armed, whatever the unread mode');
+  assert.deepEqual(result.components.conversation_ai.outboundUnread, []);
+});
+
+test('outbound (final review M2): a mode string outside the known enum is outboundArmed null, never false', async () => {
+  // The server enum is closed today (off | suggestive | auto-pilot); a mode GHL adds tomorrow may well reply on its
+  // own, so with both legs on it is UNKNOWN arming, and the agent lands in outboundUnread.
+  for (const mode of ['assistant', 'autopilot-v2', 'OFF', '']) {
+    const { result } = await runBundle(outboundCaiOnly({
+      discovery: [{ rows: [{ _id: 'agent_1' }] }],
+      details: { agent_1: { body: { id: 'agent_1', locationId: LOC, mode } } },
+      outbound: { agent_1: armedOutbound('agent_1') },
+    }));
+    const component = result.components.conversation_ai;
+    assert.equal(component.items[0].outboundArmed, null, `mode ${JSON.stringify(mode)}: arming unknown`);
+    assert.deepEqual(component.outboundUnread, ['agent_1'], `mode ${JSON.stringify(mode)}`);
+    assert.deepEqual(component.outboundArmed, [], `mode ${JSON.stringify(mode)}`);
+  }
+  // CONTROL: literal "off" with both legs on is provably not armed.
+  const { result } = await runBundle(outboundCaiOnly({
+    discovery: [{ rows: [{ _id: 'agent_1' }] }],
+    details: { agent_1: { body: { id: 'agent_1', locationId: LOC, mode: 'off' } } },
+    outbound: { agent_1: armedOutbound('agent_1') },
+  }));
+  assert.equal(result.components.conversation_ai.items[0].outboundArmed, false);
+  assert.deepEqual(result.components.conversation_ai.outboundUnread, []);
+});
+
+test('outbound: STRICT enabled === true — the string "true" arms nothing', async () => {
+  const outbound = armedOutbound('agent_1');
+  outbound.configs.body.configs[0].enabled = 'true';
+  const { result } = await runBundle(outboundCaiOnly({
+    discovery: [{ rows: [{ _id: 'agent_1' }] }],
+    details: { agent_1: { body: { id: 'agent_1', locationId: LOC, mode: 'auto-pilot' } } },
+    outbound: { agent_1: outbound },
+  }));
+  const component = result.components.conversation_ai;
+  assert.deepEqual(component.outboundEnabled, []);
+  assert.equal(component.items[0].outboundArmed, false);
+});
+
+test('outbound: Voice AI and Agent Studio carry null floors and null per-item arming, never []', async () => {
+  const { result } = await runBundle(AI_FIXTURES.scenarios['all-three-products']);
+  for (const name of ['voice_ai', 'agent_studio']) {
+    const component = result.components[name];
+    assert.equal(component.outboundEnabled, null, `${name}.outboundEnabled`);
+    assert.equal(component.outboundArmed, null, `${name}.outboundArmed`);
+    assert.equal(component.outboundUnread, null, `${name}.outboundUnread`);
+    assert.ok(component.items.length > 0, `${name} has items to check`);
+    for (const item of component.items) {
+      assert.equal(item.outboundArmed, null, `${name}/${item.id}: no outbound read on this product`);
+      assert.equal(item.outbound, null);
+      assert.equal(item.outboundRead, false);
+    }
+  }
+  assert.deepEqual(result.components.conversation_ai.outboundUnread, []);
+});
+
+test('outbound: a thrown policy fault degrades the surface, leaves the agent unread, and the run continues', async () => {
+  const gateway = throwingGateway('BINDING_MISMATCH', { only: 'conversation_ai_outbound_configs' });
+  const result = await getAiConfigurationBundle({ auditGateway: gateway, input: { locationId: LOC, companyId: COMPANY } });
+  const component = result.components.conversation_ai;
+  assert.equal(component.complete, false);
+  assert.equal(component.items[0].outbound, null);
+  assert.deepEqual(component.outboundUnread, ['ce-1']);
+  assert.deepEqual(component.errors.filter((error) => error.phase === 'outbound').map((error) => error.code),
+    ['BINDING_MISMATCH']);
+  assert.equal(result.components.voice_ai.complete, true);
+  assert.ok(result.warnings.some((warning) => warning.code === 'AI_POLICY_REFUSED'));
+});
+
 // --- capability versions ------------------------------------------------------------------
 
 test('each composite hashes ONLY the descriptors it declares', async () => {
@@ -2078,6 +2406,8 @@ test('each composite hashes ONLY the descriptors it declares', async () => {
     'conversation_ai_agent_detail',
     'conversation_ai_agent_discovery',
     'conversation_ai_deployment_routing',
+    'conversation_ai_outbound_configs',
+    'conversation_ai_outbound_triggers',
     'voice_ai_agent_detail',
     'voice_ai_agent_discovery',
   ]);

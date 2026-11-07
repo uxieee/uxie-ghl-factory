@@ -42,17 +42,26 @@
         "commit:880e2c46"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /forms": "bdf9d72ff243a60858f56bbd82c63574d253c7db6f12df844d8b0b26014a0d4d",
       "GET https://services.leadconnectorhq.com /forms": "26274ceeb0e0ea438bd972ae437cec72deaa929a2088b4b9cab7b3cdef6e8c02",
       "GET https://services.leadconnectorhq.com /forms/count": "fe811e9c07d73f36e1d2977a3e120c1d76e06e37f976e0191dbdeb2ba9cb4198"
     },
     "builds": {
-      "formSurveyApp": 326
+      "formSurveyApp": 342
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_forms": "772691344b6874885f231b77130cbfb2e18390eea2a289a9cc223c5e50dc6495",

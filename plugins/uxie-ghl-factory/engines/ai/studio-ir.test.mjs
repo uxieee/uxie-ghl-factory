@@ -21,15 +21,15 @@ test('valid IR passes through unchanged (plus model default)', () => {
   assert.equal(out.model, DEFAULT_MODEL);
 });
 
-test('DEFAULT_MODEL matches the literal observed in both studio-create.json and studio-update.json', () => {
-  assert.equal(DEFAULT_MODEL, 'anthropic/claude-sonnet-4-6');
+test('DEFAULT_MODEL is the server/builder/import default since the 2026-10 wave', () => {
+  assert.equal(DEFAULT_MODEL, 'anthropic/claude-sonnet-5-5');
 });
 
 test('explicit model overrides the default', () => {
   const ir = validIR();
-  ir.model = 'anthropic/claude-opus-4-6';
+  ir.model = 'anthropic/claude-sonnet-4-6';
   const out = parseSuperAgentIR(ir);
-  assert.equal(out.model, 'anthropic/claude-opus-4-6');
+  assert.equal(out.model, 'anthropic/claude-sonnet-4-6');
 });
 
 test('missing name rejected', () => {
@@ -105,11 +105,12 @@ test('single trigger object passes (contact_created, matching studio-update.json
   assert.equal(out.trigger.type, 'contact_created');
 });
 
-test('unverified trigger type passes through (not rejected)', () => {
+// Was "passes through" until the server's 2026-10-30 400 spelled out its own trigger vocabulary: a wrong slug
+// (`form_submitted` for `form`) would be saved and never fire.
+test('a trigger type outside the server vocabulary is refused', () => {
   const ir = validIR();
   ir.trigger = { type: 'form_submitted', name: 'Form submitted' };
-  const out = parseSuperAgentIR(ir);
-  assert.equal(out.trigger.type, 'form_submitted');
+  assert.throws(() => parseSuperAgentIR(ir), (e) => e instanceof IRError && e.code === 'BAD_TRIGGER' && /form_submitted/.test(e.message));
 });
 
 test('trigger missing type rejected', () => {

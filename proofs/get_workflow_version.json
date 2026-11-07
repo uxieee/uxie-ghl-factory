@@ -601,10 +601,29 @@
         "commit:2b4c0f19"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-10-29-0659"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-07",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:466aea4c"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}/history-by-number/{}": "c67a3d11cb80e14b368a835e9ac2b5408a3d0d355348e31a6c8768a9003b6496",
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}/history/{}": "f04bf5d830b4d70013c13e415284c7c2f3068492afcfdb5136d16ec4bf6adeac"

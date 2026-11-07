@@ -13,7 +13,8 @@
 // Regeneration is idempotent — a second run changes nothing — and the freshness gate at the
 // end asserts exactly that, so a generator that writes somewhere the gate does not read is
 // caught here and not at push time.
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
+import { gitOut } from './lib/git.mjs';
 import { existsSync, readFileSync, writeFileSync, copyFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, resolve, relative } from 'node:path';
@@ -33,6 +34,8 @@ const GENERATED = [
   'plugins/uxie-ghl-factory/mcp-internal/catalog/internal-endpoints.source.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/internal-endpoints.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/contact-filter-fields.json',
+  'plugins/uxie-ghl-factory/mcp-internal/catalog/rail-ledger.json',
+  'plugins/uxie-ghl-factory/mcp-internal/catalog/public-ops.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/builder-validators.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/funnel-elements.json',
   'plugins/uxie-ghl-factory/mcp-internal/capability-manifest.json',
@@ -41,12 +44,13 @@ const GENERATED = [
   'plugins/uxie-ghl-factory/mcp-internal/dist/audit-server.mjs',
   'plugins/uxie-ghl-factory/skills/ghl-system-conventions/catalog/type-cards.json',
   'plugins/uxie-ghl-factory/skills/ghl-system-conventions/references/ghl-types-index.md',
+  'plugins/uxie-ghl-factory/skills/ghl-orientation/references/rail-ledger.md',
 ];
 const digest = (rel) => {
   const p = join(REPO, rel);
   return existsSync(p) ? createHash('sha256').update(readFileSync(p)).digest('hex').slice(0, 12) : 'missing';
 };
-const git = (...argv) => execFileSync('git', argv, { cwd: REPO, encoding: 'utf8' }).trim();
+const git = (...argv) => gitOut(argv, REPO);
 const before = Object.fromEntries(GENERATED.map((f) => [f, digest(f)]));
 
 const run = (label, cmd, argv, cwd = REPO) => {
@@ -70,6 +74,10 @@ if (hasKnowledge) {
   copyFileSync(join(KNOWLEDGE, 'corpus/platform/_data/contact-filter-fields.json'),
     join(MCP, 'catalog/contact-filter-fields.json'));
   if (!quiet) console.log('sync: filter-fields ← knowledge/corpus/platform/_data');
+  // The rail-decision ledger and the projected public catalogue (W4). The catalogue build joins every row to its public
+  // twins and its ledger decision by opKey, and refuses to run without these copies.
+  for (const f of ['rail-ledger.json', 'public-ops.json']) copyFileSync(join(KNOWLEDGE, 'catalog', f), join(MCP, 'catalog', f));
+  if (!quiet) console.log('sync: rail-ledger + public-ops ← knowledge/catalog');
   // GHL's own action- and trigger-validator bodies, recovered verbatim from the builder bundle.
   // check_workflow compiles and replays them, so the plugin ships its own copy.
   //
@@ -125,6 +133,7 @@ run('skill-types ← type-cards.json copied into ghl-system-conventions + index 
 // old order needed two passes whenever a tool gained a capability (a new tool read stale on the first).
 run('manifests   ← TOOLS + audit descriptors', 'npm', ['run', '-s', 'manifest'], MCP);
 run('catalogue   ← source + overlay + capability manifest', 'node', [join(MCP, 'scripts/build-endpoint-catalog.mjs')], MCP);
+run('rail-blocks ← catalog/rail-ledger.json into the skills\' marker blocks', 'node', [join(MCP, 'scripts/render-rail-ledger.mjs')], MCP);
 run('dist        ← everything above, embedded', 'npm', ['run', '-s', 'build'], MCP);
 
 const changed = GENERATED.filter((f) => digest(f) !== before[f]);

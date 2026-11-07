@@ -33,6 +33,25 @@ Uses: `pipeline_stage_updated` trigger, `if_else`, `assign_user`, `sms`,
 `internal_notification`, `add_to_workflow`.
 Source: `recipes/lead-score-nurture.md`.
 
+### Speed-to-lead with an AI agent: a native outbound trigger, or a workflow?
+Since the 2026-09/10 Conversation AI wave an agent can text first **without a workflow**: an outbound trigger on the
+agent fires on a CRM event and sends the agent's opening message by SMS, and the agent then carries the conversation.
+The executable trigger types are `contact_created`, `contact_tag` (tag **added**), `form_submitted` (the outbound
+slug; the workflow trigger is `form_submission`), `appointment_status_updated` (booked / confirmed),
+`opportunity_status_updated` (created / stage changed, status filter) and `missed_call` (no answer / busy).
+- **Pick the native outbound trigger** when the whole job is "an AI starts the conversation fast": no workflow to
+  build, and the agent owns the thread from the first message. Only `contact_tag` has fired live (2026-10-29); the
+  other five types were created (disabled) and read back live 2026-10-29, but whether they fire is unmeasured. The lead-ad types (Facebook/Instagram, Google,
+  TikTok lead forms) are not executable through the plugin yet.
+- **Pick the workflow** when the first touch needs more than one message: assignment and a rep alert, branching on
+  data, email, a wait-for-reply, or a non-SMS channel (outbound is SMS only). A workflow can still hand the reply to
+  the agent.
+- **Never both on the same event** for the same contact: they do not see each other, and the contact gets two
+  openers (`anti-patterns.md` §3).
+- Setting it up is `ghl-conversation-ai` (`set_convai_outbound`): activation signs SMS compliance in the caller's
+  name, and the agent sends only while its mode is `auto-pilot` (or `suggestive`, unmeasured) — every step needs the
+  human's explicit yes.
+
 ### Form-fill categorize-and-route
 Same shape as tag-based routing, keyed off form field values instead of tags — routes
 into per-category opportunity pipelines. Use when the form itself carries the
@@ -58,6 +77,15 @@ Uses: `appointment`/`customer_appointment` trigger, hybrid `wait` (`reply` subty
 Sources: `recipes/appointment-reminder-with-confirmation.md`,
 `recipes/email-after-no-show.md`.
 
+### Missed-call text-back
+"Text the caller back when we miss the call." Two shapes:
+- **Native:** a Conversation AI agent with an outbound `missed_call` trigger (`callStatuses`: `noanswer`, `busy`;
+  empty = any unanswered call) sends its opener by SMS and handles the reply. The body was created (disabled) and read
+  back live 2026-10-29 but has never fired, so the first one is a validation run on a test contact.
+- **Workflow:** a `call_status` trigger (filtered to the unanswered outcomes; dispositions match by name) → `sms`
+  (plus an `internal_notification`), when the text is fixed copy and no AI should answer.
+Choose one; running both texts the caller twice.
+
 ### DB reactivation / re-engagement
 An upstream watcher (separate scheduled workflow or job) tags contacts `inactive` once
 they cross a last-activity threshold — GHL has no native "time since last activity"
@@ -69,6 +97,16 @@ itself triggers on `contact_tag` ("inactive") and branches by how stale: a
 Uses: `contact_tag` trigger, `if_else`, `email`, `sms`, `wait`, `remove_from_workflow`,
 optionally `dnd_contact` on the long-inactive leg.
 Source: `recipes/re-engagement-after-inactivity.md`.
+
+**The AI Campaign alternative.** When the reactivation is "have the AI agent reopen the conversation with this list",
+a Conversation AI **AI Campaign** does it without a watcher workflow: a bulk action over a contact selection (the
+wizard also offers smart lists and 16 prebuilt segments such as "Uncontacted new leads in last 7 days") that sends
+the agent's opener to each contact and lets the agent carry the replies. Measured 2026-10-29: a send-all-at-once
+campaign to a row selection; a DND contact is skipped server-side (counted as `success.skipped`, code 409); there is
+**no de-dup** against earlier openers. Unmeasured: segment and smart-list audiences, scheduled and drip modes,
+cancel and pause. It needs an agent with an enabled outbound config and is a mass send: the human approves the
+audience, the agent and the copy (`ghl-conversation-ai` → `references/outbound-and-campaigns.md`). Keep the
+computed-inactivity workflow when the threshold logic, the staleness buckets or a multi-channel drip are the point.
 
 ### Birthday / date-anchored offer
 A date-reminder trigger drops a templated email carrying a custom-value offer code.

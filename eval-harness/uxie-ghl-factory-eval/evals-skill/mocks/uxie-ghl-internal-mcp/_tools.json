@@ -1,0 +1,380 @@
+{
+  "tools": [
+    {
+      "name": "build_workflow",
+      "description": "Build a workflow draft. spec: {name, triggers, graph}.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          },
+          "ignoreUnresolved": {
+            "default": false,
+            "type": "boolean"
+          },
+          "ignoreAssetErrors": {
+            "default": false,
+            "type": "boolean"
+          },
+          "skipWorkflowRules": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "strictCustomCode": {
+            "default": false,
+            "type": "boolean"
+          },
+          "skipCustomCodeTest": {
+            "default": false,
+            "type": "boolean"
+          },
+          "strictMergeTags": {
+            "type": "boolean"
+          },
+          "skipMergeTagCheck": {
+            "type": "boolean"
+          },
+          "pinWebhookSample": {
+            "type": "boolean"
+          },
+          "allowValidationFailure": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "locationId",
+          "spec"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "create_convai_agent",
+      "description": "Create a Conversation AI agent from spec. Returns a preview unless confirm:true.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "acknowledge": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId",
+          "spec"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "create_studio_agent",
+      "description": "Create a Managed Agent (Agent Studio) from spec. Returns a preview unless confirm:true.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "locationId",
+          "spec"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "describe_endpoint",
+      "description": "Detail for one internal endpoint, by id from search_endpoints.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "get_ai_agent_options",
+      "description": "List the models available on a location. product selects the roster.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "product": {
+            "default": "workflow_ai_agent",
+            "type": "string",
+            "enum": [
+              "workflow_ai_agent",
+              "conversation_ai"
+            ]
+          }
+        },
+        "required": [
+          "locationId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "get_ai_configuration_bundle",
+      "description": "Read a location's Conversation AI, Voice AI and Agent Studio agents with their detail, routing and outbound records.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "maxPages": {
+            "default": 100,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "locationId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "get_form",
+      "description": "Read one form by id: its fields and formData.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "formId": {
+            "type": "string"
+          },
+          "publicView": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "locationId",
+          "formId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "raw_request",
+      "description": "Send a request to an internal path. host \"workflow\" (default) or \"ai\". A non-GET returns a preview unless confirm:true; acknowledge takes a token from the preview when it has one.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "pattern": "^[!#$%&'*+\\-.^_`|~0-9A-Za-z]+$"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^\\/.*"
+          },
+          "body": {},
+          "host": {
+            "default": "workflow",
+            "type": "string"
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "allowEmptyBody": {
+            "default": false,
+            "type": "boolean"
+          },
+          "acknowledge": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId",
+          "method",
+          "path"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "search_endpoints",
+      "description": "Search the internal endpoint catalogue by intent. Hits: {id, method, path, coveredBy}.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "intent": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "type": "number"
+          }
+        },
+        "required": [
+          "intent"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "set_convai_outbound",
+      "description": "Change a Conversation AI agent's outbound configs and triggers. activate: {sendingNumber} or false. triggers: [{type, config, enabled}]. Returns a preview unless confirm:true; acknowledge takes a token from the preview when it has one.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "agentId": {
+            "type": "string"
+          },
+          "activate": {
+            "anyOf": [
+              {
+                "type": "boolean",
+                "const": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "sendingNumber": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "sendingNumber"
+                ],
+                "additionalProperties": {}
+              }
+            ]
+          },
+          "triggers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "config": {},
+                "enabled": {}
+              },
+              "required": [
+                "type",
+                "enabled"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "acknowledge": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId",
+          "agentId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "update_convai_agent",
+      "description": "Update a Conversation AI agent. spec: the agent fields to change. Returns a preview unless confirm:true; acknowledge takes a token from the preview when it has one.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "agentId": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "acknowledge": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId",
+          "agentId",
+          "spec"
+        ],
+        "additionalProperties": {}
+      }
+    }
+  ]
+}

@@ -3,10 +3,10 @@
 // the fresh templates in. Keeping this pure makes the op sequencing + diff-merge testable.
 import {
   appendStep, deleteStep, insertAfter, modifyStep, renameStep, appendToBranch, moveStep,
-  addBranch, deleteContainer, deleteBranch, setStepDisabled, disableStepsByType,
+  addBranch, deleteContainer, dissolveContainer, deleteBranch, setStepDisabled, disableStepsByType,
   appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch, repairParentKeys,
   insertBefore, insertSubgraphBefore, prependStep,
-  retypeStep, numberNewSteps,
+  retypeStep, numberNewSteps, renumberCopiedReferences,
   addStepNote,
   duplicateStep,
   replaceTagInTemplates,
@@ -16,6 +16,7 @@ import {
   resolveBranchTarget,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
+import { checkStepOutputRefs } from './step-outputs.mjs';
 import { resolveIR, isIdBearingFilter, plausibleGhlId } from './resolve.mjs';
 import { walkNodes, IRError } from './ir.mjs';
 import { STICKY_OPS } from './sticky-notes.mjs';
@@ -97,7 +98,8 @@ export function opsNeedResolution(ops) {
 export function resolveOps(ops, resolvers, storedTemplates = []) {
   const LEAN = { internal_update_opportunity: 'update_opportunity', internal_create_opportunity: 'create_opportunity' };
   const typeOf = (id) => { const t = (storedTemplates ?? []).find((x) => x.id === id); return LEAN[t?.type] ?? t?.type; };
-  const cloned = JSON.parse(JSON.stringify(ops ?? []));
+  // a UUID-prefix anchor → the full id first, or typeOf misses the stored step and its names go unresolved (final review W6a)
+  const cloned = resolvePrefixAnchors(JSON.parse(JSON.stringify(ops ?? [])), storedTemplates);
   const graph = [], triggers = [];
   const stepAt = new Map(), patchAt = new Map(), trigAt = new Map();
   cloned.forEach((op, i) => {
@@ -293,7 +295,20 @@ function requestedTriggerFields(patch = {}, body = {}) {
   return out;
 }
 
-export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStatus } = {}) {
+// If/Else rows that name a trigger by id ("which trigger fired", conditionType 'trigger').
+function ifElseRowsNaming(templates, triggerId) {
+  const hits = [];
+  for (const t of templates ?? []) {
+    if (t?.type !== 'if_else') continue;
+    for (const b of t.attributes?.branches ?? []) for (const sg of b?.segments ?? []) for (const c of sg?.conditions ?? []) {
+      const v = c?.conditionValue;
+      if (c?.conditionType === 'trigger' && (v === triggerId || (Array.isArray(v) && v.includes(triggerId)))) hits.push(`'${t.name ?? t.id}' / branch '${b.name ?? b.id}'`);
+    }
+  }
+  return hits;
+}
+
+export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStatus, templates } = {}) {
   const loc = ctx.loc;
   const targetStatus = workflowStatus === 'published' ? 'published' : 'draft';
   return (triggerOps ?? []).flatMap((raw) => {
@@ -330,6 +345,14 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
       case 'deleteTrigger': {
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
+        // bl-419: a "which trigger" If/Else row naming this trigger would be left pointing at nothing (the builder shows it
+        // as an empty OR row). `templates` are the document AFTER this call's step ops, so fixing the row in the same call works.
+        const naming = op.keepIfElseRows === true ? [] : ifElseRowsNaming(templates, t.id ?? t._id);
+        if (naming.length) {
+          throw new Error(`deleteTrigger: '${t.name ?? t.id}' is still named by If/Else trigger row(s) in ${naming.join(', ')} — `
+            + 'remove those rows first (modifyStep the branches, or deleteBranch; the same call is fine), or pass keepIfElseRows:true '
+            + 'on this op to leave them (the builder shows them as empty OR rows).');
+        }
         // userId is a REQUIRED query param on the delete (docs/03-endpoints.md §3.5).
         return { op: op.op, method: 'DELETE', path: `/workflow/${loc}/trigger/${t.id ?? t._id}?userId=${uid}`, triggerId: t.id ?? t._id };
       }
@@ -396,8 +419,15 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         // this is R-67's proven hand recipe, typed. Author rows (trigger.filters) are expanded
         // like a create. Neither given: the stored rows are re-sent unchanged.
         const verbatimConditions = op.trigger?.conditions;
+        // bl-384: a custom_date_reminder's date field and schedule live in its stored config, which the rebuild must see —
+        // without it every modifyTrigger was refused "needs the contact DATE field".
+        const storedCdr = (op.trigger?.type ?? t.type) === 'custom_date_reminder' && op.trigger?.config === undefined
+          ? t.custom_date_reminder_config : null;
+        const cdrConfig = storedCdr ? { recordType: storedCdr.recordType, field: storedCdr.customDateFieldId,
+          customDateFieldType: storedCdr.customDateFieldType, matchYear: storedCdr.matchYear ?? t.match_year,
+          offsetDays: storedCdr.offsetDays, runHour: storedCdr.runHour, timezone: storedCdr.timezone } : op.trigger?.config;
         const merged = buildTrigger(
-          { type: op.trigger?.type ?? t.type, name: op.trigger?.name ?? t.name,
+          { type: op.trigger?.type ?? t.type, name: op.trigger?.name ?? t.name, ...(cdrConfig !== undefined ? { config: cdrConfig } : {}),
             masterType: op.trigger?.masterType ?? t.masterType,
             filters: verbatimConditions !== undefined ? [] : (op.trigger?.filters ?? t.conditions ?? []),
             // NEVER force-activate: a modify that doesn't mention `active` preserves whatever
@@ -429,6 +459,8 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         // genuine write, not an echo. Strip it — this PUT sends `status` if, and only if,
         // `status` above says a change was actually requested.
         delete merged.status;
+        // the scheduler's own bookkeeping: a rebuild resets last_run to '', which a modify must not do
+        if (storedCdr && merged.custom_date_reminder_config) merged.custom_date_reminder_config.last_run = storedCdr.last_run ?? '';
         const body = { ...t, ...merged, ...(verbatimConditions !== undefined ? { conditions: verbatimConditions } : {}),
           id: tid, _id: t._id ?? tid, ...(status !== undefined ? { status } : {}) };
         // WHAT THE CALLER ASKED FOR, field by field, as it will read back. The verifier holds the
@@ -497,7 +529,8 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
 export function compileSubgraph(node, ctx) {
   const out = compile(
     { name: '_edit', triggers: [], graph: [{ ...node, ref: node.ref ?? '_edit_step', kind: node.kind ?? 'action', assocGuaranteed: true }] },
-    ctx,
+    // w6d-8 (bl-893): the subgraph is compiled alone, so its step-output lint cannot see the target's steps. applyOps lints the whole workflow.
+    { ...ctx, skipStepOutputCheck: true },
   );
   // `_templates`, not `autoSaveBody.workflowData.templates`: the latter has its terminal
   // `next: null` stripped for the wire (terminals.mjs). Reading the stripped shape here would
@@ -573,6 +606,7 @@ const OP_REQUIRED_ARGS = {
   moveStep: ['stepId', 'afterId'],
   addBranch: ['containerId'],
   deleteContainer: ['containerId'],
+  dissolveContainer: ['containerId', 'keep'],
   deleteBranch: ['containerId', 'branch'],
   replaceFieldId: ['oldId', 'newId'],
   replaceInAttributes: ['path', 'find', 'replace'],
@@ -590,7 +624,7 @@ const OP_REQUIRED_ARGS = {
 // the caller bug it is, BEFORE anything is written.
 const OP_ACCEPTED_ARGS = {
   appendStep: ['step'],
-  insertAfter: ['step', 'afterId', 'attachTailTo'],
+  insertAfter: ['step', 'steps', 'afterId', 'attachTailTo'],
   insertBefore: ['step', 'beforeId', 'attachTailTo'],
   appendToBranch: ['step', 'branchEntryId', 'branchRef', 'containerId', 'branch'],
   deleteStep: ['stepId'],
@@ -602,6 +636,7 @@ const OP_ACCEPTED_ARGS = {
   moveStep: ['stepId', 'afterId'],
   addBranch: ['containerId', 'name', 'conditions'],
   deleteContainer: ['containerId'],
+  dissolveContainer: ['containerId', 'keep'],
   deleteBranch: ['containerId', 'branch'],
   replaceTag: ['oldTag', 'newTag', 'triggers', 'allowNoop'],
   replaceFieldId: ['oldId', 'newId', 'triggers', 'allowNoop'],
@@ -611,7 +646,7 @@ const OP_ACCEPTED_ARGS = {
   duplicateStep: ['stepId', 'afterId'],
   // trigger ops (planTriggerOps) — `name`/`type` at the top level are the MATCHER, never the edit
   addTrigger: ['trigger'],
-  deleteTrigger: ['triggerId', 'name', 'type'],
+  deleteTrigger: ['triggerId', 'name', 'type', 'keepIfElseRows'],
   modifyTrigger: ['triggerId', 'name', 'type', 'trigger'],
   duplicateTrigger: ['triggerId', 'name', 'type', 'newName'],
   // settings + sticky notes
@@ -751,7 +786,9 @@ export function checkOpShape(op) {
   // generic alias table: a wrong key on the right op is the R-96 / R-101 / R-115 mechanism, and
   // it must be named, not merely counted.
   const hints = OP_KEY_HINTS[op.op] ?? {};
-  const missing = (required ?? []).filter((k) => op[k] === undefined);
+  // insertAfter takes step OR steps (bl-389): with steps, `step` is not required
+  const needed = op.op === 'insertAfter' && op.steps !== undefined ? (required ?? []).filter((k) => k !== 'step') : (required ?? []);
+  const missing = needed.filter((k) => op[k] === undefined);
   const unknown = accepted ? Object.keys(op).filter((k) => k !== 'op' && !accepted.includes(k)) : [];
   if (missing.length || unknown.length) {
     const named = [];
@@ -892,6 +929,7 @@ export function applyOp(templates, op, { ctx, idGen }) {
     case 'moveStep': return moveStep(templates, op.stepId, op.afterId);
     case 'addBranch': return addBranch(templates, op.containerId, { name: op.name, conditions: op.conditions ?? [] }, idGen);
     case 'deleteContainer': return deleteContainer(templates, op.containerId);
+    case 'dissolveContainer': return dissolveContainer(templates, op.containerId, op.keep);
     case 'deleteBranch': return deleteBranch(templates, op.containerId, op.branch);
     default:
       if (TRIGGER_OPS.has(op.op))
@@ -922,7 +960,67 @@ export function applyOp(templates, op, { ctx, idGen }) {
 }
 
 // Apply an ordered list of ops, threading templates and merging diffs.
+// Anchor fields an op may name a step by. Each resolves, in order: the exact stored id; a ref an EARLIER op in this call
+// minted (bl-389); a unique id prefix of 8+ characters (bl-380 — ids are long and get shortened when copied). Anything
+// else is left as written, and requireStep names it.
+const ANCHOR_FIELDS = ['stepId', 'afterId', 'beforeId', 'containerId', 'branchEntryId'];
+// Prefixes are UUID-only (final review W6a): readable ids are allowed, and 'welcome-sms' must never hit 'welcome-sms-followup'.
+const UUID_PREFIX_RE = /^[0-9a-f]{8}(-[0-9a-f]{0,4}){0,4}$/i;
+const UUID_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function resolveAnchors(op, tpls, opRefs) {
+  let out = op;
+  for (const k of ANCHOR_FIELDS) {
+    const v = op?.[k];
+    if (typeof v !== 'string' || !v || tpls.some((t) => t.id === v)) continue;
+    let id = opRefs.get(v);
+    if (!id && UUID_PREFIX_RE.test(v)) {
+      const hits = tpls.filter((t) => typeof t?.id === 'string' && UUID_ID_RE.test(t.id) && t.id.startsWith(v));
+      if (hits.length > 1) throw new Error(`${op.op}: ${k} '${v}' matches ${hits.length} steps (${hits.map((h) => `'${h.name ?? h.id}' ${h.id}`).join(', ')}) — pass the full id`);
+      if (hits.length === 1) id = hits[0].id;
+    }
+    if (id) out = { ...out, [k]: id };
+  }
+  return out;
+}
+
+// insertAfter {steps:[...]} (bl-389) → one insertAfter per step, each anchored on the REF of the one before it (anchors
+// resolve earlier ops' refs). Done before anything reads the ops, so the resolver, the tag and marketplace scans and the
+// shape check all see ordinary single-step ops. A branching step can only be LAST — the steps after it belong inside one
+// of its branches. Idempotent: an expanded op has no `steps`.
+const BRANCH_KEYS = ['branches', 'paths', 'onEvent', 'onTimeout', 'onFound', 'onNotFound', 'default'];
+export function expandInsertSteps(ops) {
+  if (!Array.isArray(ops)) return ops;
+  let n = 0;
+  return ops.flatMap((op) => {
+    if (canonicalOpName(op?.op) !== 'insertAfter' || op.steps === undefined) return [op];
+    if (op.step !== undefined || !Array.isArray(op.steps) || !op.steps.length) {
+      throw new Error('insertAfter: pass either step (one) or steps (a non-empty list), not both');
+    }
+    const { steps, attachTailTo, ...rest } = op;
+    const early = steps.slice(0, -1).findIndex((s) => s && BRANCH_KEYS.some((k) => s[k] !== undefined));
+    if (early !== -1) {
+      throw new Error(`insertAfter steps[${early}] '${steps[early]?.name ?? steps[early]?.ref ?? early}' is a branching step and must be last in steps — `
+        + 'put the steps after it inside its branches, or insert them with a second insertAfter and attachTailTo');
+    }
+    const batch = n++;
+    let afterId = op.afterId;
+    return steps.map((s, i) => {
+      const step = s?.ref ? s : { ...s, ref: `__steps${batch}_${i}` };
+      const one = { ...rest, afterId, step, ...(i === steps.length - 1 && attachTailTo !== undefined ? { attachTailTo } : {}) };
+      afterId = step.ref;
+      return one;
+    });
+  });
+}
+
+// The prefix half of resolveAnchors, for callers that read ops BEFORE applyOps (the account resolver looks a modifyStep's
+// stored type up by the exact id). Refs are left for applyOps — they only exist once earlier ops have run.
+export function resolvePrefixAnchors(ops, templates) {
+  return Array.isArray(ops) ? ops.map((op) => resolveAnchors(op, templates ?? [], new Map())) : ops;
+}
+
 export function applyOps(templates, ops, { ctx, idGen, stepIndexCounter = {} }) {
+  ops = expandInsertSteps(ops);
   let tpls = templates;
   let diff = empty();
   // refs authored by EARLIER ops in this call -> the ids they minted, so op 2 can target op 1.
@@ -932,7 +1030,10 @@ export function applyOps(templates, ops, { ctx, idGen, stepIndexCounter = {} }) 
   // one email step had to read the stored version back to learn which replaces matched.
   // `matched` is the replace ops' own count and null for every other op, which has no such notion.
   const opResults = [];
-  for (const op of ops ?? []) {
+  const queue = [...(ops ?? [])];
+  while (queue.length) {
+    let op = queue.shift();
+    op = resolveAnchors(op, tpls, opRefs);
     // `graphTemplates` for the same reason as `externalRefs`: compileSubgraph compiles the edited
     // step ALONE, so a check that asks "does this document produce that namespace?" would see a
     // one-step document and answer no. A first-party step's output tag then drew "the picker does
@@ -959,11 +1060,17 @@ export function applyOps(templates, ops, { ctx, idGen, stepIndexCounter = {} }) 
   const numberIds = new Set(tpls.filter((t) => created.has(t.id)
     || (norm.modifiedSteps.includes(t.id) && (t.stepIndex === undefined || t.stepIndex === null))).map((t) => t.id));
   if (numberIds.size) {
+    // w6d-5 (bl-435): the index each created step carried in from its source, before numbering gives it a new one.
+    const sourceIndex = new Map(tpls.filter((t) => created.has(t.id)).map((t) => [t.id, t.stepIndex]));
     const numbered = numberNewSteps(tpls, numberIds, stepIndexCounter ?? {});
-    tpls = numbered.templates;
+    // w6d-8 review #1: only COPIES (created steps that carried a source index) are renumbered. A fresh created step names the target's own numbering.
+    const copyIds = new Set([...created].filter((id) => sourceIndex.get(id) != null && Number.isFinite(Number(sourceIndex.get(id)))));
+    tpls = renumberCopiedReferences(numbered.templates, copyIds, sourceIndex);
     const touched = new Set([...norm.createdSteps, ...norm.modifiedSteps]);
     const extra = numbered.changed.filter((id) => !touched.has(id));
     if (extra.length) norm.modifiedSteps = [...norm.modifiedSteps, ...extra];
   }
+  // w6d-8 (bl-893): the step-output lint runs once, on the final whole-workflow templates (after renumbering), for the steps this edit touched.
+  if (ctx) checkStepOutputRefs(tpls, ctx, { onlyIds: new Set([...norm.createdSteps, ...norm.modifiedSteps]) });
   return { templates: tpls, diff: norm, opRefs, opResults };
 }

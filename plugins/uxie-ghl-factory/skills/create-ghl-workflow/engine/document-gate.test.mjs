@@ -30,6 +30,17 @@ test('an unknown type is an error once marketplace is ruled out, and only a warn
   assert.equal(gateDocument(t, { catalog }).warnings[0].check, 'STEP_TYPE');
 });
 
+// G1 prep (2026-11-07): the A/B step is an engine type outside the native catalogue (TYPES_OUTSIDE_CATALOG, the compiler's list). The
+// gate must not call it unknown: the -tag draft was refused with "'workflow_ab_test' is not a known step type" before any write.
+test('workflow_ab_test is a known engine type (TYPES_OUTSIDE_CATALOG): no STEP_TYPE finding, with or without marketplace knowledge', () => {
+  const t = [{ id: 'ab', name: 'A/B Test', type: 'workflow_ab_test', order: 0, cat: 'multi-path', next: ['p0'],
+    attributes: { type: 'workflow_ab_test', paths: [{ id: 'p0', name: 'Path A' }], transitions: [] } }];
+  for (const opts of [{ catalog, marketplaceTypes: new Set() }, { catalog }]) {
+    const r = gateDocument(t, opts);
+    assert.equal([...r.errors, ...r.warnings].filter((f) => f.check === 'STEP_TYPE').length, 0);
+  }
+});
+
 test('a marketplace type stored without its flag is named, not refused', () => {
   const r = gateDocument([{ id: 'w', name: 'WA', type: 'send_outbound_whatsapp_message', order: 0, attributes: { type: 'send_outbound_whatsapp_message' } }],
     { catalog, marketplaceTypes: new Set(['send_outbound_whatsapp_message']) });
@@ -236,4 +247,63 @@ test('google_sheets: lookupColumns, lookupStep and formatting pass the gate; an 
   const keyErr = (tpl) => gateDocument(tpl, { catalog, marketplaceTypes: new Set() }).errors.filter((f) => f.check === 'ATTRIBUTE_KEY');
   assert.deepEqual(keyErr(step({ lookupColumns: { main: { column: 'A', value: 'v' } }, lookupStep: { id: 'x', label: 'x', value: 'x', stepIndex: 1 }, formatting: { bold: true } })), []);
   assert.equal(keyErr(step({ lookupColumn: {} })).length, 1);
+});
+
+// ---- W6a Task 3 (item 5, bl-450): an If/Else built by hand without the run-time keys passed every validator and was
+// skipped at run time as "Malformed Node". The gate now checks the structure the compiler itself writes.
+import { compile as compileIfElse } from './compiler.mjs';
+import { makeSeededIdGen as seededIfElse } from './idgen.mjs';
+import { loadCatalog as catalogIfElse } from './catalog.mjs';
+const IFELSE_IR = { name: 'wf', triggers: [], graph: [
+  { ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['x'] } },
+  { ref: 'b', kind: 'if_else', name: 'Check', branches: [
+    { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'hv' }], then: [
+      { ref: 'yt', kind: 'action', type: 'add_contact_tag', name: 'Premium', attributes: { tags: ['premium'] } }] },
+    { ref: 'n', name: 'No', else: true, then: [
+      { ref: 'nt', kind: 'action', type: 'add_contact_tag', name: 'Standard', attributes: { tags: ['standard'] } }] },
+  ] },
+] };
+const compiledIfElse = () => compileIfElse(IFELSE_IR, { loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 27, idGen: seededIfElse('a'), catalog: catalogIfElse() })
+  .autoSaveBody.workflowData.templates;
+const structural = (templates) => { const r = gateDocument(templates); return [...r.errors, ...r.warnings].filter((f) => f.check === 'IF_ELSE_STRUCTURE'); };
+
+test('the compiler\'s own If/Else passes the run-time structure check', () => {
+  assert.deepEqual(structural(compiledIfElse()), []);
+});
+
+for (const [label, mutate, key] of [
+  ['container nodeType', (t) => { delete t.find((s) => s.name === 'Check').nodeType; }, 'nodeType'],
+  ['container cat', (t) => { delete t.find((s) => s.name === 'Check').cat; }, 'cat'],
+  ['branch sibling', (t) => { delete t.find((s) => s.name === 'Yes').sibling; }, 'sibling'],
+  ['branch nodeType', (t) => { delete t.find((s) => s.name === 'Yes').nodeType; }, 'nodeType'],
+  ['else marker', (t) => { t.find((s) => s.name === 'No').attributes = {}; }, 'else'],
+  ['branch parent', (t) => { delete t.find((s) => s.name === 'No').parent; }, 'parent'],
+  ['branches[] vs next', (t) => { t.find((s) => s.name === 'Check').attributes.branches[0].id = 'ghost'; }, 'branches'],
+]) {
+  test(`an If/Else missing its ${label} is IF_ELSE_STRUCTURE (${key})`, () => {
+    const t = structuredClone(compiledIfElse());
+    mutate(t);
+    const f = structural(t);
+    assert.ok(f.length >= 1, `no finding for ${label}`);
+    assert.ok(f.some((x) => x.message.includes(key)), JSON.stringify(f.map((x) => x.message)));
+  });
+}
+
+// Final review W6a (Critical): a branch-level defect was attributed to the CONTAINER, so a write whose scope was only the
+// branch (edit modifyStep on the branch, a repair touching it) downgraded it to a warning and wrote the malformed If/Else.
+test('IF_ELSE_STRUCTURE stays an error when the write touches only a branch of the If/Else', () => {
+  const tpls = compiledIfElse();
+  const noBranch = tpls.find((t) => t.nodeType === 'branch-no');
+  const broken = tpls.map((t) => (t.id === noBranch.id ? { ...t, attributes: { ...t.attributes, else: false } } : t));
+  const r = gateDocument(broken, { catalog: catalogIfElse(), scope: new Set([noBranch.id]) });
+  assert.ok(r.errors.some((f) => f.check === 'IF_ELSE_STRUCTURE'), JSON.stringify(r.warnings.map((w) => w.check)));
+});
+
+test('CONTROL: a write that touches neither the container nor any branch only warns on a pre-existing If/Else defect', () => {
+  const tpls = compiledIfElse();
+  const noBranch = tpls.find((t) => t.nodeType === 'branch-no');
+  const broken = tpls.map((t) => (t.id === noBranch.id ? { ...t, attributes: { ...t.attributes, else: false } } : t));
+  const r = gateDocument(broken, { catalog: catalogIfElse(), scope: new Set(['some-other-step']) });
+  assert.equal(r.errors.some((f) => f.check === 'IF_ELSE_STRUCTURE'), false);
+  assert.ok(r.warnings.some((f) => f.check === 'IF_ELSE_STRUCTURE'));
 });

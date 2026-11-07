@@ -660,7 +660,7 @@ if (wid) {
   const control = await probeAssets([{ id: 's1', type: 'add_contact_tag', name: 'Control', attributes: { tags: ['test-conf'] } }]);
   const dangling = await probeAssets([{ id: 's1', type: 'create_opportunity', name: 'Dangling',
     attributes: { pipeline_id: '00000000-0000-4000-8000-000000000001',
-      pipeline_stage_id: '00000000-0000-4000-8000-000000000002', status: 'open', name: 'x' } }]);
+      pipeline_stage_id: '00000000-0000-4000-8000-000000000001', status: 'open', name: 'x' } }]);
   check(control.checked === true && (control.errors ?? []).length === 0,
     'CONTROL: a step referencing nothing reports no broken references', control.skipped ?? JSON.stringify(control.errors));
   check(dangling.checked === true && (dangling.errors ?? []).length > 0,
@@ -700,7 +700,7 @@ if (wid) {
   // direct GET on that calendar's id returns 200 with a full record — the message is about
   // EXISTENCE, the verdict is actually about USABILITY. So the positive control below must name an
   // ACTIVE calendar, or it is testing GHL's deactivation behaviour rather than its asset-reference
-  // check. Measured 2026-09-20 on the sandbox: `6k4xQyHTrSlTCfyNmqAi` was the only inactive
+  // check. Measured 2026-09-20 on the sandbox: `Lq7TestSt00000000001` was the only inactive
   // calendar of 12 and is the one a blind `[0]` pick was landing on. `list_account_entities`
   // projects calendars down to {id, name} only (engine/entities.mjs) — it does not carry
   // `isActive` — so the selection below reads `/calendars/?locationId=` directly instead.

@@ -159,21 +159,30 @@
         "commit:afe9223b"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:bff1dac9"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://services.leadconnectorhq.com /voice-ai/agents/{}": "75a291768c0ef9dddcfe0b4dffe5ac360a505c99c00f46f349d840090e06f3c9",
       "PUT https://services.leadconnectorhq.com /voice-ai/agents/{}": "06303979903fadd5374666df6cd3016af27d37e6a3327fcf2ae10056db142c1e"
     },
     "builds": {
-      "agentLogsApp": 717,
-      "agentStudioApp": 715,
-      "aiEmployeesApp": 2641,
-      "aiGrowthApp": 714,
-      "superagentsApp": 721,
-      "voiceAiApp": 719
+      "agentLogsApp": 868,
+      "agentStudioApp": 868,
+      "aiEmployeesApp": 2919,
+      "aiGrowthApp": 879,
+      "superagentsApp": 868,
+      "voiceAiApp": 867
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_voiceai_agent": "b6e298cc9736ab0825f6a81f64ca84a4ad969c54f624c9d4b489e9395b8c9970",

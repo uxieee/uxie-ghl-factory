@@ -69,10 +69,20 @@
         "corpus:corpus/workflows/30-types/steps-marketplace/certificates.md"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "suite",
+      "suite": "memberships",
+      "evidence": [
+        "receipt:2026-10-29-0726"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /membership/locations/{}/certificate-attachments/products/{}": "af5cec11d38db53cfdebc165812667a61316b863870b85d89c621d01492b3bec",
       "GET https://services.leadconnectorhq.com /membership/locations/{}/assessments/assignment/{}": "746cc836b484b4e6cf6e5c93244151d344f854a702c34934fb59414390a5a21b",
@@ -117,8 +127,8 @@
       "PUT https://services.leadconnectorhq.com /membership/locations/{}/products/apply-theme/{}": "81f0bdd355c8c94a6f10ebbfb5b59587baa7d667c40f3b686f8b8faa2e537480"
     },
     "builds": {
-      "certificatesApp": 2051,
-      "membershipApp": 2029
+      "certificatesApp": 2209,
+      "membershipApp": 2200
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_course": "dcd5e0f31a51b7a35f4551d9e149efd7830b3244c96457724941478c107678cf",

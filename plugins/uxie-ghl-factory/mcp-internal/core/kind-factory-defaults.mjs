@@ -4,7 +4,7 @@
 // media, demo URLs), tool-owned props and anything time- or instance-dependent. Pinned to the chunk it came from:
 // test/kind-factory-defaults-pin.test.mjs fails when the captured bundle moves past it, so a builder release cannot drift
 // these values silently. makeLeaf / completeExtra apply them UNDER everything authored or known.
-export const FACTORY_SOURCE = Object.freeze({"chunk":"pageBuilder index.e1b163ff.js","sha256":"f3a597367033415b11587d0e841e4cd56ca546ebb578c406ddaefe28fc10dc1f","generated":"2026-09-29"});
+export const FACTORY_SOURCE = Object.freeze({"chunk":"pageBuilder index.976028e2.js","sha256":"b3b09e1e1699ff8498f60d0b8efe48f589470cb70dcb3e460ac198ed5309881f","generated":"2026-11-06"});
 export const KIND_FACTORY_EXTRA = Object.freeze({
  "heading": {
   "mobileFontSize": {
@@ -22,7 +22,9 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
    "value": {
     "name": "",
     "unicode": "",
-    "fontFamily": ""
+    "fontFamily": "",
+    "svg": "",
+    "size": ""
    }
   }
  },
@@ -42,7 +44,9 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
    "value": {
     "name": "",
     "unicode": "",
-    "fontFamily": ""
+    "fontFamily": "",
+    "svg": "",
+    "size": ""
    }
   }
  },
@@ -62,7 +66,9 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
    "value": {
     "name": "",
     "unicode": "",
-    "fontFamily": ""
+    "fontFamily": "",
+    "svg": "",
+    "size": ""
    }
   }
  },
@@ -179,6 +185,21 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
   },
   "saleAction": {
    "value": "go-to-next-funnel-step"
+  }
+ },
+ "quiz": {
+  "quizId": {
+   "value": ""
+  }
+ },
+ "services": {
+  "servicesId": {
+   "value": ""
+  }
+ },
+ "rentals": {
+  "rentalsId": {
+   "value": ""
   }
  },
  "video": {
@@ -436,6 +457,12 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
   }
  },
  "two-setp-order": {
+  "orderFormMigration": {
+   "value": false
+  },
+  "orderFormMigrationStylesNote": {
+   "value": false
+  },
   "activeMode": {
    "value": "step1"
   },
@@ -501,6 +528,16 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
   "enableCouponCodes": {
    "value": true
   },
+  "residencyRegionPicker": {
+   "value": {
+    "enabled": false,
+    "helperText": "Your country sets where your data is hosted.",
+    "step2Message": "<p>Your core data will be primarily hosted in <strong>Australia</strong>. <a href=\"#\">Learn more</a></p>",
+    "tooltipContent": "<p><strong>You&#39;re signing up in Australia</strong></p><p>Your core data will be hosted primarily in Australia. Some services, like payments and messaging, are processed in the US. Your region can&#39;t be changed after sign-up.</p>",
+    "tooltipLeadInText": "Not in Australia?",
+    "tooltipLinkText": "Go back and change your country."
+   }
+  },
   "stickyContact": {
    "value": false
   },
@@ -518,6 +555,12 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
   }
  },
  "one-step-order": {
+  "orderFormMigration": {
+   "value": false
+  },
+  "orderFormMigrationStylesNote": {
+   "value": false
+  },
   "step1": {
    "value": {
     "shippingHeadline": "Shipping",
@@ -586,6 +629,645 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
   },
   "validateEmail": {
    "value": false
+  }
+ },
+ "order-form": {
+  "steps": {
+   "value": [
+    {
+     "id": "step-chmfQwGKh4",
+     "headline": "Checkout",
+     "fields": [
+      {
+       "id": "fullName",
+       "kind": "standard",
+       "state": "mandatory",
+       "width": "half",
+       "label": "Full Name",
+       "placeholder": "Full Name...",
+       "nameValidation": true
+      },
+      {
+       "id": "email",
+       "kind": "standard",
+       "state": "mandatory",
+       "width": "half",
+       "label": "Email",
+       "placeholder": "Email Address..."
+      },
+      {
+       "id": "phone",
+       "kind": "standard",
+       "state": "optional",
+       "width": "full",
+       "label": "Phone",
+       "placeholder": "Phone Number..."
+      },
+      {
+       "id": "company",
+       "kind": "standard",
+       "state": "mandatory",
+       "width": "full",
+       "label": "Company",
+       "placeholder": "Company Name.."
+      },
+      {
+       "id": "address",
+       "kind": "standard",
+       "state": "optional",
+       "width": "full",
+       "label": "Address",
+       "placeholder": "Street Address...",
+       "autoComplete": true,
+       "searchPlaceholder": "Search address"
+      },
+      {
+       "id": "country",
+       "kind": "standard",
+       "state": "optional",
+       "width": "half",
+       "label": "Country",
+       "placeholder": ""
+      },
+      {
+       "id": "state",
+       "kind": "standard",
+       "state": "optional",
+       "width": "half",
+       "label": "State",
+       "placeholder": "State / Province..."
+      },
+      {
+       "id": "city",
+       "kind": "standard",
+       "state": "optional",
+       "width": "half",
+       "label": "City",
+       "placeholder": "City Name..."
+      },
+      {
+       "id": "zip",
+       "kind": "standard",
+       "state": "optional",
+       "width": "half",
+       "label": "Zip Code",
+       "placeholder": "Zip Code..."
+      }
+     ]
+    }
+   ]
+  },
+  "render": {
+   "value": "stacked"
+  },
+  "offerColumnSide": {
+   "value": "right"
+  },
+  "bumps": {
+   "value": []
+  },
+  "orderFormTheme": {
+   "value": {
+    "version": 1,
+    "brand": {
+     "accent": "#B03A1F",
+     "text": "#1C1917",
+     "secondaryText": "#57534E",
+     "mutedText": "#A8A29E",
+     "error": "#B91C1C",
+     "font": null
+    },
+    "surface": {
+     "background": "#FFFFFF",
+     "borderStyle": "solid",
+     "borderWidth": {
+      "t": 1,
+      "r": 1,
+      "b": 1,
+      "l": 1
+     },
+     "borderWidthLinked": true,
+     "borderColor": "#E7E5E4",
+     "radius": {
+      "tl": 2,
+      "tr": 2,
+      "bl": 2,
+      "br": 2
+     },
+     "radiusLinked": true,
+     "margin": {
+      "desktop": {
+       "t": {
+        "value": 0,
+        "unit": "px"
+       },
+       "r": {
+        "value": 0,
+        "unit": "px"
+       },
+       "b": {
+        "value": 0,
+        "unit": "px"
+       },
+       "l": {
+        "value": 0,
+        "unit": "px"
+       }
+      },
+      "mobile": {
+       "t": {
+        "value": 0,
+        "unit": "px"
+       },
+       "r": {
+        "value": 0,
+        "unit": "px"
+       },
+       "b": {
+        "value": 0,
+        "unit": "px"
+       },
+       "l": {
+        "value": 0,
+        "unit": "px"
+       }
+      }
+     },
+     "padding": {
+      "desktop": {
+       "t": 32,
+       "r": 24,
+       "b": 32,
+       "l": 24
+      },
+      "mobile": {
+       "t": 24,
+       "r": 16,
+       "b": 24,
+       "l": 16
+      }
+     },
+     "shadow": "none"
+    },
+    "text": {
+     "headline": {
+      "font": null,
+      "size": {
+       "desktop": 21,
+       "mobile": 19
+      },
+      "weight": 700,
+      "color": null,
+      "align": {
+       "desktop": "left",
+       "mobile": "left"
+      }
+     },
+     "subheadline": {
+      "font": null,
+      "size": {
+       "desktop": 14,
+       "mobile": 13
+      },
+      "weight": 400,
+      "color": null,
+      "align": {
+       "desktop": "left",
+       "mobile": "left"
+      }
+     },
+     "terms": {
+      "font": null,
+      "size": {
+       "desktop": 12,
+       "mobile": 12
+      },
+      "weight": 400,
+      "color": null,
+      "align": {
+       "desktop": "left",
+       "mobile": "left"
+      }
+     }
+    },
+    "inputs": {
+     "appearance": "line",
+     "labelPosition": "above",
+     "background": null,
+     "textColor": null,
+     "borderStyle": "solid",
+     "borderWidth": 1,
+     "borderColor": "#D6D3D1",
+     "hoverBorderColor": "#57534E",
+     "focusBorderColor": "#B03A1F",
+     "radius": {
+      "tl": 0,
+      "tr": 0,
+      "bl": 0,
+      "br": 0
+     },
+     "radiusLinked": true,
+     "padding": {
+      "desktop": {
+       "t": 10,
+       "r": 0,
+       "b": 8,
+       "l": 0
+      },
+      "mobile": {
+       "t": 10,
+       "r": 0,
+       "b": 8,
+       "l": 0
+      }
+     },
+     "rowGap": {
+      "desktop": 18,
+      "mobile": 18
+     },
+     "columnGap": {
+      "desktop": 18,
+      "mobile": 18
+     },
+     "textAlign": {
+      "desktop": "left",
+      "mobile": "left"
+     },
+     "shadow": "none",
+     "labelTypography": {
+      "font": null,
+      "size": {
+       "desktop": 12,
+       "mobile": 12
+      },
+      "weight": 600,
+      "color": null
+     },
+     "valueTypography": {
+      "font": null,
+      "size": {
+       "desktop": 14,
+       "mobile": 14
+      },
+      "weight": 400,
+      "color": null
+     }
+    },
+    "buttons": {
+     "style": "flat",
+     "background": "#B03A1F",
+     "gradient": "",
+     "textColor": "#FFFFFF",
+     "subtextColor": "#FFFFFF",
+     "borderColor": "transparent",
+     "iconColor": "#FFFFFF",
+     "hoverBackground": "#8A2D17",
+     "hoverTextColor": "#FFFFFF",
+     "hoverBorderColor": null,
+     "primaryTypography": {
+      "font": null,
+      "size": {
+       "desktop": 15,
+       "mobile": 15
+      },
+      "weight": 700,
+      "color": null
+     },
+     "subtextTypography": {
+      "font": null,
+      "size": {
+       "desktop": 12,
+       "mobile": 12
+      },
+      "weight": 400,
+      "color": null
+     },
+     "borderStyle": "none",
+     "borderWidth": 0,
+     "radius": {
+      "tl": 2,
+      "tr": 2,
+      "bl": 2,
+      "br": 2
+     },
+     "radiusLinked": true,
+     "padding": {
+      "desktop": {
+       "t": 14,
+       "r": 22,
+       "b": 14,
+       "l": 22
+      },
+      "mobile": {
+       "t": 12,
+       "r": 18,
+       "b": 12,
+       "l": 18
+      }
+     },
+     "width": "full",
+     "align": {
+      "desktop": "center",
+      "mobile": "center"
+     },
+     "shadow": "none",
+     "letterSpacing": 0,
+     "textTransform": "none",
+     "icon": {
+      "name": "shopping-cart",
+      "unicode": "f07a",
+      "fontFamily": "Font Awesome 5 Free"
+     },
+     "iconPosition": "before"
+    },
+    "products": {
+     "layout": "table",
+     "typography": {
+      "heading": {
+       "font": null,
+       "size": {
+        "desktop": 15,
+        "mobile": 14
+       },
+       "weight": 700,
+       "color": null
+      },
+      "name": {
+       "font": null,
+       "size": {
+        "desktop": 14.5,
+        "mobile": 14
+       },
+       "weight": 600,
+       "color": null
+      },
+      "description": {
+       "font": null,
+       "size": {
+        "desktop": 12,
+        "mobile": 12
+       },
+       "weight": 400,
+       "color": null
+      },
+      "price": {
+       "font": null,
+       "size": {
+        "desktop": 15,
+        "mobile": 15
+       },
+       "weight": 700,
+       "color": null
+      },
+      "summaryLabel": {
+       "font": null,
+       "size": {
+        "desktop": 13.5,
+        "mobile": 13
+       },
+       "weight": 400,
+       "color": null
+      },
+      "summaryValue": {
+       "font": null,
+       "size": {
+        "desktop": 13.5,
+        "mobile": 13
+       },
+       "weight": 600,
+       "color": null
+      },
+      "total": {
+       "font": null,
+       "size": {
+        "desktop": 18,
+        "mobile": 17
+       },
+       "weight": 800,
+       "color": null
+      }
+     }
+    },
+    "steps": {
+     "style": "tabs",
+     "badges": false,
+     "align": "left",
+     "activeColor": "#B03A1F",
+     "inactiveColor": "#A8A29E",
+     "activeBackground": "#FFFFFF",
+     "activeTextColor": "#B03A1F",
+     "inactiveTextColor": "#A8A29E",
+     "inactiveBackground": "#FAFAF9",
+     "activeNumberColor": "#FFFFFF",
+     "inactiveNumberColor": "#FFFFFF",
+     "activeNumberBackground": "#ffffff47",
+     "inactiveNumberBackground": "#f2f4f7",
+     "labelTypography": {
+      "font": null,
+      "size": {
+       "desktop": 13,
+       "mobile": 13
+      },
+      "weight": 600,
+      "color": null,
+      "align": {
+       "desktop": "left",
+       "mobile": "left"
+      }
+     },
+     "subtitleTypography": {
+      "font": null,
+      "size": {
+       "desktop": 12,
+       "mobile": 12
+      },
+      "weight": 400,
+      "color": null,
+      "align": {
+       "desktop": "left",
+       "mobile": "left"
+      }
+     },
+     "backLinkTypography": {
+      "font": null,
+      "size": {
+       "desktop": 13,
+       "mobile": 13
+      },
+      "weight": 600,
+      "color": null,
+      "align": {
+       "desktop": "left",
+       "mobile": "left"
+      }
+     }
+    }
+   }
+  },
+  "productOrder": {
+   "value": []
+  },
+  "showQuantity": {
+   "value": true
+  },
+  "showProductImages": {
+   "value": false
+  },
+  "orderFormCopy": {
+   "value": {
+    "prodHead": "Select Product",
+    "subHeadline": "Upgrade Your Order & Save!",
+    "summaryItemText": "Item",
+    "summaryPriceText": "amount",
+    "summaryQuantity": "Quantity",
+    "summarySubtotal": "Subtotal",
+    "summaryTotal": "Total due today",
+    "summarySavings": "You have saved {amount}",
+    "itemText": "Item",
+    "priceText": "Price",
+    "soldOut": "Sold out",
+    "recurringBadge": "Recurring",
+    "noProducts": "No products available",
+    "qtyMaxError": "A maximum of {max} units of {name} only can be purchased",
+    "qtyStockError": "Only {count} units of {name} are in stock",
+    "fullNameError": "Please enter both first name and last name",
+    "emailError": "Invalid Email Address",
+    "phoneError": "Invalid phone number",
+    "fieldRequiredError": "{label} is required",
+    "couponPlaceholder": "Enter Coupon Code",
+    "couponApply": "Apply",
+    "couponRemove": "Remove",
+    "couponApplied": "Coupon code applied",
+    "couponLink": "Have a coupon code?",
+    "bumpCheckboxAriaLabel": "Add order bump to your order",
+    "payHead": "Payment details",
+    "summaryGiftCard": "Gift card",
+    "ctaText": "Complete Order",
+    "continueText": "Continue to payment →",
+    "backText": "Edit Shipping Details",
+    "step1Label": "Shipping",
+    "step2Label": "Payment",
+    "step1Subtitle": "",
+    "step2Subtitle": "",
+    "step1FooterText": "We Respect Your Privacy & Information.",
+    "shippingHeadline": "",
+    "ctaSubText": "",
+    "footerText": "* 100% Secure & Safe Payments *",
+    "productsCurrencyError": "Multiple currency products can't be sold in a single checkout. Please contact business owner"
+   }
+  },
+  "enableMultiProductSelect": {
+   "value": true
+  },
+  "enableMainProductDescription": {
+   "value": false
+  },
+  "enableProductDescription": {
+   "value": true
+  },
+  "enableCouponCodes": {
+   "value": true
+  },
+  "stickyContact": {
+   "value": false
+  },
+  "forceContactCreate": {
+   "value": false
+  },
+  "validateEmail": {
+   "value": false
+  },
+  "enablePostalCode": {
+   "value": false
+  },
+  "saleAction": {
+   "value": "go-to-next-funnel-step"
+  },
+  "stepPath": {
+   "value": ""
+  },
+  "showOrderBump": {
+   "value": false
+  },
+  "orderFormBumpStyle": {
+   "value": {
+    "layout": "row",
+    "imgPos": "none",
+    "imgSize": 64,
+    "cbPos": "left",
+    "cbColor": null,
+    "align": "left",
+    "bg": "transparent",
+    "borderStyle": "solid",
+    "bw": {
+     "t": 1,
+     "r": 1,
+     "b": 1,
+     "l": 1
+    },
+    "bwLink": true,
+    "bcolor": "var(--of-input-border)",
+    "rad": {
+     "tl": 8,
+     "tr": 8,
+     "bl": 8,
+     "br": 8
+    },
+    "radLink": true,
+    "paddingTop": {
+     "value": 14,
+     "unit": "px"
+    },
+    "paddingRight": {
+     "value": 16,
+     "unit": "px"
+    },
+    "paddingBottom": {
+     "value": 14,
+     "unit": "px"
+    },
+    "paddingLeft": {
+     "value": 16,
+     "unit": "px"
+    },
+    "marginTop": {
+     "value": 8,
+     "unit": "px"
+    },
+    "marginRight": {
+     "value": 0,
+     "unit": "px"
+    },
+    "marginBottom": {
+     "value": 8,
+     "unit": "px"
+    },
+    "marginLeft": {
+     "value": 0,
+     "unit": "px"
+    },
+    "shadow": "none",
+    "badgeStyle": "none",
+    "badgeColor": null,
+    "parts": {
+     "headline": {
+      "size": 15,
+      "weight": 600
+     },
+     "oto": {
+      "size": 11,
+      "weight": 700
+     },
+     "desc": {
+      "size": 13,
+      "weight": 400
+     },
+     "price": {
+      "size": 15,
+      "weight": 700
+     }
+    }
+   }
   }
  },
  "nav-menu": {
@@ -812,7 +1494,9 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
    "value": {
     "name": "",
     "unicode": "",
-    "fontFamily": ""
+    "fontFamily": "",
+    "svg": "",
+    "size": ""
    }
   },
   "hideElements": {
@@ -1323,6 +2007,34 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
      "text": "#101828",
      "background": "#FFFFFF",
      "border": "#D0D5DD"
+    }
+   }
+  },
+  "inventoryStatusEnabled": {
+   "value": false
+  },
+  "inventoryStatusThreshold": {
+   "value": 25
+  },
+  "inventoryStatusShowCount": {
+   "value": false
+  },
+  "inventoryStatusMessages": {
+   "value": {}
+  },
+  "inventoryStatusStyle": {
+   "value": {
+    "high": {
+     "text": "#027A48",
+     "background": "#ECFDF3"
+    },
+    "low": {
+     "text": "#475467",
+     "background": "#F2F4F7"
+    },
+    "outOfStock": {
+     "text": "#D92D20",
+     "background": "#FEF3F2"
     }
    }
   },
@@ -2172,6 +2884,114 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
    }
   }
  },
+ "blog-comments": {
+  "blogCommentsActions": {
+   "value": [
+    "emoji",
+    "images"
+   ]
+  },
+  "blogCommentsStyle": {
+   "title": {
+    "fontColor": "#101923",
+    "fontFamily": "var(--headlinefont)",
+    "fontSize": 18,
+    "fontWeight": "600",
+    "textAlign": "left"
+   },
+   "description": {
+    "paddingTop": {
+     "unit": "px",
+     "value": 12
+    },
+    "paddingBottom": {
+     "unit": "px",
+     "value": 12
+    },
+    "paddingLeft": {
+     "unit": "px",
+     "value": 14
+    },
+    "paddingRight": {
+     "unit": "px",
+     "value": 14
+    },
+    "mobileStyles": {
+     "paddingTop": {
+      "unit": "px",
+      "value": 12
+     },
+     "paddingBottom": {
+      "unit": "px",
+      "value": 12
+     },
+     "paddingLeft": {
+      "unit": "px",
+      "value": 14
+     },
+     "paddingRight": {
+      "unit": "px",
+      "value": 14
+     }
+    },
+    "fontColor": "#101923",
+    "fontFamily": "var(--contentfont)",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "textAlign": "left"
+   },
+   "button": {
+    "buttonText": "Publish",
+    "paddingTop": {
+     "unit": "px",
+     "value": 8
+    },
+    "paddingBottom": {
+     "unit": "px",
+     "value": 8
+    },
+    "paddingLeft": {
+     "unit": "px",
+     "value": 16
+    },
+    "paddingRight": {
+     "unit": "px",
+     "value": 16
+    },
+    "mobileStyles": {
+     "paddingTop": {
+      "unit": "px",
+      "value": 8
+     },
+     "paddingBottom": {
+      "unit": "px",
+      "value": 8
+     },
+     "paddingLeft": {
+      "unit": "px",
+      "value": 16
+     },
+     "paddingRight": {
+      "unit": "px",
+      "value": 16
+     }
+    },
+    "fontColor": "#ffffff",
+    "backgroundColor": "#2970FF",
+    "fontFamily": "var(--headlinefont)",
+    "fontSize": 14,
+    "fontWeight": "500",
+    "cornerRadius": 8
+   },
+   "helpText": {
+    "fontColor": "#101923",
+    "fontFamily": "var(--contentfont)",
+    "fontSize": 18,
+    "fontWeight": "600",
+    "textAlign": "left"
+   }
+  }
+ },
  "featured-product": {
   "desktopMediaWidth": {
    "value": "medium"
@@ -2229,6 +3049,34 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
      "text": "#101828",
      "background": "#FFFFFF",
      "border": "#D0D5DD"
+    }
+   }
+  },
+  "inventoryStatusEnabled": {
+   "value": false
+  },
+  "inventoryStatusThreshold": {
+   "value": 25
+  },
+  "inventoryStatusShowCount": {
+   "value": false
+  },
+  "inventoryStatusMessages": {
+   "value": {}
+  },
+  "inventoryStatusStyle": {
+   "value": {
+    "high": {
+     "text": "#027A48",
+     "background": "#ECFDF3"
+    },
+    "low": {
+     "text": "#475467",
+     "background": "#F2F4F7"
+    },
+    "outOfStock": {
+     "text": "#D92D20",
+     "background": "#FEF3F2"
     }
    }
   },
@@ -2397,6 +3245,34 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
      "text": "#101828",
      "background": "#FFFFFF",
      "border": "#D0D5DD"
+    }
+   }
+  },
+  "inventoryStatusEnabled": {
+   "value": false
+  },
+  "inventoryStatusThreshold": {
+   "value": 25
+  },
+  "inventoryStatusShowCount": {
+   "value": false
+  },
+  "inventoryStatusMessages": {
+   "value": {}
+  },
+  "inventoryStatusStyle": {
+   "value": {
+    "high": {
+     "text": "#027A48",
+     "background": "#ECFDF3"
+    },
+    "low": {
+     "text": "#475467",
+     "background": "#F2F4F7"
+    },
+    "outOfStock": {
+     "text": "#D92D20",
+     "background": "#FEF3F2"
     }
    }
   },
@@ -2722,7 +3598,7 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
   "pricingTableColumns": {
    "value": [
     {
-     "id": "dQIbp",
+     "id": "K-Nj3",
      "title": "<h3>Basic</h3>",
      "caption": "Perfect for individuals",
      "highlightLabel": "",
@@ -2732,17 +3608,17 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
      "showCaption": true,
      "features": [
       {
-       "id": "xuBSd",
+       "id": "98nbf",
        "text": "Basic Feature 1",
        "active": true
       },
       {
-       "id": "__TuL",
+       "id": "qSt25",
        "text": "Basic Feature 2",
        "active": false
       },
       {
-       "id": "AtgDN",
+       "id": "6QGyl",
        "text": "Basic Feature 3",
        "active": false
       }
@@ -2770,7 +3646,7 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
      "showDiscountText": false
     },
     {
-     "id": "l68xK",
+     "id": "UcrtS",
      "title": "<h3>Pro</h3>",
      "caption": "Best for small teams",
      "highlightLabel": "Most Popular",
@@ -2780,22 +3656,22 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
      "showCaption": true,
      "features": [
       {
-       "id": "q52Zl",
+       "id": "xurQm",
        "text": "Pro Feature 1",
        "active": false
       },
       {
-       "id": "Gcp17",
+       "id": "RhGrx",
        "text": "Pro Feature 2",
        "active": false
       },
       {
-       "id": "xBwc6",
+       "id": "9VuFt",
        "text": "Pro Feature 3",
        "active": false
       },
       {
-       "id": "MXJ18",
+       "id": "9vKMZ",
        "text": "Pro Feature 4",
        "active": false
       }
@@ -2823,7 +3699,7 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
      "showDiscountText": false
     },
     {
-     "id": "8NXfS",
+     "id": "b3yAI",
      "title": "<h3>Enterprise</h3>",
      "caption": "For large organizations",
      "highlightLabel": "",
@@ -2833,27 +3709,27 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
      "showCaption": true,
      "features": [
       {
-       "id": "FuKKR",
+       "id": "BY6IP",
        "text": "Enterprise Feature 1",
        "active": false
       },
       {
-       "id": "gaNc8",
+       "id": "z7jBQ",
        "text": "Enterprise Feature 2",
        "active": false
       },
       {
-       "id": "lKvzJ",
+       "id": "V9PJn",
        "text": "Enterprise Feature 3",
        "active": false
       },
       {
-       "id": "rDCfd",
+       "id": "Bz0qw",
        "text": "Enterprise Feature 4",
        "active": false
       },
       {
-       "id": "HlS9r",
+       "id": "fZbSO",
        "text": "Enterprise Feature 5",
        "active": false
       }
@@ -3058,6 +3934,34 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
  "store-pdp-v2-quantity": {
   "quantityLabelText": {
    "value": "Quantity"
+  },
+  "inventoryStatusEnabled": {
+   "value": false
+  },
+  "inventoryStatusThreshold": {
+   "value": 25
+  },
+  "inventoryStatusShowCount": {
+   "value": false
+  },
+  "inventoryStatusMessages": {
+   "value": {}
+  },
+  "inventoryStatusStyle": {
+   "value": {
+    "high": {
+     "text": "#027A48",
+     "background": "#ECFDF3"
+    },
+    "low": {
+     "text": "#475467",
+     "background": "#F2F4F7"
+    },
+    "outOfStock": {
+     "text": "#D92D20",
+     "background": "#FEF3F2"
+    }
+   }
   }
  },
  "store-pdp-v2-add-to-cart": {
@@ -3103,7 +4007,7 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
    "value": "#101828"
   },
   "drawerProductTitleColor": {
-   "value": "#188bf6"
+   "value": "#000000"
   },
   "drawerItemTextColor": {
    "value": "#101828"
@@ -3156,6 +4060,9 @@ export const KIND_FACTORY_EXTRA = Object.freeze({
   }
  },
  "store-pdp-v2-description": {
+  "overrideDescriptionStyles": {
+   "value": false
+  },
   "descriptionDesktopFontSize": {
    "value": 16,
    "unit": "px"
@@ -3794,7 +4701,61 @@ export const KIND_FACTORY_STYLES = Object.freeze({
    "unit": "px"
   }
  },
+ "quiz": {
+  "paddingTop": {
+   "unit": "px",
+   "value": 0
+  },
+  "paddingBottom": {
+   "unit": "px",
+   "value": 0
+  },
+  "paddingLeft": {
+   "unit": "px",
+   "value": 10
+  },
+  "paddingRight": {
+   "value": 10,
+   "unit": "px"
+  }
+ },
  "calendar": {
+  "paddingTop": {
+   "unit": "px",
+   "value": 0
+  },
+  "paddingBottom": {
+   "unit": "px",
+   "value": 0
+  },
+  "paddingLeft": {
+   "unit": "px",
+   "value": 10
+  },
+  "paddingRight": {
+   "value": 10,
+   "unit": "px"
+  }
+ },
+ "services": {
+  "paddingTop": {
+   "unit": "px",
+   "value": 0
+  },
+  "paddingBottom": {
+   "unit": "px",
+   "value": 0
+  },
+  "paddingLeft": {
+   "unit": "px",
+   "value": 10
+  },
+  "paddingRight": {
+   "value": 10,
+   "unit": "px"
+  }
+ },
+ "rentals": {
   "paddingTop": {
    "unit": "px",
    "value": 0
@@ -6017,6 +6978,55 @@ export const KIND_FACTORY_STYLES = Object.freeze({
    "value": "none"
   }
  },
+ "blog-comments": {
+  "paddingLeft": {
+   "unit": "px",
+   "value": 0
+  },
+  "paddingRight": {
+   "value": 0,
+   "unit": "px"
+  },
+  "paddingTop": {
+   "unit": "px",
+   "value": 0
+  },
+  "paddingBottom": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginTop": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginBottom": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginRight": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginLeft": {
+   "unit": "px",
+   "value": 0
+  },
+  "borderColor": {
+   "value": "#D0D5DD"
+  },
+  "borderWidth": {
+   "value": "1px"
+  },
+  "borderStyle": {
+   "value": "solid"
+  },
+  "borderRadius": {
+   "value": "8px"
+  },
+  "boxShadow": {
+   "value": "none"
+  }
+ },
  "featured-product": {
   "productNameColor": {
    "value": "var(--black)"
@@ -6957,6 +7967,9 @@ export const KIND_FACTORY_STYLES = Object.freeze({
    "value": 0,
    "unit": "px"
   },
+  "chooseOptionsModalBackgroundColor": {
+   "value": "var(--transparent)"
+  },
   "drawerHeadlineFontWeight": {
    "desktop": "700"
   },
@@ -7466,7 +8479,85 @@ export const KIND_FACTORY_WRAPPER = Object.freeze({
    "unit": ""
   }
  },
+ "quiz": {
+  "marginTop": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginBottom": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginLeft": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginRight": {
+   "unit": "px",
+   "value": 0
+  },
+  "width": {
+   "value": "auto",
+   "unit": ""
+  },
+  "height": {
+   "value": "auto",
+   "unit": ""
+  }
+ },
  "calendar": {
+  "marginTop": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginBottom": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginLeft": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginRight": {
+   "unit": "px",
+   "value": 0
+  },
+  "width": {
+   "value": "auto",
+   "unit": ""
+  },
+  "height": {
+   "value": "auto",
+   "unit": ""
+  }
+ },
+ "services": {
+  "marginTop": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginBottom": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginLeft": {
+   "unit": "px",
+   "value": 0
+  },
+  "marginRight": {
+   "unit": "px",
+   "value": 0
+  },
+  "width": {
+   "value": "auto",
+   "unit": ""
+  },
+  "height": {
+   "value": "auto",
+   "unit": ""
+  }
+ },
+ "rentals": {
   "marginTop": {
    "unit": "px",
    "value": 0

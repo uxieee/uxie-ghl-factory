@@ -785,3 +785,38 @@ POST /funnels/builder/publish-version { pageId, versionId, userId }   → 201
 **`version_id`** — not `versionId`, which is the name `publish-version` takes in its own *body*. A
 caller that reads `.versions` or `row.versionId` gets `undefined`, publishes nothing, and sees no
 error. Verify by re-reading `get-versions` and confirming a row now reads `pageType: "live"`.
+
+## 14. Schema markup (JSON-LD) on a funnel page — a write, then a republish for public
+
+Schema markup is its own object, not a field of the page. The page record only carries a pointer:
+`GET /funnels/page/{pageId}?locationId=…` → `versionHistory[].schemaMarkupId` (the live version's id).
+Measured on a TEST-CONF-W7 Landing page, 2026-11-07 (knowledge `corpus/funnels/20-api/schema-markup.md`).
+
+**Read (GET, safe):**
+- `GET /schema-markup/schemas/{schemaMarkupId}?locationId=<loc>` — the `locationId` query is required (422 without
+  it). The `/funnels/schema-markup` prefix is a 403 wrong-prefix trap, not a permission problem.
+- There is no list route. Reach the id through the page record.
+
+**Write (a draft; gated):**
+- `POST /schema-markup/schemas/save` with a body of `{locationId, ownerType: "funnel_page", ownerId: <pageId>,
+  jsonLd: {"@context": "https://schema.org", "@graph": [...]}, schemaMetadata: [{schemaType, displayName, isAIGenerated}]}`.
+  Through `raw_request` this is a non-GET, so it needs `confirm: true`. The validator is server-side: a 201 means the JSON-LD
+  is valid, and an invalid type returns 400 with `validation.errors`.
+- What it does, measured: a save writes a **new document version**. The response carries a new `id`, `version` (previous
+  plus one), `previousVersion` and `previousDocId`. It does NOT re-point the page record (its `schemaMarkupId` still names
+  the old document) and it does NOT change the public page.
+- 🔴 **A publish regenerates the schema on its own.** With `autoGenerateSchema` on (the settings default), a republish
+  generates an AI-generated schema for the new version and does NOT serve a manual save made before it (measured 2026-11-07:
+  the saved document was not served; the public page showed the AI WebPage). So a manual schema saved on a page with the
+  default settings does not survive a publish. Whether `autoGenerateSchema: false` keeps it is UNPROVEN: set it and check the
+  public JSON-LD after a publish before you rely on it.
+- **No measured way makes a SAVED schema document the one the public page serves.** Measured 2026-11-07: a republish
+  (48f718df, the orchestrator's G5 publish) served a NEW AI-generated schema and not the saved document, with
+  `autoGenerateSchema` on (the default). Whether `autoGenerateSchema: false` keeps a manual schema through a publish is
+  unproven. Do not promise a saved schema goes live with a publish. Verify after any publish: read the public page (fresh
+  query string) and count its `<script type="application/ld+json">` blocks, then compare the shape with the saved document.
+  Open: bl-622.
+
+**Gate:** the save is a write on the page's schema, not on its content; the republish is a write on the live page. Do both
+only on the account and page the operator approved, and read the draft first. Site-level and funnel-level schema (the
+builder's own Schema markup panel) are NOT captured by this recipe: they are open on bl-622.

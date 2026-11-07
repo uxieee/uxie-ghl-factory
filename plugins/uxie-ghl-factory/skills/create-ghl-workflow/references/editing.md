@@ -50,7 +50,10 @@ the if/else None branch, the last conditioned branch (use `deleteContainer`), an
 such as a finder's Found/Not Found, and a split path, whose weights would need re-balancing. On a
 published workflow, contacts parked in the deleted branch are counted in the preview and ejected on
 commit, like `deleteStep`),
-`deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`
+`deleteContainer`, `dissolveContainer` (`{containerId,keep}` — keeps ONE lane, named like `deleteBranch`'s `branch`,
+in the container's place and deletes the container, its other branches and their steps: removing a test gate so its
+go-on lane becomes top level; refused while a step being removed is still referenced), `setStepDisabled`
+(`{stepId,disabled}`), and `disableStepsByType`
 (`{type,disabled}`) — plus the trigger ops `addTrigger` / `modifyTrigger` / `deleteTrigger`
 (see "Editing TRIGGERS" below), and **`updateSettings`** (`{settings:{…}}` — the Settings tab's
 keys, merged over the stored values and validated by the same contract as `settings:` in a

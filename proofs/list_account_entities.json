@@ -541,10 +541,29 @@
         "commit:03c8132c"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-10-29-0659"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-07",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:466aea4c"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /emails/builder": "d945317777e769527d53040cefeb11fc07d1b48910930e64060d0d3b01b9fd83",
       "GET https://backend.leadconnectorhq.com /events-management/events/options": "f10a8cfd8d4940227cc516eb7e453d35a60fbfda8f5c2f96639e8d65cb783fdf",
@@ -575,7 +594,7 @@
       "GET https://services.leadconnectorhq.com /voice-ai/agents": "7b92576964a7b1a7ba6f13827d8189029af64fb7bbf89b013d32aaf437da2b65"
     },
     "builds": {
-      "formSurveyApp": 326
+      "formSurveyApp": 342
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_account_entities": "82fc69b9cc225bcbfac5c05e3fc482e65c52da1ba6ae9228503680c3aaf877c4",

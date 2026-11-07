@@ -31,22 +31,31 @@
         "commit:afe9223b"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://services.leadconnectorhq.com /voice-ai/call/{}": "fe3db571250145137c3dfef9c73d19a0f864c4f3884aa477b8211f9ccc92428d",
       "GET https://services.leadconnectorhq.com /voice-ai/dashboard/call-logs": "7beec8703fb5fc5dd1d5ce41b102b9c525783f52d8eb02621f15dc194a56fed2",
       "GET https://services.leadconnectorhq.com /voice-ai/dashboard/pending-call-logs": "14a44eedca31f16a9569f51613fe5b1c368c32048e271c484e226e3fa22a4453"
     },
     "builds": {
-      "agentLogsApp": 717,
-      "agentStudioApp": 715,
-      "aiEmployeesApp": 2641,
-      "aiGrowthApp": 714,
-      "superagentsApp": 721,
-      "voiceAiApp": 719
+      "agentLogsApp": 868,
+      "agentStudioApp": 868,
+      "aiEmployeesApp": 2919,
+      "aiGrowthApp": 879,
+      "superagentsApp": 868,
+      "voiceAiApp": 867
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_voice_call_logs": "f627d2fec295d7244dd5e0b6fa92b7ef885f3cc3b1d259097ef21610fc718293",

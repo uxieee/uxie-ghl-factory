@@ -119,3 +119,88 @@ test('set title renames the element (Element name), verifies by value, and leave
   const stale = structuredClone(pageData); findNode(stale, p.id).node.title = 'paragraph';
   assert.deepEqual(verifyEdits(stale, report)[0].notApplied, ['title'], 'a title that did not land is reported');
 });
+
+// w7-1 (bl-498, bl-530): page op appends keep what is stored, and a replace that drops stored lines says so.
+const pageFixture = (over = {}) => {
+  const { data } = fixture();
+  const d = structuredClone(data);
+  d.pageStyles = ':root{--x:1}'; d.general.general.pageStyles = '.a{color:red}';
+  d.trackingCode = { headerCode: '', footerCode: '', ...over.trackingCode };
+  return d;
+};
+const count = (text, part) => text.split(part).length - 1;
+
+test('appendCss adds to the stored sheet and keeps the old rules', () => {
+  const d = pageFixture();
+  const { pageData, errors } = applyPageEdits(d, [{ op: 'page', appendCss: '.b{color:blue}' }]);
+  assert.deepEqual(errors, []);
+  assert.match(pageData.general.general.pageStyles, /^\.a\{color:red\}/, 'the stored rule is kept');
+  assert.match(pageData.general.general.pageStyles, /\/\* uxie:append:[0-9a-f]{8} \*\/\.b\{color:blue\}\/\* \/uxie:append \*\/$/);
+  assert.match(pageData.pageStyles, /^:root\{--x:1\}/, 'the builder part is kept');
+  assert.match(pageData.pageStyles, /\/\* uxie:append:[0-9a-f]{8} \*\/\.b\{color:blue\}\/\* \/uxie:append \*\/$/, 'the public copy ends with the block');
+  assert.equal(d.general.general.pageStyles, '.a{color:red}', 'input is not mutated');
+});
+
+test('appendCss twice with the same block appends once', () => {
+  const first = applyPageEdits(pageFixture(), [{ op: 'page', appendCss: '.b{color:blue}' }]).pageData;
+  const second = applyPageEdits(first, [{ op: 'page', appendCss: '.b{color:blue}' }]);
+  assert.deepEqual(second.errors, []);
+  assert.equal(count(second.pageData.general.general.pageStyles, '.b{color:blue}'), 1);
+  assert.equal(count(second.pageData.pageStyles, '.b{color:blue}'), 1);
+});
+
+test('appendHeaderCode keeps an existing <script> and adds a <link> (the bl-530 repro)', () => {
+  const d = pageFixture({ trackingCode: { headerCode: '<script src="x.js"></script>' } });
+  const link = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter">';
+  const { pageData, errors, report } = applyPageEdits(d, [{ op: 'page', appendHeaderCode: link }]);
+  assert.deepEqual(errors, []);
+  assert.match(pageData.trackingCode.headerCode, /^<script src="x\.js"><\/script>/);
+  assert.match(pageData.trackingCode.headerCode, new RegExp(`<!-- uxie:append:[0-9a-f]{8} -->${link.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}<!-- /uxie:append -->$`));
+  assert.equal(report[0].droppedContent, undefined);
+});
+
+test('appendFooterCode adds to the footer once, leaving the header alone', () => {
+  const d = pageFixture({ trackingCode: { headerCode: '<!--H-->' } });
+  const once = applyPageEdits(d, [{ op: 'page', appendFooterCode: '<!--F-->' }]);
+  const twice = applyPageEdits(once.pageData, [{ op: 'page', appendFooterCode: '<!--F-->' }]);
+  assert.equal(twice.pageData.trackingCode.headerCode, '<!--H-->');
+  assert.equal(count(twice.pageData.trackingCode.footerCode, '<!--F-->'), 1);
+});
+
+test('customCss replace that drops a stored rule reports droppedContent', () => {
+  const d = pageFixture();
+  d.general.general.pageStyles = '.a{color:red}\n.keep{margin:0}';
+  const { report, errors } = applyPageEdits(d, [{ op: 'page', customCss: '.a{color:red}' }]);
+  assert.deepEqual(errors, []);
+  assert.equal(report[0].droppedContent[0].field, 'customCss');
+  assert.ok(report[0].droppedContent[0].droppedLines >= 1);
+  assert.equal(report[0].droppedContent[0].storedChars, '.a{color:red}\n.keep{margin:0}'.length);
+  assert.equal(report[0].droppedContent[0].sentChars, '.a{color:red}'.length);
+});
+
+test('a replace that only adds reports no droppedContent', () => {
+  const d = pageFixture();
+  const { report } = applyPageEdits(d, [{ op: 'page', customCss: '.a{color:red}\n.b{color:blue}' }]);
+  assert.equal(report[0].droppedContent, undefined);
+});
+
+test('a trackingCode headerCode replace that drops stored HTML reports droppedContent with its field name', () => {
+  const d = pageFixture({ trackingCode: { headerCode: '<script src="x.js"></script>' } });
+  const { report } = applyPageEdits(d, [{ op: 'page', trackingCode: { headerCode: '<link rel="stylesheet" href="y.css">' } }]);
+  assert.equal(report[0].droppedContent[0].field, 'trackingCode.headerCode');
+});
+
+test('appendCss and customCss in one op is refused, naming both keys', () => {
+  const { errors } = applyPageEdits(pageFixture(), [{ op: 'page', appendCss: '.b{color:blue}', customCss: '.c{}' }]);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0].error, /appendCss/);
+  assert.match(errors[0].error, /customCss/);
+});
+
+test('verifyEdits reads an appended block back from the stored copy: present once, at the end', () => {
+  const { pageData, report } = applyPageEdits(pageFixture(), [{ op: 'page', appendCss: '.b{color:blue}' }]);
+  assert.deepEqual(verifyEdits(pageData, report), [{ page: true, applied: true }]);
+  const doubled = structuredClone(pageData); doubled.general.general.pageStyles += doubled.general.general.pageStyles.slice(doubled.general.general.pageStyles.indexOf('/* uxie'));
+  assert.equal(verifyEdits(doubled, report)[0].applied, false, 'a block present twice is not applied');
+  assert.equal(verifyEdits(pageFixture(), report)[0].applied, false, 'the stored copy without the block is not applied');
+});

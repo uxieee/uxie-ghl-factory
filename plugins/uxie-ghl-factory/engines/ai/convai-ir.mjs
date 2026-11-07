@@ -38,7 +38,11 @@ export function normalizeMode(mode) {
 // (conversation-ai-2026-08-25/js/ai-employees.9d15ae76d92308da.js: FORM_BASED_BOT:"FORM_BASED_BOT")
 // and the UI's pre-PUT cleanup has a dedicated branch for it. Nothing in this engine builds one
 // yet, but refusing the type outright would be wrong.
-export const BOT_TYPES = ['PROMPT_BASED_BOT', 'FLOW_BUILDER_BOT', 'FORM_BASED_BOT'];
+// Four since the 2026-10 wave: FLOW_BUILDER_BOT_V2 is the new flow agent, an employee record plus an agent-studio
+// agent and version that hold its graph (knowledge sniffs/convai-wave-2026-10-29 UI-WALK-FINDINGS.md §9). Knowing the
+// type lets the compiler refuse V2 work it cannot do (create, every key but cancel/reschedule) instead of treating a
+// V2 record as a prompt bot.
+export const BOT_TYPES = ['PROMPT_BASED_BOT', 'FLOW_BUILDER_BOT', 'FORM_BASED_BOT', 'FLOW_BUILDER_BOT_V2'];
 // channels enum — the SERVER's own list, quoted from its 422 on the designated test sub-account
 // (2026-09-26): "each value in channels must be one of the following values: GMB, IG, FB, SMS,
 // WebChat, WhatsApp, Live_Chat, Email, TIKTOK". A PUT with all eight UI channels (TIKTOK and Email
@@ -113,10 +117,13 @@ function checkResponseStyle(ir) {
   }
 }
 
-// llm {primary, secondary}. The model ids are NOT listed here: the server's enum moves with GHL's
-// model roster (15 GPT ids on 2026-09-26) and its 422 names the current list, which the tool passes
-// through. `GET /ai-employees/employees/models?locationId=` serves the catalogue. The one rule that
-// does not move: "llm.Primary and Secondary LLMs cannot be the same" (422, 2026-09-26).
+// llm {primary, secondary}. The model ids are NOT listed here: the server takes any id on GHL's model
+// roster, and the roster moves. On 2026-10-29 it held 22 models across OpenAI, Anthropic (Claude) and
+// Google (Gemini); a Claude primary with a Gemini secondary was accepted and read back with the provider
+// Lab off (knowledge sniffs/convai-wave-2026-10-29/live-llm-provider-differential.json). The server's 422
+// names the current list, which the tool passes through; `GET /ai-employees/employees/models?locationId=`
+// (get_ai_agent_options product:"conversation_ai") serves the roster. The one rule that does not move:
+// "llm.Primary and Secondary LLMs cannot be the same" (422, 2026-09-26).
 function checkLlm(llm) {
   if (llm === undefined) return;
   if (!llm || typeof llm !== 'object' || Array.isArray(llm)) throw new IRError('SCHEMA', 'llm must be an object {primary, secondary}');
@@ -126,6 +133,86 @@ function checkLlm(llm) {
   }
   if (llm.primary && llm.primary === llm.secondary) {
     throw new IRError('SCHEMA', 'llm.primary and llm.secondary cannot be the same model (server-enforced)');
+  }
+}
+
+// ---- The 2026-10 wave's agent-level keys (W5a) ----------------------------------------------------
+// Shapes from the editor's own save bodies: knowledge sniffs/convai-wave-2026-10-29 ui-capture-06-mcp-outbound-msg.json
+// (opener + disclaimer) and ui-capture-04-prompt-rich.json (rich elements), UI-WALK-FINDINGS.md §1/§3. Each object is
+// sent WHOLE as given and replaces the stored one; nothing is merged into it.
+
+// outboundOpeningMessage {mode, body}: the first message an outbound trigger or campaign sends. `ai_generated` runs the
+// agent's primary model on `body` as an instruction; `static` sends `body` as written (merge tags allowed). The editor
+// caps the body at 200 words.
+export const OPENER_MODES = ['ai_generated', 'static'];
+export const OPENER_MAX_WORDS = 200;
+export function checkOutboundOpener(v) {
+  if (v === undefined) return;
+  const bad = (msg) => { throw new IRError('BAD_OPENER', `outboundOpeningMessage ${msg}`); };
+  if (!v || typeof v !== 'object' || Array.isArray(v)) bad('must be an object {mode, body}');
+  const extra = Object.keys(v).filter((k) => k !== 'mode' && k !== 'body');
+  if (extra.length) bad(`has unknown key(s) [${extra.join(', ')}]; its keys are mode and body`);
+  if (!OPENER_MODES.includes(v.mode)) bad(`.mode must be one of ${OPENER_MODES.join(', ')}, got ${JSON.stringify(v.mode)}`);
+  if (v.body !== undefined && typeof v.body !== 'string') bad('.body must be a string');
+  if (v.mode === 'static' && !(v.body ?? '').trim()) bad('mode static sends body as written, so body must be non-empty');
+  const words = (v.body ?? '').trim().split(/\s+/).filter(Boolean).length;
+  if (words > OPENER_MAX_WORDS) bad(`.body is ${words} words; the editor allows at most ${OPENER_MAX_WORDS}`);
+}
+
+// outboundDisclaimer {enabled, style, customText?}: the AI disclosure added to outbound messages. `concise` is GHL's
+// own line; `custom` sends customText.
+export const DISCLAIMER_STYLES = ['concise', 'custom'];
+export function checkOutboundDisclaimer(v) {
+  if (v === undefined) return;
+  const bad = (msg) => { throw new IRError('BAD_DISCLAIMER', `outboundDisclaimer ${msg}`); };
+  if (!v || typeof v !== 'object' || Array.isArray(v)) bad('must be an object {enabled, style, customText?}');
+  const extra = Object.keys(v).filter((k) => !['enabled', 'style', 'customText'].includes(k));
+  if (extra.length) bad(`has unknown key(s) [${extra.join(', ')}]; its keys are enabled, style, customText`);
+  if (typeof v.enabled !== 'boolean') bad('.enabled must be a boolean');
+  if (!DISCLAIMER_STYLES.includes(v.style)) bad(`.style must be one of ${DISCLAIMER_STYLES.join(', ')}, got ${JSON.stringify(v.style)}`);
+  if (v.customText !== undefined && typeof v.customText !== 'string') bad('.customText must be a string');
+  if (v.style === 'custom' && !(v.customText ?? '').trim()) bad('style custom sends customText, so customText must be non-empty');
+}
+
+// richElementSettings: Response Behavior's rich elements. PROMPT_BASED_BOT only — the builder deletes the key for every
+// other bot type, and the V2 settings panel has no rich elements. The read adds elements.carousel and each rule's
+// id/createdAt/updatedAt, so those are accepted (a read-merge-write echoes them).
+export const RICH_ELEMENT_KEYS = ['richText', 'quickReplies', 'linkButtons', 'list', 'carousel', 'image', 'file'];
+const RICH_KEYS = ['enabled', 'customRulesOnly', 'elements', 'customInstructions'];
+const RICH_RULE_KEYS = ['id', 'name', 'type', 'trigger', 'enabled', 'createdAt', 'updatedAt'];
+export function checkRichElementSettings(v, { botType } = {}) {
+  if (v === undefined) return;
+  if (botType !== undefined && botType !== 'PROMPT_BASED_BOT') {
+    throw new IRError('RICH_ELEMENTS_PROMPT_ONLY',
+      `richElementSettings is a PROMPT_BASED_BOT setting; this agent is ${botType} (the builder strips it from every other bot type). Nothing was sent.`);
+  }
+  const bad = (msg) => { throw new IRError('BAD_RICH_ELEMENTS', `richElementSettings ${msg}`); };
+  if (!v || typeof v !== 'object' || Array.isArray(v)) bad('must be an object {enabled, customRulesOnly, elements, customInstructions}');
+  const extra = Object.keys(v).filter((k) => !RICH_KEYS.includes(k));
+  if (extra.length) bad(`has unknown key(s) [${extra.join(', ')}]; its keys are ${RICH_KEYS.join(', ')}`);
+  if (typeof v.enabled !== 'boolean') bad('.enabled must be a boolean');
+  if (v.customRulesOnly !== undefined && typeof v.customRulesOnly !== 'boolean') bad('.customRulesOnly must be a boolean');
+  if (v.elements !== undefined) {
+    if (!v.elements || typeof v.elements !== 'object' || Array.isArray(v.elements)) bad('.elements must be an object');
+    for (const [k, el] of Object.entries(v.elements)) {
+      if (!RICH_ELEMENT_KEYS.includes(k)) bad(`.elements.${k} is not an element; the elements are ${RICH_ELEMENT_KEYS.join(', ')}`);
+      if (!el || typeof el !== 'object' || Array.isArray(el) || typeof el.enabled !== 'boolean' || Object.keys(el).length !== 1) {
+        bad(`.elements.${k} must be {enabled: boolean}`);
+      }
+    }
+  }
+  if (v.customInstructions !== undefined) {
+    if (!Array.isArray(v.customInstructions)) bad('.customInstructions must be an array of rules');
+    for (const [i, r] of v.customInstructions.entries()) {
+      const at = `.customInstructions[${i}]`;
+      if (!r || typeof r !== 'object' || Array.isArray(r)) bad(`${at} must be an object {name, type, trigger, enabled}`);
+      const unknown = Object.keys(r).filter((k) => !RICH_RULE_KEYS.includes(k));
+      if (unknown.length) bad(`${at} has unknown key(s) [${unknown.join(', ')}]`);
+      if (typeof r.name !== 'string' || !r.name.trim()) bad(`${at}.name must be a non-empty string`);
+      if (!RICH_ELEMENT_KEYS.includes(r.type)) bad(`${at}.type must be an element (${RICH_ELEMENT_KEYS.join(', ')}), got ${JSON.stringify(r.type)}`);
+      if (typeof r.trigger !== 'string' || !r.trigger.trim()) bad(`${at}.trigger (the situation, in words) must be a non-empty string`);
+      if (typeof r.enabled !== 'boolean') bad(`${at}.enabled must be a boolean`);
+    }
   }
 }
 
@@ -262,9 +349,11 @@ export function parseConvaiIR(ir) {
   return { ...ir, mode: normalizeMode(ir.mode) };
 }
 
-// Partial validation — used when compiling an update (PUT /ai-employees/employees/:id). The PUT does
-// NOT merge: the update tool reads the record and sends it whole (see compileConvaiUpdateFromRecord). Every field is optional, but any field that
-// IS present must still satisfy its enum/shape.
+// Partial validation — used when compiling an update (PUT /ai-employees/employees/:id). A partial PUT MERGED on
+// 2026-10-30 (prompt, V1 flow and V2; a reset was reported 2026-08-28 and did not reproduce), and the update tool
+// still reads the record and sends it whole (see compileConvaiUpdateFromRecord). Every field is optional, but any
+// field that IS present must still satisfy its enum/shape. The rich-element bot-type rule needs the stored bot type,
+// so the compiler applies it; here it runs only when the spec names a botType.
 export function parseConvaiPartialIR(ir) {
   if (!ir || typeof ir !== 'object') throw new IRError('SCHEMA', 'IR must be an object');
   if (ir.name !== undefined) assertNonEmptyString(ir.name, 'name');
@@ -282,5 +371,8 @@ export function parseConvaiPartialIR(ir) {
   checkLlm(ir.llm);
   checkBusinessName(ir.businessName);
   checkKnowledgeBaseTriggers(ir.knowledgeBaseTriggers);
+  checkOutboundOpener(ir.outboundOpeningMessage);
+  checkOutboundDisclaimer(ir.outboundDisclaimer);
+  checkRichElementSettings(ir.richElementSettings, { botType: ir.botType });
   return ir.mode !== undefined ? { ...ir, mode: normalizeMode(ir.mode) } : { ...ir };
 }

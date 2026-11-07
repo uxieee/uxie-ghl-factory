@@ -25,6 +25,16 @@
     "path": "/ai-employees/employees/{agentId}"
   },
   {
+    "tool": "update_convai_agent",
+    "method": "GET",
+    "path": "/agent-deployment/outbound-configs"
+  },
+  {
+    "tool": "update_convai_agent",
+    "method": "GET",
+    "path": "/agent-deployment/outbound-triggers"
+  },
+  {
     "tool": "create_voiceai_agent",
     "method": "POST",
     "path": "/voice-ai/agents"
@@ -68,6 +78,46 @@
     "tool": "set_agent_deployment",
     "method": "PATCH",
     "path": "/agent-deployment/routing-config/configs/{rowId}"
+  },
+  {
+    "tool": "set_convai_outbound",
+    "method": "GET",
+    "path": "/agent-deployment/outbound-configs"
+  },
+  {
+    "tool": "set_convai_outbound",
+    "method": "POST",
+    "path": "/agent-deployment/outbound-configs"
+  },
+  {
+    "tool": "set_convai_outbound",
+    "method": "PATCH",
+    "path": "/agent-deployment/outbound-configs/{configId}"
+  },
+  {
+    "tool": "set_convai_outbound",
+    "method": "GET",
+    "path": "/agent-deployment/outbound-triggers"
+  },
+  {
+    "tool": "set_convai_outbound",
+    "method": "POST",
+    "path": "/agent-deployment/outbound-triggers"
+  },
+  {
+    "tool": "set_convai_outbound",
+    "method": "PUT",
+    "path": "/agent-deployment/outbound-triggers/{triggerId}"
+  },
+  {
+    "tool": "set_convai_outbound",
+    "method": "GET",
+    "path": "/ai-employees/employees/{agentId}"
+  },
+  {
+    "tool": "set_convai_outbound",
+    "method": "GET",
+    "path": "/phone-system/numbers/v2/location/{locationId}"
   },
   {
     "tool": "create_studio_agent",
@@ -210,6 +260,16 @@
     "path": "/workflow/{loc}/{wid}/validate-workflows"
   },
   {
+    "tool": "validate_workflow",
+    "method": "GET",
+    "path": "/locations/{loc}/tags"
+  },
+  {
+    "tool": "validate_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/validate-assets"
+  },
+  {
     "tool": "export_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"
@@ -300,6 +360,26 @@
     "path": "/workflows/status/enroll-stats"
   },
   {
+    "tool": "get_workflow_step_counts",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "get_workflow_step_counts",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "get_workflow_step_counts",
+    "method": "GET",
+    "path": "/workflows/sticky-notes-all"
+  },
+  {
+    "tool": "get_workflow_step_counts",
+    "method": "GET",
+    "path": "/workflows/logs/v2"
+  },
+  {
     "tool": "list_workflows",
     "method": "GET",
     "path": "/workflow/{loc}/list"
@@ -318,6 +398,16 @@
     "tool": "get_ai_configuration_bundle",
     "method": "GET",
     "path": "/agent-deployment/routing-config/configs"
+  },
+  {
+    "tool": "get_ai_configuration_bundle",
+    "method": "GET",
+    "path": "/agent-deployment/outbound-configs"
+  },
+  {
+    "tool": "get_ai_configuration_bundle",
+    "method": "GET",
+    "path": "/agent-deployment/outbound-triggers"
   },
   {
     "tool": "get_ai_configuration_bundle",
@@ -1008,6 +1098,21 @@
     "tool": "build_workflow",
     "method": "POST",
     "path": "/workflow/{loc}/{wid}/validate-workflows"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/validate-assets"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/workflow/agent/{loc}/skills/resolve"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/rename-workflow/{wid}"
   },
   {
     "tool": "build_workflow",
@@ -2573,5 +2678,115 @@
     "tool": "audit_site",
     "method": "GET",
     "path": "/locations/{locationId}/customValues"
+  },
+  {
+    "tool": "get_ab_test_stats",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "get_ab_test_stats",
+    "method": "GET",
+    "path": "/workflow/{loc}/split/stats"
+  },
+  {
+    "tool": "get_ab_test_stats",
+    "method": "GET",
+    "path": "/workflow/{loc}/split/isExecuted"
+  },
+  {
+    "tool": "declare_ab_test_winner",
+    "method": "POST",
+    "path": "/workflow/{loc}/split/ab-test/declare-winner"
+  },
+  {
+    "tool": "list_ai_agent_skills",
+    "method": "GET",
+    "path": "/workflow/agent/{loc}/skills"
+  },
+  {
+    "tool": "list_ai_agent_skills",
+    "method": "GET",
+    "path": "/workflow/agent/{loc}/skills/resolve"
+  },
+  {
+    "tool": "get_workflow_heat_map",
+    "method": "GET",
+    "path": "/workflows/logs/enrollment-counts"
+  },
+  {
+    "tool": "get_contact_workflow_journey",
+    "method": "GET",
+    "path": "/workflow/{loc}/contact/{contactId}/statuses_v2"
+  },
+  {
+    "tool": "list_workflow_test_runs",
+    "method": "GET",
+    "path": "/workflow/{loc}/test-workflow/{wf}/event-runs"
+  },
+  {
+    "tool": "get_step_latest_test_result",
+    "method": "GET",
+    "path": "/workflow/{loc}/test-workflow/{wf}/steps/{stepId}/latest-result"
+  },
+  {
+    "tool": "get_workflow_test_run",
+    "method": "GET",
+    "path": "/workflow/{loc}/test-workflow/runs/{requestId}"
+  },
+  {
+    "tool": "get_workflow_test_run",
+    "method": "GET",
+    "path": "/workflow/{loc}/test-workflow/runs/{requestId}/step-events"
+  },
+  {
+    "tool": "list_workflow_error_notifications",
+    "method": "GET",
+    "path": "/workflow/{loc}/error-notification/list"
+  },
+  {
+    "tool": "get_course_progress",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/products/user-progress/{productId}?pageLimit={pageLimit}&pageNumber={pageNumber}&email={email}"
+  },
+  {
+    "tool": "set_course_access",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/offers/{offerId}"
+  },
+  {
+    "tool": "set_course_access",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/products/user-progress/{productId}?pageLimit={pageLimit}&pageNumber={pageNumber}&email={email}"
+  },
+  {
+    "tool": "set_course_access",
+    "method": "POST",
+    "path": "/membership/smart-list/attach-offer-user"
+  },
+  {
+    "tool": "set_course_access",
+    "method": "DELETE",
+    "path": "/membership/smart-list/user-offer-management"
+  },
+  {
+    "tool": "edit_quiz_questions",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/assessments/quiz/questions/{quizId}"
+  },
+  {
+    "tool": "edit_quiz_questions",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/assessments/quiz/questions"
+  },
+  {
+    "tool": "get_course",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/products/{courseId}"
+  },
+  {
+    "tool": "get_course",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/categories?product_id={courseId}&posts=true"
   }
 ]

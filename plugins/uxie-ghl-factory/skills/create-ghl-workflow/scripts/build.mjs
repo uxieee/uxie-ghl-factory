@@ -1,12 +1,13 @@
 // Canonical build entry for the create-ghl-workflow skill. Run:
-//   node scripts/build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved]
+//   node scripts/build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved] [--dry-run]
 //
 // Reads the Bearer JWT from $GHL_INTERNAL_TOK_FILE, else ~/.uxie-ghl-internal-mcp/tok.txt
 // (the same default capture-token.mjs and the MCP server use), then
-// routes the IR through the dependency-aware orchestrator — which pre-creates
-// tags + email templates, resolves every human name to the account's real ID,
-// ABORTS if an account dependency is missing, builds a DRAFT, and round-trip
-// verifies. Publish only with --publish (and only after user confirmation).
+// routes the IR through the dependency-aware orchestrator — which resolves every human name to
+// the account's real ID, ABORTS if an account dependency is missing, runs every check, and only
+// then creates the missing tags + inline email templates, builds a DRAFT, and round-trip
+// verifies. Publish only with --publish (and only after user confirmation). --dry-run runs every
+// check and creates nothing.
 //
 // The agent MUST use this instead of hand-assembling API calls, so dependency
 // pre-creation and name resolution can never be skipped.
@@ -39,15 +40,23 @@ const tokFile = process.env.GHL_INTERNAL_TOK_FILE || DEFAULT_TOKEN_FILE;
 // and build resolve the SAME file. Checked AFTER the legacy guard, BEFORE the usage check.
 if (process.argv.includes('--print-token-file')) { console.log(tokFile); process.exit(0); }
 
+// An unknown flag is refused, never ignored: `--dry-run` used to be silently dropped and the build ran for real.
+const KNOWN_FLAGS = new Set(['--publish', '--ignore-unresolved', '--dry-run', '--print-token-file']);
+for (const a of process.argv.slice(2)) {
+  if (a.startsWith('--') && !KNOWN_FLAGS.has(a)) { console.error(`unknown flag ${a} — known: ${[...KNOWN_FLAGS].join(' ')}`); process.exit(1); }
+}
+if (process.argv.includes('--dry-run') && process.argv.includes('--publish')) { console.error('--dry-run and --publish together: a dry run creates nothing, so it cannot publish'); process.exit(1); }
+
 const ENG = resolve(HERE, '../engine');
 // pathToFileURL: a bare `C:/...` specifier is rejected by Node's ESM loader on Windows
 // (ERR_UNSUPPORTED_ESM_URL_SCHEME). No-op on POSIX. Flagged by PR #4; hit on a client build 2026-08-26.
 const { orchestrate } = await import(pathToFileURL(ENG + '/orchestrate.mjs').href);
 
-const [irPath, LOC] = process.argv.slice(2);
+const [irPath, LOC] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const publish = process.argv.includes('--publish');
 const ignoreUnresolved = process.argv.includes('--ignore-unresolved');
-if (!irPath || !LOC) { console.error('usage: node build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved]'); process.exit(1); }
+const dryRun = process.argv.includes('--dry-run');
+if (!irPath || !LOC) { console.error('usage: node build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved] [--dry-run]'); process.exit(1); }
 
 const T = (readFileSync(tokFile, 'utf8').match(/Bearer (ey[A-Za-z0-9._-]+)/) || [])[1];
 if (!T) { console.error('no Bearer token in', tokFile); process.exit(1); }
@@ -64,7 +73,17 @@ const call = async (m, p, b) => { await sleep(300); const r = await fetch(BASE +
   const txt = await r.text(); let j; try { j = JSON.parse(txt); } catch { j = txt; } return { status: r.status, ok: r.ok, json: j }; };
 
 const ir = JSON.parse(readFileSync(irPath, 'utf8'));
-const report = await orchestrate(ir, { call, loc: LOC, uid: UID }, { publish, ignoreUnresolved });
+const report = await orchestrate(ir, { call, loc: LOC, uid: UID }, { publish, ignoreUnresolved, dryRun });
+
+if (dryRun) {
+  const c = report.check;
+  console.log('\n=== DRY RUN (nothing was created) ===');
+  console.log('valid:', c.valid, '| server validator:', c.server);
+  for (const e of c.errors) console.log(`✖ [${e.stage}] ${e.code}${e.path ? ` @ ${e.path}` : ''}: ${e.context}`);
+  for (const w of c.warnings ?? []) console.log('⚠ WARN:', w);
+  console.log('would create tags:', c.wouldCreate.tags.join(', ') || '(none)', '| email templates:', c.wouldCreate.templates.join(', ') || '(none)');
+  process.exit(c.valid ? 0 : 2);
+}
 
 console.log('\n=== BUILD REPORT ===');
 if (report.aborted) { console.log('ABORTED:', report.aborted); process.exit(2); }

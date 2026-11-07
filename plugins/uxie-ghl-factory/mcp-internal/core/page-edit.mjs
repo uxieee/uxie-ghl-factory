@@ -18,7 +18,8 @@ export function findNode(pageData, nodeId) {
   return null;
 }
 
-import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch, withElement } from './funnel-pages.mjs';
+import { createHash } from 'node:crypto';
+import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch, withElement, REFUSED_KINDS, REFUSED_KIND_REMEDIATION, refusedKindProblems, refusedInSubtree } from './funnel-pages.mjs';
 import { randomId, allIds, subtreeIds, parentOf, positionIn, movedIndex, cloneSubtree, copyRulesUnderNewIds, stripRulesNaming, findPopup, popupRoot } from './page-structure.mjs';
 import { nodeLayerCss, storedMap, LAYER_SPEC_KEYS } from './style-layer.mjs';
 import { applyDynamicText, DTR_KINDS } from './dynamic-text.mjs';
@@ -33,6 +34,29 @@ const mergeInto = (node, key, patch) => {
 
 
 const inPopup = (pageData, nodeId) => (pageData.popupsList ?? []).some((p) => (p.elements ?? []).some((e) => e.id === nodeId));
+
+// An appended block is fenced with a hash of its own text, so the same block is never appended twice (w7-1).
+const fencedBlock = (kind, text) => {
+  const marker = `uxie:append:${createHash('sha1').update(text).digest('hex').slice(0, 8)}`;
+  const body = kind === 'css' ? `/* ${marker} */${text}/* /uxie:append */` : `<!-- ${marker} -->${text}<!-- /uxie:append -->`;
+  return { marker, text: body };
+};
+
+// The non-empty lines of a stored value that the replacement no longer carries (w7-1 droppedContent).
+const droppedLinesOf = (stored, sent) => {
+  const kept = new Set(String(sent ?? '').split('\n').map((l) => l.trim()).filter(Boolean));
+  return String(stored ?? '').split('\n').map((l) => l.trim()).filter((l) => l && !kept.has(l));
+};
+const countOf = (text, part) => String(text ?? '').split(part).length - 1;
+
+// The append keys are PAGE-op keys. The edits item schema is shared by every op, so a caller's key on any other op is refused
+// here, before anything is written (w7-1 QA). Call it on the caller's edit, before any internal key is added to it.
+export const PAGE_APPEND_KEYS = Object.freeze(['appendCss', 'appendHeaderCode', 'appendFooterCode']);
+export function appendKeyRefusal(edit, i) {
+  if (!edit || edit.op === 'page') return null;
+  const key = PAGE_APPEND_KEYS.find((k) => edit[k] !== undefined);
+  return key ? `edits[${i}]: ${key} is a page op key and a ${edit.op} op does not take it (use op "page", or a set op's own keys)` : null;
+}
 
 /** The column an inserted element goes into, and its position: parentId (+ index | after | before among its children) or a sibling (after | before). */
 function insertTarget(pageData, o) {
@@ -344,7 +368,12 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       }
       hit.node.updated = true;
       report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...(typeof o.title === 'string' ? { title: o.title } : {}), ...layerPatch } });
+      // w7-6 (orchestrator DECISION 2026-11-07): an unrelated edit to a STORED order-form is allowed; it gets a warning, not a refusal.
+      if (Object.prototype.hasOwnProperty.call(REFUSED_KINDS, hit.node.meta)) report.push({ i, op: 'set', nodeId: o.nodeId, warn: `${hit.node.meta} is stored on this page: ${REFUSED_KINDS[hit.node.meta]}. The edit was applied; the node still needs its GHL-built props (see the order-form backlog row).` });
     } else if (o.op === 'append-section') {
+      // w7-6 (orchestrator DECISION 2026-11-07): a section carrying a refused kind (order-form) is refused; nothing is written.
+      const refusedIn = refusedKindProblems({ sections: [o.section] });
+      if (refusedIn.length) { report.push({ i, op: 'append-section', error: `${refusedIn.map((r) => r.message).join('; ')}; ${refusedIn[0].remediation}` }); continue; }
       // At the end, or at a position among the sections (index | after | before — a section id).
       const secs = next.sections ?? [];
       let at;
@@ -354,6 +383,9 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
     } else if (o.op === 'insert') {
       // A new element into an existing column at a position: the node joins the section's element bag, its id goes into the column's
       // child[] (builder Quick Add: right after the selected element), its rules into the section's sheet.
+      // w7-6 (orchestrator DECISION 2026-11-07): a refused kind (order-form) is refused on insert; nothing is written.
+      const refusedLeaf = refusedKindProblems({ sections: [{ elements: [o.leaf] }] });
+      if (refusedLeaf.length) { report.push({ i, op: 'insert', error: `${refusedLeaf.map((r) => r.message).join('; ')}; ${refusedLeaf[0].remediation}` }); continue; }
       let target;
       try { target = insertTarget(next, o); } catch (e) { report.push({ i, op: 'insert', error: e.message }); continue; }
       const { section, col, at } = target;
@@ -367,6 +399,10 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       const r = moveNode(next, o);
       report.push({ i, op: 'move', nodeId: o.nodeId, ...r });
     } else if (o.op === 'clone') {
+      // w7-6 (orchestrator DECISION 2026-11-07): cloning a refused kind (order-form) would add one; refused, nothing is written.
+      const src = findNode(next, o.nodeId);
+      const subtreeRefusal = src ? refusedInSubtree(src.section, o.nodeId) : [];
+      if (subtreeRefusal.length) { report.push({ i, op: 'clone', nodeId: o.nodeId, error: `${subtreeRefusal.map((r) => r.message).join('; ')}; ${subtreeRefusal[0].remediation}` }); continue; }
       const r = cloneNode(next, o);
       report.push({ i, op: 'clone', nodeId: o.nodeId, ...r });
     } else if (o.op === 'set-popup') {
@@ -379,6 +415,9 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       const r = orderPopups(next, o);
       report.push({ i, op: 'order-popups', ...r });
     } else if (o.op === 'append-popup') {
+      // w7-6 (QA issue 2): a popup carrying a refused kind (order-form) is refused, nothing is added.
+      const refusedPop = refusedKindProblems({ sections: [], popupsList: [o.popup.entry] });
+      if (refusedPop.length) { report.push({ i, op: 'append-popup', error: `${refusedPop.map((r) => r.message).join('; ')}; ${refusedPop[0].remediation}` }); continue; }
       next.popupsList = [...(next.popupsList ?? []), o.popup.entry];
       // The popup's box and its content's rules are PAGE-level CSS, where the builder keeps them.
       next.pageStyles = `${next.pageStyles ?? ''}${o.popup.css}`;
@@ -402,7 +441,19 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       // knowledge sniffs/funnels-wave4-page-2026-09-26). SEO is not here: it rides the autosave
       // envelope's `meta`, not the page data (see seoMeta below).
       const changed = [];
+      const droppedContent = [];
+      if (typeof o.appendCss === 'string' && typeof o.customCss === 'string') {
+        report.push({ i, op: 'page', error: 'appendCss and customCss in one page op: customCss replaces the whole sheet, appendCss adds to it; send one of them' });
+        continue;
+      }
       if (o.trackingCode) {
+        // A replace that removes stored HTML is reported (w7-1, bl-498): the write still happens, the caller sees what went.
+        for (const k of ['headerCode', 'footerCode']) {
+          if (typeof o.trackingCode[k] !== 'string') continue;
+          const stored = next.trackingCode?.[k] ?? '';
+          const dropped = droppedLinesOf(stored, o.trackingCode[k]);
+          if (dropped.length) droppedContent.push({ field: `trackingCode.${k}`, storedChars: stored.length, sentChars: o.trackingCode[k].length, droppedLines: dropped.length });
+        }
         next.trackingCode = { headerCode: '', footerCode: '', ...(next.trackingCode ?? {}), ...o.trackingCode };
         changed.push(...Object.keys(o.trackingCode).map((k) => `trackingCode.${k}`));
       }
@@ -412,11 +463,34 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
         // the public page serves. Replace the old suffix, never the builder's part.
         const gen = next.general?.general ?? {};
         const old = gen.pageStyles ?? '';
+        const dropped = droppedLinesOf(old, o.customCss);
+        if (dropped.length) droppedContent.push({ field: 'customCss', storedChars: old.length, sentChars: o.customCss.length, droppedLines: dropped.length });
         let compiled = next.pageStyles ?? '';
         if (old && compiled.endsWith(old)) compiled = compiled.slice(0, compiled.length - old.length).replace(/\s*$/, '');
         next.general = { ...(next.general ?? {}), general: { ...gen, pageStyles: o.customCss } };
         next.pageStyles = o.customCss ? `${compiled} \n ${o.customCss}` : compiled;
         changed.push('general.general.pageStyles', 'pageStyles');
+      }
+      // Appends (w7-1, bl-498, bl-530): added after the stored value, fenced by a hash of their text, and never twice.
+      const appended = {};
+      if (typeof o.appendCss === 'string' && o.appendCss) {
+        const block = fencedBlock('css', o.appendCss);
+        const gen = next.general?.general ?? {};
+        const cur = gen.pageStyles ?? '';
+        if (!cur.includes(block.marker)) {
+          next.general = { ...(next.general ?? {}), general: { ...gen, pageStyles: `${cur}${block.text}` } };
+          next.pageStyles = `${next.pageStyles ?? ''}${block.text}`;
+        }
+        appended.css = block.text;
+        changed.push('general.general.pageStyles', 'pageStyles');
+      }
+      for (const [key, kind] of [['appendHeaderCode', 'headerCode'], ['appendFooterCode', 'footerCode']]) {
+        if (typeof o[key] !== 'string' || !o[key]) continue;
+        const block = fencedBlock('html', o[key]);
+        const cur = next.trackingCode?.[kind] ?? '';
+        if (!cur.includes(block.marker)) next.trackingCode = { headerCode: '', footerCode: '', ...(next.trackingCode ?? {}), [kind]: `${cur}${block.text}` };
+        appended[kind] = block.text;
+        changed.push(`trackingCode.${kind}`);
       }
       if (o.background) {
         const bg = next.settings?.settings?.background ?? {};
@@ -452,8 +526,8 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
         setPageColors(next, o.typography);
         changed.push('settings.settings.typography.colors', 'pageStyles');
       }
-      if (!changed.length) { report.push({ i, op: 'page', error: 'page op needs trackingCode, customCss, background or typography (SEO goes in `seo`)' }); continue; }
-      report.push({ i, op: 'page', changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background, typography: o.typography } });
+      if (!changed.length) { report.push({ i, op: 'page', error: 'page op needs trackingCode, customCss, appendCss, appendHeaderCode, appendFooterCode, background or typography (SEO goes in `seo`)' }); continue; }
+      report.push({ i, op: 'page', changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background, typography: o.typography, appended }, ...(droppedContent.length ? { droppedContent } : {}) });
     } else {
       report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | insert | move | clone | append-popup | set-popup | remove-popup | order-popups | remove-node | page)` });
     }
@@ -522,6 +596,14 @@ export function verifyEdits(stored, report) {
       if (typeof e.customCss === 'string') {
         if ((stored.general?.general?.pageStyles ?? '') !== e.customCss) wrong.push('general.general.pageStyles');
         if (e.customCss && !(stored.pageStyles ?? '').endsWith(e.customCss)) wrong.push('pageStyles');
+      }
+      // An appended block is present exactly once in the stored sheet, and the public copy ends with it (w7-1).
+      if (e.appended?.css) {
+        if (countOf(stored.general?.general?.pageStyles, e.appended.css) !== 1) wrong.push('general.general.pageStyles');
+        if (!(stored.pageStyles ?? '').endsWith(e.appended.css)) wrong.push('pageStyles');
+      }
+      for (const kind of ['headerCode', 'footerCode']) {
+        if (e.appended?.[kind] && countOf(stored.trackingCode?.[kind], e.appended[kind]) !== 1) wrong.push(`trackingCode.${kind}`);
       }
       const bg = stored.settings?.settings?.background;
       if (e.background?.imageUrl !== undefined && bg?.bgImage?.value?.url !== e.background.imageUrl) wrong.push('background.imageUrl');

@@ -204,7 +204,7 @@ test('the documented count of uncited routes equals tool-descriptions.json', () 
     .filter((entry) => entry && typeof entry === 'object' && Array.isArray(entry.undocumentedCapabilities))
     .flatMap((entry) => entry.undocumentedCapabilities);
   const body = section('## The receipt-gated composites');
-  const words = { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight' };
+  const words = { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten' };
   assert.match(
     body, new RegExp(`${words[uncited.length]} composite routes? carry no row`, 'i'),
     `README must state the real uncited-route count of ${uncited.length}`,

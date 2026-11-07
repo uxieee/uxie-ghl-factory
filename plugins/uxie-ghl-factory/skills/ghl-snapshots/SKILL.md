@@ -77,6 +77,27 @@ under it (2 on the test sub-account, measured 2026-09-07, alongside 4 `knowledge
 `platform/40-rules/snapshot-carry-matrix.md` before promising a rollout carries something — the
 matrix is per-asset and several answers are counter-intuitive.
 
+## After a snapshot or template install: run `audit_site`
+
+An install copies the funnels, forms and calendars of the SOURCE account, and their embedded references keep pointing at that source. A form or calendar id that the new account does not hold shows its correct name beside a wrong id, so the page looks right in the builder and fails for visitors. After any snapshot or template install that brings funnels or websites, run `audit_site` on each funnel for the account (read-only) and fix every HIGH dangling reference before handing the site over. Its coverage line says which lists it read to the end; a check listed as not run has not been verified.
+
+## Which rail, per job
+
+The public snapshot list needs an agency token; a location's PIT is refused for scope (2026-10-29).
+
+<!-- rail-ledger:snapshots -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | undecided | internal | `list_snapshots`, `get_snapshot_contents` | `snapshots-v3__get-custom-snapshots` |
+
+- **read:** Snapshot work is agency-scoped; the public list needs an agency token, the plugin works per location.
+
+Internal only: create; refresh; push; contents; manifest; conflicts.
+Public only: share link; push status.
+<!-- /rail-ledger:snapshots -->
+
 ## Out of scope until someone proves them
 
 Never executed, all outward-facing or destructive, none to be run casually on an agency: push /

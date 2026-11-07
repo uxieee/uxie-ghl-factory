@@ -1,14 +1,16 @@
 // Transport-blind tool definitions. Descriptions are pulled from the generated
 // tool-description catalog so proof status and risk reach the agent verbatim.
+import { redactUrlTokens } from './url-token-redact.mjs';
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join, isAbsolute } from 'node:path';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets } from './errors.mjs';
+import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets, isSecretKey, REDACTED } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
 import { refuseRawRequest, refuseEmptyWriteBody, matchCatalogRow, refuseRedactedWrite, restoreRedactedForValidation } from './raw-request-guards.mjs';
+import { sendClassFor, sendClassWithToken, requireSendAck, nonCanonicalPathReason } from './send-class.mjs';
 import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgePageRecord, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
@@ -17,7 +19,7 @@ import { KIND_CSS_KINDS } from './kind-css.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn, COLUMN_SPEC_KEYS, MAX_COLUMNS_PER_ROW,
   makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, nodeExtraFromCss, elementSizeCss, buttonColourCss, applyPalette, resetIds, val,
-  NEEDS_STEP_TYPE, videoSourceProblems, isPdpKind, pdpNodeProblems, pdpStylingWarning, builderStylingWarning, kindLayerCss, kindCssRefusal, mergePalette, BUILDER_PALETTE,
+  NEEDS_STEP_TYPE, videoSourceProblems, refusedKindProblems, isPdpKind, pdpNodeProblems, pdpStylingWarning, builderStylingWarning, kindCssUnverifiedWarning, kindLayerCss, kindCssRefusal, mergePalette, BUILDER_PALETTE,
   BUILDER_INNER_MAX_WIDTH, SECTION_SPEC_KEYS,
 } from './funnel-pages.mjs';
 import {
@@ -30,18 +32,29 @@ import {
 } from './funnel-ops.mjs';
 import { planAdvancedFilters, videoFilters, videoView, filterQuery, ordersView, FILTER_FIELDS as ANALYTICS_FILTER_FIELDS, SALES_NOTE } from './funnel-analytics.mjs';
 import { planCreateFunnel, createdId, findMediaVideo, webinarView, sessionWarnings, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments, listFolders, FOLDER_KINDS, templateLoadOutcome, STORE_BLANK_STEP_COUNT } from './funnel-create.mjs';
-import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
+import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode, appendKeyRefusal } from './page-edit.mjs';
+import { decoratePageResult } from './builder-save-drift.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { elementSpecProblem } from './element-spec.mjs';
 import { planCookieConsent, cookieConsentNotApplied } from './cookie-consent.mjs';
 import { assetBindingExtra } from './kind-oracle-defaults.mjs';
 import { applyDynamicText } from './dynamic-text.mjs';
 import { makePopup, popupRefProblems } from './page-popup.mjs';
+import { makeW6cTools } from './workflow-w6c-tools.mjs';
+import { makeFunnelRenderTools } from './funnel-render-tools.mjs';
+import { makeCourseTools } from './course-tools.mjs';
 import { normalizeStyles } from './style-values.mjs';
 import { fontRegistry, typographyValue, typographyFamily, setRootVars, typographyRule, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, resolveCustomFont, setPageColors } from './page-fonts.mjs';
 import { checkRecord, metaPost, recordDrift } from './page-seo.mjs';
 import { planCreate, planUpdate, planDelete, resolveTarget, resolveTo, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
-import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
+import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput, LOG_PAGE_SIZE_DEFAULT } from './workflow-runtime-window.mjs';
+import { readAllFolders } from '../../skills/create-ghl-workflow/engine/folders.mjs';
+import { liftWorkflow } from '../../skills/create-ghl-workflow/engine/lift.mjs';
+import { compile } from '../../skills/create-ghl-workflow/engine/compiler.mjs';
+import { alignKeyOrder } from '../../skills/create-ghl-workflow/engine/stored.mjs';
+import { scrubSpecResidual } from './spec-scrub.mjs';
+import { rollupStepCounts, retentionRefusal } from './workflow-step-counts.mjs';
+import { searchWorkflowRoster, SEARCH_KEYS } from './workflow-search.mjs';
 import { triggerFromVersion, restoreBody, diffVersion } from './version-restore.mjs';
 import {
   getAiConfigurationBundle,
@@ -64,7 +77,7 @@ import { callerCredentialClass, reachForCaller } from './credential-class.mjs';
 import { SCHEDULER_TRIGGER_TYPE, schedulerPreviewBody, interpretSchedulerPreview } from '../../skills/create-ghl-workflow/engine/scheduler-preview.mjs';
 import { planReadinessChecks, runReadinessChecks } from '../../skills/create-ghl-workflow/engine/preflight.mjs';
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift, assetsPath } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
-import { INNER_ATTRIBUTE_TYPE } from '../../skills/create-ghl-workflow/engine/required-fields.mjs';
+import { INNER_ATTRIBUTE_TYPE, CATALOG_CORRECTIONS } from '../../skills/create-ghl-workflow/engine/required-fields.mjs';
 import { validateForWrite } from '../../skills/create-ghl-workflow/engine/write-validation.mjs';
 import { liveValidate } from '../../skills/create-ghl-workflow/engine/live-validate.mjs';
 import { HELPER_FIDELITY, compileValidators, runBuilderValidators, validatorNamesFor, validatorSource } from './builder-validators.mjs';
@@ -76,6 +89,8 @@ import {
   mergeSettingsOps,
   opsUseMarketplace,
   partitionOps,
+  expandInsertSteps,
+  resolvePrefixAnchors,
   planTriggerOps,
   planWorkflowNoteOps,
 } from '../../skills/create-ghl-workflow/engine/edit-driver.mjs';
@@ -85,7 +100,7 @@ import { lintOpportunityWrites } from '../../skills/create-ghl-workflow/engine/l
 import { FIELD_CAPS, checkFieldCaps, describeCap } from '../../skills/create-ghl-workflow/engine/field-caps.mjs';
 import { lintTriggerRows } from '../../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs';
 import { searchMergeTags } from '../../skills/create-ghl-workflow/engine/merge-tags.mjs';
-import { digestWorkflow, fingerprintWorkflow } from '../../skills/create-ghl-workflow/engine/digest.mjs';
+import { digestWorkflow, fingerprintWorkflow, fingerprintDocument } from '../../skills/create-ghl-workflow/engine/digest.mjs';
 import { entityCapabilities } from '../../skills/create-ghl-workflow/engine/entities.mjs';
 import { readCache } from './read-cache.mjs';
 import {
@@ -117,8 +132,9 @@ import {
   sortNote as agentLogSortNote,
   FEEDBACK_PRODUCT_TYPE as AGENT_LOG_FEEDBACK_PRODUCT_TYPE,
   sessionFeedback as agentLogSessionFeedback,
+  outboundSource as agentLogOutboundSource,
 } from './agent-logs.mjs';
-import { VOICE_ACTION_TYPES, VOICE_SORT_FIELDS, VOICE_PAGE_SIZE_MAX, PENDING_STATUSES, CAI_PRESET_PERIODS, CAI_LIMIT_MAX,
+import { VOICE_ACTION_TYPES, VOICE_SORT_FIELDS, VOICE_PAGE_SIZE_MAX, PENDING_STATUSES, CAI_PRESET_PERIODS, CAI_LIMIT_MAX, CAI_DIRECTIONS,
   toEpochMs, voiceCallLogsQuery, voiceCallRow, voicePendingQuery, caiConversationLogsQuery, caiLogRow, caiSummaryRow } from './ai-call-logs.mjs';
 import { runLints } from '../../skills/create-ghl-workflow/engine/lints/runner.mjs';
 import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/doctrine.mjs';
@@ -133,7 +149,8 @@ import { compileConvaiAgent } from '../../engines/ai/convai-compiler.mjs';
 import { compileVoiceAiAgent, compileVoiceAiUpdate, compileVoiceAiS2sFollowUp } from '../../engines/ai/voiceai-compiler.mjs';
 import { compileSuperAgentCreate, compileSuperAgentUpdate, compileSuperAgentFromTemplate, templateOverrides, disablesTriggers } from '../../engines/ai/studio-compiler.mjs';
 import { refuseUnappliedStudioKeys, parseSuperAgentTemplateIR, STUDIO_TEMPLATE_IDS } from '../../engines/ai/studio-ir.mjs';
-import { IRError } from '../../engines/ai/convai-ir.mjs';
+import { IRError, normalizeMode } from '../../engines/ai/convai-ir.mjs';
+import { planOutbound, armedFrom, sameValue, OUTBOUND_CONFIGS_PATH, OUTBOUND_TRIGGERS_PATH, OUTBOUND_CHANNEL, EXECUTABLE_TRIGGER_TYPES } from '../../engines/ai/outbound.mjs';
 import { executeAgentPlan, executeAgentUpdate, serverMessage } from '../../engines/ai/driver.mjs';
 import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from '../../engines/ai/voiceai-update.mjs';
 import { compileDeploymentIntent, executeDeployment, DEPLOY_PATH, CHANNELS } from '../../engines/ai/deployment.mjs';
@@ -141,8 +158,9 @@ import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.
 import { submitActionWarning } from './submit-action.mjs';
 import { renderableFields, blankSubmitWarning, addressGroup, carries } from './form-fields.mjs';
 import { shapeForBuilder } from './form-builder-shapes.mjs';
+import { stepCardExtras } from './step-card-extras.mjs';
 import { StudioApi, queryProjectHistory, filterRoutes, classifySite, nameWarning,
-         sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor } from './ai-studio.mjs';
+         sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor, turnSpend, buildOutcomeNote } from './ai-studio.mjs';
 
 // In the bundle the catalog is inlined via esbuild --define (__HAS_CATALOG__/__TOOL_CATALOG__,
 // see scripts/esbuild-config.mjs), so descriptions work on a user's machine with no external
@@ -489,6 +507,10 @@ const endpointStub = (e, callerClass = null) => {
     ...(forYou && forYou !== 'proven' ? { reachForYou: forYou } : {}),
     ...(e.proof ? { proof: e.proof } : {}),
     ...(e.rawCallable === false ? { rawCallable: false } : {}),
+    // The public API's ids for this very path, and the rail-ledger decision for its job (W4) — so a caller sees a path
+    // both rails serve as one, with the rail the ledger picked.
+    ...(e.publicEquivalent?.length ? { publicEquivalent: e.publicEquivalent } : {}),
+    ...(e.railDecision ? { railDecision: e.railDecision } : {}),
   };
 };
 
@@ -633,7 +655,9 @@ export function compileAiAgentPlan(kind, args) {
     const create = compileSuperAgentFromTemplate(ir, { locationId: args.locationId });
     const update = { method: 'PUT', path: '/agent-studio/super-agent/agents/{agentId}', body: { locationId: args.locationId },
       mergeCreatedConfig: { overrides, disableTriggers } };
-    const verifyMergedKeys = [...Object.keys(overrides), ...(disableTriggers ? ['triggers'] : [])];
+    // `computer` is sent null and comes back server-stamped ({approvalRevision}); its sandbox ids in `tools` are the evidence.
+    const verifyMergedKeys = [...new Set([...Object.keys(overrides).map((k) => (k === 'addTools' ? 'tools' : k)).filter((k) => k !== 'computer'),
+      ...(disableTriggers ? ['triggers'] : [])])];
     return { create, actions: [], followUps: [update], verifyMergedKeys, verifyExpected: { config: overrides },
       folder: ir.folderId ? { folderId: ir.folderId, folderName: ir.folderName ?? null } : null, template: ir.templateId };
   }
@@ -654,11 +678,15 @@ export function compileAiAgentPlan(kind, args) {
   // pretend to verify what we did not author.
   // When the caller DID author plugins or triggers, those are ours to verify too — a least-privilege
   // plugins:[] that did not land would leave the agent with every CRM skill.
-  const { name, systemPrompt, plugins, triggers, customApiEnabled } = update.body.config ?? {};
+  const { name, systemPrompt, plugins, triggers, customApiEnabled, subagents, tools } = update.body.config ?? {};
   const verified = { name, systemPrompt };
   if (args.spec?.plugins !== undefined) verified.plugins = plugins;
   if (args.spec?.trigger !== undefined || args.spec?.triggers !== undefined) verified.triggers = triggers;
   if (args.spec?.customApiEnabled !== undefined) verified.customApiEnabled = customApiEnabled;
+  if (args.spec?.subagents !== undefined) verified.subagents = subagents;
+  // The AI build picks its own tools (it saved web_search against a "no web search" prompt, 2026-10-30), so tools are
+  // verified only when authored — directly or through the Computer / Wait & follow up switches.
+  if (args.spec?.tools !== undefined || args.spec?.computer !== undefined || args.spec?.followUp !== undefined) verified.tools = tools;
   return { create, actions: [], followUps: [update], verifyExpected: { config: verified },
     folder: args.spec?.folderId ? { folderId: args.spec.folderId, folderName: args.spec.folderName ?? null } : null };
 }
@@ -672,6 +700,9 @@ function studioDefaultsNote(spec = {}) {
       triggers: disablesTriggers(spec) ? 'triggers:[] — every template trigger is sent back DISABLED (a PUT cannot remove one)'
         : (spec.triggers?.length || spec.trigger) ? 'as given (replacing the template\'s)' : 'NOT SET — the template\'s trigger(s) stay ENABLED (they arm on publish)',
       folder: spec.folderId ? `filed in ${spec.folderId} at create` : 'unfiled',
+      ...(spec.computer?.enabled ? { computer: 'ON — the agent gets a cloud browser, file and exec sandbox in chat and manual runs; there is no stop route, it idles out' } : {}),
+      ...(spec.subagents !== undefined ? { subagents: spec.subagents.length ? spec.subagents.map((x) => x.name).join(', ') : 'none (delegation off)' } : {}),
+      ...(spec.model !== undefined ? { model: spec.model } : {}),
       publish: 'never — the agent stays a draft' };
   }
   const plugins = spec.plugins === undefined
@@ -681,6 +712,10 @@ function studioDefaultsNote(spec = {}) {
   const defaulted = list.filter((t) => t.triggerMessage === undefined).map((t) => t.type);
   return { plugins, triggers: list.length ? list.map((t) => t.type).join(', ') : 'none given (the AI build may add a chat trigger)',
     ...(defaulted.length ? { triggerMessage: `not given for ${defaulted.join(', ')} — GHL fills a per-type default message` } : {}),
+    ...(list.some((t) => t.type === 'inbound_webhook') ? { inboundWebhook: 'an inbound_webhook trigger mints a PUBLIC webhook URL (header X-Webhook-Token) that runs this agent once published' } : {}),
+    model: spec.model ?? 'NOT SET — anthropic/claude-sonnet-5-5 (the server default since 2026-10)',
+    ...(spec.computer?.enabled ? { computer: 'ON — the agent gets a cloud browser, file and exec sandbox in chat and manual runs; there is no stop route, it idles out' } : {}),
+    ...(spec.subagents !== undefined ? { subagents: spec.subagents.length ? spec.subagents.map((x) => x.name).join(', ') : 'none (delegation off)' } : {}),
     publish: 'never — the agent stays a draft' };
 }
 
@@ -741,6 +776,24 @@ export function triggerWriteFailure(report) {
   if (unscoped.length) parts.push(`${unscoped.length} trigger(s) were stored WITHOUT the filters that scope them, so they would fire on everything of their type: `
     + unscoped.map((m) => `'${m.name ?? m.type}' missing [${(m.missing ?? []).join(', ')}]`).join('; '));
   return `Workflow ${report?.wid ?? '(unknown id)'} EXISTS as a draft, but ${parts.join('. ')}.`;
+}
+
+// W6a item 4: the check-only build. Same orchestrator and hatches as a real build; it returns before the first write.
+// A refusal is the ANSWER here, so it is ok() with valid:false — never a tool error.
+async function dryRunBuild(args, gw) {
+  const report = await orchestrate(args.spec, gw, {
+    dryRun: true,
+    ignoreUnresolved: args.ignoreUnresolved ?? false,
+    ignoreAssetErrors: args.ignoreAssetErrors === true,
+    skipWorkflowRules: args.skipWorkflowRules,
+    strictCustomCode: args.strictCustomCode === true,
+    skipCustomCodeTest: args.skipCustomCodeTest === true,
+    strictMergeTags: args.strictMergeTags === false ? false : undefined,
+    skipMergeTagCheck: args.skipMergeTagCheck === true,
+    skipIfElseVocab: args.skipIfElseVocab === true,
+  });
+  return ok({ ...report.check, workflowId: null, validation: report.validation ?? null, assetPreflight: report.assetPreflight ?? null,
+    unresolved: report.unresolved ?? [], note: 'Dry run: nothing was created. Build without dryRun to create the draft; GHL\'s server validator then runs against it before any step is written.' });
 }
 
 function buildWorkflowData(report, locationId) {
@@ -1092,7 +1145,8 @@ function writeResultFile(path, data) {
   if (typeof path !== 'string' || !isAbsolute(path)) {
     return { failure: fail(CODES.VALIDATION_FAILED, 'writeTo must be an absolute file path.', 'Pass e.g. "/Users/you/project/.ghl/export.json".') };
   }
-  const text = JSON.stringify(scrubSecrets(data), null, 1);
+  // bl-730 option (a): a signed URL's token is redacted in the EXPORT FILE only; tool results keep the URL whole.
+  const text = JSON.stringify(redactUrlTokens(scrubSecrets(data)), null, 1);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, text, { mode: 0o600 });
   return { writtenTo: path, bytes: Buffer.byteLength(text) };
@@ -1114,6 +1168,54 @@ function readTemplatesFile(path) {
     return { failure: fail(CODES.VALIDATION_FAILED, 'templatesPath holds no templates array.', 'Accepted shapes: a bare array, {templates}, a workflow GET body {workflowData:{templates}}, or an export_workflow file {workflow:{workflowData:{templates}}}.') };
   }
   return { templates };
+}
+
+// W6 item 2: a lifted spec (export_workflow {format:'spec'}) — from a file it may be the export's whole result ({spec})
+// or the bare IR. A FILE, like templatesPath, because a spec carrying a webhook's `authorization` key is refused as a
+// tool argument by the credential scanner whatever it holds.
+function readSpecFile(path) {
+  if (typeof path !== 'string' || !isAbsolute(path)) {
+    return { failure: fail(CODES.VALIDATION_FAILED, 'specPath must be an absolute file path.', "Pass the file export_workflow {format:'spec', writeTo} wrote.") };
+  }
+  let parsed;
+  try { parsed = JSON.parse(readFileSync(path, 'utf8')); } catch (e) {
+    return { failure: fail(CODES.VALIDATION_FAILED, `specPath could not be read as JSON: ${e.message}`, "Point it at an export_workflow {format:'spec'} file.") };
+  }
+  const spec = Array.isArray(parsed?.graph) ? parsed : Array.isArray(parsed?.spec?.graph) ? parsed.spec : null;
+  if (!spec) return { failure: fail(CODES.VALIDATION_FAILED, 'specPath holds no spec (no graph[]).', "Accepted shapes: the export_workflow {format:'spec'} result ({spec}) or the spec itself.") };
+  return { spec };
+}
+
+// Triggers are a separate document; a spec's trigger edits are reported for edit_workflow, never written here.
+function specTriggerDifferences(specTriggers, liveTriggers) {
+  const live = new Map((liveTriggers ?? []).map((t) => [t?.id ?? t?._id, t]));
+  const out = [];
+  const note = 'not written by repair_workflow: triggers are a separate document — apply this with edit_workflow trigger ops';
+  for (const t of specTriggers ?? []) {
+    const l = live.get(t.ref);
+    if (!l) { out.push({ ref: t.ref ?? null, name: t.name ?? null, change: 'not on the workflow', note }); continue; }
+    const changed = [];
+    if ((t.name ?? null) !== (l.name ?? null)) changed.push('name');
+    if (t.type !== l.type) changed.push('type');
+    if (JSON.stringify(t.filters ?? []) !== JSON.stringify(l.conditions ?? [])) changed.push('filters');
+    if (changed.length) out.push({ ref: t.ref, name: t.name ?? null, change: changed.join(', '), note });
+    live.delete(t.ref);
+  }
+  for (const [id, l] of live) out.push({ ref: id, name: l?.name ?? null, change: 'not in the spec', note });
+  return out;
+}
+
+function readOpsFile(path) {
+  if (typeof path !== 'string' || !isAbsolute(path)) {
+    return { failure: fail(CODES.VALIDATION_FAILED, 'opsPath must be an absolute file path.', 'Write the ops array (or {ops}) to a JSON file and pass its absolute path.') };
+  }
+  let parsed;
+  try { parsed = JSON.parse(readFileSync(path, 'utf8')); } catch (e) {
+    return { failure: fail(CODES.VALIDATION_FAILED, `opsPath could not be read as JSON: ${e.message}`, 'Point it at a JSON file holding the ops array.') };
+  }
+  const ops = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.ops) ? parsed.ops : null;
+  if (!ops) return { failure: fail(CODES.VALIDATION_FAILED, 'opsPath holds no ops array.', 'Accepted shapes: a bare array of ops, or {ops:[...]}.') };
+  return { ops };
 }
 
 // MEASURED FIELD CAPS (field-caps.mjs), enforced BEFORE the write on the steps this call touches.
@@ -1192,7 +1294,7 @@ async function gateAssetsFor(gw, loc, doc, templates, catalog) {
 async function workflowValidationGate({
   gw, loc, wid, fresh, document, templates, triggers, scope, catalog, assets, allow, warnings, waive = null,
   intent = 'edit', status = null, settings = null, senderDomain, webhookReference, skipWorkflowRules = false,
-  baselineTriggers, unknownStepSeverity = null,
+  baselineTriggers, unknownStepSeverity = null, storedTemplates = null,
 }) {
   let marketplaceTypes = null;
   try { marketplaceTypes = assets ? new Set(parseActionSchema(assets).keys()) : null; } catch { marketplaceTypes = null; }
@@ -1206,7 +1308,7 @@ async function workflowValidationGate({
   } : null;
   const v = await validateForWrite({
     call, loc, wid, document, templates, triggers, catalog, marketplaceTypes, scope, waive, baseline, allow,
-    intent, status, settings, senderDomain, webhookReference, skipWorkflowRules, baselineDocument, unknownStepSeverity,
+    intent, status, settings, senderDomain, webhookReference, skipWorkflowRules, baselineDocument, unknownStepSeverity, storedTemplates,
   });
   for (const f of v.engine.warnings) warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
   for (const f of v.canvas.warnings) warnings.push(`VALIDATION CANVAS: '${f.stepName ?? f.stepId}': ${f.message} (outside this write's scope)`);
@@ -1506,6 +1608,60 @@ function diffTemplates(before, after) {
   };
 }
 
+// Contacts parked on a published workflow's steps, read ONCE from count-per-step, against what this write changes: a
+// deleted step ends their run; a modified step, or a step inserted right after the one they wait on, changes what they
+// do next (W6a item 8). Drafts make no read. Shared by edit_workflow and repair_workflow.
+async function parkedContactWarnings({ gw, args, fresh, diff, beforeTemplates, afterTemplates, warnings }) {
+  const none = { parkedOnDeletedSteps: [], parkedOnTouchedSteps: [] };
+  if (fresh.status !== 'published') return none;
+  const deleted = diff.deletedSteps ?? [];
+  const touched = new Map((diff.modifiedSteps ?? []).map((id) => [id, 'modified']));
+  for (const id of diff.createdSteps ?? []) {
+    const pred = (afterTemplates ?? []).find((t) => t.id === id)?.parentKey;
+    // An insert also rewrites the predecessor's `next`, so it is in modifiedSteps too: name the insert, which is what changes.
+    if (pred && !deleted.includes(pred)) touched.set(pred, 'insert after');
+  }
+  if (!deleted.length && !touched.size) return none;
+  const counts = await safeGatewayCall(() => gw.call('GET',
+    `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`));
+  const rows = !counts.threw && counts.value?.ok ? (counts.value.json?.counts ?? counts.value.json ?? []) : null;
+  if (!Array.isArray(rows)) {
+    warnings.push((deleted.length ? 'DELETE_PARKED_UNKNOWN' : 'PARKED_UNKNOWN') + ': could not read contacts-per-step, so the number of contacts parked on the steps this write changes is unknown; read get_contacts_at_step before confirming.');
+    return none;
+  }
+  const byStep = new Map(rows.map((r) => [r?.currentStepId ?? r?.stepId, Number(r?.total ?? r?.count ?? 0)]));
+  const nameOf = (id) => beforeTemplates.find((t) => t.id === id)?.name ?? id;
+  const parkedOnDeletedSteps = deleted.map((id) => ({ stepId: id, name: nameOf(id), parked: byStep.get(id) ?? 0 })).filter((r) => r.parked > 0);
+  for (const r of parkedOnDeletedSteps) {
+    warnings.push(`DELETE_EJECTS_PARKED_CONTACTS: ${r.parked} contact(s) are parked on '${r.name}' (${r.stepId}); deleting it ends their run `
+      + '(step_was_deleted_by_user) and an autonomous trigger will not re-fire for them in that session. Move them first '
+      + '(fast_forward_contacts / get_contacts_at_step), or accept the ejection.');
+  }
+  const parkedOnTouchedSteps = [...touched].map(([id, why]) => ({ stepId: id, name: nameOf(id), parked: byStep.get(id) ?? 0, why })).filter((r) => r.parked > 0);
+  for (const r of parkedOnTouchedSteps) {
+    warnings.push(`EDIT_TOUCHES_PARKED_CONTACTS: ${r.parked} contact(s) are parked on '${r.name}' (${r.stepId}), and this write ${r.why === 'modified' ? 'changes that step' : 'inserts a step right after it'}. `
+      + 'They continue on the edited workflow from where they are. Read get_contacts_at_step to see who, before confirming.');
+  }
+  return { parkedOnDeletedSteps, parkedOnTouchedSteps };
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Steps GHL stored under a NEW id: an expected id that is missing, paired (in order) with a stored id that nobody sent and
+// that was not there before, of the same type and name. bl-398 read as a generic round-trip failure.
+function remintedIds(expectedTemplates, beforeTemplates, gotTemplates) {
+  const sent = new Set(expectedTemplates.map((st) => st.id));
+  const before = new Set(beforeTemplates.map((st) => st.id));
+  const gotIds = new Set(gotTemplates.map((st) => st.id));
+  const strays = gotTemplates.filter((st) => !sent.has(st.id) && !before.has(st.id));
+  const pairs = [];
+  for (const exp of expectedTemplates.filter((st) => !gotIds.has(st.id))) {
+    const i = strays.findIndex((st) => st.type === exp.type && st.name === exp.name);
+    if (i >= 0) { pairs.push({ from: exp.id, to: strays[i].id }); strays.splice(i, 1); }
+  }
+  return pairs;
+}
+
 function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
   const expectedById = new Map(expectedTemplates.map((step) => [step.id, step]));
   const gotById = new Map(gotTemplates.map((step) => [step.id, step]));
@@ -1552,6 +1708,7 @@ function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
     mismatchedGraphIds,
     droppedAttributes,
     valueMismatches,
+    reminted: remintedIds(expectedTemplates, beforeTemplates, gotTemplates),
   };
 }
 
@@ -1992,6 +2149,28 @@ const assertProjectLocation = async (api, projectId, locationId) => {
 // check comes first: an in-place write to the wrong pageId answers 201 and silently replaces a page.
 // Write the page's fonts where the builder keeps them: settings.typography for the headline/content slots,
 // fontsToLoad (+ the preview copies) for every family, and the `:root` variables in pageStyles.
+// w7-6 (orchestrator DECISION 2026-11-07): a server-side copy (clone-step, clone-funnel, import-page) would bring in the order-form
+// nodes of its source pages. Read each source page and report the refused kinds; fail closed when a page cannot be read.
+// records: the page-list rows of the source (name = title, deleted === true = archived), used to NAME each blocking page.
+async function refusedKindsOnPages(gw, pageIds, records = []) {
+  const refusals = [];
+  for (const id of pageIds) {
+    const r = await gw.call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(id)}`);
+    if (!r.ok) return { unreadable: id };
+    const rec = records.find((x) => (x._id ?? x.id) === id);
+    const page = { id, title: rec?.name ?? null, archived: rec?.deleted === true };
+    refusals.push(...refusedKindProblems(r.json?.data ?? r.json).map((f) => ({ ...f, page })));
+  }
+  return { refusals };
+}
+function pageLabel(p) {
+  if (!p) return 'a page';
+  return `page ${p.id}${p.title ? ` "${p.title}"` : ''}${p.archived ? ' (archived)' : ''}`;
+}
+// Orchestrator DECISION (round 3): the refusal names each blocking page (id, title, and (archived) when it is).
+function copyRefusal(what, refusals) {
+  return `${what} would copy an order-form: ${refusals.map((r) => `${pageLabel(r.page)} holds ${r.message}`).join('; ')}; ${refusals[0].remediation}`;
+}
 function applyTypography(pageData, typo, reg) {
   const t = pageData.settings?.settings?.typography;
   const vars = { ...reg.vars() };
@@ -2061,6 +2240,9 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
       builtPopups.set(i, built);
     });
     ops = (args.edits ?? []).map((e, i) => {
+      // A caller's append key on a non-page op is refused before the internal keys below (the font path's appendCss) exist.
+      const refusal = appendKeyRefusal(e, i);
+      if (refusal) throw new Error(refusal);
       if (e.op === 'append-popup') return { op: 'append-popup', popup: builtPopups.get(i) };
       // an authored style value takes the builder's stored shape ({value} / {value, unit}) — a bare string is not stored bare (bl-332)
       if (e.op === 'set' && e.styles) e = { ...e, styles: normalizeStyles(e.styles, `edits[${i}].styles`) };
@@ -2157,13 +2339,15 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
     ...(submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {}),
     ...(builderStylingWarning(pageData, appendedScope) ? { builderStyling: builderStylingWarning(pageData, appendedScope) } : {}),
+    ...(kindCssUnverifiedWarning(pageData) ? { kindCssUnverified: kindCssUnverifiedWarning(pageData) } : {}),
     ...(pdpStylingWarning(pageData, appendedScope) ? { pdpStyling: pdpStylingWarning(pageData, appendedScope) } : {}),
     willPublish: args.publish === true,
     note: args.publish === true
       ? 'Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes.'
       : 'Writes a DRAFT through autosave. Nothing outside the named ops changes. A published page shows neither content nor SEO changes until it is published again (publish:true).' };
   if (args.confirm !== true) {
-    return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Funnel page edit preview is ready; no write was sent.', 'Repeat with confirm:true to autosave the edited draft.'), { preview });
+    // The preview names what a builder save would undo in this page (w7-2, bl-490, bl-517) before anything is written.
+    return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Funnel page edit preview is ready; no write was sent.', 'Repeat with confirm:true to autosave the edited draft.'), decoratePageResult({ preview }, pageData));
   }
 
   let seoCheck = null;
@@ -2220,7 +2404,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     out.published = { versionId: newest.version_id, pageType: row?.pageType ?? null, verified: row?.pageType === 'live' };
     if (!out.published.verified) return withFailureData(fail(CODES.VERIFY_FAILED, 'publish-version was accepted but that version did not read back as live', 'The edit is saved; re-read get-versions.'), out);
   }
-  return ok(out);
+  return ok(decoratePageResult(out, pageData));
 }
 
 // find_ghl_site includeRedirects: the read half of the URL-redirect screen (domains, every redirect across
@@ -2511,6 +2695,332 @@ async function auditMixedCaseTagRows(args, deps) {
   });
 }
 
+// One safe path segment (W5a final review I1). An agentId is interpolated into `/ai-employees/employees/{id}`, and fetch
+// resolves dot-segments, so `x/../agent_1` reached agent_1's record while the arming reads queried the literal text and
+// could read back "nothing enabled". GHL's ids are alphanumeric (with `_`/`-` in fixtures): anything else — `/`, `.`, `%`,
+// whitespace, a query — is refused before any read rather than encoded, because there is no legitimate id that needs it.
+const SAFE_ID_SEGMENT = /^[A-Za-z0-9_-]+$/;
+const isSafeIdSegment = (id) => typeof id === 'string' && SAFE_ID_SEGMENT.test(id);
+const unsafeIdRefusal = (key, value) => fail(CODES.VALIDATION_FAILED,
+  `${key} ${JSON.stringify(String(value ?? '')).slice(0, 80)} is not one safe path segment (letters, digits, _ and - only); nothing was read or sent.`,
+  `Pass the bare ${key} as get_ai_configuration_bundle lists it — no /, ., %, whitespace or query.`);
+
+// update_convai_agent's ARMING check (W5a Decision 5, review REV-I3; Review Focus 1). Only a spec that CHANGES mode to
+// auto-pilot or suggestive is judged; any other update returns null and reads nothing. The two legs:
+//   triggers         — the types of the agent's ENABLED outbound triggers: a CRM event then makes it text a contact.
+//   campaignEligible — some outbound config is ENABLED: an AI Campaign can start it, and whether a campaign needs the
+//                      mode on is unmeasured, so the config alone counts.
+// Only the mode leg is a measured differential (L5-L7: off vs auto-pilot); the two legs are inferred from the UI copy.
+// `suggestive` is reported as modeUnmeasured and still counts. Unreadable outbound state (any non-2xx, or a 200 whose
+// envelope is not {configs:[…]} / {triggers:[…]}, the captured shapes, or a row for another agent or location) is
+// armingUnknown, never "not armed". A deleted trigger still counts if enabled (the bundle's ruling: err toward asking).
+// Returns {arms, sendClass|null} or null.
+const ARMING_MODES = ['auto-pilot', 'suggestive'];
+async function outboundArming({ gw, record, spec, locationId, agentId, path, body }) {
+  const to = normalizeMode(spec?.mode);
+  if (!ARMING_MODES.includes(to) || to === record?.mode) return null;
+  const q = `?locationId=${encodeURIComponent(locationId)}&agentId=${encodeURIComponent(agentId)}`;
+  const readRows = async (route, key) => {
+    let r;
+    try { r = await gw.call('GET', `/agent-deployment/${route}${q}`); } catch { return null; }
+    const rows = r?.ok && r.json && typeof r.json === 'object' && !Array.isArray(r.json) ? r.json[key] : undefined;
+    if (!Array.isArray(rows)) return null;
+    // A row for another agent or location is a mixed read, not this agent's state (final review I1).
+    const foreign = rows.some((row) => !row || typeof row !== 'object' || row.agentId !== agentId || row.locationId !== locationId);
+    return foreign ? null : rows;
+  };
+  const configs = await readRows('outbound-configs', 'configs');
+  const triggers = await readRows('outbound-triggers', 'triggers');
+  const on = (row) => row && typeof row === 'object' && row.enabled === true;
+  const arms = configs === null || triggers === null
+    ? { triggers: triggers === null ? null : triggers.filter(on).map((t) => t.type ?? null),
+      campaignEligible: configs === null ? null : configs.some(on), armingUnknown: true }
+    : { triggers: triggers.filter(on).map((t) => t.type ?? null), campaignEligible: configs.some(on) };
+  if (to === 'suggestive') arms.modeUnmeasured = 'suggestive';
+  const armed = arms.armingUnknown === true || arms.campaignEligible === true || (arms.triggers ?? []).length > 0;
+  if (!armed) return { arms, sendClass: null };
+  // The rule is the one raw_request applies to the same PUT, so the token for this body is the same on either door.
+  const base = sendClassFor('PUT', path, body) ?? { rule: 'employee-mode-on', class: 'send' };
+  const legs = [
+    arms.armingUnknown ? 'its outbound configs/triggers could not be read, so it may already be armed' : null,
+    arms.triggers?.length ? `enabled outbound trigger(s) [${arms.triggers.join(', ')}] will make it text a contact whenever that event happens` : null,
+    arms.campaignEligible ? 'an enabled outbound config makes it campaign-eligible (an AI Campaign can start it texting a list)' : null,
+  ].filter(Boolean);
+  return { arms, sendClass: { rule: base.rule, class: base.class,
+    consequence: `Setting mode to ${to} lets this agent start conversations on its own: ${legs.join('; ')}.`
+      + (to === 'suggestive' ? ' What suggestive does with an outbound opener is unmeasured; treated as auto-pilot.' : '') } };
+}
+
+// set_convai_outbound (W5a Decision 4, Task 6). Reads → pure plan (engines/ai/outbound.mjs) → send-class gate → writes in
+// order → read-back on separate GETs. Every refusal before the writes means zero writes.
+//
+// The token (Decision 2) is over the canonical list of the planned SEND-CLASS calls, judged by the same sendClassFor
+// raw_request uses, so a disabled trigger CREATE needs it too (only a PATCH/PUT with enabled:false is exempt). The plan's
+// paths carry the config/trigger ids read in this call, so a token from a preview of a different state is refused.
+//
+// The location's numbers (REV-M11): GET /phone-system/numbers/v2/location/{loc}?pageSize=10&page=0&searchFilter= on the
+// backend Bearer rail → {numbers:[{phoneNumber, capabilities:{sms}, …}], total} — proven live 2026-09-30 on the test
+// sub-account through raw_request's default host (knowledge sniffs/ai-agents-reopen2-2026-09-30/runs.jsonl
+// number-readback-v2; corpus ai-agents/20-api/logs-deployment-email.md "Buying and attaching a number"), and the number
+// it listed is the one the live outbound config was activated with. Read only when a config would be switched on.
+const OUTBOUND_PLAN_PATH = '/agent-deployment/outbound';
+const NUMBERS_PAGE = 10;
+
+async function readOutboundState(gw, { locationId, agentId }) {
+  const q = `?locationId=${encodeURIComponent(locationId)}&agentId=${encodeURIComponent(agentId)}`;
+  const rows = async (route, key) => {
+    let r;
+    try { r = await gw.call('GET', `${route}${q}`); } catch (error) { return { error: `${route} could not be called (${error?.message ?? 'transport'})` }; }
+    if (!r?.ok) return { error: `${route} answered HTTP ${r?.status ?? '?'}`, status: r?.status, json: r?.json };
+    const list = r.json && typeof r.json === 'object' && !Array.isArray(r.json) ? r.json[key] : undefined;
+    if (!Array.isArray(list)) return { error: `${route} answered 200 without a {${key}:[…]} envelope` };
+    const foreign = list.filter((row) => !row || typeof row !== 'object' || row.agentId !== agentId || row.locationId !== locationId);
+    if (foreign.length) return { error: `${route} returned ${foreign.length} row(s) for another agent or location; nothing here writes on a mixed read` };
+    // A row id is interpolated into the PATCH/PUT path (final review I1): one that is not a single safe segment is
+    // never written to.
+    const unsafe = list.filter((row) => !isSafeIdSegment(row.id));
+    if (unsafe.length) return { error: `${route} returned ${unsafe.length} row(s) whose id is not one safe path segment; nothing here writes to them` };
+    return { rows: list };
+  };
+  const configs = await rows(OUTBOUND_CONFIGS_PATH, 'configs');
+  const triggers = await rows(OUTBOUND_TRIGGERS_PATH, 'triggers');
+  return { configs, triggers };
+}
+
+async function readLocationNumbers(gw, locationId) {
+  const seen = new Map();
+  for (let page = 0; page < 50; page += 1) {
+    let r;
+    try {
+      r = await gw.call('GET', `/phone-system/numbers/v2/location/${encodeURIComponent(locationId)}?pageSize=${NUMBERS_PAGE}&page=${page}&searchFilter=`);
+    } catch { return { error: 'the numbers read could not be called' }; }
+    if (!r?.ok) return { error: `the numbers read answered HTTP ${r?.status ?? '?'}` };
+    const list = Array.isArray(r.json?.numbers) ? r.json.numbers : null;
+    if (!list) return { error: 'the numbers read answered without a {numbers:[…]} envelope' };
+    const before = seen.size;
+    for (const n of list) if (typeof n?.phoneNumber === 'string') seen.set(n.phoneNumber, n);
+    const total = Number.isInteger(r.json.total) ? r.json.total : null;
+    // Stop on the last page, or on a page that added nothing (an ignored `page` must not loop).
+    if (total === null || seen.size >= total || seen.size === before || list.length < NUMBERS_PAGE) {
+      return { numbers: [...seen.values()], complete: total === null ? null : seen.size >= total, total };
+    }
+  }
+  return { numbers: [...seen.values()], complete: false };
+}
+
+function outboundConsequence(planned, sendCalls) {
+  const parts = [];
+  for (const c of sendCalls) {
+    if (c.effect === 'config-create') parts.push(`Activating SMS outbound from ${c.body.sendingNumber} records the SMS compliance acknowledgement (A2P registration, opt-out language, Sender ID, Texas Safeguard and this agent's outbound configuration) in the token owner's name, and makes the agent campaign-eligible.`);
+    else if (c.effect === 'config-enable') parts.push(`Switching SMS outbound on from ${c.body.sendingNumber} re-stamps the SMS compliance acknowledgement in the token owner's name, and makes the agent campaign-eligible.`);
+    else if (c.body.enabled === true) parts.push(`The ${c.type} trigger will be ENABLED: the agent texts a contact on its own whenever that event happens.`);
+    else parts.push(`Creating the ${c.type} trigger (disabled) is send-class on every door; it sends nothing until enabled.`);
+  }
+  const { armedAfter, arms } = planned;
+  parts.push(armedAfter === true
+    ? `After this the agent IS ARMED: mode ${arms.mode} lets it start conversations on its own${arms.triggers.length ? ` (triggers: ${arms.triggers.join(', ')})` : ''}${arms.campaignEligible ? '; an AI Campaign can also start it' : ''}.`
+    : armedAfter === false
+      ? (arms.triggers.length || arms.campaignEligible
+        ? `Mode is ${arms.mode}, so nothing fires yet (measured); changing the mode to auto-pilot or suggestive arms it (update_convai_agent asks for its own token then).`
+        : 'Afterwards nothing on this agent can start a conversation on its own.')
+      : `Whether it will start conversations is NOT KNOWN: ${arms.mode === null ? 'the agent\'s mode could not be read' : `mode ${arms.mode} with an enabled config, and whether an AI Campaign needs the mode on is unmeasured`}.`);
+  return parts.join(' ');
+}
+
+// Read-back: what the plan expected, and every trigger it did not name, unchanged.
+function outboundMismatches(planned, before, after) {
+  const out = [];
+  const sms = after.configs.filter((c) => c?.channel === OUTBOUND_CHANNEL);
+  if (planned.expect.config !== undefined) {
+    const want = planned.expect.config;
+    const got = sms[0] ?? null;
+    if (sms.length > 1) out.push({ object: 'config', field: 'count', expected: 1, actual: sms.length });
+    if (want === null) {
+      if (got && got.enabled !== false) out.push({ object: 'config', field: 'enabled', expected: false, actual: got.enabled });
+    } else if (!got) {
+      out.push({ object: 'config', field: 'present', expected: true, actual: false });
+    } else {
+      if (got.enabled !== want.enabled) out.push({ object: 'config', field: 'enabled', expected: want.enabled, actual: got.enabled ?? null });
+      if (want.sendingNumber && got.sendingNumber !== want.sendingNumber) out.push({ object: 'config', field: 'sendingNumber', expected: want.sendingNumber, actual: got.sendingNumber ?? null });
+    }
+  }
+  const live = after.triggers.filter((t) => t && t.deleted !== true);
+  for (const w of planned.expect.triggers) {
+    const rows = live.filter((t) => t.type === w.type);
+    if (rows.length !== 1) { out.push({ object: 'trigger', type: w.type, field: 'count', expected: 1, actual: rows.length }); continue; }
+    if (rows[0].enabled !== w.enabled) out.push({ object: 'trigger', type: w.type, field: 'enabled', expected: w.enabled, actual: rows[0].enabled ?? null });
+    if (!sameValue(rows[0].config, w.config)) out.push({ object: 'trigger', type: w.type, field: 'config', expected: w.config, actual: rows[0].config ?? null });
+  }
+  const named = new Set(planned.expect.triggers.map((t) => t.type));
+  for (const b of before.triggers) {
+    if (named.has(b?.type)) continue;
+    const a = after.triggers.find((t) => t?.id === b.id);
+    if (!a || a.enabled !== b.enabled || !sameValue(a.config, b.config)) {
+      out.push({ object: 'trigger', type: b.type, id: b.id, field: 'collateral', expected: { enabled: b.enabled, config: b.config }, actual: a ? { enabled: a.enabled, config: a.config } : null });
+    }
+  }
+  return out;
+}
+
+async function setConvaiOutbound(args, deps) {
+  const { locationId, agentId } = args;
+  const asksTriggers = Array.isArray(args.triggers) && args.triggers.length > 0;
+  if (args.activate === undefined && !asksTriggers) {
+    return fail(CODES.VALIDATION_FAILED, 'Nothing was asked: pass activate ({sendingNumber} or false) and/or triggers.',
+      'Name what should change; nothing was read or sent.');
+  }
+  if (!isSafeIdSegment(agentId)) return unsafeIdRefusal('agentId', agentId);
+  const ids = { locationId, agentId };
+  const gw = deps.makeGw({ loc: locationId, rail: 'ai', state: deps.state });
+  const read = await readOutboundState(gw, ids);
+  if (read.configs.error || read.triggers.error) {
+    return withFailureData(fail('OUTBOUND_UNREADABLE',
+      `The agent's outbound state could not be read, so nothing was planned or written: ${[read.configs.error, read.triggers.error].filter(Boolean).join('; ')}.`,
+      'Check the agentId (get_ai_configuration_bundle lists agents and their outbound state) and that the location has the Conversation AI outbound Lab; then retry.'),
+    { configsRead: read.configs.error ?? 'ok', triggersRead: read.triggers.error ?? 'ok' });
+  }
+  let mode = null;
+  try {
+    const e = await gw.call('GET', `/ai-employees/employees/${encodeURIComponent(agentId)}`);
+    const record = e?.ok ? (e.json?.employee ?? e.json) : null;
+    // Another agent's record is not this agent's mode (final review I1): unknown, never its value.
+    const mine = record && String(record.id ?? record._id ?? '') === agentId;
+    mode = mine && typeof record.mode === 'string' ? normalizeMode(record.mode) : null;
+  } catch { mode = null; }
+  const current = { configs: read.configs.rows, triggers: read.triggers.rows, mode };
+  const planned = planOutbound(current, { activate: args.activate, triggers: args.triggers }, ids);
+  if (planned.refused) {
+    const { code, message, ...extra } = planned.refused;
+    return withFailureData(fail(code, `${message} Nothing was written.`,
+      code === 'UNSUPPORTED_TRIGGER_TYPE' ? `Use one of: ${extra.executable.join(', ')}.` : 'Fix the request and preview again.'),
+    { ...extra, current });
+  }
+
+  // The location's numbers, only when a config would be switched on.
+  let numberCheck;
+  const switchOn = planned.calls.find((c) => c.effect === 'config-create' || c.effect === 'config-enable');
+  if (switchOn) {
+    const wanted = switchOn.body.sendingNumber;
+    const nums = await readLocationNumbers(deps.makeGw({ loc: locationId, state: deps.state }), locationId);
+    if (nums.error) {
+      return withFailureData(fail('SENDING_NUMBER_UNVERIFIED',
+        `${nums.error}, so ${wanted} could not be checked against the location's numbers and nothing was written.`,
+        'Retry; if it persists, check the number on Settings → Phone Numbers. Activation is not offered on an unchecked number.'), { current });
+    }
+    const hit = nums.numbers.find((n) => n.phoneNumber === wanted);
+    const locationNumbers = nums.numbers.map((n) => n.phoneNumber);
+    if (!hit) {
+      return withFailureData(fail('SENDING_NUMBER_NOT_ON_LOCATION',
+        `${wanted} is not one of this location's numbers${nums.complete === false ? ` (read ${locationNumbers.length} of ${nums.total ?? '?'})` : ''}; nothing was written.`,
+        'Pick sendingNumber from data.locationNumbers.'), { locationNumbers, current });
+    }
+    if (hit.capabilities && hit.capabilities.sms === false) {
+      return withFailureData(fail('SENDING_NUMBER_NOT_ON_LOCATION', `${wanted} is on this location but reads capabilities.sms:false; nothing was written.`,
+        'Pick an SMS-capable number from data.locationNumbers.'), { locationNumbers, current });
+    }
+    // The number must READ SMS-capable (final review M5, the Task 6 Ruling): no capabilities, or anything but a
+    // literal sms:true, is unverified rather than waved through.
+    if (hit.capabilities?.sms !== true) {
+      return withFailureData(fail('SENDING_NUMBER_UNVERIFIED',
+        `${wanted} is on this location but does not read capabilities.sms:true, so it could not be verified SMS-capable; nothing was written.`,
+        'Check the number on Settings → Phone Numbers, or pick one from data.locationNumbers that reads SMS-capable.'), { locationNumbers, current });
+    }
+    numberCheck = { sendingNumber: wanted, found: true, sms: true };
+  }
+
+  const sendCalls = planned.calls.filter((c) => sendClassFor(c.method, c.path, c.body));
+  const ackCtx = { method: 'PLAN', path: OUTBOUND_PLAN_PATH,
+    wireBody: sendCalls.map(({ method, path, body }) => ({ method, path, body })) };
+  const sendClass = sendCalls.length ? {
+    rule: [...new Set(sendCalls.map((c) => sendClassFor(c.method, c.path, c.body).rule))].join('+'),
+    class: 'send',
+    consequence: outboundConsequence(planned, sendCalls),
+  } : null;
+  const preview = {
+    calls: planned.calls, armedAfter: planned.armedAfter, arms: planned.arms, expect: planned.expect,
+    consequence: outboundConsequence(planned, sendCalls), current,
+    ...(numberCheck ? { numberCheck } : {}),
+    ...(sendClass ? { sendClass: sendClassWithToken(sendClass, ackCtx) } : {}),
+  };
+  if (!planned.calls.length) return ok({ preview, written: [], note: 'Outbound already matches what was asked; nothing was written.' });
+  if (args.confirm !== true) {
+    return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Outbound preview is ready; only reads were made.',
+      'Review data.preview.calls, armedAfter and consequence, then repeat with confirm:true.'
+        + (sendClass ? ' This plan switches outbound ON (send-class): tell the human what data.preview.sendClass.consequence says and get their yes, '
+          + 'then repeat with confirm:true AND acknowledge set to data.preview.sendClass.ackToken (bound to these exact calls).' : '')),
+    { preview });
+  }
+  const ackRefusal = requireSendAck(args, sendClass, ackCtx);
+  if (ackRefusal) return { ...ackRefusal, data: { ...ackRefusal.data, preview } };
+
+  const landed = [];
+  const brief = (c) => ({ method: c.method, path: c.path, effect: c.effect, ...(c.type ? { type: c.type } : {}) });
+  // A mid-sequence failure (final review M4): trigger calls run before config enables, so what landed may already have
+  // armed the agent. Best-effort read-back of configs, triggers and mode, so the caller learns whether it is left armed;
+  // an unreadable read-back is armedAfter null (unknown), never omitted.
+  const failedMidway = async (failure, partial) => {
+    let armState;
+    try {
+      const back = await readOutboundState(gw, ids);
+      if (back.configs.error || back.triggers.error) {
+        armState = { armedAfter: null, arms: null, readBackError: [back.configs.error, back.triggers.error].filter(Boolean).join('; ') };
+      } else {
+        let modeAfter = null;
+        try {
+          const e = await gw.call('GET', `/ai-employees/employees/${encodeURIComponent(agentId)}`);
+          const rec = e?.ok ? (e.json?.employee ?? e.json) : null;
+          if (rec && String(rec.id ?? rec._id ?? '') === agentId && typeof rec.mode === 'string') modeAfter = normalizeMode(rec.mode);
+        } catch { modeAfter = null; }
+        const sms = back.configs.rows.find((c) => c?.channel === OUTBOUND_CHANNEL) ?? null;
+        armState = armedFrom({ mode: modeAfter, configAfter: sms ? { enabled: sms.enabled === true } : null,
+          triggersAfter: back.triggers.rows.filter((t) => t && typeof t === 'object').map((t) => ({ type: t.type ?? null, enabled: t.enabled === true })) });
+      }
+    } catch (error) {
+      armState = { armedAfter: null, arms: null, readBackError: `the read-back could not be called (${error?.message ?? 'transport'})` };
+    }
+    const said = armState.armedAfter === true
+      ? ' After the calls that landed the agent IS ARMED (data.partialProgress.arms): it can start conversations on its own — switch it off (activate:false / the trigger enabled:false) if that is not wanted.'
+      : armState.armedAfter === null
+        ? ' Whether the agent is left armed is NOT KNOWN (data.partialProgress.armedAfter null): read it before anything else.'
+        : ' The read-back shows the agent is not armed.';
+    return withFailureData({ ...failure, remediation: `${failure.remediation ?? ''}${said}`.trim() },
+      { preview, partialProgress: { ...partial, ...armState } });
+  };
+  for (const [i, c] of planned.calls.entries()) {
+    let r;
+    try { r = await gw.call(c.method, c.path, c.body); } catch (error) {
+      return failedMidway(fail(CODES.ENGINE_ABORT, `${c.method} ${c.path} did not answer (${error?.message ?? 'transport'}); it may or may not have landed.`,
+        'Preview again (it re-reads the state) before retrying.'),
+      { landed, failed: { ...brief(c), ambiguous: true }, notAttempted: planned.calls.slice(i + 1).map(brief) });
+    }
+    if (!r?.ok) {
+      return failedMidway(fromHttp(r?.status ?? 502, r?.json),
+        { landed, failed: { ...brief(c), status: r?.status ?? null }, notAttempted: planned.calls.slice(i + 1).map(brief) });
+    }
+    landed.push({ ...brief(c), status: r.status, ...(r.json?.id ? { id: r.json.id } : {}) });
+  }
+
+  const back = await readOutboundState(gw, ids);
+  if (back.configs.error || back.triggers.error) {
+    return withFailureData(fail('OUTBOUND_NOT_APPLIED',
+      `Every write answered 2xx, but the read-back failed: ${[back.configs.error, back.triggers.error].filter(Boolean).join('; ')}. The writes are NOT verified.`,
+      'Re-read with a preview of the same request before anything else.'),
+    { preview, written: landed, mismatches: [{ object: 'read-back', field: 'readable', expected: true, actual: false }] });
+  }
+  const after = { configs: back.configs.rows, triggers: back.triggers.rows };
+  const mismatches = outboundMismatches(planned, current, after);
+  const sms = after.configs.find((c) => c?.channel === OUTBOUND_CHANNEL) ?? null;
+  const { armedAfter, arms } = armedFrom({ mode, configAfter: sms ? { enabled: sms.enabled === true } : null,
+    triggersAfter: after.triggers.filter((t) => t && typeof t === 'object').map((t) => ({ type: t.type ?? null, enabled: t.enabled === true })) });
+  const data = { plan: planned.calls, written: landed, armedAfter, arms, readBack: { ...after, mode } };
+  if (mismatches.length) {
+    return withFailureData(fail('OUTBOUND_NOT_APPLIED',
+      `Every write answered 2xx, but the read-back differs in ${mismatches.length} place(s): GHL accepted and did not apply.`,
+      'Read data.mismatches; the state is live, so preview again before retrying.'), { ...data, mismatches });
+  }
+  return ok(data);
+}
+
 export const TOOLS = [
   {
     name: 'set_token_file',
@@ -2551,17 +3061,26 @@ export const TOOLS = [
       + '"## Personality … ## Goal … ## Instructions …"; the three fields go as "" and llm.primary defaults to gpt-4.1, as the builder '
       + 'creates) OR goal/personality/instructions, never both. Also botType (PROMPT_BASED_BOT | FLOW_BUILDER_BOT), businessName, wait, '
       + 'sleep, autoPilotMaxMessages, tones (flow), knowledgeBaseIds, knowledgeBaseTriggers [{mode custom|all, knowledgeBaseIds, '
-      + 'triggerCondition}] (≤4, priority renumbered), summary, respondToImages/Audio, responseLength, llm, emailWaitTime + emailWaitTimeUnit '
+      + 'triggerCondition}] (≤4, priority renumbered), summary, respondToImages/Audio, responseLength, llm {primary, secondary} '
+      + '(ids from get_ai_agent_options models, e.g. Claude/Gemini), emailWaitTime + emailWaitTimeUnit '
       + '+ emailSettings {senderDetails, replyBehavior, emailFormat plain_text|design_editor, signature, templateId} (only with "Email" in '
       + 'channels; the editor\'s wait ranges), cancelEnabled/rescheduleEnabled '
       + '(FLOW bots only; on a prompt bot they belong on the appointmentBooking action), actions[] (humanHandOver, appointmentBooking '
       + 'single|multiple (service: raw_request), triggerWorkflow, updateContactField, stopBot, transferBot, advancedFollowup). Refused before anything is '
-      + 'sent: any other spec key (SPEC_KEY_UNAPPLIED names where it lives: working hours, folders and form bots are '
+      + 'sent: botType FLOW_BUILDER_BOT_V2 (V2_CREATE_UNSUPPORTED: build V2 in the editor), any other spec key (SPEC_KEY_UNAPPLIED '
+      + 'names where it lives: the outbound opener/disclaimer and rich elements are update_convai_agent; working hours, folders and form bots are '
       + 'raw_request), isPrimary:true (the primary agent is location-wide; set it in the Conversation AI UI), a prompt bot with no prompt. '
       + 'A flow bot is the agent shell only: build its workflow with build_workflow, then link it with update_convai_agent. Does not '
       + 'deploy to a channel (set_agent_deployment). To change an existing agent use update_convai_agent. '
-      + 'Confirmation-gated: preview compiles a no-write plan.',
-    inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
+      + 'Confirmation-gated: preview compiles a no-write plan. acknowledge: accepted, unused (a new agent has no outbound).',
+    inputSchema: schema({
+      locationId: z.string(),
+      spec: z.object({}).passthrough(),
+      confirm: z.boolean().default(false),
+      // Same argument as update_convai_agent's. A create is not send-class (a new agent has no outbound config or
+      // trigger; W5a Task 3 ruling), so it is accepted and unused rather than refused as an unknown field.
+      acknowledge: z.string().optional(),
+    }),
     capabilities: [
       { method: 'POST', path: '/ai-employees/employees' },
       { method: 'POST', path: '/ai-employees/actions' },
@@ -2593,35 +3112,52 @@ export const TOOLS = [
     }, args),
   },
   {
-    // F5-04. A partial PUT to this endpoint RESETS omitted agent-level booleans — measured live
-    // 2026-08-28, after a capture-derived "it merges" claim had stood for months (that capture's
-    // at-risk fields were already false, so a reset was invisible in it). The UI never sends a
-    // partial; it PUTs the whole record. This tool does the same, and then proves it: the keys
-    // the update did NOT set are diffed before/after, and any movement fails the call.
+    // F5-04 reported a partial PUT to this endpoint resetting omitted agent-level booleans (2026-08-28). On 2026-10-30
+    // the differential was re-run with those booleans set AWAY from default first, and the partial PUT MERGED on prompt,
+    // V1 flow and V2 agents (knowledge sniffs/convai-wave-2026-10-29/live-partial-put-booleans.json). The read-merge-write
+    // is kept — it is safe whichever is true — and it proves itself: the keys the update did NOT set are diffed
+    // before/after, and any movement fails the call. V2 is the exception (compileConvaiUpdateFromRecord): the V2
+    // editor's own partial body, cancel/reschedule only.
+    //
+    // ARMING (W5a Decision 5). A mode change to auto-pilot or suggestive can make the agent start conversations on its
+    // own; see outboundArming below.
     name: 'update_convai_agent',
     description: describe('update_convai_agent',
       'Update a Conversation AI agent by READ-MERGE-WRITE GETs the current '
       + 'record, overlays your spec, applies the builder\'s own bot-type cleanup, PUTs the WHOLE record, '
-      + 're-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level '
-      + 'booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any '
-      + 'collateral change fails with AGENT_COLLATERAL_CHANGED. PROMPT: an agent saved in the current builder '
+      + 're-reads, and diffs every field the update did not set (a partial PUT merged on 2026-10-30; a reset was '
+      + 'reported 2026-08-28, so the whole record is still sent). Any '
+      + 'collateral change fails with AGENT_COLLATERAL_CHANGED. llm {primary, secondary} takes ids from get_ai_agent_options '
+      + 'product:"conversation_ai" models (e.g. Claude/Gemini). outboundOpeningMessage {mode ai_generated|static, body ≤200 words}, '
+      + 'outboundDisclaimer {enabled, style concise|custom, customText}, richElementSettings {enabled, customRulesOnly, elements, '
+      + 'customInstructions} (prompt bots only) are sent whole: omitting or emptying customInstructions DELETES the stored rules. FLOW_BUILDER_BOT_V2: only cancelEnabled/rescheduleEnabled, as the V2 '
+      + 'editor\'s partial PUT; anything else (name, mode, prompt…) is refused, edit it in the editor. PROMPT: an agent saved in the current builder '
       + 'stores its prompt as one fullPrompt document; the bot then answers from it and GHL ignores writes to '
       + 'personality/goal/instructions (live 2026-09-29). Pass spec.fullPrompt (the whole text; it switches the '
       + 'agent to fullPrompt for good). The three fields on such an agent, or with fullPrompt, refuse with '
       + 'FULLPROMPT_OWNS_PROMPT before any write, returning currentFullPrompt. The result names promptOwner. '
       + 'cancelEnabled/rescheduleEnabled apply to a FLOW bot; on a prompt bot they are refused (set them on the appointmentBooking action). '
+      + 'SEND-CLASS: changing mode to auto-pilot or suggestive reads the agent\'s outbound configs and triggers; if a trigger or '
+      + 'config is enabled, or they cannot be read, the preview names data.preview.arms and sendClass, and the write also needs '
+      + 'acknowledge:<sendClass.ackToken> (ask the human first; SEND_CLASS_ACK_REQUIRED otherwise). '
       + 'Previews by default; confirm:true writes.'),
     inputSchema: schema({
       locationId: z.string(),
       agentId: z.string(),
       spec: z.object({}).passthrough(),
       confirm: z.boolean().default(false),
+      // A mode change that arms the agent needs this set to the ackToken its preview handed out (core/send-class.mjs).
+      acknowledge: z.string().optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/ai-employees/employees/{agentId}' },
       { method: 'PUT', path: '/ai-employees/employees/{agentId}' },
+      // Read only when the spec changes mode to auto-pilot or suggestive (the arming check).
+      { method: 'GET', path: '/agent-deployment/outbound-configs' },
+      { method: 'GET', path: '/agent-deployment/outbound-triggers' },
     ],
     handler: async (args, deps) => guard(async () => {
+      if (!isSafeIdSegment(args.agentId)) return unsafeIdRefusal('agentId', args.agentId);
       const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
       const path = `/ai-employees/employees/${args.agentId}`;
       const current = await gw.call('GET', path);
@@ -2630,6 +3166,13 @@ export const TOOLS = [
       if (!record || typeof record !== 'object') {
         return fail(CODES.ENGINE_ABORT, 'the agent GET returned no record to merge onto.',
           'Confirm the agentId with get_ai_configuration_bundle; nothing was written.');
+      }
+      // The record must be the one asked for (final review I1): its outbound state, mode and every merged key are
+      // judged from it, so a record for another agent is refused, as the bundle quarantines one.
+      if (String(record.id ?? record._id ?? '') !== args.agentId) {
+        return fail(CODES.IDENTITY_CONFLICT,
+          'the agent GET returned a record whose id is not the requested agentId; nothing was read further or written.',
+          'Confirm the agentId with get_ai_configuration_bundle and retry.');
       }
       let plan;
       try {
@@ -2645,11 +3188,24 @@ export const TOOLS = [
       }
       const changingKeys = Object.keys(plan.body).filter((k) => !plan.collateralKeys.includes(k));
       const preview = { body: plan.body, changingKeys, collateralKeys: plan.collateralKeys };
+      // ARMING: computed on every call (preview and write) from fresh reads, and bound to this exact PUT body.
+      const arming = await outboundArming({ gw, record, spec: args.spec, locationId: args.locationId, agentId: args.agentId, path, body: plan.body });
+      if (arming) {
+        preview.arms = arming.arms;
+        if (arming.sendClass) preview.sendClass = sendClassWithToken(arming.sendClass, { method: 'PUT', path, wireBody: plan.body });
+      }
       if (args.confirm !== true) {
         return withFailureData(fail(CODES.CONFIRM_REQUIRED,
           'Agent update preview is ready; no write was made.',
-          'Review data.preview.changingKeys and data.preview.collateralKeys, then repeat with confirm:true.'), { preview });
+          'Review data.preview.changingKeys and data.preview.collateralKeys, then repeat with confirm:true.'
+            + (preview.sendClass
+              ? ' This mode change can make the agent start conversations on its own (data.preview.arms): tell the human what '
+                + 'data.preview.sendClass.consequence says and get their yes, then repeat with confirm:true AND acknowledge set to '
+                + 'data.preview.sendClass.ackToken (required; it is bound to this exact PUT body).'
+              : '')), { preview });
       }
+      const ackRefusal = requireSendAck(args, arming?.sendClass ?? null, { method: 'PUT', path, wireBody: plan.body });
+      if (ackRefusal) return { ...ackRefusal, data: { ...ackRefusal.data, preview } };
       // WRITE-ONLY keys are excluded from the read-back comparison: `actions` is sent as null the
       // way the UI sends it, and the record always reads back the real list — holding it to the
       // null reported a mismatch on every successful update (live-proven 2026-09-07).
@@ -2815,8 +3371,50 @@ export const TOOLS = [
     }, args),
   },
   {
+    // W5a Task 6 / Decision 4: the one typed outbound tool. AI Campaigns stay a skill recipe over raw_request.
+    name: 'set_convai_outbound',
+    description: describe('set_convai_outbound',
+      'Make a Conversation AI agent START conversations on CRM events, or stop it: switch its SMS outbound config on/off and '
+      + 'create or edit its outbound triggers. activate: {sendingNumber} (E.164, one of the location\'s numbers reading sms:true; checked) '
+      + 'or false. triggers: [{type, config, enabled}] — type one of ' + EXECUTABLE_TRIGGER_TYPES.join(', ') + '; config per the '
+      + 'captured bodies (contact_tag {tagFilter:{action:"added", tagNames}}, contact_created {}, form_submitted {formIds}, '
+      + 'appointment_status_updated {calendarIds, events booked|confirmed}, opportunity_status_updated {events created|stage_changed, '
+      + 'pipelineIds, stageIds, statuses}, missed_call {callStatuses noanswer|busy}); all six created live, only contact_tag has fired; unknown keys refused; config may be omitted to '
+      + 'switch an existing trigger. Lead-form types (facebook/google/tiktok) are refused: no body was ever captured. An existing type '
+      + 'is edited by PUT (type is fixed), a new one created; there is no delete — disable instead. 🔴 Switching a config on makes '
+      + 'GHL record the SMS compliance acknowledgement (A2P, opt-out, Sender ID, Texas Safeguard) in the token owner\'s name. The '
+      + 'agent\'s MODE gates firing (measured: mode off sent nothing, auto-pilot sent the opener); this tool does not change mode '
+      + '(update_convai_agent). Preview (reads configs, triggers, the agent, and the numbers when switching on; no write) returns '
+      + 'calls, armedAfter true|false|null and consequence. SEND-CLASS: any enabling call (config on, trigger create or enable) also '
+      + 'needs acknowledge:<data.preview.sendClass.ackToken> — ask the human first; a plan that only switches off needs confirm alone. '
+      + 'Writes run in order, then configs and triggers are read back; a 2xx not reflected is OUTBOUND_NOT_APPLIED, a failure '
+      + 'mid-way reports partialProgress with a re-read armedAfter. One config per channel and one trigger per type are assumed [source-derived].'),
+    inputSchema: schema({
+      locationId: z.string(),
+      agentId: z.string(),
+      activate: z.union([z.literal(false), z.object({ sendingNumber: z.string() }).passthrough()]).optional(),
+      triggers: z.array(z.object({ type: z.string(), config: z.unknown().optional(), enabled: z.unknown() }).passthrough()).optional(),
+      confirm: z.boolean().default(false),
+      // An enabling plan needs this set to the ackToken its preview handed out (core/send-class.mjs).
+      acknowledge: z.string().optional(),
+    }),
+    // The handler (setConvaiOutbound) dials the AI rail for these and the backend Bearer rail for the numbers read.
+    capabilities: [
+      { method: 'GET', path: '/agent-deployment/outbound-configs', origin: AI_BASE },
+      { method: 'POST', path: '/agent-deployment/outbound-configs', origin: AI_BASE },
+      { method: 'PATCH', path: '/agent-deployment/outbound-configs/{configId}', origin: AI_BASE },
+      { method: 'GET', path: '/agent-deployment/outbound-triggers', origin: AI_BASE },
+      { method: 'POST', path: '/agent-deployment/outbound-triggers', origin: AI_BASE },
+      { method: 'PUT', path: '/agent-deployment/outbound-triggers/{triggerId}', origin: AI_BASE },
+      { method: 'GET', path: '/ai-employees/employees/{agentId}', origin: AI_BASE },
+      // Backend Bearer rail: where this read was proven live (2026-09-30); read only when a config is switched on.
+      { method: 'GET', path: '/phone-system/numbers/v2/location/{locationId}', origin: 'https://backend.leadconnectorhq.com' },
+    ],
+    handler: async (args, deps) => guard(async () => setConvaiOutbound(args, deps), args),
+  },
+  {
     name: 'create_studio_agent',
-    description: `${describe('create_studio_agent', 'Create Agent Studio agent')}. Creates a Managed Agent (the UI's AI Agents → Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt — either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). 🔴 Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none — the preview names what applies. 🔴 A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. templateId (one of the 12 "Start from a use case" ids) creates from a template instead: no build, the template's own config kept and only what spec authors (name required) applied over it; 🔴 a template may carry an ENABLED trigger and the Default plugin — pass triggers:[] (it DISABLES every trigger: a PUT cannot remove one) and plugins:[]. folderId (+ folderName) files the agent at create, checked in the folder list; customApiEnabled flips the Custom API switch. The agent is created as a draft (never published). Any other spec key is refused before anything is sent. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_studio_agent', 'Create Agent Studio agent')}. Creates a Managed Agent (the UI's AI Agents → Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt — either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several, incl. customer_reply/inbound_webhook/api; chat stands alone, workflows and api combine with either). subagents [{name, description, systemPrompt, model?}] ([] = no delegation; models checked against the server roster). model defaults to claude-sonnet-5-5; an unknown one is refused. computer/followUp {enabled} are the Computer and Wait & follow up switches — 🔴 Computer's sandbox has no stop route. 🔴 Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none — the preview names what applies. 🔴 A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. templateId (one of the 12 "Start from a use case" ids) creates from a template instead: no build, the template's own config kept and only what spec authors (name required) applied over it; 🔴 a template may carry an ENABLED trigger and the Default plugin — pass triggers:[] (it DISABLES every trigger: a PUT cannot remove one) and plugins:[]. folderId (+ folderName) files the agent at create, checked in the folder list; customApiEnabled flips the Custom API switch. The agent is created as a draft (never published). Any other spec key is refused before anything is sent. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), companyId: z.string().optional(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'SSE', path: '/agent-studio/super-agents/build' },
@@ -3565,21 +4163,34 @@ export const TOOLS = [
       + 'browser. The engine replays them; see the validation gate.'),
     inputSchema: schema({
       locationId: z.string(),
-      workflowId: z.string(),
+      workflowId: z.string().optional(),
       // The builder validates its IN-MEMORY tree. Passing templates is that: the stored document
       // with this array in place of workflowData.templates.
       templates: z.array(z.object({}).passthrough()).optional(),
+      // W6a item 4: a build spec with no workflow yet — the same dry run as build_workflow {dryRun:true}.
+      spec: z.object({}).passthrough().optional().describe('A build_workflow spec to check BEFORE anything exists (instead of workflowId): every offline check and validate-assets run, nothing is created, and the server validator is reported as not run. The custom-code sandbox test does NOT run here (it executes the code); build_workflow {dryRun:true} includes it.'),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'GET', path: '/workflow/{loc}/trigger' },
       { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
+      // spec mode: build_workflow's dry run without the custom-code sandbox — its entity reads, plus the stateless
+      // reference check
+      { method: 'GET', path: '/locations/{loc}/tags' },
+      { method: 'POST', path: '/workflow/{loc}/validate-assets' },
     ],
     // Verified 2026-09-21: this tool's own description documents the live proof — the stored
     // document read back byte-identical after five calls. classifyCall would otherwise refuse
     // this POST on an unbound registration despite it writing nothing.
     readOnly: true,
     handler: async (args, deps) => guard(async () => {
+      if ((args.workflowId == null) === (args.spec == null)) {
+        return fail(CODES.VALIDATION_FAILED, 'validate_workflow takes exactly one of workflowId or spec',
+          'Pass workflowId to validate a stored workflow (optionally with templates), or spec to check a build before it exists.');
+      }
+      // skipCustomCodeTest: this tool is classified read-only, and the sandbox RUNS the step's code, which can make HTTP
+      // calls. build_workflow {dryRun:true} (write-classified) is the dry run that includes the sandbox test.
+      if (args.spec) return dryRunBuild({ locationId: args.locationId, spec: args.spec, skipCustomCodeTest: true }, deps.makeGw({ loc: args.locationId, state: deps.state }));
       const loc = encodeURIComponent(args.locationId);
       const wid = encodeURIComponent(args.workflowId);
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -3626,12 +4237,17 @@ export const TOOLS = [
   {
     name: 'export_workflow',
     description: describe('export_workflow', 'Export the full workflow body, triggers and sticky notes.')
-      + ' stepIds narrows workflowData.templates to those steps (triggers and notes untouched); writeTo writes the full, scrubbed export to an absolute path and returns a summary — a 110-step flow exceeds the inline result cap.',
+      + ' locationId and workflowId are both required.'
+      + ' stepIds narrows workflowData.templates to those steps (triggers and notes untouched); writeTo writes the full, scrubbed export to an absolute path and returns a summary — a 110-step flow exceeds the inline result cap.'
+      + " format:'spec' returns the workflow in the BUILD format instead: the spec build_workflow takes, every step named by its stored id, plus"
+      + " `stored` (id pins, a residual of what the compiler does not reproduce, and frozen steps the format cannot express, verbatim)."
+      + " repair_workflow {spec|specPath} writes it back with every id kept; build_workflow builds it as a new workflow.",
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
       stepIds: z.array(z.string()).optional(),
       writeTo: z.string().optional(),
+      format: z.enum(['document', 'spec']).optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
@@ -3639,6 +4255,10 @@ export const TOOLS = [
       { method: 'GET', path: '/workflows/sticky-notes-all' },
     ],
     handler: async (args, deps) => guard(async () => {
+      if (args.format === 'spec' && Array.isArray(args.stepIds) && args.stepIds.length) {
+        return fail(CODES.VALIDATION_FAILED, "format:'spec' is the whole workflow; stepIds cannot narrow it.",
+          "Drop stepIds, or export {format:'document', stepIds} to read a few steps.");
+      }
       const locationId = encodeURIComponent(args.locationId);
       const workflowId = encodeURIComponent(args.workflowId);
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -3687,6 +4307,28 @@ export const TOOLS = [
           triggers: readTriggers,
         });
       }
+      if (args.format === 'spec') {
+        const lifted = liftWorkflow({ doc: workflow, triggers: asArray(triggers.json, 'triggers', 'data'), stickyNotes: asArray(notes.json, 'data', 'notes') },
+          { catalog: loadCatalog() });
+        if (!lifted.ir) {
+          return withFailureData(fail(CODES.ENGINE_ABORT, `the workflow could not be lifted: ${lifted.refusals.map((r) => `${r.code}: ${r.message}`).join('; ').slice(0, 600)}`,
+            "Read it as a document (format:'document') and repair it with templates; nothing was written."), { refusals: lifted.refusals });
+        }
+        const specResult = {
+          workflowId: args.workflowId, name: workflow?.name ?? null, version: workflow?.version ?? null,
+          spec: scrubSpecResidual(lifted.ir, workflow?.workflowData?.templates ?? []), lift: lifted.report, refusals: lifted.refusals,
+          note: 'The build format: build_workflow takes it as a new workflow (fresh ids); repair_workflow {spec|specPath} writes it back '
+            + 'over this workflow with every stored id kept. stored.frozen holds steps the format cannot express, verbatim; stored.residual '
+            + 'restores what the compiler does not reproduce. Credential values are "<redacted>" — restore them before a write.',
+        };
+        if (args.writeTo) {
+          const written = writeResultFile(args.writeTo, specResult);
+          if (written.failure) return written.failure;
+          return ok({ ...written, workflowId: args.workflowId, name: specResult.name, version: specResult.version,
+            stepCount: lifted.report.steps, frozen: lifted.report.frozen.length, detached: lifted.report.detached.length, refusals: lifted.refusals.length });
+        }
+        return ok(specResult);
+      }
       if (Array.isArray(args.stepIds) && args.stepIds.length && allTemplates) {
         const wanted = new Set(args.stepIds);
         const missing = args.stepIds.filter((id) => !allTemplates.some((t) => t?.id === id));
@@ -3709,7 +4351,8 @@ export const TOOLS = [
           workflowId: args.workflowId, name: workflow?.name ?? null, status: workflow?.status ?? null, version: workflow?.version ?? null,
           stepCount: workflow?.workflowData?.templates?.length ?? null, triggerCount: result.triggers.length, stickyNoteCount: result.stickyNotes.length,
           ...(workflow?.exportFilter ? { exportFilter: workflow.exportFilter } : {}),
-          note: 'Full export written to writeTo. It is SCRUBBED: any value under a credential-named key '
+          note: 'Full export written to writeTo. A signed URL\'s token (previewUrl, fileUrl) is replaced with "<redacted>" '
+            + 'in this file only: get_workflow returns the whole URL, so re-read the workflow for it. It is SCRUBBED: any value under a credential-named key '
             + '(a custom_webhook\'s attributes.authorization, for one) is replaced with "<redacted>" on the KEY '
             + 'NAME, without reading the value. repair_workflow reads this file via templatesPath but REFUSES a '
             + 'document still carrying placeholders, because writing one back replaces the stored value with the '
@@ -3824,7 +4467,7 @@ export const TOOLS = [
       // it carries none, the cursor recomputes to the same _id, and the walk cannot advance —
       // it just re-reads page one until the page cap stops it.
       //
-      // MEASURED live on Grom UK yoQVVJFp6wyjxcxilA2H 2026-08-02. `02.5 Submitted for Review`
+      // MEASURED live on Grom UK Lq7TestLoc0000000003 2026-08-02. `02.5 Submitted for Review`
       // (fd0f444f, enrolled by pipeline_stage_updated with an opportunity-scoped sourceId) and
       // `08 Lead Nurture` (0c13ae43, contact_tag, contact-scoped) BOTH re-serve the same row at
       // limit=1, and fd0f444f advances normally at limit=2 — one echoed row plus one new one.
@@ -4025,8 +4668,13 @@ export const TOOLS = [
         }
       }
 
+      // W6 item 9: one logs/v2 page is all this reads. A FULL page means more rows may exist — said, never left silent.
+      // logs/v2 serves at most 100 rows a page whatever `limit` asks (live 2026-10-30), so a 100-row page is full too
+      const logsFull = Array.isArray(rawLogs) && !args.executionId && rawLogs.length >= Math.min(args.limit ?? 20, 100);
       const result = {
         logs: labelledLogs,
+        logsComplete: !logsFull,
+        ...(logsFull ? { logsNote: `this page is full (${rawLogs.length} rows; logs/v2 serves at most 100 a page), so more may exist. For every row use get_workflow_runtime_window (complete cursor walk); for counts per step, status or reason use get_workflow_step_counts.` } : {}),
         // Counted separately because the roster cannot tell them apart: it says `finished` for a
         // completed run AND for one an outside call ended.
         ...(externalRemovals ? { externalRemovals } : {}),
@@ -4049,7 +4697,7 @@ export const TOOLS = [
         const written = writeResultFile(args.writeTo, result);
         if (written.failure) return written.failure;
         return ok({
-          ...written, logCount: Array.isArray(labelledLogs) ? labelledLogs.length : null, enrollmentCount: enrollments.length,
+          ...written, logCount: Array.isArray(labelledLogs) ? labelledLogs.length : null, logsComplete: result.logsComplete, enrollmentCount: enrollments.length,
           ...(objectiveWriteFailures ? { objectiveWriteFailures } : {}), ...(externalRemovals ? { externalRemovals } : {}),
           ...(agentThreads.length ? { agentThreadCount: agentThreads.length } : {}),
           ...(args.allEnrollments ? { enrollmentsComplete, enrollmentPages: pages } : {}),
@@ -4083,7 +4731,7 @@ export const TOOLS = [
       // `pageSize`, `maxLogPartitions` and `minPartitionMs` are GONE, not defaulted — the
       // registration guard refuses undeclared keys, so a caller still passing one gets an
       // error rather than a silent drop. See RETIRED_RUNTIME_WINDOW_INPUTS.
-      logPageSize: z.number().int().min(1).max(5000).default(100),
+      logPageSize: z.number().int().min(1).max(5000).default(LOG_PAGE_SIZE_DEFAULT),
       maxLogPages: z.number().int().min(1).max(2048).default(200),
       // Wide windows on /workflows/logs/v2 intermittently 500 and then serve the identical
       // request cleanly. Retry is part of the contract, not a workaround.
@@ -4129,6 +4777,74 @@ export const TOOLS = [
     }, args),
   },
   {
+    // W6 item 9. GHL's builder has no per-step success/failed/skipped route; this groups the COMPLETE execution-log walk
+    // (the runtime window's own) client-side, like GHL's public log statistics. Refuses rather than truncates.
+    name: 'get_workflow_step_counts',
+    description: describe('get_workflow_step_counts',
+      'Count one workflow\'s execution-log rows grouped by status, step type, step, removal reason and/or skip reason, '
+      + 'optionally in hour/day/week buckets in an IANA time zone (proof: live-proven 2026-10-30 against hand counts, knowledge sniffs/workflows-w6b-2026-10-30/live-step-counts.json; risk: read). Computed over the COMPLETE log walk for '
+      + '[fromDate, toDate) (epoch ms); a walk that does not finish, or a window older than the 60 days GHL keeps, is '
+      + 'REFUSED (INCOMPLETE_WINDOW / RETENTION), never counted partially. An If/Else row is logged with the BRANCH taken; '
+      + 'grouped by stepId it carries the containerId. Values not seen before are counted as themselves.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      fromDate: z.number().int().nonnegative(),
+      toDate: z.number().int().positive(),
+      groupBy: z.array(z.enum(['status', 'type', 'stepId', 'removedReason', 'skippedReason'])).default([]),
+      timeBucket: z.enum(['hour', 'day', 'week']).optional(),
+      timezone: z.string().default('UTC'),
+      statuses: z.array(z.string()).optional(),
+      types: z.array(z.string()).optional(),
+      // logs/v2 serves at most 100 rows a page whatever `limit` asks, and a 100-row page overruns the audit gateway's
+      // 500-record identity cap, which fails the walk closed (both live 2026-10-30). 50 completes.
+      logPageSize: z.number().int().min(1).max(100).default(50),
+      maxLogPages: z.number().int().min(1).max(2048).default(400),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+      { method: 'GET', path: '/workflows/sticky-notes-all' },
+      { method: 'GET', path: '/workflows/logs/v2' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (Number.isFinite(args.fromDate) && args.fromDate < Date.now() - 60 * 86_400_000) {
+        const r = retentionRefusal();
+        return fail(CODES.ENGINE_ABORT, `${r.refused}: ${r.reason}`, 'Start the window within the last 60 days.');
+      }
+      const windowArgs = { locationId: args.locationId, workflowId: args.workflowId, fromDate: args.fromDate, toDate: args.toDate,
+        logPageSize: args.logPageSize ?? 50, maxLogPages: args.maxLogPages ?? 400 };
+      let win;
+      if (typeof deps?.collectRuntimeWindow === 'function') win = await deps.collectRuntimeWindow(windowArgs);
+      else {
+        const config = validateRuntimeWindowInput(windowArgs);
+        const backend = deps.makeGw({ loc: config.locationId, rail: 'jwt', state: deps.state, throttleMs: 0, jitterMs: 0 });
+        const pacing = processAuditPacing();
+        const auditGateway = makeAuditGateway({ gateways: { backend }, locationId: config.locationId,
+          limiter: deps.auditLimiter ?? pacing.limiter, circuit: deps.auditCircuit ?? pacing.circuit });
+        win = await collectWorkflowRuntimeWindow({ auditGateway, input: windowArgs });
+      }
+      // The audit read of the definition can fail its record cap on a large workflow; the container labels then come
+      // from an ordinary read (a label, not evidence — the counts themselves rest on the events alone).
+      let definition = null;
+      if (!win?.workflowDefinition?.workflow?.workflowData && (args.groupBy ?? []).includes('stepId')) {
+        const d = await deps.makeGw({ loc: args.locationId, state: deps.state }).call('GET', `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(args.workflowId)}`);
+        if (d?.ok) definition = { workflow: d.json };
+      }
+      let r;
+      try {
+        r = rollupStepCounts(win, { groupBy: args.groupBy ?? [], timeBucket: args.timeBucket ?? null, timezone: args.timezone ?? 'UTC',
+          statuses: args.statuses, types: args.types, definition });
+      } catch (e) { return fail(CODES.VALIDATION_FAILED, e.message, 'Fix the named argument.'); }
+      if (r.refused) {
+        return fail(CODES.ENGINE_ABORT, `${r.refused}: ${r.reason}`,
+          r.refused === 'RETENTION' ? 'Start the window within the last 60 days.' : 'Narrow [fromDate, toDate) or raise maxLogPages, then ask again.');
+      }
+      return ok({ workflowId: args.workflowId, window: { fromDate: args.fromDate, toDate: args.toDate }, groupBy: args.groupBy ?? [],
+        ...(args.timeBucket ? { timeBucket: args.timeBucket } : {}), ...r, warnings: win?.warnings ?? [] });
+    }, args),
+  },
+  {
     name: 'list_workflows',
     description: describe(
       'list_workflows',
@@ -4150,6 +4866,17 @@ export const TOOLS = [
       // would then refuse — two copies of one rule disagreeing.
       pageSize: z.number().int().min(1).max(100).default(100),
       maxPages: z.number().int().min(1).max(1000).default(100),
+      // W6 item 10 — search over the COMPLETE walk (client-side, so `total` is exact). Free strings for the same reason as
+      // `status` above; checked in workflow-search.mjs.
+      folderId: z.string().optional().describe('A folder id (the row\'s parentId), or "root" for workflows in no folder.'),
+      statuses: z.array(z.string()).optional(),
+      updatedAfter: z.string().optional().describe('ISO date-time; updatedAt >= this.'),
+      updatedBefore: z.string().optional().describe('ISO date-time; updatedAt < this.'),
+      updatedBy: z.string().optional().describe('A user id (the row\'s updatedBy).'),
+      ids: z.array(z.string()).max(500).optional(),
+      sort: z.object({ field: z.string(), direction: z.string().optional() }).optional().describe('field: name | updatedAt | createdAt; direction asc | desc.'),
+      limit: z.number().int().min(1).max(1000).optional(),
+      cursor: z.string().optional(),
     }),
     capabilities: [
       // NOTE FOR TASK 5. This row's path template is `{loc}` — the placeholder vocabulary the
@@ -4176,7 +4903,8 @@ export const TOOLS = [
       }
       // Validated BEFORE the gateway is constructed, for the same reason the runtime window
       // is: building one first spends a credential read for a request that was never legal.
-      const config = validateRosterInput(args ?? {});
+      // the walk validates only its own keys; the search keys are applied to its complete result below
+      const config = validateRosterInput(Object.fromEntries(Object.entries(args ?? {}).filter(([k]) => !SEARCH_KEYS.includes(k))));
       if (typeof deps?.makeGw !== 'function') {
         return fail(CODES.ENGINE_ABORT, 'the roster composite was invoked without a gateway factory',
           'Register the tool with { state, makeGw } dependencies before calling it.');
@@ -4192,14 +4920,22 @@ export const TOOLS = [
         limiter: deps.auditLimiter ?? pacing.limiter,
         circuit: deps.auditCircuit ?? pacing.circuit,
       });
-      return ok(await listWorkflowsComplete({ auditGateway, input: args }));
+      const searchArgs = Object.fromEntries(SEARCH_KEYS.filter((k) => args?.[k] !== undefined).map((k) => [k, args[k]]));
+      const walkInput = Object.fromEntries(Object.entries(args ?? {}).filter(([k]) => !SEARCH_KEYS.includes(k)));
+      const result = await (deps.listWorkflowsComplete ?? listWorkflowsComplete)({ auditGateway, input: walkInput });
+      // No search argument: the walk's result, exactly as before. An incomplete walk stays refused (workflows:null).
+      if (!Object.keys(searchArgs).length || result?.complete !== true || !Array.isArray(result?.workflows)) return ok(result);
+      let found;
+      try { found = searchWorkflowRoster(result.workflows, searchArgs); }
+      catch (e) { return fail(CODES.VALIDATION_FAILED, e.message, 'Fix the named search argument.'); }
+      return ok({ ...result, ...found, search: searchArgs });
     }, args),
   },
   {
     name: 'get_ai_configuration_bundle',
     description: describe(
       'get_ai_configuration_bundle',
-      'Sweep Conversation AI, Voice AI and Agent Studio discovery plus detail — proof: external-receipt-required; risk: read. All three surfaces are always attempted; a failed or malformed component is complete:false with null items, never an empty agent list. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned — legal live config reported for review, never a failure. Live canary required before Full audit.',
+      'Sweep Conversation AI, Voice AI and Agent Studio discovery plus detail — proof: external-receipt-required; risk: read. All three surfaces are always attempted; a failed or malformed component is complete:false with null items, never an empty agent list. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned — legal live config reported for review, never a failure. Also reads each agent\'s outbound configs and triggers (item.outbound; outboundArmed true|false|null = enabled config AND enabled trigger AND mode on — it excludes campaign eligibility, for which outboundEnabled is the floor; floors outboundEnabled/outboundArmed/outboundUnread). Live canary required before Full audit.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -4220,6 +4956,12 @@ export const TOOLS = [
       // reason this read exists). Conversation AI only; no routing capture exists for the
       // other two products.
       { method: 'GET', path: '/agent-deployment/routing-config/configs' },
+      // The outbound pair (W5a), read once each per Conversation AI agent after routing: the
+      // agent's outbound configs (activation, sending number, compliance stamp) and outbound
+      // triggers (the CRM events that make it start conversations). Evidence for
+      // outboundArmed; Conversation AI only.
+      { method: 'GET', path: '/agent-deployment/outbound-configs' },
+      { method: 'GET', path: '/agent-deployment/outbound-triggers' },
       // The /simple discovery route, never the legacy bare `/voice-ai/agents` that
       // list_account_entities reads: a different capability with a different receipt.
       { method: 'GET', path: '/voice-ai/agents/simple' },
@@ -4233,7 +4975,7 @@ export const TOOLS = [
         return fail(CODES.ENGINE_ABORT, 'the AI configuration bundle was invoked without a gateway factory',
           'Register the tool with { state, makeGw } dependencies before calling it.');
       }
-      // ONLY the ai rail, for the same reason the roster builds only jwt: ALL SEVEN of this
+      // ONLY the ai rail, for the same reason the roster builds only jwt: ALL NINE of this
       // bundle's capabilities declare `authRail:'ai'`, and `makeGateway` reads credentials at
       // construction, so a backend gateway this composite can never call would widen the
       // credential surface of a read that has no business touching it. (It also cannot help:
@@ -4895,7 +5637,7 @@ export const TOOLS = [
     name: 'get_agent_session',
     description: describe(
       'get_agent_session',
-      'One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries userQueries[] and aiResponses[] — every message of the turn, as the Conversation view shows them (the singular userQuery / aiResponse can hold only one, and is "" on a voice call\'s greeting turn) — and the traceId that get_agent_message_trace expands. A managed-agent (superagents) session id works here too (the Run page embeds this same detail); for those, each interaction also carries feedback {responseKey, sentiment} | null and the output a feedback block (the Activity-row rating, every chat-turn rating) — sentiment only, the reason/comment is one raw GET /agent-logs/feedback?responseKey. Other products carry no feedback field.',
+      'One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries userQueries[] and aiResponses[] — every message of the turn, as the Conversation view shows them (the singular userQuery / aiResponse can hold only one, and is "" on a voice call\'s greeting turn) — and the traceId that get_agent_message_trace expands. outbound is the source when the agent spoke first (userQuery "[outbound] <source>": trigger, bulk_action, …), else null. A managed-agent (superagents) session id works here too (the Run page embeds this same detail); for those, each interaction also carries feedback {responseKey, sentiment} | null and the output a feedback block (the Activity-row rating, every chat-turn rating) — sentiment only, the reason/comment is one raw GET /agent-logs/feedback?responseKey. Other products carry no feedback field.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -4939,6 +5681,8 @@ export const TOOLS = [
             traceId: i.traceId ?? null, timestamp: i.timestamp ?? null, lastSpanName: i.lastSpanName ?? null,
             contactId: i.contactId ?? null, contactName: i.contactName ?? null,
             userQuery: i.userQuery ?? null, aiResponse: i.aiResponse ?? null,
+            // An outbound turn has no inbound message: its userQuery is "[outbound] trigger|bulk_action" (live 2026-10-29).
+            outbound: agentLogOutboundSource(i.userQuery),
             // The Conversation view renders these arrays, not the singular fields: a turn can carry several messages each
             // way, and a voice session's first turn has userQuery "" with the greeting in aiResponses[0] (live 2026-09-29).
             userQueries: Array.isArray(i.userQueries) ? i.userQueries : [], aiResponses: Array.isArray(i.aiResponses) ? i.aiResponses : [],
@@ -4989,7 +5733,7 @@ export const TOOLS = [
           out.feedbackError = { status: f.status, ...(f.thrown ? { thrown: f.thrown } : {}), detail: 'the ratings read (/agent-logs/feedback/states) failed; the session read is unaffected' };
         }
       }
-      out.note = 'Each interaction is one inbound message; its traceId IS that message\'s CRM id. Expand it with get_agent_message_trace.';
+      out.note = 'Each interaction is one turn; expand it with get_agent_message_trace by its traceId. On an inbound turn the traceId IS the inbound message\'s CRM id; an outbound turn (outbound not null) has no inbound message, and its traceId is the one to pass.';
       return ok(out);
     }, args),
   },
@@ -5104,7 +5848,9 @@ export const TOOLS = [
       + '(channel, agent, contact, last message, when). view "logs" (default) needs a scope — presetPeriod (today, this-week, '
       + 'prev-week, this-month [default], prev-month, this-year, prev-year) or both from and to (ISO) — and filters by agentId, '
       + 'contactId, channel (the exact channel name: SMS, Live_Chat, WebChat…; a wrong one returns 0 rows, not an error); '
-      + 'sortOrder, page, limit ≤100. view "summaries": what the table\'s View Transcript / Summary shows for one contactId — '
+      + 'sortOrder, page, limit ≤100. direction "outbound" lists the conversations an agent started (outbound trigger, bulk '
+      + 'action / AI campaign; live 2026-10-29); it is the only value — inbound has never been executed, and without direction '
+      + 'the server default (probably inbound only) is unmeasured. view "summaries": what the table\'s View Transcript / Summary shows for one contactId — '
       + 'each conversation summary the agent wrote (summary text, what triggered it, the transcript it summarised), optionally '
       + 'one channel. A contact has summaries only where the agent\'s conversation summary is on. For every AI product\'s '
       + 'sessions with spans use list_agent_sessions; for Voice AI calls use get_voice_call_logs. Read-only.'),
@@ -5117,6 +5863,8 @@ export const TOOLS = [
       agentId: z.string().optional(),
       contactId: z.string().optional(),
       channel: z.string().optional(),
+      // Only the measured value (REV-M5): inbound was never executed.
+      direction: z.enum(CAI_DIRECTIONS).optional(),
       sortOrder: z.enum(['asc', 'desc']).default('desc'),
       page: z.number().int().positive().default(1),
       limit: z.number().int().positive().max(CAI_LIMIT_MAX).default(20),
@@ -5139,6 +5887,7 @@ export const TOOLS = [
         return ok({ view: 'summaries', contactId: args.contactId, summaries: items, count: items.length, totalCount: r.json?.totalCount ?? items.length,
           ...(items.length ? {} : { note: 'No summaries: they exist only where the agent\'s conversation summary setting is on (and, with channel, only on that channel).' }) });
       }
+      if (args.direction !== undefined && !CAI_DIRECTIONS.includes(args.direction)) return fail(CODES.VALIDATION_FAILED, `direction takes only ${CAI_DIRECTIONS.map((d) => `"${d}"`).join(', ')} (inbound has never been executed); omit it for the default.`);
       if ((args.from && !args.to) || (!args.from && args.to)) return fail(CODES.VALIDATION_FAILED, 'from and to go together (ISO date-times); or use presetPeriod.');
       if (args.from && args.presetPeriod) return fail(CODES.VALIDATION_FAILED, 'pass presetPeriod OR from + to, not both.');
       for (const k of ['from', 'to']) if (args[k] && !Number.isFinite(Date.parse(args[k]))) return fail(CODES.VALIDATION_FAILED, `${k} must be an ISO 8601 date-time.`);
@@ -5156,7 +5905,7 @@ export const TOOLS = [
     name: 'get_agent_message_trace',
     description: describe(
       'get_agent_message_trace',
-      'Why the AI said what it said, for one message: the ordered node-by-node execution path — splitter branch and its reasoning, knowledge chunks by source title, tool calls, which node actually spoke, model and tokens. The digest is the point; raw spans are opt-in.',
+      'Why the AI said what it said, for one message: the ordered node-by-node execution path — splitter branch and its reasoning, knowledge chunks by source title, tool calls, which node actually spoke, model and tokens. The digest is the point; raw spans are opt-in. messageId is the inbound CRM message id; an outbound turn (the agent spoke first) has none — pass that interaction\'s traceId from get_agent_session.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -5189,7 +5938,7 @@ export const TOOLS = [
 
       if (!traceId) {
         if (!args.conversationId) {
-          return fail(CODES.VALIDATION_FAILED, 'pass messageId (the inbound CRM message id, which is the traceId), or conversationId plus messageIndex or timestamp.');
+          return fail(CODES.VALIDATION_FAILED, 'pass messageId (the inbound CRM message id, which is the traceId; for an outbound turn, the interaction traceId), or conversationId plus messageIndex or timestamp.');
         }
         const q = new URLSearchParams({ locationId: args.locationId, limit: '100' });
         const r = await gw.call('GET', `/agent-logs/logs/${encodeURIComponent(args.conversationId)}/interactions?${q}`);
@@ -5212,7 +5961,7 @@ export const TOOLS = [
       const sp = await gw.call('GET', `/agent-logs/logs/${encodeURIComponent(traceId)}/spans?${sq}`);
       if (!sp.ok) {
         if (sp.status === 404) {
-          return fail(CODES.VALIDATION_FAILED, `no spans for trace ${traceId}. This route takes the INBOUND MESSAGE id, not a session id — if you passed a session id, use get_agent_session, or pass it as conversationId with a messageIndex.`);
+          return fail(CODES.VALIDATION_FAILED, `no spans for trace ${traceId}. This route takes the INBOUND MESSAGE id, or for an outbound turn the interaction traceId from get_agent_session; not a session id — if you passed a session id, use get_agent_session, or pass it as conversationId with a messageIndex.`);
         }
         return fromHttp(sp.status, sp.json);
       }
@@ -5574,7 +6323,8 @@ export const TOOLS = [
       + '+ products, SMS/WhatsApp templates, email-builder templates, store products, coupons, phone numbers, '
       + 'funnels, Facebook pages, document templates, custom-object schemas, EVENTS and event tickets, opportunity LOST REASONS '
       + 'and call DISPOSITIONS — the same entity kinds the build resolver uses. One row per kind in '
-      + "engine/entities.mjs, so the list here cannot drift from what the sweep actually returns.",
+      + "engine/entities.mjs, so the list here cannot drift from what the sweep actually returns. "
+      + 'A leg that FAILED is listed in `unreadable` as {key, status}: a key that is [] AND listed there was not read; a key that is [] and not listed is genuinely empty.',
     ),
     inputSchema: schema({ locationId: z.string() }),
     capabilities: [
@@ -5614,7 +6364,10 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      return ok(await fetchEntities(gw));
+      // w6d-9 (3): fetchEntities keeps the failed legs as a NON-enumerable `unreadable` (the resolver reads it). JSON dropped it, so a read that
+      // failed looked like an account with none. Surface it as a key: a key that is [] and absent here is genuinely empty.
+      const entities = await fetchEntities(gw);
+      return ok({ ...entities, unreadable: entities.unreadable ?? [] });
     }, args),
   },
   {
@@ -5744,7 +6497,7 @@ export const TOOLS = [
   },
   {
     name: 'build_course',
-    description: `${describe('build_course', 'Build and verify a GHL Memberships course (proof: documented).')} The course's certificate/badge template goes under spec.award {title, type: certificate|badge} ("credential" is refused by the secret guard). The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Only free offers are supported; paid offers return 500 without a payment provider. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).`,
+    description: `${describe('build_course', 'Build and verify a GHL Memberships course (proof: documented).')} The course's certificate/badge template goes under spec.award {title, type: certificate|badge} ("credential" is refused by the secret guard). The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Paid offers are supported by the engine (onetime or subscription, with an explicit amount and currency); creating one needs a connected payment integration (bl-877: 400 'Integrations not found' on a sandbox with none). Checkout is unproven. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).`,
     inputSchema: schema({
       locationId: z.string(),
       spec: z.object({}).passthrough(),
@@ -5857,7 +6610,10 @@ export const TOOLS = [
       spec: z.object({}).passthrough().describe(
         'The workflow IR: {name, triggers: [{type, name, filters: [{field, operator, value}]}], graph: [{ref, kind, type, name, attributes}]}. '
         + 'The step list is `graph`, NOT `steps`. A trigger\'s filter rows are `filters` — `conditions` is how GHL STORES them and is refused here, '
-        + 'because nothing reads it and the trigger would go live unscoped. `locationId` is this tool\'s own argument and does not belong inside spec.'),
+        + 'because nothing reads it and the trigger would go live unscoped. `locationId` is this tool\'s own argument and does not belong inside spec. '
+        + 'To file the build in a folder: `folderPath: ["Outer", "Inner"]` (exact names, outermost first) and `createFolderIfMissing: true` to create missing '
+        + 'levels after every check; a name shared by two folders at one level is refused. '
+        + "A spec from export_workflow {format:'spec'} is accepted as it is and built as a NEW workflow with fresh ids."),
       ignoreUnresolved: z.boolean().default(false),
       // The build path's validate-assets hatch. orchestrate.mjs reads opts.ignoreAssetErrors and its own refusal tells the
       // caller to "pass ignoreAssetErrors to build anyway" — but this tool neither declared nor forwarded it, so that advice
@@ -5874,6 +6630,8 @@ export const TOOLS = [
       // skipMergeTagCheck:true skips the merge-tag check entirely.
       strictMergeTags: z.boolean().optional(),
       skipMergeTagCheck: z.boolean().optional(),
+      // ifelse-vocab.mjs: IFELSE_VOCAB names this as its remedy (bl-401) — skip the picker-vocabulary check on If/Else rows
+      skipIfElseVocab: z.boolean().optional(),
       // With spec.sampleWebhookPayload: POST the sample to each inbound_webhook trigger's receiving
       // URL and pin it as the reference so {{inboundWebhookRequest.*}} tags are real.
       // optional, NOT default(false): a default made this always false, so orchestrate's
@@ -5881,6 +6639,7 @@ export const TOOLS = [
       // (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3J-webhook-chain-run1-pin-ignored.json).
       pinWebhookSample: z.boolean().optional(),
       allowValidationFailure: z.boolean().optional().describe('Write even though the validation gate refused. The gate runs every layer over the document: GHL\'s own WorkflowValidator rules (including the publish-only ones when this write publishes), the advanced canvas\'s stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL\'s live validator. Findings are still reported in full.'),
+      dryRun: z.boolean().optional().describe('Run every check a build runs (resolve, compile, the offline validation gate, validate-assets, engine references, the custom-code sandbox) and create NOTHING: no tag, no email template, no workflow. The sandbox test RUNS each custom_code step\'s code, which can make HTTP calls; pass skipCustomCodeTest to leave it out. Answers {valid, errors:[{code, path, stage, context}], warnings, server, wouldCreate}. GHL\'s server validator needs a workflow id, so it is reported as not run.'),
     }),
     capabilities: [
       { method: 'GET', path: '/opportunities/pipelines' },
@@ -5905,6 +6664,13 @@ export const TOOLS = [
       { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
+      // the reference pre-flight runs on every build (and is the only POST a dry run makes besides the sandbox test)
+      { method: 'POST', path: '/workflow/{loc}/validate-assets' },
+      // w6c-7 (ruled by the orchestrator, DECISIONS: build_workflow's capabilities): an AI Agent step's skill ids resolve here
+      // (engine/agent-skills.mjs, via orchestrate.mjs) when the build has a gateway.
+      { method: 'GET', path: '/workflow/agent/{loc}/skills/resolve' },
+      // a server-gate refusal marks the empty draft '[REFUSED] <name>' (W6a item 4)
+      { method: 'PUT', path: '/workflow/{loc}/rename-workflow/{wid}' },
       // ACCOUNT-READINESS PREFLIGHT (engine/preflight.mjs) runs on every build and reads these only
       // when the compiled workflow uses the channel. Declared so the catalogue counts them as USED.
       { method: 'GET', path: '/phone-system/numbers' },
@@ -5925,7 +6691,12 @@ export const TOOLS = [
       { method: 'POST', path: '/workflow/{loc}/email/validate-from-email' },
     ],
     handler: async (args, deps) => guard(async () => {
+      // An exported spec carries "<redacted>" where a credential was; built as it is, the new workflow would store that literal
+      // (final review W6b). Repair and edit refuse it the same way — there is no hatch.
+      const redactedSpec = refuseRedactedWrite(args.spec);
+      if (redactedSpec) return fail(CODES.VALIDATION_FAILED, redactedSpec.message, redactedSpec.hint);
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      if (args.dryRun === true) return dryRunBuild(args, gw);
       const report = await orchestrate(args.spec, gw, {
         ignoreUnresolved: args.ignoreUnresolved ?? false,
         ignoreAssetErrors: args.ignoreAssetErrors === true,
@@ -5936,6 +6707,7 @@ export const TOOLS = [
         allowValidationFailure: args.allowValidationFailure === true,
         strictMergeTags: args.strictMergeTags === false ? false : undefined,
         skipMergeTagCheck: args.skipMergeTagCheck === true,
+        skipIfElseVocab: args.skipIfElseVocab === true,
       });
       const data = buildWorkflowData(report, args.locationId);
       if (!report.aborted) {
@@ -5998,7 +6770,15 @@ export const TOOLS = [
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
-      ops: z.array(z.object({}).passthrough()),
+      ops: z.array(z.object({}).passthrough()).optional().describe(
+        'The ordered edit ops (or opsPath). insertAfter takes step (one) or steps: [..] (in the order written; a branching step '
+        + 'only last). Anchors (stepId, afterId, beforeId, containerId) take the stored id, a ref an earlier op in this call minted, '
+        + 'or a unique id prefix (8+ chars). Inserting a branching step (if_else, find_opportunity, …) where steps follow needs '
+        + 'attachTailTo: the branch those following steps move onto. assign_user needs user_list or customUserList. '
+        + 'dissolveContainer {containerId, keep}: keep ONE lane in the container\'s place, delete the rest (bl-387). '
+        + 'deleteTrigger refuses while an If/Else trigger row names it (keepIfElseRows:true to leave them).'),
+      // bl-393: a large edit, reviewable and repeatable — an absolute path to a JSON file holding the ops array (or {ops}).
+      opsPath: z.string().optional().describe('Instead of ops: an absolute path to a JSON file holding the ops array (or {ops}).'),
       assumeAssociated: z.boolean().default(false),
       skipWorkflowRules: z.union([z.boolean(), z.array(z.string())]).optional(),
       // Hatch for editCommitBody's GOTO_LOOP guard (edit.mjs) — a legacy goto that jumps
@@ -6036,10 +6816,13 @@ export const TOOLS = [
       // skipMergeTagCheck:true skips the merge-tag check entirely.
       strictMergeTags: z.boolean().optional(),
       skipMergeTagCheck: z.boolean().optional(),
+      // ifelse-vocab.mjs: IFELSE_VOCAB names this as its remedy (bl-401) — skip the picker-vocabulary check on If/Else rows
+      skipIfElseVocab: z.boolean().optional(),
       // Optimistic concurrency. The stale-read window is silent: the PUT carries the whole
       // templates array, so an edit authored against an old graph simply erases the newer one.
       expectedVersion: z.number().int().positive().optional(),
       acknowledgeDrift: z.boolean().optional(),
+      previewToken: z.object({ version: z.number().nullable().optional(), fingerprint: z.string() }).optional(),
       confirm: z.boolean().default(false),
       allowValidationFailure: z.boolean().optional().describe('Write even though the validation gate refused. The gate runs every layer over the document: GHL\'s own WorkflowValidator rules (including the publish-only ones when this write publishes), the advanced canvas\'s stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL\'s live validator. Findings are still reported in full.'),
     }),
@@ -6105,6 +6888,15 @@ export const TOOLS = [
       { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
     ],
     handler: async (args, deps) => { const tracked = { sent: () => false }; return guard(async () => {
+      if (args.opsPath !== undefined) {
+        if (args.ops !== undefined) return fail(CODES.VALIDATION_FAILED, 'pass either ops (inline) or opsPath (a file) — not both.', 'Drop one of them.');
+        const read = readOpsFile(args.opsPath);
+        if (read.failure) return read.failure;
+        args = { ...args, ops: read.ops };
+      }
+      // insertAfter {steps} → single-step ops, before any pre-pass (resolver, tags, marketplace, shape check) reads them
+      try { if (Array.isArray(args.ops)) args = { ...args, ops: expandInsertSteps(args.ops) }; }
+      catch (e) { return fail(CODES.VALIDATION_FAILED, e.message, 'Fix the insertAfter op: one step, or a steps list whose only branching step is the last.'); }
       if (!Array.isArray(args.ops) || args.ops.length === 0) {
         return fail(
           CODES.VALIDATION_FAILED,
@@ -6219,6 +7011,24 @@ export const TOOLS = [
           + 'data.driftSinceLastRead lists what moved.'), { driftSinceLastRead: driftOf() });
       }
 
+      // THE PREVIEW TOKEN (W6a item 7). The preview returns {version, fingerprint}; the confirm sends it back. The
+      // fingerprint covers the STEP graph only (triggers are read only for some edits, and a token must be computed the
+      // same way on both calls). A different fingerprint means someone changed a step since the preview: refused. A
+      // version that alone moved (publish, settings, notes) proceeds with a warning. No token: still accepted in 1.x.
+      const freshToken = { version: fresh.version ?? null, fingerprint: fingerprintWorkflow(beforeTemplates, []) };
+      if (args.previewToken) {
+        if (args.previewToken.fingerprint !== freshToken.fingerprint) {
+          return withFailureData(fail(CODES.PREVIEW_STALE,
+            'the workflow\'s steps changed after this preview was made (previewToken fingerprint differs).',
+            'Preview again on the current workflow and confirm with the new previewToken.'), { previewToken: freshToken, driftSinceLastRead: driftOf() });
+        }
+        if ((args.previewToken.version ?? null) !== freshToken.version) {
+          warnings.push(`VERSION_MOVED ${args.previewToken.version} -> ${freshToken.version} since the preview, but no step changed (a publish, unpublish or settings save does this); editing the current graph.`);
+        }
+      } else if (args.confirm === true) {
+        warnings.push('PREVIEW_TOKEN_MISSING: confirm without the preview\'s previewToken — a concurrent step change since your preview is detected only through this project\'s read cache. Send data.preview.previewToken back with confirm:true.');
+      }
+
       const idGen = boundEditIdGen(
         args.locationId,
         args.workflowId,
@@ -6250,6 +7060,7 @@ export const TOOLS = [
         ...(customValues !== undefined ? { customValues } : {}),
         ...(args.strictMergeTags === false ? { strictMergeTags: false } : {}),
         ...(args.skipMergeTagCheck === true ? { skipMergeTagCheck: true } : {}),
+        ...(args.skipIfElseVocab === true ? { skipIfElseVocab: true } : {}),
         warn: (message) => warnings.push(message),
       };
       // THE ACCOUNT RESOLVER, gated. resolveIR ran on the build path only, so an edit op naming a
@@ -6257,7 +7068,10 @@ export const TOOLS = [
       // verbatim (F5-09) or was refused with no way to satisfy it. Fetching entities is 21 GETs,
       // so this runs ONLY when an op actually carries a name: a native edit stays
       // network-identical to what it was before this existed.
-      let editOps = args.ops;
+      // a unique UUID prefix → the full id BEFORE the resolver, which looks a modifyStep's stored type up by exact id
+      let editOps;
+      try { editOps = resolvePrefixAnchors(args.ops, beforeTemplates); }
+      catch (e) { return fail(CODES.VALIDATION_FAILED, e.message, 'Pass the full step id.'); }
       if (opsNeedResolution(editOps)) {
         const entities = await fetchEntities({ call: (m, path, body) => gw.call(m, path, body), loc: args.locationId });
         const resolved = resolveOps(editOps, buildResolvers(entities), beforeTemplates);
@@ -6312,25 +7126,8 @@ export const TOOLS = [
       // session. Counted BEFORE the confirm gate on a PUBLISHED workflow only (a draft has no
       // runs) — one GET, the same count-per-step read get_workflow_logs makes — so the preview
       // says who is about to be thrown out, by step, while the delete can still be reconsidered.
-      let parkedOnDeletedSteps = [];
-      if (fresh.status === 'published' && diff.deletedSteps?.length) {
-        const counts = await safeGatewayCall(() => gw.call('GET',
-          `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`));
-        const rows = !counts.threw && counts.value?.ok ? (counts.value.json?.counts ?? counts.value.json ?? []) : null;
-        if (!Array.isArray(rows)) {
-          warnings.push('DELETE_PARKED_UNKNOWN: could not read contacts-per-step, so the number of contacts parked on the deleted step(s) is unknown; read get_contacts_at_step before confirming.');
-        } else {
-          const byStep = new Map(rows.map((r) => [r?.currentStepId ?? r?.stepId, Number(r?.total ?? r?.count ?? 0)]));
-          parkedOnDeletedSteps = diff.deletedSteps
-            .map((id) => ({ stepId: id, name: beforeTemplates.find((t) => t.id === id)?.name ?? id, parked: byStep.get(id) ?? 0 }))
-            .filter((r) => r.parked > 0);
-          for (const r of parkedOnDeletedSteps) {
-            warnings.push(`DELETE_EJECTS_PARKED_CONTACTS: ${r.parked} contact(s) are parked on '${r.name}' (${r.stepId}); deleting it ends their run `
-              + '(step_was_deleted_by_user) and an autonomous trigger will not re-fire for them in that session. Move them first '
-              + '(fast_forward_contacts / get_contacts_at_step), or accept the ejection.');
-          }
-        }
-      }
+      const { parkedOnDeletedSteps, parkedOnTouchedSteps } = await parkedContactWarnings({
+        gw, args, fresh, diff, beforeTemplates, afterTemplates: templates, warnings });
       // Trigger ops are planned AFTER the step ops land, so a trigger `target` resolves against
       // the POST-EDIT roster — it can point at a step this same call just created.
       ctx.externalRefs = externalRefsOf(templates);
@@ -6426,6 +7223,8 @@ export const TOOLS = [
         // what `status` a freshly-created trigger carries (measured 2026-08-28: `status`
         // follows the target workflow, not a hardcoded default — see edit-driver.mjs).
         workflowStatus: fresh.status,
+        // the document after this call's step ops: deleteTrigger refuses while an If/Else row still names the trigger (bl-419)
+        templates,
       });
       for (const r of triggerPlan) {
         if (r.noop) warnings.push(`TRIGGER_NOOP: ${r.op} on ${r.triggerId} — ${r.reason}. If you expected a change, the value you sent equals what is stored; nothing will be written for this op.`);
@@ -6515,6 +7314,7 @@ export const TOOLS = [
         args.ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate,
         fresh.status, opResults,
       );
+      preview.previewToken = freshToken;
       // Settings-tab changes (updateSettings ops): the exact values the commit body carries,
       // so a preview shows what the UI's Settings drawer would read back after the PUT.
       if (settingsPatch) {
@@ -6524,6 +7324,7 @@ export const TOOLS = [
       if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
       if (notePlan) preview.workflowNote = { method: notePlan.method, path: notePlan.path, chars: notePlan.body.content.length, clears: notePlan.body.content === '', bumpsVersion: true };
       if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
+      if (parkedOnTouchedSteps.length) preview.parkedOnTouchedSteps = parkedOnTouchedSteps;
       // The ported build-path pre-flight verdicts, visible while the edit can still be changed.
       if (assetPreflight) preview.assetPreflight = assetPreflight;
       preview.validation = validation.report;
@@ -6844,7 +7645,9 @@ export const TOOLS = [
             intentErrors.length
               ? `The write persisted, but the stored document does not express the intent: `
                 + intentErrors.map((f) => `${f.code} on '${f.name}' — ${f.msg}`).join('; ')
-              : 'Workflow PUT returned but the edited graph did not round-trip cleanly.',
+              : verify.reminted?.length
+                ? `IDS_REMINTED: the write persisted, but GHL stored ${verify.reminted.length} step(s) under new ids (${verify.reminted.map((p) => `${p.from}→${p.to}`).join(', ')}).`
+                : 'Workflow PUT returned but the edited graph did not round-trip cleanly.',
             'Inspect data.verify (including verify.intent) and the workflow canvas before making further edits.',
           ),
           data,
@@ -6871,7 +7674,9 @@ export const TOOLS = [
       + 'Also runs the build path\'s pre-write ladder over the steps the repair changes: graph-context rules, '
       + "GHL's action schema and asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox "
       + '(skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field + '
-      + 'opportunity-intent check on the persisted document.'),
+      + 'opportunity-intent check on the persisted document. '
+      + "spec / specPath: the export_workflow {format:'spec'} spec instead of templates — compiled with every stored id kept, "
+      + 'then this same path; its trigger differences are reported in preview.triggerDifferences, not written.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
@@ -6885,6 +7690,11 @@ export const TOOLS = [
       // {type:"NONE", data:null} object GHL actually stores there. A FILE is not a tool argument.
       // So any workflow containing a webhook step must be repaired through templatesPath.
       templatesPath: z.string().optional(),
+      // W6 item 2: the lifted spec from export_workflow {format:'spec'} — inline, or (for a webhook step, as above) a file.
+      spec: z.object({}).passthrough().optional(),
+      specPath: z.string().optional(),
+      // a stored step sent under a new id (same type and name) is refused STEP_IDS_NOT_STORED unless this is set (bl-398)
+      allowStepIdChange: z.boolean().optional(),
       // The build path's hatches, same names and defaults as build_workflow / edit_workflow.
       ignoreAssetErrors: z.boolean().default(false),
       allowOverCap: z.boolean().default(false),
@@ -6894,6 +7704,7 @@ export const TOOLS = [
       // read and edited, so a version that moved underneath means their edit was built on a
       // stale graph. Optional — omitted, the tool trusts the caller's read.
       expectedVersion: z.number().optional(),
+      previewToken: z.object({ version: z.number().nullable().optional(), fingerprint: z.string() }).optional(),
       assumeAssociated: z.boolean().default(false),
       skipWorkflowRules: z.union([z.boolean(), z.array(z.string())]).optional(),
       allowGotoLoops: z.boolean().optional(),
@@ -6945,6 +7756,40 @@ export const TOOLS = [
       const warnings = [];
       const warn = (message) => warnings.push(message);
 
+      // A lifted spec compiles, offline and before any read, to the templates the rest of this path takes: ids pinned to
+      // the stored ones, the residual overlaid, frozen steps verbatim (engine/lift.mjs, stored.mjs).
+      let specTriggers = null;
+      if (args.spec !== undefined || args.specPath !== undefined) {
+        if (args.templates !== undefined || args.templatesPath !== undefined || (args.spec !== undefined && args.specPath !== undefined)) {
+          return fail(CODES.VALIDATION_FAILED, 'pass either a spec (spec or specPath) or templates (templates or templatesPath) — one of them.', 'Drop the others.');
+        }
+        let spec = args.spec;
+        if (args.specPath !== undefined) {
+          const read = readSpecFile(args.specPath);
+          if (read.failure) return read.failure;
+          spec = read.spec;
+        }
+        if (!spec?.stored || typeof spec.stored !== 'object') {
+          return fail(CODES.VALIDATION_FAILED, "this spec has no stored layer, so its steps cannot keep their stored ids — repair takes the spec export_workflow {format:'spec'} returns.",
+            "Export the workflow with format:'spec', change that, and repair with it. To build a new workflow from an authored spec, use build_workflow.");
+        }
+        const usesMarketplace = JSON.stringify(spec.graph ?? []).includes('"marketplace":true');
+        const marketplace = buildMarketplaceIndex(usesMarketplace
+          ? await fetchMarketplace((m, p, b) => gw.call(m, p, b), args.locationId, {})
+          : { assets: null, modules: { actions: [], triggers: [] } });
+        let built;
+        try {
+          built = compile(structuredClone(spec), {
+            loc: args.locationId, cid: undefined, uid: gw.uid, companyAge: 0, idGen: () => randomUUID(), catalog: loadCatalog(), marketplace,
+            pinIds: true, pins: spec.stored.pins ?? {}, ignoreUnresolved: true, skipTriggerSeeds: true, warn,
+          });
+        } catch (error) {
+          return fail(CODES.ENGINE_ABORT, `the spec did not compile (${error.code ?? 'ENGINE_ABORT'}): ${error.message}`,
+            'Fix the spec; nothing was read or written.');
+        }
+        specTriggers = spec.triggers ?? [];
+        args = { ...args, templates: built.autoSaveBody.workflowData.templates, spec: undefined, specPath: undefined };
+      }
       if (args.templatesPath !== undefined) {
         if (Array.isArray(args.templates)) {
           return fail(CODES.VALIDATION_FAILED, 'pass either templates (inline) or templatesPath (a file) — not both.', 'Drop one of them.');
@@ -6983,13 +7828,60 @@ export const TOOLS = [
         return fail(CODES.ENGINE_ABORT, 'workflow GET did not return workflowData.templates',
           'Confirm the workflow id and retry; nothing was written.');
       }
+      // A compiled spec step reads in the stored step's key order, so an unchanged step diffs as unchanged.
+      if (specTriggers) {
+        const storedById = new Map(beforeTemplates.map((t) => [t.id, t]));
+        args = { ...args, templates: args.templates.map((t) => alignKeyOrder(t, storedById.get(t.id))) };
+      }
       if (args.expectedVersion !== undefined && fresh.version !== args.expectedVersion) {
         return fail(CODES.VERSION_CONFLICT,
           `workflow version is ${fresh.version}, not the expected ${args.expectedVersion} — it changed after you read it.`,
           'Re-read the workflow, re-apply your change to the current graph, and retry.');
       }
+      // The preview token, as edit_workflow (W6a item 7): a step change since the preview refuses; version-only drift warns.
+      // repair PUTs the whole document, so its token covers every step key (a rename or disable since the preview would be
+      // reverted by this write), not only the step graph edit_workflow's token covers (final review W6a)
+      const freshToken = { version: fresh.version ?? null, fingerprint: fingerprintDocument(beforeTemplates) };
+      if (args.previewToken && args.previewToken.fingerprint !== freshToken.fingerprint) {
+        return withFailureData(fail(CODES.PREVIEW_STALE,
+          'the workflow\'s steps changed after this preview was made (previewToken fingerprint differs).',
+          'Preview again on the current workflow and confirm with the new previewToken.'), { previewToken: freshToken });
+      }
+      if (args.previewToken && (args.previewToken.version ?? null) !== freshToken.version) {
+        warnings.push(`VERSION_MOVED ${args.previewToken.version} -> ${freshToken.version} since the preview, but no step changed; repairing the current graph.`);
+      }
+      if (!args.previewToken && args.confirm === true) {
+        warnings.push('PREVIEW_TOKEN_MISSING: confirm without the preview\'s previewToken — a concurrent change since your preview is not detected. Send data.preview.previewToken back with confirm:true.');
+      }
 
       const diff = diffTemplates(beforeTemplates, args.templates);
+      // bl-398 / final review W6a: a stored step that comes back under a NEW id (same type and name) is a re-key, not a
+      // delete plus a create — anything keyed on the old id (go-to targets, sticky notes, notes, If/Else trigger rows,
+      // run history) would point at nothing. Refused before the PUT, naming each pair; allowStepIdChange for a deliberate one.
+      const rekeyed = (() => {
+        const newIds = new Set(args.templates.map((t) => t?.id)), oldIds = new Set(beforeTemplates.map((t) => t?.id));
+        const created = args.templates.filter((t) => !oldIds.has(t?.id));
+        const pairs = [];
+        for (const old of beforeTemplates.filter((t) => !newIds.has(t?.id))) {
+          const i = created.findIndex((c) => c?.type === old?.type && c?.name === old?.name);
+          if (i >= 0) { pairs.push({ from: old.id, to: created[i].id, name: old.name ?? null }); created.splice(i, 1); }
+        }
+        return pairs;
+      })();
+      if (rekeyed.length && args.allowStepIdChange !== true) {
+        return fail(CODES.VALIDATION_FAILED,
+          `STEP_IDS_NOT_STORED: ${rekeyed.length} stored step(s) come back under a new id: ${rekeyed.map((p) => `'${p.name ?? '?'}' ${p.from} → ${p.to}`).join('; ')}. Nothing was written.`,
+          'Send each stored step with its stored id (export_workflow gives them). If the new id is deliberate, pass allowStepIdChange:true — anything keyed on the old id will point at nothing.');
+      }
+      if (rekeyed.length) warnings.push(`STEP_IDS_CHANGED (allowStepIdChange): ${rekeyed.map((p) => `${p.from} → ${p.to}`).join('; ')}`);
+      // W6a item 1: GHL's internal PUT keeps a non-UUID step id verbatim (live 2026-10-30), but the builder's copy/paste
+      // re-mints only UUID-shaped ids, so pasting such a step would duplicate the id [inferred from replaceUuids].
+      const readableNew = (diff.createdSteps ?? []).filter((id) => !UUID_RE.test(String(id)));
+      if (readableNew.length) {
+        warnings.push(`READABLE_STEP_ID: new step id(s) ${readableNew.join(', ')} are not UUIDs. GHL stores them as given, but the builder's copy/paste re-mints only UUID ids, so a pasted copy would carry a duplicate id. Prefer a UUID.`);
+      }
+      const { parkedOnDeletedSteps: repairParkedDeleted, parkedOnTouchedSteps: repairParkedTouched } = await parkedContactWarnings({
+        gw, args, fresh, diff, beforeTemplates, afterTemplates: args.templates, warnings });
       const catalog = loadCatalog();
       // The steps this repair changed. A whole document is being replaced, so there is no op
       // class to gate on — the diff IS the gate: an unchanged document sends nothing new, and a
@@ -7074,11 +7966,17 @@ export const TOOLS = [
       });
       if (validation.refusal) return validation.refusal;
 
+      const triggerDifferences = specTriggers ? specTriggerDifferences(specTriggers, gateTriggers) : null;
+      if (triggerDifferences?.length) warnings.push(`TRIGGERS_NOT_WRITTEN: ${triggerDifferences.length} trigger difference(s) between the spec and the workflow; see preview.triggerDifferences.`);
       const preview = {
         validation: validation.report,
         diff,
+        ...(triggerDifferences ? { triggerDifferences } : {}),
         stepCount: { before: beforeTemplates.length, after: args.templates.length },
         version: fresh.version,
+        previewToken: freshToken,
+        ...(repairParkedDeleted.length ? { parkedOnDeletedSteps: repairParkedDeleted } : {}),
+        ...(repairParkedTouched.length ? { parkedOnTouchedSteps: repairParkedTouched } : {}),
         warnings,
         ...(assetPreflight ? { assetPreflight } : {}),
         ...(customCode.tests.length ? { customCodeTests: customCode.tests } : {}),
@@ -7107,6 +8005,16 @@ export const TOOLS = [
           'Re-read the workflow and inspect the canvas before editing further.'), { preview });
       }
       const gotTemplates = recordsFrom(roundTripResponse.json?.workflowData?.templates);
+      // bl-424: what this agent last SAW is now the post-repair graph. Without this record the next edit compared against
+      // the pre-repair snapshot and refused the agent's own write as PREVIEW_STALE.
+      readCache(deps.state).write(args.locationId, args.workflowId, {
+        readAt: new Date().toISOString(),
+        version: roundTripResponse.json?.version ?? null,
+        updatedAt: roundTripResponse.json?.dateUpdated ?? null,
+        fingerprint: fingerprintWorkflow(gotTemplates, existingTriggers),
+        templates: gotTemplates,
+        triggers: existingTriggers,
+      });
       // Both sides stripped, for the reason edit_workflow's own call documents: the comparison
       // must not depend on whether this write happened to cross the terminal-stripping boundary.
       const verify = verifyEditRoundTrip(stripNullNext(args.templates), beforeTemplates, stripNullNext(gotTemplates));
@@ -7145,7 +8053,9 @@ export const TOOLS = [
           intentErrors.length
             ? `The write persisted, but the stored document does not express the intent: `
               + intentErrors.map((f) => `${f.code} on '${f.name}' — ${f.msg}`).join('; ')
-            : 'Workflow PUT returned but the repaired graph did not round-trip cleanly.',
+            : verify.reminted?.length
+              ? `IDS_REMINTED: the write persisted, but GHL stored ${verify.reminted.length} step(s) under new ids (${verify.reminted.map((p) => `${p.from}→${p.to}`).join(', ')}). Anything that points at the old ids (go-to targets, sticky notes, your own notes) now points nowhere.`
+              : 'Workflow PUT returned but the repaired graph did not round-trip cleanly.',
           'Inspect data.verify (including verify.intent) and the workflow canvas before making further edits.'), data);
       }
       return ok(data);
@@ -7316,6 +8226,8 @@ export const TOOLS = [
         triggers: listed.triggers,
         scope: null, catalog: publishCatalog,
         assets: await gateAssetsFor(gw, args.locationId, current, current?.workflowData?.templates, publishCatalog), unknownStepSeverity: 'warning',
+        // every step publish judges is the stored one: a top-level key GHL itself stored is a warning, not a refusal
+        storedTemplates: current?.workflowData?.templates ?? null,
         allow: args.allowValidationFailure === true, warnings: publishWarnings,
         // intent 'publish' is what turns on the publish-only rules (an empty workflow, a goto with
         // no target) and the canvas's stored error flag — the two layers this path never ran.
@@ -7739,9 +8651,15 @@ export const TOOLS = [
       // silently in one week on the rails (backlog 25). edit_workflow/repair_workflow refuse an
       // over-cap value on a touched step (hatch: allowOverCap).
       const caps = FIELD_CAPS[card.type];
-      return { ok: true, data: caps
+      const data = caps
         ? { ...card, caps, capsNote: 'Character caps measured live (the server stores an over-length value verbatim; the builder flags it). edit_workflow and repair_workflow refuse an over-cap value on a step they touch unless allowOverCap:true.' }
-        : card };
+        : card;
+      // The engine's own docNote for this step (required-fields.mjs CATALOG_CORRECTIONS): what the builder does and what it costs, which the
+      // corpus card does not carry (QA follow-up 3, w6c-7: the AI Agent web-search default).
+      const engineNote = CATALOG_CORRECTIONS[card.type]?.docNote;
+      // w6d-2 (item 12): the richer card fields. Unknown or malformed cards add nothing (stepCardExtras returns {}).
+      const extras = stepCardExtras(card);
+      return { ok: true, data: { ...(engineNote ? { ...data, engineNote } : data), ...extras } };
     }),
   },
   // ── THE MARKETPLACE ACTION RAIL ─────────────────────────────────────────────────────────────
@@ -7863,7 +8781,7 @@ export const TOOLS = [
       + 'for the new connectionId. Do not reach for raw_request to create one. '
       + 'product:"conversation_ai" instead reads the models a CONVERSATION AI agent can use (its llm.primary / llm.secondary): '
       + 'GET /ai-employees/employees/models, a different roster from the workflow step\'s, with per-million-token prices and '
-      + 'deprecations. The editor shows it only behind conversationsAI.multiLLM or tokenBasedPricing.',
+      + 'deprecations: OpenAI, Anthropic (Claude) and Google (Gemini) ids, all writable as llm (the provider Lab gates only the editor menu).',
     inputSchema: schema({ locationId: z.string(), product: z.enum(['workflow_ai_agent', 'conversation_ai']).default('workflow_ai_agent') }),
     capabilities: [
       // Two rails in one read tool: product:"conversation_ai" dials the AI rail, the workflow step's options the backend one.
@@ -7873,9 +8791,10 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/agent/{loc}/mcp-connections/oauth2-tokens', origin: 'https://backend.leadconnectorhq.com' },
     ],
     handler: async (args, deps) => guard(async () => {
-      // Conversation AI's own roster (live 2026-09-29: 14 GPT ids, gpt-4.1 default + recommended, two with a deprecation).
+      // Conversation AI's own roster (live 2026-10-29: 22 models — OpenAI, Anthropic, Google — gpt-4.1 default +
+      // recommended, gpt-5/gpt-5-mini deprecated; knowledge sniffs/convai-wave-2026-10-29/live-llm-provider-differential.json).
       if (args.product === 'conversation_ai') {
-        const r = await deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state }).call('GET', '/ai-employees/employees/models');
+        const r = await deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state }).call('GET', `/ai-employees/employees/models?locationId=${encodeURIComponent(args.locationId)}`);
         if (!r.ok) return fromHttp(r.status, r.json);
         const list = Array.isArray(r.json?.models) ? r.json.models : [];
         return ok({
@@ -8418,7 +9337,8 @@ export const TOOLS = [
       const loc = encodeURIComponent(args.locationId);
       if (args.folderId) {
         if (args.parentId) return fail(CODES.VALIDATION_FAILED, 'folderId renames a folder; parentId is for creating one. Pass one, not both.', 'To move a folder use the builder; to rename it drop parentId.');
-        const listFolders = async () => (await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`)).json?.rows ?? [];
+        // the complete folder walk (the old single limit=200 read saw at most 200 folders)
+        const listFolders = async () => (await readAllFolders((m, p) => gw.call(m, p), loc)).folders ?? [];
         const target = (await listFolders()).find((row) => (row.id ?? row._id) === args.folderId);
         if (!target) return fail(CODES.VALIDATION_FAILED, 'the folder id does not exist in this sub-account. Nothing was written.', 'Run list_workflow_folders to get a real folder id.');
         if (target.name === args.name) return ok({ renamed: false, noop: true, folderId: args.folderId, name: args.name, note: 'The folder already has this name. Nothing was written.' });
@@ -8463,8 +9383,8 @@ export const TOOLS = [
       // read reported verified:false on folders that had in fact been created — and a flag that
       // cries wolf is a flag callers learn to ignore.
       const found = await gw.readBackUntil(async () => {
-        const listed = await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
-        return (listed.json?.rows ?? []).find((row) => (row.id ?? row._id) === folderId) ?? null;
+        const listed = await readAllFolders((m, p) => gw.call(m, p), loc);
+        return (listed.folders ?? []).find((row) => (row.id ?? row._id) === folderId) ?? null;
       }, { pollMs: 1000, maxPolls: 3 });
       const hit = found.hit;
       return ok({
@@ -8613,9 +9533,10 @@ export const TOOLS = [
       // "filed into the wrong folder" failure mode — so the name travels in the preview.
       let destination = { toRoot: true, parentId: null, name: '(root)' };
       if (!toRoot) {
-        const folders = await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
-        if (!folders.ok) return fromHttp(folders.status, folders.json);
-        const hit = (folders.json?.rows ?? []).find((row) => (row.id ?? row._id) === args.parentId);
+        const all = await readAllFolders((m, p) => gw.call(m, p), loc);
+        if (!all.folders) return fail(CODES.ENGINE_ABORT, `the folder list could not be read in full: ${all.error}`, 'Retry; nothing was moved.');
+        const folders = { json: { rows: all.folders } };
+        const hit = all.folders.find((row) => (row.id ?? row._id) === args.parentId);
         if (!hit) {
           return withFailureData(
             fail(CODES.VALIDATION_FAILED,
@@ -8745,9 +9666,9 @@ export const TOOLS = [
       const loc = encodeURIComponent(args.locationId);
 
       // A FOLDER id 404s with the bare string "Not Found". Refuse it by name before anything is sent.
-      const folders = await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
-      if (!folders.ok) return fromHttp(folders.status, folders.json);
-      const folderIds = new Set((folders.json?.rows ?? []).map((row) => row.id ?? row._id));
+      const allFolders = await readAllFolders((m, p) => gw.call(m, p), loc);
+      if (!allFolders.folders) return fail(CODES.ENGINE_ABORT, `the folder list could not be read in full: ${allFolders.error}`, 'Retry; nothing was renamed.');
+      const folderIds = new Set(allFolders.folders.map((row) => row.id ?? row._id));
       const folderHits = renames.filter((r) => folderIds.has(r.workflowId));
       if (folderHits.length) {
         return fail(CODES.VALIDATION_FAILED,
@@ -9379,6 +10300,7 @@ export const TOOLS = [
     name: 'raw_request',
     description: 'Escape hatch for internal endpoints the typed tools do not cover. GET remains read-only; non-GET requests require confirm:true and report ambiguous transport outcomes. '
       + 'A POST/PUT/PATCH with an EMPTY body ({}, [] or none) is refused before sending (EMPTY_WRITE_BODY): an empty start-workflow body enrolled a phantom execution, and an empty write elicits nothing safe — never probe a write route for its schema. Take the body from describe_endpoint, a builder capture or the source. Pass allowEmptyBody:true only for a route that really takes no body (a bodiless enrol or publish). DELETE is not affected. '
+      + 'SEND-CLASS writes (outbound configs/triggers, a messaging bulk action, Build with AI, the builder test panel, an agent mode other than off, turning on a one-way Lab) also need acknowledge:<ackToken> — the token is in the preview\'s sendClass, beside the consequence; ask the human first (SEND_CLASS_ACK_REQUIRED otherwise). '
       + 'host:"ai" targets services.leadconnectorhq.com on the dual-credential AI rail (Bearer + token-id); default "workflow" hits backend.leadconnectorhq.com on the Bearer rail.',
     inputSchema: schema({
       locationId: z.string(),
@@ -9397,6 +10319,9 @@ export const TOOLS = [
       // POST/PUT/PATCH with {} / [] / no body is refused (EMPTY_WRITE_BODY) unless this is true —
       // for a route that really takes no body. core/raw-request-guards.mjs refuseEmptyWriteBody.
       allowEmptyBody: z.boolean().default(false),
+      // A send-class write (core/send-class.mjs) needs this set to the ackToken its preview handed out
+      // for this exact request, as well as confirm:true. Ignored on every other call.
+      acknowledge: z.string().optional(),
     }),
     capabilities: [],
     handler: async (args, deps) => guard(async () => {
@@ -9439,6 +10364,20 @@ export const TOOLS = [
         }
       }
 
+      // NON-CANONICAL PATH GUARD (W5a final review C1). The gateway sends fetch(base + path), and the URL parser
+      // resolves `.`/`..` (raw or %2e), reads `\` as `/` and drops tab/CR/LF — so `/x/../agent-deployment/outbound-
+      // configs` reached the gated route while every path-scoped rule below judged the text and let it through with
+      // confirm:true and no acknowledge. A path whose wire form differs from its text has no legitimate use: refused
+      // first, on every method, before the confirm gate.
+      const nonCanonical = nonCanonicalPathReason(args.path);
+      if (nonCanonical) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `raw_request path is non-canonical: ${nonCanonical}. Nothing was sent.`,
+          'Pass the path exactly as the request should hit it: no `.`/`..` segments (raw or %2e-encoded), no backslash, no tab/CR/LF.',
+        );
+      }
+
       // R-95 (backlog 10): `POST /workflow/{loc}/trigger` binds the trigger to its workflow from a
       // camelCase root `workflowId` ONLY. The STORED shape (what export_workflow returns and the
       // per-trigger PUT takes) carries snake `workflow_id`, and a POST of that shape returns 200
@@ -9478,6 +10417,14 @@ export const TOOLS = [
       const emptyRefusal = refuseEmptyWriteBody({ method, body, allowEmptyBody: args.allowEmptyBody === true });
       if (emptyRefusal) return fail(CODES.EMPTY_WRITE_BODY, emptyRefusal.message, emptyRefusal.hint);
 
+      // SEND-CLASS TIER (core/send-class.mjs). A write that can make GHL text people on its own, sign
+      // SMS compliance in the caller's name, or flip a one-way Lab needs confirm:true AND acknowledge:
+      // <ackToken>. Classified here, BEFORE the confirm gate, so the very first preview states the
+      // consequence and hands out the token; enforced after it. Judged on the same body the guards above
+      // judge (the parsed body, read as sent). Null for everything else: those calls are unchanged.
+      const sendCtx = { method, path: args.path, wireBody: body };
+      const sendClass = sendClassFor(method, args.path, body);
+
       if (method !== 'GET' && args.confirm !== true) {
         // The route's measured trap, at the one moment it matters. The catalogue already knows that
         // DELETE …/split wipes history and that …/settings/users REPLACES the list; a preview of
@@ -9489,13 +10436,19 @@ export const TOOLS = [
           fail(
             CODES.CONFIRM_REQUIRED,
             'Raw write preview is ready; no gateway call was sent.',
-            trap
+            (trap
               ? 'READ data.preview.trap FIRST — it is what was measured about this route. Then repeat the same request with confirm:true to send it.'
-              : 'Review data.preview, then repeat the same request with confirm:true to send it.',
+              : 'Review data.preview, then repeat the same request with confirm:true to send it.')
+            + (sendClass
+              ? ` This is a ${sendClass.class}-class write: tell the human what data.preview.sendClass.consequence says and get their yes, then send it with confirm:true AND acknowledge set to data.preview.sendClass.ackToken (required; it is bound to this exact method, path and body).`
+              : ''),
           ),
-          { preview: { method, path: args.path, ...(body === undefined ? {} : { body }), ...(trap ? { trap } : {}) } },
+          { preview: { method, path: args.path, ...(body === undefined ? {} : { body }), ...(trap ? { trap } : {}),
+            ...(sendClass ? { sendClass: sendClassWithToken(sendClass, sendCtx) } : {}) } },
         );
       }
+      const ackRefusal = requireSendAck(args, sendClass, sendCtx);
+      if (ackRefusal) return ackRefusal;
 
       // host:'ai' switches BOTH the base and the auth rail together — the AI host rejects
       // a Bearer-only call, so a base override without the rail would just 401.
@@ -9675,6 +10628,13 @@ export const TOOLS = [
         // named FIRST and by name.
         ...(hit.coveredBy?.length
           ? { coveredBy: { tools: hit.coveredBy, why: 'Prefer these: they carry the required query switches, the cursor walk and the read-back verification. raw_request does none of that.' } }
+          : {}),
+        // The same path on the public API, and what the rail ledger decided for its job (knowledge/catalog/rail-ledger.json).
+        ...(hit.publicEquivalent?.length
+          ? { publicEquivalent: { actions: hit.publicEquivalent, why: 'The public API serves this same path: call it there with execute_action and one of these ids, using the location\'s PIT.' } }
+          : {}),
+        ...(hit.railDecision
+          ? { railDecision: { ...hit.railDecision, why: hit.railDecision.decision.startsWith('undecided') ? 'Not decided yet: no sandbox differential has proven one rail better for this job.' : `Decided by the rail ledger for ${hit.railDecision.product}/${hit.railDecision.job}: ${hit.railDecision.decision}.` } }
           : {}),
         // Absent, not empty, when raw_request cannot make the call — an instruction that cannot
         // work is worse than silence. 17 rows are multipart, blob, or need a header raw_request
@@ -10065,7 +11025,12 @@ export const TOOLS = [
       const warning = nameWarning(args.name, project.name);
       return ok({ projectId: project.id, requestedName: args.name, storedName: project.name,
         slug: project.slug, techStack: project.tech_stack, warning,
-        note: 'A new project is NOT empty — it ships a vite_react_shadcn_ts scaffold (77 files, 1 route).' });
+        // Since the 2026-09 SSR release every new project is tanstack_start_ts; a tech_stack key in the
+        // create body is ignored (2026-10-30 differential), so report what was stored, never a fixed stack.
+        note: `A new project is NOT empty — it ships a ${project.tech_stack ?? 'scaffold'} codebase with one route`
+          + (project.tech_stack === 'tanstack_start_ts'
+            ? ' (TanStack Start, server-rendered: src/routes/, server functions; a Vite/React project can no longer be created).'
+            : '.') });
     }, args),
   },
   {
@@ -10115,12 +11080,18 @@ export const TOOLS = [
         firestore: { messages: (pid) => history(MESSAGES, pid, 'order', 300) },
         projectId: args.projectId, messageId, waitMs: (args.waitSeconds ?? 120) * 1000,
       });
-      const after = await api.usageSnapshotUsd();
-      const spendUsd = (typeof before === 'number' && typeof after === 'number')
-        ? Number((after - before).toFixed(6)) : null;
+      // The turn has already spent money: a failing meter read must never lose its messageId/versionId.
+      const after = await api.usageSnapshotUsd().catch(() => null);
+      const policyAfter = await api.usagePolicy(args.projectId).then((r) => r.json ?? {}, () => ({}));
+      const spend = turnSpend({ snapBefore: before, snapAfter: after, policyBefore: policy, policyAfter });
+      const spendUsd = spend.usd;
+      if (spendUsd === null) deps.state.studioSpendIncomplete = true;
+      const spendReport = { spendUsd, spendMeter: spend.meter, billingMode: spend.billingMode,
+        ...(spend.note ? { spendNote: spend.note } : {}),
+        ...(deps.state.studioSpendIncomplete ? { sessionSpendIncomplete: true } : {}) };
       deps.state.studioSpendUsd = Number(((deps.state.studioSpendUsd ?? 0) + (spendUsd ?? 0)).toFixed(6));
       if (turn.pending) {
-        return ok({ ...turn, messageId: turn.messageId ?? messageId, spendUsd,
+        return ok({ ...turn, messageId: turn.messageId ?? messageId, ...spendReport,
           sessionSpendUsd: deps.state.studioSpendUsd });
       }
       const a = turn.assistant ?? {};
@@ -10132,11 +11103,13 @@ export const TOOLS = [
         question: a.question ?? null,
         diffs: diffs.filter((d) => d.messageId === a.id)
                     .map((d) => ({ file: d.file, toolType: d.toolType, action: d.action, diff: d.diff })),
-        spendUsd, sessionSpendUsd: deps.state.studioSpendUsd,
+        ...spendReport, sessionSpendUsd: deps.state.studioSpendUsd,
         previewUrl: `https://${args.projectId}.vibepreview.com`,
         note: a.question
           ? 'The build paused on a question — answer it with answer_studio_question.'
-          : 'Open previewUrl in a BROWSER before publishing. Source can read clean while the page fails at runtime.',
+          : a.buildStatus === 'superseded'
+            ? buildOutcomeNote(a)
+            : 'Open previewUrl in a BROWSER before publishing. Source can read clean while the page fails at runtime.',
       });
     }, args),
   },
@@ -10174,8 +11147,9 @@ export const TOOLS = [
       }
       if (turn.pending) return ok(turn);
       const a = turn.assistant ?? {};
+      const note = buildOutcomeNote(a);
       return ok({ messageId: a.id, versionId: a.versionId ?? null, buildStatus: a.buildStatus,
-        summary: a.completionSummary ?? null, question: a.question ?? null });
+        summary: a.completionSummary ?? null, question: a.question ?? null, ...(note ? { note } : {}) });
     }, args),
   },
   {
@@ -10675,6 +11649,7 @@ export const TOOLS = [
         fieldTags: back.hit?.tags ?? wantTags,
         preservedKeys: preview.preservedKeys,
         ...(preview.completed ? { completed: preview.completed } : {}),
+        ...(preview.builderShape ? { builderShape: preview.builderShape } : {}),
         ...(blank ? { blankSubmit: blank } : {}),
         ...(back.hit ? {} : { note: `Saved, but the change had not appeared after ${back.attempts} read-backs. Reads lag writes by seconds — read it again with get_form before re-sending.` }),
       });
@@ -12010,7 +12985,10 @@ export const TOOLS = [
         section: z.record(z.any()).optional(),
         popup: z.record(z.any()).optional(),
         trackingCode: z.object({ headerCode: z.string().optional(), footerCode: z.string().optional() }).optional(),
-        customCss: z.string().optional(),
+        customCss: z.string().optional().describe('page: REPLACES the custom CSS (the stored rules not in this text are reported as droppedContent); use appendCss to add'),
+        appendCss: z.string().optional().describe('page: adds CSS after the stored custom CSS, fenced so the same block is never added twice; keeps the old rules; not with customCss'),
+        appendHeaderCode: z.string().optional().describe('page: adds HTML (e.g. a <link>) after the header code, fenced once; keeps the old header code'),
+        appendFooterCode: z.string().optional().describe('page: adds HTML after the footer code, fenced once; keeps the old footer code'),
         background: z.object({ imageUrl: z.string().optional(), imageOptions: z.string().optional(), color: z.string().optional() }).optional(),
       })).min(1).optional(),
       seo: z.object({
@@ -12233,6 +13211,8 @@ export const TOOLS = [
         applyPalette(pageData);
         const refs = popupRefProblems(pageData);
         if (refs.length) throw Object.assign(new Error(refs.join('; ')), { remediation: 'A button whose action is openPopup must name a popup on this page — use `openPopup: "<popup name>"` on the element.' });
+        const refused = refusedKindProblems(pageData);
+        if (refused.length) throw Object.assign(new Error(refused.map((r) => r.message).join('; ')), { remediation: refused[0].remediation });
         const vids = videoSourceProblems(pageData);
         if (vids.length) throw Object.assign(new Error(vids.join('; ')), { remediation: 'Give each video a source: extra.videoProperties = {value: {url: "<YouTube | Vimeo | Wistia | .mp4 URL>"}} (the type is read off the URL), or {value: {type: "selfHosted", selfHostedVideo: {id, name, url}}} for a Media Storage file.' });
       } catch (e) {
@@ -12272,6 +13252,7 @@ export const TOOLS = [
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === 'element').map((e) => e.meta)))],
         audit: 'clean',
         ...(builderStylingWarning(pageData) ? { builderStyling: builderStylingWarning(pageData) } : {}),
+        ...(kindCssUnverifiedWarning(pageData) ? { kindCssUnverified: kindCssUnverifiedWarning(pageData) } : {}),
         ...(pdpStylingWarning(pageData) ? { pdpStyling: pdpStylingWarning(pageData) } : {}),
         ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
         ...(submitActionWarning(pageData) ? { submitAction: submitActionWarning(pageData) } : {}),
@@ -12284,7 +13265,8 @@ export const TOOLS = [
         return withFailureData(
           fail(CODES.CONFIRM_REQUIRED, 'Funnel page compose preview is ready; no write was sent.',
             'Repeat with confirm:true to autosave the draft.'),
-          { preview },
+          // The compose preview names what a builder save would undo in this page (w7-2, bl-517), before any write.
+          decoratePageResult({ preview }, pageData, { customCss: args.pageStyles }),
         );
       }
 
@@ -12443,7 +13425,7 @@ export const TOOLS = [
               : 'the render did not show every node — a 200 alone is not proof; the first request after a save can serve the previous compile' };
       }
 
-      return ok({
+      return ok(decoratePageResult({
         pageId: args.pageId,
         autosave: saved.status,
         ...preview,
@@ -12456,7 +13438,7 @@ export const TOOLS = [
         ...(publishState.pinned && args.publish !== true
           ? { warning: `This page is pinned to a published version with ${publishState.draftsSincePublish} draft(s) stacked behind it. This write is NOT visible at the public URL until the page is published again.` }
           : {}),
-      });
+      }, pageData, { customCss: args.pageStyles }));
     }, args),
   },
   {
@@ -13008,7 +13990,16 @@ export const TOOLS = [
             break;
           }
           case 'reorder-steps': plan = need('order') ? { refuse: need('order') } : planReorder({ funnel, order: args.order }); break;
-          case 'clone-step': plan = need('stepId') ? { refuse: need('stepId') } : planCloneStep({ funnel, stepId: args.stepId, locationId: args.locationId, userId: gw.uid }); break;
+          case 'clone-step': {
+            if (need('stepId')) { plan = { refuse: need('stepId') }; break; }
+            const srcStep = (funnel.steps ?? []).find((st) => st.id === args.stepId);
+            const stepRecs = (await readFunnelPages(gw, args.locationId, args.funnelId)).pages;
+            const chk = srcStep ? await refusedKindsOnPages(gw, srcStep.pages ?? [], stepRecs) : { refusals: [] };
+            if (chk.unreadable) { plan = { refuse: `page ${chk.unreadable} of this step could not be read, so the copy cannot be proven free of order-form (refused)` }; break; }
+            if (chk.refusals.length) { plan = { refuse: copyRefusal('cloning this step', chk.refusals) }; break; }
+            plan = planCloneStep({ funnel, stepId: args.stepId, locationId: args.locationId, userId: gw.uid });
+            break;
+          }
           case 'delete-step': plan = need('stepId') ? { refuse: need('stepId') } : planDeleteStep({ funnel, stepId: args.stepId, expectName: args.expectName }); break;
           case 'publish-page':
           case 'unpublish-page': {
@@ -13078,6 +14069,11 @@ export const TOOLS = [
             const all = await listAllDocuments(gw, args.locationId);
             if (!all.rows) return fromHttp(all.res?.status, all.res?.json);
             if (all.truncated) { plan = { refuse: 'the document list could not be walked to its end, so the copy\'s name cannot be proven unused' }; break; }
+            const pl = await readFunnelPages(gw, args.locationId, args.funnelId);
+            if (!pl.res.ok) { plan = { refuse: 'the source funnel\'s pages could not be listed, so the copy cannot be proven free of order-form (refused)' }; break; }
+            const chkF = await refusedKindsOnPages(gw, pl.pages.map((pg) => pg._id ?? pg.id).filter(Boolean), pl.pages);
+            if (chkF.unreadable) { plan = { refuse: `page ${chkF.unreadable} of the source funnel could not be read (refused)` }; break; }
+            if (chkF.refusals.length) { plan = { refuse: copyRefusal('cloning this funnel', chkF.refusals) }; break; }
             plan = planCloneFunnel({ funnel, name: args.name, locationId: args.locationId, existing: all.rows });
             break;
           }
@@ -13099,6 +14095,14 @@ export const TOOLS = [
             if (need('stepId') || need('sourceFunnelId') || need('sourceStepId')) { plan = { refuse: need('stepId') ?? need('sourceFunnelId') ?? need('sourceStepId') }; break; }
             const src = args.sourceFunnelId === args.funnelId ? { res: res, funnel } : await readFunnel(gw, args.locationId, args.sourceFunnelId);
             if (!src.res.ok) return fromHttp(src.res.status, src.res.json);
+            {
+              const srcStepObj = (src.funnel?.steps ?? []).find((st) => st.id === args.sourceStepId);
+              const srcPageId = srcStepObj ? (srcStepObj.pages ?? [])[Number(args.sourcePageIndex ?? 0)] : undefined;
+              const srcRecs = srcPageId ? (await readFunnelPages(gw, args.locationId, args.sourceFunnelId)).pages : [];
+              const chkI = srcPageId ? await refusedKindsOnPages(gw, [srcPageId], srcRecs) : { refusals: [] };
+              if (chkI.unreadable) { plan = { refuse: `the source page ${chkI.unreadable} could not be read, so the import cannot be proven free of order-form (refused)` }; break; }
+              if (chkI.refusals.length) { plan = { refuse: copyRefusal('importing this page', chkI.refusals) }; break; }
+            }
             plan = planImportPage({ funnel, stepId: args.stepId, source: src.funnel, sourceStepId: args.sourceStepId, sourcePageIndex: args.sourcePageIndex ?? 0, locationId: args.locationId, userId: gw.uid });
             break;
           }
@@ -13586,9 +14590,48 @@ export const TOOLS = [
         known[name] = new Set(pick(body(r), ...keys).map((x) => x.id ?? x._id).filter(Boolean));
         coverage.push({ check: `dangling-references:${name}`, ran: true, knownIds: known[name].size });
       };
-      await loadList('forms', `/forms/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, 'forms');
+      // w7-12 constants: a list is read in pages of LIST_PAGE rows, and no more than LIST_MAX_PAGES pages.
+      const LIST_PAGE = 50; const LIST_MAX_PAGES = 200;
+      // w7-12: forms and surveys are read to the end (skip/limit paging, measured in corpus forms/20-api/forms.md). The old single
+      // limit=20 read reported a real form past the twentieth as dangling while coverage said ran:true.
+      const readAll = async (url, { pageSize, keys }) => {
+        const rows = []; const seen = new Set(); let total = null;
+        for (let page = 0; page < LIST_MAX_PAGES; page++) {
+          const r = await gw.call('GET', url(rows.length, pageSize));
+          if (r.status !== 200) return { complete: false, rows, why: `the list answered ${r.status} on page ${page + 1}, so it was not read to the end` };
+          const b = body(r);
+          if (typeof b.total === 'number') total = b.total;
+          const batch = pick(b, ...keys);
+          if (batch.length === 0) return { complete: true, rows, pages: page };
+          const fresh = batch.filter((x) => { const id = x.id ?? x._id; return !id || !seen.has(id); });
+          if (fresh.length === 0) return { complete: false, rows, why: 'the paging repeated rows already read, so it did not advance' };
+          for (const x of batch) { const id = x.id ?? x._id; if (id) seen.add(id); }
+          rows.push(...fresh);
+          if (total !== null && rows.length >= total) return { complete: true, rows, pages: page + 1 };
+        }
+        return { complete: false, rows, why: `the list is longer than ${LIST_MAX_PAGES} pages of ${LIST_PAGE}; reading stopped` };
+      };
+      const loadAll = async (name, url, keys, pageSize = LIST_PAGE) => {
+        const r = await readAll(url, { pageSize, keys });
+        if (!r.complete) { coverage.push({ check: `dangling-references:${name}`, ran: false, why: r.why, knownIds: r.rows.length }); return; }
+        known[name] = new Set(r.rows.map((x) => x.id ?? x._id).filter(Boolean));
+        coverage.push({ check: `dangling-references:${name}`, ran: true, knownIds: known[name].size, pages: r.pages });
+      };
+      const LOCQ = encodeURIComponent(args.locationId);
+      await loadAll('forms', (skip, limit) => `/forms/?locationId=${LOCQ}&type=form&skip=${skip}&limit=${limit}`, ['forms']);
       await loadList('calendars', `/calendars/?locationId=${encodeURIComponent(args.locationId)}`, 'calendars');
-      await loadList('surveys', `/surveys/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, 'surveys');
+      await loadAll('surveys', (skip, limit) => `/surveys/?locationId=${LOCQ}&type=survey&skip=${skip}&limit=${limit}`, ['surveys']);
+      {
+        // Store products (the storeProductId reference). The internal list takes locationId and limit; no paging parameter is measured
+        // for it, so a list that fills its page cannot be proven complete. That is reported as not run, never as a partial list.
+        const pr = await gw.call('GET', `/products/?locationId=${LOCQ}&limit=100`);
+        if (pr.status !== 200) coverage.push({ check: 'dangling-references:storeProducts', ran: false, why: `the products list answered ${pr.status}` });
+        else {
+          const prows = pick(body(pr), 'products').map((x) => x._id ?? x.id).filter(Boolean);
+          if (prows.length >= 100) coverage.push({ check: 'dangling-references:storeProducts', ran: false, why: 'the products list came back full at 100 and has no measured paging parameter, so it may be truncated; a partial list would flag real products as dangling', knownIds: prows.length });
+          else { known.storeProducts = new Set(prows); coverage.push({ check: 'dangling-references:storeProducts', ran: true, knownIds: known.storeProducts.size }); }
+        }
+      }
       {
         const cf = await gw.call('GET', `/funnels/custom-fonts?locationId=${encodeURIComponent(args.locationId)}`);
         if (cf.status === 200) {
@@ -13621,9 +14664,10 @@ export const TOOLS = [
         if (one.status !== 200) return fromHttp(one.status, one.json);
         docs = [body(one)];
       } else {
-        const all = await gw.call('GET', `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
-        if (all.status !== 200) return fromHttp(all.status, all.json);
-        docs = pick(body(all), 'funnels', 'data');
+        // w7-12: every funnel is read (offset paging), so a funnel past the first 100 is scanned like the rest.
+        const fl = await readAll((skip, limit) => `/funnels/funnel/list?locationId=${LOCQ}&limit=${limit}&offset=${skip}`, { pageSize: 100, keys: ['funnels', 'data'] });
+        if (!fl.complete) return fromHttp(502, { message: `audit_site could not read the whole funnel list (${fl.why}); its documents would be only partly audited` });
+        docs = fl.rows;
       }
 
       // Step products (what a sell-product button's productId {id} names) live per step: union them over the steps scanned.
@@ -13699,9 +14743,11 @@ export const TOOLS = [
       // all, because then no row exists anywhere and there is nothing any path could collide with.
       // Auditing ONE funnel still has to sweep its NEIGHBOURS: the claimant lives elsewhere.
       let sweepDocs = docs;
+      let neighbourWhy = null;
       if (args.funnelId) {
-        const all = await gw.call('GET', `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
-        if (all.status === 200) sweepDocs = pick(body(all), 'funnels', 'data');
+        const fl = await readAll((skip, limit) => `/funnels/funnel/list?locationId=${LOCQ}&limit=${limit}&offset=${skip}`, { pageSize: 100, keys: ['funnels', 'data'] });
+        if (fl.complete) sweepDocs = fl.rows;
+        else neighbourWhy = `the funnel list (where a routing claimant can live) was not read to the end: ${fl.why}`;
       }
       const anyDomain = sweepDocs.some((d) => d.domainId);
       const rowsByFunnel = new Map();
@@ -13732,7 +14778,7 @@ export const TOOLS = [
         coverage.push({ check: 'routing', ran: attached > 0, knownIds: totalRows,
           ...(attached === 0 ? { why: 'no document here has a domain attached; routing rows are materialised at attach time, so there is nothing to check yet' } : {}) });
         findings.push(...judgePathCollisions({ docs: sweepDocs, rowsByFunnel, focusIds: new Set(docs.map((d) => d._id)) }));
-        coverage.push({ check: 'path-collision', ran: true, documents: swept,
+        coverage.push({ check: 'path-collision', ran: !neighbourWhy, documents: swept, ...(neighbourWhy ? { why: neighbourWhy } : {}),
           ...(sweepTruncated ? { why: `stopped at maxDocuments=${args.maxDocuments}; a claimant in an unswept document would be missed` } : {}),
           ...(sweepFailed ? { failed: sweepFailed } : {}) });
       } else if (!anyDomain) {
@@ -13829,6 +14875,10 @@ export const TOOLS = [
       });
     }, args),
   },
+  // p2 seams (release-lane plan): one per lane that adds tools later. Stubs return [] until each lane fills its module.
+  ...makeW6cTools({ describe, schema, guard }),
+  ...makeFunnelRenderTools({ describe, schema, guard }),
+  ...makeCourseTools({ describe, schema, guard }),
 ];
 
 export function registerTools(server, deps, tools = TOOLS) {

@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 559,
+ "count": 563,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -347,7 +347,7 @@
      "type": "string[]",
      "required": true,
      "default": "[]",
-     "notes": "Tag strings (case-insensitive in storage). 100% of corpus."
+     "notes": "Tag strings, stored in lower case (see Tag case below). 100% of corpus."
     },
     {
      "name": "removeAll",
@@ -372,7 +372,7 @@
     }
    ],
    "validator": "`contactTagValidator` (length 213, result level `warning`). Per `sniffs/bundle/validators.json::contactTagValidator`:\n\n```\nif (!removeAll && (!tags || tags.length === 0) && !customTags) push { field: \"tags\", message: \"at_least_one_tag_required\" }\n```\n\n`fields_referenced: [\"tags\"]`. The validator is satisfied by **any** of:\n\n- non-empty `tags[]`\n- non-empty `customTags` string\n- `removeAll: true` (only meaningful for `remove_contact_tag`)\n\nFor `add_contact_tag` specifically, `removeAll` has no semantic role — `tags` (or `customTags`) is effectively required.",
-   "notes": "- **Dynamic mode resolves merge tags per contact** `[proven-live 2026-09-28]`: `customTags: \"tcwf-3a-dyn-{{contact.last_name}}\"` with `tags: []` added the tag with the contact's last name substituted and lower-cased; the standard `tags[]` form added both tags in one step `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`.\n- **Tags are strings, not ids.** The runtime treats `\"sba\"` and `\"SBA\"` as the same tag (case-insensitive). Whitespace is significant.\n- **`customTags` is the \"Dynamic\" (custom-value / merge-tag) input mode**, not a multi-select: one text value, and the builder keeps only one of `tags` / `customTags` on save `[source-derived 2026-09-26 — models/actions/ContactTag.ts:50-55]`. How the runtime splits a resolved value into several tags is not established.\n- **New tags typed in the Standard picker are lowercased and created at once** with `POST /{locationId}/tags/create` (`{ tag }`), before the step is saved `[source-derived 2026-09-26 — components/dynamic/TagSelectV2.vue:196-208; services/TagService.ts:9-12]`.\n- **No existence check.** Sending a brand-new tag string creates the tag on-the-fly when the action runs.\n- **Class is shared with `remove_contact_tag`** — same model file, same validator. The step's top-level `type` is what determines direction at runtime.",
+   "notes": "- **Dynamic mode resolves merge tags per contact** `[proven-live 2026-09-28]`: `customTags: \"tcwf-3a-dyn-{{contact.last_name}}\"` with `tags: []` added the tag with the contact's last name substituted and lower-cased; the standard `tags[]` form added both tags in one step `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`.\n- **Tags are strings, not ids.** A mixed-case tag is stored in lower case, so an authored `\"SBA\"` lands on the contact as `sba` (see Tag case below). Whitespace is significant.\n- **`customTags` is the \"Dynamic\" (custom-value / merge-tag) input mode**, not a multi-select: one text value, and the builder keeps only one of `tags` / `customTags` on save `[source-derived 2026-09-26 — models/actions/ContactTag.ts:50-55]`. How the runtime splits a resolved value into several tags is not established.\n- **New tags typed in the Standard picker are lowercased and created at once** with `POST /workflow/{locationId}/tags/create` (`{ tag }`), before the step is saved `[source-derived 2026-09-26 — components/dynamic/TagSelectV2.vue:196-208; services/TagService.ts:9-12]`.\n- **No existence check.** Sending a brand-new tag string creates the tag on-the-fly when the action runs.\n- **Class is shared with `remove_contact_tag`** — same model file, same validator. The step's top-level `type` is what determines direction at runtime.",
    "hasCanonicalExample": true
   },
   {
@@ -652,7 +652,7 @@
     }
    ],
    "validator": "`addToWorkflowValidator` (length 208, result level `warning`). Per `sniffs/bundle/validators.json::addToWorkflowValidator`:\n\n```\nif (!workflow_id || !workflow_id.trim()) push { field: \"workflow_id\", message: \"workflow_selection_required\" }\n```\n\n`fields_referenced: [\"workflow_id\"]`. No existence lookup — the validator only checks the string is non-empty. The publish endpoint does not appear to verify the target workflow exists; sending a bogus UUID will publish.",
-   "notes": "- **Both `input_trigger_params` values run** `[proven-live 2026-09-28]`: with `false` and with `true` the contact was enrolled in the target workflow and its step ran (the target read `finished`); with no inbound-webhook trigger upstream, `true` has nothing to forward and changes nothing visible `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`.\n- **`workflow_id` is the destination workflow's UUID.** This is the workflow's own id (the value in the body's `_id` / `id`), not a trigger id. Sourcing this means making a separate `GET /workflows/{loc}` call to list workflows.\n- **No existence check in the validator.** A non-existent target workflow id publishes cleanly — the failure surfaces only at runtime. Verify the target exists before relying on it.\n- **`input_trigger_params: true` is for inbound-webhook chaining.** When set, the parent workflow's trigger params (e.g. JSON body fields) are passed into the destination workflow's scope.\n- **The destination must be published** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3AR-goal-opp-esd-atw.json`, `live-3AR2-step-log-details.json`: into a published target the step logged `success` (\"Started Workflow <name> for contact …\") and the target's step ran; into a DRAFT target the step logged `skipped`, `skippedFor: {type: \"invalid-data\", msg: \"Workflow <name> is in Draft mode.\"}`, and nothing ran there. Publish still accepts a draft target, so the failure shows only in the run log. The log's attributes spell the keys `workflowId` / `inputTriggerParams` (camelCase); the stored step uses `workflow_id` / `input_trigger_params`.\n- **No loop guard.** Workflow A can add to workflow B, which can add back to A. Be careful with bidirectional enrollment.",
+   "notes": "- **Both `input_trigger_params` values run** `[proven-live 2026-09-28]`: with `false` and with `true` the contact was enrolled in the target workflow and its step ran (the target read `finished`); with no inbound-webhook trigger upstream, `true` has nothing to forward and changes nothing visible `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`.\n- **`workflow_id` is the destination workflow's UUID.** This is the workflow's own id (the value in the body's `_id` / `id`), not a trigger id. Sourcing this means making a separate `GET /workflows/{loc}` call to list workflows.\n- **No existence check in the validator.** A non-existent target workflow id publishes cleanly — the failure surfaces only at runtime. Verify the target exists before relying on it.\n- **`input_trigger_params: true` forwards the parent's trigger RECORD, not only webhook params** `[proven-live 2026-10-27]`: parent on `pipeline_stage_updated`, two `add_to_workflow` steps to twin receivers with no trigger, the contact holding several open cards, and the OLDER card moved `sniffs/workflows-add-to-workflow-params-2026-10-27/NOTES.md`. ON: the receiver's `added_to_workflow` row carried `extraMeta.opportunity` (the moved card), `{{opportunity.id}}` / `{{opportunity.name}}` rendered that card, and `find_opportunity` on `id eq {{opportunity.id}}` found it. OFF: `extraMeta: {}`, `{{opportunity.id}}` rendered EMPTY.\n- 🔴 **With the toggle OFF, `find_opportunity` on `id eq {{opportunity.id}}` still takes the Found branch, on the WRONG card.** The empty filter value is dropped, and `sorting: latest` returns the contact's newest card (a different pipeline in the probe). The log reads `success`. `sniffs/workflows-add-to-workflow-params-2026-10-27/NOTES.md`.\n- **The destination must be published** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3AR-goal-opp-esd-atw.json`, `live-3AR2-step-log-details.json`: into a published target the step logged `success` (\"Started Workflow <name> for contact …\") and the target's step ran; into a DRAFT target the step logged `skipped`, `skippedFor: {type: \"invalid-data\", msg: \"Workflow <name> is in Draft mode.\"}`, and nothing ran there. Publish still accepts a draft target, so the failure shows only in the run log. The log's attributes spell the keys `workflowId` / `inputTriggerParams` (camelCase); the stored step uses `workflow_id` / `input_trigger_params`.\n- **No loop guard.** Workflow A can add to workflow B, which can add back to A. Be careful with bidirectional enrollment.",
    "hasCanonicalExample": true
   },
   {
@@ -2036,7 +2036,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "Book Appointment",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Automatically schedules appointments using standard or dynamic time slots, with the flexibility to override...",
    "fields": [
     {
@@ -2061,7 +2063,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "Appointment Booking Conversation AI Bot",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Book an appointment with conversation AI bot, click <a target=\"_blank\" href=\"https://help.leadconnectorhq.c...",
    "fields": [
     {
@@ -3793,7 +3797,7 @@
    "family": "steps",
    "title": "assign_user",
    "status": "source-derived",
-   "lastVerified": "2026-09-28",
+   "lastVerified": "2026-11-07",
    "summary": "Assign the contact to one or more users from a list, optionally with traffic-split weights or via a handlebar-resolved user ID.",
    "meta": {
     "Section": "`contact` (per `sniffs/bundle/registry-parsed.json::entries[9]`)",
@@ -3869,7 +3873,7 @@
     }
    ],
    "validator": "`assignToUserValidator` (per `sniffs/bundle/validators.json`):\n\n- If `user_list.length === 0` **AND** `customUserList` is unset, emits `user_list_required` warning.\n- For each user ID in `user_list`, emits a `resource: \"user\"` warning so the resolver verifies the user still exists in the location.\n\nPer `validators-summary.json`: 5 fields referenced; result level `warning`.",
-   "notes": "- **`customUserList` resolves a merge tag at run time** `[proven-live 2026-09-28]`: `user_list: []`, `customUserList: \"{{contact.<text field>}}\"` holding a user id assigned that user `sniffs/workflows-wave1-2026-09-25/live-3B-fields-math.json`.\n- **`only_unassigned_contact: true` leaves an assigned contact alone** `[proven-live 2026-09-28]`: a contact already assigned to user A ran a step assigning user B with the switch on and still read A `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`.\n\n- **`unevenly` splits by weight at run time, with or without the builder's index** `[proven-live 2026-09-26]`: weights 3/1 over two users, 4 run-created contacts in sequence → assignments A, A, A, B — both for a step authored through the API (stored `total_index: 0`, `traffic_index: []`) and for one carrying the builder-computed `total_index: 4`, `traffic_index: [{A:[1,2,3]},{B:[4]}]` (`setTrafficIndex`, `models/actions/AssignToUser.ts:69-111`). The runtime derives the rotation from `user_list` + `traffic_weightage`; the two index fields are builder bookkeeping. Each run logs `contact got assigned to user with id: …` (`sniffs/workflows-wave1-2026-09-25/live-D-assign-uneven.json`; test users only, never real ones).\n- `customUserList` accepts a handlebar that must resolve to a valid user ID at run time; no validator pre-flight on the handlebar contents.\n- `traffic_index` and `total_index` are derived from `traffic_weightage` by the builder on save, not runtime counters. An API-built step should store what the builder would compute (for 2 users weighted 1:1 → `total_index: 2`, `traffic_index: [{id:A,indexes:[1]},{id:B,indexes:[2]}]`) `[source-derived 2026-09-26 — models/actions/AssignToUser.ts:71-111]`.\n- `only_unassigned_contact: true` short-circuits the rotation when the contact already has an `assignedTo` — no rotation advance, no new assignment.\n- For weighted distribution set `traffic_split: \"unevenly\"` and `traffic_weightage: { [userId]: weight }` with every weight ≥ 1 (the enum has no `\"weighted\"` value) `[source-derived 2026-09-26 — models/actions/AssignToUser.ts:5; components/actions/crm/AssignToUser.vue:118]`.",
+   "notes": "- **`customUserList` resolves a merge tag at run time** `[proven-live 2026-09-28]`: `user_list: []`, `customUserList: \"{{contact.<text field>}}\"` holding a user id assigned that user `sniffs/workflows-wave1-2026-09-25/live-3B-fields-math.json`.\n- **`only_unassigned_contact: true` leaves an assigned contact alone** `[proven-live 2026-09-28]`: a contact already assigned to user A ran a step assigning user B with the switch on and still read A `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`.\n- **The skipped assignment is logged as an HTTP 400 row, not a success** `[proven-live 2026-09-28]`: the execution log for that same run holds a row for the step with `meta.status: 400` and the message that the contact is already assigned and the action only allows un-assigned contacts, naming the workflow. Read from the execution log after the run, the owner unchanged. A log reader or error alert sees a failure here; read the 400 as a skip, not a fault `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`.\n\n- **`unevenly` splits by weight at run time, with or without the builder's index** `[proven-live 2026-09-26]`: weights 3/1 over two users, 4 run-created contacts in sequence → assignments A, A, A, B — both for a step authored through the API (stored `total_index: 0`, `traffic_index: []`) and for one carrying the builder-computed `total_index: 4`, `traffic_index: [{A:[1,2,3]},{B:[4]}]` (`setTrafficIndex`, `models/actions/AssignToUser.ts:69-111`). The runtime derives the rotation from `user_list` + `traffic_weightage`; the two index fields are builder bookkeeping. Each run logs `contact got assigned to user with id: …` (`sniffs/workflows-wave1-2026-09-25/live-D-assign-uneven.json`; test users only, never real ones).\n- `customUserList` accepts a handlebar that must resolve to a valid user ID at run time; no validator pre-flight on the handlebar contents.\n- `traffic_index` and `total_index` are derived from `traffic_weightage` by the builder on save, not runtime counters. An API-built step should store what the builder would compute (for 2 users weighted 1:1 → `total_index: 2`, `traffic_index: [{id:A,indexes:[1]},{id:B,indexes:[2]}]`) `[source-derived 2026-09-26 — models/actions/AssignToUser.ts:71-111]`.\n- `only_unassigned_contact: true` short-circuits the rotation when the contact already has an `assignedTo` — no rotation advance, no new assignment.\n- For weighted distribution set `traffic_split: \"unevenly\"` and `traffic_weightage: { [userId]: weight }` with every weight ≥ 1 (the enum has no `\"weighted\"` value) `[source-derived 2026-09-26 — models/actions/AssignToUser.ts:5; components/actions/crm/AssignToUser.vue:118]`.",
    "hasCanonicalExample": true
   },
   {
@@ -8868,6 +8872,9 @@
   {
    "type": "communication",
    "family": "steps-marketplace",
+   "title": "Marketplace — communication",
+   "status": "source-derived",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"communication\"` exposes **12 actions** in `sniffs/02-assets.json::actions[3].actions[]`. `executionConfig.type` set: `CODE`, `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `communication`.",
    "fields": [
     {
@@ -9084,6 +9091,9 @@
   {
    "type": "contact",
    "family": "steps-marketplace",
+   "title": "Marketplace — contact",
+   "status": "source-derived",
+   "lastVerified": "2026-09-30",
    "summary": "`appName: \"contact\"` exposes **11 actions** in `sniffs/02-assets.json::actions[2].actions[]`. `executionConfig.type` set: `API`, `CODE`, `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `contact`.",
    "fields": [
     {
@@ -9352,6 +9362,7 @@
    "title": "Email Verification",
    "status": "proven-live",
    "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Verify the email before sending",
    "configSurface": "none",
    "proven": [
@@ -11657,7 +11668,7 @@
    "family": "triggers",
    "title": "custom_date_reminder",
    "status": "source-derived",
-   "lastVerified": "2026-09-29",
+   "lastVerified": "2026-10-30",
    "summary": "Fires N days before or after a configured custom date field on the contact.",
    "meta": {
     "Trigger value": "`custom_date_reminder`",
@@ -11757,7 +11768,7 @@
     }
    ],
    "validator": "`customDateReminderValidator` emits an **error-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.customFields`, `contact.tags`, any other `*.customFields` date-field row. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/contact-validators.ts:72-88; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- **Runs once a day at `runHour` in the account's time zone, for contacts whose date field is today (offset 0)** `[proven-live 2026-09-29]`: an own workflow published overnight with `config {recordType: \"contact\", customDateFieldId: <own DATE field>, offsetDays: 0, runHour: \"8\", matchYear: false}` plus a has-tag row enrolled the contact whose date was today at 07:06 UTC (08:00 Europe/London) and did not enrol the one whose date was 7 days out. Each enrolment logs `addedSource.triggerType: \"custom_date_reminder\"` (`sniffs/workflows-wave1-2026-09-25/live-3BU-t5-reminders-setup.json`, `sniffs/workflows-wave1-2026-09-25/live-3BU-t5-reminders-check.json`).\n- The date field is chosen by the required `*.customFields` row (operator `custom-field-eq`, value = the field id); the offset is a `customDateField.dateValue` row (`time-diff-now-lte` before / `time-diff-now-gte` after), or pin a calendar day with the month/day rows. [source-derived 2026-09-26 — models/Triggers/Filters/CustomDateReminderFilter.ts:85-167, 191-193, 320-367; models/Triggers/TriggerMain.ts:414-422, 936-940]",
+   "notes": "- 🔴 **`runHour` is now ignored on write** `[proven-live 2026-10-30]`: a create sent `runHour: \"9\"` and a whole-trigger PUT sent `\"9\"` (200, `date_updated` moved); both read back `\"8\"`. A draft saved on 2026-09-30 had stored `9` (see the drawer note below), so GHL's handling changed in between [inferred from the two dates]. What decides the hour now is not known. The drawer shows no hour control (`sniffs/workflows-w6a-2026-10-30/live-edit-ops.json`, `edits2.runHour`).\n\n- **Runs once a day at `runHour` in the account's time zone, for contacts whose date field is today (offset 0)** `[proven-live 2026-09-29]`: an own workflow published overnight with `config {recordType: \"contact\", customDateFieldId: <own DATE field>, offsetDays: 0, runHour: \"8\", matchYear: false}` plus a has-tag row enrolled the contact whose date was today at 07:06 UTC (08:00 Europe/London) and did not enrol the one whose date was 7 days out. Each enrolment logs `addedSource.triggerType: \"custom_date_reminder\"` (`sniffs/workflows-wave1-2026-09-25/live-3BU-t5-reminders-setup.json`, `sniffs/workflows-wave1-2026-09-25/live-3BU-t5-reminders-check.json`).\n- The date field is chosen by the required `*.customFields` row (operator `custom-field-eq`, value = the field id); the offset is a `customDateField.dateValue` row (`time-diff-now-lte` before / `time-diff-now-gte` after), or pin a calendar day with the month/day rows. [source-derived 2026-09-26 — models/Triggers/Filters/CustomDateReminderFilter.ts:85-167, 191-193, 320-367; models/Triggers/TriggerMain.ts:414-422, 936-940]",
    "hasCanonicalExample": false
   },
   {
@@ -15916,8 +15927,8 @@
    "type": "if_else",
    "family": "steps",
    "title": "if_else",
-   "status": "proven-live",
-   "lastVerified": "2026-09-28",
+   "status": "source-derived",
+   "lastVerified": "2026-10-30",
    "summary": "Multi-path container that routes execution by evaluating segment-and-condition groups against contact/runtime state.",
    "meta": {
     "Section": "`internal`",
@@ -16603,7 +16614,7 @@
     }
    ],
    "validator": "`internalNotificationValidator` (length 1433, result level `warning`). Per `sniffs/bundle/validators.json::internalNotificationValidator`:\n\n1. If `type` is missing → push `{ field: \"type\", message: \"notification_type_required\" }`. Return.\n2. Switch on `type`:\n   - `\"email\"`: require `attributes.email`; if `email.template_id` is unset, require `email.subject.trim()` and `email.html.trim()`.\n   - `\"sms\"`: require `attributes.sms`; unless `sms.template_id` is set, require `sms.body.trim()`.\n   - `\"whatsapp\"`: require `attributes.whatsapp`; unless `whatsapp.template_id` is set, require `whatsapp.body.trim()`.\n   - `\"notification\"`: require `attributes.notification.body.trim()` (the warning's `field` label is `notification.message`).\n\n`[source-derived 2026-09-26 — utils/validators/communication-validators.ts:123-230]`\n\nPer `sniffs/bundle/validators-summary.json::internalNotificationValidator`, `fields_referenced` has 10 entries:\n\n```\nemail, email.html, email.subject,\nnotification, notification.message,\nsms, sms.body,\ntype,\nwhatsapp, whatsapp.body\n```\n\nThe required field set thus depends entirely on `type` — only one channel sub-object is enforced per save.",
-   "notes": "- **Email, SMS and WhatsApp notifications carry the same recipient controls as in-app**: `userType: \"assign\"` with `assignedOwners`, the \"Notify followers\" toggles `alsoNotifyContactFollowers` / `alsoNotifyOpportunityFollowers`, and on email a `bcc`. Stored as authored and rendered by the drawer (owners, Contact followers ON, Bcc shown) `[proven-live 2026-09-29 — `sniffs/workflows-wave1-2026-09-25/W22-LIVE-PROOFS.md` row 6]`. WhatsApp offers only `assign` or `user` (`WhatsApp.ts getUserTypeOptions`); an assign notification with no `assignedOwners` means contact owner (the builder's backward-compatible default).\n- **Channels and recipients, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3I-sends.json`: in-app (`type: \"notification\"`) to a selected user and to the contact's assigned owner (`userType: \"assign\"`, after an assign step) — both `accepted`; email to a selected user — `accepted`; SMS and WhatsApp to a user with no phone — `skipped`, \"No phone number found for user.\" Email to a **custom address** (`email.userType: \"custom_email\"` + `email.to`), run on a contact with no email, was stored as written and the step logged `accepted` with a request id `[proven-live 2026-09-28 — live-3AV-email-cc-attach-internal.json]`. Delivery itself is not readable through the API.\n- 🔴 **`userType: \"all\"` notifies EVERY user on the account.** Our compiler defaults `userType` to `all` when neither `userType` nor `selectedUser` is authored — always author the recipient.\n- **`type` is the channel discriminator** — only the matching sub-object is validated. You may include other sub-objects (e.g. carry both `email` and `sms` in the body) but only one runs at execution.\n- **The in-app message text is `notification.body`.** The validator checks `attributes.notification.body?.trim()`; `notification.message` is only the `field` label on its warning. There is no `message` key to write `[source-derived 2026-09-26 — utils/validators/communication-validators.ts:213-228; models/actions/Notification.ts:14-25]`.\n- **Channel sub-objects reuse other actions' interfaces**. `email` is `IEmail`, `sms` is `ISMS`. The same `template_id: \"none\"` switch from [`email`](./email.md) applies inside `internal_notification`. Likewise `attachments` formatting.\n- **`userType` lives on the channel sub-object**, not on the top-level `attributes` — even though `IInternalNotification.userType` is declared at the top, the corpus and the validator both look inside the sub-object.\n- 🔴 **GHL does not check a Custom Number's `to`.** The builder's own check (`isToFieldValid`, `SMS.ts`) refuses `custom_sms` with no `to`, but GHL's server validator answered `valid: true` on a step with `userType: \"custom_sms\"` and no `to` `[proven-live 2026-09-25]`. A step written by API without the number saves, validates and publishes, and it has no recipient. This project's workflow engine refuses `custom_sms` without `to`, as it already refused `custom_email` without `to`.\n- **WhatsApp channel rarely used** (2 corpus rows). Treat its publish behavior as untested in production payloads built outside the UI.",
+   "notes": "- **Email, SMS and WhatsApp notifications carry the same recipient controls as in-app**: `userType: \"assign\"` with `assignedOwners`, the \"Notify followers\" toggles `alsoNotifyContactFollowers` / `alsoNotifyOpportunityFollowers`, and on email a `bcc`. Stored as authored and rendered by the drawer (owners, Contact followers ON, Bcc shown) `[proven-live 2026-09-29 — `sniffs/workflows-wave1-2026-09-25/W22-LIVE-PROOFS.md` row 6]`. WhatsApp offers only `assign` or `user` (`WhatsApp.ts getUserTypeOptions`); an assign notification with no `assignedOwners` means contact owner (the builder's backward-compatible default).\n- **Channels and recipients, proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3I-sends.json`: in-app (`type: \"notification\"`) to a selected user and to the contact's assigned owner (`userType: \"assign\"`, after an assign step) — both `accepted`; email to a selected user — `accepted`; SMS and WhatsApp to a user with no phone — `skipped`, \"No phone number found for user.\" Email to a **custom address** (`email.userType: \"custom_email\"` + `email.to`), run on a contact with no email, was stored as written and the step logged `accepted` with a request id `[proven-live 2026-09-28 — live-3AV-email-cc-attach-internal.json]`. Delivery itself is not readable through the API.\n- 🔴 **`userType: \"all\"` notifies EVERY user on the account.** Our compiler defaults `userType` to `all` when neither `userType` nor `selectedUser` is authored — always author the recipient.\n- **No recipient for the appointment's booked user.** `userType: \"assign\"` offers two owners: `contact_owner`, and `opportunity_owner` only in an opportunity context. The step card has no option for the user on an appointment, so a notification cannot follow the rep who was booked. The routes that exist are `contact_owner` (set the contact's owner earlier in the workflow), a fixed user (`userType: \"user\"`), or everyone (`all`). Appointment merge tags in a body are a separate question and are not claimed here `[source-derived 2026-11-07 — sniffs/bundle-2026-11-06/recovered-source/src/models/actions/assigned-owners.ts, the AssignedOwner type and getAssignedOwnerOptions]`.\n- **`type` is the channel discriminator** — only the matching sub-object is validated. You may include other sub-objects (e.g. carry both `email` and `sms` in the body) but only one runs at execution.\n- **The in-app message text is `notification.body`.** The validator checks `attributes.notification.body?.trim()`; `notification.message` is only the `field` label on its warning. There is no `message` key to write `[source-derived 2026-09-26 — utils/validators/communication-validators.ts:213-228; models/actions/Notification.ts:14-25]`.\n- **Channel sub-objects reuse other actions' interfaces**. `email` is `IEmail`, `sms` is `ISMS`. The same `template_id: \"none\"` switch from [`email`](./email.md) applies inside `internal_notification`. Likewise `attachments` formatting.\n- **`userType` lives on the channel sub-object**, not on the top-level `attributes` — even though `IInternalNotification.userType` is declared at the top, the corpus and the validator both look inside the sub-object.\n- 🔴 **GHL does not check a Custom Number's `to`.** The builder's own check (`isToFieldValid`, `SMS.ts`) refuses `custom_sms` with no `to`, but GHL's server validator answered `valid: true` on a step with `userType: \"custom_sms\"` and no `to` `[proven-live 2026-09-25]`. A step written by API without the number saves, validates and publishes, and it has no recipient. This project's workflow engine refuses `custom_sms` without `to`, as it already refused `custom_email` without `to`.\n- **WhatsApp channel rarely used** (2 corpus rows). Treat its publish behavior as untested in production payloads built outside the UI.",
    "hasCanonicalExample": true
   },
   {
@@ -16745,6 +16756,7 @@
    "title": "Delete Contact",
    "status": "proven-live",
    "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "This action permanently deletes the contact from this account and all workflows.",
    "configSurface": "none",
    "proven": [
@@ -18849,6 +18861,79 @@
    "page": "corpus/workflows/30-types/steps-marketplace/hubspot.md"
   },
   {
+   "type": "lc_jotform_new_signed_document",
+   "family": "triggers-marketplace",
+   "title": "Jotform: New Signed Document (lc_jotform_new_signed_document)",
+   "status": "capture-only",
+   "lastVerified": "2026-11-07",
+   "summary": "Fires when a new signed document is available in Jotform. A marketplace (integration) trigger in the `Jotform` section, of type `INTEGRATION_AI`. **Beta and premium.** It polls rather than receives a webhook.",
+   "fields": [
+    {
+     "name": "executeEvent.type",
+     "type": "string",
+     "required": false,
+     "default": "polling",
+     "notes": "the event type"
+    },
+    {
+     "name": "executeEvent.http",
+     "type": "object",
+     "required": false,
+     "default": "GET on the Jotform submissions endpoint",
+     "notes": "the polled endpoint"
+    },
+    {
+     "name": "executeEvent.smartPolling",
+     "type": "object",
+     "required": false,
+     "default": "enabled, filtering on the last processed `created_at`",
+     "notes": "smart polling"
+    },
+    {
+     "name": "executeEvent.deduplication",
+     "type": "object",
+     "required": false,
+     "default": "by `updated_at`, descending, with sorting",
+     "notes": "deduplication"
+    }
+   ],
+   "notes": "- **Polling, not webhook.** Events arrive on the poll, so a signed document appears after the next poll, not at signing time. `[source-derived: executeEvent.type polling]`\n- **Needs the Jotform connection.** `[source-derived]`\n- **Beta and premium.** `[source-derived]`",
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "lc_jotform_new_submission",
+   "family": "triggers-marketplace",
+   "title": "Jotform: New Submission (lc_jotform_new_submission)",
+   "status": "capture-only",
+   "lastVerified": "2026-11-07",
+   "summary": "Fires when a new submission arrives on a Jotform form. A marketplace (integration) trigger, in the `Jotform` section, of type `INTEGRATION_AI`. **Beta and premium.**",
+   "fields": [
+    {
+     "name": "executeEvent.type",
+     "type": "string",
+     "required": false,
+     "default": "webhook",
+     "notes": "the event type"
+    },
+    {
+     "name": "executeEvent.webhookEventType",
+     "type": "string",
+     "required": false,
+     "default": "new_submission",
+     "notes": "the webhook event"
+    },
+    {
+     "name": "Form",
+     "type": "the connected account's form list",
+     "required": true,
+     "default": "—",
+     "notes": "a form on the connected Jotform account"
+    }
+   ],
+   "notes": "- **Needs the Jotform connection.** Without it the trigger has no form list and cannot be scoped. `[source-derived]`\n- **Beta and premium.** The card says so. `[source-derived: isBeta, isPremium in the rulebook record]`\n- **The sample payload is in the definition, not a live receipt.** `[capture-only]`",
+   "hasCanonicalExample": false
+  },
+  {
    "type": "lc_linear_add_label_to_issue",
    "family": "steps-marketplace",
    "app": "linear",
@@ -20742,7 +20827,9 @@
    "family": "steps-marketplace",
    "app": "contact",
    "title": "Merge Contact",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Identifies duplicate contacts and merges the newer contact record into the oldest existing record. Once con...",
    "fields": [
     {
@@ -23131,6 +23218,7 @@
    "title": "Send Live Chat Message",
    "status": "proven-live",
    "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Automatically send response message to the live chat",
    "fields": [
     {
@@ -23151,7 +23239,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "Log External Call",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Add an external call to the conversation. If you are using Inbound Webhook Trigger to pass the call details...",
    "fields": [
     {
@@ -23236,7 +23326,7 @@
      "notes": "drawer \"Mode\""
     }
    ],
-   "notes": "- 🔴 **`items` must be one expression.** The backend's structural validator (`loop-items-single-expression`) accepts exactly\n  one `{{ … }}`; anything concatenated compiles to a string, which **iterates zero times** [source-derived — Loop.ts:5-9].\n- **Not allowed inside a body:** `loop` (no nesting in V1), `workflow_goal`, `goto`, `remove_from_workflow`,\n  `remove_from_all_workflows` (they end the execution, so the loop's barrier stalls until a watchdog releases it), and\n  event/condition waits (`appointment`, `service_booking`, `rental_booking`, `overdue`, `reply`, `user_replied`,\n  `link_clicked`, `email_event`, `condition`); time waits are allowed [source-derived — loop.helper.ts:95-140].\n- **A loop with no body is refused** (`checkLoopHasBody`).\n- **The plugin does not author a loop.** Its engine refuses one by name (`LOOP_NOT_AUTHORED`) before anything is written;\n  before 2026-09-29 it compiled an authored loop as a straight line [proven-live 2026-09-29 — refusal returned, nothing\n  written: `sniffs/workflows-wave1-2026-09-25/W23-LIVE-PROOFS.md` row 3]. Add the loop in the builder where it is offered; an\n  edit leaves an existing loop and its body as stored.\n- On the advanced canvas the body is drawn as a container box around the tagged steps.",
+   "notes": "- 🔴 **`items` must be one expression.** The backend's structural validator (`loop-items-single-expression`) accepts exactly\n  one `{{ … }}`; anything concatenated compiles to a string, which **iterates zero times** [source-derived — Loop.ts:5-9].\n- **Not allowed inside a body:** `loop` (no nesting in V1), `workflow_goal`, `goto`, `remove_from_workflow`,\n  `remove_from_all_workflows` (they end the execution, so the loop's barrier stalls until a watchdog releases it), and\n  event/condition waits (`appointment`, `service_booking`, `rental_booking`, `overdue`, `reply`, `user_replied`,\n  `link_clicked`, `email_event`, `condition`); time waits are allowed [source-derived — loop.helper.ts:95-140].\n- **A loop with no body is refused** (`checkLoopHasBody`).\n- **The plugin authors a loop (w6c-3).** It writes a Loop with `loopOver` `list` or `range` and the repeated steps under `body`, on\n  accounts where the builder offers Loop. `[source-derived: the w6c-3 engine build; not yet read back live (w6c-11)]`\n  The engine used to refuse a loop by name (`LOOP_NOT_AUTHORED`) and, before 2026-09-29, compiled an authored loop as a straight line\n  [proven-live 2026-09-29 — refusal returned, nothing written: `sniffs/workflows-wave1-2026-09-25/W23-LIVE-PROOFS.md` row 3].\n  An edit leaves an existing loop and its body as stored.\n- On the advanced canvas the body is drawn as a container box around the tagged steps.",
    "hasCanonicalExample": false
   },
   {
@@ -23244,7 +23334,7 @@
    "family": "triggers",
    "title": "mailgun_email_event",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-10-30",
    "summary": "Fires on an email event (opened, clicked, unsubscribed, complained, bounced) on emails sent by the chosen workflow.",
    "meta": {
     "Trigger value": "`mailgun_email_event`",
@@ -26475,7 +26565,7 @@
     }
    ],
    "validator": "`contactTagValidator` (length 213, result level `warning`). Per `sniffs/bundle/validators.json::contactTagValidator`:\n\n```\nif (!removeAll && (!tags || tags.length === 0) && !customTags)\n  push { field: \"tags\", message: \"at_least_one_tag_required\" }\n```\n\nThree publishable shapes:\n\n| Shape | Required |\n|---|---|\n| Remove specific tags | `tags: [...]` non-empty |\n| Remove via custom-text mode | `customTags` non-empty |\n| Remove all tags | `removeAll: true` |\n\n`fields_referenced: [\"tags\"]`.",
-   "notes": "- **Three modes proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`: `tags:[x]` removed only `x`; Dynamic `customTags` with a merge tag removed the resolved tag; `removeAll: true` removed EVERY tag on the contact — including tags other systems rely on — and the run continued to the next step.\n- **`removeAll: true` is the nuclear option** — strips every tag from the contact. The runtime doesn't allow scoped \"all tags matching prefix X\"; for that, you'd need explicit `tags: [...]` enumeration.\n- **`tags` match is case-insensitive** (matches tag storage convention). `[\"sba\"]` removes both `\"sba\"` and `\"SBA\"` if both exist.\n- **Tags that don't exist on the contact are silently ignored.** No error, no branch.\n- **`customTags` is the \"Dynamic\" (custom-value / merge-tag) input mode** — one text value; the builder keeps only one of `tags` / `customTags` on save `[source-derived 2026-09-26 — models/actions/ContactTag.ts:50-55]`. Rarely seen in corpus.\n- **In AI-tool mode `removeAll` can be left for the agent to decide** (`__tool_schema__.removeAll`, \"Remove All Tags\", boolean, not required) `[source-derived 2026-09-26 — models/actions/ContactTag.ts:156-175]`.\n- **Mirrored from [`add_contact_tag`](./add_contact_tag.md)** — same model class, same validator. Direction is set by the step's top-level `type` field.",
+   "notes": "- **Three modes proven live** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3A-crm-basics.json`: `tags:[x]` removed only `x`; Dynamic `customTags` with a merge tag removed the resolved tag; `removeAll: true` removed EVERY tag on the contact — including tags other systems rely on — and the run continued to the next step.\n- **`removeAll: true` is the nuclear option** — strips every tag from the contact. The runtime doesn't allow scoped \"all tags matching prefix X\"; for that, you'd need explicit `tags: [...]` enumeration.\n- **Case**: GHL stores the tags it adds in lower case (see the Tag case section of [`add_contact_tag`](./add_contact_tag.md)), so only a lower-case stored tag can sit on a contact. A mixed-case `tags` value removed that stored tag in the measured run (see Tag case below). Whether the step lower-cases its value or the match ignores case was not measured.\n- **Tags that don't exist on the contact are silently ignored.** No error, no branch.\n- **`customTags` is the \"Dynamic\" (custom-value / merge-tag) input mode** — one text value; the builder keeps only one of `tags` / `customTags` on save `[source-derived 2026-09-26 — models/actions/ContactTag.ts:50-55]`. Rarely seen in corpus.\n- **In AI-tool mode `removeAll` can be left for the agent to decide** (`__tool_schema__.removeAll`, \"Remove All Tags\", boolean, not required) `[source-derived 2026-09-26 — models/actions/ContactTag.ts:156-175]`.\n- **Mirrored from [`add_contact_tag`](./add_contact_tag.md)** — same model class, same validator. Direction is set by the step's top-level `type` field.",
    "hasCanonicalExample": true
   },
   {
@@ -26971,7 +27061,7 @@
    "family": "steps",
    "title": "respond_on_comment",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-11-07",
    "summary": "Respond to a social-media comment that triggered the workflow (e.g. a comment-trigger flow on Facebook/Instagram).",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[29]`)",
@@ -27136,7 +27226,7 @@
     }
    ],
    "validator": "The same rules gate the drawer's Save and publish (`validateRouterBranches`, checked in this order) [source-derived 2026-09-26 — models/conditions/router-rules.ts:23,81-86,120-157,172-176,223-230; utils/WorkflowValidator.ts:859-887; utils/router.ts:249,407-415]:\n\n1. `routerName` empty → \"Action name cannot be empty!\"; too long → length error (drawer only).\n2. More than 10 branches → `tooManyBranches`.\n3. More than one `fallback` → `fallbackExists`; any `always_run` together with a `fallback` → `alwaysRunFallbackConflict` (\"the fallback path will never be run\").\n4. A branch with no complete condition (custom) → `branchError` naming the branch.\n5. Two branches with the same conditions → `duplicateBranchError` (\"{name} has the same conditions as {other}\").\n6. Publish only: a router nested under more than 10 router roots → \"Cannot nest more than 10 routers\".\n7. Publish only: a `workflow_goal` or `goto` step anywhere inside a router branch → \"{stepName} cannot be added inside a router branch\".",
-   "notes": "- **Not an if/else.** Every matching branch runs, left to right (\"Send the contact down every branch whose conditions match. Branches run one after another, Left to right\") [source-derived 2026-09-26 — i18n `workflow.asideSection.description.router`; models/conditions/router-rules.ts:167-170]. That is why duplicate conditions are refused.\n- **`always_run` and `fallback` cannot coexist**; at most one `fallback`.\n- **No Goal or Go To inside a branch**, and no more than 10 nested routers.\n- **Stamp `nodeType: 'condition-node'` on the root.** Routers added through the builder's generic path were saved without it; the builder repairs that on load (`normalizeRouterTemplates`), and an unstamped router is read as one of its own lanes [source-derived 2026-09-26 — utils/router.ts:642-663].\n- **Beta-gated.** On an account outside the allowlist the picker hides Router; whether GHL's server accepts a router written by API on such an account is untested. The designated test sub-account is on neither the router nor the loop allowlist (0 hits for its id across the recovered source, the index bundle and every lazy chunk of `bundle-2026-09-29-2`), so router authoring cannot be proven there.\n- **The plugin does not author a router.** Its engine refuses one by name (`ROUTER_NOT_AUTHORED`) before anything is written: before 2026-09-29 it compiled an authored router into ONE step with a scalar `next` and no lanes, which saved and validated clean and could not branch [proven-live 2026-09-29 — refusal returned, nothing written: `sniffs/workflows-wave1-2026-09-25/W23-LIVE-PROOFS.md` row 3]. Use `if_else`, or add the Router in the builder where it is offered; an edit leaves an existing router as stored.\n- Allowed in object-based (Company / Custom Object) workflows [source-derived 2026-09-26 — utils/workflows.ts:1684-1686].",
+   "notes": "- **Not an if/else.** Every matching branch runs, left to right (\"Send the contact down every branch whose conditions match. Branches run one after another, Left to right\") [source-derived 2026-09-26 — i18n `workflow.asideSection.description.router`; models/conditions/router-rules.ts:167-170]. That is why duplicate conditions are refused.\n- **`always_run` and `fallback` cannot coexist**; at most one `fallback`.\n- **No Goal or Go To inside a branch**, and no more than 10 nested routers.\n- **Stamp `nodeType: 'condition-node'` on the root.** Routers added through the builder's generic path were saved without it; the builder repairs that on load (`normalizeRouterTemplates`), and an unstamped router is read as one of its own lanes [source-derived 2026-09-26 — utils/router.ts:642-663].\n- **Beta-gated.** On an account outside the allowlist the picker hides Router; whether GHL's server accepts a router written by API on such an account is untested. The designated test sub-account is on neither the router nor the loop allowlist (0 hits for its id across the recovered source, the index bundle and every lazy chunk of `bundle-2026-09-29-2`), so router authoring cannot be proven there.\n- **The plugin authors a router (w6c-1).** It writes a condition-node root with one lane per branch, up to 10 branches and one fallback, on\n  accounts where the builder offers Router. `[source-derived: the w6c-1 engine build; not yet read back live]` The engine used to refuse a\n  router by name (`ROUTER_NOT_AUTHORED`), and before 2026-09-29 it compiled an authored router into ONE step with a scalar `next` and no\n  lanes, which saved and validated clean and could not branch [proven-live 2026-09-29 — refusal returned, nothing written:\n  `sniffs/workflows-wave1-2026-09-25/W23-LIVE-PROOFS.md` row 3]. An edit leaves an existing router as stored.\n- Allowed in object-based (Company / Custom Object) workflows [source-derived 2026-09-26 — utils/workflows.ts:1684-1686].",
    "hasCanonicalExample": true
   },
   {
@@ -27144,7 +27234,7 @@
    "family": "triggers",
    "title": "scheduler_trigger",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-10-30",
    "summary": "Fires on a cron-like schedule (hourly / daily / weekly / monthly / cron).",
    "meta": {
     "Trigger value": "`scheduler_trigger`",
@@ -27335,7 +27425,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp: Send Flows",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Send WhatsApp Flows to your customers, allowing them to seamlessly book appointments directly on your exist...",
    "fields": [
     {
@@ -27374,7 +27466,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Sends a whatsapp message to the contact",
    "fields": [
     {
@@ -27694,7 +27788,7 @@
    "family": "steps",
    "title": "slack_message",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-11-07",
    "summary": "Send a message via a connected Slack integration to a public channel, private channel, or as a direct message.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[16]`)",
@@ -27749,7 +27843,7 @@
     }
    ],
    "validator": "`slackMessageValidator` (per `sniffs/bundle/validators.json`):\n\n- `integration.id` set, else `slack_integration_required`.\n- `action.id` set, else `slack_action_type_required`.\n- `channel.id` set, else `slack_channel_required`.\n- `text` non-whitespace, else `slack_message_required`.\n- When `action.id === \"direct-message\"`, `userSource.id` set, else `slack_user_source_required`.\n\nPer `validators-summary.json`: 5 fields referenced; result level `warning`.",
-   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Slack account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O2-blocked-drafts.json`), with the fields the builder/GHL require: `integration`, `action`, `channel`, `text`. Whether it runs, what it sends and what it skips is not known.\n- `integration.idType: \"altId\"` — the integration ID is a composite of workspace + connected-user references; treat as opaque.\n- `text` accepts Slack mrkdwn (`*bold*`, `<url|label>`, `<@channel>`, etc.) and `{{handlebars}}`.\n- DM mode requires `userSource` resolution which itself depends on the location's user-source mapping; not enforced beyond `userSource.id` presence.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Slack account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O2-blocked-drafts.json`), with the fields the builder/GHL require: `integration`, `action`, `channel`, `text`. Whether it runs, what it sends and what it skips is not known.\n- `integration.idType: \"altId\"` — the integration ID is a composite of workspace + connected-user references; treat as opaque.\n- `text` accepts Slack mrkdwn (`*bold*`, `<url|label>`, `<@channel>`, etc.) and `{{handlebars}}`.\n- DM mode requires `userSource` resolution which itself depends on the location's user-source mapping; not enforced beyond `userSource.id` presence.\n- **The DM mode's `userSource` ids** `[source-derived]`: `slack` (Slack User), `assigned` (assigned user), `internal` (internal user) and `custom`, offered beside the public and private channel modes (`sniffs/bundle-2026-11-06/recovered-source/src/models/actions/premium-actions/SlackMessage.ts:18-19,104-122`). A `direct-message` step was stored and read back in a 2026-09-25 probe `[inferred — from that probe's log note; no sniff captured yet]`. Whether it delivers is still unknown (see the runtime note above).",
    "hasCanonicalExample": true
   },
   {
@@ -28768,7 +28862,7 @@
     }
    ],
    "validator": "`textFormatterValidator` — warnings only: `formatterType` must be a known value, `field` non-empty.",
-   "notes": "- The output is `{{text_formatter.N.result}}` (`text-formatter-helpers.ts:49`); `N` is the per-type\n  1-based `stepIndex`. `upper_case` on `wave one text` rendered `WAVE ONE TEXT`; the log records\n  `Source Field : \"wave one text\" | Output : \"WAVE ONE TEXT\"` `[proven-live 2026-09-25]`.\n- **`trim` with `skip: 0` is SKIPPED at run time**: `status: skipped`, `skippedFor: {type: \"invalid-data\",\n  msg: \"Invalid data. \\\"key\\\" : \\\"skip\\\" , \\\"value\\\" : \\\"0\\\".\"}`, output empty. `skip` must be omitted or\n  > 0. The builder's input has `min: 1` but no validator (the locale's \"Should be a valid positive number ( greater than 0 )\" is never wired) [source-derived 2026-09-29 — utils/text-formatter/config.ts:23-28]. The step saves and\n  passes GHL's validator and our build first `[proven-live 2026-09-25]`.\n- The canvas validator is warning-level, so an API write with an empty `field` or an unknown `formatterType` still saves. The builder drawer does not save it: its Save refuses with \"Oops! Looks like you've missed out on some fields\" [source-derived 2026-09-29 — models/actions/premium-actions/TextFormatter.ts:246-258; components/AsideSection.vue:1703-1733].",
+   "notes": "- The output is `{{text_formatter.N.result}}` (`text-formatter-helpers.ts:49`); `N` is the per-type\n  1-based `stepIndex`. `upper_case` on `wave one text` rendered `WAVE ONE TEXT`; the log records\n  `Source Field : \"wave one text\" | Output : \"WAVE ONE TEXT\"` `[proven-live 2026-09-25]`.\n- **`trim` with `skip: 0` is SKIPPED at run time**: `status: skipped`, `skippedFor: {type: \"invalid-data\",\n  msg: \"Invalid data. \\\"key\\\" : \\\"skip\\\" , \\\"value\\\" : \\\"0\\\".\"}`, output empty. `skip` must be omitted or\n  > 0. The builder's input has `min: 1` but no validator (the locale's \"Should be a valid positive number ( greater than 0 )\" is never wired) [source-derived 2026-09-29 — utils/text-formatter/config.ts:23-28]. The step saves and\n  passes GHL's validator and our build first `[proven-live 2026-09-25]`.\n- The canvas validator is warning-level, so an API write with an empty `field` or an unknown `formatterType` still saves. The builder drawer does not save it: its Save refuses with \"Oops! Looks like you've missed out on some fields\" [source-derived 2026-09-29 — models/actions/premium-actions/TextFormatter.ts:246-258; components/AsideSection.vue:1703-1733].\n- **No URL-encode operation.** The `formatterType` enum has 15 active values. A sixteenth line, `extract_phone_number`, is commented out, so the enum source has 16 lines in all (`schema/text-formatter.schema.ts:6-22`). Percent-encoding is not among the active values [source-derived 2026-11-07 — sniffs/bundle-2026-09-25/recovered-source/src/schema/text-formatter.schema.ts:6-22]. Nothing on this page encodes a value; the operations above are the whole list.",
    "hasCanonicalExample": false
   },
   {
@@ -28868,6 +28962,7 @@
    "title": "TikTok Interactive Messenger",
    "status": "proven-live",
    "source": "measured",
+   "lastVerified": "2026-09-30",
    "summary": "Sends a TikTok message to the contact (contact needs to have previously messaged a connected TikTok account...",
    "fields": [
     {
@@ -29680,7 +29775,7 @@
     }
    ],
    "validator": "`appointmentStatusValidator` (per `sniffs/bundle/validators.json`):\n\n- `status_type` must be set, else `appointment_status_required` warning.\n\nPer `validators-summary.json`: 1 field referenced; result level `warning`.",
-   "notes": "- Our tools warn on rental `partial` (DRAWER_CANNOT_SHOW): \"the builder's drawer cannot display 'partial' for rental appointments; a person who opens and saves this step will lose it\" `[proven-live 2026-09-29 — `sniffs/workflows-wave1-2026-09-25/W22-LIVE-PROOFS.md` row 8]`.\n- **No appointment → `error`, and the run CONTINUES** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3N-manual-appt.json`: on a contact holding no appointment, `category: \"appointment\"`, `status_type: \"confirmed\"` logged `status: error`, `{status: 404, message: \"Appointment not found for contact <id>\"}`; the next step still ran. An error row here does not stop the workflow.\n- `status_type` enum members differ by `category`; the bundle source didn't reveal the full enums. Likely values per category:\n  - `appointment`: `confirmed`, `showed`, `noshow`, `cancelled`, `invalid`.\n  - `service_booking` / `rental_booking`: parallel sets per booking type.\n- The validator doesn't enforce that `status_type` matches the `category` enum — server may reject mismatched combos at runtime.\n- The step operates on the most recently created (or contextually-referenced) appointment for the contact; no explicit `appointment_id` field observed.",
+   "notes": "- Our tools warn on rental `partial` (DRAWER_CANNOT_SHOW): \"the builder's drawer cannot display 'partial' for rental appointments; a person who opens and saves this step will lose it\" `[proven-live 2026-09-29 — `sniffs/workflows-wave1-2026-09-25/W22-LIVE-PROOFS.md` row 8]`.\n- **No appointment → `error`, and the run CONTINUES** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3N-manual-appt.json`: on a contact holding no appointment, `category: \"appointment\"`, `status_type: \"confirmed\"` logged `status: error`, `{status: 404, message: \"Appointment not found for contact <id>\"}`; the next step still ran. An error row here does not stop the workflow.\n- `status_type` enum members differ by `category`; the bundle source didn't reveal the full enums. Likely values per category:\n  - `appointment`: `confirmed`, `showed`, `noshow`, `cancelled`, `invalid`.\n  - `service_booking` / `rental_booking`: parallel sets per booking type.\n- The validator doesn't enforce that `status_type` matches the `category` enum — server may reject mismatched combos at runtime.\n- The step operates on the most recently created (or contextually-referenced) appointment for the contact; no explicit `appointment_id` field observed.\n- **Custom appointment statuses (2026-10)**: appointments now carry `statusId` (per module: meeting and service sets differ) and `state` beside the old string `[proven-live 2026-10-30]` (`calendars/20-api/appointment-statuses.md`). This step's `status_type` is still the old string set; whether it can set a *custom* status, and what a custom status reads as in the old string, is **not proven** `[inferred — the step model has no statusId key]`.",
    "hasCanonicalExample": true
   },
   {
@@ -29751,7 +29846,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "Update Conversation AI Bot and Status",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Updates the Conversation AI bot and status for the contact",
    "fields": [
     {
@@ -30597,7 +30694,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp: Customer Service Window Check",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "When a WhatsApp user sends you a message, a 24-hour Customer Service Window is open, during which you can s...",
    "fields": [
     {
@@ -30622,7 +30721,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp Interactive Messages",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Send Interactive Messages on WhatsApp from Workflows",
    "fields": [
     {
@@ -30640,7 +30741,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp Media",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Upload your attachment for the WhatsApp message. Ensure the file meets WhatsApp's supported formats and siz...",
    "fields": [
     {
@@ -30787,7 +30890,9 @@
    "family": "steps-marketplace",
    "app": "communication",
    "title": "WhatsApp",
+   "status": "source-derived",
    "source": "asset",
+   "lastVerified": "2026-09-30",
    "summary": "Sends a whatsapp message to the contact",
    "fields": [
     {
@@ -30813,6 +30918,53 @@
     }
    ],
    "page": "corpus/workflows/30-types/steps-marketplace/communication.md"
+  },
+  {
+   "type": "workflow_ab_test",
+   "family": "steps",
+   "title": "A/B Test (workflow_ab_test)",
+   "status": "proven-live",
+   "lastVerified": "2026-11-07",
+   "summary": "A container that splits the contacts who reach it across two to ten paths, and routes each to one path. It is not in the native step catalogue; the engine knows it as a container (`TYPES_OUTSIDE_CATALOG`). It ends at a condition: a contact count, a conversion count, or a date.",
+   "fields": [
+    {
+     "name": "`attributes.paths` (and `transitions`)",
+     "type": "list of `{id, name}`",
+     "required": true,
+     "default": "three paths: Path A, Path B, Path C",
+     "notes": "2 to 10 paths"
+    },
+    {
+     "name": "attributes.extras.metric",
+     "type": "object",
+     "required": true,
+     "default": "—",
+     "notes": "`kind: event`; `matchCriteria.segments[0].conditions[0]` = `{id, goal_condition, extras}`"
+    },
+    {
+     "name": "goal_condition",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "`form_submission`; its extras carry `formIds`"
+    },
+    {
+     "name": "attributes.extras.endCondition",
+     "type": "object",
+     "required": true,
+     "default": "`contacts`, 200",
+     "notes": "`{type: contacts, numberOfContacts}` · `{type: conversions, numberOfConversions}` · `{type: date, endDate}` (local time, no `Z`)"
+    },
+    {
+     "name": "attributes.extras.afterEnd",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "`route_to_winner` or `keep_splitting`"
+    }
+   ],
+   "notes": "- **Every path is empty to start.** The UI-built draft has no steps inside any path. Nothing runs inside a path until a step is added to it. `[proven-live]`\n- **Locks once contacts enter.** After the first contact enters a test, its paths and goal metric are locked, so the counts keep comparing the same paths. `[source-derived: the step-card note ruled in w6c-5 (QA item 4), 2026-11-07; the lock itself has not been tested live]`\n- **A winner is not undone in the UI.** Declaring a winner routes every new contact to that path. `[source-derived: the declare route in the engine's G2 gate; not run]`\n- **The stats read zero on a draft and on a tag-after-publish order.** A draft has no stats. The stats count only contacts that entered\n  after publish, so a tag added before publish enrols nobody. `[source-derived: the engine's ruling, 2026-11-07; the entry rule is the Tag\n  Added trigger's, [proven-live] in the trigger page]`\n- **Engine build proven live (draft only).** An engine-built A/B draft (TEST-CONF-W6C-11-ab) reads back on a separate request: 3 paths, an event goal `form_submission` with `formIds`, `endCondition` contacts 200, `afterEnd` route_to_winner. `[proven-live 2026-11-07: sniffs/workflows-w6c-2026-11-06/readback-w6c11-ab.json]`",
+   "hasCanonicalExample": false
   },
   {
    "type": "workflow_ai_analyze_image",
@@ -31064,6 +31216,32 @@
    "hasCanonicalExample": true
   },
   {
+   "type": "workflow_ai_generate_video",
+   "family": "steps",
+   "title": "AI Video Generation (workflow_ai_generate_video)",
+   "status": "capture-only",
+   "lastVerified": "2026-11-07",
+   "summary": "A premium marketplace (IATF) action that generates a video with a model and stores its URL for later steps. It is **not a native step**: no model class, factory entry or i18n string for it exists in the 11-06 bundle. Its definition is server-authored.",
+   "fields": [
+    {
+     "name": "preset-gallery",
+     "type": "field type",
+     "required": false,
+     "default": "—",
+     "notes": "template cards from `input.config.presets[]`; \"Use this prompt\" replaces the sibling values"
+    },
+    {
+     "name": "large-file",
+     "type": "field type",
+     "required": false,
+     "default": "—",
+     "notes": "a video or file upload (IATF upload session) or a URL (a plain string)"
+    }
+   ],
+   "notes": "- **Premium and billed per run.** `isPremiumAction` comes from the asset's `additionalConfig.isPremium` (`states/actions.ts:349`).\n  `[source-derived]` That a run is charged is `[inferred — the premium flag and the session finding, not a billing receipt]`.\n- **The test button is a real execution.** It calls POST `{workflowMarketplaceUrl}/internal-actions/test-action?locationId&integrationAccountId`\n  (`WorkflowsMarketplacePlatformService.ts:407-418`). Running it spends the paid action. `[source-derived]`\n- **An upload is three requests.** POST `{workflowMarketplaceUrl}/iatf-files/upload-session` with `{locationId, name, contentType, sizeBytes, maxSizeMb?, appId?, actionKey?, field?}`\n  returns `{fileId, uploadUrl (GCS), expiresAt}`; a resumable PUT goes to `*.googleapis.com`; then POST `/iatf-files/{fileId}/verify?locationId=`\n  (`IatfFileUploadService.ts:85-95,244-245`). `[source-derived]`\n- **A preset overwrites, it does not merge.** Applying a preset replaces the sibling values it names (`PresetGallery.vue`). `[source-derived]`\n- **Never hard-code the definition.** Read it with `describe_marketplace_action` (GET `/actions/published/{key}`). `[source-derived]`",
+   "hasCanonicalExample": false
+  },
+  {
    "type": "workflow_ai_intent_detection",
    "family": "steps-marketplace",
    "app": "ai-actions",
@@ -31208,7 +31386,7 @@
    "family": "steps",
    "title": "workflow_split",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-11-07",
    "summary": "Multi-path randomizer / A/B-test splitter. Routes incoming contacts across N paths via weight-distributed random selection.",
    "meta": {
     "Section": "`internal`",
@@ -31259,18 +31437,18 @@
      "type": "string",
      "required": true,
      "default": "\"random-split\"",
-     "notes": "Split mode. Only `\"random-split\"` observed. 100%."
+     "notes": "Split mode: `\"even-split\"`, `\"weighted-split\"` or `\"random-split\"` (each read back live 2026-11-07). `conditional-split` is not offered on the sandbox and stays unproven."
     },
     {
      "name": "extras",
      "type": "object",
      "required": false,
      "default": "—",
-     "notes": "`{ weightDistribution: { <path-id>: <0-100>, ... } }`. Per-path weight percentages. Must sum to 100. 100%."
+     "notes": "`{ weightDistribution: { <path-id>: <1-99>, ... } }` on weighted and random splits (integers; sum exactly 100). Even splits carry `rememberPath` only. Corrected 2026-11-07 (the live server refused 33.3)."
     }
    ],
-   "validator": "`workflowSplitValidator` (length 486, result level `warning`). Per `sniffs/bundle/validators.json::workflowSplitValidator`:\n\n```\nif (!paths?.length) push { field: \"paths\", message: \"split_paths_required\" }\n\nif (condition === SplitCondition.RANDOM_SPLIT) {\n  let total = 0\n  for (path of paths) total += extras?.weightDistribution?.[path.id] ?? 0\n  total = Math.round(total * 10) / 10   // round to 1 decimal\n  if (total !== 100) push { field: \"paths\", message: \"split_weightage_must_equal_100\" }\n}\n```\n\n`fields_referenced: [\"paths\"]`.\n\nTwo enforcements:\n\n| Check | Trigger |\n|---|---|\n| At least one path | `paths.length > 0` |\n| Weights sum to 100 | Only when `condition === \"random-split\"` |",
-   "notes": "- **The drawer's rules**: 2–5 paths (`MAX_TRANSITION_COUNT = 5`), only `random-split`, and the weights must total exactly 100 (one-decimal rounding) or the step opens red. Our tools default an N-way split to an even share with the remainder on the last path (3 paths = 33/33/34), which the drawer opens clean `[proven-live 2026-09-29 — `sniffs/workflows-wave1-2026-09-25/W22-LIVE-PROOFS.md` row 6]`. check_workflow reports this type NOT CHECKED until the recovered validator is re-extracted (its body read an unresolved minified enum) `[proven-live 2026-09-29 — row 7]`.\n- **Random split honours its weights** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3D-flow.json`: `condition: \"random-split\"` with `extras.weightDistribution` 100/0 sent the contact down Path A and 0/100 down Path B. `random-split` is the ONLY distribution the drawer offers (`models/Split/Split.ts:92-103` filters `even-split` / `conditional-split` out) and the weights must total 100 (`randomSplitWeightageInvalid`).\n- 🔴 **Once a contact has passed through a split, the builder locks it.** Opening the drawer calls `GET /workflow/{locationId}/split/isExecuted?workflowId=&stepId=`; on `{isStepExecuted:true}` the distribution type, every path name and every percentage are disabled and \"Add path\" is gone. A never-executed split with the same spec stays editable `[proven-live 2026-09-29]` `sniffs/workflows-wave1-2026-09-25/ui/UI-WALK-CANVAS-3CM.md` (gesture 34). To change the weights of a split that has run, a person must build a new split; whether an API write of new weights is refused was not tested.\n- **Weights must sum to 100** with at most 0.1 rounding tolerance. The validator rounds to one decimal place. `33.3 + 33.3 + 33.4 = 100.0` works; `33.3 + 33.3 + 33.3 = 99.9` fails.\n- **`condition` is the only mode**: `\"random-split\"`. The `SplitCondition` enum (per the validator's namespace import) suggests other modes exist but only `RANDOM_SPLIT` is observed in corpus.\n- **`paths`, `transitions`, and `next[]` must stay in sync.** The same N UUIDs appear in all three places. The runtime keys off `next[]` to route; `transitions[]` is for the branch-label UI; `paths[]` is the canonical id list for weights.\n- **A path with weight `0` is published-valid** as long as the other weights sum to 100. Such a path becomes unreachable.\n- **`isPrimaryBranch: false`** in all observed transitions. The primary-branch concept isn't fully traced for this action.\n- **The top-level `name`** in the example is the i18n key `workflow.asideSection.headerMeta.workflowSplit` — the UI resolves this. Hand-authored bodies typically set `name` to a human label.",
+   "validator": "`workflowSplitValidator` (length 486, result level `warning`). Per `sniffs/bundle/validators.json::workflowSplitValidator`:\n\n```\nif (!paths?.length) push { field: \"paths\", message: \"split_paths_required\" }\n\nif (condition === SplitCondition.RANDOM_SPLIT) {\n  let total = 0\n  for (path of paths) total += extras?.weightDistribution?.[path.id] ?? 0\n  total = Math.round(total * 10) / 10   // round to 1 decimal\n  if (total !== 100) push { field: \"paths\", message: \"split_weightage_must_equal_100\" }\n}\n```\n\n`fields_referenced: [\"paths\"]`.\n\nTwo enforcements:\n\n| Check | Trigger |\n|---|---|\n| At least one path | `paths.length > 0` |\n| Weights sum to 100 | Only on weighted and random splits; weights are integers 1–99 (corrected 2026-11-07) |",
+   "notes": "- **Paths, modes and weights (corrected 2026-11-07).** The 2026-09-28 source reading (\"2–5 paths, only `random-split`\") is superseded. Up to 10 paths (`MAX_SPLIT_PATHS`): a 10-path random split was built and read back live on 2026-11-07 `[proven-live 2026-11-07]` `sniffs/workflows-w6c-2026-11-06/readback-w6c11-split-random.json`. The modes are `even-split`, `weighted-split` and `random-split`, each read back live (the even and weighted drafts, same folder). `conditional-split` is refused (`SPLIT_MODE_UNPROVEN`): there is no fixture, and the builder on the sandbox does not offer it. The weights are integers 1–99 that sum to exactly 100; a 33.3 weight was refused live on 2026-11-07. Our tools default an N-way split to an even share with the remainder on the last path (3 paths = 33/33/34), which the drawer opens clean `[proven-live 2026-09-29 — `sniffs/workflows-wave1-2026-09-25/W22-LIVE-PROOFS.md` row 6]`. check_workflow reports this type NOT CHECKED until the recovered validator is re-extracted (its body read an unresolved minified enum) `[proven-live 2026-09-29 — row 7]`.\n- **Random split honours its weights** `[proven-live 2026-09-28]` `sniffs/workflows-wave1-2026-09-25/live-3D-flow.json`: `condition: \"random-split\"` with `extras.weightDistribution` 100/0 sent the contact down Path A and 0/100 down Path B. The 2026-09-28 reading that random-split is the only distribution the drawer offers is superseded: on 2026-11-07 the sandbox builder offered Even split, Weighted split and Random split (screenshot `w-dropdown-options.png`, sniffs w6c-0).\n- 🔴 **Once a contact has passed through a split, the builder locks it.** Opening the drawer calls `GET /workflow/{locationId}/split/isExecuted?workflowId=&stepId=`; on `{isStepExecuted:true}` the distribution type, every path name and every percentage are disabled and \"Add path\" is gone. A never-executed split with the same spec stays editable `[proven-live 2026-09-29]` `sniffs/workflows-wave1-2026-09-25/ui/UI-WALK-CANVAS-3CM.md` (gesture 34). To change the weights of a split that has run, a person must build a new split; whether an API write of new weights is refused was not tested.\n- **Weights are whole percentages from 1 to 99 that sum to exactly 100.** The live server refused `33.3 / 33.3 / 33.4` on a test sub-account, 2026-11-07: \"weightDistribution values must be integers between 1 and 99\". `33 / 33 / 34` was accepted and read back `[proven-live 2026-11-07]` `sniffs/workflows-w6c-2026-11-06/readback-w6c11-split-weighted.json`. The earlier one-decimal reading is superseded by this live refusal.\n- **`condition` takes `even-split`, `weighted-split` or `random-split`** `[proven-live 2026-11-07]`. The stored extras: even carries `rememberPath` only; weighted carries `rememberPath` and `weightDistribution` (33/33/34 read back); random carries `weightDistribution` with an equal share per path (10 paths read back as 10 each). The `SplitCondition` enum suggests other values; `conditional-split` is not offered on the sandbox and stays unproven.\n- **`paths`, `transitions`, and `next[]` must stay in sync.** The same N UUIDs appear in all three places. The runtime keys off `next[]` to route; `transitions[]` is for the branch-label UI; `paths[]` is the canonical id list for weights.\n- **A path with weight `0` is published-valid** as long as the other weights sum to 100. Such a path becomes unreachable.\n- **`isPrimaryBranch: false`** in all observed transitions. The primary-branch concept isn't fully traced for this action.\n- **The top-level `name`** in the example is the i18n key `workflow.asideSection.headerMeta.workflowSplit` — the UI resolves this. Hand-authored bodies typically set `name` to a human label.",
    "hasCanonicalExample": true
   },
   {

@@ -6,7 +6,7 @@
 //
 // A node whose inputs fall outside what was measured (an unknown key, a value no probe covered) is REFUSED, not guessed:
 // the caller keeps the builderStyling warning for it.
-import { KIND_CSS_SPEC } from './kind-css-spec.mjs';
+import { KIND_CSS_SPEC, KIND_CSS_SOURCE } from './kind-css-spec.mjs';
 
 /** "#abc" / "#aabbcc" → "r,g,b"; anything else → "undefined" (what the builder writes for a colour it cannot read). */
 const hexTriplet = (hex) => {
@@ -29,6 +29,12 @@ export const transform = (name, v, palette, get = () => 'undefined') => {
   if (name.startsWith('or:')) return v ? String(v) : name.slice(3);
   if (name.startsWith('scale:')) return String(Math.round(Number(v) * Number(name.slice(6)))); // a size written as a share of a fixed maximum
   if (name.startsWith('nn:')) return v === undefined || v === null ? name.slice(3) : String(v);
+  // `zf:X` — a size that writes its fallback X when it is zero or missing (numeric 0, "", null, absent) and the value
+  //   otherwise; the string "0" writes 0 (store-product-detail under overrideDescriptionStyles, bl-330).
+  if (name.startsWith('zf:')) return v === undefined || v === null || v === '' || v === 0 ? name.slice(3) : String(v);
+  // `zt:X` — a tablet size that writes its fallback X only when the value is missing (null, absent); "" writes an empty value
+  //   and 0 / "0" write 0 (store-custom-product-detail under overrideDescriptionStyles, bl-330).
+  if (name.startsWith('zt:')) return v === undefined || v === null ? name.slice(3) : String(v);
   if (name.startsWith('m:')) { const t = lut(name), k = lutKey(v); if (!t.has(k)) return String(v); const x = t.get(k); return typeof x === 'object' ? get(x.ref) : x; }
   return TRANSFORMS[name](v, palette);
 };
@@ -101,6 +107,9 @@ export function kindCss(node, palette = [], spec = KIND_CSS_SPEC[node?.meta]) {
   let css = '', media = null, sel = null;
   const close = () => { if (sel !== null) css += '}'; sel = null; };
   for (const [m, s, p, v, when] of spec.rows) {
+    // A RAW row is a whole rule the builder writes with its own line structure (a malformed declaration ends at the newline,
+    // so the newlines are part of the rule). Its template is written verbatim, holes filled; it closes any open block first.
+    if (m === 'raw') { if (when && !when.t.some((tuple) => tuple.every((c, k) => cls[when.g[k]] === c))) continue; close(); if (media) { css += '}'; media = null; } css += fill(s); continue; }
     if (when && !when.t.some((tuple) => tuple.every((c, k) => cls[when.g[k]] === c))) continue;
     const M = fill(m), S = fill(s);
     if (M !== media) { close(); if (media) css += '}'; media = M; if (M) css += `${M}{`; }
@@ -112,3 +121,6 @@ export function kindCss(node, palette = [], spec = KIND_CSS_SPEC[node?.meta]) {
 }
 
 export const KIND_CSS_KINDS = Object.freeze(Object.keys(KIND_CSS_SPEC));
+/** The kinds whose per-kind CSS the checker did NOT reproduce on the pinned builder (`verified: false` in the spec's checked report):
+ *  a page that writes one gets a warning, so no one reads a verified claim it does not have (w7-5b, 976028e2). */
+export const kindCssUnverifiedKinds = () => Object.keys(KIND_CSS_SOURCE.checked ?? {}).filter((k) => KIND_CSS_SOURCE.checked[k]?.verified === false);

@@ -27,6 +27,7 @@ import { checkStepRefs } from './graph-refs.mjs';
 import { danglingParentKeys } from './edit.mjs';
 import { checkFieldCaps, describeCap } from './field-caps.mjs';
 import { ENGINE_ATTR_KEYS } from './compiler.mjs';
+import { TYPES_OUTSIDE_CATALOG } from './ir.mjs';
 import { OBSERVED_TOP_LEVEL_KEYS, OBSERVED_ATTRIBUTE_KEYS, OBSERVED_INNER_TYPES } from './observed-step-keys.mjs';
 
 // The builder's own step type, models/Workflow.ts `WorkflowTemplateBase` (09-29 capture, lines 805-850): every key a
@@ -37,7 +38,10 @@ import { OBSERVED_TOP_LEVEL_KEYS, OBSERVED_ATTRIBUTE_KEYS, OBSERVED_INNER_TYPES 
 export const BUILDER_TEMPLATE_KEYS = Object.freeze(['id', 'stepIndex', 'type', 'customVarPrefix', 'name', 'window', 'start_after',
   'attributes', 'next', 'parent', 'sibling', 'order', 'cat', 'comments', 'nodeType', 'position', 'isMarketplaceAction', 'version',
   'workflowsActionType', 'integrationAccountId', 'parentKey', 'parentContainerId', 'currentStepEnd', 'hasErrors', 'errorMessage',
-  'advanceCanvasMeta', 'testRequest', 'testResponse']);
+  'advanceCanvasMeta', 'testRequest', 'testResponse',
+  // 2026-11-06 capture (utils/iatf-action-flags.ts): a marketplace action whose author allows {{contact.*}} in company /
+  // custom-object workflows carries `allowContactValuesInNonContactWorkflows: true` on the step (true or absent, never false).
+  'allowContactValuesInNonContactWorkflows']);
 export const STEP_TOP_LEVEL_KEYS = new Set([...OBSERVED_TOP_LEVEL_KEYS, ...BUILDER_TEMPLATE_KEYS]);
 
 // Keys a type carries only in one state, so a census can miss them. Each is grounded in the file
@@ -115,6 +119,44 @@ export function multipathDefects(t, byId) {
 // The builder's CORE_ACTIONS: native type names it always renders with the marketplace-asset drawer.
 const CORE_ASSET_ACTIONS = new Set(['task-notification', 'edit_conversation']);
 
+// W6a item 5 (bl-450): the run-time structure of an If/Else, exactly as the compiler writes it (compiler.mjs ~1680-1726).
+// A repair-built If/Else without these keys passed every validator and was skipped at run time ("Malformed Node").
+// Containers are if_else steps that carry an array `next` or are the parent of other if_else steps.
+export function ifElseDefects(templates, byId) {
+  const out = [];
+  const ifElse = templates.filter((t) => t && t.type === 'if_else');
+  const parentsOfBranches = new Set(ifElse.map((t) => t.parent ?? t.parentKey).filter(Boolean));
+  for (const c of ifElse.filter((t) => Array.isArray(t.next) || (parentsOfBranches.has(t.id) && t.nodeType !== 'branch-yes' && t.nodeType !== 'branch-no'))) {
+    const bad = [];
+    if (c.nodeType !== 'condition-node') bad.push(`container nodeType is ${JSON.stringify(c.nodeType)}, not "condition-node"`);
+    if (c.cat !== 'conditions') bad.push(`container cat is ${JSON.stringify(c.cat)}, not "conditions"`);
+    const next = Array.isArray(c.next) ? c.next : [];
+    const branchIds = (c.attributes?.branches ?? []).map((b) => b?.id);
+    const missingFromNext = branchIds.filter((id) => !next.includes(id));
+    if (missingFromNext.length) bad.push(`attributes.branches id(s) ${missingFromNext.join(', ')} are not in next[]`);
+    if (next.length !== branchIds.length + 1) bad.push(`next[] has ${next.length} entries; attributes.branches has ${branchIds.length} (next must be the conditioned branches plus one else)`);
+    let elseCount = 0;
+    for (const id of next) {
+      const b = byId.get(id);
+      if (!b) { bad.push(`next[] names ${id}, which is not a step`); continue; }
+      const label = `branch '${b.name ?? id}'`;
+      if (b.type !== 'if_else') bad.push(`${label} is type ${b.type}, not if_else`);
+      if (b.parent !== c.id) bad.push(`${label} parent is ${JSON.stringify(b.parent)}, not the container`);
+      if (b.parentKey !== c.id) bad.push(`${label} parentKey is ${JSON.stringify(b.parentKey)}, not the container`);
+      if (b.cat !== 'conditions') bad.push(`${label} cat is ${JSON.stringify(b.cat)}, not "conditions"`);
+      if (b.nodeType !== 'branch-yes' && b.nodeType !== 'branch-no') bad.push(`${label} nodeType is ${JSON.stringify(b.nodeType)}, not branch-yes/branch-no`);
+      const want = next.filter((x) => x !== id).sort();
+      const sib = Array.isArray(b.sibling) ? [...b.sibling].sort() : null;
+      if (!sib || JSON.stringify(sib) !== JSON.stringify(want)) bad.push(`${label} sibling is ${JSON.stringify(b.sibling)}, not the other branches ${JSON.stringify(want)}`);
+      if (b.nodeType === 'branch-no') { elseCount += 1; if (b.attributes?.else !== true) bad.push(`${label} is branch-no without attributes.else:true`); }
+    }
+    if (elseCount !== 1 && next.length) bad.push(`${elseCount} branch-no (else) node(s); exactly one is required`);
+    // members: the container AND its branch nodes — a write touching ANY of them owns this If/Else's wiring (final review W6a)
+    if (bad.length) out.push({ step: c, bad, members: [c.id, ...next] });
+  }
+  return out;
+}
+
 export function knownAttributeKeys(type, card) {
   const model = (card?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
   return new Set([
@@ -155,13 +197,19 @@ export function transitionInnerTypes(catalog) {
 // unknownStepSeverity: a step type found in neither the native catalogue nor the account's asset list is an ERROR when
 // the list was read (a build or an edit is about to write it), unless the caller says otherwise. publish and repair say
 // 'warning': the document is already stored, and a type the catalogue lacks is no reason to refuse to publish it (bl-309).
-export function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null, unknownStepSeverity = null } = {}) {
+// storedTemplates: the steps as GHL stored them. A top-level key the STORED step already carries is GHL's (a key it added
+// after the calibration sweep) and is a warning; a key this write adds is still an error (W6a item 13).
+export function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null, unknownStepSeverity = null, storedTemplates = null } = {}) {
   const out = [];
+  const storedById = new Map((storedTemplates ?? []).filter((s) => s && typeof s === 'object').map((s) => [s.id, s]));
   for (const t of templates) {
     if (!t || typeof t !== 'object') continue;
     for (const k of Object.keys(t)) {
-      if (!STEP_TOP_LEVEL_KEYS.has(k)) out.push(finding('TOP_LEVEL_KEY', 'error', t,
-        `unknown top-level step key '${k}' — no stored step on either calibration account carries it`));
+      if (STEP_TOP_LEVEL_KEYS.has(k)) continue;
+      const fromStorage = Boolean(storedById.get(t.id) && k in storedById.get(t.id));
+      out.push(finding('TOP_LEVEL_KEY', fromStorage ? 'warning' : 'error', t, fromStorage
+        ? `unknown top-level step key '${k}' — the stored step already carries it (GHL's own key, kept as stored)`
+        : `unknown top-level step key '${k}' — no stored step on either calibration account carries it`));
     }
     const card = catalog.step(t.type);
     if (t.isMarketplaceAction === true) continue;
@@ -169,6 +217,9 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
     // INSTEAD of isMarketplaceAction — that is the builder's own shape, not a missing flag. It has no
     // native card to check its keys against; its inputs are checked against the asset schema.
     if (!card && typeof t.workflowsActionType === 'string' && marketplaceTypes?.has(t.type)) continue;
+    // An engine type outside the native catalogue (the A/B Test container, TYPES_OUTSIDE_CATALOG): it has no card, and the compiler
+    // already owns its shape. Not unknown.
+    if (!card && TYPES_OUTSIDE_CATALOG.has(t.type)) continue;
     if (!card) {
       if (marketplaceTypes?.has(t.type)) {
         out.push(finding('MARKETPLACE_FLAG', 'warning', t,
@@ -226,6 +277,11 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
       `'${t.type}' only works as a branching container, and this one is not wired as one: ${bad.join('; ')}. `
       + 'It saves, validates and publishes clean, and then cannot branch. GHL does not catch this.'));
   }
+  for (const { step, bad, members } of ifElseDefects(templates, byId)) {
+    out.push({ ...finding('IF_ELSE_STRUCTURE', 'error', step,
+      `this If/Else is not wired the way GHL runs it: ${bad.join('; ')}. It can save and validate clean and then be skipped `
+      + 'at run time as a "Malformed Node" (bl-450). Build branches with the compiler, or send every key it writes.'), members });
+  }
   for (const f of checkFieldCaps(templates)) {
     out.push({ check: 'FIELD_CAP', severity: 'error', stepId: f.stepId ?? null, stepName: f.step ?? f.stepName ?? null, type: f.type ?? null, message: describeCap(f) });
   }
@@ -236,7 +292,9 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
     out.push({ check: 'STEP_REF', severity: 'error', stepId: null, stepName: null, type: null, message: String(e.message).split('\n').slice(0, 4).join(' ') });
   }
   // Outside the write's scope, a finding is REPORTED, never blocking.
-  for (const f of out) if (scope && f.stepId && !scope.has(f.stepId) && f.severity === 'error') f.severity = 'warning';
+  // A finding about a GROUP of steps (an If/Else's container and branches) is in scope when any member is.
+  const inScope = (f) => scope.has(f.stepId) || (f.members ?? []).some((id) => scope.has(id));
+  for (const f of out) if (scope && f.stepId && !inScope(f) && f.severity === 'error') f.severity = 'warning';
   // A check the caller has ALREADY acknowledged with its own, more specific hatch (allowOverCap,
   // allowDanglingStepRefs, allowDanglingParentKeys) is reported, not re-refused. Without this the
   // gate overrode deliberate decisions its callers had made one argument earlier.

@@ -1,0 +1,9 @@
+{
+  "_note": "Archived 2026-11-07 by rel-7 (bl-794 row 2). Xander answered D2 (DECISIONS.md, 2026-11-07): drop the old facebook lead-gen pages row. The route GET /integrations/facebook/{locationId}/trigger/pages leaves the catalogue in the 2026-11-06 re-mine; no tool calls it. It is replaced by GET /workflow/{locationId}/facebook/linked-pages, which the re-mine adds (services tree). Nothing else is archived here.",
+  "archivedFrom": "endpoint-overlay.json",
+  "rows": {
+    "GET /integrations/facebook/{locationId}/trigger/pages": {
+      "reach": "proven"
+    }
+  }
+}

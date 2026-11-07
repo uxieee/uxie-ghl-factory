@@ -49,17 +49,26 @@
         "commit:da8d0f62"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:bff1dac9"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "POST https://backend.leadconnectorhq.com /vibe-ai/projects": "66bab48ba10561daceab5205a61a468c24b61abcaed46e725f9554cc17adf3c1"
     },
     "builds": {
-      "brandBoardsApp": 39,
-      "domainResellingApp": 229,
-      "vibeEditorApp": 350
+      "brandBoardsApp": 46,
+      "domainResellingApp": 236,
+      "vibeEditorApp": 397
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_site": "5c9eed50856396ca7667a884380a6e9132706f0fd568cce65fdc45913b3751f8",

@@ -111,3 +111,126 @@ test('MF2: unknown keys in offer/theme/credential/instructor sub-objects are rej
   assert.ok(errs.some((e) => /unknown key "brandColour"/.test(e) && /did you mean "brandColor"/.test(e)),
     'theme.brandColour typo must be caught and hinted');
 });
+
+// ── bl-796 (w8-3): build_course must not publish what the spec marks draft ──────────────────────────────────────────────
+// A fake gateway records every write. The fake answers just enough for buildCourse to run to the end.
+function fakeGateway() {
+  const writes = [];
+  let n = 0;
+  const id = (p) => `${p}${++n}`;
+  const ok = (json) => ({ ok: true, status: 200, json });
+  const gw = {
+    loc: 'LOC',
+    uid: 'UID',
+    writes,
+    async call(method, path, body) {
+      if (method !== 'GET') writes.push({ method, path, body });
+      if (method === 'POST' && /\/products$/.test(path)) return ok({ id: id('P') });
+      if (method === 'POST' && /\/categories$/.test(path)) return ok({ id: id('C') });
+      if (method === 'POST' && /\/posts$/.test(path)) return ok({ id: id('L') });
+      if (method === 'POST' && /\/assessments\/quiz$/.test(path)) return ok({ quiz: { id: id('QZ') } });
+      if (method === 'POST' && /\/assessments\/assignment$/.test(path)) return ok({ assignment: { id: id('AS') } });
+      if (method === 'GET' && /\/assessments\/quiz\/[^/]+$/.test(path)) return ok({ id: id('QZ') });
+      if (method === 'GET' && /\/assessments\/assignment\/[^/]+$/.test(path)) return ok({ id: id('AS') });
+      if (method === 'POST' && /\/assessments\/quiz\/questions$/.test(path)) return ok({});
+      if (method === 'GET' && /\/assessments\/quiz\/questions\//.test(path)) return ok({ questions: [{}, {}] });
+      if (method === 'GET' && /\/posts\//.test(path)) return ok({ description: 'x' });
+      return ok({});
+    },
+  };
+  return gw;
+}
+const visibilityOf = (gw, pathRe) => gw.writes.filter((w) => pathRe.test(w.path)).map((w) => w.body?.visibility);
+
+test('bl-796: a chapter whose lessons are draft, and the undeclared quiz and assignment in it, are written draft', async () => {
+  const { buildCourse } = await import('./course-builder.mjs');
+  const gw = fakeGateway();
+  await buildCourse({
+    gw,
+    spec: {
+      course: { title: 'TEST-CONF-W8 unit' },
+      offer: { type: 'free', publish: false },
+      chapters: [
+        { title: 'C1', lessons: [{ title: 'L1', visibility: 'draft' }, { type: 'assignment', title: 'A1' }, { type: 'quiz', title: 'Q1', questions: [{ title: 'q', options: [{ statement: 'a', isCorrect: true }, { statement: 'b' }] }] }] },
+        { title: 'C2', lessons: [{ title: 'L2', visibility: 'published' }, { type: 'quiz', title: 'Q2', questions: [{ title: 'q', options: [{ statement: 'a', isCorrect: true }, { statement: 'b' }] }] }] },
+      ],
+    },
+  });
+  const categories = visibilityOf(gw, /\/categories$/);
+  assert.deepEqual(categories, ['draft', 'published'], 'chapter 1 has only draft lessons: draft; chapter 2 has a published lesson: published');
+  const posts = visibilityOf(gw, /\/posts$/);
+  assert.deepEqual(posts, ['draft', 'draft', 'draft', 'published', 'draft'], 'in creation order: L1 draft; A1 and Q1 unmarked: draft; L2 published; Q2 unmarked: draft (w8-11: items are published only when the spec marks them)');
+  const assignments = visibilityOf(gw, /\/assessments\/assignment$/);
+  assert.equal(assignments.length, 1);
+});
+
+test('w8-11: default is DRAFT: a spec with no visibility anywhere writes every chapter and post as draft, and publishes nothing', async () => {
+  const { buildCourse } = await import('./course-builder.mjs');
+  const gw = fakeGateway();
+  await buildCourse({
+    gw,
+    spec: {
+      course: { title: 'TEST-CONF-W8 unit' },
+      offer: null,
+      chapters: [{ title: 'C1', lessons: [{ title: 'L1' }, { type: 'assignment', title: 'A1' }] }],
+    },
+  });
+  assert.deepEqual(visibilityOf(gw, /\/categories$/), ['draft']);
+  assert.deepEqual(visibilityOf(gw, /\/posts$/), ['draft', 'draft']);
+  assert.ok(!gw.writes.some((w) => w.method === 'PUT'), 'nothing is PUT (no publish) on a default run');
+});
+
+test('w8-11: an offer is published only when the spec says publish: true', async () => {
+  const { buildCourse } = await import('./course-builder.mjs');
+  const base = { course: { title: 'TEST-CONF-W8 offer' }, chapters: [{ title: 'C1', lessons: [{ title: 'L1' }] }] };
+  const gwDefault = fakeGateway();
+  await buildCourse({ gw: gwDefault, spec: { ...base, offer: { type: 'free' } } });
+  assert.ok(!gwDefault.writes.some((w) => w.method === 'PUT' && /\/offers\//.test(w.path)), 'no offer publish without publish: true');
+  const gwAsked = fakeGateway();
+  await buildCourse({ gw: gwAsked, spec: { ...base, offer: { type: 'free', publish: true } } });
+  const puts = gwAsked.writes.filter((w) => w.method === 'PUT' && /\/offers\//.test(w.path));
+  assert.equal(puts.length, 1, 'publish: true publishes the offer once');
+  assert.equal(puts[0].body.visibility, 'published');
+});
+
+test('w8-11: a chapter is published only when the spec publishes it or one of its lessons; an unmarked lesson beside a published one is draft', async () => {
+  const { buildCourse } = await import('./course-builder.mjs');
+  const gw = fakeGateway();
+  await buildCourse({
+    gw,
+    spec: {
+      course: { title: 'TEST-CONF-W8 mixed' },
+      offer: null,
+      chapters: [
+        { title: 'C1', lessons: [{ title: 'L1', visibility: 'published' }, { title: 'L2' }] },
+        { title: 'C2', lessons: [{ title: 'L3' }] },
+      ],
+    },
+  });
+  assert.deepEqual(visibilityOf(gw, /\/categories$/), ['published', 'draft']);
+  assert.deepEqual(visibilityOf(gw, /\/posts$/), ['published', 'draft', 'draft']);
+});
+
+// ── w8-7: the spec preview refuses a paid offer with no explicit currency; free needs neither ─────────────────────────
+test('w8-7: a one-time spec offer with no currency is a preview error; a free one is not', () => {
+  const base = { course: { title: 'Offer check' }, chapters: [{ title: 'C', lessons: [{ title: 'L' }] }] };
+  const paid = previewCourseSpec({ ...base, offer: { type: 'one_time', amount: 25 } });
+  assert.ok(paid.errors.some((e) => /currency/.test(e)), `expected a currency error, got ${JSON.stringify(paid.errors)}`);
+  const free = previewCourseSpec({ ...base, offer: { type: 'free' } });
+  assert.deepEqual(free.errors, []);
+  const sub = previewCourseSpec({ ...base, offer: { type: 'subscription', amount: 25, currency: 'EUR', interval: 'month' } });
+  assert.deepEqual(sub.errors, []);
+});
+
+// ── w8-7 follow-up: the preview shows the spec's own offer, not a hard-coded free one ─────────────────────────────────
+test('w8-7: the preview names a paid offer as the spec wrote it (type, wire enum, publish), and free when no offer is given', () => {
+  const base = { course: { title: 'Offer preview' }, chapters: [{ title: 'C', lessons: [{ title: 'L' }] }] };
+  const paid = previewCourseSpec({ ...base, offer: { type: 'one_time', amount: 25, currency: 'EUR', publish: false } });
+  assert.deepEqual(paid.wouldCreate.offer, { type: 'one_time', wire: 'onetime', publish: false });
+  const sub = previewCourseSpec({ ...base, offer: { type: 'subscription', amount: 10, currency: 'EUR', interval: 'month' } });
+  assert.equal(sub.wouldCreate.offer.wire, 'subscription');
+  const none = previewCourseSpec({ ...base });
+  assert.deepEqual(none.wouldCreate.offer, { type: 'free', wire: 'free', publish: false });
+  const nullOffer = previewCourseSpec({ ...base, offer: null });
+  assert.equal(nullOffer.wouldCreate.offer, null);
+});

@@ -9,7 +9,7 @@
 // bundle moves past it.
 import { normalizeStyleValue } from './style-values.mjs';
 
-export const STYLE_LAYER_SOURCE = Object.freeze({ chunk: 'pageBuilder index.e1b163ff.js', measured: '2026-09-29' });
+export const STYLE_LAYER_SOURCE = Object.freeze({ chunk: 'pageBuilder index.976028e2.js', measured: '2026-11-07' });
 
 export const PAGE_SCOPE = 'hl_page-preview--content';
 export const TABLET_QUERY = '@media screen and (min-width:768px) and (max-width:1024px)';
@@ -29,7 +29,7 @@ const ROUTING = {
   'qr-code': { drop: new Set(['width', 'height', 'boxShadow', ...BORDER]) },
   'store-pdp-v2-images': { drop: new Set(['boxShadow', 'marginLeft', 'marginRight', ...BORDER]) },
   'store-pdp-v2-quantity': { drop: new Set(['quantityLabelColor', 'color', 'quantityBackgroundColor', 'quantityBorderColor']) },
-  'store-pdp-v2-add-to-cart': { only: new Set(['boxShadow', ...PADDING]), route: new Set(['boxShadow', ...PADDING]), target: ' .pdp-v2-add-to-cart__btn' },
+  'store-pdp-v2-add-to-cart': { only: new Set(['boxShadow', ...PADDING, 'chooseOptionsModalBackgroundColor']), route: new Set(['boxShadow', ...PADDING]), target: ' .pdp-v2-add-to-cart__btn' },
   'store-pdp-v2-buy-now': { only: new Set(['boxShadow', ...PADDING]), route: new Set(['boxShadow', ...PADDING]), target: ' .pdp-v2-buy-now__btn' },
 };
 // Sections, rows and columns: a per-device override of horizontal padding / margin is written !important.

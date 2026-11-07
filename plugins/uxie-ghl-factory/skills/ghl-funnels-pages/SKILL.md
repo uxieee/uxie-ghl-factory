@@ -26,6 +26,37 @@ Nothing on this page is funnel-only.
    credential is dead — try the other rail before re-capturing.** Re-capturing on the first 401
    loops while a working credential sits in the token file.
 
+## Native first
+
+Build from native elements and the builder's own controls. Custom CSS and custom HTML only when the user asks for them. When no native control can do the job, say so and ask before writing custom code.
+
+- **Ask when it is silent.** If the request does not say native or custom code, ask "native or custom code?" before building. One question; do not survey.
+- **Native gaps.** The builder has no control for: countdown tile surface and short unit labels (bl-542; measured 2026-11-07: the default countdown has NO tile surface (transparent boxes, no border or radius) and full-word labels; a styled-tile recipe is still pending a ruling for a styled draft), and popup width, radius and padding (bl-544; the measured recipe is `NATIVE_GAPS` in `core/css-rules.mjs`). For any of them, say there is no native control and ask before adding CSS.
+- **Checked CSS.** Any custom sheet must pass `cssRuleProblems` with zero rows: fonts through `font-*` properties (a lone `font: inherit` is fine), no `@import` (bl-497, bl-529), each mobile `@media` mirrored in `@container` with `.hl-builder-main-wrapper{container-type:inline-size}` (bl-541), and a compiled property such as `border-radius` only on an id-level selector (`#…`), never on a class, with or without `!important` (bl-517). Every page write carries `cssWarnings` for a sheet that breaks one of these.
+- **Mobile spacing.** Use the native `mobileWrapper` (bl-540), not a 767 px media query.
+
+## Countdown timers: where each read and write goes
+
+A countdown on a page is either a page-builder element (countdown, minute-timer, day-timer) or a binding to a saved
+countdown timer (marketing-countdown names the saved timer by id). Read the saved timers through `find_ghl_site`
+(internal rail). A marketing-countdown must name a saved timer that exists. The public rail's templates list is measured
+(a read); its saved-timer read is a different route and is not yet recorded as one row. Routing per the ledger:
+
+<!-- rail-ledger:countdown-timers -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | undecided | internal | `find_ghl_site` | — |
+| use | undecided | internal | `build_funnel_page` | — |
+
+- **read:** find_ghl_site reads both (countdownTimers for the list, countdownTimerId for one). A fixed timer whose endDate has passed renders empty on a page, so the read reports expired.
+- **use:** The page builder countdown elements (countdown, minute-timer, day-timer) and marketing-countdown (binds a saved timer by id) are in the closed element set. A marketing-countdown must name a saved timer that exists.
+
+Internal only: nothing recorded.
+Public only: nothing recorded.
+<!-- /rail-ledger:countdown-timers -->
+
 ## The object model
 
 ```
@@ -237,7 +268,8 @@ YYYY-MM-DD, with the previous period and each row's per-interval series).
 | Content AI in the text editor (improve / fix / shorten / generate text, AI images) | page builder → select text → AI menu | GHL's paid Content AI add-on; the menu only appears when it is enabled on the sub-account |
 | schema markup (JSON-LD) | page builder → SEO panel → Schema markup → Add schema (form view, or AI) | its own object (`/schema-markup/schemas/save`, `ownerType:"funnel_page"`), rendered in `<head>` |
 | button themes gallery (Quick Add → Buttons, 18 presets) | page builder → Quick Add → Buttons | presets of ordinary styles; 🔴 a theme's own radius class loses to the compiled rule (the "radius15" theme renders 5px) — set `styles` directly |
-| brand-board colours (the board's own swatches) | page builder colour picker → Brand / Global colours | a board's colours are builder-owned; `build_funnel_page` declares the builder's standard palette on every page it writes (`general.colors` + the `:root` block GHL's own pages carry), so `var(--white)`, `var(--cobalt)`, `var(--red)`… resolve; a brand-board swatch is not in it — write a literal colour |
+| brand-board colours (the board's own swatches) | page builder colour picker → Brand / Global colours | a board's colours are builder-owned; `build_funnel_page` declares the builder's standard palette on every page it writes (`general.colors` + the `:root` block GHL's own pages carry), so `var(--white)`, `var(--cobalt)`, `var(--red)`… resolve; a brand-board swatch is not in it — write a literal colour. The QR builder copies board colours as literal hex and offers only the location's **default board** (proven 2026-10-30); expect the same elsewhere until shown otherwise. Writing a board by raw_request (corpus `brand-kit/70-research/2026-10-30-brand-boards-wave.md`): updates merge; an unknown `fontId` is silently re-mapped to the first font; re-sending `fonts[]` without their `_id`s wipes every per-style font choice; colour `_id`s are re-minted on every colours write. 🔴 The email builder's "Create brand board" creates the board on Import, before Save, and its Save makes it the location's default board |
+| blog comments (2026-10) | Sites → Blogs → (site) → Comments; the Blog Post page → Quick Add → Blog → Comments | per-blog-site settings at `GET/PUT /blogs/comments/settings` (services host, `{locationId, blogId, requireApproval, emailNotifications, notificationFrequency, notificationRecipients}`; unset → synthesised defaults, approval ON); admin reads `counts`, `admin`, `trend`. The page element is `c-blog-comments` (`extra.blogCommentsActions`, `blogCommentsStyle`), saved by the ordinary page save; comments stay disabled until the site is published [inferred]. Public comment posting needs reader e-mail sign-in — not mapped |
 | column layout knobs (content direction, spacing, alignment, "same layout on mobile") | page builder → column → General | the builder writes them per column; widths are set with `widthPct` |
 | saved assets: section / element templates, universal sections and elements, global sections | page builder → Save Section / Save Element; Quick Add → Saved Assets | builder-owned synced assets; inserting one is a drag in the builder |
 | share a funnel (a link anyone can import) | Sites → Funnels → row ⋮ → Share | 🔴 merely OPENING the Share modal creates a link shared with ALL; narrowing it to the agency or removing it needs the $497 plan. Read one with `get_funnel view share` |
@@ -354,6 +386,7 @@ Load only what the job needs.
 | every `build_funnel_page` key, op, animation, popup and font rule | [`references/build-funnel-page.md`](references/build-funnel-page.md) |
 | every `edit_funnel` op with its arguments and traps | [`references/edit-funnel.md`](references/edit-funnel.md) |
 | I need to know which READ verifies a WRITE | [`references/verify-reads.md`](references/verify-reads.md) |
+| a page must look the same in the builder, the preview and the live site (after a style change, before handing it over) | [`references/render-check.md`](references/render-check.md) — the three-way render check at 1440 and 390 px, with `compare_page_renders` |
 
 ## Never report a page as shipped off a `201`
 
@@ -367,6 +400,29 @@ serving the old state for 90 s to ~3 min. Read `cf-cache-status` on every sample
 CASING gets a fresh key onto the same row — but it is **not the same request**: a case-varied path
 skips split-test routing and custom security headers. Use it to read page CONTENT only; measure
 routing and headers on the exact path, after the cache window.
+
+## Which rail, per job
+
+`edit_redirects` calls the very paths the public redirect operations call; the list needs `limit` (at most 20) and `offset`.
+
+<!-- rail-ledger:funnel-redirects -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | undecided | internal | `edit_redirects` | `funnels-v3__fetch-redirects-list`, `funnels__fetch-redirects-list` |
+| create | undecided | internal | `edit_redirects` | `funnels-v3__create-redirect`, `funnels__create-redirect` |
+| edit | undecided | internal | `edit_redirects` | `funnels-v3__update-redirect-by-id`, `funnels__update-redirect-by-id` |
+| delete | undecided | internal | `edit_redirects` | `funnels-v3__delete-redirect-by-id`, `funnels__delete-redirect-by-id` |
+
+- **read:** edit_redirects calls exactly the four public redirect paths, with the internal token.
+- **create:** Same paths as public; the typed tool is internal.
+- **edit:** Same paths as public; the typed tool is internal.
+- **delete:** Same paths as public; the typed tool is internal.
+
+Internal only: nothing recorded.
+Public only: nothing recorded.
+<!-- /rail-ledger:funnel-redirects -->
 
 ## Scope
 

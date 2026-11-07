@@ -592,10 +592,20 @@
         "commit:2b4c0f19"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-10-29-0659"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "eb7d0149e959efe4c9cc0a7b8615c8688463787b3960a56be91eae1d7be9fa7a"
     },

@@ -17,6 +17,8 @@ wiring, casing, situational fields, dependency pre-creation, name→ID resolutio
 build, and round-trip verify. You do NOT hand-write UUIDs, `parentKey`, field
 soup, or raw API calls.
 
+> **Diagnostics and review (w6d-9):** before creating a workflow that listens for a trigger type, run the trigger-overlap check: `find_workflows_using` for those types, then pipe its data into `node scripts/trigger-overlap-cli.mjs` (the result says "may also fire: trigger filters not evaluated"). After a build or an edit, before publishing: `check_workflow`, then the client's `.ghl/<locationId>/lint-pack.json` if there is one. The read and gated tools (heat map, journeys, step counts, A/B stats, test results, error alerts, restore, publish) and when to use each are in `../ghl-workflow-specialist/references/diagnostics.md`.
+
 ## Before you author a step: read its card
 
 `search_step_types` then `describe_step_type` give you the **real field set** for any of the 524
@@ -42,13 +44,28 @@ get the classic failure: *a workflow that references tags/pipelines/calendars
 that were never created, so it silently does nothing at runtime.*
 
 ```
-node scripts/build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved]
+node scripts/build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved] [--dry-run]
 ```
 
 It: resolves every human name → the account's real ID → **aborts loudly if an
-account dependency is missing** → **auto-creates tags + inline email templates**
-→ compiles → creates a DRAFT → auto-saves steps → creates triggers → round-trip
+account dependency is missing** → compiles → runs every check (the validation gate,
+GHL's validate-assets, engine references, the custom-code sandbox) → only then
+**auto-creates tags + inline email templates** → creates a DRAFT → GHL's server
+validator on the empty draft → auto-saves steps → creates triggers → round-trip
 verifies → prints a report. Publish only with `--publish`, only after the user OKs.
+
+A refused check creates nothing. If GHL's server validator refuses, the empty draft is
+renamed `[REFUSED] <name>` and the report lists what was left behind (`leftovers`: the
+draft, the tags and the templates it created). **Check a spec before building:**
+`--dry-run` here, `build_workflow {dryRun:true}` or `validate_workflow {spec}` on the
+MCP. They run every check, create nothing, and answer `{valid, errors:[{code, path,
+stage, context}], warnings, wouldCreate}`. The server validator needs a workflow, so a
+dry run says it did not run.
+
+**Filing into a folder:** add `folderPath: ["Clients", "Acme"]` (exact folder names, outermost first) to the spec, plus
+`createFolderIfMissing: true` to create the levels that don't exist. Missing folders are created only after every check
+passes, and the workflow is created inside the folder (GHL honours `parentId` on create). A path where two folders share a
+name at one level is refused before anything is written.
 
 (This rule is for CREATING a new workflow. To EDIT an existing one — add/delete/modify
 steps — use `scripts/edit.mjs`, see "Editing an existing workflow" below.)
@@ -103,6 +120,34 @@ them to where it lives in the UI. Never report it as impossible, and never build
 | **Premium opt-in, rebilling and plans** for the workflow premium and AI features | Agency settings → Workflow premium features / external AI models; Automation Settings → View plans | Billing changes are excluded. Build and edit preflight read the opt-in gate, and `get_premium_usage` reads consumption. |
 | **Template listing settings** (a workflow's template categories and description) | The workflow's **Settings** tab, shown only on a template (snapshot-source) location | The plugin does not publish templates. Those fields do not exist on an ordinary location. |
 
+## Which rail, per job
+
+GHL's public workflow API is allow-listed: on the sandbox it answered 403 "not enabled for location" for a definition,
+and its workflow list leaves out typed workflows (agent, business, custom-object). Every job runs on the internal rail.
+
+<!-- rail-ledger:workflows -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | undecided-public-not-released | internal | `list_workflows`, `get_workflow`, `export_workflow` | `workflows-v3__get-workflow`, `workflows-v3__get-workflow-definition`, `workflows-v3__search-workflows` |
+| create | undecided-public-not-released | internal | `build_workflow`, `duplicate_workflow`, `copy_workflow_to_location` | `workflows-v3__create-workflow` |
+| edit | undecided-public-not-released | internal | `edit_workflow`, `repair_workflow` | `workflows-v3__update-workflow-definition`, `workflows-v3__validate-workflow-definition` |
+| publish | undecided-public-not-released | internal | `publish_workflow`, `unpublish_workflows` | `workflows-v3__update-workflow-status` |
+| delete | undecided-public-not-released | internal | `raw_request:DELETE /workflow/{locationId}/{workflowId}` | `workflows-v3__delete-workflow` |
+| logs | undecided-public-not-released | internal | `get_workflow_logs`, `get_workflow_stats`, `get_workflow_runtime_window` | `workflows-v3__get-workflow-logs`, `workflows-v3__get-workflow-log-statistics` |
+
+- **read:** GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 "not enabled for location" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it.
+- **create:** GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 "not enabled for location" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it.
+- **edit:** GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 "not enabled for location" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it.
+- **publish:** GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 "not enabled for location" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it.
+- **delete:** GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 "not enabled for location" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it.
+- **logs:** GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 "not enabled for location" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it.
+
+Internal only: steps, triggers, settings via the builder document; versions and restore; trash; bulk unpublish; enrol-stats and runtime windows.
+Public only: server-side publish gate; logs/aggregate that refuses to truncate.
+<!-- /rail-ledger:workflows -->
+
 ## Before any write
 
 1. Run BOTH gates in `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`
@@ -115,7 +160,12 @@ them to where it lives in the UI. Never report it as impossible, and never build
    off. Do not ask first. One re-capture per failure — never retry-loop.
 3. **Draft-first.** Everything builds as `draft`. Publish is a separate, opt-in
    `--publish` run gated on explicit user confirmation.
-4. **Never partial-PUT a workflow document.** `PUT /workflow/{loc}/{wid}` replaces the whole document: a body of just `{name, version}` reset `allowMultiple`, dropped `status` and emptied the steps on a draft. Use `edit_workflow`, `rename_workflow` and `publish_workflow`, which read, merge and send everything and read it back.
+4. **AI Agent steps: ask, don't default** (Xander, 2026-11-06). Before you build an `ai_agent` step, ask the operator two questions:
+   web search on or off (about 1¢ per search, 1.4¢ on Gemini; on = `attributes.nativeTools: [{id, toolName: "web_search", description, attributes: {}}]`,
+   off = `nativeTools: []`), and which model. The engine keeps the current model when none is named; `gpt-6-luna` is documented, not defaulted.
+   Write the answers into the spec. A spec without them still builds (no web-search key, the current model), and `build_workflow`'s dry run lists
+   the unanswered ones as `openQuestions`: ask before you confirm the build.
+5. **Never partial-PUT a workflow document.** `PUT /workflow/{loc}/{wid}` replaces the whole document: a body of just `{name, version}` reset `allowMultiple`, dropped `status` and emptied the steps on a draft. Use `edit_workflow`, `rename_workflow` and `publish_workflow`, which read, merge and send everything and read it back.
 
 ## Which reference for which job
 
@@ -223,8 +273,8 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   contact; two if/else workflows on the same contact, the lower-case condition took Yes and the mixed-case one took Else). The engine
   lower-cases what it writes; a workflow built earlier, by hand or by API can still carry one. `check_workflow` reports
   `TRIGGER_TAG_CASE` / `IFELSE_TAG_CASE`, `find_workflows_using {problems:"mixed-case-tag-rows"}` lists them account-wide, and
-  `edit_workflow {op:"replaceTag", oldTag, newTag, allowNoop:true}` fixes one. Add/remove-tag STEPS are NOT affected (GHL lower-cases their
-  value at write, measured); the tag rows of trigger types other than `contact_tag` were not fired.
+  `edit_workflow {op:"replaceTag", oldTag, newTag, allowNoop:true}` fixes one. Add-tag STEPS are NOT affected (GHL lower-cases the value they write,
+  measured: corpus `workflows/30-types/steps/if_else.md`); a mixed-case remove-tag value removed the lower-case stored tag (measured: corpus `workflows/30-types/steps/remove_contact_tag.md`, sniff `live-W32-steptag-result.json`); whether the step lower-cases its value or the match ignores case is NOT measured; the tag rows of trigger types other than `contact_tag` were not fired.
 - **A `trigger_link` click only fires for a browser-like client.** The tracked short URL answers a `302` to `/r/2/<token>` and the
   second request registers the click, but with `curl`'s own User-Agent neither request enrolled the contact (live 2026-09-30). Link
   scanners and scripted clickers will not trigger it; test with a browser or a browser User-Agent.

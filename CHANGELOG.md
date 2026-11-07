@@ -4609,7 +4609,7 @@ found by the work itself rather than reported. Receipt:
   Status enum, and `lostReasonId` refused unless the status is `lost`. A stage-less step is allowed
   and warned, because it can only ever update. The create-only helper stays reachable by its own
   name, `create_opportunity_strict`.
-  **Live-proven on the sandbox** (draft `8b9f2159-7cac-4f85-a0ed-e164cca5173b`, read back on a
+  **Live-proven on the sandbox** (draft `<sandbox draft>`, read back on a
   separate request): GHL stored every emitted key verbatim, `allow_backward: true` persisted, asset
   pre-flight returned 0 errors and 0 warnings, and the strict type kept its
   `__customInputFields__` shape beside it. **Still owed:** the runtime differential — one contact

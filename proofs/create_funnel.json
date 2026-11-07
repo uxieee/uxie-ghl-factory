@@ -66,10 +66,19 @@
         "commit:b77293bb"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:bff1dac9"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /funnels/domain": "c5b3c268c5e5f235ed1b1a8c81b05a9fcbcff4f25c53173a9643b08828993523",
       "GET https://backend.leadconnectorhq.com /funnels/funnel/blog/list": "014b769c55177a412ad9880d0cfa18b5e714f0fb90964af51d3224385e319a50",
@@ -87,10 +96,10 @@
       "POST https://services.leadconnectorhq.com /templates/template/load": "cb04113f1e8c1d7581bf043374f558c469c2b41cfb84f950e09ebd2b0f51d20f"
     },
     "builds": {
-      "domainConnectApp": 218,
-      "funnelWebsiteApp": 219,
-      "funnelWebsiteDomainApp": 201,
-      "redirectApp": 203
+      "domainConnectApp": 243,
+      "funnelWebsiteApp": 248,
+      "funnelWebsiteDomainApp": 222,
+      "redirectApp": 222
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_funnel": "0e6310f14cbfa4423ba795e124cefad45f1012ce1f8c74c974da59f39406c590",

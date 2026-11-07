@@ -5,8 +5,12 @@ description: GoHighLevel AI Studio — the AI website builder, internally called
 
 # AI Studio (`vibe`)
 
-The AI website builder. It generates a **Vite + React + shadcn/ui** codebase, runs it in a
-sandbox, and publishes to its own edge. Corpus: `knowledge/corpus/ai-studio/`.
+The AI website builder. Every new project is **TanStack Start** (`tech_stack: "tanstack_start_ts"`,
+server-rendered, file routes under `src/routes/`, server functions) — since the 2026-09 SSR release a
+React/Vite project can no longer be created, and a `tech_stack` key in the create body is ignored
+(proven live 2026-10-30). Older projects may still be `vite_react_shadcn_ts`; `create_studio_site` and
+`get_studio_site` report which. It runs the code in a sandbox and publishes to its own edge. Corpus:
+`knowledge/corpus/ai-studio/` (the 2026-10 wave: `70-research/2026-10-30-ai-studio-wave.md`).
 
 **It is called `vibe` internally.** Routes, API prefix and config keys all say `vibe`; only the
 sidebar says "AI Studio". Searching a bundle for the user-facing name finds nothing.
@@ -15,8 +19,9 @@ sidebar says "AI Studio". Searching a bundle for the user-facing name finds noth
 `STATUS-2026-09-04-ai-studio-live-fire.md` at the plugin repo root: every tool executed through its
 registered handler against a real account, the Firestore rail end-to-end, the account boundary
 failing closed, publish→unpublish confirmed 404 in a browser. Read the receipt's **Not proven**
-section before leaning on the two `answer_studio_question` variants that never arose, or on a
-`failed` build status — still never observed. A first run on a *new* account can still surprise
+section before leaning on the two `answer_studio_question` variants that never arose. A build the
+UI showed as failed was stored afterwards as `buildStatus: "superseded"` (2026-10-30) — the tools treat
+`superseded` as finished and say so; a literal `failed` has still not been caught live. A first run on a *new* account can still surprise
 you (plan gating, an expired sandbox); prefer a throwaway project over a client's.
 
 ## Start here, every time
@@ -56,9 +61,17 @@ PNG. Do not paste one anywhere you would not paste the draft itself.
 ## Building
 
 `generate_studio_site` preflights usage, sends the prompt, waits for the build and returns the
-version, the diffs and **what it cost**. It spends real money, metered in USD, and nothing on the
-account blocks it. Watch `sessionSpendUsd`. There is no cap to describe — the account measured
-had `unlimited: true` and `blockOnLimit: false`, and nothing here changes that.
+version, the diffs and **what it cost**. It spends real money, metered in USD. Watch
+`sessionSpendUsd`, and read `spendMeter` beside it: the meter depends on the billing mode. Under
+`billingModeIfCharged: "agency_free_ai"` (the sandbox since 2026-10) the `AI_STUDIO` usage snapshot does
+not move per turn, so the tool reads the project policy's `fup.usedAmount` instead
+(`spendMeter: "policy.fup"`); on `pay_per_use` it reads the snapshot (`spendMeter: "snapshots"`). A
+`spendUsd: null` with a `spendNote` means the cost is unknown (the usage window reset mid-turn, or the policy meter could
+not be read) — say so, never report $0; `sessionSpendIncomplete: true` then marks `sessionSpendUsd` as a floor. A turn
+that ends `passed` with a version is a settled build (the app shows it like `ready`).
+`agency_free_ai` carries a fair-use allowance (`fup.includedAmount`) and `extraUsage.blockingEnabled`,
+so a generation may be refused by policy once the allowance is spent (inferred from those two keys; not
+observed) — the tool stops before chatting whenever the policy says `allowed: false`.
 
 If the build pauses on a question, the result carries `question`. Answer it with
 `answer_studio_question` — pass the answer, not a variant; the tool reads the question and picks
@@ -74,8 +87,9 @@ Resume with `get_studio_generation_status`. Nothing was lost.
 evidence the file changed. Live-fired 2026-09-04: a turn returned `ready`, minted a version, and
 summarised *"Added the broken import at the top of `src/pages/Index.tsx` and referenced
 `ThisDoesNotExist` in the component body"* — and the file contained neither. The rendered page was
-the untouched scaffold. The tell was in the data the tool already returns: `diffs[].action` said
-`Created`, not `Edited`.
+the untouched scaffold. That turn's diff said `Created` where an edit was claimed, but **`action` is not
+a reliable tell**: on 2026-10-30 a genuine 145-line rewrite of an existing route file also logged
+`Created`. Only the file content settles it.
 
 So read the source back with `read_studio_site_content` and check the thing you asked for is in it.
 That prompt deliberately asked for broken code, so the builder may have declined and reported
@@ -93,7 +107,10 @@ Expect `Warning: Function components cannot be given refs…` once per section i
 that is the preview harness attaching refs for visual editing, not a defect.
 
 Two preview hosts, and they differ: the sandbox is `{projectId}.vibepreview.com`, the published
-site is `{slug}.vibepreview.com`. Sandboxes expire — `ready:false` with an empty url while
+site is `{slug}.vibepreview.com`. For TanStack projects the SEO panel names `{slug}.vibepreview.app`
+and the sandbox also answers on `preview-{projectId}.vibepreview.app` — the published `.app` host is
+**unproven** (nothing has been published since the SSR change), so check the URL publish returns.
+Sandboxes expire — `ready:false` with an empty url while
 `has_builds` stays true — and `get_studio_preview` re-provisions them.
 
 **Check the facts.** AI Studio **fabricates social proof by default**. Unprompted, one generation
@@ -119,7 +136,22 @@ and note it journals nothing, so the read-back is the only evidence it happened.
 | secrets merge and are write-only | reads return names only, never values |
 | sandboxes expire | `ready:false` with an empty url while `has_builds` stays true; `get_studio_preview` re-provisions |
 
+## The More panel — mapped, no tools yet
+
+Since 2026-10 a project's **More** panel holds features the tools do not drive. Each is mapped in
+`70-research/2026-10-30-ai-studio-wave.md`; reach them by raw_request only after reading that page, and
+treat each as a write with side effects:
+
+| Feature | What to know before touching it |
+|---|---|
+| **Cloud** | a per-project Supabase instance. The UI's "Enable Cloud" is a **billed chat turn** (`action: "enable_cloud"`), not the cloud route. Tables are created by chat; rows read back as positional arrays. Secrets live under Cloud → Secrets. |
+| **Payments** | enable is a project write; a product shows in the catalogue only when `availableInStore` is true. Checkout options (two-step, required phone, hidden address) live in the generated **code** as component props, not in a record. Enabling writes five managed files. |
+| **Chat Widgets** | "Add a chat widget" pauses on an `integration_input` question; answering Connect **creates a real chat widget** on the location. |
+| **Git / GitHub** | the connect start returns a GitHub OAuth URL; nothing is stored until OAuth completes. Push/pull are source-only. |
+| **Analytics / SEO** | reads only; empty until the project is published. |
+
 ## Out of scope here
 
-Custom domains, deletes, and version restore are deliberately not exposed. Brand boards and
-brand voices are **not** AI Studio — different surface, different rail.
+Custom domains, deletes, and version restore are deliberately not exposed. Migrate-to-SSR needs an
+`Idempotency-Key` header raw_request cannot set. Brand boards and brand voices are **not** AI Studio —
+different surface, different rail.

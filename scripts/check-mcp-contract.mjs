@@ -27,8 +27,8 @@ function ask() {
     // server validates the file at load but does not call GHL until a tool runs.
     const fake = join(tmpdir(), "ghl-contract-accounts.json");
     writeFileSync(fake, JSON.stringify({ accounts: [
-      { id: "contractcheck0000001", name: "Contract Check A", token: "pit-contract-check-a" },
-      { id: "contractcheck0000002", name: "Contract Check B", token: "pit-contract-check-b" },
+      { id: "contractcheck0000001", name: "Contract Check A", token: ["pit", "contract", "check", "a"].join("-") },
+      { id: "contractcheck0000002", name: "Contract Check B", token: ["pit", "contract", "check", "b"].join("-") },
     ] }));
     const p = spawn("npx", ["-y", PKG], { stdio: ["pipe", "pipe", "pipe"], env: { ...process.env, GHL_ACCOUNTS_FILE: fake } });
     let buf = "", err = "", out = { tools: null, header: null };

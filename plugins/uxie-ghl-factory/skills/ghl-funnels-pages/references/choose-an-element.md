@@ -3,7 +3,7 @@ surface: funnels
 layer: 30-types
 title: Choose an element — what a brief asks for, and which kind answers it
 status: proven-live
-last_verified: 2026-09-09
+last_verified: 2026-11-06
 generated: scripts/build-element-chooser.mjs — the INTENT column is hand-written, every other column is from _data/elements.json
 related: [funnels/30-types/native-elements.md, funnels/30-types/synthesis-contract.md]
 ---
@@ -44,11 +44,15 @@ anywhere and you must synthesise it from the registry.
 | a button | `button` | 🔴`productId` 🔴`storeProductId` `storeProductPriceId` 🔴`storeCollectionId` ⚠️`popupId` | — | ✅ 222 |
 | capture a lead (name/email/phone) | `form` | 🔴`formId` | — | ✅ 16 |
 | ask a series of questions | `survey` | 🔴`surveyId` | — | — |
+| score their answers (a quiz or assessment) *(new)* | `quiz` | — | — | — |
 | let them book a call | `calendar` | 🔴`calendarId` | — | ✅ 4 |
 | take payment on this page | `one-step-order` | — | — | — |
 | take payment across two steps | `two-setp-order` | — | — | ✅ 18 |
 | confirm what they just bought | `order-confirmation` | — | — | — |
 | offer an add-on after the purchase | `upsell` | — | — | ✅ 1 |
+| a checkout or order form with its own fields | `order-form` | — | — | — |
+| book a service from a list of services | `services` | — | — | — |
+| rent something from a list with availability | `rentals` | — | — | — |
 
 ## Show proof
 
@@ -67,6 +71,7 @@ anywhere and you must synthesise it from the registry.
 | a gallery of images or video | `photo-video-gallery` | — | — | — |
 | a carousel | `image-slider` | — | — | — |
 | a video | `video` | — | — | ✅ 4 |
+| the latest Instagram posts *(new)* | `instagram-feed` | — | — | — |
 | an image beside its own copy | `image-feature` | ⚠️`popupId` | — | ✅ 6 |
 | an icon or vector | `svg` | ⚠️`popupId` | — | — |
 | where the business is | `map` | — | — | — |
@@ -110,6 +115,7 @@ anywhere and you must synthesise it from the registry.
 | let readers share a post | `social-share-blog` | — | — | — |
 | feature one post | `blog-pined-post` | — | — | — |
 | collect subscribers | `blog-subscribe-form` | — | — | — |
+| let readers comment on a post (registry-insertable; not in the sidebar census, open) *(new)* | `blog-comments` | — | — | — |
 
 ## Store
 

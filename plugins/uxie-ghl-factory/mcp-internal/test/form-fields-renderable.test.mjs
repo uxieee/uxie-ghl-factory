@@ -159,3 +159,38 @@ test('the read-back compares VALUES under GHL\'s stored names, not key presence'
   assert.equal(carries({ fields: [{ tag: 'a', label: 'New' }] }, { fields: [{ tag: 'a', label: 'Old' }] }), false, 'a label-only edit is compared');
   assert.equal(carries({ fields: [{ tag: 'a' }] }, { fields: [{ tag: 'a' }, { tag: 'b' }] }), false, 'an extra stored element fails');
 });
+
+// W5b Task 5: a builder-made CRM form (forms-wave-2026-10-29 capture 02) carries an opportunity field as
+// type "standard_field" with its object model; passed back through update_form_data it was refused as an unknown renderer.
+const OPP_ELEMENT = { dataType: 'STANDARD_FIELD', documentType: 'field', fieldKey: 'opportunity.name', model: 'opportunity',
+  standard: true, id: 'OPPFIELD1', tag: 'OPPFIELD1', type: 'standard_field', label: 'Opportunity Name', required: true,
+  hiddenFieldQueryKey: 'opportunity_name', fieldWidthPercentage: 100 };
+
+test('a CRM object element (standard_field + model) is passed through unchanged, never refused or completed', () => {
+  const { fields, problems, filled } = renderableFields([OPP_ELEMENT, { tag: 'button' }]);
+  assert.deepEqual(problems, []);
+  assert.deepEqual(fields[0], OPP_ELEMENT);
+  assert.equal(filled.some((f) => f.index === 0), false);
+});
+
+test('a company element (type text + model business) passes as before', () => {
+  const company = { tag: 'CO1', type: 'text', model: 'business', fieldKey: 'business.name', label: 'Company Name' };
+  assert.deepEqual(renderableFields([company]).problems, []);
+});
+
+test('standard_field without an object model is still refused', () => {
+  const { problems } = renderableFields([{ tag: 'X1', type: 'standard_field', label: 'Mystery' }]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /standard_field/);
+  assert.match(problems[0], /model/);
+});
+
+// W5b live round-trip (2026-10-30): the write added `active:false` to a header element and the confirm result did not say so —
+// only the preview carried builderShape. A write must report every key it added.
+test('update_form_data reports builderShape on the WRITE result, not only the preview', async () => {
+  const header = { tag: 'header', type: 'h1', label: 'Hi' };
+  const { gw } = gateway({ _id: 'F1', name: 'W', formData: { form: { fields: [OPP_ELEMENT, header], formAction: { actionType: '2' } } } });
+  const r = await tool('update_form_data').handler({ locationId: 'LOC', formId: 'F1', fields: [OPP_ELEMENT, header], confirm: true }, deps(gw));
+  assert.equal(r.ok, true, JSON.stringify(r).slice(0, 400));
+  assert.ok(Array.isArray(r.data.builderShape) && r.data.builderShape.some((b) => b.tag === 'header'), JSON.stringify(r.data).slice(0, 400));
+});

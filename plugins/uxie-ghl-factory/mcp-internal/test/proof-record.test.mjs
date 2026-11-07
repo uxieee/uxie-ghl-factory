@@ -4,7 +4,7 @@ import { validateRecord, labelFor, LABEL_FROZEN_TOOLS } from '../../../../script
 
 const good = () => ({
   tool: 'build_workflow', surfaces: ['workflows'],
-  runs: [{ at: '2026-09-10', result: 'pass', how: 'suite', suite: 'workflows', evidence: ['receipt:2026-09-10-1412'], location: '…zn6B' }],
+  runs: [{ at: '2026-09-10', result: 'pass', how: 'suite', suite: 'workflows', evidence: ['receipt:2026-09-10-1412'], location: '…7890' }],
   depends: {
     hashedAt: '2026-09-10',
     endpoints: { 'POST https://backend.leadconnectorhq.com /workflow/{}': 'a'.repeat(64) },
@@ -28,7 +28,7 @@ test('evidence must be one of the allowlisted forms — never a sniff path', () 
 });
 
 test('a full location id is refused; last four only', () => {
-  const r = good(); r.runs[0].location = 'rW9hsvyrwCgaaySWzn6B';
+  const r = good(); r.runs[0].location = 'Lq7TestLoc0000000001';
   assert.ok(validateRecord(r).some((e) => /location/.test(e)));
 });
 
@@ -58,7 +58,7 @@ test('a label-frozen tool may still carry a proof record', () => {
 test('corpus: evidence refuses mixed-case tokens; accepts real corpus paths', () => {
   const r = good();
   // Attempt to sneak a 20-char location ID into corpus path
-  r.runs[0].evidence = ['corpus:foo/rW9hsvyrwCgaaySWzn6B'];
+  r.runs[0].evidence = ['corpus:foo/Lq7TestLoc0000000001'];
   assert.ok(validateRecord(r).some((e) => /evidence/.test(e)), 'must refuse mixed-case in corpus path');
 
   // Real corpus paths should still work
@@ -75,7 +75,7 @@ test('endpoint paths accept templated location IDs as machine-derived values', (
   assert.ok(validateRecord(r).some((e) => /endpoints/.test(e)) === false, 'baseline templated path passes');
 
   // Full location IDs in endpoint paths pass validation (machine-derived by builder)
-  r.depends.endpoints['GET https://backend.leadconnectorhq.com /contact/rW9hsvyrwCgaaySWzn6B'] = 'c'.repeat(64);
+  r.depends.endpoints['GET https://backend.leadconnectorhq.com /contact/Lq7TestLoc0000000001'] = 'c'.repeat(64);
   assert.ok(validateRecord(r).some((e) => /endpoints/.test(e)) === false, 'machine-derived endpoint with ID passes');
 });
 
@@ -85,7 +85,7 @@ test('code keys accept file paths as machine-derived values', () => {
   assert.ok(validateRecord(r).some((e) => /code/.test(e)) === false, 'baseline code key passes');
 
   // Full location IDs in code paths pass validation (read from our tree, not user-typed)
-  r.depends.code['rW9hsvyrwCgaaySWzn6B/tools.mjs'] = 'd'.repeat(64);
+  r.depends.code['Lq7TestLoc0000000001/tools.mjs'] = 'd'.repeat(64);
   assert.ok(validateRecord(r).some((e) => /code/.test(e)) === false, 'machine-derived code key passes');
 });
 
@@ -95,7 +95,7 @@ test('build values accept chunk filenames as machine-derived values', () => {
   assert.ok(validateRecord(r).some((e) => /builds/.test(e)) === false, 'baseline build value passes');
 
   // Full location IDs in build filenames pass validation (read from GHL manifest, not user-typed)
-  r.depends.builds['app'] = 'rW9hsvyrwCgaaySWzn6B.js';
+  r.depends.builds['app'] = 'Lq7TestLoc0000000001.js';
   assert.ok(validateRecord(r).some((e) => /builds/.test(e)) === false, 'machine-derived build filename passes');
 });
 

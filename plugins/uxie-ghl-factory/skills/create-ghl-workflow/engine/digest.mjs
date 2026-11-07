@@ -40,7 +40,8 @@ function textOf(t) {
 function flagsOf(t) {
   const f = [];
   if (t.next === null || t.next === undefined) f.push('terminal');
-  if (t.disabled === true) f.push('disabled');
+  // GHL stores a disabled step as advanceCanvasMeta.isDisabled; `disabled` is only the IR's spelling.
+  if (t.advanceCanvasMeta?.isDisabled === true || t.disabled === true) f.push('disabled');
   if (t.isMarketplaceAction === true) f.push('marketplace');
   if (Array.isArray(t.next)) f.push('container');
   return f;
@@ -57,6 +58,15 @@ export function fingerprintWorkflow(templates, triggers) {
   return createHash('sha256').update(JSON.stringify({ steps, trg })).digest('hex').slice(0, 16);
 }
 
+// The WHOLE step list, every key, in a stable key order. For a write that sends the whole document (repair_workflow):
+// a rename or a builder disable since the preview is a change that PUT would revert, so it must move the token too.
+const stableJson = (v) => (Array.isArray(v) ? `[${v.map(stableJson).join(',')}]`
+  : v && typeof v === 'object' ? `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${stableJson(v[k])}`).join(',')}}`
+    : JSON.stringify(v) ?? 'null');
+export function fingerprintDocument(templates) {
+  return createHash('sha256').update(stableJson(stripNullNext(templates ?? []))).digest('hex').slice(0, 16);
+}
+
 export function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [], now = Date.now() } = {}) {
   const templates = (doc?.workflowData?.templates ?? doc?.templates ?? []).filter(Boolean);
   const byId = new Map(templates.map((t) => [t.id, t]));
@@ -70,8 +80,19 @@ export function digestWorkflow({ doc, triggers = [], stickyNotes = [], include =
       branchNameById.set(target.id, `${t.name ?? t.id}/${target.name ?? target.id}`);
     }
   }
-  // walk each step up to its owning branch entry
+  // The branch a step is on is the chain it is REACHED on — `next` from a branch entry — because that is what the
+  // runtime follows. A `parent` left stale by a re-parenting write named the old branch (bl-425); the walk up
+  // parent/parentKey is only the fallback for a step no chain reaches.
+  const chainBranch = new Map();
+  for (const [entryId, label] of branchNameById) {
+    let cursor = byId.get(entryId), hops = 0;
+    while (cursor && hops++ < 500) {
+      if (!chainBranch.has(cursor.id)) chainBranch.set(cursor.id, label);
+      cursor = typeof cursor.next === 'string' ? byId.get(cursor.next) : null;
+    }
+  }
   const branchOf = (t) => {
+    if (chainBranch.has(t.id)) return chainBranch.get(t.id);
     let cursor = t, hops = 0;
     while (cursor && hops++ < 200) {
       if (branchNameById.has(cursor.id)) return branchNameById.get(cursor.id);

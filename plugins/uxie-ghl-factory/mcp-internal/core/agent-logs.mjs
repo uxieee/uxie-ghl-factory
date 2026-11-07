@@ -189,6 +189,15 @@ export const digestSpans = (spans, { includePrompt = false, branchNames = null }
   return { inbound, totals, steps, spoken, delivered, notes };
 };
 
+// An outbound turn (the agent spoke first) has no inbound message: Agent Logs records it with the userQuery
+// "[outbound] <source>" — live 2026-10-29: "trigger" (an outbound trigger fired) and "bulk_action" (a contacts-list bulk
+// action / AI campaign), knowledge/sniffs/convai-wave-2026-10-29/live-outbound-envelopes.json. Any other source string is
+// returned as written; an ordinary inbound turn → null.
+export const outboundSource = (userQuery) => {
+  const m = /^\[outbound\]\s+(\S.*?)\s*$/.exec(typeof userQuery === 'string' ? userQuery : '');
+  return m ? m[1] : null;
+};
+
 export const SESSION_FILTER_KEYS = [
   'products', 'agentId', 'agentName', 'contactId', 'contactName', 'conversationId',
   'channel', 'voiceName', 'traceId', 'search', 'contentSearch', 'metadataText', 'skillId',

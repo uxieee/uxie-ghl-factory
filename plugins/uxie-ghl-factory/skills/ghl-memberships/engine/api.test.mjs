@@ -102,3 +102,38 @@ test('local media fails closed before filesystem access on a gateway without raw
     (error) => error.code === 'LOCAL_MEDIA_UNAVAILABLE',
   );
 });
+
+// ── w8-7: createOffer refuses a paid offer with no explicit amount and currency (QA review focus 5) ──────────────────────
+test('w8-7: a paid offer with no explicit currency is refused, not created as EUR', async () => {
+  const gw = stubGateway([{ status: 201, ok: true, json: { id: 'OFFER1' } }]);
+  const api = new GhlMembershipsApi({ gw });
+  assert.throws(() => api.createOffer({ title: 'Paid', productIds: ['P1'], type: 'onetime', amount: 10 }), /currency/);
+  assert.equal(gw.calls.length, 0, 'no account call when refused');
+});
+
+test('w8-7: a paid offer with amount 0 or no amount is refused', async () => {
+  const gw = stubGateway([{ status: 201, ok: true, json: { id: 'OFFER1' } }]);
+  const api = new GhlMembershipsApi({ gw });
+  assert.throws(() => api.createOffer({ title: 'Paid', productIds: ['P1'], type: 'onetime', amount: 0, currency: 'EUR' }), /amount/);
+  assert.throws(() => api.createOffer({ title: 'Paid', productIds: ['P1'], type: 'onetime', currency: 'EUR' }), /amount/);
+  assert.equal(gw.calls.length, 0);
+});
+
+test('w8-7: free stays the default, and carries an explicit zero amount and EUR', async () => {
+  const gw = stubGateway([{ status: 201, ok: true, json: { id: 'OFFER1' } }]);
+  const api = new GhlMembershipsApi({ gw });
+  await api.createOffer({ title: 'Free', productIds: ['P1'] });
+  assert.equal(gw.calls[0].body.type, 'free');
+  assert.equal(gw.calls[0].body.amount, 0);
+  assert.equal(gw.calls[0].body.currency, 'EUR');
+});
+
+test('w8-7: a subscription carries its interval and an explicit amount and currency', async () => {
+  const gw = stubGateway([{ status: 201, ok: true, json: { id: 'OFFER1' } }]);
+  const api = new GhlMembershipsApi({ gw });
+  await api.createOffer({ title: 'Sub', productIds: ['P1'], type: 'subscription', amount: 10, currency: 'GBP', interval: 'month', intervalCount: 1 });
+  assert.equal(gw.calls[0].body.type, 'subscription');
+  assert.equal(gw.calls[0].body.interval, 'month');
+  assert.equal(gw.calls[0].body.currency, 'GBP');
+  assert.equal(gw.calls[0].body.amount, 10);
+});

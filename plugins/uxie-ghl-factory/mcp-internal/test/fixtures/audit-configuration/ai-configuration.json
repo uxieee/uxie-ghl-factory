@@ -65,6 +65,10 @@
           "conversation_ai_agent_detail",
           "conversation_ai_deployment_routing",
           "conversation_ai_deployment_routing",
+          "conversation_ai_outbound_configs",
+          "conversation_ai_outbound_triggers",
+          "conversation_ai_outbound_configs",
+          "conversation_ai_outbound_triggers",
           "voice_ai_agent_discovery",
           "voice_ai_agent_detail",
           "agent_studio_agent_discovery",
@@ -82,7 +86,10 @@
             "detailDenominator": 2,
             "detailsRead": 2,
             "pagesFetched": 1,
-            "errorCodes": []
+            "errorCodes": [],
+            "outboundEnabled": [],
+            "outboundArmed": [],
+            "outboundUnread": []
           },
           "voice_ai": {
             "applicable": true,
@@ -91,7 +98,10 @@
             "detailDenominator": 1,
             "detailsRead": 1,
             "pagesFetched": 1,
-            "errorCodes": []
+            "errorCodes": [],
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
           },
           "agent_studio": {
             "applicable": true,
@@ -100,7 +110,10 @@
             "detailDenominator": 2,
             "detailsRead": 2,
             "pagesFetched": 1,
-            "errorCodes": []
+            "errorCodes": [],
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
           }
         },
         "complete": true,
@@ -2829,6 +2842,934 @@
           "AI_DISCOVERY_ENVELOPE_CONFLICT"
         ]
       }
+    },
+    "outbound-captured-envelopes": {
+      "planBullet": "W5a Task 4 / Decision 6: per-item outbound read from the captured GET envelopes",
+      "why": "The live envelopes are WRAPPED ({configs:[...]} / {triggers:[...]}, unlike routing's bare array) and both captured rows are disabled. If the reader stopped accepting the wrapper, or graded a disabled config as enabled, an auto-pilot agent would publish the wrong arming verdict on the exact shape GHL sends.",
+      "components": {
+        "conversation_ai": {
+          "discovery": [
+            {
+              "envelopeKeys": {
+                "rowsKey": "employees",
+                "totalKey": "totalCount"
+              },
+              "rows": [
+                {
+                  "id": "agent_1",
+                  "name": "agent_1"
+                }
+              ],
+              "total": 1
+            }
+          ],
+          "details": {
+            "agent_1": {
+              "body": {
+                "id": "agent_1",
+                "locationId": "LOC1",
+                "name": "agent_1",
+                "mode": "auto-pilot"
+              }
+            }
+          },
+          "outbound": {
+            "agent_1": {
+              "configs": {
+                "body": {
+                  "configs": [
+                    {
+                      "id": "config_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "channel": "SMS",
+                      "sendingNumber": "sending_number_1",
+                      "enabled": false,
+                      "complianceSettingsAccepted": true,
+                      "complianceConfigurationsAccepted": true,
+                      "acceptedBy": "user_1",
+                      "acceptedAt": "2026-10-29T16:43:46.477Z"
+                    }
+                  ],
+                  "traceId": "trace_1"
+                }
+              },
+              "triggers": {
+                "body": {
+                  "triggers": [
+                    {
+                      "id": "trigger_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "type": "contact_tag",
+                      "config": {
+                        "tagFilter": {
+                          "action": "added",
+                          "tagNames": [
+                            "tag_1"
+                          ]
+                        }
+                      },
+                      "deleted": false,
+                      "createdBy": "user_1",
+                      "createdAt": "2026-10-29T16:16:54.548Z",
+                      "enabled": false,
+                      "updatedAt": "2026-10-29T16:45:24.741Z"
+                    }
+                  ],
+                  "traceId": "trace_2"
+                }
+              }
+            }
+          }
+        },
+        "voice_ai": {
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        },
+        "agent_studio": {
+          "declaredTotal": 0,
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": {
+          "conversation_ai_outbound_configs": 1,
+          "conversation_ai_outbound_triggers": 1
+        },
+        "components": {
+          "conversation_ai": {
+            "complete": true,
+            "outboundEnabled": [],
+            "outboundArmed": [],
+            "outboundUnread": [],
+            "itemOutbound": {
+              "agent_1": {
+                "outboundRead": true,
+                "outboundArmed": false
+              }
+            },
+            "errorCodes": []
+          },
+          "voice_ai": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          },
+          "agent_studio": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          }
+        },
+        "complete": true,
+        "warningCodes": []
+      }
+    },
+    "outbound-armed-auto-pilot": {
+      "planBullet": "W5a Task 4 / Decision 6: outboundArmed true = enabled config AND enabled trigger AND mode auto-pilot|suggestive",
+      "why": "The positive case. Without it a composite that never set outboundArmed true would pass every negative scenario, and Review Focus 1's agent that will start texting people would be published as not armed.",
+      "components": {
+        "conversation_ai": {
+          "discovery": [
+            {
+              "rows": [
+                {
+                  "_id": "agent_1"
+                }
+              ]
+            }
+          ],
+          "details": {
+            "agent_1": {
+              "body": {
+                "id": "agent_1",
+                "locationId": "LOC1",
+                "name": "agent_1",
+                "mode": "auto-pilot"
+              }
+            }
+          },
+          "outbound": {
+            "agent_1": {
+              "configs": {
+                "body": {
+                  "configs": [
+                    {
+                      "id": "config_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "channel": "SMS",
+                      "sendingNumber": "sending_number_1",
+                      "enabled": true,
+                      "complianceSettingsAccepted": true,
+                      "complianceConfigurationsAccepted": true,
+                      "acceptedBy": "user_1",
+                      "acceptedAt": "2026-10-29T16:43:46.477Z"
+                    }
+                  ],
+                  "traceId": "trace_c1"
+                }
+              },
+              "triggers": {
+                "body": {
+                  "triggers": [
+                    {
+                      "id": "trigger_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "type": "contact_tag",
+                      "config": {
+                        "tagFilter": {
+                          "action": "added",
+                          "tagNames": [
+                            "tag_1"
+                          ]
+                        }
+                      },
+                      "deleted": false,
+                      "createdBy": "user_1",
+                      "createdAt": "2026-10-29T16:16:54.548Z",
+                      "enabled": true,
+                      "updatedAt": "2026-10-29T16:45:24.741Z"
+                    }
+                  ],
+                  "traceId": "trace_t1"
+                }
+              }
+            }
+          }
+        },
+        "voice_ai": {
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        },
+        "agent_studio": {
+          "declaredTotal": 0,
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        }
+      },
+      "expect": {
+        "components": {
+          "conversation_ai": {
+            "complete": true,
+            "outboundEnabled": [
+              "agent_1"
+            ],
+            "outboundArmed": [
+              "agent_1"
+            ],
+            "outboundUnread": [],
+            "itemOutbound": {
+              "agent_1": {
+                "outboundRead": true,
+                "outboundArmed": true
+              }
+            },
+            "errorCodes": []
+          },
+          "voice_ai": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          },
+          "agent_studio": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          }
+        },
+        "complete": true,
+        "warningCodes": []
+      }
+    },
+    "outbound-armed-suggestive": {
+      "planBullet": "W5a Decision 5/6: suggestive mode counts as armed (REV-I3)",
+      "why": "Suggestive mode still sends the outbound opener on a trigger; grading only auto-pilot as armed would publish a suggestive agent with an enabled config and trigger as safe, which REV-I3 names as the gap.",
+      "components": {
+        "conversation_ai": {
+          "discovery": [
+            {
+              "rows": [
+                {
+                  "_id": "agent_1"
+                }
+              ]
+            }
+          ],
+          "details": {
+            "agent_1": {
+              "body": {
+                "id": "agent_1",
+                "locationId": "LOC1",
+                "name": "agent_1",
+                "mode": "suggestive"
+              }
+            }
+          },
+          "outbound": {
+            "agent_1": {
+              "configs": {
+                "body": {
+                  "configs": [
+                    {
+                      "id": "config_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "channel": "SMS",
+                      "sendingNumber": "sending_number_1",
+                      "enabled": true,
+                      "complianceSettingsAccepted": true,
+                      "complianceConfigurationsAccepted": true,
+                      "acceptedBy": "user_1",
+                      "acceptedAt": "2026-10-29T16:43:46.477Z"
+                    }
+                  ],
+                  "traceId": "trace_c1"
+                }
+              },
+              "triggers": {
+                "body": {
+                  "triggers": [
+                    {
+                      "id": "trigger_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "type": "contact_tag",
+                      "config": {
+                        "tagFilter": {
+                          "action": "added",
+                          "tagNames": [
+                            "tag_1"
+                          ]
+                        }
+                      },
+                      "deleted": false,
+                      "createdBy": "user_1",
+                      "createdAt": "2026-10-29T16:16:54.548Z",
+                      "enabled": true,
+                      "updatedAt": "2026-10-29T16:45:24.741Z"
+                    }
+                  ],
+                  "traceId": "trace_t1"
+                }
+              }
+            }
+          }
+        },
+        "voice_ai": {
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        },
+        "agent_studio": {
+          "declaredTotal": 0,
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        }
+      },
+      "expect": {
+        "components": {
+          "conversation_ai": {
+            "complete": true,
+            "outboundEnabled": [
+              "agent_1"
+            ],
+            "outboundArmed": [
+              "agent_1"
+            ],
+            "outboundUnread": [],
+            "itemOutbound": {
+              "agent_1": {
+                "outboundRead": true,
+                "outboundArmed": true
+              }
+            }
+          },
+          "voice_ai": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          },
+          "agent_studio": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          }
+        },
+        "complete": true,
+        "warningCodes": []
+      }
+    },
+    "outbound-three-negatives": {
+      "planBullet": "W5a Task 4 Step 1: three negatives (config disabled / trigger disabled / mode off) and the outboundEnabled floor",
+      "why": "Each leg of the conjunction is dropped once while the other two hold. A composite that ignored any single leg would arm exactly one of these three agents; outboundEnabled pins that the enabled-config floor is independent of arming (agent_2 and agent_3 have an enabled config and are not armed).",
+      "components": {
+        "conversation_ai": {
+          "discovery": [
+            {
+              "rows": [
+                {
+                  "_id": "agent_1"
+                },
+                {
+                  "_id": "agent_2"
+                },
+                {
+                  "_id": "agent_3"
+                }
+              ]
+            }
+          ],
+          "details": {
+            "agent_1": {
+              "body": {
+                "id": "agent_1",
+                "locationId": "LOC1",
+                "name": "agent_1",
+                "mode": "auto-pilot"
+              }
+            },
+            "agent_2": {
+              "body": {
+                "id": "agent_2",
+                "locationId": "LOC1",
+                "name": "agent_2",
+                "mode": "auto-pilot"
+              }
+            },
+            "agent_3": {
+              "body": {
+                "id": "agent_3",
+                "locationId": "LOC1",
+                "name": "agent_3",
+                "mode": "off"
+              }
+            }
+          },
+          "outbound": {
+            "agent_1": {
+              "configs": {
+                "body": {
+                  "configs": [
+                    {
+                      "id": "config_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "channel": "SMS",
+                      "sendingNumber": "sending_number_1",
+                      "enabled": false,
+                      "complianceSettingsAccepted": true,
+                      "complianceConfigurationsAccepted": true,
+                      "acceptedBy": "user_1",
+                      "acceptedAt": "2026-10-29T16:43:46.477Z"
+                    }
+                  ],
+                  "traceId": "trace_c1"
+                }
+              },
+              "triggers": {
+                "body": {
+                  "triggers": [
+                    {
+                      "id": "trigger_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "type": "contact_tag",
+                      "config": {
+                        "tagFilter": {
+                          "action": "added",
+                          "tagNames": [
+                            "tag_1"
+                          ]
+                        }
+                      },
+                      "deleted": false,
+                      "createdBy": "user_1",
+                      "createdAt": "2026-10-29T16:16:54.548Z",
+                      "enabled": true,
+                      "updatedAt": "2026-10-29T16:45:24.741Z"
+                    }
+                  ],
+                  "traceId": "trace_t1"
+                }
+              }
+            },
+            "agent_2": {
+              "configs": {
+                "body": {
+                  "configs": [
+                    {
+                      "id": "config_2",
+                      "locationId": "LOC1",
+                      "agentId": "agent_2",
+                      "channel": "SMS",
+                      "sendingNumber": "sending_number_1",
+                      "enabled": true,
+                      "complianceSettingsAccepted": true,
+                      "complianceConfigurationsAccepted": true,
+                      "acceptedBy": "user_1",
+                      "acceptedAt": "2026-10-29T16:43:46.477Z"
+                    }
+                  ],
+                  "traceId": "trace_c2"
+                }
+              },
+              "triggers": {
+                "body": {
+                  "triggers": [
+                    {
+                      "id": "trigger_2",
+                      "locationId": "LOC1",
+                      "agentId": "agent_2",
+                      "type": "contact_tag",
+                      "config": {
+                        "tagFilter": {
+                          "action": "added",
+                          "tagNames": [
+                            "tag_1"
+                          ]
+                        }
+                      },
+                      "deleted": false,
+                      "createdBy": "user_1",
+                      "createdAt": "2026-10-29T16:16:54.548Z",
+                      "enabled": false,
+                      "updatedAt": "2026-10-29T16:45:24.741Z"
+                    }
+                  ],
+                  "traceId": "trace_t2"
+                }
+              }
+            },
+            "agent_3": {
+              "configs": {
+                "body": {
+                  "configs": [
+                    {
+                      "id": "config_3",
+                      "locationId": "LOC1",
+                      "agentId": "agent_3",
+                      "channel": "SMS",
+                      "sendingNumber": "sending_number_1",
+                      "enabled": true,
+                      "complianceSettingsAccepted": true,
+                      "complianceConfigurationsAccepted": true,
+                      "acceptedBy": "user_1",
+                      "acceptedAt": "2026-10-29T16:43:46.477Z"
+                    }
+                  ],
+                  "traceId": "trace_c3"
+                }
+              },
+              "triggers": {
+                "body": {
+                  "triggers": [
+                    {
+                      "id": "trigger_3",
+                      "locationId": "LOC1",
+                      "agentId": "agent_3",
+                      "type": "contact_tag",
+                      "config": {
+                        "tagFilter": {
+                          "action": "added",
+                          "tagNames": [
+                            "tag_1"
+                          ]
+                        }
+                      },
+                      "deleted": false,
+                      "createdBy": "user_1",
+                      "createdAt": "2026-10-29T16:16:54.548Z",
+                      "enabled": true,
+                      "updatedAt": "2026-10-29T16:45:24.741Z"
+                    }
+                  ],
+                  "traceId": "trace_t3"
+                }
+              }
+            }
+          }
+        },
+        "voice_ai": {
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        },
+        "agent_studio": {
+          "declaredTotal": 0,
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        }
+      },
+      "expect": {
+        "components": {
+          "conversation_ai": {
+            "complete": true,
+            "outboundEnabled": [
+              "agent_2",
+              "agent_3"
+            ],
+            "outboundArmed": [],
+            "outboundUnread": [],
+            "itemOutbound": {
+              "agent_1": {
+                "outboundRead": true,
+                "outboundArmed": false
+              },
+              "agent_2": {
+                "outboundRead": true,
+                "outboundArmed": false
+              },
+              "agent_3": {
+                "outboundRead": true,
+                "outboundArmed": false
+              }
+            }
+          },
+          "voice_ai": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          },
+          "agent_studio": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          }
+        },
+        "complete": true,
+        "warningCodes": []
+      }
+    },
+    "outbound-404-is-unread-never-not-armed": {
+      "planBullet": "W5a Review Focus 3 / REV-C3 / REV-I15: a failed outbound read lands in outboundUnread, component incomplete",
+      "why": "The Lab-off response was never measured, so a 404 keeps the existing grammar: AI_OUTBOUND_READ_FAILED, complete:false. One agent is read and armed, the other 404s; if the unread agent were simply absent from the floors it would read as 'not armed', the null-vs-[] confusion this module exists to prevent.",
+      "components": {
+        "conversation_ai": {
+          "discovery": [
+            {
+              "rows": [
+                {
+                  "_id": "agent_1"
+                },
+                {
+                  "_id": "agent_2"
+                }
+              ]
+            }
+          ],
+          "details": {
+            "agent_1": {
+              "body": {
+                "id": "agent_1",
+                "locationId": "LOC1",
+                "name": "agent_1",
+                "mode": "auto-pilot"
+              }
+            },
+            "agent_2": {
+              "body": {
+                "id": "agent_2",
+                "locationId": "LOC1",
+                "name": "agent_2",
+                "mode": "auto-pilot"
+              }
+            }
+          },
+          "outbound": {
+            "agent_1": {
+              "configs": {
+                "body": {
+                  "configs": [
+                    {
+                      "id": "config_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "channel": "SMS",
+                      "sendingNumber": "sending_number_1",
+                      "enabled": true,
+                      "complianceSettingsAccepted": true,
+                      "complianceConfigurationsAccepted": true,
+                      "acceptedBy": "user_1",
+                      "acceptedAt": "2026-10-29T16:43:46.477Z"
+                    }
+                  ],
+                  "traceId": "trace_c1"
+                }
+              },
+              "triggers": {
+                "body": {
+                  "triggers": [
+                    {
+                      "id": "trigger_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "type": "contact_tag",
+                      "config": {
+                        "tagFilter": {
+                          "action": "added",
+                          "tagNames": [
+                            "tag_1"
+                          ]
+                        }
+                      },
+                      "deleted": false,
+                      "createdBy": "user_1",
+                      "createdAt": "2026-10-29T16:16:54.548Z",
+                      "enabled": true,
+                      "updatedAt": "2026-10-29T16:45:24.741Z"
+                    }
+                  ],
+                  "traceId": "trace_t1"
+                }
+              }
+            },
+            "agent_2": {
+              "configs": {
+                "gateway": {
+                  "ok": false,
+                  "status": 404,
+                  "failureClass": "HTTP_404"
+                }
+              }
+            }
+          }
+        },
+        "voice_ai": {
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        },
+        "agent_studio": {
+          "declaredTotal": 0,
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        }
+      },
+      "expect": {
+        "components": {
+          "conversation_ai": {
+            "complete": false,
+            "outboundEnabled": [
+              "agent_1"
+            ],
+            "outboundArmed": [
+              "agent_1"
+            ],
+            "outboundUnread": [
+              "agent_2"
+            ],
+            "itemOutbound": {
+              "agent_1": {
+                "outboundRead": true,
+                "outboundArmed": true
+              },
+              "agent_2": {
+                "outboundRead": false,
+                "outboundArmed": null
+              }
+            },
+            "errorCodes": [
+              "HTTP_404"
+            ]
+          },
+          "voice_ai": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          },
+          "agent_studio": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          }
+        },
+        "complete": false,
+        "warningCodes": [
+          "AI_OUTBOUND_READ_FAILED"
+        ]
+      }
+    },
+    "outbound-403-is-a-read-failure": {
+      "planBullet": "W5a REV-C3(c): a 403 is never graded 'unavailable'; it is a read failure on the triggers half too",
+      "why": "A 403 can be scope or policy, not 'feature absent', so it must keep the read-failure grammar. Failing the TRIGGERS half (after a good configs read) pins that both halves gate the item: a configs-only read may not publish an outbound object or an arming verdict.",
+      "components": {
+        "conversation_ai": {
+          "discovery": [
+            {
+              "rows": [
+                {
+                  "_id": "agent_1"
+                }
+              ]
+            }
+          ],
+          "details": {
+            "agent_1": {
+              "body": {
+                "id": "agent_1",
+                "locationId": "LOC1",
+                "name": "agent_1",
+                "mode": "auto-pilot"
+              }
+            }
+          },
+          "outbound": {
+            "agent_1": {
+              "configs": {
+                "body": {
+                  "configs": [
+                    {
+                      "id": "config_1",
+                      "locationId": "LOC1",
+                      "agentId": "agent_1",
+                      "channel": "SMS",
+                      "sendingNumber": "sending_number_1",
+                      "enabled": true,
+                      "complianceSettingsAccepted": true,
+                      "complianceConfigurationsAccepted": true,
+                      "acceptedBy": "user_1",
+                      "acceptedAt": "2026-10-29T16:43:46.477Z"
+                    }
+                  ],
+                  "traceId": "trace_c1"
+                }
+              },
+              "triggers": {
+                "gateway": {
+                  "ok": false,
+                  "status": 403,
+                  "failureClass": "HTTP_403"
+                }
+              }
+            }
+          }
+        },
+        "voice_ai": {
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        },
+        "agent_studio": {
+          "declaredTotal": 0,
+          "discovery": [
+            {
+              "rows": []
+            }
+          ]
+        }
+      },
+      "expect": {
+        "components": {
+          "conversation_ai": {
+            "complete": false,
+            "outboundEnabled": [],
+            "outboundArmed": [],
+            "outboundUnread": [
+              "agent_1"
+            ],
+            "itemOutbound": {
+              "agent_1": {
+                "outboundRead": false,
+                "outboundArmed": null
+              }
+            },
+            "errorCodes": [
+              "HTTP_403"
+            ]
+          },
+          "voice_ai": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          },
+          "agent_studio": {
+            "outboundEnabled": null,
+            "outboundArmed": null,
+            "outboundUnread": null
+          }
+        },
+        "complete": false,
+        "warningCodes": [
+          "AI_OUTBOUND_READ_FAILED"
+        ]
+      }
+    }
+  },
+  "capturedOutbound": {
+    "_note": "The VERBATIM 2026-10-30 GET bodies (knowledge/sniffs/convai-wave-2026-10-29/live-outbound-envelopes.json, W5a Task 1 Step 1) with EVERY identifier replaced by a structural placeholder: ids -> config_1/trigger_1/agent_1/user_1, location -> LOC1 (this harness's bound location), sending number -> sending_number_1, tag name -> tag_1, traceId -> trace_1/trace_2. Field names, field order, value types and timestamps are as captured. Both rows were captured DISABLED.",
+    "configs": {
+      "configs": [
+        {
+          "id": "config_1",
+          "locationId": "LOC1",
+          "agentId": "agent_1",
+          "channel": "SMS",
+          "sendingNumber": "sending_number_1",
+          "enabled": false,
+          "complianceSettingsAccepted": true,
+          "complianceConfigurationsAccepted": true,
+          "acceptedBy": "user_1",
+          "acceptedAt": "2026-10-29T16:43:46.477Z"
+        }
+      ],
+      "traceId": "trace_1"
+    },
+    "triggers": {
+      "triggers": [
+        {
+          "id": "trigger_1",
+          "locationId": "LOC1",
+          "agentId": "agent_1",
+          "type": "contact_tag",
+          "config": {
+            "tagFilter": {
+              "action": "added",
+              "tagNames": [
+                "tag_1"
+              ]
+            }
+          },
+          "deleted": false,
+          "createdBy": "user_1",
+          "createdAt": "2026-10-29T16:16:54.548Z",
+          "enabled": false,
+          "updatedAt": "2026-10-29T16:45:24.741Z"
+        }
+      ],
+      "traceId": "trace_2"
     }
   }
 }

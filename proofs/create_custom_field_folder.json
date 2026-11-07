@@ -44,19 +44,28 @@
         "commit:880e2c46"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:bff1dac9"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
       "POST https://backend.leadconnectorhq.com /locations/{}/customFields": "cc6a7b1416fd42bf3fbba5861226e9f758e8048627ebff75f5a9c7f3e31414c3"
     },
     "builds": {
-      "contactsApp": 2634,
-      "customFieldsApp": 2079,
-      "formSurveyApp": 326,
-      "snapshotsApp": 2003
+      "contactsApp": 2940,
+      "customFieldsApp": 2916,
+      "formSurveyApp": 342,
+      "snapshotsApp": 2210
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_custom_field_folder": "a5f579c093e5e14f83e87119a993416d0ba71f44163d07abd14c61207f1f16e2",

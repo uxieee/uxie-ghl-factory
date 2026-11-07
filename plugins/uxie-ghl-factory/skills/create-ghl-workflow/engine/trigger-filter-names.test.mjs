@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { buildResolvers, resolveIR, isIdBearingFilter } from './resolve.mjs';
 import { opsNeedResolution, resolveOps } from './edit-driver.mjs';
 
-const TPL = '6ab4a9c2458c0967fd5ed29f';
+const TPL = '000000000000000000000f02';
 const r = buildResolvers({ documentTemplates: [{ id: TPL, name: 'Referral Agreement' }], funnels: [{ id: 'FUNNEL0000000000001', name: 'Webinar' }] });
 const trigger = (field, value) => ({ type: 'proposal_estimate_update', name: 'T', filters: [{ field, value }] });
 

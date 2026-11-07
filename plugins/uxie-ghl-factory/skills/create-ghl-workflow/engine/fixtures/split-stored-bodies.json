@@ -1,0 +1,39 @@
+{
+ "_source": "Pointer only. Reduced from knowledge sniffs/workflows-w6c-2026-11-06/live-w6c.jsonl: 'readback split-even workflow' at line 15; 'readback split-weighted workflow' at line 35; 'readback split-random workflow' at line 12. Only condition and extras are kept; every real path id is replaced by PATH_NN in stored order. No real id, location or name is in this file.",
+ "modes": {
+  "even": {
+   "condition": "even-split",
+   "extras": {
+    "rememberPath": true
+   }
+  },
+  "weighted": {
+   "condition": "weighted-split",
+   "extras": {
+    "rememberPath": true,
+    "weightDistribution": {
+     "PATH_01": 33,
+     "PATH_02": 33,
+     "PATH_03": 34
+    }
+   }
+  },
+  "random": {
+   "condition": "random-split",
+   "extras": {
+    "weightDistribution": {
+     "PATH_01": 10,
+     "PATH_02": 10,
+     "PATH_03": 10,
+     "PATH_04": 10,
+     "PATH_05": 10,
+     "PATH_06": 10,
+     "PATH_07": 10,
+     "PATH_08": 10,
+     "PATH_09": 10,
+     "PATH_10": 10
+    }
+   }
+  }
+ }
+}

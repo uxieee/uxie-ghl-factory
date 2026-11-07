@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "uxie-ghl-internal-mcp": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["-e", "process.stderr.write('uxie-ghl-factory-eval: this server is mock-only and never starts\\n'); process.exit(1)"]
+    }
+  }
+}

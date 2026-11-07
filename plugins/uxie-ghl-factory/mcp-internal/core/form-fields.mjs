@@ -83,7 +83,16 @@ export function addressGroup(fields) {
 
 // `select` renders only on the built-in country element; on any other tag the widget drops the field
 // (corpus forms/30-types/standard-elements.md, live-136). A fixed option list is `single_options`.
+// A CRM object field on a form (2026-10 "Forms <> CRM"): the builder saves an opportunity field as type "standard_field" with
+// its object `model` and `fieldKey` (forms-wave-2026-10-29 capture 02). Only the opportunity model has been saved live; a
+// company field is an ordinary `text` element with model "business" and needs no exception.
+const OBJECT_FIELD_MODELS = ['opportunity'];
+
 const typeProblem = (tag, type, f = {}) => {
+  if (type === 'standard_field') {
+    return OBJECT_FIELD_MODELS.includes(f.model) && typeof f.fieldKey === 'string' ? null
+      : '`type: "standard_field"` is a CRM object field: it needs `model` (proven: opportunity) and `fieldKey` as the builder saves them';
+  }
   if (type === 'select') return tag === 'country' ? null : '`type: "select"` renders only on `country`; use `single_options` for an option list';
   if (type === 'image') return '`type: "image"` is not dispatched by the form widget: an image element is `type: "img"` with a `url`';
   if (type === 'img' && !('url' in f)) return 'an image element renders only with a `url` (the widget checks `type==="img" && "url" in field`)';

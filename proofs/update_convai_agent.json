@@ -73,34 +73,65 @@
         "commit:afe9223b"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:ccecef69"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a82feaaf"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:4f92fd57"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /ai-employees/employees/{}": "b393d4db09f97c8b65072746cc5d1368fbaa88cff9742193e1e48cf75c46dee7",
+      "GET https://services.leadconnectorhq.com /agent-deployment/outbound-configs": "40bcd5d078afe375a0a37b2e540e3425eb324dd0e765e00a670e7739e3d453e5",
+      "GET https://services.leadconnectorhq.com /agent-deployment/outbound-triggers": "9cadde1b85e8e34b2367e175b241936c0b6ef60322c131f1fd1ec5fd1cf15eb5",
       "GET https://services.leadconnectorhq.com /ai-employees/employees/{}": "0ccc965180a8834dea40404c7716bc7c0a072f1f778ea6f8f3909f4c72d14f30",
       "PUT https://backend.leadconnectorhq.com /ai-employees/employees/{}": "eba5b985086609319d6ab3028143d7bb06010af10c05f03c35eacb9b59be6237",
       "PUT https://services.leadconnectorhq.com /ai-employees/employees/{}": "6ff9d4220832351c75b539613c420734fcf48c2339bc3a59edbecd743deadc41"
     },
     "builds": {
-      "agentLogsApp": 717,
-      "agentStudioApp": 715,
-      "aiEmployeesApp": 2641,
-      "aiGrowthApp": 714,
-      "superagentsApp": 721,
-      "voiceAiApp": 719
+      "agentBuilderApp": 596,
+      "agentLogsApp": 562,
+      "agentStudioApp": 599,
+      "aiEmployeesApp": 2449,
+      "aiGrowthApp": 601,
+      "superagentsApp": 599,
+      "voiceAiApp": 597
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_convai_agent": "144d11b2cfdf03740d8107dad6126b238ac33f155a1e766b94a6a18c9bd80b8e",
-      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "e02b3dc51d18c337c40425d3427c797924366480baa0585e42c63123cbfa8b86",
-      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
-      "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "1d2d14585c35659e0a08537d35639cc1983f3171d0d4985c4971598928bd8abb",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_convai_agent": "7c456460dd1b7d3142b206fc06cb341473b7d27ce5698a444eaa1548cd05a6f0",
+      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "42cdb382022a1e442b76ddf39fdbc46006a6d53db8bca19fa289ad5880e0b542",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
+      "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "35485471324576fb9d1c77168654991385c4d3273e52b14cc48dc9d18bddd264",
       "plugins/uxie-ghl-factory/engines/ai/studio-compiler.mjs": "8ef3fda150415bbae4fd19cab66f1347549887e80a57d3a0e248a5c24eec1ec7",
       "plugins/uxie-ghl-factory/engines/ai/studio-ir.mjs": "f94a564a105321c9bb13aa6f5840cdfa56884923597ae750b41b81d81cda50af",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "194c8ebb47baed6c5285c3ce51f95fa4fd258be4fb1f373bc96394b3f3261a2c",
+      "plugins/uxie-ghl-factory/mcp-internal/core/send-class.mjs": "c690868e0348d87be3fa64ca2f9ad229eb61c3c4ee252f8dcd944573fca5177b"
     }
   }
 }

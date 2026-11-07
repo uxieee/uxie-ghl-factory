@@ -183,7 +183,8 @@ trigger, or find the card, before an opp-stage branch.
   offer, workflow, product, funnel, Facebook page or document template are resolved too.
 - **⚠️ NOT resolved and NOT checked — pass real IDs:** `conversationai_book_appointment.calendarId`,
   `conversationai_objective.contactField`, and custom-field ids inside trigger filter conditions. A
-  `workflow_id` given as an id is not checked to exist (GHL's validator does not either).
+  `workflow_id` given as an id IS checked by the asset pre-flight: an id that does not exist on the location is refused
+  (`ASSET_WORKFLOW_NOT_FOUND`, engine/asset-preflight.mjs), unless the pre-flight is skipped (`assetPreflight.skipped`) or `ignoreAssetErrors` is set.
   `{{custom_values.x}}` in text is not resolved but IS checked: the merge-tag lint refuses a key that is
   not one of this location's custom values (MERGE_TAG_UNKNOWN) when that list was fetched.
 - **Inline emails:** put `attributes._template: { title, html, previewText }` on an

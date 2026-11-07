@@ -5,7 +5,7 @@ One line per step and trigger type. For the full card (fields, allowed values, v
 gotchas) run `node scripts/types.mjs <type-key>`, or `describe_step_type` if the
 uxie-ghl-factory plugin is installed — same data.
 
-558 types: 152 native, 406 marketplace. Status is each card's floor: 
+562 types: 154 native, 408 marketplace. Status is each card's floor: 
 `proven-live` > `source-derived` > `inferred`; `deprecated` means do not build on it.
 
 ## Triggers (native) (62)
@@ -75,7 +75,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `validation_error` | source-derived | Fires when a Twilio validation error is raised (a system / failure trigger). |
 | `video_event` | source-derived | Fires on a video-watch event in a funnel video at a configured percentage watched. |
 
-## Steps (native) (90)
+## Steps (native) (92)
 
 | type | status | summary |
 |---|---|---|
@@ -124,7 +124,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `google_analytics` | source-derived | Send an event to Google Analytics (GA4 or legacy UA). The README also references this as `add_to_google_analytics`. |
 | `google_sheets` | source-derived | Write a row to a connected Google Sheet. Routes through the location's OAuth integration with Google. |
 | `goto` | source-derived | Jump execution to another step in the **same workflow**. Used to close loops or merge branches back together. |
-| `if_else` | proven-live | Multi-path container that routes execution by evaluating segment-and-condition groups against contact/runtime state. |
+| `if_else` | source-derived | Multi-path container that routes execution by evaluating segment-and-condition groups against contact/runtime state. |
 | `ig_interactive_messenger` | source-derived | Send an interactive Instagram DM with buttons or quick-replies. Resolved from `!ident:IG_INTERACTIVE_MESSENGER`. |
 | `instagram-dm` | source-derived | Send an Instagram direct message via the connected Instagram-business integration. |
 | `internal_create_opportunity` | source-derived | Internal helper that creates an opportunity. Used by AI-driven and migration paths — different attribute shape from the user-facing [`create_opportunity`](./create_opportunity.md). |
@@ -166,11 +166,13 @@ uxie-ghl-factory plugin is installed — same data.
 | `voicemail` | source-derived | Drop a pre-recorded voicemail to the contact's number. |
 | `wait` | source-derived | Pause execution until a time elapses, a condition becomes true, an event fires, or a reply arrives — discriminated by `attributes.type`. |
 | `webhook` | source-derived | Simple outbound HTTP request — POST or GET — with custom key/value data and headers. Lighter-weight than [`custom_webhook`](./custom_webhook.md) (no auth, no body content-type, no response capture). |
+| `workflow_ab_test` | proven-live | A container that splits the contacts who reach it across two to ten paths, and routes each to one path. It is not in the native step catalogue; the engine knows it as a container (`TYPES_OUTSIDE_CATALOG`). It ends at a condition: a contact count, a conversion count, or a date. |
 | `workflow_ai_generate_image` | source-derived | "AI image generation": generates one image from a text prompt (optionally with reference images) using an OpenAI or Google (Vertex) image model, and exposes the image URL and file to later steps. |
+| `workflow_ai_generate_video` | capture-only | A premium marketplace (IATF) action that generates a video with a model and stores its URL for later steps. It is **not a native step**: no model class, factory entry or i18n string for it exists in the 11-06 bundle. Its definition is server-authored. |
 | `workflow_goal` | source-derived | A goal is a jump target. When a contact anywhere in the workflow meets any of the goal's conditions, they jump straight to the goal step and continue from it. `action` only governs a contact who reaches the goal step by walking the path without having met it. |
 | `workflow_split` | source-derived | Multi-path randomizer / A/B-test splitter. Routes incoming contacts across N paths via weight-distributed random selection. |
 
-## Triggers (marketplace apps) (120)
+## Triggers (marketplace apps) (122)
 
 | type | title | status |
 |---|---|---|
@@ -243,6 +245,8 @@ uxie-ghl-factory plugin is installed — same data.
 | `lc_fathom_new_recording` | lc_fathom_new_recording (Marketplace) | source-derived |
 | `lc_gforms_new_updated_response` | lc_gforms_new_updated_response (Marketplace) | source-derived |
 | `lc_hubspot_contact_created` | lc_hubspot_contact_created (Marketplace) | source-derived |
+| `lc_jotform_new_signed_document` | Jotform: New Signed Document (lc_jotform_new_signed_document) | capture-only |
+| `lc_jotform_new_submission` | Jotform: New Submission (lc_jotform_new_submission) | capture-only |
 | `lc_linear_new_customer` | lc_linear_new_customer (Marketplace) | source-derived |
 | `lc_linear_new_customer_need` | lc_linear_new_customer_need (Marketplace) | source-derived |
 | `lc_linear_new_document_comment` | lc_linear_new_document_comment (Marketplace) | source-derived |
@@ -315,8 +319,8 @@ uxie-ghl-factory plugin is installed — same data.
 | `am-add-lead` | Add Leads under an Affiliate | source-derived |
 | `am-add-manual-commission` | Add manual sales for an Affiliate | proven-live |
 | `apify` | Marketplace — Apify | source-derived |
-| `appointment_booking` | Book Appointment | undefined |
-| `appointment_booking_conversation_ai` | Appointment Booking Conversation AI Bot | undefined |
+| `appointment_booking` | Book Appointment | source-derived |
+| `appointment_booking_conversation_ai` | Appointment Booking Conversation AI Bot | source-derived |
 | `appointments` | Marketplace — appointments | source-derived |
 | `asana` | Marketplace — Asana | source-derived |
 | `asana_ia_asana_add_task_to_section` | Add Task To Section Of Project | source-derived |
@@ -372,10 +376,10 @@ uxie-ghl-factory plugin is installed — same data.
 | `clickup_ia_delete_task` | Delete Task | source-derived |
 | `clickup_ia_update_task` | Update Task | source-derived |
 | `clickup_new_checklist` | Add Checklist To Task | source-derived |
-| `communication` |  | undefined |
+| `communication` | Marketplace — communication | source-derived |
 | `communities` | Marketplace — Communities | source-derived |
 | `company` | Marketplace — Company | source-derived |
-| `contact` |  | undefined |
+| `contact` | Marketplace — contact | source-derived |
 | `contact_email_verification` | Email Verification | proven-live |
 | `conversation-ai` | Marketplace — Conversation AI | source-derived |
 | `create_and_associate_company` | Create And Associate Company | proven-live |
@@ -474,7 +478,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `lc_manus_fetch_task` | Fetch Tasks | source-derived |
 | `lc_manus_get_task` | Get Task | source-derived |
 | `lc_manus_update_task` | Update Task | source-derived |
-| `lc_merge_contact` | Merge Contact | undefined |
+| `lc_merge_contact` | Merge Contact | source-derived |
 | `lc_mistral_ai_analyze_image_vision` | Analyze Image (Vision) | source-derived |
 | `lc_mistral_ai_create_chat_completion` | Create Chat Completion | source-derived |
 | `lc_mistral_ai_create_embeddings` | Create Embeddings | source-derived |
@@ -516,7 +520,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `lc_vapi_upload_file` | Upload File | source-derived |
 | `linear` | Marketplace — Linear | source-derived |
 | `live_chat_response` | Send Live Chat Message | proven-live |
-| `log-external-call` | Log External Call | undefined |
+| `log-external-call` | Log External Call | source-derived |
 | `manus-ai` | Marketplace — Manus AI | source-derived |
 | `marketing` | Marketplace — marketing | source-derived |
 | `membership_course_grant_access` | Marketplace step — membership_course_grant_access | proven-live |
@@ -550,8 +554,8 @@ uxie-ghl-factory plugin is installed — same data.
 | `revoke-private-channel-access` | Revoke Private Channel Access | source-derived |
 | `send_rcs` | Marketplace step — send_rcs | proven-live |
 | `send_smart_message` | Send Message - Blooio.com | source-derived |
-| `send_whatsapp_flow` | WhatsApp: Send Flows | undefined |
-| `send_whatsapp_message` | WhatsApp | undefined |
+| `send_whatsapp_flow` | WhatsApp: Send Flows | source-derived |
+| `send_whatsapp_message` | WhatsApp | source-derived |
 | `send-data` | Marketplace — send_data | source-derived |
 | `staging-test` | Marketplace — Staging Test | source-derived |
 | `survey_monkey_ia_create_contact` | Create Contact | source-derived |
@@ -568,15 +572,15 @@ uxie-ghl-factory plugin is installed — same data.
 | `typeform_duplicate_existing_form` | Duplicate Existing Form | source-derived |
 | `typeform_search_responses` | Search Responses in a form | source-derived |
 | `update_associated_company` | Update Associated Company | proven-live |
-| `update_conversation_ai_status` | Update Conversation AI Bot and Status | undefined |
+| `update_conversation_ai_status` | Update Conversation AI Bot and Status | source-derived |
 | `update_inventory` | Marketplace step — update_inventory | proven-live |
 | `vapi-ai` | Marketplace — Vapi.ai | source-derived |
 | `voice_ai_outbound_call` | Voice AI Outbound Call | proven-live |
 | `voice-ai` | Marketplace — Voice AI | source-derived |
-| `whatsapp_24h_window` | WhatsApp: Customer Service Window Check | undefined |
-| `whatsapp_interactive_messages` | WhatsApp Interactive Messages | undefined |
-| `whatsapp_media` | WhatsApp Media | undefined |
-| `whatsapp_v2` | WhatsApp | undefined |
+| `whatsapp_24h_window` | WhatsApp: Customer Service Window Check | source-derived |
+| `whatsapp_interactive_messages` | WhatsApp Interactive Messages | source-derived |
+| `whatsapp_media` | WhatsApp Media | source-derived |
+| `whatsapp_v2` | WhatsApp | source-derived |
 | `workflow_ai_analyze_image` | workflow_ai_analyze_image | proven-live |
 | `workflow_ai_decision_maker` | workflow_ai_decision_maker | proven-live |
 | `workflow_ai_email_parser` | workflow_ai_email_parser | source-derived |

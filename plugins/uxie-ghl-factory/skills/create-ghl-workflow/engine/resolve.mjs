@@ -249,6 +249,17 @@ export function resolveIR(ir, r) {
         else unresolved.push({ where: `${type}.field`, name: f.field });
       }
     }
+    // find_contact: its filter rows (find.fields, or attributes.fields) name a custom field the same way (w6d-4, bl-879). The walk
+    // reaches the container node; a name GHL would not find is reported, not sent as a name.
+    if (type === 'find_contact') {
+      const rows = Array.isArray(n.find?.fields) ? n.find.fields : (Array.isArray(a.fields) ? a.fields : []);
+      for (const f of rows) {
+        if (!f || f.field == null || STANDARD_CONTACT_FIELDS.has(f.field) || looksLikeId(f.field)) continue;
+        const id = r.customFieldId(f.field);
+        if (id) { if (!f.title) f.title = f.field; f.field = id; }
+        else unresolved.push({ where: 'find_contact.field', name: f.field });
+      }
+    }
     // AI agents by name: voice_ai_outbound_call.agent → agentId;
     // conversationai_* / update_conversation_ai_status .employee → assignedEmployeeId
     if (type === 'voice_ai_outbound_call' && a.agent && !a.agentId) {

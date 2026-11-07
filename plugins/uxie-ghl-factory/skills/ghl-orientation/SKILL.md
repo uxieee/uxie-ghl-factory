@@ -12,8 +12,9 @@ Read the reference that matches your gap; don't load all three by default:
 
 Ground rules for agents working GHL:
 1. Recon before asking: read the account via the ghl MCP first.
-2. Respect the two-API boundary: prefer public; internal only via this
-   plugin's capability skills with their gates. Setting up, scoping or
+2. Respect the two-API boundary: pick the rail per job from the rail ledger
+   (the table below; the whole ledger is references/rail-ledger.md), and reach
+   the internal rail only through this plugin's capability skills with their gates. Setting up, scoping or
    repairing the public rail is `ghl-public-mcp-setup`; the internal rail
    is /uxie-ghl-factory:internal-connect.
 3. Per-client state lives in .ghl/<locationId>/ (brief.md = client context).
@@ -32,17 +33,43 @@ For design-level work, hand off to a specialist rather than building directly:
 `ghl-workflow-specialist` (workflows), `ghl-pipeline-specialist` (pipelines), and
 `ghl-funnels-pages` (funnels/pages) all recon, blueprint, and get explicit approval
 before building — follow the specialist contract instead of duplicating it here.
-**The AI products do not share a rail.** Measured 2026-08-25 across 17 sub-accounts:
+**The AI products do not share a rail, and neither do the other dual-rail products.** The rail ledger records,
+per job, what each rail does and which one the plugin routes to:
 
-| Product | Rail | Skill | Why |
+<!-- rail-ledger:summary -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Product | Jobs both rails serve | Decided | Routed today |
 |---|---|---|---|
-| **Conversation AI** (chat "AI Employee") | **public** | `ghl-conversation-ai` | same objects on both rails; public returns 36 fields to internal's 39 and carries `fullPrompt` / `instructions` / `personality` that internal lacks. 17/17 accounts returned 200, every agent with its prompt. |
-| **Voice AI** (phone agent) | **internal** | `ghl-voice-ai` | public exposes 27 fields, internal 51 — the 24-field gap is the whole behaviour layer (actions, booking, KB, LLM, MCP servers). |
-| **Knowledge Base** | **internal** | `ghl-knowledge-base` | 5 of 9 source types have no public equivalent, `rich_text` among them. |
-| **Agent Studio** | — | — | out of scope. |
+| workflows | read, create, edit, publish, delete, logs | none yet | internal |
+| courses | read, create, edit, delete, enrol, bulk, logs | read: pool-internal | internal, public |
+| conversation-ai | read, create, edit, delete | none yet | split, internal |
+| voice-ai | read, create, edit, delete, logs | none yet | internal |
+| knowledge-base | read, create, edit, delete | read: both | internal |
+| agent-studio | read, create | none yet | internal |
+| pipelines | read, create, edit, delete | read: both | split, public, internal |
+| opportunities | read, create, edit, delete | none yet | public |
+| forms | read | read: pool-internal | internal |
+| funnel-redirects | read, create, edit, delete | none yet | internal |
+| calendars | read, create, edit, delete | none yet | public |
+| custom-fields | read, create, edit | read: both | public, split |
+| custom-values | read, create, edit | read: both | public |
+| tags | read, create | read: both | public, split |
+| snapshots | read | none yet | internal |
+| contact-enrolment | enrol | none yet | none |
+| blogs | create, edit | none yet | none |
+| email-templates | read, create | none yet | public |
+| countdown-timers | read, use | none yet | internal |
+<!-- /rail-ledger:summary -->
 
-The one internal exception on Conversation AI is the **per-contact AI switch**
-(`/conversations-ai/employeeConfigs`), which has no public equivalent.
+Conversation AI lists its bots on the internal rail (the public search leaves out flow-builder bots) and configures them
+there too. Internal-only on Conversation AI: the per-contact AI switch (`/conversations-ai/employeeConfigs`), prompt
+history, the routing table, and the whole 2026-09/10 wave — outbound agents (activation, CRM-event triggers, the
+opener), AI Campaigns, rich replies, Claude/Gemini models, MCP servers, Build with AI, the new test panel and V2 flow
+agents, live-proven on 2026-10-29/30 (`ghl-conversation-ai`). 🔴 Outbound activation, enabling a trigger, switching an
+outbound-enabled agent to auto-pilot and starting an AI Campaign all text real contacts: the skill's confirm-before-live
+list applies. Voice AI and Knowledge Base configure on the internal rail (`ghl-voice-ai`, `ghl-knowledge-base`).
+Agent Studio's two rails held different agents on the sandbox (2026-10-29), so neither stands in for the other.
 
 Endpoint maps and audit references still describe the internal AI routes; that is what those
 endpoints do, and is separate from which rail to choose for a task.
@@ -61,9 +88,12 @@ cannot reach, and for the workflow builder.
 | memberships & courses | `ghl-memberships` |
 | **events** | `ghl-events` — ticketed/RSVP events, tickets, sessions, speakers, attendees, public registration |
 | funnels & pages | `ghl-funnels-pages` |
+| **blog comments** (per-blog-site comment settings, the admin comment reads, the `c-blog-comments` page element — 2026-10) | `ghl-funnels-pages` |
 | knowledge bases | `ghl-knowledge-base` |
 | Voice AI | `ghl-voice-ai` |
 | **AI Studio** (the AI website builder, internally `vibe`) | `ghl-ai-studio` |
+| **Managed Agents** ("Agent Studio" tab: subagents, Computer, memory, n8n import, triggers) — internal; create with `create_studio_agent`, edit by raw_request PUT | `ghl-conversation-ai` → `references/agent-studio.md` |
+| **calendars: the Services and Rentals modules, appointment statuses, the module switch** (classic calendars and appointments ARE public — the same skill routes them) | `ghl-calendars` |
 
 **AI Studio sites are NOT funnels or websites.** They are a separate collection with no overlap —
 measured 2026-09-04: a location with 25 AI Studio projects and 9 live custom domains returned 12

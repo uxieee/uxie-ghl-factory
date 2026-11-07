@@ -12,8 +12,9 @@ import { normalizeStoredAttributes } from './template-normalize.mjs';
 import { lintEntryStep } from './lints/entry-step.mjs';
 import { normalizeSettings, KNOWN_SETTINGS_KEYS } from './settings.mjs';
 import { stripNullNext, fillInputTriggerParams } from './terminals.mjs';
+import { isEmptyLoopTemplate, stepPathOf } from './loop-authoring.mjs';
 import { stepNoteRecord } from './step-notes.mjs';
-import { expandCondition } from './compiler.mjs';
+import { expandCondition, IFELSE_NESTED_DROPDOWN_TYPES, IFELSE_ALLOW_IS_OPERATOR_TYPES, VALUELESS_CONDITION_OPERATORS } from './compiler.mjs';
 import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
 import { enforceTemplates } from './enforce.mjs';
 import { gotoLoops } from './goto-loops.mjs';
@@ -98,6 +99,8 @@ export function deleteStep(templates, stepId) {
     throw new Error(`deleteStep: '${victim.name ?? stepId}' is still referenced by ` +
       holders.map((h) => `'${h.name ?? h.id}' (${h.type})`).join(', ') +
       ` — repoint or delete the referencing step(s) first (GHL would render a broken link and report 0 errors).`);
+  // w6c-3: a loop goes with its body (GHL's removeLoopAndBodyFromTemplates); its continuation takes its place.
+  if (victim.type === 'loop') return deleteLoopWithBody(templates, victim);
   const pred = templates.find((t) => t.next === stepId);
   const newParent = pred ? pred.id : null;
   const modified = new Set(pred ? [pred.id] : []);
@@ -109,7 +112,39 @@ export function deleteStep(templates, stepId) {
       if (n.parentKey === stepId) { n = { ...n, parentKey: newParent }; modified.add(n.id); }
       return n;
     });
+  // Deleting the ENTRY (templates[0]): the runtime enters at index 0, not at the parentKey-less step (F5-34), so the
+  // successor becomes the entry by moving there — otherwise the commit is refused ENTRY_NOT_FIRST (bl-429).
+  if (templates[0]?.id === stepId && victim.next) {
+    const i = out.findIndex((t) => t.id === victim.next);
+    if (i > 0) out.unshift(...out.splice(i, 1));
+  }
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [...modified], deletedSteps: [stepId] } };
+}
+
+// w6c-3: delete a loop and every step of its body. The body is the steps tagged parentContainerId = the loop (flattenGraph tags every
+// template it emits under the loop, nested containers included). The loop's predecessor, or the workflow head, takes the continuation
+// (attributes.exitNext). Anything outside the removed set that still points at a removed step is refused, as deleteStep does.
+function deleteLoopWithBody(templates, loop) {
+  const cont = typeof loop.attributes?.exitNext === 'string' ? loop.attributes.exitNext : null;
+  const body = new Set(templates.filter((t) => t.parentContainerId === loop.id).map((t) => t.id));
+  const removed = new Set([loop.id, ...body]);
+  const holders = templates.filter((t) => !removed.has(t.id) && stepRefsOf(t).some((r) => removed.has(r.id)));
+  if (holders.length)
+    throw new Error(`deleteStep: the loop '${loop.name ?? loop.id}' and its body are still referenced by ` +
+      holders.map((h) => `'${h.name ?? h.id}' (${h.type})`).join(', ') + ' — repoint or delete the referencing step(s) first.');
+  const pred = templates.find((t) => !removed.has(t.id) && t.next === loop.id) ?? null;
+  const modified = new Set(pred ? [pred.id] : []);
+  const out = templates.filter((t) => !removed.has(t.id)).map((t) => {
+    let n = t;
+    if (pred && n.id === pred.id) n = { ...n, next: cont };
+    if (cont && n.id === cont) { n = { ...n, parentKey: pred ? pred.id : null }; modified.add(n.id); }
+    return n;
+  });
+  if (templates[0]?.id === loop.id && cont) {
+    const i = out.findIndex((t) => t.id === cont);
+    if (i > 0) out.unshift(...out.splice(i, 1));
+  }
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: [...modified], deletedSteps: [...removed] } };
 }
 
 // Scan for DANGLING parentKeys: a step whose parentKey references an id that isn't in the
@@ -156,16 +191,47 @@ const emptyDiff = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: []
 // OR mid-chain inside a branch. Rewires afterId.next → newStep → (afterId's old next).
 export function insertAfter(templates, newStep, afterId) {
   const anchor = requireStep(templates, afterId, 'insertAfter');
+  // w6c-3: GHL refuses a loop inside a loop body (loop_unsupported_action_error); the edit op refuses it the same way.
+  if (anchor.parentContainerId != null && (newStep.type === 'loop' || newStep.kind === 'loop'))
+    throw new Error(`insertAfter: a loop cannot sit inside a loop body — '${anchor.name ?? afterId}' is in a loop, and GHL refuses a nested loop (loop_unsupported_action_error).`);
   // A container's `next` is its BRANCH ARRAY, not a chain pointer. Overwriting it with
   // the new step's id silently orphans every branch and everything under them — the
   // workflow round-trips clean and loses half its graph. A container is terminal in its
   // scope: there is no "after" it to insert into, only a branch to append to.
   if (Array.isArray(anchor.next))
     throw new Error(`insertAfter: '${anchor.name ?? afterId}' is a container — it is terminal in its scope, and inserting after it would orphan its branches. Use appendToBranch with one of its branch ids instead.`);
+  // w6c-3: a Loop's `next` is its FIRST BODY STEP. The step after a loop is its continuation (attributes.exitNext), so inserting
+  // after the loop splices there, not at the head of the body.
+  if (anchor.type === 'loop') {
+    const cont = typeof anchor.attributes?.exitNext === 'string' ? anchor.attributes.exitNext : null;
+    // w6c-11b: the new continuation is parented to the body's TAIL (the step whose next points at it), not to the loop. The tail is
+    // the last step of the next-chain from the loop's first body step; no tail means an empty body (the loop is the predecessor).
+    const byId = new Map(templates.map((t) => [t.id, t]));
+    let tail = null;
+    for (let cur = typeof anchor.next === 'string' ? byId.get(anchor.next) : null;
+      cur && cur.parentContainerId === anchor.id; cur = typeof cur.next === 'string' ? byId.get(cur.next) : null) tail = cur;
+    const step = { ...newStep, next: cont, parentKey: tail ? tail.id : anchor.id, order: 0 };
+    delete step.parentContainerId;
+    if (anchor.parent != null) step.parent = anchor.parent;
+    const modifiedLoop = new Set([anchor.id]);
+    const outLoop = templates.map((t) => {
+      if (t.id === afterId) return { ...t, attributes: { ...t.attributes, exitNext: step.id } };
+      if (cont && t.id === cont) { modifiedLoop.add(t.id); return { ...t, parentKey: step.id }; }
+      // The body's tail runs to the new continuation (its next was the old continuation, or nothing).
+      if (tail && t.id === tail.id) { modifiedLoop.add(t.id); return { ...t, next: step.id }; }
+      return t;
+    });
+    outLoop.push(step);
+    return { templates: outLoop, diff: { createdSteps: [step.id], modifiedSteps: [...modifiedLoop], deletedSteps: [] } };
+  }
   const oldNext = (typeof anchor.next === 'string' ? anchor.next : null);
   const step = { ...newStep, next: oldNext, parentKey: anchor.id, order: 0 };
   if (anchor.parent != null) step.parent = anchor.parent; // same scope as the anchor
+  // w6c-3: a step inserted into a loop body stays in that body. The body is tagged by parentContainerId, not by the chain.
+  if (anchor.parentContainerId != null) step.parentContainerId = anchor.parentContainerId;
   const modified = new Set([anchor.id]);
+  // w6c-11b: the continuation of a loop is parented to the body's last step (GHL checks that the step whose next points at a node is
+  // its parentKey). Inserting after the body's last step therefore moves the continuation's parentKey to the new step, like any other.
   const out = templates.map((t) => {
     if (t.id === afterId) return { ...t, next: step.id };
     // The displaced successor's inbound edge is now the new step — keep its parentKey
@@ -202,9 +268,37 @@ function assertPatchableFields(stepPatch, opLabel) {
 // vocabulary could rename a step, and an edit that repointed an "Update opportunity,
 // Signed Won" step at a different stage could not fix the now-lying label it left behind.
 // Graph fields are refused (see PROTECTED_STEP_FIELDS); everything else merges shallowly.
+// bl-370: an If/Else `branches` patch is merged ROW BY ROW onto what is stored — branch by id, segment by __segmentId,
+// condition by __conditionId — so a key the caller did not resend (the drawer's nestedDropdownTypes /
+// allowIsOperatorTypes hints, __customFieldType__, …) survives. The patch still decides which rows exist; a row with no
+// stored match gets the two hint arrays the compiler gives every row (expandCondition).
+function mergeIfElseBranches(storedBranches, patchBranches) {
+  const byId = (list, key) => new Map((Array.isArray(list) ? list : []).filter((x) => x && x[key] != null).map((x) => [x[key], x]));
+  const branches = byId(storedBranches, 'id');
+  return patchBranches.map((pb) => {
+    const sb = branches.get(pb?.id);
+    if (!pb || !Array.isArray(pb.segments)) return sb ? { ...sb, ...pb } : pb;
+    const segments = byId(sb?.segments, '__segmentId');
+    return { ...(sb ?? {}), ...pb, segments: pb.segments.map((ps) => {
+      const ss = segments.get(ps?.__segmentId);
+      if (!ps || !Array.isArray(ps.conditions)) return ss ? { ...ss, ...ps } : ps;
+      const conds = byId(ss?.conditions, '__conditionId');
+      return { ...(ss ?? {}), ...ps, conditions: ps.conditions.map((pc) => {
+        const sc = conds.get(pc?.__conditionId);
+        const row = sc ? { ...sc, ...pc } : { nestedDropdownTypes: IFELSE_NESTED_DROPDOWN_TYPES, allowIsOperatorTypes: IFELSE_ALLOW_IS_OPERATOR_TYPES, ...pc };
+        if (VALUELESS_CONDITION_OPERATORS.has(row.conditionOperator)) delete row.conditionValue;   // the stored shape (bl-415)
+        return row;
+      }) };
+    }) };
+  });
+}
+
 export function modifyStep(templates, stepId, attrPatch, stepPatch, ctx) {
-  requireStep(templates, stepId, 'modifyStep');
+  const target = requireStep(templates, stepId, 'modifyStep');
   assertPatchableFields(stepPatch, 'modifyStep');
+  if (target.type === 'if_else' && Array.isArray(attrPatch?.branches)) {
+    attrPatch = { ...attrPatch, branches: mergeIfElseBranches(target.attributes?.branches, attrPatch.branches) };
+  }
   const out = templates.map((t) => {
     if (t.id !== stepId) return t;
     const merged = { ...t, ...(stepPatch ?? {}), attributes: { ...t.attributes, ...attrPatch } };
@@ -337,6 +431,37 @@ export function numberNewSteps(templates, numberIds, storedCounter = {}) {
   return { templates: out, changed, counter: running };
 }
 
+// w6d-5 (bl-435): a copied step keeps the stepIndex of its SOURCE, and a {{<type>.N.<field>}} merge tag inside the same copied insert names
+// that source index. When numbering gives a copy a new index, those tags follow it: {{custom_code.1.output.x}} → {{custom_code.2.output.x}}.
+// Only the steps the edit CREATED are rewritten, and only references to an index a created step carried. A source index carried by two
+// created steps is ambiguous and is not rewritten. The target's own references are untouched (they are not in the copied insert).
+export function renumberCopiedReferences(templates, createdIds, oldIndexById) {
+  const byType = new Map();   // type -> Map(oldIndex -> newIndex | null when ambiguous)
+  for (const t of templates ?? []) {
+    if (!createdIds.has(t.id) || !requiresStepIndex(t)) continue;
+    const old = oldIndexById.get(t.id);
+    if (!Number.isFinite(Number(old)) || old === null || !Number.isFinite(Number(t.stepIndex))) continue;
+    if (!byType.has(t.type)) byType.set(t.type, new Map());
+    const m = byType.get(t.type);
+    m.set(Number(old), m.has(Number(old)) ? null : Number(t.stepIndex));
+  }
+  const map = new Map();      // `${type}:${old}` -> new, one lookup per reference (a single pass, so a rewritten index is never rewritten again)
+  for (const [type, m] of byType) for (const [old, neu] of m) if (neu !== null && neu !== old) map.set(`${type}:${old}`, neu);
+  if (!map.size) return templates;
+  const rewrite = (v) => {
+    if (typeof v === 'string') {
+      return v.replace(/\{\{(\s*)([A-Za-z0-9_-]+)\.(\d+)\./g, (m, sp, type, n) => {
+        const neu = map.get(`${type}:${n}`);
+        return neu === undefined ? m : `{{${sp}${type}.${neu}.`;
+      });
+    }
+    if (Array.isArray(v)) return v.map(rewrite);
+    if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, rewrite(x)]));
+    return v;
+  };
+  return templates.map((t) => (createdIds.has(t.id) && t.attributes ? { ...t, attributes: rewrite(t.attributes) } : t));
+}
+
 // The per-type HIGH-WATER mark over every numbered step (marketplace and native), for meta.stepIndexCounter.
 export function stepIndexHighWater(templates) {
   const counter = new Map();
@@ -407,8 +532,36 @@ export function disableStepsByType(templates, type, disabled) {
 // (which, carrying no id in deletedSteps, then rode along in templates[] as dead data).
 // The next-chain is the graph's actual source of truth, so walk that.
 export function appendToBranch(templates, branchEntryId, newStep) {
+  // w6c-3: a Loop is a branch target too: the step goes at the END of its body (see appendToLoopBody).
+  const entry = templates.find((t) => t.id === branchEntryId);
+  if (entry?.type === 'loop') return appendToLoopBody(templates, entry, newStep);
   const step = { ...newStep, next: null };
   return appendSubgraphToBranch(templates, branchEntryId, { entry: step, templates: [step] });
+}
+
+// w6c-3 ({loop: idOrName}, orchestrator decision 2026-11-07): append one step at the END of a loop's body. The step is stamped
+// parentContainerId = the loop and parent = the loop (as flattenGraph writes a body step). It hangs off the previous body step,
+// or off the loop when the body is empty (as flattenGraph writes the first body step), and runs on to exitNext. The body's old
+// last step now runs to it. The continuation keeps hanging off the loop.
+function appendToLoopBody(templates, loop, newStep) {
+  if (newStep.type === 'loop' || newStep.kind === 'loop')
+    throw new Error(`appendToBranch: a loop cannot sit inside the body of '${loop.name ?? loop.id}' — GHL refuses a nested loop (loop_unsupported_action_error).`);
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const cont = typeof loop.attributes?.exitNext === 'string' ? loop.attributes.exitNext : null;
+  let tail = null;
+  for (let c = typeof loop.next === 'string' && loop.next !== cont ? byId.get(loop.next) : null; c && c.id !== cont;) {
+    tail = c;
+    if (Array.isArray(c.next)) break;
+    c = typeof c.next === 'string' ? byId.get(c.next) : null;
+  }
+  const step = { ...newStep, next: cont, parentKey: tail ? tail.id : loop.id, parentContainerId: loop.id, parent: loop.id, order: 0 };
+  const out = templates.map((t) => {
+    if (tail && t.id === tail.id) return { ...t, next: step.id };
+    if (!tail && t.id === loop.id) return { ...t, next: step.id };
+    return t;
+  });
+  out.push(step);
+  return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [tail ? tail.id : loop.id], deletedSteps: [] } };
 }
 
 // ---------------------------------------------------------------------------
@@ -464,6 +617,21 @@ export function branchTargets(entry, templates) {
 // exactly the kind of default that silently sends contacts down Not-Found in the
 // exception case. Ambiguity and absence are both errors.
 export function resolveBranchTarget(entry, templates, attachTailTo, opLabel = 'insertAfter') {
+  // w6c-3 (plan Task 3): a Router lane is named {router: idOrName, branch: name}. The router must be this entry; the branch is
+  // then matched as a plain name or id among its lanes.
+  if (attachTailTo && typeof attachTailTo === 'object' && !Array.isArray(attachTailTo)) {
+    // w6c-3: {loop: idOrName} is the body of that loop (the end of the body is where the tail goes; see appendToLoopBody).
+    if (attachTailTo.loop !== undefined) {
+      if (entry.type !== 'loop' || (attachTailTo.loop !== entry.id && attachTailTo.loop !== entry.name))
+        throw new Error(`${opLabel}: the target loop '${attachTailTo.loop}' is not '${entry.name ?? entry.id}' here.`);
+      return { id: entry.id, name: 'Loop body', key: null, nodeType: 'loop-body' };
+    }
+    if (attachTailTo.router === undefined)
+      throw new Error(`${opLabel}: attachTailTo must name a branch of '${entry.type}' — a string, {router, branch} for a Router lane, or {loop} for a loop body.`);
+    if (entry.type !== 'router' || (attachTailTo.router !== entry.id && attachTailTo.router !== entry.name))
+      throw new Error(`${opLabel}: the target router '${attachTailTo.router}' is not '${entry.name ?? entry.id}' here.`);
+    return resolveBranchTarget(entry, templates, attachTailTo.branch, opLabel);
+  }
   const targets = branchTargets(entry, templates);
   const list = () => targets.map((t) => `'${t.name}'`).join(', ');
   if (!targets.length) throw new Error(`${opLabel}: '${entry.type}' compiled with no branches to attach the following steps to`);
@@ -635,7 +803,17 @@ export function insertBefore(templates, newStep, beforeId) {
   const target = requireStep(templates, beforeId, 'insertBefore');
   const { pred, viaBranchArray } = inboundOf(templates, beforeId);
   if (viaBranchArray) refuseBranchEntry(target, beforeId, 'insertBefore');
-  if (pred) return insertAfter(templates, newStep, pred.id);
+  if (pred) {
+    // A step inserted before X belongs to X's scope. insertAfter takes the PREDECESSOR's scope, and before a lane's first
+    // step the predecessor is the lane's transition, whose parent is the container (bl-400).
+    const r = insertAfter(templates, newStep, pred.id);
+    const created = r.diff.createdSteps[0];
+    return { ...r, templates: r.templates.map((t) => {
+      if (t.id !== created) return t;
+      const { parent, ...rest } = t;
+      return target.parent != null ? { ...rest, parent: target.parent } : rest;
+    }) };
+  }
   return prependStep(templates, newStep, target);
 }
 
@@ -788,7 +966,9 @@ function addSplitterBranch(templates, container, { name, conditions = [] }, idGe
 // predecessor to null (a container is terminal in its scope — branches don't re-merge).
 // Everything removed goes in deletedSteps.
 export function deleteContainer(templates, containerId) {
-  requireStep(templates, containerId, 'deleteContainer');
+  const head = requireStep(templates, containerId, 'deleteContainer');
+  // w6c-3 (QA probe): a Loop goes with its body only; its continuation is re-attached to the loop's predecessor, not deleted.
+  if (head.type === 'loop') return deleteLoopWithBody(templates, head);
   const byId = new Map(templates.map((t) => [t.id, t]));
   const remove = new Set([containerId]);
   const queue = [containerId];
@@ -802,6 +982,50 @@ export function deleteContainer(templates, containerId) {
   const pred = templates.find((t) => t.next === containerId);
   const out = templates.filter((t) => !remove.has(t.id)).map((t) => (pred && t.id === pred.id ? { ...t, next: null } : t));
   return { templates: out, diff: { createdSteps: [], modifiedSteps: pred ? [pred.id] : [], deletedSteps: [...remove] } };
+}
+
+// Dissolve a container, keeping ONE lane (bl-387): the kept branch's steps take the container's place in its scope; the
+// container, every branch node and the other lanes' steps are deleted. For removing a test "gate" If/Else whose go-on lane
+// should become top level — moveStep refuses to lift steps out of a container, and deleteContainer takes the lane with it.
+export function dissolveContainer(templates, containerId, keep) {
+  const container = requireStep(templates, containerId, 'dissolveContainer');
+  if (!Array.isArray(container.next))
+    throw new Error(`dissolveContainer: '${container.name ?? containerId}' is not a container — pass the if/else (or finder / splitter) step's id.`);
+  if (keep == null || keep === '') throw new Error('dissolveContainer: name the branch to keep (`keep`: its display name, __branchKey__, or branch id).');
+  const targets = branchTargets(container, templates);
+  const list = () => targets.map((t) => `'${t.name}'`).join(', ');
+  const hits = targets.filter((t) => t.id === keep || t.key === keep || t.name === keep);
+  if (!hits.length) throw new Error(`dissolveContainer: no branch '${keep}' on '${container.name ?? containerId}' (branches: ${list()})`);
+  if (hits.length > 1) throw new Error(`dissolveContainer: '${keep}' matches ${hits.length} branches — pass the branch id (${hits.map((h) => h.id).join(', ')})`);
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const entry = byId.get(hits[0].id);
+  const laneFirst = typeof entry?.next === 'string' && byId.has(entry.next) ? entry.next : null;
+  const kept = laneFirst ? subtreeIds(templates, laneFirst) : new Set();
+  const all = new Set(deleteContainer(templates, containerId).diff.deletedSteps);
+  const remove = new Set([...all].filter((id) => !kept.has(id)));
+  const holders = templates.filter((t) => !remove.has(t.id) && stepRefsOf(t).some((r) => remove.has(r.id)));
+  if (holders.length)
+    throw new Error(`dissolveContainer: steps being removed are still referenced by ${holders.map((h) => `'${h.name ?? h.id}' (${h.type})`).join(', ')} — `
+      + 'repoint or delete the referencing step(s) first (GHL would render a broken link and report 0 errors).');
+  const pred = templates.find((t) => t.next === containerId);
+  const modified = new Set(pred ? [pred.id] : []);
+  const out = templates.filter((t) => !remove.has(t.id)).map((t) => {
+    let n = t;
+    if (pred && n.id === pred.id) n = { ...n, next: laneFirst };
+    if (n.parent === entry.id) {
+      const { parent, ...rest } = n;
+      n = container.parent != null ? { ...rest, parent: container.parent } : rest;
+      modified.add(n.id);
+    }
+    if (n.id === laneFirst) { n = { ...n, parentKey: container.parentKey ?? null }; modified.add(n.id); }
+    return n;
+  });
+  // the entry is templates[0], not the parentKey-less step (F5-34)
+  if (templates[0]?.id === containerId && laneFirst) {
+    const i = out.findIndex((t) => t.id === laneFirst);
+    if (i > 0) out.unshift(...out.splice(i, 1));
+  }
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: [...modified], deletedSteps: [...remove] } };
 }
 
 // Every step under `rootId` (its `next` chain, nested containers, their branches), rootId included.
@@ -848,6 +1072,15 @@ export function deleteBranch(templates, containerId, branch) {
   const hit = hits[0];
   const byId = new Map(templates.map((t) => [t.id, t]));
   const entry = byId.get(hit.id);
+  // w6c-3: a router keeps at least one custom branch. Removing the last custom branch leaves a fallback-only router, which the
+  // builder does not build; the caller deletes the router instead.
+  if (container.type === 'router') {
+    const rbs = container.attributes?.branches ?? [];
+    const customs = rbs.filter((b) => (b.branchType ?? 'custom') === 'custom');
+    const target = rbs.find((b) => b.id === hit.id);
+    if ((target?.branchType ?? 'custom') === 'custom' && customs.length <= 1)
+      throw new Error(`deleteBranch: '${hit.name}' is the only custom branch of '${container.name ?? containerId}' — a router keeps at least one custom branch; delete the router (deleteContainer) instead.`);
+  }
 
   let containerPatch;
   if (container.nodeType === 'condition-node') {
@@ -1007,6 +1240,21 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   if (opts.assumeAssociated !== true
       && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
     checkOpportunityAssociationTemplates(newTemplates, false);
+  // w6c-3 (ruling 2026-11-07): an empty Loop body is refused (code loop-body-empty, with the loop's path). A stored empty loop
+  // that this edit does not touch passes with a warning, so an unrelated edit is not blocked by a workflow's own shape.
+  // Same stepId and still empty = a stored empty loop the write leaves as stored (the rules layer uses the same definition).
+  const storedById = new Map((fresh?.workflowData?.templates ?? []).map((t) => [t.id, t]));
+  for (const L of newTemplates.filter(isEmptyLoopTemplate)) {
+    const was = storedById.get(L.id);
+    if (was && isEmptyLoopTemplate(was)) {
+      opts.warn?.(`loop-body-empty (stored, kept as stored): the Loop '${stepPathOf(newTemplates, L.id)}' has no actions inside it; GHL's validator refuses it on save.`);
+      continue;
+    }
+    const path = stepPathOf(newTemplates, L.id);
+    const e = new IRError('loop-body-empty', `loop-body-empty: the Loop '${path}' has no actions inside it (GHL's validator refuses this on save). Add a step to its body or delete the loop.`);
+    e.path = path;
+    throw e;
+  }
   // A NAME on an opportunity write is a dead step (F5-09 / T1-1): the build path resolves names to
   // ids, the edit path never does, and GHL stores the word verbatim — the step saves, round-trips
   // clean and moves nothing. `modifyStep` merges an attrPatch straight onto the stored step without

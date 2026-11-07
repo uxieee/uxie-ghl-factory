@@ -196,10 +196,15 @@ export class GhlMembershipsApi {
   // LIVE-CHECKED 2026-08-24: the server defaults `isLivePaymentMode` to FALSE (test). This
   // used to hardcode `true`, which silently wired every paid offer to LIVE payments. It is
   // now opt-in: omit it and the account's own default stands.
-  createOffer({ title, productIds, type = 'free', amount = 0, currency = 'EUR',
+  createOffer({ title, productIds, type = 'free', amount, currency,
                 interval, intervalCount, paymentProvider, isLivePaymentMode,
                 setupFee, trialDays, numberOfPayments }) {
-    const body = { title, type, locationId: this.loc, productIds, amount, currency };
+    // w8-7 (QA review focus 5): a paid offer must name its amount and currency. A missing one used to be created as EUR 0.
+    if (type !== 'free') {
+      if (!(Number(amount) > 0)) throw new Error(`createOffer: a ${type} offer needs an explicit amount > 0`);
+      if (!currency) throw new Error(`createOffer: a ${type} offer needs an explicit currency`);
+    }
+    const body = { title, type, locationId: this.loc, productIds, amount: amount ?? 0, currency: currency ?? 'EUR' };
     if (interval) body.interval = interval;
     if (intervalCount) body.intervalCount = String(intervalCount);
     if (paymentProvider) body.paymentProvider = paymentProvider;

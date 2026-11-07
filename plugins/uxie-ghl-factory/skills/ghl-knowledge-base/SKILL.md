@@ -16,17 +16,42 @@ Base: `services.leadconnectorhq.com/knowledge-base`.
 
 Nine source types exist in the enum; the UI offers five tabs (Web crawler · FAQ · Tables · Rich text · Files,
 with Google Drive/Sheets and Internal Data behind flags). **Web search has no screen** at build 683 (hard-coded
-off). The public API covers FAQs, the crawler, and the knowledge-base record itself — **six have no public
-equivalent**:
+off). The public API documents FAQs, the crawler, files and the knowledge-base record itself (the public file
+upload is documented, not yet proven live). **Five source types have no public equivalent**, and `web_search`
+has neither a screen nor a public operation:
 
 ```
-faq  ·  web_crawler  ·  web_search        ← public reaches these
-rich_text  ·  table  ·  google_drive  ·  google_sheet  ·  internal_data  ·  file
-                                          ← internal only
+faq  ·  web_crawler  ·  file                                        ← public reaches these too
+rich_text  ·  table  ·  google_drive  ·  google_sheet  ·  internal_data   ← internal only
+web_search                                                          ← no screen, no public op
 ```
 
 `rich_text` is the one that matters most in practice: it is how you give an agent authored
 prose rather than scraped pages, and there is no way to create one through the public API.
+
+## Which rail, per job
+
+The singular internal `/knowledge-base/*` paths still answer after GHL's 2026-08-18 rename; on the sandbox they returned
+the same knowledge bases as the public plural `/knowledge-bases` (2026-10-29).
+
+<!-- rail-ledger:knowledge-base -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | both | internal | `raw_request:GET /knowledge-base/all`, `raw_request:GET /knowledge-base/{knowledgeBaseId}` | `knowledge-base-v3__listAllKnowledgeBasesPaginated`, `knowledge-base-v3__getKnowledgeBaseById` |
+| create | undecided | internal | `raw_request:POST /knowledge-base/` | `knowledge-base-v3__createKnowledgeBase`, `knowledge-base-v3__create` |
+| edit | undecided | internal | `raw_request:PUT /knowledge-base/{knowledgeBaseId}` | `knowledge-base-v3__updateKnowledgeBase`, `knowledge-base-v3__update` |
+| delete | undecided | internal | `raw_request:DELETE /knowledge-base/{knowledgeBaseId}` | `knowledge-base-v3__deleteKnowledgeBase`, `knowledge-base-v3__delete` |
+
+- **read:** The internal rail reaches source types the public one lacks; whether its singular paths still answer after the rename is unverified.
+- **create:** The internal rail reaches source types the public one lacks; whether its singular paths still answer after the rename is unverified.
+- **edit:** The internal rail reaches source types the public one lacks; whether its singular paths still answer after the rename is unverified.
+- **delete:** The internal rail reaches source types the public one lacks; whether its singular paths still answer after the rename is unverified.
+
+Internal only: rich_text, table, google and internal_data sources; gaps.
+Public only: FAQs; crawler sitemap preview; files.
+<!-- /rail-ledger:knowledge-base -->
 
 ## The endpoints
 
@@ -197,4 +222,4 @@ on a test sub-account.
 ## Scope
 
 Knowledge bases only. The agents that consume them are `ghl-voice-ai` (internal) and
-Conversation AI (**public rail** — see `ghl-orientation`).
+Conversation AI (lists its bots and configures them on the internal rail — see `ghl-conversation-ai`).

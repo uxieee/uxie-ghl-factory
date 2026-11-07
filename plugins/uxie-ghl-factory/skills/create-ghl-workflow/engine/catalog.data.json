@@ -1877,6 +1877,13 @@
     ]
    },
    {
+    "value": "tickets",
+    "label": {
+     "i18nKey": "tickets"
+    },
+    "conditions": []
+   },
+   {
     "value": "shopify",
     "label": {
      "i18nKey": "shopify"
@@ -3275,7 +3282,7 @@
    "note": 3,
    "form_data": 13,
    "survey_data": 12,
-   "order": 43,
+   "order": 44,
    "invoice": 41,
    "membership": 10,
    "event": 49,
@@ -5408,6 +5415,12 @@
     "group": "getEventOptions"
    },
    {
+    "tag": "{{order.id}}",
+    "label": "Order ID",
+    "type": "TEXT",
+    "group": "getOrderOptions"
+   },
+   {
     "tag": "{{order.source}}",
     "label": "Order Source",
     "type": "TEXT",
@@ -6376,6 +6389,7 @@
   "lost_reason": "Lost reason",
   "opportunity_owner_label": "Opportunity owner",
   "opportunity_follower_label": "Opportunity follower",
+  "tickets": "Tickets",
   "shopify": "Ecommerce stores",
   "product_id": "Product ID",
   "product_name": "Product name",
@@ -6540,7 +6554,7 @@
   "scheduler_interval_required": "Scheduler interval is required",
   "ivr_phone_number_required": "At least one phone number is required for IVR"
  },
- "stepCount": 400,
+ "stepCount": 401,
  "triggerCount": 216,
  "stepCapabilities": {
   "isDisabled": {
@@ -12622,7 +12636,8 @@
       "warning": [
        "subject",
        "template_id",
-       "html"
+       "html",
+       "associationLabels"
       ]
      }
     }
@@ -13487,7 +13502,7 @@
     "rowCount"
    ],
    "example": "catalog/step-examples/google_sheets.json",
-   "section": "send_data",
+   "section": "googleSheets",
    "beta": false,
    "display_name": "google_sheets",
    "requiredFields": [
@@ -15604,12 +15619,21 @@
     "channel",
     "text",
     "type",
-    "userSource"
+    "userSource",
+    "sendAs",
+    "username",
+    "icon",
+    "icon_url",
+    "icon_emoji",
+    "thread",
+    "mentionNames",
+    "attachments",
+    "output"
    ],
    "example": "catalog/step-examples/slack_message.json",
-   "section": "communication",
+   "section": "slack",
    "beta": false,
-   "display_name": "slack",
+   "display_name": "slack_send_message",
    "requiredFields": [
     "action",
     "channel",
@@ -15657,6 +15681,51 @@
       "name": "text",
       "optional": false,
       "type": "string"
+     },
+     {
+      "name": "sendAs",
+      "optional": true,
+      "type": "{ id: ISendAsModes | string; name: string }"
+     },
+     {
+      "name": "username",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "icon",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "icon_url",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "icon_emoji",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "thread",
+      "optional": true,
+      "type": "{ ts: string; broadcast?: boolean }"
+     },
+     {
+      "name": "mentionNames",
+      "optional": true,
+      "type": "Record<string, string>"
+     },
+     {
+      "name": "attachments",
+      "optional": true,
+      "type": "ISlackAttachment[]"
+     },
+     {
+      "name": "output",
+      "optional": true,
+      "type": "{ message_ts?: string; channel_id?: string; permalink?: string }"
      }
     ]
    },
@@ -16364,7 +16433,7 @@
      {
       "name": "status_type",
       "optional": false,
-      "type": "AppointmentStatusType | ServiceBookingStatusType | RentalBookingStatusType | und"
+      "type": "string | undefined"
      }
     ]
    },
@@ -18503,16 +18572,26 @@
      {
       "field": "startAfter.value",
       "variant": "recurring_schedule",
-      "guard": "attributes.startAfter && attributes.startAfter.value === 0",
+      "guard": "typeof timeoutValue !== 'number' || timeoutValue <= 0",
       "ast": {
        "guard": {
-        "op": "and",
+        "op": "or",
         "a": {
-         "op": "path",
-         "p": "startAfter"
+         "op": "neq",
+         "a": {
+          "op": "typeof",
+          "a": {
+           "op": "path",
+           "p": "startAfter.value"
+          }
+         },
+         "b": {
+          "op": "lit",
+          "v": "number"
+         }
         },
         "b": {
-         "op": "eq",
+         "op": "lte",
          "a": {
           "op": "path",
           "p": "startAfter.value"
@@ -18537,7 +18616,7 @@
         }
        ]
       },
-      "support": "CONDITIONAL; corpus no sample in variant recurring_schedule; warn-replay fired 0/0 in-scope published nodes"
+      "support": "RANGE; corpus no sample in variant recurring_schedule; warn-replay fired 0/0 in-scope published nodes"
      }
     ]
    },
@@ -18805,6 +18884,127 @@
     "resolvedBy": "factory-namespace"
    }
   },
+  "workflow_ab_test": {
+   "type": "workflow_ab_test",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": true,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "name",
+    "cat",
+    "transitions",
+    "type",
+    "paths",
+    "extras"
+   ],
+   "example": "catalog/step-examples/workflow_ab_test.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "workflow.asideSection.headerMeta.abTest",
+   "requiredFields": [],
+   "modelFields": {
+    "interface": "AbTestAction",
+    "source": "src/schema/ab-test.interface.ts",
+    "required": [
+     "type",
+     "paths",
+     "extras"
+    ],
+    "fields": [
+     {
+      "name": "type",
+      "optional": false,
+      "type": "'workflow_ab_test'"
+     },
+     {
+      "name": "paths",
+      "optional": false,
+      "type": "AbTestPath[]"
+     },
+     {
+      "name": "extras",
+      "optional": false,
+      "type": "AbTestExtras"
+     }
+    ]
+   },
+   "variantRules": {
+    "validator": "workflowAbTestValidator",
+    "source": "utils/validators/additional-action-validators.ts",
+    "variants": {
+     "*": {
+      "error": [],
+      "warning": [
+       "paths",
+       "metric",
+       "endCondition"
+      ]
+     }
+    }
+   },
+   "enforcement": {
+    "throw": [],
+    "warn": [
+     {
+      "field": "paths",
+      "variant": null,
+      "guard": "pathCount < MIN_AB_TEST_PATHS || pathCount > MAX_AB_TEST_PATHS",
+      "ast": {
+       "guard": {
+        "op": "or",
+        "a": {
+         "op": "lt",
+         "a": {
+          "op": "coalesce",
+          "a": {
+           "op": "len",
+           "a": {
+            "op": "path",
+            "p": "paths"
+           }
+          },
+          "b": {
+           "op": "lit",
+           "v": 0
+          }
+         },
+         "b": {
+          "op": "lit",
+          "v": 2
+         }
+        },
+        "b": {
+         "op": "gt",
+         "a": {
+          "op": "coalesce",
+          "a": {
+           "op": "len",
+           "a": {
+            "op": "path",
+            "p": "paths"
+           }
+          },
+          "b": {
+           "op": "lit",
+           "v": 0
+          }
+         },
+         "b": {
+          "op": "lit",
+          "v": 10
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
+   }
+  },
   "workflow_ai_decision_maker": {
    "type": "workflow_ai_decision_maker",
    "kind": "step",
@@ -19005,7 +19205,8 @@
       "members": [
        "random-split",
        "even-split",
-       "conditional-split"
+       "conditional-split",
+       "weighted-split"
       ],
       "via": "SplitCondition"
      },
@@ -19607,7 +19808,7 @@
    "confidence": "bundle-derived",
    "situational": [],
    "premium": false,
-   "beta": false,
+   "beta": true,
    "isMultipathContainer": false,
    "usesCustomInputs": false,
    "section": "internal",
@@ -50027,6 +50228,14 @@
     {
      "label": "Appointment status is",
      "labelKey": "workflow.triggerFilters.appointment.appointment_status_is",
+     "value": "appointment.statusId",
+     "field": "appointment.statusId",
+     "type": "select",
+     "optionsSource": "dynamic"
+    },
+    {
+     "label": "Appointment status is",
+     "labelKey": "workflow.triggerFilters.appointment.appointment_status_is",
      "value": "appointment.status",
      "field": "appointment.status",
      "type": "select",
@@ -50272,6 +50481,9 @@
      "addedBy": "dynamic (addDynamicFilterOptions / helper)"
     }
    ],
+   "filterOptionHelpers": [
+    "getMeetingStatuses"
+   ],
    "filterChecks": {
     "validator": "appointmentValidator",
     "assetChecks": [
@@ -50284,6 +50496,12 @@
      {
       "conditionField": "appointment.assignedUserId",
       "resource": "user",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "appointment.statusId",
+      "resource": "appointment_status",
       "when": "present",
       "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
      }
@@ -50382,6 +50600,12 @@
      {
       "conditionField": "appointment.assignedUserId",
       "resource": "user",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "appointment.statusId",
+      "resource": "appointment_status",
       "when": "present",
       "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
      }
@@ -52931,6 +53155,7 @@
     }
    ],
    "filterOptionHelpers": [
+    "checkForLCAccount",
     "getPhoneNumbersWithoutNumberPool",
     "getPhoneMappings"
    ],

@@ -165,6 +165,13 @@ const normalizeRead = (kind, json) => {
   return lifted;
 };
 
+// A Managed Agent's config.tools is a set: the editor and the switches add ids in their own order, and nothing reads the
+// order. Both sides are sorted before the comparison, so a reordered store confirms and a missing id still mismatches.
+const sortStudioTools = (kind, obj) => {
+  if (kind !== 'studio' || !Array.isArray(obj?.config?.tools)) return obj;
+  return { ...obj, config: { ...obj.config, tools: [...obj.config.tools].sort() } };
+};
+
 const partitionVerification = (actual, expected) => {
   const result = emptyClass();
   for (const [key, value] of Object.entries(expected ?? {})) {
@@ -321,7 +328,8 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   if (Array.isArray(plan.verifyMergedKeys) && report.mergedConfig) {
     baseExpected = { config: Object.fromEntries(plan.verifyMergedKeys.filter((k) => k in report.mergedConfig).map((k) => [k, report.mergedConfig[k]])) };
   }
-  const actual = normalizeRead(kind, reread.json);
+  const actual = sortStudioTools(kind, normalizeRead(kind, reread.json));
+  baseExpected = sortStudioTools(kind, baseExpected);
   // The create body carries `actions: []` because actions are attached AFTER create, by their
   // own POSTs. Comparing that empty list to the re-read — which now correctly lists what we
   // attached — failed every create that had an action (bl-181). What must hold instead is that
@@ -363,10 +371,11 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
 
 // READ-MERGE-WRITE for an existing agent, with a COLLATERAL DIFF.
 //
-// A partial PUT to /ai-employees/employees/:agentId resets omitted agent-level booleans — measured
-// live on 2026-08-28, after a capture-derived claim that the endpoint "merges" had stood for
-// months (the capture's at-risk fields were already false, so a reset was invisible in it).
-// The UI never sends a partial; it PUTs the whole record. So the plan carries the whole record.
+// A partial PUT to /ai-employees/employees/:agentId reset omitted agent-level booleans on 2026-08-28 (F5-04); on
+// 2026-10-30 the same differential, with the booleans set away from default first, MERGED on prompt, V1 flow and V2
+// agents (knowledge sniffs/convai-wave-2026-10-29/live-partial-put-booleans.json). The prompt-bot editor PUTs the
+// whole record, and the plan does too (V2 excepted: it sends the V2 editor's own partial body), so the write is safe
+// whichever is true.
 //
 // Verifying only what we SET would repeat the original mistake: it is precisely the fields we did
 // NOT set that a bad PUT silently resets. `collateralKeys` is that list, and any movement in it

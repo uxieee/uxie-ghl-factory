@@ -84,3 +84,25 @@ test('a non-array progress response is treated as no rows, not as a crash', asyn
   const { m } = membersWith([{ error: 'nope' }]);
   await assert.rejects(() => m.waitForEnrollment('P1', { timeoutMs: 30, intervalMs: 10, expectContactIds: ['C1'] }), /still absent/);
 });
+
+// ── w8-4: accessOutcome says what happened, from a before and an after read (review focus 1) ──────────────────────────
+import { accessOutcome } from './members.mjs';
+
+test('w8-4: a grant that lands is granted; one already in is already-had', () => {
+  assert.equal(accessOutcome({ action: 'grant', before: false, after: true, sent: true }), 'granted');
+  assert.equal(accessOutcome({ action: 'grant', before: true, after: true, sent: true }), 'already-had');
+});
+
+test('w8-4: a 200 whose membership did not change is queued-unconfirmed, never granted', () => {
+  assert.equal(accessOutcome({ action: 'grant', before: false, after: false, sent: true }), 'queued-unconfirmed');
+});
+
+test('w8-4: a revoke that lands is revoked; a non-member is already-absent; a revoke that did not land is queued-unconfirmed', () => {
+  assert.equal(accessOutcome({ action: 'revoke', before: true, after: false, sent: true }), 'revoked');
+  assert.equal(accessOutcome({ action: 'revoke', before: false, after: false, sent: true }), 'already-absent');
+  assert.equal(accessOutcome({ action: 'revoke', before: true, after: true, sent: true }), 'queued-unconfirmed');
+});
+
+test('w8-4: an unknown action is refused', () => {
+  assert.throws(() => accessOutcome({ action: 'toggle', before: false, after: true, sent: true }), /action/);
+});

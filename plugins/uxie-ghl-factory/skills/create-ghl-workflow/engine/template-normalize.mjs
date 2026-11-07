@@ -29,8 +29,13 @@ export const NORMALIZE_SKIP = new Set([
 // no longer re-target after a reload) introduced the key and drew the warning.
 const SKIPPED_TYPE_WIRE_KEYS = { goto: ['targetNodeId'] };
 
+// ANY step whose `next` is a branch array is a container in its stored form, whatever its type: a multi-path Wait is a
+// `wait`, and re-running it rebuilt attributes.transitions as [] — GHL then refused the edit with
+// transition-id-not-in-parent-transitions-attr (bl-405).
+const isStoredContainer = (t) => Array.isArray(t?.next);
+
 export function normalizeStoredAttributes(template, ctx, opts) {
-  if (!template?.attributes || template.isMarketplaceAction === true || NORMALIZE_SKIP.has(template.type)) {
+  if (!template?.attributes || template.isMarketplaceAction === true || NORMALIZE_SKIP.has(template.type) || isStoredContainer(template)) {
     const wire = SKIPPED_TYPE_WIRE_KEYS[template?.type] ?? [];
     const novel = Array.isArray(opts?.novelKeys) ? opts.novelKeys.filter((k) => !wire.includes(k)) : null;
     if (novel && !novel.length) return { attributes: template?.attributes, warnings: [] };
@@ -48,5 +53,8 @@ export function normalizeStoredAttributes(template, ctx, opts) {
       ],
     };
   }
-  return compilerNormalize(template, ctx);
+  // The keys the stored step already carried (everything but what the patch introduced) are GHL's own.
+  const novelKeys = new Set(opts?.novelKeys ?? []);
+  const storedKeys = Array.isArray(opts?.novelKeys) ? Object.keys(template.attributes).filter((k) => !novelKeys.has(k)) : [];
+  return compilerNormalize(template, ctx, { storedKeys });
 }

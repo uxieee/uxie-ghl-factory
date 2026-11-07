@@ -1,0 +1,82 @@
+{
+  "id": "<uuid-001>",
+  "stepIndex": 1,
+  "parent": null,
+  "order": 0,
+  "attributes": {
+    "name": "A/B Test",
+    "cat": "multi-path",
+    "transitions": [
+      {
+        "id": "<uuid-002>",
+        "name": "Path A",
+        "condition": "Path A",
+        "conditionType": "default",
+        "isPrimaryBranch": false,
+        "description": "",
+        "attributes": {}
+      },
+      {
+        "id": "<uuid-003>",
+        "name": "Path B",
+        "condition": "Path B",
+        "conditionType": "default",
+        "isPrimaryBranch": false,
+        "description": "",
+        "attributes": {}
+      },
+      {
+        "id": "<uuid-004>",
+        "name": "Path C",
+        "condition": "Path C",
+        "conditionType": "default",
+        "isPrimaryBranch": false,
+        "description": "",
+        "attributes": {}
+      }
+    ],
+    "type": "workflow_ab_test",
+    "paths": [
+      {
+        "id": "<uuid-002>",
+        "name": "Path A"
+      },
+      {
+        "id": "<uuid-003>",
+        "name": "Path B"
+      },
+      {
+        "id": "<uuid-004>",
+        "name": "Path C"
+      }
+    ],
+    "extras": {
+      "metric": {
+        "kind": "event",
+        "matchCriteria": {
+          "segments": [
+            {
+              "op": "or",
+              "conditions": [
+                {
+                  "goal_condition": "form_submission",
+                  "extras": {
+                    "formIds": [
+                      "<form-id-001>"
+                    ]
+                  },
+                  "id": "<uuid-005>"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "endCondition": {
+        "type": "contacts",
+        "numberOfContacts": 200
+      },
+      "afterEnd": "route_to_winner"
+    }
+  }
+}

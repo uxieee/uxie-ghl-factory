@@ -31,20 +31,29 @@
         "commit:afe9223b"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "POST https://services.leadconnectorhq.com /agent-logs/filter-values": "8698223264f34b75fd2b0329dceb8cda36a28b8963a189e9c708342016c1eaeb"
     },
     "builds": {
-      "agentLogsApp": 717,
-      "agentStudioApp": 715,
-      "aiEmployeesApp": 2641,
-      "aiGrowthApp": 714,
-      "superagentsApp": 721,
-      "voiceAiApp": 719
+      "agentLogsApp": 868,
+      "agentStudioApp": 868,
+      "aiEmployeesApp": 2919,
+      "aiGrowthApp": 879,
+      "superagentsApp": 868,
+      "voiceAiApp": 867
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_agent_log_filter_values": "c6c46cd73dfdefcd62f228996a6b824c3f4d5f892423c69304164fb6174c0c09",

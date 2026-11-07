@@ -1,7 +1,7 @@
 // t23 (2026-09-29): Agent Logs fidelity + the Voice AI / Conversation AI log reads.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { TOOLS } from '../core/tools.mjs';
+import { TOOLS, registerTools } from '../core/tools.mjs';
 import { classifyCall } from '../core/location-binding.mjs';
 import { PRODUCTS, sessionRow, FILTER_FIELDS } from '../core/agent-logs.mjs';
 import { voiceCallLogsQuery, voiceCallRow, voicePendingQuery, caiConversationLogsQuery, toEpochMs } from '../core/ai-call-logs.mjs';
@@ -93,4 +93,79 @@ test('get_convai_conversation_logs: a scope is always sent; from/to go together;
     gwFrom([[/conversation-logs/, { items: [{ id: 'i', employeeId: 'e', employeeName: 'E', channel: 'SMS' }], pagination: { page: 1, limit: 1, totalItems: 5 } }]]));
   assert.equal(logs.data.conversations[0].agentName, 'E');
   assert.equal(logs.data.hasMore, true);
+});
+
+// W5a Task 7 (2026-10-30): the log tools see OUTBOUND. Fixtures are the verbatim bodies of
+// knowledge/sniffs/convai-wave-2026-10-29 (live-outbound-envelopes.json → agentLogInteractions; the outbound
+// conversation-logs read of live-outbound-runtime-L5-L7.json step 7), every identifier and name replaced by a placeholder.
+const OUTBOUND_INTERACTIONS = {
+  status: 'success', conversationId: 'session_1', meta: { totalRecords: 3, page: 1, limit: 100, totalPages: 1 },
+  interactions: [
+    { traceId: 'trace_1', timestamp: '2026-10-29 16:19:16.396', lastSpanName: 'agent_llm_1', contactId: 'contact_1', contactName: 'Contact One',
+      userQuery: '[outbound] trigger', aiResponse: 'Hi there, checking in.', userQueries: ['[outbound] trigger'], aiResponses: ['Hi there, checking in.'],
+      allAttachments: [], metrics: { latencyMs: 2, statusCode: 1 } },
+    { traceId: 'trace_2', timestamp: '2026-10-29 16:39:23.113', lastSpanName: 'agent_llm_1', contactId: 'contact_1', contactName: 'Contact One',
+      userQuery: '[outbound] bulk_action', aiResponse: 'Hi there, checking in.', userQueries: ['[outbound] bulk_action'], aiResponses: ['Hi there, checking in.'],
+      allAttachments: [], metrics: { latencyMs: 3, statusCode: 1 } },
+    { traceId: 'trace_3', timestamp: '2026-10-29 16:43:56.413', lastSpanName: 'Writing reply', contactId: 'contact_1', contactName: 'Contact One',
+      userQuery: '[outbound] trigger', aiResponse: 'Hello! How can I help you today?', userQueries: ['[outbound] trigger'], aiResponses: ['Hello! How can I help you today?'],
+      allAttachments: [], metrics: { latencyMs: 1454, turnTokens: 2313, inputTokens: 2220, outputTokens: 93, statusCode: 1 } },
+  ],
+  traceId: 'trace_0',
+};
+
+test('get_agent_session labels each outbound turn with its source, parsed from "[outbound] <source>" (3 live rows)', async () => {
+  const deps = gwFrom([[/summary/, { summary: {} }], [/interactions/, OUTBOUND_INTERACTIONS]]);
+  const r = await tool('get_agent_session').handler({ locationId: L, agentSessionId: 'session_1', includeMetrics: false }, deps);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.data.interactions.map((i) => i.outbound), ['trigger', 'bulk_action', 'trigger']);
+  // The rest of the row is untouched: the userQuery still reads verbatim.
+  assert.equal(r.data.interactions[1].userQuery, '[outbound] bulk_action');
+  assert.equal(r.data.interactions[2].traceId, 'trace_3');
+});
+
+test('get_agent_session: an ordinary inbound turn is outbound:null; a source the wave never saw is kept as its own string', async () => {
+  const inbound = { traceId: 'msg_1', userQuery: 'What are your hours?', aiResponse: 'We open at 9.', userQueries: ['What are your hours?'], aiResponses: ['We open at 9.'] };
+  const other = { traceId: 'trace_9', userQuery: '[outbound] ai_campaign', aiResponse: 'Hi', userQueries: ['[outbound] ai_campaign'], aiResponses: ['Hi'] };
+  const greeting = { traceId: 'msg_2', userQuery: '', aiResponse: 'Hi', userQueries: [], aiResponses: ['Hi'] };
+  const deps = gwFrom([[/summary/, { summary: {} }], [/interactions/, { interactions: [inbound, other, greeting], meta: { totalPages: 1 } }]]);
+  const r = await tool('get_agent_session').handler({ locationId: L, agentSessionId: 's', includeMetrics: false }, deps);
+  assert.deepEqual(r.data.interactions.map((i) => i.outbound), [null, 'ai_campaign', null]);
+});
+
+const OUTBOUND_LOGS = { items: [{ id: 'log_1', conversationId: 'conversation_1', dateAdded: '2026-10-29T16:19:17.000Z', employeeId: 'agent_1', contactId: 'contact_1',
+  channel: 'SMS', lastMessage: 'Hi there, checking in.', contactName: 'Contact One', isContactDeleted: false, employeeName: 'Agent One', isEmployeeDeleted: false }],
+pagination: { page: 1, limit: 20, totalItems: 1, sortOrder: 'desc' } };
+
+test('get_convai_conversation_logs: direction "outbound" is sent as the direction query; without it no direction is sent (unchanged)', async () => {
+  assert.equal(caiConversationLogsQuery({ direction: 'outbound' }).get('direction'), 'outbound');
+  assert.equal(caiConversationLogsQuery({}).has('direction'), false);
+  const calls = [];
+  const r = await tool('get_convai_conversation_logs').handler({ locationId: L, presetPeriod: 'this-month', direction: 'outbound' },
+    gwFrom([[/conversation-logs/, OUTBOUND_LOGS]], calls));
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.equal(new URLSearchParams(calls[0].p.split('?')[1]).get('direction'), 'outbound');
+  assert.equal(r.data.conversations[0].conversationId, 'conversation_1');
+  assert.equal(r.data.conversations[0].agentId, 'agent_1');
+  const plain = [];
+  await tool('get_convai_conversation_logs').handler({ locationId: L }, gwFrom([[/conversation-logs/, OUTBOUND_LOGS]], plain));
+  assert.equal(plain[0].p.includes('direction='), false);
+});
+
+test('get_convai_conversation_logs: direction is outbound-only — inbound (never executed) and any other value are refused', async () => {
+  let wrapped;
+  const deps = gwFrom([[/conversation-logs/, OUTBOUND_LOGS]]);
+  registerTools({ registerTool: (_n, _meta, fn) => { wrapped = fn; } }, deps, [tool('get_convai_conversation_logs')]);
+  const call = async (a) => JSON.parse((await wrapped(a)).content[0].text);
+  for (const bad of ['inbound', 'OUTBOUND', 'both']) {
+    const r = await call({ locationId: L, direction: bad });
+    assert.equal(r.ok, false, bad);
+    assert.equal(r.code, 'VALIDATION_FAILED', bad);
+  }
+  // CONTROL: the schema accepts the one measured value.
+  assert.equal((await call({ locationId: L, direction: 'outbound' })).ok, true);
+  // The handler refuses on its own too (a caller that bypasses the schema).
+  const direct = await tool('get_convai_conversation_logs').handler({ locationId: L, direction: 'inbound' }, deps);
+  assert.equal(direct.code, 'VALIDATION_FAILED');
+  assert.match(tool('get_convai_conversation_logs').description, /direction[^.]*outbound[^.]*inbound[^.]*(never|not) (been )?executed/i);
 });

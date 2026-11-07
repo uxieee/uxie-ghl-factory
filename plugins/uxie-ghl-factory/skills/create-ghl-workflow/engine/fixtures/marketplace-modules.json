@@ -27,7 +27,7 @@
           "customVars": [],
           "customVarsJson": {
             "message": "Event successfully sent to SQS",
-            "messageId": "9203c59d-67ed-43a9-96e6-305218dc96ac"
+            "messageId": "00000000-0000-4000-8000-0000000000e3"
           },
           "info": {
             "name": "Send iMessage",
@@ -113,7 +113,7 @@
           "customVars": [],
           "customVarsJson": {
             "success": true,
-            "messageId": "_VW3B4Mtb5PRCXBWMNoBL",
+            "messageId": "_Lq7TestMk00000000001",
             "status": 200
           },
           "info": {

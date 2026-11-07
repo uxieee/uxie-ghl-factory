@@ -30,6 +30,9 @@ export const REF_SOURCE = Object.freeze({
   // A sell-product button stores {value: {id: <step product id>}} (a Products-tab row of a step of the SAME funnel), and an uploaded font is named by
   // {customFontId: <_id>} in the page's typography slot (GET /funnels/custom-fonts).
   productId: 'stepProducts', customFontId: 'customFonts',
+  // w7-12: a store product is a location product (GET /products/?locationId, the list the entity sweep reads). storeCollectionId has NO
+  // measured internal list, so it stays out of this table and is reported not checked (test: audit-site-lists).
+  storeProductId: 'storeProducts',
   // a marketing-countdown binds a saved Countdown Timer asset by id (GET /countdown-timer/?locationId lists the location's assets)
   countdownTimerId: 'countdownTimers',
 });

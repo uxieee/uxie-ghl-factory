@@ -430,13 +430,19 @@ test('list_account_entities treats malformed successful payloads as empty best-e
   // Compared as a SET: the registry decides the order, so a literal object would pin something
   // this test does not mean to assert.
   assert.equal(result.ok, true);
-  assert.deepEqual(Object.keys(result.data).sort(), [
+  // w6d-9 (3): `unreadable` is the failed-reads list, a deliberate additive key. A malformed SUCCESSFUL payload is not a failed read: none of
+  // the stubbed-malformed legs may be listed. (The one unstubbed path answers 404 in this stub, so it IS a failed read and is listed.)
+  const listed = result.data.unreadable.map((u) => u.key);
+  for (const k of ['pipelines', 'calendars', 'users', 'forms', 'customFields', 'agents']) {
+    assert.ok(!listed.includes(k), `${k} answered a successful malformed payload and must not be listed as a failed read`);
+  }
+  assert.deepEqual(Object.keys(result.data).filter((k) => k !== 'unreadable').sort(), [
     'agents', 'calendars', 'callDispositions', 'coupons', 'customFields', 'customValues',
     'documentTemplates', 'emailTemplates', 'eventTickets', 'events', 'fbPages', 'forms', 'funnels', 'lostReasons',
     'membershipProducts', 'objects', 'offers', 'phoneNumbers', 'pipelines', 'products',
     'smsTemplates', 'triggerLinks', 'users', 'workflows',
   ].sort());
-  assert.ok(Object.values(result.data).every((v) => Array.isArray(v) && v.length === 0),
+  assert.ok(Object.entries(result.data).filter(([k]) => k !== 'unreadable').every(([, v]) => Array.isArray(v) && v.length === 0),
     'every malformed successful payload degrades to an empty array');
 });
 

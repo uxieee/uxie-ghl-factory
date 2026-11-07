@@ -8,6 +8,9 @@
  * Group INTERNALS are PORTAL_USER-scoped. An admin token gets
  * 403 "WEB_USER source is restricted by this endpoint" on /groups/{id}, /channels, /posts,
  * and you cannot spoof past it — the JWT encodes the source, so overriding the header 401s.
+ * EXCEPT group `settings` (2026-10): the admin group list carries settings.moderationSettings.blockedKeywords,
+ * and the admin group PUT writes them — the portal's moderation read then showed the admin-written keyword
+ * (live 2026-10-30). The held queue and member reports stay portal-only (403).
  *
  * Firestore is only the realtime listener layer for feeds; admin CRUD is plain REST.
  */
@@ -41,15 +44,19 @@ export class Communities {
   /**
    * `createdBy` on the result is the acting user's CONTACT id (portal identity),
    * not the staff user id. Creating a group auto-creates an "Announcements" channel.
+   * `discovery` mirrors the create form's Discovery switch (default ON, as the UI): false sends no
+   * marketplaceLocationId (proven 2026-10-30); keeping the group off the marketplace is the switch's stated purpose.
    */
-  createGroup({ name, slug, description = '', branding = {} }) {
+  createGroup({ name, slug, description = '', branding = {}, discovery = true }) {
     return this.req('POST', `${SERVICES}/communities/${this.loc}/groups`, {
       name, slug, description, locationId: this.loc,
-      marketplaceLocationId: MARKETPLACE_LOCATION_ID, branding,
+      ...(discovery ? { marketplaceLocationId: MARKETPLACE_LOCATION_ID } : {}), branding,
     });
   }
 
-  /** PUT merges (PATCH is 404). */
+  /** PUT merges at the top level (PATCH is 404): description and media survived a PUT that omitted them (2026-10-30).
+   *  Send `settings` whole (whether it merges below the top level is untested) — {groupType, groupSwitcherVisibility, allowsMembersInvite, showMandatoryInfoModal,
+   *  moderationSettings: {blockedKeywords[]}} — read the group row first and send the settings back with your change. */
   updateGroup(groupId, patch) {
     return this.req('PUT', `${SERVICES}/communities/${this.loc}/groups/${groupId}`, patch);
   }

@@ -32,16 +32,19 @@ in.
   (the richest commerce surface), custom fields, custom values, tags (via
   contacts), conversations (message read/send, not bot config), locations
   (agency/sub-account CRUD), SaaS-mode operations, snapshots (list/inspect),
-  Voice AI (full lifecycle — the most API-mature of the AI products),
+  Voice AI (agents, actions and call logs; the LLM, MCP servers, transfer and disclaimer settings are
+  internal-only),
   Conversation AI agents (CRUD on the agent object, under the
   `conversation-ai` category).
 - **Known gaps (confirmed as of this catalog):** workflow **builder
   internals** — triggers, actions, branches, wait nodes (`workflows` /
-  `workflows-v3` is a 1-action list-only category); funnel/page **builder**
+  `workflows-v3` documents definitions, status and logs since 2026-10-19, but GHL allow-lists it: 403 on our
+  locations, and its workflow list leaves out typed workflows such as agent workflows); funnel/page **builder**
   internals — page content, sections, publish control (`funnels`/
   `funnels-v3` are 7-action read/redirect-only categories); Conversation AI
   **bot configuration** — prompts, knowledge-base content, Flow Builder
-  graphs (the agent object is public; its internals are not); Courses/
+  graphs (the public rail reads and updates the agent itself, prompt included, but not
+  its outbound configs and triggers, AI Campaigns, rich elements, MCP servers or V2 graphs); Courses/
   Memberships CRUD beyond import; Communities (no public surface at all);
   free-form Payment Link generation; Document/Contract send. The MCP
   server's `search_actions` surfaces these gaps inline in its notes so an
@@ -77,8 +80,9 @@ still calling this a gap is wrong.
 - **What it's used for (because the public API has no equivalent):** the
   workflow builder (export, build, edit, publish, runtime logs, fast-forward);
   memberships and courses; events; funnels and pages; Voice AI behaviour;
-  knowledge bases; the two internal-only corners of Conversation AI (the
-  per-contact switch and prompt history); agency-level premium-feature and
+  knowledge bases; Conversation AI listing and configuration, including what
+  has no public equivalent (the per-contact switch, prompt history, the routing table, outbound agents, AI
+  Campaigns, rich elements, Claude/Gemini, MCP servers, Build with AI, V2 flow agents); agency-level premium-feature and
   rebilling reads.
 - **Which plugin skills use it:**
   - **read-only:** `get-ghl-workflow-json`, `get-ghl-workflow-logs`. No
@@ -86,7 +90,7 @@ still calling this a gap is wrong.
   - **write, both write-rails gates apply:** `create-ghl-workflow`,
     `ghl-workflow-fast-forward`, `ghl-memberships`, `ghl-events`,
     `ghl-funnels-pages`, `ghl-voice-ai`, `ghl-knowledge-base`, and the
-    internal corners of `ghl-conversation-ai`.
+    Conversation AI configuration in `ghl-conversation-ai` (its outbound and campaign writes also carry the send-class ack token).
 
 ### Finding an internal endpoint — the catalogue
 
@@ -132,6 +136,35 @@ Two rules hold whatever you find:
 
 ## Choosing a surface for a job
 
+Where both rails serve the same job, the rail ledger decides (whole ledger: `rail-ledger.md` beside this file):
+
+<!-- rail-ledger:summary -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Product | Jobs both rails serve | Decided | Routed today |
+|---|---|---|---|
+| workflows | read, create, edit, publish, delete, logs | none yet | internal |
+| courses | read, create, edit, delete, enrol, bulk, logs | read: pool-internal | internal, public |
+| conversation-ai | read, create, edit, delete | none yet | split, internal |
+| voice-ai | read, create, edit, delete, logs | none yet | internal |
+| knowledge-base | read, create, edit, delete | read: both | internal |
+| agent-studio | read, create | none yet | internal |
+| pipelines | read, create, edit, delete | read: both | split, public, internal |
+| opportunities | read, create, edit, delete | none yet | public |
+| forms | read | read: pool-internal | internal |
+| funnel-redirects | read, create, edit, delete | none yet | internal |
+| calendars | read, create, edit, delete | none yet | public |
+| custom-fields | read, create, edit | read: both | public, split |
+| custom-values | read, create, edit | read: both | public |
+| tags | read, create | read: both | public, split |
+| snapshots | read | none yet | internal |
+| contact-enrolment | enrol | none yet | none |
+| blogs | create, edit | none yet | none |
+| email-templates | read, create | none yet | public |
+| countdown-timers | read, use | none yet | internal |
+<!-- /rail-ledger:summary -->
+
+
 Default to public. Reach for internal only when the job genuinely has no
 public-API path:
 
@@ -145,11 +178,12 @@ public-API path:
 | Inspect a workflow's full trigger/action JSON | Internal, read-only | `get-ghl-workflow-json` — no public equivalent |
 | Create/edit a workflow's structure | Internal, write | `create-ghl-workflow` — no public equivalent; write rails apply |
 | Create a funnel, add a page, inject custom HTML | Internal, write | `ghl-funnels-pages` — no public equivalent; write rails apply |
-| Read or configure a Conversation AI agent | Public (MCP) | `ghl-conversation-ai` — same objects on both rails, public is richer |
-| Silence the AI for one contact; roll a prompt back | Internal | `ghl-conversation-ai` — the two corners with no public equivalent |
+| Read or configure a Conversation AI agent | List: internal (the public search leaves out flow-builder bots). One bot's prompt: either. Configure: internal | `ghl-conversation-ai` — same agent ids; internal lists more bots (flow-builder ones), public describes each in more fields |
+| Silence the AI for one contact; roll a prompt back | Internal | `ghl-conversation-ai` — no public equivalent |
+| Make a Conversation AI agent text first on CRM events; run an AI Campaign; rich replies; Claude/Gemini models | Internal, write — send-class | `ghl-conversation-ai` (`references/outbound-and-campaigns.md`) — no public equivalent; activation signs SMS compliance in the caller's name, and every enable needs the human's yes and the ack token |
 | Build or edit a knowledge base's content | Internal, write | `ghl-knowledge-base` — 5 of 9 source types have no public path |
-| Configure what a Voice AI agent DOES (actions, booking, transfer) | Internal, write | `ghl-voice-ai` — public sees how it sounds, not what it does |
-| Build a course, enrol a member, issue a certificate | Internal, write | `ghl-memberships` — no public equivalent beyond import |
+| Configure what a Voice AI agent DOES (actions, booking, transfer) | Internal, write | `ghl-voice-ai` — the public agent object leaves out the LLM, MCP servers and transfer settings; public documents attaching actions, not yet proven live |
+| Build a course, enrol a member, issue a certificate | Internal, write | `ghl-memberships` — the public Courses API (2026-09-24) builds products, categories, lessons and offers and enrols synchronously; certificates, DRM and themes are internal-only |
 | Create an event, tickets, sessions, read attendees | Internal, write | `ghl-events` — no public events surface at all |
 | Read what a workflow actually DID (logs, enrolments, stuck contacts) | Internal, read-only | `get-ghl-workflow-logs` |
 | Anything you're not sure has a public endpoint | Public (MCP) — check first | `search_actions` on the `ghl` MCP server before assuming a gap; the catalog changes (pipelines are a recent example of a "gap" closing) |

@@ -28,7 +28,7 @@ Spec format + a worked example: `references/example-spec.json` and `references/c
 
 One command produces: course → chapters (order, drip, nesting, gating) → lessons (rich HTML body,
 video/audio upload, PDF attachments, external embeds) → quizzes **with questions** → assignments →
-free offer (published) → branded theme → credential template **attached to auto-issue on completion**
+free offer (draft; published only when the spec says `publish: true`) → branded theme → credential template **attached to auto-issue on completion**
 → optional enrollment. Then it verifies every item by read-back and prints a teardown command.
 
 Remove: `node scripts/build-course.mjs --delete <productId>`
@@ -45,6 +45,35 @@ Runs the real admin lifecycle live and asserts on **effects, not status codes**
 **21 passed / 0 failed / 4 skipped.** This is an undocumented API that drifts — run this before
 trusting the reference on any account you haven't touched recently. The 4 skips are member-session
 writes that cannot run unattended (see Limits).
+
+## Which rail, per job
+
+The public Courses API (2026-09-24) returned the same courses as the internal rail on the sandbox (2026-10-29).
+
+<!-- rail-ledger:courses -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | pool-internal | internal | `list_courses` | `courses-v3__list-courses`, `courses-v3__get-course`, `courses-v3__list-categories`, `courses-v3__list-lessons`, `courses-v3__get-lesson`, `courses-v3__list-offers` |
+| create | undecided | internal | `build_course` | `courses-v3__create-course`, `courses-v3__create-category`, `courses-v3__create-lesson`, `courses-v3__create-offer` |
+| edit | undecided | public | `raw_request:PUT /membership/locations/{locationId}/products/{id}`, `raw_request:PUT /membership/locations/{locationId}/categories/{id}`, `raw_request:PUT /membership/locations/{locationId}/posts/{postId}` | `courses-v3__update-course`, `courses-v3__update-category`, `courses-v3__update-lesson`, `courses-v3__sequence-categories`, `courses-v3__sequence-lessons`, `courses-v3__update-offer` |
+| delete | undecided | public | `raw_request:DELETE /membership/locations/{locationId}/products/{id}`, `raw_request:DELETE /membership/locations/{locationId}/categories/{id}`, `raw_request:DELETE /membership/locations/{locationId}/posts/{postId}` | `courses-v3__delete-course`, `courses-v3__delete-category`, `courses-v3__delete-lesson`, `courses-v3__delete-offer` |
+| enrol | undecided | internal | `raw_request:POST /membership/smart-list/attach-offer-user` | `courses-v3__create-enrollment`, `courses-v3__delete-enrollment` |
+| bulk | undecided | internal | `raw_request:POST /membership/locations/{locationId}/assessments/quiz/questions` | `courses-v3__get-quiz-questions`, `courses-v3__upsert-quiz-questions` |
+| logs | undecided | internal | `raw_request:GET /membership/locations/{locationId}/products/user-progress/{productId}` | `courses-v3__list-bulk-progress`, `courses-v3__list-enrollments`, `courses-v3__review-assessment` |
+
+- **read:** The memberships skill builds and edits on the internal rail; the public Courses API (2026-09-24) has not been proven on our sandbox yet.
+- **create:** The memberships skill builds and edits on the internal rail; the public Courses API (2026-09-24) has not been proven on our sandbox yet.
+- **edit:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in sniffs/courses-w8-2026-11-06/01-bakeoff/edit.json and delete.json. The tools below are the internal paths the ruling retires.
+- **delete:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in sniffs/courses-w8-2026-11-06/01-bakeoff/edit.json and delete.json. The tools below are the internal paths the ruling retires.
+- **enrol:** The memberships skill builds and edits on the internal rail; the public Courses API (2026-09-24) has not been proven on our sandbox yet.
+- **bulk:** The public upsert replaces every question and drops option text (sandbox 2026-11-06); the internal batch add is the one proven on the build path.
+- **logs:** Not run on either rail: needs an enrolled learner and a submission (G4). Grading is observed only in the engine.
+
+Internal only: media, DRM, themes; clone; certificates; analytics.
+Public only: synchronous enrolment that says alreadyEnrolled; progress and review; import.
+<!-- /rail-ledger:courses -->
 
 ## Object model
 
@@ -104,6 +133,15 @@ A post carries rich-HTML `description` (the body) + ONE primary media + N `post_
     too-narrow network filter — GHL splits one feature's read and write across `membership/`,
     `courses/`, `services/` and `clientportal-middleware/`. Re-check with a **host-level** filter
     before concluding a flow is client-side.
+12. **`createGroup` sends `marketplaceLocationId` (the UI's Discovery switch ON) unless `discovery: false`** (2026-10
+    switch, default ON as in the UI; OFF omits the key — that the group then stays off the marketplace is the switch's
+    stated purpose, not separately observed). Ask the operator which they want for a private client community.
+13. **Moderation keywords live on the ADMIN rail too** — group rows carry `settings.moderationSettings.blockedKeywords`
+    and the admin group PUT writes them (the portal read then shows them, proven 2026-10-30). Read the row and send
+    `settings` back whole with your change. Owner and admin posts are **never held**, so testing a keyword as the
+    owner proves nothing; the held queue and member reports are portal-only (403).
+14. **Notification preferences are one document per member per group**; the portal UI's save also turns the
+    member's `newsletter` push OFF (no push control on that row) — do not copy the UI's body.
 
 ## Proof levels — know what you're trusting
 
@@ -116,8 +154,7 @@ A post carries rich-HTML `description` (the body) + ONE primary media + N `post_
 
 ## Limits (state these rather than working around them)
 
-- **Paid offers are unproven** — `one_time`/`recurring` return 500 without a payment provider
-  connected. Only `free` is proven; `build-course.mjs` rejects paid offers at validation.
+- **Paid offers are supported by the engine but need a connected payment integration** (bl-877). On a sandbox with none, a paid create returns `400 Integrations not found`. The enum is `onetime` (or `subscription`); `one_time` and `recurring` return 500. Checkout is unproven. Only `free` is proven end to end.
 - **Members cannot be fully provisioned headlessly** — portal signup is OTP-gated. See auth §8.3 for
   the softer path (the user record exists before OTP verification).
 - **Whether the credential attachment FIRES on completion is unverified** — it's created and reads
@@ -125,6 +162,90 @@ A post carries rich-HTML `description` (the body) + ONE primary media + N `post_
 - **Module-level credential attachment** (`altType: "category"`) is implied by the response shape,
   not verified — `attach()` only exposes product level.
 - Community channel create/update, and pending-invite list/revoke (403), are uncaptured.
+
+## Editing a course (public rail, ghl-multi)
+
+Course editing is **public-only** (Xander, D3, 2026-11-06). Use `execute_action` on the ghl-multi server with these action ids. Every
+write takes `dry_run: true` first; read the preview; then send the same call with `confirm: true` where the server asks.
+After every write, read the course back with the internal `get_course` (one read: title, offers, normalised tree) and compare.
+
+| Job | Action | Notes |
+|---|---|---|
+| change a lesson | `courses-v3__update-lesson` `{productId, lessonId, …fields}` | partial body: only the fields you send change (measured 2026-11-06) |
+| change a chapter | `courses-v3__update-category` `{productId, categoryId, …fields}` | partial body (measured) |
+| change the course | `courses-v3__update-course` `{productId, …fields}` | partial body (measured) |
+| reorder chapters | `courses-v3__sequence-categories` `{productId, ids}` | `ids` lists every chapter in order (measured) |
+| reorder lessons in a chapter | `courses-v3__sequence-lessons` `{productId, categoryId, ids}` | `ids` lists every lesson of that chapter in order (measured) |
+| move a lesson to another chapter | `courses-v3__update-lesson` with `categoryId`, then `sequence-lessons` on the new chapter | two calls, see trap 3 |
+| remove a lesson | `courses-v3__delete-lesson` `{productId, lessonId}` | 204; the lesson then 404s (measured) |
+| remove a chapter | `courses-v3__delete-category` `{productId, categoryId}` | **cascades**: its lessons go with it (trap 2) |
+| remove a course | `courses-v3__delete-course` `{productId}` | 204 (measured on a probe product) |
+| add a lesson or chapter | `courses-v3__create-lesson` / `courses-v3__create-category` | create as `visibility: "draft"` unless the user has asked to publish |
+
+Traps (the first three are measured on the sandbox; the rest are from the same runs):
+
+1. **A reorder that names only some lessons is not measured.** Always send every lesson of the chapter in `ids`. What the server
+   does with unnamed lessons is unknown, so do not rely on them keeping their place.
+2. **Deleting a chapter deletes its lessons.** Before `delete-category`, list the chapter's lessons (`get_course`) and say so to
+   the user. The internal route also cascades (measured), so this is not a rail difference.
+3. **A cross-chapter move is two writes, and the lesson keeps its old number.** `update-lesson` with `categoryId` moves the
+   lesson but does not renumber it (measured). Follow it with `sequence-lessons` on the new chapter, naming every lesson in order,
+   or the moved lesson can collide with an existing number.
+4. **Do not use the internal whole-document PUT for these edits.** The internal routes take the full object (the engine sends it
+   whole), so an edit there is a read-modify-write of the whole object. The public routes merge a partial body (measured).
+5. **Deleting an offer reads back as a ghost.** `courses-v3__delete-offer` returns 204, but a later `get-offer` returns 200
+   with an empty body. Verify an offer removal with `get_course` (the offers list), not with `get-offer` (bl-801).
+6. **Do not use `courses-v3__upsert-quiz-questions` to edit questions.** It replaces the whole question set (measured: two
+   questions gone when one was sent) and the option text is not read back. To add questions, use `edit_quiz_questions` (below).
+7. **Gated, do not run without the owner's go:** publishing a course, chapter, lesson, offer or channel (the spec's `visibility:
+   "published"` or any `*-publish`); any paid offer; any enrolment or grant that e-mails a member (G4). A dry run of these is fine.
+
+## Granting and revoking access
+
+- Internal: `set_course_access {locationId, contactId, offerId, action: grant|revoke, confirm}`. Preview first (no account call; `sends` says
+  whether a grant e-mails the member: `unknown` for a grant, not yet measured; `false` for a revoke). Confirmed, it reads the course membership, sends
+  the change, reads it again, and reports `granted`, `already-had`, `revoked`, `already-absent` or `queued-unconfirmed`. Trust the outcome, never the 200.
+- Public: `courses-v3__create-enrollment` (201 new, 200 `alreadyEnrolled`), `courses-v3__delete-enrollment` (revoke), `courses-v3__list-enrollments` (read back).
+- **A draft offer still grants access.** A public enrol into a free draft offer answered 201 and read back (bl-833). Do not treat an offer's draft
+  status as a guard. Never put anything confidential in an offer, and treat its id as public (an unauthenticated GET of `/membership/offers/{id}`
+  returns the draft, with the location and feature flags, bl-321).
+- A grant or enrol may e-mail the member. Every send is a gated action (G4) for a real student. Check the preview `sends` before confirming.
+
+## Progress and completion
+
+- Internal: `get_course_progress {locationId, courseId, email?}` walks every page and returns each student's course percent (`completedPercentage`),
+  the user's e-mail and `lastLogin`, plus a per-course summary. `complete: false` (with `failure`) means the walk did not finish: do not read a
+  partial list as the whole course. The internal route gives **no lesson counts**, so `completedLessons` is null there.
+- `lastActivity` on that tool is the last **login**, not the last lesson. Do not read it as lesson activity.
+- Public (ghl-multi): `courses-v3__list-bulk-progress {contactId, productIds}` returns `totalLessons` and `completedLessons` for a student, and
+  `courses-v3__list-category-progress` and `courses-v3__list-completions` give per-chapter progress and completions.
+- **Caveat (bl-834):** on the sandbox the public bulk route returned `totalLessons: 0` for a student on a course with 6 lessons. The likely cause is that
+  the lessons were draft (a count of published lessons only). This is untested: it needs a published lesson, which is a gated publish. Until it is settled,
+  do not trust a `0/0` lesson count without checking the lessons' visibility first.
+
+## Quiz questions and grading
+
+- **Add questions in a batch:** `edit_quiz_questions {locationId, quizId, add: [{title, questionType, explanation?, options: [{statement, isCorrect}]}], confirm?}`.
+  `quizId` is the **quiz** id (the one `GET …/assessments/quiz/{postId}` returns), not the lesson id. Preview first (no write). A single-choice question
+  needs exactly one correct option; duplicate question text in one batch is refused before anything is sent.
+- **The batch write replaces the whole question set** (measured on the sandbox, 2026-11-07: a one-question add to a quiz holding one question left two,
+  and the stored one was gone). So a confirmed `edit_quiz_questions` re-posts every stored question in full, then the additions, and it is refused
+  before any POST when a stored question's option text cannot be read. It reads the quiz again on a separate request and reports `added` only when that
+  read matches the expected set by content (question ids change on every save, so they are not compared, and a question id kept from before an edit is stale); otherwise `unverified`, with the full before list. A failed batch POST is read back the same way (the route replaces, so a failed POST may still have changed the set): the result carries `postFailed` with the HTTP status, and the after read.
+  Its `replace` argument is refused. Do not reach for `upsert-quiz-questions` (trap 6).
+- **Grade a submission (public):** `courses-v3__list-assessments {productId, status?, pageSize?, pageNumber?}`, `courses-v3__get-assessment {productId,
+  assessmentId}`, and `courses-v3__review-assessment` (PUT) with body `{status: passed | failed | processing, score?, feedback?}`. A grade is visible to
+  the learner. Only a submitted attempt can be graded, so the grading route needs a learner who has submitted in the portal.
+- **Not exposed:** the internal `Assessments.grade()` is observed only (transcribed from the admin UI) and needs a member session. Do not present it as a tool.
+- **Not yet proven on the sandbox:** a learner's quiz or assignment submission and its grade. That leg needs a portal session and is tracked on the
+  backlog (bl-842), not run in this build.
+
+## Communities: paid channels and plans (know about)
+
+- Announced 2026-11-02: **paid channels** and **multiple pricing plans** in Communities. Nothing here reads a paid flag, a plan or a price: the admin rail's group and location records carry no such key, and channel paid flags sit behind the PORTAL_USER scope.
+- **Every write is unproven.** Creating a paid channel, creating or editing a pricing plan, and connecting a payment provider for Communities are all paid actions and gated. Do not run them to "test" the route.
+- Know-about only: which surface shows what, and what is still open, is in the corpus page `70-research/2026-11-06-communities-paid-channels-and-know-about.md`.
+- Course video analytics and the Discover Courses & Offers storefront have no route taught here; the courses analytics routes in the endpoint index are proven for dashboards, not for video watch data.
 
 ## Full reference
 

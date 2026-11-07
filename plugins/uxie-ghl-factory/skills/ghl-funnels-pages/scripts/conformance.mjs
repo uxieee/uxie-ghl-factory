@@ -34,6 +34,13 @@ import { createExerciseLog } from '../../../mcp-internal/core/exercise-log.mjs';
 import { DEFAULT_TOKEN_FILE } from '../../../mcp-internal/core/auth.mjs';
 import { makeRenewer, autoRenewEnabled } from '../../../mcp-internal/core/token-renewal.mjs';
 
+// --render <dir> (w7-9): the OFFLINE render section. No location, no browser, no GHL call: it reads saved PROBE_SOURCE outputs
+// (canvas/preview/live x 1440/390) and asserts compare_page_renders' verdict is 'match'. Runs before the live suite's location check.
+if (process.argv.includes('--render')) {
+  const { runRenderSection } = await import('./render-section.mjs');
+  process.exit(runRenderSection(process.argv[process.argv.indexOf('--render') + 1]));
+}
+
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
 if (!LOCATION) {
   console.error("GHL_LOCATION is required — the sub-account to run against.\n  GHL_LOCATION='<locationId>' node conformance.mjs");

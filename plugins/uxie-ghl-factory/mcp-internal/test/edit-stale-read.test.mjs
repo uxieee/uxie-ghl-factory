@@ -86,3 +86,66 @@ test('with no recorded graph there is nothing to compare, so a moved version sti
   assert.equal(r.code, 'PREVIEW_STALE');
   assert.equal(put(), 0);
 });
+
+// ---- W6a Task 1 (item 7): a concurrency token in every preview ----
+// bl-424: repair_workflow wrote without recording the round-trip read, so the next edit in the same session saw the
+// pre-repair snapshot, a moved graph, and answered PREVIEW_STALE for the agent's own write.
+test('bl-424: an edit right after this project\'s own repair is not stale', async () => {
+  const state = project();
+  const { gw, put } = gateway([TAG(['before'])], 3);
+  assert.equal((await tool('export_workflow').handler({ locationId: 'LOC', workflowId: 'WID' }, { makeGw: () => gw, state })).ok, true);
+  const rep = await tool('repair_workflow').handler({ locationId: 'LOC', workflowId: 'WID', confirm: true,
+    templates: [TAG(['repaired'])] }, { makeGw: () => gw, state });
+  assert.equal(rep.ok, true, `${rep.code} ${String(rep.detail).slice(0, 300)}`);
+  const r = await edit(gw, state);
+  assert.equal(r.ok, true, `${r.code} ${String(r.detail).slice(0, 300)}`);
+  assert.equal(put(), 2);
+});
+
+test('the edit preview carries a previewToken {version, fingerprint}', async () => {
+  const state = project();
+  const { gw } = gateway([TAG(['before'])], 3);
+  const r = await edit(gw, state, { confirm: false });
+  assert.equal(r.code, 'CONFIRM_REQUIRED');
+  const t = r.data?.preview?.previewToken;
+  assert.equal(t?.version, 3);
+  assert.match(t?.fingerprint ?? '', /^[0-9a-f]{16}$/);
+});
+
+test('a confirm whose previewToken fingerprint no longer matches is PREVIEW_STALE, with nothing written', async () => {
+  const state = project();
+  const { gw, put } = gateway([TAG(['someone-else'])], 4);
+  const r = await edit(gw, state, { previewToken: { version: 3, fingerprint: '0000000000000000' } });
+  assert.equal(r.code, 'PREVIEW_STALE');
+  assert.equal(put(), 0);
+});
+
+test('a confirm whose token matches the graph but not the version proceeds with VERSION_MOVED', async () => {
+  const state = project();
+  const g1 = gateway([TAG(['before'])], 3);
+  const preview = await edit(g1.gw, state, { confirm: false });
+  const token = preview.data.preview.previewToken;
+  const { gw, put } = gateway([TAG(['before'])], 7);
+  const r = await edit(gw, project(), { previewToken: token });
+  assert.equal(r.ok, true, `${r.code} ${String(r.detail).slice(0, 300)}`);
+  assert.equal(put(), 1);
+  assert.ok((r.data?.warnings ?? []).some((w) => /VERSION_MOVED/.test(w)), JSON.stringify(r.data?.warnings));
+});
+
+test('a confirm with no previewToken still works (1.x compatibility) and says the token was missing', async () => {
+  const { gw, put } = gateway([TAG(['before'])], 3);
+  const r = await edit(gw, project());
+  assert.equal(r.ok, true);
+  assert.equal(put(), 1);
+  assert.ok((r.data?.warnings ?? []).some((w) => /PREVIEW_TOKEN_MISSING/.test(w)), JSON.stringify(r.data?.warnings));
+});
+
+test('repair: the preview carries a previewToken and a confirm with a mismatched token is refused', async () => {
+  const { gw, put } = gateway([TAG(['before'])], 3);
+  const pv = await tool('repair_workflow').handler({ locationId: 'LOC', workflowId: 'WID', templates: [TAG(['repaired'])] }, { makeGw: () => gw, state: project() });
+  assert.match(pv.data?.preview?.previewToken?.fingerprint ?? '', /^[0-9a-f]{16}$/);
+  const r = await tool('repair_workflow').handler({ locationId: 'LOC', workflowId: 'WID', confirm: true, templates: [TAG(['repaired'])],
+    previewToken: { version: 3, fingerprint: '0000000000000000' } }, { makeGw: () => gw, state: project() });
+  assert.equal(r.code, 'PREVIEW_STALE');
+  assert.equal(put(), 0);
+});

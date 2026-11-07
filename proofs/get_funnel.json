@@ -84,10 +84,19 @@
         "commit:880e2c46"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /funnels/builder/funnel-share-details/{}": "44e1a4c2da4b9fe67004edf2ecaa4e119b87adbcf2ab66c2b2f20eb1f04e46e5",
       "GET https://backend.leadconnectorhq.com /funnels/builder/get-versions": "32754c990877d14c51c299475ab6da2d3cd5cad0760a62c446bd090f473891b6",
@@ -108,8 +117,8 @@
       "POST https://backend.leadconnectorhq.com /funnels/funnel/webinar/sessions": "a32abd1e7d9588d3dc283db48140d372dbf4ae618a75c2586f8eaf3929fdbc8b"
     },
     "builds": {
-      "domainConnectApp": 228,
-      "funnelWebsiteApp": 230,
+      "domainConnectApp": 243,
+      "funnelWebsiteApp": 248,
       "funnelWebsiteDomainApp": 222,
       "redirectApp": 222
     },

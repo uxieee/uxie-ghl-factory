@@ -80,7 +80,9 @@ export function findOutputRefs(text) {
  * reference against an unnumbered producer and we cannot yet say whether that is the rule or
  * leniency. Warning on a shape that works in production is worse than staying quiet.
  */
-export function checkStepOutputRefs(templates, ctx = {}) {
+// w6d-8 (bl-893): opts.onlyIds, when given, limits the CONSUMERS checked to those step ids. Producers always come from the whole workflow,
+// so an edit is judged on the whole renumbered graph while pre-existing steps are not re-warned on every edit.
+export function checkStepOutputRefs(templates, ctx = {}, opts = {}) {
   if (ctx.skipStepOutputCheck === true) return [];
   const warn = (m) => { if (typeof ctx.warn === 'function') ctx.warn(m); };
   const producers = new Map();           // type → [{ns:Set<number>, step}]
@@ -107,6 +109,7 @@ export function checkStepOutputRefs(templates, ctx = {}) {
   }
   const findings = [];
   for (const t of templates ?? []) {
+    if (opts.onlyIds && !opts.onlyIds.has(t.id)) continue;
     const texts = [];
     const walk = (v) => { if (typeof v === 'string') texts.push(v); else if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === 'object') Object.values(v).forEach(walk); };
     walk(t?.attributes);

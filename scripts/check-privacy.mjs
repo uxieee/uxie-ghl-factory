@@ -11,7 +11,10 @@
 //
 // Adding a legitimate exception: put it in ALLOW below with a reason.
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir, homedir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
 const staged = process.argv.includes('--staged');
@@ -73,7 +76,7 @@ const ALLOW = [
   // Shape-valid but plainly fake Google API key used by the token-renewal tests to prove the
   // firebase exchange is called with the CAPTURED key. Deliberately not a real key: the rule
   // below caught it on its first run, which is the behaviour it exists to have.
-  'AIzaTESTKEY0000000000000000000000000000',
+  ['AIza', 'TESTKEY', '0'.repeat(28)].join(''),
   // GHL's own PUBLIC Firebase web client key, shipped in the AI Studio bundle. Not a secret;
   // it identifies the Firebase project and cannot authorise anything on its own.
   'AIzaSyB_w3vXmsI7WeQtrIOkjR6xTRVN5uOieiE',
@@ -144,6 +147,8 @@ const NAME_HASHES = new Set([
   // the agency names, its AU location id, its company id, and the repo owner's own user id.
   // This repo is allowed to name the account it tests against, and the plugin's own fixtures do.
   // Adding them would fail the gate on correct, intentional content. Do not "align" the lists.
+  // rel-10 narrowed this: the account NAMES stay allowed, but the GROM Sandbox LOCATION ID is denied
+  // (its hash is in the list below). Test fixtures use a synthetic id of the same shape instead.
   //
   // FIVE were dropped from this batch, not sixteen-minus-three: the first attempt added "GROM UK"
   // and GROM AU's location id, and the gate failed on four real files within seconds. That failure
@@ -201,7 +206,46 @@ const NAME_HASHES = new Set([
   'd47bf56312ee8eb99b7f945306a7c804d6dc35726391c54af7cb75cf98119fc5',
   'af56a0419031ae138a3f3a88256ec97aa34e77ea85c12556bdf6d063a48a10a7',
   '327b59e7f26ffe855ebbc5e65687bbe0cb32eafee7732d7d5dc80782a7dff066',
+
+  // rel-10 (2026-11-07, orchestrator decision (a) on privacy): the GROM Sandbox LOCATION ID. The GROM family's
+  // account NAMES may still appear in this repo (see the exemption note above), but this id may not: it sat in
+  // test fixtures in the public plugin and on origin/main. Hashed like every other entry; the plaintext stays out.
+  // Sandbox workflow, form and contact ids are flagged the same way when they are known: add the hash with --hash.
+  '2bdf35474a3ff3aa9018f37b6eefc8aec29897936b9ed54e9c5e9e86a02342e4',
+  // rel-10 fix 2 (2026-11-07): real ids found on origin/main by QA's sweep. Each is held by its hash only.
+  // Three are GROM Sandbox records (two draft workflows, a sandbox step id, a sandbox record id, a custom field).
+  // One is a location's media bucket id (not the sandbox's, and not in the local accounts list). One is a message id
+  // from the operator's own asset capture. Add a new one with: node scripts/check-privacy.mjs --hash "<id>".
+  '227c416a100538ce1ef7a898cc1c665c081c1dcc5d725d05f6f6dc91e2258aec',
+  'a7727880496782a29a047b9b03057b058a50a384da2deac1fa9235c6d3b608f5',
+  'e182f7788601bf23696d15f60a0bcc8cc31b6617aa842b6461468543e46d90e2',
+  'cb0f98c9a93d70901b42a8c7dca6fa2d55ab690623e77c1f8850e64f732d0d44',
+  'a8c6cbd67b874b266733b0e37ed52829b19fe2adc5dd73252a1c55351539f50b',
+  '615428735bf121f168cfdad2a8fb98ceea94e4a16708983a1fb089aec96d4529',
+  '485965590c06848bbe1ec104a68845463379c5622ebee720740a84d7a87bf64f',
+  // rel-10b (2026-11-07): eight more real ids from QA's deeper sweep (sandbox folder, sandbox agents, sandbox workflow and
+  // bot ids, a GROM Digital AU probe id, a live step UUID not on origin/main, a GROM UK comment id). Hash only.
+  '39532233b759cb1a688db2e1e4790eb0a9433963e3448e6c6b217aacdc5f53fc',
+  '795a1261bc237a0c70db66386577dec1652cd3c7a93195f1863b3f1136c8cf70',
+  '675ca3122d74acaa4039ca936085e1d2813dd63782010b2cc4302aedf7ce2497',
+  '37180eb56e77d2ae7a489d4e5c6fd6dbb66584fcb642ebfe45c5f0d9bc2954d2',
+  '730a8aa1915a7e0f0fead4ebad9a41c5173166c9a0c39a9ff4be828ce62850aa',
+  '85e32da5960981d5f97ae6766aae331f0bb6c4ea3ceae5ec72b0f54a4aae4417',
+  '7cf3b2ca244915d1525f20e43780b30ae3cab2aec0e30b7c6c7f6a14e75a7a91',
+  '3359f7ad911127e59d840410c86bcfaaa8182d79d856921666b92a1a6dc97728',
+  // rel-10b (2026-11-07, decision 3): a messageId from the operator's own asset capture (scrubbed from the plugin fixture). Hash only.
+  '7d0ed087c381932c392ceb5762e6042e01b7b248428fc6d94f11ef8069beb642',
+  // rel-10b (decision 3): two real-account 24-hex ids, scrubbed from the plugin tests. Hash only.
+  'a296fc956175b1cf2d5555fd7ff51a1cf0ca523709dc4ff2ee6b38de01149b59',
+  'ec767b583e5ad935c3cf90e7a6987209a32364e6df639e63ed645bf10de034c6',
 ]);
+
+// Extra deny hashes for a run (rel-10 fix): PRIVACY_EXTRA_DENY_HASHES=<sha256>,<sha256> adds to NAME_HASHES for that run.
+// It can only add refusals, never remove one. The plugin's own tests use it to prove the gate bites on a SYNTHETIC id
+// by its hash, so no real id has to be written into the repo.
+for (const h of (process.env.PRIVACY_EXTRA_DENY_HASHES ?? '').split(',').map((s) => s.trim()).filter(Boolean)) {
+  if (/^[0-9a-f]{64}$/.test(h)) NAME_HASHES.add(h);
+}
 
 // Normalize a candidate the way the hashes were generated: lowercase, collapse any
 // non-alphanumeric run to a single space, trim. So "Acme Widgets", "acme-widgets" and
@@ -221,6 +265,11 @@ if (process.argv.includes('--hash')) {
 function nameHits(line) {
   const words = norm(line).split(' ').filter(Boolean);
   const found = [];
+  // rel-10 (fix 2): a listed ID is matched as a WHOLE token too. A UUID normalises to five words, which the 1-3 word
+  // grams below never reach, so a hashed UUID would otherwise pass. Ids are 20-36 characters of letters, digits and hyphens.
+  for (const tok of line.match(/[A-Za-z0-9-]{20,36}/g) ?? []) {
+    if (NAME_HASHES.has(sha(tok))) found.push(tok);
+  }
   for (let n = 1; n <= 3; n++) {
     for (let i = 0; i + n <= words.length; i++) {
       const gram = words.slice(i, i + n).join(' ');
@@ -232,8 +281,71 @@ function nameHits(line) {
   return found;
 }
 
+// ── Structural rule (rel-10b, 2026-11-07): the id cross-check ───────────────────────────────────
+// A hash list only catches the ids someone has already found. When knowledge/ sits beside this checkout, every
+// random-looking id in these files (a 20-character mixed-case token, or a UUID) is also checked against ALL of knowledge's
+// captured data (sniffs/ and samples/, any date). A token knowledge lists in scripts/privacy-vendor-ids.json is a vendor
+// value and is exempt. A cold scan takes minutes, so the result is cached in the OS temp directory, keyed by knowledge's
+// HEAD, its uncommitted captures and the candidate set. The cache holds hashes only. Without knowledge/ beside the checkout
+// the check is skipped, and the gate says so.
+const KNOWLEDGE_DIR = fileURLToPath(new URL('../../knowledge/', import.meta.url));
+const ID_SHAPE = /(?<![A-Za-z0-9-])([A-Za-z0-9-]{20,36})(?![A-Za-z0-9-])/g;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isRandomId = (t) => UUID_RE.test(t)
+  || (t.length === 20 && /^[A-Za-z0-9]+$/.test(t) && /\d/.test(t) && /[A-Z]/.test(t) && /[a-z]/.test(t))
+  // GHL's Mongo-style ids (products, prices, schema docs) are 24 hex characters (rel-10b, QA finding).
+  || /^[0-9a-f]{24}$/i.test(t);
+const sha256raw = (s) => createHash('sha256').update(s).digest('hex');
+
+function knowledgeVendorIds() {
+  const f = join(KNOWLEDGE_DIR, 'scripts', 'privacy-vendor-ids.json');
+  return existsSync(f) ? new Set(Object.keys(JSON.parse(readFileSync(f, 'utf8')).ids ?? {})) : new Set();
+}
+
+// Returns the sha256 of each candidate (lowercased) that knowledge's data contains, or null when knowledge/ is not present.
+// rel-10b: the search is an INDEX of every random-looking token in every file on disk under sniffs/ and samples/ (tracked,
+// untracked or ignored alike), built once and cached in a private directory. The cache key is HEAD plus each file's path,
+// size and mtime, so an edited, added or removed capture rebuilds the index. The index holds hashes only.
+function knowledgeIdHashes(cands) {
+  const roots = ['sniffs', 'samples'].map((d) => join(KNOWLEDGE_DIR, d)).filter((d) => existsSync(d));
+  if (!roots.length) return null;
+  const vendor = knowledgeVendorIds();
+  const checkable = [...cands.keys()].filter((t) => !vendor.has(t));
+  if (!checkable.length) return new Set();
+  const files = [];
+  for (const r of roots) {
+    for (const rel of readdirSync(r, { recursive: true })) {
+      const abs = join(r, rel);
+      const st = statSync(abs);
+      if (st.isFile()) files.push({ abs, fp: `${abs.slice(KNOWLEDGE_DIR.length)}\0${st.size}\0${st.mtimeMs}` });
+    }
+  }
+  const head = execFileSync('git', ['-C', KNOWLEDGE_DIR, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const key = sha256raw(`${head}\n${files.map((f) => f.fp).sort().join('\n')}`);
+  const cacheDir = join(homedir(), '.cache', 'ghl-privacy-gate');
+  const cacheFile = join(cacheDir, `index-${key.slice(0, 40)}.json`);
+  let index = null;
+  try {
+    if (existsSync(cacheFile)) index = new Set(JSON.parse(readFileSync(cacheFile, 'utf8')).tokens);
+  } catch { /* unreadable cache: rebuild */ }
+  if (!index) {
+    index = new Set();
+    for (const f of files) {
+      let text;
+      try { text = readFileSync(f.abs, 'utf8'); } catch { continue; }
+      for (const m of text.matchAll(ID_SHAPE)) if (isRandomId(m[1])) index.add(sha256raw(m[1].toLowerCase()));
+    }
+    try {
+      mkdirSync(cacheDir, { recursive: true, mode: 0o700 });
+      writeFileSync(cacheFile, JSON.stringify({ tokens: [...index] }), { mode: 0o600 });
+    } catch { /* the cache is an optimisation; a failed write costs time, not correctness */ }
+  }
+  return new Set(checkable.map((t) => sha256raw(t.toLowerCase())).filter((h) => index.has(h)));
+}
+
 const allowed = (s) => ALLOW.some((a) => s.includes(a));
 const hits = [];
+const idCands = new Map();   // token -> [{file,line}] for random-looking ids (the cross-check below)
 
 for (const file of files) {
   let text;
@@ -241,6 +353,11 @@ for (const file of files) {
   if (text.includes('\0')) continue;
   const lines = text.split('\n');
   lines.forEach((line, i) => {
+    for (const m of line.matchAll(ID_SHAPE)) {
+      if (!isRandomId(m[1])) continue;
+      if (!idCands.has(m[1])) idCands.set(m[1], []);
+      idCands.get(m[1]).push({ file, line: i + 1 });
+    }
     for (const { name, re } of RULES) {
       for (const m of line.match(re) ?? []) {
         if (!allowed(m)) hits.push({ file, line: i + 1, kind: name, value: m });
@@ -252,12 +369,22 @@ for (const file of files) {
   });
 }
 
+const knownIdHashes = knowledgeIdHashes(idCands);
+if (knownIdHashes === null) {
+  console.log(`privacy check: knowledge/ is not beside this checkout; the id cross-check was skipped (${idCands.size} candidate ids)`);
+} else {
+  for (const [tok, locs] of idCands) {
+    if (knownIdHashes.has(sha256raw(tok.toLowerCase()))) for (const l of locs) hits.push({ file: l.file, line: l.line, kind: 'id present in knowledge data', value: '(value not printed)' });
+  }
+}
+
 if (!hits.length) {
   console.log(`privacy check: clean (${files.length} files scanned)`);
   process.exit(0);
 }
 console.error(`\nprivacy check FAILED — ${hits.length} potential leak(s):\n`);
-for (const h of hits.slice(0, 40)) console.error(`  ${h.file}:${h.line}  [${h.kind}]  ${h.value}`);
+// Masked (rel-10b): a refusal names the file, the line and the kind of rule, never the matched value.
+for (const h of hits.slice(0, 40)) console.error(`  ${h.file}:${h.line}  [${h.kind}]`);
 if (hits.length > 40) console.error(`  … and ${hits.length - 40} more`);
 console.error(`\nThis repo is PUBLIC and is built from live account harvests.`);
 console.error(`Replace with a placeholder, or add a documented exception to ALLOW in ${'scripts/check-privacy.mjs'}.\n`);

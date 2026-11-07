@@ -232,13 +232,13 @@ test('compileConvaiAction: triggerWorkflow matches convai-actions-all.json shape
     {
       type: 'triggerWorkflow',
       name: 'Trigger Workflow 1',
-      details: { triggerCondition: 'Test condition: customer confirms interest in a demo', workflowIds: ['76b6ce98-dd6e-4e4d-aaff-bd58369fe18b'] },
+      details: { triggerCondition: 'Test condition: customer confirms interest in a demo', workflowIds: ['00000000-0000-4000-8000-0000000000f1'] },
     },
     { agentId: 'AGENT1', locationId: 'LOC' },
   );
   assert.deepEqual(body.details, {
     triggerCondition: 'Test condition: customer confirms interest in a demo',
-    workflowIds: ['76b6ce98-dd6e-4e4d-aaff-bd58369fe18b'],
+    workflowIds: ['00000000-0000-4000-8000-0000000000f1'],
   });
 });
 
@@ -328,7 +328,7 @@ test('compileConvaiAction: stopBot lets caller override defaults', () => {
 // transferBot
 test('compileConvaiAction: transferBot matches convai-actions-all.json shape', () => {
   const { body } = compileConvaiAction(
-    { type: 'transferBot', name: 'Default Transfer Bot', details: { transferToBot: 'MZtNjcbSrGj0NIdw5JdU' } },
+    { type: 'transferBot', name: 'Default Transfer Bot', details: { transferToBot: 'Lq7TestBt00000000001' } },
     { agentId: 'AGENT1', locationId: 'LOC' },
   );
   assert.deepEqual(body.details, {
@@ -336,7 +336,7 @@ test('compileConvaiAction: transferBot matches convai-actions-all.json shape', (
     transferBotType: 'Default',
     enabled: true,
     transferBotTriggerCondition: "If bot doesn't know the answer",
-    transferToBot: 'MZtNjcbSrGj0NIdw5JdU',
+    transferToBot: 'Lq7TestBt00000000001',
   });
 });
 
@@ -540,9 +540,9 @@ test('the wait-time bounds come from the shipped validator strings, verbatim', (
   assert.deepEqual(v.map((x) => x.msg), ['Wait time must be between 1 and 6 hours']);
 });
 
-// F5-04: the "PUT merges" claim came from a capture whose at-risk booleans were already false, so
-// a reset could not have been visible in it. A live partial PUT reset cancelEnabled and
-// rescheduleEnabled. The UI never sends a partial — it PUTs the whole record.
+// F5-04 (2026-08-28) reported a partial PUT resetting cancelEnabled and rescheduleEnabled; on 2026-10-30 a partial
+// PUT MERGED with those booleans set away from default first (live-partial-put-booleans.json). The read-merge-write
+// is kept because it is safe either way — the prompt-bot editor PUTs the whole record too.
 test('compileConvaiUpdateFromRecord: full record, overlay, bot-type cleanup, actions:null, collateralKeys', () => {
   const current = { id: 'A1', locationId: 'LOC', name: 'Bot', employeeName: 'Bot', mode: 'suggestive', channels: ['SMS'],
     personality: 'p', goal: 'g', instructions: 'i', botType: 'FLOW_BUILDER_BOT', cancelEnabled: true, rescheduleEnabled: true,
@@ -855,4 +855,133 @@ test('t19: a stored fullPrompt counts as a prompt for the no-prompt refusal (the
   const rec = { ...FP_RECORD, personality: '', goal: '', instructions: '' };
   assert.doesNotThrow(() => compileConvaiUpdateFromRecord(rec, { name: 'x' }, at));
   assert.throws(() => compileConvaiUpdateFromRecord({ ...rec, fullPrompt: '' }, { name: 'x' }, at), (e) => e.code === 'AGENT_UNUPDATABLE');
+});
+
+// agent-builder build 872 (2026-10-29) pre-save cleanup: outbound, rich elements, email. Source:
+// analysis/2026-10-29-plugin-improvement-recon/conversation-ai-bundles/bundles/agentBuilderApp-872/static_js_async_agent-builder.b09001e57c95de06.js
+const OUT = { outboundOpeningMessage: { mode: 'ai_generated', body: 'hi' }, outboundDisclaimer: { enabled: true, style: 'concise', customText: '' } };
+test('872 cleanup: outbound fields are deleted when the location has outbound OFF', () => {
+  const b = applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', ...OUT }, { isOutboundEnabled: false });
+  assert.equal('outboundOpeningMessage' in b, false);
+  assert.equal('outboundDisclaimer' in b, false);
+});
+test('872 cleanup: outbound fields are KEPT when outbound is ON, and when the flag is unknown', () => {
+  for (const flags of [{ isOutboundEnabled: true }, {}, undefined]) {
+    const b = applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', ...OUT }, flags);
+    assert.deepEqual(b.outboundOpeningMessage, OUT.outboundOpeningMessage, JSON.stringify(flags));
+    assert.deepEqual(b.outboundDisclaimer, OUT.outboundDisclaimer);
+  }
+});
+test('872 cleanup: richElementSettings survives only on a PROMPT_BASED_BOT that has it', () => {
+  const rich = { enabled: true, elements: {} };
+  assert.deepEqual(applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', richElementSettings: rich }).richElementSettings, rich);
+  assert.equal('richElementSettings' in applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', richElementSettings: null }), false);
+  for (const botType of ['FLOW_BUILDER_BOT', 'FORM_BASED_BOT']) {
+    assert.equal('richElementSettings' in applyBotTypeCleanup({ botType, richElementSettings: rich }), false, botType);
+  }
+});
+test('872 cleanup: FLOW and FORM bots keep what the old rules kept (Review Focus 5)', () => {
+  assert.deepEqual(applyBotTypeCleanup({ botType: 'FLOW_BUILDER_BOT', tones: ['friendly'], cancelEnabled: true }).tones, ['friendly']);
+  const form = applyBotTypeCleanup({ botType: 'FORM_BASED_BOT', steps: [1], personality: 'p' });
+  assert.deepEqual(form.steps, [1]); assert.equal('personality' in form, false);
+});
+test('872 cleanup: email fields go only when channel management is OFF and Email is not a channel', () => {
+  const EMAIL = { emailWaitTime: 1, emailWaitTimeUnit: 'minutes', emailSettings: { emailFormat: 'plain_text' } };
+  const off = applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', channels: ['SMS'], ...EMAIL }, { isChannelManagementEnabled: false });
+  for (const k of Object.keys(EMAIL)) assert.equal(k in off, false, k);
+  const withEmail = applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', channels: ['SMS', 'Email'], ...EMAIL }, { isChannelManagementEnabled: false });
+  assert.equal(withEmail.emailWaitTime, 1);
+  const managed = applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', channels: ['SMS'], ...EMAIL }, { isChannelManagementEnabled: true });
+  assert.equal(managed.emailWaitTime, 1);
+  const unknown = applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', channels: ['SMS'], ...EMAIL });
+  assert.equal(unknown.emailWaitTime, 1);
+});
+test('872 cleanup: the prompt fields are NOT blanked (the editor sets personality/goal/instructions to "" — not ported)', () => {
+  assert.equal(applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', personality: 'p', goal: 'g' }).personality, 'p');
+});
+
+// ---- W5a Task 5: the wave keys, and V2 flow agents fail closed ---------------------------------
+// Partial employee PUTs MERGE on V1 flow, prompt and V2 (live 2026-10-30, knowledge
+// sniffs/convai-wave-2026-10-29/live-partial-put-booleans.json). Prompt/V1 keep the read-merge-write;
+// V2 sends the V2 editor's own partial body (ui-capture-10-flowv2.json) and nothing else.
+const PROMPT_RECORD = () => ({ id: 'agent_1', locationId: 'loc_1', name: 'Bot', mode: 'off', channels: ['SMS'], botType: 'PROMPT_BASED_BOT',
+  personality: 'p', goal: 'g', instructions: 'i', llm: { primary: 'claude-haiku-5-5', secondary: 'gemini-3.8-flash' },
+  respondToImages: true, sleepEnabled: true, autoPilotMaxMessages: 73,
+  outboundOpeningMessage: { mode: 'ai_generated', body: 'Send a short, friendly greeting.' },
+  outboundDisclaimer: { enabled: true, style: 'concise' } });
+const V2_RECORD = () => ({ id: 'agent_2', locationId: 'loc_1', name: 'Flow V2', mode: 'off', botType: 'FLOW_BUILDER_BOT_V2',
+  channels: ['SMS', 'IG', 'FB', 'WebChat', 'Live_Chat', 'WhatsApp'], personality: 'p', goal: 'g', instructions: 'i',
+  cancelEnabled: false, rescheduleEnabled: true, autoPilotMaxMessages: 100, respondToImages: false, dateUpdated: 'x' });
+const OPENER = { mode: 'static', body: 'Hi {{contact.first_name}}, checking in.' };
+const DISCLAIMER = { enabled: true, style: 'custom', customText: 'Sent by an AI assistant' };
+const RICH = { enabled: true, customRulesOnly: false,
+  elements: { richText: { enabled: true }, quickReplies: { enabled: true }, linkButtons: { enabled: true }, list: { enabled: true }, image: { enabled: false }, file: { enabled: true } },
+  customInstructions: [{ name: 'Rule 1', type: 'quickReplies', trigger: 'asks what services exist', enabled: true }] };
+
+test('update: the three wave keys land in the PUT body as set keys; every other stored key is echoed', () => {
+  const out = compileConvaiUpdateFromRecord(PROMPT_RECORD(), { outboundOpeningMessage: OPENER, outboundDisclaimer: DISCLAIMER, richElementSettings: RICH },
+    { agentId: 'agent_1', locationId: 'loc_1' });
+  assert.deepEqual(out.body.outboundOpeningMessage, OPENER);
+  assert.deepEqual(out.body.outboundDisclaimer, DISCLAIMER);
+  assert.deepEqual(out.body.richElementSettings, RICH);
+  for (const k of ['outboundOpeningMessage', 'outboundDisclaimer', 'richElementSettings']) assert.ok(!out.collateralKeys.includes(k), k);
+  // echoed, untouched, and watched as collateral
+  assert.deepEqual(out.body.llm, { primary: 'claude-haiku-5-5', secondary: 'gemini-3.8-flash' });
+  assert.equal(out.body.respondToImages, true);
+  assert.equal(out.body.sleepEnabled, true);
+  assert.equal(out.body.personality, 'p');
+  assert.ok(out.collateralKeys.includes('respondToImages'));
+});
+
+test('update: a stored opener/disclaimer is echoed when the spec does not touch it', () => {
+  const out = compileConvaiUpdateFromRecord(PROMPT_RECORD(), { autoPilotMaxMessages: 74 }, { agentId: 'agent_1', locationId: 'loc_1' });
+  assert.deepEqual(out.body.outboundOpeningMessage, PROMPT_RECORD().outboundOpeningMessage);
+  assert.ok(out.collateralKeys.includes('outboundDisclaimer'));
+});
+
+test('update: the wave keys are validated (BAD_OPENER / BAD_DISCLAIMER) before anything is compiled', () => {
+  assert.throws(() => compileConvaiUpdateFromRecord(PROMPT_RECORD(), { outboundOpeningMessage: { mode: 'static', body: '' } }, { agentId: 'agent_1' }), (e) => e.code === 'BAD_OPENER');
+  assert.throws(() => compileConvaiUpdateFromRecord(PROMPT_RECORD(), { outboundDisclaimer: { enabled: true, style: 'custom' } }, { agentId: 'agent_1' }), (e) => e.code === 'BAD_DISCLAIMER');
+});
+
+test('update: richElementSettings on a FLOW_BUILDER_BOT is refused (prompt bots only)', () => {
+  const flow = { ...PROMPT_RECORD(), botType: 'FLOW_BUILDER_BOT' };
+  assert.throws(() => compileConvaiUpdateFromRecord(flow, { richElementSettings: RICH }, { agentId: 'agent_1' }), (e) => e.code === 'RICH_ELEMENTS_PROMPT_ONLY');
+});
+
+test('create: FLOW_BUILDER_BOT_V2 is refused with a pointer to the editor; nothing compiled', () => {
+  assert.throws(() => compileConvaiAgent({ ...fullIR, botType: 'FLOW_BUILDER_BOT_V2' }, { locationId: 'LOC' }),
+    (e) => e.code === 'V2_CREATE_UNSUPPORTED' && /editor/i.test(e.message));
+});
+
+test('create: the wave keys are refused with a pointer to update_convai_agent (create does not apply them)', () => {
+  assert.throws(() => compileConvaiAgent({ ...fullIR, outboundOpeningMessage: OPENER }, { locationId: 'LOC' }),
+    (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /update_convai_agent/.test(e.message));
+});
+
+test('V2 update: cancel/reschedule go as the editor\'s own partial body, EXACTLY {locationId, cancelEnabled, rescheduleEnabled}', () => {
+  const out = compileConvaiUpdateFromRecord(V2_RECORD(), { cancelEnabled: true }, { agentId: 'agent_2', locationId: 'loc_1' });
+  assert.equal(out.method, 'PUT');
+  assert.equal(out.path, '/ai-employees/employees/agent_2');
+  assert.deepEqual(out.body, { locationId: 'loc_1', cancelEnabled: true, rescheduleEnabled: true }, 'the switch not named keeps its stored value');
+  assert.deepEqual(Object.keys(out.body).sort(), ['cancelEnabled', 'locationId', 'rescheduleEnabled']);
+  assert.ok(out.collateralKeys.includes('mode') && out.collateralKeys.includes('channels') && out.collateralKeys.includes('autoPilotMaxMessages'));
+  assert.ok(!out.collateralKeys.includes('cancelEnabled') && !out.collateralKeys.includes('dateUpdated'));
+  const both = compileConvaiUpdateFromRecord(V2_RECORD(), { cancelEnabled: false, rescheduleEnabled: false }, { agentId: 'agent_2', locationId: 'loc_1' });
+  assert.deepEqual(both.body, { locationId: 'loc_1', cancelEnabled: false, rescheduleEnabled: false });
+});
+
+test('V2 update: every other key is refused pre-write with a pointer to the editor — name, mode, channels, prompt, rich, outbound', () => {
+  const specs = [{ name: 'X' }, { mode: 'auto-pilot' }, { channels: ['SMS'] }, { fullPrompt: '## Goal\n\nx' }, { instructions: 'x' },
+    { richElementSettings: RICH }, { outboundOpeningMessage: OPENER }, { outboundDisclaimer: DISCLAIMER }, { llm: { primary: 'gpt-4.1' } },
+    { cancelEnabled: true, name: 'X' }, {}];
+  for (const spec of specs) {
+    assert.throws(() => compileConvaiUpdateFromRecord(V2_RECORD(), spec, { agentId: 'agent_2', locationId: 'loc_1' }),
+      (e) => e.code === 'V2_KEY_REFUSED' && /editor/i.test(e.message), JSON.stringify(spec));
+  }
+});
+
+test('update: turning an existing agent INTO a V2 agent is refused', () => {
+  assert.throws(() => compileConvaiUpdateFromRecord(PROMPT_RECORD(), { botType: 'FLOW_BUILDER_BOT_V2' }, { agentId: 'agent_1' }),
+    (e) => e.code === 'V2_CREATE_UNSUPPORTED');
 });

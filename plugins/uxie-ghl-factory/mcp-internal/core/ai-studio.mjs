@@ -190,16 +190,28 @@ export function sessionFor(state, projectId) {
   return state.studioSessions.get(projectId);
 }
 
-// Across 118 live captures, `buildStatus` observed only "ready". The spec documents the walk as
-// `- → validating → ready`. `"failed"` was never observed — it is inferred from the existence of a
-// `buildError` field alongside `buildStatus`. If the real failure value is some other string, a
-// failed build will not satisfy isTerminal(), so awaitTurn() runs to its ceiling and returns
-// `pending: true` with the observed `buildStatus` in the payload — misleading, but never claims
-// success. Settle this by forcing a build failure on the live-fire pass.
-const TERMINAL_BUILD = new Set(['ready', 'failed']);
+// The bundle's vocabulary is idle, building, validating, passed, ready, failed, superseded. Live
+// (2026-10-30 walk): a build the UI showed as "Build unsuccessful" was stored afterwards as
+// `superseded` (versionId kept), so a failed turn may never read `failed` at all — without
+// `superseded` here awaitTurn polled it to the ceiling and reported "still running". `passed` is
+// `passed` is a SETTLED build to the app itself: its chat input picks the latest passed|ready|failed row and shows
+// passed exactly like ready (vibe-app MessageInput bundle, sniffs/ai-studio-2026-09-04). So a passed row that carries
+// a versionId is terminal; without one it has not produced a version yet and the wait goes on.
+const TERMINAL_BUILD = new Set(['ready', 'failed', 'superseded']);
 
 // buildStatus, NEVER thinkingStatus. See rule 1 in the module header.
-export const isTerminal = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.buildStatus)));
+export const isTerminal = (row) => Boolean(row && (TERMINAL_BUILD.has(String(row.buildStatus))
+  || (row.buildStatus === 'passed' && Boolean(row.versionId))));
+
+// What to tell the caller about a finished turn whose build did not become a plain `ready` version. Shared by
+// generate_studio_site and get_studio_generation_status, so the resume path says the same thing.
+export function buildOutcomeNote(row) {
+  if (row?.buildStatus === 'superseded') {
+    return 'This build was superseded: it did not become the live version (a build the UI showed as failed is stored this way). Read get_studio_site_history before building on it or publishing it.';
+  }
+  if (row?.buildStatus === 'passed') return 'The build passed validation and produced this version (the app treats passed like ready).';
+  return null;
+}
 
 // A turn that PAUSED ON A QUESTION never gets a buildStatus until it is answered, so isTerminal()
 // alone polled it to the ceiling and reported "still running" while the project's history showed
@@ -235,6 +247,31 @@ export async function awaitTurn({ firestore, projectId, messageId, waitMs = 120_
   return { pending: true, messageId: messageId ?? null, buildStatus: lastRow?.buildStatus ?? null,
            resumeWith: 'get_studio_generation_status',
            note: 'The build is still running. Resume with the message id; nothing was lost.' };
+}
+
+// What one turn cost, and which meter said so. Under billingModeIfCharged "agency_free_ai" the
+// AI_STUDIO snapshot did not move across five billed turns (2026-10-30 walk) while the project
+// policy's fup.usedAmount did (0 -> 0.014777), so the snapshot delta alone reported $0. The fup
+// meter is a rolling window (it carries resetAt): a smaller number after the turn means the window
+// reset mid-turn, and no figure is claimed.
+export function turnSpend({ snapBefore, snapAfter, policyBefore, policyAfter }) {
+  const billingMode = policyAfter?.billingModeIfCharged ?? policyBefore?.billingModeIfCharged ?? null;
+  const num = (v) => (typeof v === 'number' ? v : null);
+  const round = (v) => Number(v.toFixed(6));
+  const sb = num(snapBefore); const sa = num(snapAfter);
+  const fb = num(policyBefore?.fup?.usedAmount); const fa = num(policyAfter?.fup?.usedAmount);
+  if (sb !== null && sa !== null && sa - sb > 0) return { usd: round(sa - sb), meter: 'snapshots', billingMode };
+  // Under agency_free_ai the snapshot never moves, so it is no fallback: an unreadable policy meter means unknown.
+  if (billingMode === 'agency_free_ai' && (fb === null || fa === null)) {
+    return { usd: null, meter: 'policy.fup', billingMode, note: 'the policy meter was unreadable; the snapshot does not move under agency_free_ai' };
+  }
+  if (fb !== null && fa !== null) {
+    const resetMoved = policyBefore?.fup?.resetAt && policyAfter?.fup?.resetAt && policyBefore.fup.resetAt !== policyAfter.fup.resetAt;
+    if (fa < fb || resetMoved) return { usd: null, meter: 'policy.fup', billingMode, note: 'the usage window reset during the turn' };
+    if (fa - fb > 0 || billingMode === 'agency_free_ai') return { usd: round(fa - fb), meter: 'policy.fup', billingMode };
+  }
+  if (sb !== null && sa !== null) return { usd: round(sa - sb), meter: 'snapshots', billingMode };
+  return { usd: null, meter: null, billingMode };
 }
 
 // AI Studio projects and funnels are DISJOINT collections (proven 2026-09-04: 25 projects with 9

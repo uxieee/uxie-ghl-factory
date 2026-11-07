@@ -150,6 +150,11 @@ spans the whole Sites surface — `funnels`, `websites`, `stores`, `blogs`, `for
 
 # Part 2 — art direction
 
+**Native first.** Art direction is for a brief that asks for a look no native control gives. Start with the
+native kinds and their own settings. Each rule below is a way to write CSS, so run any sheet through
+`cssRuleProblems` (core/css-rules.mjs) and fix each row it returns before the write. Gaps with no native
+control (countdown tile surface and unit labels, popup geometry) need the user's yes first.
+
 `section.general.sectionStyles` is injected as a `<style>` block keyed by node id. It is not a set
 of styling hooks; it is the section's entire stylesheet. Variable fonts, blend modes, CSS grid,
 keyframes, pseudo-element ornament and scroll-driven animation all work.
@@ -390,3 +395,20 @@ surface — record it, do not chase it.
   the images before choosing them; picking URLs blind lands placeholders.
 - Verify at 1360px **and** 414px, and read the computed styles rather than trusting the rules you
   emitted.
+
+## Measured CSS and builder rules an agent must act on (w7-10)
+
+The full rules, with their status tags and backlog ids, are in the corpus: `corpus/funnels/40-rules/builder-css-quirks.md`
+(sections 7 to 10) and `corpus/funnels/40-rules/silent-failures.md` (section 51). The ones that change what you write:
+
+- **Mobile gutters:** GHL's `@media (max-width: 767px)` rule gives `.c-row` 10 px side padding, which beats a plain override. Use
+  `.c-section .c-row.c-wrapper { padding-left: 0 !important; padding-right: 0 !important }` (bl-518).
+- **Countdown hides:** a page rule that sets `display` on a countdown element beats its inline `display: none`. Hide with
+  `[style*="display: none"] { display: none !important }` (bl-500). Test expiry with a fake clock, not by waiting (bl-531).
+- **Countdown labels:** under 24 hours the countdown has three tiles, not four. Label from the back (`nth-last-child`), not the front (bl-564).
+- **Custom class shape:** write `customClass` as `{value: […]}`; a bare array saves and never renders (bl-561).
+- **New nodes:** a node that `append-section` or insert creates renders unstyled until a builder save (bl-521).
+- **Form CSS:** the typed `update_form_data` cannot write `fieldCSS`; a raw whole-document POST of the form is needed (bl-558).
+- **Canvas is not the public page:** the builder canvas differs (flex rows, container sizing, text-editor stripping, `vw` units, row
+  margins). Prove a rule on both, and on the public page, before you rely on it (bl-546 to bl-557).
+- **Cookie consent** does not gate HighLevel's own tracking, only third-party tags (bl-767, served-is-not-matched section 4).

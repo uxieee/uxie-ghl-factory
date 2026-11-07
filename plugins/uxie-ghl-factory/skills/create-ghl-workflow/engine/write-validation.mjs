@@ -69,14 +69,19 @@ const findingKey = (f) => `${f.ruleId ?? ''}|${f.where ?? ''}|${f.message ?? ''}
  */
 export function validateDocument({
   intent = 'edit', templates = [], triggers = [], settings = null, status = null, senderDomain,
-  webhookReference, creationSource, baselineDocument = null,
+  webhookReference, creationSource, baselineDocument = null, storedTemplates = null,
   catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null, unknownStepSeverity = null,
   skipWorkflowRules = false, allow = false,
 } = {}) {
   const publishing = publishingFor(intent, status);
   const rulebook = catalog?.workflowRules;
+  // w6c-3: the stored document's empty Loops (same stepId) pass with a warning on an edit or repair; see graph-rules.mjs.
+  // Warn-and-pass is for edit and repair only (a draft, or an already-published workflow being edited). A PUBLISH of a draft
+  // refuses an empty loop: GHL's validator would 400 it (DECISION, QA's question on w6c-3).
+  const storedEmptyLoopIds = new Set(intent === 'publish' ? [] : (storedTemplates ?? baselineDocument?.templates ?? [])
+    .filter((t) => t?.type === 'loop' && (!t.next || t.next === t.attributes?.exitNext)).map((t) => t.id));
   const evaluated = rulebook
-    ? evaluateWorkflowRules({ templates, triggers, settings, status, publishing, senderDomain, webhookReference, creationSource }, rulebook)
+    ? evaluateWorkflowRules({ templates, triggers, settings, status, publishing, senderDomain, webhookReference, creationSource, storedEmptyLoopIds }, rulebook)
     : { findings: [], advisories: [], notEvaluable: ['no rulebook in the catalog'] };
   const skipAll = skipWorkflowRules === true;
   const skipSet = new Set(Array.isArray(skipWorkflowRules) ? skipWorkflowRules : []);
@@ -105,7 +110,8 @@ export function validateDocument({
   const canvasErrors = canvasAll.filter((f) => !outOfScope(f));
   const canvasWarnings = canvasAll.filter(outOfScope);
 
-  const engine = gateDocument(templates, { catalog, marketplaceTypes, scope, waive, unknownStepSeverity });
+  const engine = gateDocument(templates, { catalog, marketplaceTypes, scope, waive, unknownStepSeverity,
+    storedTemplates: storedTemplates ?? baselineDocument?.templates ?? null });
 
   const blockedLayers = [];
   if (ruleFindings.length) blockedLayers.push('workflow_rules');

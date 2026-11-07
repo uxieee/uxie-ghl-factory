@@ -78,7 +78,11 @@ export function evaluateIfElseVocab(templates, vocab, ctx) {
       }
       if (operatorType) {
         const legal = opsFor(operatorType);
-        if (legal.size && !legal.has(c.conditionOperator)) { F.push({ where, branch: b.name, msg: `operator '${c.conditionOperator}' is not legal for '${c.conditionSubType}' (${operatorType}: ${[...legal].join(', ')})` }); continue; }
+        // bl-401: intent is its own picker leaf, never an operator on the reply body (stored client shape)
+        const hint = c.conditionOperator === 'matches_intent'
+          ? " — intent is its own field: write conditionSubType 'matches_intent', conditionOperator '==' or '!=', conditionValue 'schedule-yes' or 'schedule-no'"
+          : '';
+        if (legal.size && !legal.has(c.conditionOperator)) { F.push({ where, branch: b.name, msg: `operator '${c.conditionOperator}' is not legal for '${c.conditionSubType}' (${operatorType}: ${[...legal].join(', ')})${hint}` }); continue; }
         if (operatorType === 'date' && c.conditionValueOperator != null) {
           const vo = c.conditionValueOperator;
           if (!(vocab.dateFieldOperators ?? []).includes(vo)) F.push({ where, branch: b.name, msg: `date sub-operator '${vo}' is not one of ${(vocab.dateFieldOperators ?? []).join(', ')}` });

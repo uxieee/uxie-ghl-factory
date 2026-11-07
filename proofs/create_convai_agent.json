@@ -77,10 +77,19 @@
         "commit:afe9223b"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:ccecef69"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /ai-employees/employees/{}": "b393d4db09f97c8b65072746cc5d1368fbaa88cff9742193e1e48cf75c46dee7",
       "GET https://services.leadconnectorhq.com /ai-employees/employees/{}": "0ccc965180a8834dea40404c7716bc7c0a072f1f778ea6f8f3909f4c72d14f30",
@@ -88,16 +97,16 @@
       "POST https://services.leadconnectorhq.com /ai-employees/employees": "dde0d845b79cf606acb6facd809b2393334fe94358f7e3a713f42ae2fb5e80a8"
     },
     "builds": {
-      "agentLogsApp": 717,
-      "agentStudioApp": 715,
-      "aiEmployeesApp": 2641,
-      "aiGrowthApp": 714,
-      "superagentsApp": 721,
-      "voiceAiApp": 719
+      "agentLogsApp": 868,
+      "agentStudioApp": 868,
+      "aiEmployeesApp": 2919,
+      "aiGrowthApp": 879,
+      "superagentsApp": 868,
+      "voiceAiApp": 867
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_convai_agent": "9a2134cbb5cfc0b88d846047c3778aebd9fe8bdfd6b3b5a9e9c4073c71c1309c",
-      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "e02b3dc51d18c337c40425d3427c797924366480baa0585e42c63123cbfa8b86",
+      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "f472fa422dcc104e8329ad2e32d67c3dadd7b7c3587851d1d3ade82e4f9fa660",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
       "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "1d2d14585c35659e0a08537d35639cc1983f3171d0d4985c4971598928bd8abb",
       "plugins/uxie-ghl-factory/engines/ai/studio-compiler.mjs": "8ef3fda150415bbae4fd19cab66f1347549887e80a57d3a0e248a5c24eec1ec7",

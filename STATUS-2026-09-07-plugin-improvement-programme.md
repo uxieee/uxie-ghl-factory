@@ -17,7 +17,7 @@ four read-only recon passes. W0–W6 are done; W7 is the standing owed-proof lis
 
 ## Live-fire, all on GROM Sandbox, every write read back on a separate request
 
-**Opportunity upsert** — draft `8b9f2159-7cac-4f85-a0ed-e164cca5173b`. Every emitted key stored
+**Opportunity upsert** — draft `<sandbox draft>`. Every emitted key stored
 verbatim, `monetary_value` as the string `"180"`, `allow_backward: true` persisted, asset pre-flight
 0 errors 0 warnings, and `internal_create_opportunity` kept its `__customInputFields__` shape in the
 same workflow.
@@ -77,7 +77,7 @@ Worth more than the features, because each is a class this repo keeps paying for
 
 ## Artifacts left in place, named
 
-- Sandbox draft workflow `8b9f2159-7cac-4f85-a0ed-e164cca5173b` (TEST-CAP-opportunity-upsert).
+- Sandbox draft workflow `<sandbox draft>` (TEST-CAP-opportunity-upsert).
 - Sandbox form `AhqijQSeEcorOhXiFxlj` (TEST-CAP-forms-rail). It is LIVE at its widget URL, as every
   form is; it carries nothing but two standard fields and a submit button.
 - `knowledge/sniffs/endpoint-ledger-result.json` and `knowledge/catalog/endpoint-reach.json`.

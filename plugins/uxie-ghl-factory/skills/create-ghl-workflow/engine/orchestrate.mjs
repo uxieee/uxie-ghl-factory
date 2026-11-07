@@ -26,6 +26,7 @@ import { makeUuidV4 } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { ENTITY_REGISTRY } from './entities.mjs';
 import { collectRequiredTags, missingTags } from './tags.mjs';
+import { readAllFolders, resolveFolderPath, checkFolderPath } from './folders.mjs';
 import { lintOpportunityWrites } from './lints/opportunity.mjs';
 import { lintTriggerRows } from './lints/trigger-rows.mjs';
 import { buildResolvers, resolveIR } from './resolve.mjs';
@@ -35,6 +36,9 @@ import { fires } from './enforce.mjs';
 import { fetchActionSchema, checkWorkflow, assetsPath } from './action-schema.mjs';
 import { buildMarketplaceIndex, hasAssetLabelledStep } from './marketplace.mjs';
 import { walkNodes } from './ir.mjs';
+import { checkEmptyLoopBodies } from './loop-authoring.mjs';
+import { resolveAgentSkills } from './agent-skills.mjs';
+import { aiAgentOpenQuestions } from './ai-agent-questions.mjs';
 import { validateAssets, describeFinding } from './asset-preflight.mjs';
 import { engineReferenceFindings } from './engine-references.mjs';
 import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
@@ -201,7 +205,33 @@ function collectEmailTemplates(ir) {
   return out;
 }
 
+// A dry run's verdict (W6a item 4): every error the checks found, one shape for every stage, plus what a real build
+// would create. The server half needs a workflow id, so it does not run without one — said, not implied.
+function dryRunCheck(report, collected) {
+  const errors = [...collected];
+  if (report.aborted && !errors.some((e) => e.stage === report.failurePhase)) {
+    errors.push({ code: String(report.failurePhase ?? 'aborted').toUpperCase(), path: null, stage: report.failurePhase ?? null, context: report.aborted });
+  }
+  return { valid: errors.length === 0, errors, warnings: report.warnings, server: 'not run (no workflow)',
+    wouldCreate: report.wouldCreate ?? { tags: [], templates: [] } };
+}
+
 export async function orchestrate(ir, gw, opts = {}) {
+  const checkErrors = [];
+  // The run rewrites the spec (resolved ids, placeholder template ids); a caller reusing its object must get it back as it
+  // sent it — a second build on a mutated spec created no template and sent the placeholder to GHL (final review W6a).
+  ir = structuredClone(ir);
+  // A dry run reads past a missing dependency so the compile and every later layer still report (final review W6a).
+  if (opts.dryRun === true && opts.ignoreUnresolved !== true) opts = { ...opts, ignoreUnresolved: true, __dryUnresolvedNotIgnored: true };
+  // w6c-7 (ask, don't default): the AI Agent steps' unanswered questions, read from the spec before the run rewrites it.
+  const openQuestions = aiAgentOpenQuestions(ir);
+  const report = await runOrchestrate(ir, gw, opts, checkErrors);
+  if (opts.dryRun === true) { report.dryRun = true; report.check = { ...dryRunCheck(report, checkErrors), openQuestions }; }
+  return report;
+}
+
+async function runOrchestrate(ir, gw, opts, checkErrors) {
+  const dry = opts.dryRun === true;
   const { call, loc, uid } = gw;
   const catalog = loadCatalog();
   // authored/compiled/steps are reported TOGETHER on purpose. A bare "steps: 8 | round-trip:
@@ -269,7 +299,12 @@ export async function orchestrate(ir, gw, opts = {}) {
     users: entities.users.length, forms: entities.forms.length, agents: entities.agents.length };
 
   // 2. ABORT on missing account-level deps (don't build something broken)
+  // a dry run collects these and carries on (the caller did not ask to ignore them — the report still says invalid)
+  if (opts.__dryUnresolvedNotIgnored && unresolved.length) {
+    for (const u of unresolved) checkErrors.push({ code: 'DEPENDENCY_UNRESOLVED', path: u.where ?? null, stage: 'dependency_resolution', context: u.name });
+  }
   if (unresolved.length && !opts.ignoreUnresolved) {
+    for (const u of unresolved) checkErrors.push({ code: 'DEPENDENCY_UNRESOLVED', path: u.where ?? null, stage: 'dependency_resolution', context: u.name });
     report.failurePhase = 'dependency_resolution';
     const blind = entities.unreadable ?? [];
     report.aborted = `Missing account dependencies: ${unresolved.map((u) => `${u.name} (${u.where})`).join('; ')}. `
@@ -280,39 +315,70 @@ export async function orchestrate(ir, gw, opts = {}) {
     return report;
   }
 
-  // 3a. pre-create inline email templates
+  // 3. CREATE NOTHING YET (W6a item 3). Inline email templates and missing tags used to be POSTed here, before the
+  //    compile, the validation gate and validate-assets — so a spec any of those refused still left both behind.
+  //    3a: an inline template compiles against a PLACEHOLDER id, swapped for the real one once it exists.
+  //    3b: the tag list is READ now; the missing ones are created after every check.
+  const pendingTemplates = [];
   for (const n of collectEmailTemplates(ir)) {
-    const spec = n.attributes._template;
-    const c = await dependencyCallAt('email_template_create', 'POST', '/emails/builder', { locationId: loc, type: 'html', title: spec.title, name: spec.title, updatedBy: uid, isPlainText: false });
-    if (!c) return report;
-    const tid = c.json?.id || c.json?._id;
-    if (tid) {
-      report.createdTemplates.push({ title: spec.title, id: tid });
-      const data = await dependencyCallAt('email_template_data_create', 'POST', '/emails/builder/data', { locationId: loc, templateId: tid, updatedBy: uid, html: spec.html, editorType: 'html', previewText: spec.previewText || '', isPlainText: false });
-      if (!data) return report;
-      n.attributes.template_id = tid; n.attributes.templatesource = 'email-builder';
-    }
+    const placeholder = `__pending_email_template_${pendingTemplates.length}__`;
+    pendingTemplates.push({ spec: n.attributes._template, placeholder });
+    n.attributes.template_id = placeholder; n.attributes.templatesource = 'email-builder';
     delete n.attributes._template;
   }
-
-  // 3b. pre-create tags referenced anywhere in the IR (THE fix for the missing-tags bug)
   const required = collectRequiredTags(ir);
+  let pendingTags = [];
   if (required.length) {
     const tl = await dependencyCallAt('tag_list', 'GET', `/locations/${loc}/tags`);
     if (!tl) return report;
     const tagList = Array.isArray(tl.json) ? tl.json : (tl.json?.tags ?? []);
-    const existing = tagList.map((t) => t.name);
-    for (const name of missingTags(required, existing)) {
-      const r = await dependencyCallAt('tag_create', 'POST', `/locations/${loc}/tags`, { name });
-      if (!r) return report;
-      report.createdTags.push(name);
+    pendingTags = missingTags(required, tagList.map((t) => t.name));
+  }
+  // W6 item 11: the folder path is RESOLVED here (reads only); missing levels are created after every check, below.
+  let folderPlan = null;
+  if (ir.folderPath !== undefined) {
+    const stop = (code, message) => {
+      checkErrors.push({ code, path: 'folderPath', stage: 'folder_resolution', context: message });
+      if (dry) return null;
+      report.failurePhase = 'folder_resolution'; report.aborted = message; return report;
+    };
+    try {
+      checkFolderPath(ir.folderPath, ir.createFolderIfMissing);
+      const read = await readAllFolders(call, loc);
+      if (!read.folders) { const r = stop('FOLDER_READ', `the folder list could not be read in full: ${read.error}`); if (r) return r; }
+      else {
+        const res = resolveFolderPath(read.folders, ir.folderPath);
+        if (res.missing.length && ir.createFolderIfMissing !== true) {
+          const r = stop('FOLDER_MISSING', `FOLDER_MISSING: folder '${res.missing[0]}' does not exist under ${res.ids.length ? `'${ir.folderPath[res.ids.length - 1]}'` : 'the root'} `
+            + '— pass createFolderIfMissing:true to create it, or fix the name.');
+          if (r) return r;
+        } else folderPlan = res;
+      }
+    } catch (e) {
+      if (e?.name !== 'IRError') throw e;
+      const r = stop(e.code, e.message); if (r) return r;
     }
   }
+  if (dry) report.wouldCreate = { tags: pendingTags, templates: pendingTemplates.map((t) => t.spec.title),
+    ...(folderPlan ? { folders: folderPlan.missing } : {}) };
 
   // 4. compile + build. IR rejections (OPP_UNASSOCIATED, schema/invariant errors)
   //    land in report.aborted like the other failure modes — not a raw throw.
+  // w6c-7 (QA follow-up 2): an AI Agent step's skill ids must exist in the library, read through the gateway. Unresolved ids, and a
+  // library that cannot be read, both refuse the build before compile: nothing is written with a skill the library does not return.
+  const skillCheck = await resolveAgentSkills(ir, call, loc);
+  if (skillCheck.unavailable || skillCheck.unresolved.length) {
+    report.failurePhase = 'agent_skills';
+    report.aborted = skillCheck.unavailable
+      ? `The build is refused: the AI Agent skills cannot be verified (${skillCheck.unavailable}). Read the library again before building.`
+      : `The build is refused: unresolved AI Agent skill id(s): ${skillCheck.unresolved.join(', ')}. The library does not return them; check GET /workflow/agent/{loc}/skills or remove them from the step.`;
+    return report;
+  }
   let built;
   try {
+    // w6c-3 (ruling 2026-11-07): build_workflow refuses an authored Loop with an empty body (code loop-body-empty, with its path).
+    // Refused whatever the spec's origin (a NEW workflow is built, even from an exported spec).
+    checkEmptyLoopBodies(ir.graph);
     built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog, marketplace,
       customFields: entities.customFields,
       // the per-location half of the {{custom_values.*}} merge-tag vocabulary (merge-tags.mjs);
@@ -338,11 +404,14 @@ export async function orchestrate(ir, gw, opts = {}) {
       // merge-tags.mjs hatches. MERGE_TAG_UNKNOWN names strictMergeTags:false as the remedy, and
       // until wave10 neither reached this ctx, so the advice could not be followed.
       strictMergeTags: opts.strictMergeTags,
+      // IFELSE_VOCAB names this hatch as its remedy; until bl-401 no caller could reach it
+      skipIfElseVocab: opts.skipIfElseVocab === true,
       skipMergeTagCheck: opts.skipMergeTagCheck,
       // compiler.mjs checkTriggerRules (TRIGGER_UNIQUE_ONLY) honours the same hatch as the document rules
       skipWorkflowRules: opts.skipWorkflowRules });
   } catch (e) {
     if (e?.name === 'IRError') {
+      checkErrors.push({ code: e.code ?? 'IR_ERROR', path: e.path ?? null, stage: 'compile', context: e.message });
       report.failurePhase = 'compile';
       report.aborted = `compile rejected (${e.code}): ${e.message}`;
       return report;
@@ -405,7 +474,12 @@ export async function orchestrate(ir, gw, opts = {}) {
   for (const f of offline.engine.warnings) report.warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
   for (const a of offline.rules.advisories ?? []) report.warnings.push(`WORKFLOW_RULE_SOFT: [${a.rule}] ${a.message}`);
   for (const r of offline.rules.skipped) report.warnings.push(`WORKFLOW_RULE SKIPPED (skipWorkflowRules): [${r.rule}] ${r.message}`);
-  if (offline.blocked && opts.allowValidationFailure !== true) {
+  // A dry run reports every offline finding and goes on to the asset checks, so one call names everything.
+  if (dry && offline.blocked) {
+    for (const f of offline.rules.findings) checkErrors.push({ code: f.rule, path: f.stepId ?? null, stage: 'workflow_rules', context: f.message });
+    for (const f of offline.canvas.errors) checkErrors.push({ code: 'CANVAS_ERROR', path: f.stepId ?? null, stage: 'canvas', context: f.message });
+    for (const f of offline.engine.errors) checkErrors.push({ code: f.check, path: f.stepId ?? null, stage: 'validation_engine', context: f.message });
+  } else if (offline.blocked && opts.allowValidationFailure !== true) {
     // The rules layer keeps the phase it has always aborted with; the rest are the gate's own.
     report.failurePhase = offline.blockingLayer === 'workflow_rules' ? 'workflow_rules' : 'validation_engine';
     report.aborted = offline.blockingLayer === 'workflow_rules'
@@ -414,17 +488,35 @@ export async function orchestrate(ir, gw, opts = {}) {
     return report;
   }
 
+  // The templates and tags this build will create do not exist yet: a pending template id is left out of the
+  // reference check (GHL would call it missing), and a pending tag's not-found warning is set aside, named.
+  const pendingTemplateIds = new Set(pendingTemplates.map((t) => t.placeholder));
+  const withoutPendingTemplates = (list) => (list ?? []).map((t) => (pendingTemplateIds.has(t?.attributes?.template_id)
+    ? { ...t, attributes: Object.fromEntries(Object.entries(t.attributes).filter(([k]) => k !== 'template_id' && k !== 'templatesource')) }
+    : t));
+  const assetTemplates = pendingTemplateIds.size ? withoutPendingTemplates(built.autoSaveBody?.workflowData?.templates) : built.autoSaveBody?.workflowData?.templates;
   const assetCheck = await validateAssets(call, loc, {
-    templates: built.autoSaveBody?.workflowData?.templates,
+    templates: assetTemplates,
     triggers: built.triggerBodies,
     companyId: built.autoSaveBody?.companyId,
   });
   // The engine's own reference checks (engine-references.mjs): custom-object schemas and the sites
   // validate-assets skips. Folded into the same errors, so the same ignoreAssetErrors hatch applies.
   {
-    const extra = await engineReferenceFindings(call, loc, built.autoSaveBody?.workflowData?.templates ?? []);
+    const extra = await engineReferenceFindings(call, loc, assetTemplates ?? []);
     assetCheck.errors = [...(assetCheck.errors ?? []), ...extra.errors];
     assetCheck.warnings = [...(assetCheck.warnings ?? []), ...extra.warnings];
+  }
+  {
+    const pendingTagNames = new Set(pendingTags.map((n) => String(n).toLowerCase()));
+    const isPending = (f) => f?.assetType === 'tag' && pendingTagNames.has(String(f.assetId ?? '').toLowerCase());
+    const pending = [...assetCheck.errors, ...assetCheck.warnings].filter(isPending);
+    if (pending.length) {
+      // GHL reports a missing tag once per site (trigger and step): one entry per tag
+      assetCheck.pendingCreation = [...new Set(pending.map((f) => String(f.assetId)))].map((assetId) => ({ assetType: 'tag', assetId }));
+      assetCheck.errors = assetCheck.errors.filter((f) => !isPending(f));
+      assetCheck.warnings = assetCheck.warnings.filter((f) => !isPending(f));
+    }
   }
   report.assetPreflight = assetCheck;
   // ACCOUNT-READINESS (G15, advisory): will the channels/types this workflow uses actually
@@ -439,7 +531,8 @@ export async function orchestrate(ir, gw, opts = {}) {
     for (const c of report.readiness) if (c.ok === false) report.warnings.push(`readiness: ${c.detail} (needed by ${c.why.join('; ')})`);
   } catch (e) { report.readiness = [{ key: 'readiness', checked: false, ok: null, detail: `pre-flight failed to run: ${e.message}`, why: [] }]; }
   for (const w of assetCheck.warnings ?? []) report.warnings.push(`asset: ${describeFinding(w)}`);
-  if (assetCheck.errors?.length && opts.ignoreAssetErrors !== true) {
+  if (dry) for (const f of assetCheck.errors ?? []) checkErrors.push({ code: f.ruleId ?? 'ASSET_REFERENCE', path: f.stepId ?? null, stage: 'validate_assets', context: describeFinding(f) });
+  else if (assetCheck.errors?.length && opts.ignoreAssetErrors !== true) {
     report.failurePhase = 'validate_assets';
     report.aborted = `GHL rejected ${assetCheck.errors.length} asset reference(s) before any write: `
       + assetCheck.errors.map(describeFinding).join('; ')
@@ -500,6 +593,50 @@ export async function orchestrate(ir, gw, opts = {}) {
     }
   }
 
+  // A dry run stops here: every check has run, nothing was created.
+  if (dry) return report;
+
+  // ── CREATE THE DEPENDENCIES — only now, after every offline and reference check passed (W6a item 3) ──
+  const realTemplateIds = new Map();
+  for (const t of pendingTemplates) {
+    const tc = await dependencyCallAt('email_template_create', 'POST', '/emails/builder', { locationId: loc, type: 'html', title: t.spec.title, name: t.spec.title, updatedBy: uid, isPlainText: false });
+    if (!tc) return report;
+    const tid = tc.json?.id || tc.json?._id;
+    if (!tid) { report.failurePhase = 'email_template_create'; report.aborted = `email template '${t.spec.title}' was created with no id in the answer (HTTP ${tc.status ?? '?'})`; return report; }
+    report.createdTemplates.push({ title: t.spec.title, id: tid });
+    const data = await dependencyCallAt('email_template_data_create', 'POST', '/emails/builder/data', { locationId: loc, templateId: tid, updatedBy: uid, html: t.spec.html, editorType: 'html', previewText: t.spec.previewText || '', isPlainText: false });
+    if (!data) return report;
+    realTemplateIds.set(t.placeholder, tid);
+  }
+  if (realTemplateIds.size) {
+    const real = (o) => (o == null ? o : JSON.parse([...realTemplateIds].reduce((str, [ph, id]) => str.split(ph).join(id), JSON.stringify(o))));
+    built.createBody = real(built.createBody);
+    built.autoSaveBody = real(built.autoSaveBody);
+    built.triggerBodies = real(built.triggerBodies);
+  }
+  for (const name of pendingTags) {
+    const r = await dependencyCallAt('tag_create', 'POST', `/locations/${loc}/tags`, { name });
+    if (!r) return report;
+    report.createdTags.push(name);
+  }
+  // Missing folders, outermost first, each under the one before; then the workflow is filed by parentId on BOTH the
+  // create and the auto-save body (the auto-save's own parentId:null would otherwise move it back to the root).
+  if (folderPlan) {
+    let parent = folderPlan.ids.at(-1) ?? null;
+    const created = [];
+    for (const name of folderPlan.missing) {
+      const f = await dependencyCallAt('folder_create', 'POST', `/workflow/${loc}/directory`, { type: 'directory', name, updatedBy: uid, parentId: parent });
+      if (!f) { report.folder = { path: ir.folderPath, id: null, created }; return report; }
+      const id = f.json?.id ?? f.json?._id;
+      if (!id) { report.failurePhase = 'folder_create'; report.aborted = `folder '${name}' was created with no id in the answer`; report.folder = { path: ir.folderPath, id: null, created }; return report; }
+      created.push({ name, id });
+      parent = id;
+    }
+    built.createBody.parentId = parent;
+    if (built.autoSaveBody) built.autoSaveBody.parentId = parent;
+    report.folder = { path: ir.folderPath, id: parent, created };
+  }
+
   const c = await callAt('workflow_create', 'POST', `/workflow/${loc}`, built.createBody);
   if (!c) return report;
   const WID = c.json?.id || c.json?._id;
@@ -530,8 +667,18 @@ export async function orchestrate(ir, gw, opts = {}) {
   if (!serverGate.ran) report.warnings.push(`VALIDATION: GHL's validator gave no verdict (${serverGate.why}); the offline layers still ran`);
   if (blocking(serverGate) && opts.allowValidationFailure !== true) {
     report.failurePhase = 'validation_server';
+    // Mark the empty draft so nobody mistakes it for a build (W6a item 4), and name everything left behind.
+    const refusedName = `[REFUSED] ${built.createBody?.name ?? ir.name ?? ''}`.trim();
+    let renameVerified = false;
+    try {
+      const rn = await call('PUT', `/workflow/${loc}/rename-workflow/${WID}`, { name: refusedName });
+      if (rn?.ok) { const back = await call('GET', `/workflow/${loc}/${WID}`); renameVerified = back?.json?.name === refusedName; }
+    } catch { renameVerified = false; }
+    report.leftovers = { workflowId: WID, name: renameVerified ? refusedName : (built.createBody?.name ?? null), renameVerified,
+      tags: [...report.createdTags], templates: [...report.createdTemplates], ...(report.folder?.created?.length ? { folders: report.folder.created } : {}) };
     report.aborted = `VALIDATION_GATE (GHL, layer ${serverGate.layer ?? '?'}): the server refused the compiled steps. Only the EMPTY draft `
-      + `${WID} exists — no step was written.\n  ${serverGate.summary}`;
+      + `${WID} exists${renameVerified ? `, renamed '${refusedName}'` : ' (the [REFUSED] rename did not read back)'} — no step was written. `
+      + `Left behind: data.leftovers.\n  ${serverGate.summary}`;
     return report;
   }
   const s = await callAt('workflow_auto_save', 'PUT', `/workflow/${loc}/${WID}/auto-save`, sent);

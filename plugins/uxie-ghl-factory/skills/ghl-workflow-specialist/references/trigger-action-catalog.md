@@ -31,7 +31,7 @@ trigger instances in 326 production workflows.
 | `inbound_webhook` | Fires on POST to a workflow-specific URL | none observed | The classic external-enrollment path — see §4 below for why it's no longer the *only* one. |
 | `form_submission` | Fires on form submit | `form.id`, plus a dynamic `contact.<fieldId>` row | Bound to a specific form ID. Cloning a form gives a new ID; the old trigger doesn't follow. |
 | `customer_reply` | Fires on inbound message reply | `contact.tags`, `inbound_number`, `message.body`, `message.chatWidgetId` | Fires on **any** connected channel (SMS/email/FB/IG/WhatsApp/GMB/live chat), not just SMS — a common false assumption. |
-| `appointment` / `customer_appointment` | Fires on appointment lifecycle events | `appointment.eventType`, `appointment.status`, `calendar.id`, `contactMode` | **Bypasses `allowMultiple`** — always re-runs per appointment even with re-entry off at the workflow level. |
+| `appointment` / `customer_appointment` | Fires on appointment lifecycle events | `appointment.eventType`, `appointment.status`, `calendar.id`, `contactMode` | **Bypasses `allowMultiple`** — always re-runs per appointment even with re-entry off at the workflow level. 🔴 A **Services**-module booking stores `calendarId` = the SERVICE id (`serviceId`), so a `calendar.id` filter set to a calendar never matches a service appointment (live 2026-10-30; `ghl-calendars`). Its `statusId` is from the service status set. |
 | `facebook_lead_gen` | Fires on FB lead-ad submission | `facebook.formId`, `facebook.pageId` | |
 | `opportunity_created` / `opportunity_changed` / `opportunity_status_changed` | Fire on opportunity lifecycle events | `opportunity.pipelineId`, `.pipelineStageId`, `.status`, `.assignedTo`, `contact.tags` | |
 | `contact_created` | Fires on new contact | `tagsAdded` | |
@@ -49,6 +49,17 @@ trigger instances in 326 production workflows.
 | `task_added` / `task_due_date_reminder` | Task lifecycle events | `task.assignedTo`, `task.dueDate` | |
 | `category_completed` | Membership category finished | `membership.category.id`, `.product.id` | |
 | `conv_ai_trigger` | Conversation-AI bot event | `botId` | Pairs with `conversationai_*` step types (§2). |
+
+### Not workflow triggers: Conversation AI outbound triggers (2026-09/10)
+
+A Conversation AI agent now has its **own** event triggers, stored on the agent (`/agent-deployment/outbound-triggers`),
+that make it text a contact first with no workflow involved: `contact_tag` (added), `contact_created`,
+`form_submitted`, `appointment_status_updated`, `opportunity_status_updated`, `missed_call`, and three lead-ad types
+(Facebook/Instagram, Google, TikTok lead forms; not executable through the plugin). 🔴 The vocabularies overlap but are
+not interchangeable: the outbound form slug is **`form_submitted`**, the workflow trigger is **`form_submission`**.
+A workflow audit that lists only workflow triggers misses these sends — read the agents' outbound state too
+(`get_ai_configuration_bundle` → `outboundArmed`). When a design calls for one, see `patterns.md` → "Speed-to-lead with
+an AI agent" and `ghl-conversation-ai`.
 
 ### Coverage gap — the corpus undercounts the real trigger surface
 
@@ -126,7 +137,7 @@ instances across the same 326-workflow corpus. One example JSON per type lives a
 |---|---|---|---|
 | `ai_agent` | GHL-native AI agent (tools, memory, structured output) | `model`, `tools`, `outputFormat` | |
 | `chatgpt` | Separate OpenAI ChatGPT action | `actionType`, `apiKey`, `instructions` | Distinct provider from `ai_agent` — don't conflate the two when reading a workflow. |
-| `conversationai_*` (9 nodes: `objective`, `continue`, `end`, `ai_message`, `custom_message`, `ai_splitter`, `book_appointment`, `services_booking`, `transfer_bot`) | Conversation AI Studio bot-canvas nodes | varies | The bot canvas itself (prompts, KB, flow graph) is **UI-only** — not exposed via public API (confirmed live, see §4). These step types only cover the workflow-side wiring. Designing a flow bot: `anti-patterns.md` §11 first. |
+| `conversationai_*` (9 nodes: `objective`, `continue`, `end`, `ai_message`, `custom_message`, `ai_splitter`, `book_appointment`, `services_booking`, `transfer_bot`) | Conversation AI **V1** flow-bot nodes (a V2 flow agent, `FLOW_BUILDER_BOT_V2`, is an Agent Studio graph instead and uses none of them) | varies | The bot canvas itself (prompts, KB, flow graph) is **UI-only** — not exposed via public API (confirmed live, see §4). These step types only cover the workflow-side wiring. Designing a flow bot: `anti-patterns.md` §11 first. |
 
 ### Coverage gap — the corpus undercounts the real action surface
 Per `STEP_TYPES.md` (2026-05-17 note): 66 step types were corpus-observed, but the

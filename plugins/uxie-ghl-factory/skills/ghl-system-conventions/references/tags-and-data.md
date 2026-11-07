@@ -12,15 +12,15 @@ before relying on anything mechanical below.
 
 ## What GHL actually does (verified, not folklore)
 
-**Tags are normalised to lowercase on write.** Almost every published article about GHL
+**Tags are lower-cased on write (measured).** Evidence (W10 ruling w10-4): corpus `workflows/30-types/triggers/contact_tag.md` (W29: a tag row stored in mixed case never fires) and `workflows/30-types/steps/if_else.md` (W31: a capital letter in a tag condition never matches); sniffs `workflows-wave1-2026-09-25` `live-W29-tagcase-*` and `live-W31-ifelse-*`. Almost every published article about GHL
 tags claims they're case-sensitive and that `Facebook` and `facebook` are two tags. This
 was checked against real accounts via `GET /locations/{id}/tags` — five sub-accounts,
 around 610 tags, including one 457-tag legacy account fed by years of imports, manual
 entry and integrations. Not one uppercase character anywhere. You cannot create
 `Facebook`; you get `facebook`.
 
-So casing is not a discipline worth enforcing. **Delimiters, word order, and synonyms are**,
-because GHL normalises none of those. Real duplicates observed in one account:
+So write tags lower-case, and never rely on case to tell two tags apart: GHL lower-cases what you write, so `Facebook` and
+`facebook` are one tag. **Delimiters, word order, and synonyms are the real discipline**, because GHL normalises none of those. Real duplicates observed in one account:
 
 - `cash buyer` / `cash-buyer`, `case study` / `case-study`, `listing agent` / `listing-agent`
 - four delimiters in simultaneous use: space, hyphen, underscore, and ` - `

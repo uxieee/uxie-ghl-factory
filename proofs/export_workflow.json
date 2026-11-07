@@ -663,10 +663,23 @@
         "commit:2b4c0f19"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "fail",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-10-29-0659"
+      ],
+      "location": "…zn6B",
+      "failures": [
+        "export-workflow-scrubs-a-webhook-authorization-to-a-placeholder-on-the-key-name"
+      ]
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/trigger": "08350cea684b7ac76430d36af66e093c3753ee489a66e250efef0ba978eeb148",
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "eb7d0149e959efe4c9cc0a7b8615c8688463787b3960a56be91eae1d7be9fa7a",

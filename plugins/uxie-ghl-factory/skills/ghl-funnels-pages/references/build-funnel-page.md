@@ -85,6 +85,13 @@ Autosave answers `201` to all of these:
 - The page is read back on a separate request.
 - Pass `verifyUrl` to also poll the public render for your own copy. One request there is not a measurement: the
   first can serve the previous compile.
+- **A second save can promote a new page's first draft to live.** On a page that has never been published, the second
+  write turns the first draft `live` (rule 42 in `knowledge/corpus/funnels/40-rules`; re-measured in W7 on a TEST-CONF page). The
+  public URL then serves that first draft until a publish, whatever later saves say. Read `get-versions` (a `live`
+  row) before you assume a draft is invisible, and treat the second save as a publish you did not ask for.
+- **A builder save undoes a radius written in CSS.** `builderSaveWouldChange` in a result (and in the preview) names each
+  button or image radius that the page's CSS sets and the native setting would not; `nativeFix` names the node setting
+  that keeps it (bl-490, bl-517). Apply the fix before the first builder save.
 
 ## Edit mode
 

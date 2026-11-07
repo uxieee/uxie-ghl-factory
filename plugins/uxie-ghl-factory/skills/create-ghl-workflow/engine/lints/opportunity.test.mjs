@@ -88,14 +88,14 @@ test('a TOP-LEVEL pipelineId satisfies the stage-needs-a-pipeline rule', () => {
 test('a bare custom-field id in filterField is refused; the custom_fields. spelling is clean', () => {
   const bare = lintOpportunityWrites(step({ __customInputFields__: [
     { filterField: 'pipelineId', value: 'x2f9dK1mQ84hL0pTzVbn', dataType: 'SINGLE_OPTIONS', valueFieldType: 'select' },
-    { filterField: 'wcuc5AkMTW8iL5FtABWG', value: 'skin peel', dataType: 'TEXT', valueFieldType: 'string' } ] }));
+    { filterField: 'Lq7TestCf00000000001', value: 'skin peel', dataType: 'TEXT', valueFieldType: 'string' } ] }));
   assert.deepEqual(codes(bare), ['OPP_CUSTOM_FIELD_BARE_ID']);
-  assert.match(bare[0].msg, /custom_fields\.wcuc5AkMTW8iL5FtABWG/);
+  assert.match(bare[0].msg, /custom_fields\.Lq7TestCf00000000001/);
   assert.equal(bare[0].severity, 'error');
 
   assert.deepEqual(lintOpportunityWrites(step({ __customInputFields__: [
     { filterField: 'pipelineId', value: 'x2f9dK1mQ84hL0pTzVbn', dataType: 'SINGLE_OPTIONS', valueFieldType: 'select' },
-    { filterField: 'custom_fields.wcuc5AkMTW8iL5FtABWG', value: 'skin peel', dataType: 'TEXT', valueFieldType: 'string' } ] })), []);
+    { filterField: 'custom_fields.Lq7TestCf00000000001', value: 'skin peel', dataType: 'TEXT', valueFieldType: 'string' } ] })), []);
 
   // A standard property keeps its bare name — that is the whole distinction.
   assert.deepEqual(lintOpportunityWrites(step({ __customInputFields__: [

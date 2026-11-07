@@ -157,3 +157,24 @@ export class Members {
       : `enrollment did not appear for product ${productId} within ${timeoutMs}ms`);
   }
 }
+
+/**
+ * w8-4: what a grant or revoke did, from a read before it and a read after it (the members rail's own proof).
+ * A 200 answer proves only that the request was queued, so the outcome is decided by the membership, never by the
+ * response. `sent` says whether the step e-mails the member (the caller shows it in the preview; not used for the
+ * outcome, kept for the record).
+ */
+export function accessOutcome({ action, before, after, sent }) {
+  void sent;
+  if (action === 'grant') {
+    if (after && !before) return 'granted';
+    if (after && before) return 'already-had';
+    return 'queued-unconfirmed';
+  }
+  if (action === 'revoke') {
+    if (!after && before) return 'revoked';
+    if (!after && !before) return 'already-absent';
+    return 'queued-unconfirmed';
+  }
+  throw new Error(`accessOutcome: action must be grant or revoke, got ${action}`);
+}

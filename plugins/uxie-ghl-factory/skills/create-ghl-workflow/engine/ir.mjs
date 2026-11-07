@@ -6,7 +6,7 @@ export class IRError extends Error {
 
 // Node-level scope arrays that hold a nested linear sequence (a child graph).
 // Every multipath container reaches its children through one of these.
-const SCOPE_KEYS = ['onEvent', 'onTimeout', 'onFound', 'onNotFound', 'onBooked', 'onNotBooked', 'default'];
+const SCOPE_KEYS = ['onEvent', 'onTimeout', 'onFound', 'onNotFound', 'onBooked', 'onNotBooked', 'default', 'body'];
 
 // ─── Container kinds: `kind:` is an accepted alias for `type:` ────────────────────────
 // The find/merge containers are discriminated in the compiler by node.type. An author
@@ -32,7 +32,11 @@ const KNOWN_NODE_KEYS = new Set([
   'instructions', 'information',            // ai_decision
   'inputText',                              // ai_intent
   'target',                                 // goto
+  'loopOver', 'items', 'startNumber', 'endNumber', // loop (w6c-2): list or range; the body rides on the `body` scope
+  'rememberPath',                          // split (w6c-4): extras.rememberPath, which the builder writes on even and weighted splits
+  'metric', 'endCondition', 'afterEnd', 'resetTestRun', // ab_test (w6c-5): extras.metric / endCondition / afterEnd / resetTestRun
   'integrationAccountId',                   // INTEGRATION_AI marketplace step: the connected account (compiler checks the publisher)
+  'stepIndex',                              // a stored step's per-type index, kept on recompile (W6 item 2)
   ...SCOPE_KEYS,
 ]);
 
@@ -49,9 +53,11 @@ const SCOPE_OWNERS = {
   default: ['ai_decision', 'conversationai_ai_splitter', 'split'],
   // Branch/path/target keys are scopes too: a `branches` array on an sms node was authored,
   // never read, and the node compiled as a plain linear step with attributes:{} (F5-14).
-  branches: ['if_else', 'ai_decision', 'ai_intent', 'conversationai_ai_splitter'],
-  paths: ['split', 'workflow_split'],
+  branches: ['if_else', 'ai_decision', 'ai_intent', 'conversationai_ai_splitter', 'router'],
+  paths: ['split', 'workflow_split', 'ab_test'],
   target: ['goto'],
+  // w6c-2 (bl-785): a loop's body is the child sequence the compiler tags with parentContainerId = the loop.
+  body: ['loop'],
 };
 
 // The four kind-discriminated containers are ALSO reachable by their wire type. An author who
@@ -67,28 +73,36 @@ const SCOPE_OWNERS = {
 // live builder capture 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3CB-intent-builder-specimen.json).
 // Compiled as a plain marketplace step it was a straight line the builder never produces.
 const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision: 'ai_decision', workflow_ai_decision_maker: 'ai_decision',
-  ai_intent: 'ai_intent', workflow_ai_intent_detection: 'ai_intent', goto: 'goto' };
+  ai_intent: 'ai_intent', workflow_ai_intent_detection: 'ai_intent', goto: 'goto', router: 'router', loop: 'loop',
+  workflow_ab_test: 'ab_test', ab_test: 'ab_test' };
 // Container types the engine cannot author, refused by name instead of compiled wrong (wave23, completeness sweep
 // 2026-09-29 §4 #22-23). A router compiled into ONE step with a scalar `next` — no lanes, no condition-node — that saved and
 // passed validation and could not branch. A loop has no body scope here, so it compiled as a straight line and was then
 // refused by checkLoopHasBody with no word about why. Both are builder-picker features gated to allowlisted locations,
 // so neither can be proven on the designated test sub-account. `kind:'raw'` (a builder-made step carried verbatim) is
 // untouched: edits keep existing routers and loops as stored.
-const NOT_AUTHORED = {
-  router: { code: 'ROUTER_NOT_AUTHORED', message: (n) => `node '${n.ref ?? n.name ?? 'router'}': the engine does not author a Router. `
-    + 'GHL stores one as a condition-node root (attributes.branches, next = its lane ids) plus one template per lane '
-    + '(type router, nodeType branch-yes, parentKey = the router) (utils/router.ts:616-760); the engine has no router kind, '
-    + 'and what it used to write was a single step that cannot branch. The builder offers Router only on allowlisted '
-    + 'locations (IS_ROUTER_ACTION_SHIPPED is false; utils/router-flag.ts). Use if_else (one path per condition), or add the '
-    + 'Router in the builder where it is offered.' },
-  loop: { code: 'LOOP_NOT_AUTHORED', message: (n) => `node '${n.ref ?? n.name ?? 'loop'}': the engine does not author a Loop. `
-    + 'GHL stores the body as separate steps tagged parentContainerId = the loop, running from the loop\'s next up to '
-    + 'attributes.exitNext (utils/loop.helper.ts:571-648); the engine has no body scope. The builder offers Loop only on '
-    + 'allowlisted locations (isLoopActionEnabled: GHL-internal companies or 41 listed location ids, loop.helper.ts:37-85). '
-    + 'Add the loop in the builder where it is offered.' },
-};
+// w6c-1 (bl-784): the Router is AUTHORED now (kind 'router', compiled to GHL's condition-node root plus branch-yes lanes;
+// router-authoring.mjs holds GHL's offline refusals).
+// w6c-2 (bl-785): the Loop is AUTHORED now (kind 'loop', body = the steps tagged parentContainerId; loop-authoring.mjs holds
+// GHL's refusals). Nothing is refused by type any more; NOT_AUTHORED stays as the hook for a future container the engine
+// cannot author.
+const NOT_AUTHORED = {};
 // ai_intent's branches are FIXED by GHL: exactly these names, each at most once, any may be omitted (an empty lane, as the builder leaves it).
 export const AI_INTENT_BRANCHES = ['positive', 'negative', 'none'];
+
+// w6c-4 (plan Task 4, bl-786): the Split modes. The stored condition names are the w6c-0 fixture names (split-even, split-weighted,
+// split-random). `default` is a split with no mode, which keeps today's shape (random-split, even shares) so authored splits do not change.
+export const MAX_SPLIT_PATHS = 10;
+export const STORED_SPLIT_CONDITION = { even: 'even-split', weighted: 'weighted-split', random: 'random-split', default: 'random-split' };
+export const SPLIT_MODE_OF_STORED = { 'even-split': 'even', 'weighted-split': 'weighted', 'random-split': 'random', 'conditional-split': 'conditional' };
+// w6c-5 (bl-788): wire types the builder STORES but the mined step catalogue does not list. workflow_ab_test is proven, not guessed:
+// the w6c-0 read-back of a UI-built A/B test (fixtures/ab-test-event.json, separate request). The catalogue is not regenerated here.
+export const TYPES_OUTSIDE_CATALOG = new Set(['workflow_ab_test']);
+export function splitModeOf(n) {
+  if (n.mode !== undefined && n.mode !== null) return n.mode;
+  if (n.condition !== undefined) return SPLIT_MODE_OF_STORED[n.condition] ?? n.condition;
+  return 'default';
+}
 
 // The node-kind vocabulary, in full. `kind` selects the HANDLER, so an unrecognised value used to
 // select one by omission: no branch matched, nothing validated, and the compiler emitted a step
@@ -99,7 +113,7 @@ export const AI_INTENT_BRANCHES = ['positive', 'negative', 'none'];
 // "kind":"step" as a taxonomy field (step vs trigger), so an author who calls describe_step_type
 // and copies what it shows lands on the one value that disabled every guard downstream. Two keys
 // named `kind`, two disjoint vocabularies, and the catalogue is the one agents read first.
-export const NODE_KINDS = new Set(['action', 'wait', 'if_else', 'split', 'ai_decision', 'ai_intent', 'goto', 'raw']);
+export const NODE_KINDS = new Set(['action', 'wait', 'if_else', 'split', 'ai_decision', 'ai_intent', 'goto', 'router', 'loop', 'ab_test', 'raw', 'stored']);
 // if_else branch keys the compiler reads; `op` is the conditions' AND/OR (the builder's segment operator).
 const IF_ELSE_BRANCH_KEYS = new Set(['ref', 'name', 'conditions', 'then', 'else', 'op', 'assocGuaranteed']);
 
@@ -165,6 +179,10 @@ const WIRE_TYPE_ALIASES = { internal_update_opportunity: 'update_opportunity', i
 const KNOWN_TOP_KEYS = new Set([
   'name', 'triggers', 'graph', 'settings', 'stickyNotes', 'senderDefault',
   'sampleWebhookPayload', 'pinWebhookSample', 'object', 'customObjectType', 'workflowType',
+  // W6 item 11: build-time folder placement (orchestrate.mjs + folders.mjs)
+  'folderPath', 'createFolderIfMissing',
+  // W6 item 2: a spec lifted from a stored workflow (lift.mjs) — pins, residual, frozen nodes (stored.mjs)
+  'stored',
 ]);
 
 function checkTopKeys(ir) {
@@ -173,8 +191,8 @@ function checkTopKeys(ir) {
   // Folders are a separate resource: the create POST hardcodes parentId:null and there is no
   // evidence it accepts one, so filing is a second call. Say so instead of a bare key list.
   const folderHint = bad.includes('parentId')
-    ? ' `parentId` is not a build input — the create POST cannot file a workflow. Build first,'
-      + ' then file it with move_workflows({locationId, workflowIds:[wid], parentId}).'
+    ? ' `parentId` is not a build input — name the folder instead: folderPath: ["Outer", "Inner"] (and'
+      + ' createFolderIfMissing: true to create missing levels); or file an existing workflow with move_workflows.'
     : '';
   throw new IRError('TOP_KEY',
     `unknown top-level IR key(s) [${bad.join(', ')}] — the pipeline never reads these, so they `
@@ -483,17 +501,19 @@ export function parseIR(ir, { externalRefs } = {}) {
 export const REQUIRES_OPPORTUNITY = new Set(['update_opportunity', 'internal_update_opportunity']);
 export const CREATES_OPPORTUNITY = new Set(['create_opportunity_strict', 'internal_create_opportunity']);
 
-export function checkOpportunityAssociation(norm, oppTriggerTypes) {
+export function checkOpportunityAssociation(norm, oppTriggerTypes, accepted = new Set(), ctx = null) {
   const rootAssoc = norm.triggers.length > 0 && norm.triggers.every((t) => oppTriggerTypes.has(t.type));
   const walk = (nodes, assoc) => {
     for (const n of nodes ?? []) {
-      if (REQUIRES_OPPORTUNITY.has(n.type) && !assoc && n.assocGuaranteed !== true)
-        throw new IRError('OPP_UNASSOCIATED',
+      if (REQUIRES_OPPORTUNITY.has(n.type) && !assoc && n.assocGuaranteed !== true && accepted.has(n.ref))
+        ctx?.warn?.(`OPP_UNASSOCIATED_STORED: update_opportunity '${n.ref}' has no associated opportunity on its path; the stored workflow already holds it this way.`);
+      else if (REQUIRES_OPPORTUNITY.has(n.type) && !assoc && n.assocGuaranteed !== true)
+        throw Object.assign(new IRError('OPP_UNASSOCIATED',
           `update_opportunity '${n.ref}' has no associated opportunity on its path — ` +
           `add a find_opportunity (put this step in its Found branch, and a create_opportunity in Not Found), ` +
           `add a create_opportunity_strict before it (a native create_opportunity does NOT bind its card — ` +
           `the update is skipped at run time), use an opportunity trigger on ALL triggers, ` +
-          `or set assocGuaranteed:true if you know association is established in a way the checker can't see.`);
+          `or set assocGuaranteed:true if you know association is established in a way the checker can't see.`), { ref: n.ref });
       if (CREATES_OPPORTUNITY.has(n.type)) assoc = true; // flows to later siblings + their child scopes
       for (const b of n.branches ?? []) walk(b.then, b.assocGuaranteed === true || assoc);
       for (const p of n.paths ?? []) walk(p.then, p.assocGuaranteed === true || assoc);

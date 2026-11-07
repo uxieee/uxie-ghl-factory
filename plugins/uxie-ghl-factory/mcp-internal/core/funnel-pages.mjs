@@ -22,7 +22,7 @@ import { dirname, resolve } from 'node:path';
 import { KIND_DEFAULT_EXTRA, KIND_PDP_STYLES, fillTextFieldInitials } from './kind-defaults.mjs';
 import { KIND_FACTORY_EXTRA, KIND_FACTORY_STYLES, KIND_FACTORY_WRAPPER } from './kind-factory-defaults.mjs';
 import { nodeLayerCss, storedMap } from './style-layer.mjs';
-import { kindCss, KIND_CSS_KINDS } from './kind-css.mjs';
+import { kindCss, KIND_CSS_KINDS, kindCssUnverifiedKinds } from './kind-css.mjs';
 import { entranceClass } from './page-animation.mjs';
 import { KIND_BUILDER_EXTRA, KIND_BUILDER_STYLES } from './kind-builder-defaults.mjs';
 
@@ -328,6 +328,15 @@ export function builderStylingWarning(pageData, scope) {
   ];
   return nodes.length ? { nodes, warning: BUILDER_STYLING_WARNING } : null;
 }
+const KIND_CSS_UNVERIFIED_WARNING = 'The per-kind CSS for these kinds is not verified on page builder 976028e2: the checker found the builder '
+  + 'writing different rules on some inputs. Check how the element renders on the page (preview and public), or save the page once in '
+  + 'the page builder, which compiles its own CSS for them.';
+/** The preview entry for kinds whose per-kind CSS this call writes but the checker did not verify on 976028e2 (w7-5b), or null. */
+export function kindCssUnverifiedWarning(pageData) {
+  const unverified = new Set(kindCssUnverifiedKinds());
+  const nodes = styledNodes(pageData, (n) => unverified.has(n.meta));
+  return nodes.length ? { nodes, warning: KIND_CSS_UNVERIFIED_WARNING } : null;
+}
 /** Deprecated alias (1.24.0): the product-page subset. */
 export function pdpStylingWarning(pageData, scope) {
   const nodes = styledNodes(pageData, (n) => isPdpKind(n.meta) && !KIND_CSS_KINDS.includes(n.meta), scope);
@@ -503,6 +512,38 @@ export function normalizeVideoExtra(extra = {}) {
   return { ...extra, videoProperties: { value: v } };
 }
 // A composed video with no source renders an empty box in public while every write answers 201.
+// w7-6 (orchestrator DECISION): kinds the composer refuses. order-form needs GHL-built props that are not captured yet, and a page
+// holding one alone breaks the public render (origin 500; knowledge sniffs/funnels-w7-2026-11-06/bisect-log.md). Refused with a code
+// and a remediation; nothing is written. The two order kinds that render are not listed.
+export const REFUSED_KINDS = Object.freeze({
+  'order-form': 'order-form needs GHL-built props that are not captured yet (a public page with one alone returns 500)',
+});
+export const REFUSED_KIND_REMEDIATION = 'use one-step-order or two-setp-order (both render); order-form returns once its GHL-built props are captured';
+// Every leaf of the page, popups included (a popup's content is page content: compose popups[] and append-popup both add it).
+export function refusedKindProblems(pageData) {
+  const out = [];
+  const leaves = [...(pageData?.sections ?? []).flatMap((sec) => sec.elements ?? []), ...(pageData?.popupsList ?? []).flatMap((p) => p?.elements ?? [])];
+  for (const el of leaves) {
+    if (el?.type === 'element' && Object.prototype.hasOwnProperty.call(REFUSED_KINDS, el.meta)) {
+      out.push({ message: `${el.meta}: ${REFUSED_KINDS[el.meta]}`, remediation: REFUSED_KIND_REMEDIATION });
+    }
+  }
+  return out;
+}
+// The refusal for a COPY of one node: the node itself and every node under it (a column, row or section copies its whole subtree).
+// A section's subtree is all of its elements; any other node's is the child walk from that node.
+export function refusedInSubtree(section, nodeId) {
+  const els = section?.elements ?? [];
+  const byId = new Map(els.map((e) => [e.id, e]));
+  const ids = [];
+  if (section && (section.id === nodeId)) ids.push(...els.map((e) => e.id));
+  else {
+    const seen = new Set();
+    const walk = (id) => { if (seen.has(id) || !byId.has(id)) return; seen.add(id); ids.push(id); for (const c of byId.get(id).child ?? []) walk(c); };
+    walk(nodeId);
+  }
+  return refusedKindProblems({ sections: [{ elements: ids.map((id) => byId.get(id)).filter(Boolean) }] });
+}
 export function videoSourceProblems(pageData, onlyIds = null) {
   const out = [];
   const walk = (els) => { for (const n of els ?? []) {

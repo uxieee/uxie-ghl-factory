@@ -94,10 +94,19 @@
         "row:pipelines-opportunities--forecast-summary"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /opportunities/pipelines": "698f44e2a959e288cc81fdba3df9a1363a7cba3265be3ea16bc51ff59e9c33dd",
       "GET https://services.leadconnectorhq.com /opportunities/pipelines": "b7bfbb9c12e38a2093b5311d1dfb07794ac4018d05e21285bb05ec9359027159",
@@ -107,7 +116,7 @@
       "POST https://services.leadconnectorhq.com /opportunities/search": "450af8bab3e3178bf660f899ce66add48a248265b5e238eedafa3c860b64f51c"
     },
     "builds": {
-      "opportunitiesApp": 2451
+      "opportunitiesApp": 2932
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_pipeline_forecast": "8db1569555079350a397d8b19dc7b52e2f33d13ad4a3b38a6ff4f3d861fd339a",

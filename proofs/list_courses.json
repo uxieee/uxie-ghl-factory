@@ -12,18 +12,27 @@
         "commit:880e2c46"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /membership/locations/{}/categories": "d6f1f93ff9fd77db82838ff865ca0271331bfa117239a9f5423a79bf4b6da258",
       "GET https://services.leadconnectorhq.com /membership/locations/{}/categories": "8e0da0b0e1953a9113eb287cc4d7b569a84fb119033b1480c2344cf46679b2e6",
       "GET https://services.leadconnectorhq.com /membership/locations/{}/products": "d0a6242d8a0b47401b522d807dc3423444407835e817abf56b56530543e0ee9d"
     },
     "builds": {
-      "certificatesApp": 2051,
-      "membershipApp": 2029
+      "certificatesApp": 2209,
+      "membershipApp": 2200
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_courses": "050801f9fb4daaf8bf9eeb76db72c4687fc52acf904f4ef8befa4b9b7a1ea4e4",

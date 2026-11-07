@@ -1,5 +1,7 @@
 ---
-with-only: true
+type: llm
+arm: with-only
+focus: trace
 ---
 The response must show that the **`ghl-workflow-specialist`** skill was invoked for this request.
 

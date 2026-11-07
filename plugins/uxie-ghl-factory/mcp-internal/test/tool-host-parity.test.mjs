@@ -120,7 +120,13 @@ test('every known host disagreement still carries a reason (the ledger cannot ro
 // the blog list answered 200 with the same row on BOTH hosts, and backend template loads answered 201 and
 // installed the blank store and webinar (read back by fetch). The write was not repeated on services
 // just to compare. Both right; permanent.
+// set_convai_outbound (W5a Task 6): the numbers read is dialled on backend because that is where it was EXECUTED —
+// raw_request's default host, 2026-09-30, on the test sub-account (knowledge sniffs/ai-agents-reopen2-2026-09-30/runs.jsonl
+// number-readback-v2, {numbers:[{phoneNumber,…}], total}). The catalogue row says services only because its corpus page
+// (ai-agents/20-api/logs-deployment-email.md) carries a services Base line; services was never called for this route.
+// Not settled as "both": a one-GET differential on services would settle it.
 const NAMED_TOOL_PATH_EXCEPTIONS = new Set([
+  'set_convai_outbound GET /phone-system/numbers/v2/location/{}',
   'list_marketplace_apps GET /marketplace/core/search/module',
   'create_funnel GET /funnels/funnel/blog/list',
   'create_funnel POST /templates/template/load',

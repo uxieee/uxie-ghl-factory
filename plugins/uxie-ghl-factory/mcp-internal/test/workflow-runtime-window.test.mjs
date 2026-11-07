@@ -38,7 +38,7 @@ import {
 const LOC = 'LOC1';
 const WF = 'wf-1';
 const CAPTURED_AT = '2026-07-24T00:00:00.000Z';
-const LOG_PAGE_SIZE = 100;       // RUNTIME_WINDOW_DEFAULTS.logPageSize; bounded 1..5000
+const LOG_PAGE_SIZE = 50;        // RUNTIME_WINDOW_DEFAULTS.logPageSize (50 since 2026-10-30: a 100-row page overruns the identity cap); bounded 1..5000
 const STEP_PAGE_SIZE = 50;       // details-by-step numericQueryBounds.limit max
 
 // An INDEPENDENT fixture input, not a figure derived from the rows the stub is about to
@@ -2141,7 +2141,7 @@ test('the tool schema applies the plan defaults', () => {
   const parsed = tool('get_workflow_runtime_window').inputSchema.parse({
     locationId: LOC, workflowId: WF, fromDate: 0, toDate: 1000,
   });
-  assert.equal(parsed.logPageSize, 100);
+  assert.equal(parsed.logPageSize, 50);
   assert.equal(parsed.maxLogPages, 200);
   assert.equal(parsed.maxLogRetries, 3);
   assert.equal(parsed.maxEnrollmentPages, 200);
@@ -2402,7 +2402,9 @@ test('every row id the tool catalog cites — in EVERY entry — exists in the r
   // `capabilities: []`, and touch no account. The invariant here is "every row an entry cites
   // must be real" — vacuously satisfied by an entry citing none. The non-empty check assumed
   // every tool has an endpoint, which stopped being true when the step-type catalog landed.
-  const ENDPOINTLESS = new Set(['search_step_types', 'describe_step_type']);
+  // compare_page_renders joins them (w12): a pure function over probe JSON, declared `capabilities: []`, seeded with zero rows
+  // under the pure label by `proof.mjs seed`. Its entry must still cite nothing.
+  const ENDPOINTLESS = new Set(['search_step_types', 'describe_step_type', 'compare_page_renders']);
   for (const [name, entry] of Object.entries(catalog)) {
     if (ENDPOINTLESS.has(name)) {
       for (const field of CATALOG_ROW_FIELDS) {

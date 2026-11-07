@@ -76,6 +76,17 @@ only one fires the outbound send.
 **Source:** `ghl-specialist references/common-audit-findings.md` #2 ("Workflows
 sending duplicate messages" — tier-1, most-cited finding).
 
+**The same failure across products (2026-09/10).** A Conversation AI agent's **outbound trigger** fires on its own
+CRM event and sends the agent's opener, and an **AI Campaign** sends it to a whole selection — neither sees the
+workflows. Measured 2026-10-29: a contact who got the opener from a trigger got it again twenty minutes later from a
+campaign (there is **no de-dup**), and a `contact_tag` trigger fired again when its tag was re-added. So a workflow
+that texts on `form_submission`, an outbound `form_submitted` trigger and a campaign over "new leads" can all open on
+the same contact. **Detect:** read every agent's outbound state (`get_ai_configuration_bundle` → `outboundArmed`,
+`item.outbound`) next to the workflow map, and look for Agent Logs interactions `"[outbound] trigger"` /
+`"[outbound] bulk_action"` beside workflow sends to the same contact. **Avoid:** give each event one owner — the
+agent's outbound trigger or the workflow, never both — and exclude recently-contacted contacts from a campaign's
+audience (the campaign will not do it for you).
+
 ---
 
 ## 4. Timezone / wait-step traps
@@ -254,11 +265,19 @@ Say this explicitly in the blueprint when an AI action is part of the design.
 names the AI-Prompt step; applied to both `ai_agent` and `chatgpt` steps here by
 analogy, since both bill tokens to the same uncapped wallet.
 
+**The same cost outside workflows: an `ai_generated` outbound opener.** A Conversation AI agent's
+`outboundOpeningMessage` in mode `ai_generated` runs the agent's **primary model on every send** — per contact, per
+outbound trigger fire, per AI Campaign contact. One measured opener on a Claude primary was about 2.2 k input and 93
+output tokens (2026-10-29); a `static` opener ran no model (0 tokens). And any save of the agent in the editor stamps
+`ai_generated` as the default opener on an agent that had none. **Avoid:** for a high-volume outbound trigger or a large
+campaign, set a static opener (≤ 200 words, merge fields render) unless the copy must vary, and estimate volume ×
+model price from the roster (`get_ai_agent_options`) in the blueprint.
+
 ---
 
 ## 11. Flow-bot design rules (live-proven 2026-08-31)
 
-A flow bot (`workflowType: "agent"`) fails **silently**: nothing errors, the graph
+A V1 flow bot (`workflowType: "agent"`; not a V2 flow agent, whose logic is an Agent Studio graph) fails **silently**: nothing errors, the graph
 round-trips clean, and the only evidence is runtime behaviour. Seven rules from live
 conversation against the server's records (outcomes proven; the priority mechanism in
 rule 7 is an inferred model) — apply them to every flow-bot blueprint:

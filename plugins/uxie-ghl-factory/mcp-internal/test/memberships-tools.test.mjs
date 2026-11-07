@@ -184,7 +184,11 @@ test('partial build_course failure reports already-created ids and never throws'
 
 test('build_course description states paid, embed and local-media constraints', () => {
   const description = tool('build_course').description;
-  assert.match(description, /only free/i);
+  // w8-11: paid offers are supported by the engine; the description must not call them impossible.
+  assert.match(description, /paid offers are supported by the engine/i);
+  assert.match(description, /bl-877/);
+  assert.match(description, /checkout is unproven/i);
+  assert.doesNotMatch(description, /only free/i);
   assert.match(description, /embedJson|embed.*PUT/i);
   assert.match(description, /local.*absolute|absolute.*local/i);
 });

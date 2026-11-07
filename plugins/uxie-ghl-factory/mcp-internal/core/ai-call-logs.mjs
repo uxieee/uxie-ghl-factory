@@ -23,6 +23,9 @@
 //   - `channel`, `employeeId`, `contactId` filter; `sortOrder` asc|desc; `page` + `limit` (default 20; not capped by the
 //     server — 101 returned 101 — so this tool caps it at 100).
 //   - a bogus channel answers 200 with 0 rows, so a typo reads as "no conversations".
+//   - `direction=outbound` lists the conversations an agent STARTED (outbound trigger, bulk action / AI campaign) — live
+//     2026-10-29 (knowledge/sniffs/convai-wave-2026-10-29/live-outbound-runtime-L5-L7.json step 7), same row shape.
+//     `inbound` was never executed and the server's default without a direction is unmeasured, so only `outbound` is offered.
 //  Its View Transcript / Summary: `GET /ai-employees/summary/{locationId}/contact/{contactId}?page&limit&channelName` →
 //   {items[{summary, trigger, transcript[{direction, body…}], channelName, employeeId, summaryWindowStart/EndTime…}],
 //   totalCount}. Items exist only where the agent's conversation summary produced one; `channelName` filters them.
@@ -34,6 +37,7 @@ export const VOICE_PAGE_SIZE_MAX = 50;
 export const PENDING_STATUSES = ['queued', 'scheduled', 'rejected'];
 export const CAI_PRESET_PERIODS = ['today', 'this-week', 'prev-week', 'this-month', 'prev-month', 'this-year', 'prev-year'];
 export const CAI_LIMIT_MAX = 100;
+export const CAI_DIRECTIONS = ['outbound'];
 
 /** A date the caller wrote (ISO date / datetime, or epoch ms) → epoch ms, or null when unreadable. */
 export const toEpochMs = (v, { endOfDay = false } = {}) => {
@@ -92,6 +96,7 @@ export function caiConversationLogsQuery(args) {
   if (args.channel) q.set('channel', args.channel);
   if (args.agentId) q.set('employeeId', args.agentId);
   if (args.contactId) q.set('contactId', args.contactId);
+  if (args.direction) q.set('direction', args.direction);
   q.set('sortOrder', args.sortOrder ?? 'desc');
   q.set('limit', String(args.limit ?? 20));
   q.set('page', String(args.page ?? 1));

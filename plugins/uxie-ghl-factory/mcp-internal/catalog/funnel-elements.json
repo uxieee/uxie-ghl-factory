@@ -1,7 +1,7 @@
 {
  "_source": "knowledge/corpus/funnels/_data/elements.json (editableProps.extra)",
- "_note": "meta is a CLOSED set of 72; extraProps must all be present on a node or the public render 500s.",
- "count": 72,
+ "_note": "meta is a CLOSED set of 77; extraProps must all be present on a node or the public render 500s.",
+ "count": 77,
  "elements": {
   "section": {
    "tagName": "c-section",
@@ -1414,6 +1414,85 @@
     "customText",
     "customClass",
     "visibility"
+   ]
+  },
+  "quiz": {
+   "tagName": "c-quiz",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "quizId",
+    "action",
+    "visitWebsite",
+    "customClass"
+   ]
+  },
+  "order-form": {
+   "tagName": "c-order-form",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "customClass",
+    "steps",
+    "render",
+    "offerColumnSide",
+    "bumps",
+    "orderFormTheme",
+    "productOrder",
+    "showQuantity",
+    "showProductImages",
+    "orderFormCopy",
+    "enableMultiProductSelect",
+    "enableMainProductDescription",
+    "enableProductDescription",
+    "enableCouponCodes",
+    "stickyContact",
+    "forceContactCreate",
+    "validateEmail",
+    "enablePostalCode",
+    "termsAndConditions",
+    "saleAction",
+    "stepPath",
+    "visitWebsite",
+    "showOrderBump",
+    "orderFormBumpStyle"
+   ]
+  },
+  "rentals": {
+   "tagName": "c-rentals",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "rentalsId",
+    "customClass",
+    "action",
+    "visitWebsite"
+   ]
+  },
+  "services": {
+   "tagName": "c-services",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "servicesId",
+    "customClass",
+    "action",
+    "visitWebsite"
+   ]
+  },
+  "blog-comments": {
+   "tagName": "c-blog-comments",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "blogCommentsActions",
+    "visibility",
+    "customClass",
+    "blogCommentsStyle"
    ]
   }
  }

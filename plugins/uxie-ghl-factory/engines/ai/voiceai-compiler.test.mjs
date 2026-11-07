@@ -95,7 +95,7 @@ test('compileVoiceAiAction: WORKFLOW_TRIGGER matches voiceai-actions-all.json sh
       triggerPrompt: 'User asks to test the workflow trigger',
       triggerMessage: 'I have triggered the test workflow.',
       triggerMessageType: 'static_text',
-      workflowId: '76b6ce98-dd6e-4e4d-aaff-bd58369fe18b',
+      workflowId: '00000000-0000-4000-8000-0000000000f1',
     },
   };
   const { body } = compileVoiceAiAction(action, { agentId: AGENT_ID, locationId: LOCATION_ID });
@@ -407,7 +407,7 @@ test('compileVoiceAiAction: AGENT_TRANSFER_CHILD matches voiceai-actions-all.jso
     actionType: 'AGENT_TRANSFER_CHILD',
     name: 'transfer_finn_0',
     actionParameters: {
-      destinationAgentMongoId: '69f8484fee4ecaa5d657c45d',
+      destinationAgentMongoId: '000000000000000000000f01',
       triggerPrompt: 'If the user asks to speak with Finn, transfer the call.',
     },
   };
@@ -415,7 +415,7 @@ test('compileVoiceAiAction: AGENT_TRANSFER_CHILD matches voiceai-actions-all.jso
   assert.deepEqual(body.actionParameters, {
     speakDuringExecution: false,
     triggerWorkflowsPostCall: true,
-    destinationAgentMongoId: '69f8484fee4ecaa5d657c45d',
+    destinationAgentMongoId: '000000000000000000000f01',
     triggerPrompt: 'If the user asks to speak with Finn, transfer the call.',
   });
 });

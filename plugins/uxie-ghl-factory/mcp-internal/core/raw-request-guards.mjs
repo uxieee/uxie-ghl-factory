@@ -273,13 +273,23 @@ export function refuseRedactedWrite(payload) {
     .map((s) => `${label(s)}${s.type ? ` (${s.type})` : ''} at ${s.paths.join(', ')}`)
     .join('; ');
   const more = steps.length > REDACTED_STEP_CAP ? `, and ${steps.length - REDACTED_STEP_CAP} more` : '';
+  // A signed URL's TOKEN was redacted in an export file (bl-730, option a). That value IS recoverable: get_workflow
+  // returns the whole URL. A credential-named key is different: scrubSecrets never reads the value.
+  const urlToken = /https?:\/\/[^"\s]*[?&](?:token|access_token|signature|sig|x-amz-signature|x-goog-signature)=<redacted>/i
+    .test(JSON.stringify(payload) ?? '');
+  const hint = urlToken
+    ? 'The signed-URL token in this write was redacted in an export file (for example previewUrl or fileUrl). '
+      + 'It is NOT lost: get_workflow returns the whole URL. Re-read the workflow, put the live URL in place of the '
+      + 'placeholder, then write. Only a credential-named key (scrubSecrets, by key name) is unrecoverable from '
+      + 'an export or GET, and those steps must be re-entered by hand in the builder.'
+    : 'These steps must be re-entered by hand in the builder — the real values cannot be read back '
+      + 'through this rail. scrubSecrets redacts by KEY NAME without reading the value, so the original is '
+      + "not recoverable from any export or GET. There is no confirm hatch for this: there is no legitimate "
+      + 'reason to write the literal placeholder into a workflow.';
   return {
     message: `${hits.length} value(s) in this write are the redaction placeholder "${REDACTED}", not real `
       + `values: ${shown}${more}. Writing them back would REPLACE the stored value with the literal `
       + 'placeholder string.',
-    hint: 'These steps must be re-entered by hand in the builder — the real values cannot be read back '
-      + 'through this rail. scrubSecrets redacts by KEY NAME without reading the value, so the original is '
-      + "not recoverable from any export or GET. There is no confirm hatch for this: there is no legitimate "
-      + 'reason to write the literal placeholder into a workflow.',
+    hint,
   };
 }

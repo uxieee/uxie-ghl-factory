@@ -28,6 +28,21 @@ const MANIFEST_URL = 'https://production.app-manifest.leadconnectorhq.com/latest
 const readJSON = (p) => JSON.parse(readFileSync(p, 'utf8'));
 const today = () => new Date().toISOString().slice(0, 10);
 
+// w12: the first entry for a NEW tool. A tool with NO capability rows makes no account call, so it is a pure function: it may be seeded
+// with zero proof rows, under a label that says so. It is never a live proof. A tool that makes an account call needs a proof row.
+export const PURE_LABEL = 'pure function: no account call; correctness by unit tests';
+export const RECEIPT_LABEL = 'external-receipt-required';
+export function seedEntry({ tool, summary, risk, rows = [], riskRows = [], capabilityRows, existing = null }) {
+  if (existing) throw new Error(`${tool} already has an entry — seed is for new tools only`);
+  if (!summary || !risk) throw new Error('seed needs --summary and --risk');
+  const pure = capabilityRows === 0;   // unknown (undefined) fails closed: it is treated as network-capable
+  if (pure && rows.length) throw new Error(`${tool} is a pure function (no account call), so it has no proof rows; drop --row`);
+  if (!pure && !rows.length) throw new Error(`${tool} makes an account call (${capabilityRows ?? 'an unknown number of'} capability rows), so seed needs --row: its first entry needs a proof row`);
+  const label = pure ? PURE_LABEL : RECEIPT_LABEL;
+  return { description: `${summary} — proof: ${label}; risk: ${risk}`, risk, proof: label, proofFloor: label,
+    proofRows: rows, proofFloorRows: rows, riskRows: riskRows.length ? riskRows : rows, rows };
+}
+
 // ── pure ──────────────────────────────────────────────────────────────────────────────────────
 export function computeDepends(tool, ctx, hashedAt) {
   const index = catalogIndex(ctx.catalog.endpoints);
@@ -217,14 +232,11 @@ async function main(argv) {
   if (cmd === 'seed') {
     if (!arg) throw new Error('seed needs a tool name');
     const d = readJSON(DESCRIPTIONS);
-    if (d[arg]) throw new Error(`${arg} already has an entry — seed is for new tools only`);
-    const summary = flag('summary'), risk = flag('risk'), rows = all('row');
-    if (!summary || !risk || !rows.length) throw new Error('seed needs --summary, --risk and at least one --row');
-    const label = 'external-receipt-required';
-    d[arg] = { description: `${summary} — proof: ${label}; risk: ${risk}`, risk, proof: label, proofFloor: label,
-      proofRows: rows, proofFloorRows: rows, riskRows: all('risk-row').length ? all('risk-row') : rows, rows };
+    const capabilityRows = readJSON(join(MI, 'capability-manifest.json')).filter((r) => r.tool === arg).length;
+    d[arg] = seedEntry({ tool: arg, summary: flag('summary'), risk: flag('risk'), rows: all('row'), riskRows: all('risk-row'),
+      capabilityRows, existing: d[arg] ?? null });
     writeFileSync(DESCRIPTIONS, `${JSON.stringify(d, null, 2)}\n`);
-    console.log(`seeded ${arg}: ${label}`);
+    console.log(`seeded ${arg}: ${d[arg].proof}`);
     return 0;
   }
   if (cmd === 'sync-labels') {

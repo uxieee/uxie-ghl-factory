@@ -141,7 +141,7 @@ test('branches/paths/target on a node no container handler reads are refused (NO
 // `setings:` dies the same silent death.
 test('an unknown TOP-LEVEL key is refused (TOP_KEY), not silently swallowed', () => {
   const ir = validIR();
-  ir.parentId = 'ec63f9bf-0f2c-484c-a335-44afceb5879a';
+  ir.parentId = '00000000-0000-4000-8000-0000000000e2';
   assert.throws(() => parseIR(ir), (e) => e.code === 'TOP_KEY' && /parentId/.test(e.message));
 
   const typo = validIR();

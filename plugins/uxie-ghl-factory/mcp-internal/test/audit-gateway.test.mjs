@@ -238,6 +238,24 @@ const MINIMAL_REQUESTS = {
     },
     query: { locationId: LOC, agentId: 'agent-1' },
   },
+  conversation_ai_outbound_configs: {
+    capabilityId: 'conversation_ai_outbound_configs',
+    typedBindings: {
+      locationId: LOC,
+      agentId: 'agent-1',
+      discoveredAgentIds: { conversation_ai_agent_discovery: ['agent-1'] },
+    },
+    query: { locationId: LOC, agentId: 'agent-1' },
+  },
+  conversation_ai_outbound_triggers: {
+    capabilityId: 'conversation_ai_outbound_triggers',
+    typedBindings: {
+      locationId: LOC,
+      agentId: 'agent-1',
+      discoveredAgentIds: { conversation_ai_agent_discovery: ['agent-1'] },
+    },
+    query: { locationId: LOC, agentId: 'agent-1' },
+  },
   agent_studio_agent_discovery: {
     capabilityId: 'agent_studio_agent_discovery',
     typedBindings: { locationId: LOC, companyId: COMPANY },
@@ -1743,6 +1761,12 @@ test('every capability emits exactly the host, path, and query its descriptor de
     conversation_ai_agent_discovery: [`${SERVICES}/ai-employees/employees/search`, [`locationId=${LOC}`]],
     conversation_ai_agent_detail: [`${SERVICES}/ai-employees/employees/agent-1`, [`locationId=${LOC}`]],
     conversation_ai_deployment_routing: [`${SERVICES}/agent-deployment/routing-config/configs`, [
+      'agentId=agent-1', `locationId=${LOC}`,
+    ]],
+    conversation_ai_outbound_configs: [`${SERVICES}/agent-deployment/outbound-configs`, [
+      'agentId=agent-1', `locationId=${LOC}`,
+    ]],
+    conversation_ai_outbound_triggers: [`${SERVICES}/agent-deployment/outbound-triggers`, [
       'agentId=agent-1', `locationId=${LOC}`,
     ]],
     agent_studio_agent_discovery: [`${SERVICES}/agent-studio/agents/agents-with-folders`, [

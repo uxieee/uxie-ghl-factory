@@ -188,7 +188,7 @@ These hold regardless of the build.
   per parallel system). Each folder is its own numbering sequence (see above).
 
 **Tags** — `namespace:value`, lowercase, hyphens inside multi-word values.
-GHL normalises tags to lowercase on write, so casing is not something to police. What it
+GHL lower-cases tags on write (measured: corpus `workflows/30-types/triggers/contact_tag.md` and `workflows/30-types/steps/if_else.md`), so write them lower-case and do not rely on case to tell two tags apart. What it
 does *not* normalise is delimiters, word order, and synonyms — that's where duplicates
 actually come from.
 

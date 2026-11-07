@@ -51,19 +51,28 @@
         "commit:da8d0f62"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:bff1dac9"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /vibe-ai/projects/{}": "e1726301a58a1598f9b5e5475745537faa2329443b30258a8a5161d831a65a7f",
       "GET https://backend.leadconnectorhq.com /vibe-ai/projects/{}/sandbox": "e80820453ed53b4c37b0cdf31f22d766f178a78f9d02d77468933ee91afe2b91",
       "POST https://backend.leadconnectorhq.com /vibe-ai/projects/{}/sandbox": "27f01954c2b1761d6f1124c96e80691b337ee0dcdb346c71a7145b0efb867bc4"
     },
     "builds": {
-      "brandBoardsApp": 39,
-      "domainResellingApp": 229,
-      "vibeEditorApp": 350
+      "brandBoardsApp": 46,
+      "domainResellingApp": 236,
+      "vibeEditorApp": 397
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_studio_preview": "9782be1ac0ce3abbf2ca6ee155385434173bcca59585a6b00a4f1a5567f321e5",

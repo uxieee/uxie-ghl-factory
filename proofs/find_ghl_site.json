@@ -78,10 +78,19 @@
         "commit:03c8132c"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:a4692c5f"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /countdown-timer": "f5e5665f2de6fbf2cd415c49eb347dbf9aabd33d815e268504f146f02216f6f1",
       "GET https://backend.leadconnectorhq.com /countdown-timer/fetch/{}/{}": "9ac268cbcb5c0004f3df6b4ead533069d2d3980155ab8d881c406d096926289e",
@@ -94,8 +103,8 @@
       "POST https://backend.leadconnectorhq.com /stats/url-redirect": "b0f18e8fca85f7b1d8984c9b76996125d74dad7f32c4507157113ecd2c2842fd"
     },
     "builds": {
-      "domainConnectApp": 228,
-      "funnelWebsiteApp": 230,
+      "domainConnectApp": 243,
+      "funnelWebsiteApp": 248,
       "funnelWebsiteDomainApp": 222,
       "redirectApp": 222
     },

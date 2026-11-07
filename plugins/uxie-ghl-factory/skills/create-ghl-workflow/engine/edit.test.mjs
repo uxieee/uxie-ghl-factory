@@ -362,9 +362,9 @@ test('every op refuses an unknown stepId/anchor instead of returning a clean emp
 
 test('a truncated stepId is refused rather than silently ignored', async () => {
   const { modifyStep } = await import('./edit.mjs');
-  const templates = [{ id: '2e4a3c6e-a4dd-497a-9c2b-a4b497708d2e', type: 'sms', name: 'Text' }];
-  assert.throws(() => modifyStep(templates, '2e4a3c6e', { body: 'hi' }),
-    /modifyStep: no step with id '2e4a3c6e'/);
+  const templates = [{ id: '00000000-0000-4000-8000-0000000000e1', type: 'sms', name: 'Text' }];
+  assert.throws(() => modifyStep(templates, '00000000', { body: 'hi' }),
+    /modifyStep: no step with id '00000000'/);
 });
 
 test('a real stepId still works exactly as before', async () => {

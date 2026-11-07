@@ -142,6 +142,9 @@ export function validateCourseSpec(spec, { requireAbsoluteMediaPaths = false } =
   if (offerType && offerType !== 'free' && !(spec.offer?.amount > 0)) {
     errors.push(`offer.type "${offerType}" requires offer.amount > 0`);
   }
+  if (offerType && offerType !== 'free' && !spec.offer?.currency) {
+    errors.push(`offer.type "${offerType}" requires offer.currency`);
+  }
   if (spec.offer?.interval && OFFER_TYPE_WIRE[offerType] !== 'subscription') {
     errors.push('offer.interval only applies to a recurring/subscription offer');
   }
@@ -208,7 +211,11 @@ export function previewCourseSpec(spec, options = {}) {
       lessonTitles: ordinaryLessons.map((lesson) => lesson.title ?? null),
       quizTitles: quizzes.map((lesson) => lesson.title ?? null),
       assignmentTitles: assignments.map((lesson) => lesson.title ?? null),
-      offer: spec?.offer === null ? null : { type: 'free', publish: spec?.offer?.publish !== false },
+      offer: spec?.offer === null ? null : {
+        type: spec?.offer?.type ?? 'free',
+        wire: OFFER_TYPE_WIRE[spec?.offer?.type ?? 'free'] ?? null,
+        publish: spec?.offer?.publish === true,
+      },
       credential: spec?.credential
         ? { title: spec.credential.title ?? null, type: spec.credential.type ?? 'certificate' }
         : null,
@@ -221,6 +228,20 @@ export function previewCourseSpec(spec, options = {}) {
       'Embeds are lesson.embed on a video post followed by PUT embedJson; embed is not a content_type.',
     ],
   };
+}
+
+/**
+ * Visibility of a chapter and of the items in it. DRAFT by default (w8-11, Xander approved): nothing is published unless the spec
+ * says so. A chapter is published only when the spec publishes it or one of its lessons (bl-796 kept: a published lesson stays
+ * published). An item (lesson, quiz, assignment) is published only when the spec marks it published; an unmarked item is a draft
+ * even inside a published chapter.
+ */
+export function chapterVisibility(chapter) {
+  const asked = chapter.visibility === 'published' || (chapter.lessons || []).some((lesson) => lesson.visibility === 'published');
+  return asked ? 'published' : 'draft';
+}
+export function itemVisibility(chapter, item) {
+  return item.visibility === 'published' ? 'published' : 'draft';
 }
 
 export async function buildCourse({
@@ -282,6 +303,7 @@ export async function buildCourse({
         sequenceNo: chapterIndex,
         dripDays: chapter.dripDays ?? 0,
         description: chapter.description ?? '',
+        visibility: chapterVisibility(chapter),
       });
       const chapterOutput = { id: category.id, title: chapter.title, lessons: [] };
       built.chapters.push(chapterOutput);
@@ -298,7 +320,7 @@ export async function buildCourse({
             productId: product.id,
             sequenceNo: lessonIndex,
             contentType: 'quiz',
-            visibility: lesson.visibility || 'published',
+            visibility: itemVisibility(chapter, lesson),
           });
           const output = { type, postId: post.id, quizId: null, title: lesson.title, questionCount: 0 };
           chapterOutput.lessons.push(output);
@@ -329,7 +351,7 @@ export async function buildCourse({
             productId: product.id,
             sequenceNo: lessonIndex,
             contentType: 'assignment',
-            visibility: lesson.visibility || 'published',
+            visibility: itemVisibility(chapter, lesson),
           });
           const output = { type, postId: post.id, assignmentId: null, title: lesson.title };
           chapterOutput.lessons.push(output);
@@ -358,7 +380,7 @@ export async function buildCourse({
           productId: product.id,
           sequenceNo: lessonIndex,
           contentType,
-          visibility: lesson.visibility || 'published',
+          visibility: itemVisibility(chapter, lesson),
           embed,
         });
         const output = { type, postId: post.id, title: lesson.title, embed: !!embed };
@@ -403,7 +425,7 @@ export async function buildCourse({
         productIds: [product.id],
         type: wireType,
         amount: offerSpec.amount ?? 0,
-        currency: offerSpec.currency || 'EUR',
+        currency: offerSpec.currency,   // no default for paid offers: api.createOffer refuses a paid offer without one (w8-7)
         interval: offerSpec.interval,
         intervalCount: offerSpec.intervalCount,
         setupFee: offerSpec.setupFee,
@@ -412,7 +434,7 @@ export async function buildCourse({
         isLivePaymentMode: offerSpec.isLivePaymentMode,
       });
       built.offerId = offer.id;
-      if (offerSpec.publish !== false) {
+      if (offerSpec.publish === true) {
         phase('offer_publish');
         await members.publishOffer(offer.id);
         log(`+ offer (${offerSpec.type ?? 'free'}, published) -> ${offer.id}`);

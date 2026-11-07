@@ -199,7 +199,10 @@ export function renderMarkdown(d) {
   out.push('| IR kind | step type | shape |');
   out.push('|---|---|---|');
   out.push('| `if_else` | `if_else` | N≥2 branches, one optional `else: true` |');
-  out.push('| `split` | `workflow_split` | weighted/random branches |');
+  out.push('| `split` | `workflow_split` | up to 10 paths by mode: `even`, `weighted` (weights 0–100, one decimal) or `random`; conditional mode refused (`SPLIT_MODE_UNPROVEN`) |');
+  out.push('| `router` | `router` (condition-node root + branch lanes) | up to 10 branches, at most one fallback, each custom branch one complete condition; no goto or goal inside a branch; nests up to 10 deep |');
+  out.push('| `loop` | `loop` | `loopOver` `list` (one `{{expression}}` that resolves to a list) or `range` (500 numbers at most, `{{loopCounter}}` in range only); steps to repeat under `body`; an empty body is refused when you author it (build, or an edit that adds or empties a loop: `loop-body-empty`); a stored empty loop that the edit does not touch warns |');
+  out.push('| `ab_test` | `workflow_ab_test` | A/B container: 2–10 paths; event goal metric, one of 11 goals (`email_event`, `link_click`, `appointment_status`, `form_submission`, `payment_received`, `invoice_paid`, `review_request_clicked`, `document_status`, `task_status`, `add_contact_tag`, `remove_contact_tag`), each with its reference (e.g. `form_submission` + `formIds`; `email_event` + `stepIds`; `invoice_paid` + `invoiceStepIds` and `invoiceStatuses`); `user_replied` and the contact-condition metric are refused; endCondition `contacts`, `conversions` or `date`; afterEnd `route_to_winner` or `keep_splitting`; paths and metric lock once contacts enter (source-derived) |');
   out.push('| `ai_decision` | `workflow_ai_decision_maker` | Default + N LLM branches |');
   out.push('| `ai_intent` | `workflow_ai_intent_detection` | fixed Positive / Negative / None (`branches[].name`), `inputText` |');
   out.push('| `wait` | `wait` | plain wait, or multipath on outcomes |');

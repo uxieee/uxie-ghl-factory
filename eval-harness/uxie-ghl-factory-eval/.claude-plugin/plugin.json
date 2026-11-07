@@ -1,0 +1,5 @@
+{
+  "name": "uxie-ghl-factory-eval",
+  "description": "EVAL-ONLY harness: the real uxie-ghl-factory skills (symlinked) with the uxie-ghl-internal-mcp server replaced by mocks. Never install; never run with --mocks off or --allow-real-servers.",
+  "version": "0.0.0"
+}

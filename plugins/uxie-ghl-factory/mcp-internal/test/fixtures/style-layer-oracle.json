@@ -1,8 +1,8 @@
 {
  "_note": "Declaration sets the page builder's generic style layer writes for these nodes, measured offline (knowledge sniffs/funnels-wave30-kind-css-2026-09-29/13-gen-style-fixture.mjs). Data only.",
  "source": {
-  "chunk": "pageBuilder index.e1b163ff.js",
-  "sha256": "f3a597367033415b11587d0e841e4cd56ca546ebb578c406ddaefe28fc10dc1f"
+  "chunk": "pageBuilder index.976028e2.js",
+  "sha256": "b3b09e1e1699ff8498f60d0b8efe48f589470cb70dcb3e460ac198ed5309881f"
  },
  "cases": [
   {
@@ -2118,6 +2118,9 @@
       "value": 0,
       "unit": "px"
      },
+     "chooseOptionsModalBackgroundColor": {
+      "value": "var(--transparent)"
+     },
      "drawerHeadlineFontWeight": {
       "desktop": "700"
      },
@@ -2185,6 +2188,7 @@
     "@media screen and (min-width:0px) and (max-width:767px)|.hl_page-preview--content .store-pdp-v2-add-to-cart-FX .pdp-v2-add-to-cart__btn|padding-top:4px",
     "@media screen and (min-width:0px) and (max-width:767px)|.hl_page-preview--content .store-pdp-v2-add-to-cart-FX|margin-top:2px",
     "@media screen and (min-width:768px) and (max-width:1024px)|.hl_page-preview--content .store-pdp-v2-add-to-cart-FX|margin-bottom:6px",
+    "|.hl_page-preview--content .cstore-pdp-v2-add-to-cart-FX|choose-options-modal-background-color:var(--transparent)",
     "|.hl_page-preview--content .cstore-pdp-v2-add-to-cart-FX|font-family:var(--headlinefont)",
     "|.hl_page-preview--content .store-pdp-v2-add-to-cart-FX .pdp-v2-add-to-cart__btn|box-shadow:none",
     "|.hl_page-preview--content .store-pdp-v2-add-to-cart-FX .pdp-v2-add-to-cart__btn|padding-bottom:12px",

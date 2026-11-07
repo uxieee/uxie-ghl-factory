@@ -26,9 +26,7 @@
    in scope and approved) or mark the dependent item **BLOCKED** and surface it. State
    the dependency-ordered build sequence in the blueprint (create a referenced object
    BEFORE the thing that points at it; cross-wire mutual references in a second pass).
-   The engine's abort-on-missing is a backstop for a subset only — do NOT rely on it
-   as your dependency check (e.g. custom values, payment products, and
-   workflow-to-workflow `workflow_id` references are neither resolved nor flagged).
+   The engine resolves a workflow NAME to its id (add_to_workflow and remove_from_workflow) and a custom-value NAME to its id (update_custom_value), and aborts when a name is missing (engine/resolve.mjs). An id you pass directly as a workflow_id is checked by the asset pre-flight (ASSET_WORKFLOW_NOT_FOUND). The engine's abort is still a backstop for a subset only: payment products and any reference the resolver does not name are not guaranteed resolved, so do NOT rely on it as your dependency check.
 6. **Approval gate (HARD — names the target location).** Do not execute until the user
    approves the blueprint AND explicitly confirms the target account — echo the resolved
    `locationId` (+ alias) and the draft-only posture in the approval prompt, and require a

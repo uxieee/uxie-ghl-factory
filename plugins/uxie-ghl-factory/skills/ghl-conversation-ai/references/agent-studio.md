@@ -4,11 +4,14 @@
 > tools and older docs call "Agent Studio / Super Agents" is this product. The UI's other **Agent Studio** is the
 > node-graph **flow builder** (`/agent-studio/agents*`): its Agent Studio entry is limited to five hard-coded
 > agencies, but the same canvas opens for everyone from **Voice AI → Flow Builder** (a `voice_flow_builder` agent,
-> proven live 2026-09-28). This plugin does not author it (corpus `ai-agents/10-anatomy/flow-agent-shape.md`;
-> `flow-builder-nodes.md` is the unrelated Conversation AI flow bot). Ground truth: the corpus pages
+> proven live 2026-09-28), and since 2026-10-29 from **Conversation AI → Create Agent → Flow Based** too (Labs `conversationsAI.flowBuilderV2` on): a Conversation
+> AI **V2** flow agent (`FLOW_BUILDER_BOT_V2`) is one of these graphs wrapped in an employee record
+> (`conversation-ai.md` → "V2 flow agents"). This plugin does not author the graph (corpus
+> `ai-agents/10-anatomy/flow-agent-shape.md`); `flow-builder-nodes.md` covers the **V1** Conversation AI flow bot, whose
+> logic is a workflow, not this canvas. Ground truth: the corpus pages
 > `ai-agents/20-api/12-ai-agents-api.md` §5 and `ai-agents/20-api/managed-agent-workflow-invocation.md`, and this
-> plugin's `engines/ai/studio-ir.mjs` / `engines/ai/studio-compiler.mjs`. Underlying model:
-> `anthropic/claude-sonnet-4-6`. Not the public `agent-studio` API category (that one is the flow agents).
+> plugin's `engines/ai/studio-ir.mjs` / `engines/ai/studio-compiler.mjs`. Default model since the 2026-10 wave:
+> `anthropic/claude-sonnet-5-5` (corpus `ai-agents/70-research/2026-10-30-managed-agents-wave.md`). Not the public `agent-studio` API category (that one is the flow agents).
 
 **Status.** `create_studio_agent` (NL build → full-config PUT → read-back) was re-proven live on the designated test
 sub-account on 2026-09-25 (proof record `proofs/create_studio_agent.json`). On 2026-09-28 every capability id, all
@@ -26,15 +29,21 @@ count on `MANAGED_AGENTS_TEST` (30 a month).
 
 The editor (UI walk 2026-09-25): "Edit this agent with chat" (AI builder) · Test Agent · Publish · **Triggers** ·
 **Apps** (Default + marketplace apps) · **Capabilities** — Web search, Image generation, Audio generation (MP3),
-Video generation (8 s, 16:9 or 9:16), Custom API, Knowledge Base · **Custom skills** (Markdown) · Instructions. The
-detail page shows Activity and a **Memory** tab marked "SOON".
+Video generation (8 s, 16:9 or 9:16), Custom API, Knowledge Base · **Custom skills** (Markdown) · Instructions.
+
+**The 2026-10 wave** (walked live 2026-10-30, drafts only): a three-panel workspace (list · test chat · details with
+Activity / Waiting on you / **Memory**), **subagents**, **n8n import**, **Memory**, **Computer** and **Wait & follow up**.
+The detail is in the sections below and in the corpus research page.
 
 ## Endpoint map
 
 | Method | Path | Purpose |
 |---|---|---|
 | `POST` | `/agent-studio/super-agents/build` | Create — NL prompt, streams SSE, auto-persists a draft |
-| `PUT` | `/agent-studio/super-agent/agents/:id` | Update — **whole-object replace** |
+| `PUT` | `/agent-studio/super-agent/agents/:id` | Update — the UI sends the whole config; the server **keeps a top-level key you omit** (2026-10) |
+| `PUT` | `/agent-studio/super-agent/agents/:id/avatar` | `{locationId, avatar: {kind: "bot", index, tint}}` (proven live 2026-10-30) |
+| `GET` / `POST` | `/agent-studio/super-agent/agents/:id/memory` | the memory list (cap 25) / add one `{locationId, text, category}` (proven live 2026-10-30) |
+| `PATCH` | `/agent-studio/super-agent/agents/:id/memory/settings` | `{locationId, enabled}` — sets `config.memoryEnabled` (proven live). This is the proven memory switch; a config PUT carrying `memoryEnabled` was not tested |
 | `GET` | `/agent-studio/super-agent/agents/:id?locationId=` | Fetch one |
 | `GET` | `/agent-studio/super-agent/agents/:id/activity?locationId=` | Trigger/chat run log |
 | `POST` | `/agent-studio/super-agent/agents/:id/publish` | `{locationId}` → `status: "published"`; arms the triggers, mints a `triggerId` on each (proven live) |
@@ -45,7 +54,7 @@ detail page shows Activity and a **Memory** tab marked "SOON".
 | `POST` | `/agent-studio/super-agent/agents/from-template` | `{templateId, locationId, folderId?, folderName?}` — a "Start from a use case" card: creates a draft at once, no AI build, and answers `{id, config, status, …}` (proven live, folder keys too). `create_studio_agent` with `templateId` drives it — see Traps |
 | `POST` / `GET` | `/agent-studio/plugins/custom-skills` | custom skills are location-level records `{name, description, skillContent (Markdown + front-matter), agentIds}`; the agent's config does not change; a run loads one with a `use_plugin` call (proven live) |
 | `POST` | `/agent-studio/agents/anton/session` | builder-chat session — note `anton` is the **flow** builder's runtime; the Managed-Agent editor fires this on open (a write-on-open) and only reads history from it |
-| `POST` | `/agent-studio/super-agent/agents` | the product's own Save: `{locationId, agencyId, builderSessionId, config, folderId?}` (*bundle*; not yet used by this plugin) |
+| `POST` | `/agent-studio/super-agent/agents` | the product's own Save: `{locationId, config, importOrigin?, …}` — the **n8n import's "Save as draft"** and the new workspace's save use it; `importOrigin` is stored and read back (proven live 2026-10-30). This plugin creates through the build instead |
 | `DELETE` | `/agent-studio/super-agent/agents/:id?locationId=` | Delete, no body → `{success:true}`; the editor's own call ("This action cannot be undone"); a later read 404s (proven live 2026-09-29) |
 | `DELETE` | `/agent-studio/agents/folders/:folderId?locationId=` | delete a folder → `{message: "Folder deleted successfully", unfolderedAgentsCount}` (the list's own call, proven live) |
 | `DELETE` | `/agent-studio/plugins/custom-skills/:uuid?locationId=` | delete a custom skill (its id key is `uuid`) → 200, then 404; a skill keeps deleted agents in `agentIds` (proven live) |
@@ -70,7 +79,7 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
   "id": "...", "locationId": "...", "agencyId": "...", "status": "draft",
   "config": {
     "name": "...", "description": "...",
-    "model": "anthropic/claude-sonnet-4-6",
+    "model": "anthropic/claude-sonnet-5-5",
     "systemPrompt": "...",
     "tools": ["web_search", "image_generation", "kb_search"],
     "triggers": [{"type": "contact_created", "name": "...", "enabled": true, "config": {},
@@ -79,26 +88,47 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
     "reasoning": {"effort": "medium"},
     "plugins": [{"slug": "default", "name": "Default", "skills": [], "allSkills": true}],
     "starterPrompts": [{"label": "...", "prompt": "..."}],
-    "knowledgeBaseIds": ["..."]
+    "knowledgeBaseIds": ["..."],
+    "subagents": [{"name": "...", "description": "...", "systemPrompt": "...", "model": "(optional)"}],
+    "memoryEnabled": true,
+    "computer": {"approvalRevision": "<uuid>", "askBefore": null},
+    "followUpEvent": null, "followUpSchedule": null, "followUpStopWhen": null
   },
+  "importOrigin": {"source": "n8n", "workflowName": "...", "setupItems": [], "steps": [], "importedAt": "..."},
+  "avatar": {"kind": "bot", "index": 4, "tint": 2}, "locationTimezone": "...",
   "isOotb": false, "antonSessionId": "...", "deleted": false,
   "versionId": "...", "hasPublishedVersion": false, "hasUnpublishedChanges": true
 }
 ```
 
-- `model` — fixed to `anthropic/claude-sonnet-4-6` in every capture; not proven to be the only
-  accepted value, but the only one this engine vouches for (`DEFAULT_MODEL` in
-  `studio-ir.mjs`).
+- `model` — `anthropic/claude-sonnet-5-5` by default since 2026-10 (server create, AI builder and n8n import alike;
+  `claude-sonnet-4-6` before). 🔴 **The server does not validate the agent's own model** — a made-up id was stored with
+  a 200 — so the engine refuses anything outside the server's subagent roster plus the default (`BAD_MODEL`).
+- `subagents[]` — **inline in the config, not records**: `{name, description, systemPrompt, model?}`, no id and no
+  route. The parent delegates through a `Task` tool; Agent Logs shows one session (the parent's), with each
+  subagent's output as an extra `aiResponses[]` entry, and the cost counts in the parent. `subagents: []` turns
+  delegation off (the next run called no `Task`). A subagent `model` IS validated by the server against six models
+  (`SUBAGENT_MODELS` in `studio-ir.mjs`; 422 otherwise). 🔴 **Accepted ≠ works**: a subagent on
+  `openrouter/google/gemini-3.8-flash` saved and read back, then failed every delegation at run time
+  (`subagent_failed`, recoverable:false) while the parent quietly did the work itself — the engine refuses it. Omit a
+  subagent's model to run it on the parent's. The AI builder creates subagents itself when asked (its build body now
+  carries `teams: true`).
 - `tools[]` maps to the UI "Capabilities" toggles: `web_search`, `kb_search`, `web_fetch`, `image_generation`,
   `tts_generation` (audio), `video_generation`, `mcp` — all seven stored and read back live (`TOOLS` in
-  `studio-ir.mjs`). 🔴 **The server does not validate this list** (a made-up id was stored), so the engine refuses
+  `studio-ir.mjs`). Two 2026-10 switches own more ids: **Computer** adds `sandbox_browser`, `sandbox_file`,
+  `sandbox_exec` (spec `computer: {enabled}`), **Wait & follow up** adds `wait_until` (spec `followUp: {enabled}`); the
+  engine refuses those ids listed by hand. 🔴 Computer gives the agent a cloud browser / file / exec sandbox in chat and
+  manual runs; the server stamps `computer.approvalRevision`, and **there is no stop route** — switching it off did not
+  release a running sandbox (still online minutes later). Leave it off unless the operator asks for it. 🔴 **The server does not validate this list** (a made-up id was stored), so the engine refuses
   anything else. Attaching a knowledge base **auto-adds `kb_search`** — the compiler replicates this.
-- `triggers[]` — **several triggers can be active** (stored and read back live). All 13 types the editor offers are
-  accepted: `chat`, `form`, `tag`, `schedule`, `appointment_booked`, `appointment_status`, `contact_created`,
-  `opportunity_created`, `opportunity_status_changed`, `survey_submission`, `facebook_lead_gen`, `facebook_comment`,
-  `workflows` (`VERIFIED_TRIGGER_TYPES`). **The one rule the server enforces**: chat alone, OR a combination of
-  non-chat triggers — and `workflows` combines with either; the engine refuses a mix with `TRIGGER_MIX` before any
-  write. Everything else the editor requires (a form picked, a calendar, a page) is client-only: the server stores a
+- `triggers[]` — **several triggers can be active** (stored and read back live). The server's vocabulary is 16 types
+  (its own 400 lists them, 2026-10-30): the 13 proven earlier — `chat`, `form`, `tag`, `schedule`,
+  `appointment_booked`, `appointment_status`, `contact_created`, `opportunity_created`, `opportunity_status_changed`,
+  `survey_submission`, `facebook_lead_gen`, `facebook_comment`, `workflows` (`VERIFIED_TRIGGER_TYPES`) — plus
+  `customer_reply`, `inbound_webhook` and `api` (`SERVER_TRIGGER_TYPES`; their configs were not written live). An
+  `inbound_webhook` mints a PUBLIC webhook URL with an `X-Webhook-Token` header. The engine refuses any other type
+  (`BAD_TRIGGER`). **The one rule the server enforces**: chat alone, OR a combination of non-chat triggers — and
+  `workflows` and `api` combine with either; the engine refuses a mix with `TRIGGER_MIX` before any write. Everything else the editor requires (a form picked, a calendar, a page) is client-only: the server stores a
   `form` trigger with no forms. Per-type `config` shapes are in the corpus page above.
 - 🔴 **A `schedule` runs in the LOCATION's timezone; the trigger's `timezone` field is ignored** (proven live
   2026-09-28: a once-schedule labelled 17:30 "UTC" fired at 17:30 Europe/London). `create_studio_agent` reads the
@@ -210,13 +240,14 @@ reasonDetails{}, chunkVerdicts[], actionVerdicts[], metadata.answers`. A chat-tu
 - **The Run page:** `…/super-agents/agent/:agentId/run/:runId`, with runId = the session id, embeds the Agent Logs
   detail. "View in Agent Logs" opens `/ai-agents/agent-logs/log/:sessionId`.
 
-## PUT is whole-object replace (like Voice AI; unlike Conversation AI's merge)
+## The save: send the whole config, the server keeps what you omit
 
-"Every request body observed contains the complete `config`... even when only ONE field
-changed in the UI." There is no partial-update path — `studio-compiler.mjs` has no
-`parseSuperAgentPartialIR` counterpart, same reasoning as Voice AI. The compiler emits
-`{locationId, config}` where `config` is the full rebuilt object — note the agent id appears
-**only in the URL path**, never repeated inside the body.
+Every save the UI makes still carries the complete `config`, even for a one-field change, and the compiler does the
+same (`{locationId, config}`, the agent id only in the URL path). What changed in 2026-10: the server **keeps a
+top-level config key the PUT omits** — a PUT without `subagents` and `starterPrompts` left both stored (proven live
+2026-10-30); an explicit value, `[]` included, overwrites. So the compiler leaves `subagents` and `computer` out
+unless the spec sets them, rather than overwriting with a default. The server drops `followUpPolicy: null` and
+`actions: []`. 🔴 `triggers: []` is still ignored (see Traps).
 
 ## Create — the NL-build SSE flow this engine uses
 
@@ -242,11 +273,21 @@ To land a fully-specified Super Agent, the real flow is:
 1. `POST /agent-studio/super-agents/build` with a descriptive `buildPrompt`.
 2. Parse the SSE stream for the `done`/`agent_saved` event → get the new `agentId` (or `awaiting_input` → stop and ask the user).
 3. `compileSuperAgentUpdate(fullIr, {agentId, locationId})` → `PUT` the precise desired
-   `systemPrompt`/`tools`/`triggers`/`knowledgeBaseIds`/`starterPrompts` as a full-replace.
+   `systemPrompt`/`tools`/`triggers`/`knowledgeBaseIds`/`starterPrompts` as the whole config (the server keeps any top-level key you leave out).
 
 `compileSuperAgentCreate({buildPrompt, name}, {locationId, companyId, mode})` in
 `studio-compiler.mjs` builds only the request for step 1 (SSE response handling is the
 executor's job, not this compiler's).
+
+## Import from n8n (UI only — no tool)
+
+`Import from → n8n` analyses an n8n export with an SSE call run by `claude-opus-5-5`, then **Save as draft** is the
+ordinary create (`POST /agent-studio/super-agent/agents` with `importOrigin`). One workflow can become several agents.
+What to warn the operator about (proven live 2026-10-30): the proposed config carries the **Default plugin with ALL
+CRM skills** and `web_search` whatever the workflow does, the review step has **no rename field** (the AI picks the
+name), an unsupported node (e.g. Execute Command) is filed as "Adapted" — the agent is told to produce the output
+itself — not refused, and no "Imported from n8n" folder is created. After an import, set `plugins` and the name with
+a config save before anything is published.
 
 ## Driving `studio-compiler.mjs`
 
@@ -259,7 +300,7 @@ const createReq = compileSuperAgentCreate(
   { locationId, companyId },
 );
 
-// Step 2: full-replace PUT with the precise desired config.
+// Step 2: whole-config PUT with the precise desired config (omitted top-level keys are kept by the server).
 const upd = compileSuperAgentUpdate({
   name: 'Support Agent',
   systemPrompt: '...',

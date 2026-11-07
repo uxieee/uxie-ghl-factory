@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS, compileAiAgentPlan } from '../core/tools.mjs';
 import { executeAgentPlan } from '../../engines/ai/driver.mjs';
-import { mergeTemplateConfig } from '../../engines/ai/studio-compiler.mjs';
+import { mergeTemplateConfig, templateOverrides } from '../../engines/ai/studio-compiler.mjs';
 
 const tool = (n) => TOOLS.find((t) => t.name === n);
 const L = 'loc-1';
@@ -34,16 +34,18 @@ test('create_convai_agent: the editor\'s email-wait ranges and shape are enforce
 });
 
 test('get_ai_agent_options product:conversation_ai reads the CAI roster on the ai rail; the default still reads the workflow step', async () => {
+  // 2026-11-07 (rel-4): the route answers 400 "LocationId is missing in query" without locationId in the query (live probe).
+  const ROSTER = `/ai-employees/employees/models?locationId=${L}`;
   const calls = [];
   const deps = { state: {}, makeGw: ({ rail }) => ({ call: async (m, p) => { calls.push({ rail, p });
-    if (p === '/ai-employees/employees/models') return { ok: true, status: 200, json: { models: [{ value: 'gpt-4.1', provider: 'openai', inputPrice: 2, outputPrice: 8, priceUnit: '$', costTier: 3, recommended: true, default: true, deprecation: null }, { value: 'gpt-5', provider: 'openai', deprecation: { effectiveAt: 'x', replacement: 'gpt-5.1' } }] } };
+    if (p === ROSTER) return { ok: true, status: 200, json: { models: [{ value: 'gpt-4.1', provider: 'openai', inputPrice: 2, outputPrice: 8, priceUnit: '$', costTier: 3, recommended: true, default: true, deprecation: null }, { value: 'gpt-5', provider: 'openai', deprecation: { effectiveAt: 'x', replacement: 'gpt-5.1' } }] } };
     return { ok: true, status: 200, json: { success: true, data: { models: [] } } }; } }) };
   const r = await tool('get_ai_agent_options').handler({ locationId: L, product: 'conversation_ai' }, deps);
   assert.equal(r.ok, true);
   assert.equal(r.data.models.defaultModelId, 'gpt-4.1');
   assert.deepEqual(r.data.models.models.map((m) => m.id), ['gpt-4.1', 'gpt-5']);
   assert.deepEqual(r.data.models.models[1].deprecation, { effectiveAt: 'x', replacement: 'gpt-5.1' });
-  assert.deepEqual(calls, [{ rail: 'ai', p: '/ai-employees/employees/models' }]);
+  assert.deepEqual(calls, [{ rail: 'ai', p: ROSTER }]);
   calls.length = 0;
   await tool('get_ai_agent_options').handler({ locationId: L }, deps);
   assert.ok(calls.every((c) => c.p.startsWith('/workflow/agent/')), JSON.stringify(calls));
@@ -128,4 +130,62 @@ test('mergeTemplateConfig: overrides win, untouched template keys stay, disable 
   assert.equal(m.name, 'N'); assert.equal(m.systemPrompt, 'TEMPLATE PROMPT');
   assert.ok(m.triggers.every((t) => t.enabled === false));
   assert.equal(TEMPLATE_CFG.triggers[0].enabled, true); // not mutated
+});
+
+// W5b Task 3: subagents and the Computer / Wait & follow up switches are authored keys, so the read-back checks them.
+test('build door: authored subagents and switch tools ride the PUT and the verify', () => {
+  const plan = compileAiAgentPlan('studio', { locationId: L, spec: { name: 'N', systemPrompt: 'p', tools: ['web_fetch'],
+    computer: { enabled: true }, subagents: [{ name: 's', description: 'd', systemPrompt: 'p' }] } });
+  assert.deepEqual(plan.verifyExpected.config.subagents, [{ name: 's', description: 'd', systemPrompt: 'p' }]);
+  assert.deepEqual(plan.verifyExpected.config.tools, ['web_fetch', 'sandbox_browser', 'sandbox_file', 'sandbox_exec']);
+  const plain = compileAiAgentPlan('studio', { locationId: L, spec: { name: 'N', systemPrompt: 'p' } });
+  assert.equal('subagents' in plain.verifyExpected.config, false);
+  assert.equal('tools' in plain.verifyExpected.config, false);
+});
+
+test('studio tools verify as a set: a server that stores them in another order still confirms', async () => {
+  const plan = compileAiAgentPlan('studio', { locationId: L, spec: { templateId: 'knowledge-base-assistant', name: 'TEST-X',
+    tools: ['web_fetch'], computer: { enabled: true } } });
+  let stored = null;
+  const gw = { loc: L, stream: async () => { throw new Error('no'); },
+    call: async (m, p, b) => {
+      if (m === 'POST') return { ok: true, status: 201, json: { id: 'AG1', config: TEMPLATE_CFG } };
+      if (m === 'PUT') { stored = { ...b.config, tools: [...b.config.tools].reverse() }; return { ok: true, status: 200, json: {} }; }
+      return { ok: true, status: 200, json: { id: 'AG1', config: stored } };
+    } };
+  const report = await executeAgentPlan({ plan, gw });
+  assert.equal(report.ok, true, JSON.stringify(report.verification));
+  const missing = { ...plan };
+  const gw2 = { ...gw, call: async (m, p, b) => (m === 'PUT' ? (stored = { ...b.config, tools: ['web_fetch'] }, { ok: true, status: 200, json: {} }) : gw.call(m, p, b)) };
+  assert.equal((await executeAgentPlan({ plan: missing, gw: gw2 })).ok, false, 'a dropped sandbox id is still a mismatch');
+});
+
+// W5b final review I4: the server stamps computer:{approvalRevision} — a verify that expected the null the editor sends failed
+// every Computer create. The mock now stamps it the way the server does.
+test('review I4: template door with Computer on verifies against a server that stamps approvalRevision', async () => {
+  const plan = compileAiAgentPlan('studio', { locationId: L, spec: { templateId: 'knowledge-base-assistant', name: 'TEST-X', computer: { enabled: true } } });
+  let stored = null;
+  const gw = { loc: L, stream: async () => { throw new Error('no'); },
+    call: async (m, p, b) => {
+      if (m === 'POST') return { ok: true, status: 201, json: { id: 'AG1', config: TEMPLATE_CFG } };
+      if (m === 'PUT') { stored = { ...b.config, computer: { approvalRevision: 'uuid-1' } }; return { ok: true, status: 200, json: {} }; }
+      return { ok: true, status: 200, json: { id: 'AG1', config: stored } };
+    } };
+  const report = await executeAgentPlan({ plan, gw });
+  assert.equal(report.ok, true, JSON.stringify(report.verification ?? report).slice(0, 400));
+});
+
+// W5b final review I5: a switch with no tools in the spec replaced the template's own tools with the switch ids alone.
+test('review I5: template door followUp without tools keeps the template tools and adds wait_until', () => {
+  const ir = { templateId: 'knowledge-base-assistant', name: 'X', followUp: { enabled: true } };
+  const merged = mergeTemplateConfig({ tools: ['kb_search', 'web_search'], name: 'T' }, templateOverrides(ir));
+  assert.deepEqual([...merged.tools].sort(), ['kb_search', 'wait_until', 'web_search']);
+});
+
+test('review m5: the template-door preview names Computer and subagents like the build door', async () => {
+  const tool = TOOLS.find((t) => t.name === 'create_studio_agent');
+  const r = await tool.handler({ locationId: L, spec: { templateId: 'knowledge-base-assistant', name: 'X', computer: { enabled: true }, subagents: [] } },
+    { state: { allowedLocations: new Set([L]) }, makeGw: () => { throw new Error('no call on a preview'); } });
+  assert.match(r.data?.preview?.defaults?.computer ?? '', /no stop route/);
+  assert.match(r.data?.preview?.defaults?.subagents ?? '', /delegation off/);
 });

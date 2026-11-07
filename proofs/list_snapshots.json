@@ -101,19 +101,29 @@
         "commit:b77293bb"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-10-29",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-10-29-0659"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-10-29",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
       "GET https://backend.leadconnectorhq.com /snapshots/v2/{}": "efbd9a2fd7acebdda269bf8b0d1051d6d313e364fc8a870406e29d90a7cfa997",
       "GET https://services.leadconnectorhq.com /snapshots/v2/{}": "a9c3b89e8a162e1bbb9b335097a69e8de12b9ac2d3bfc8fa8e2fa0a25724f859"
     },
     "builds": {
-      "contactsApp": 2444,
-      "customFieldsApp": 2079,
-      "snapshotsApp": 1900
+      "contactsApp": 2940,
+      "customFieldsApp": 2916,
+      "snapshotsApp": 2210
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_snapshots": "6ddb0bc1e5e0b5818fec9530ca74ccfc6a2c2071f9d798c85e4485f5228f64c9",

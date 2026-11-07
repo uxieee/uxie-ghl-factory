@@ -316,9 +316,9 @@ it — and it carries a hatch, `allowGotoLoops: true`, the same way its sibling 
 do (`allowDanglingParentKeys`, `allowDanglingStepRefs`, `deadBranchAcknowledged`): edits run over
 harvested legacy data of uncertain provenance, where failing closed by default but allowing an
 informed override is the right posture. Point the goto forward. GHL's dedicated `loop` step (a
-container with its own body and validators) is the builder's way to repeat steps, but the engine
-does not author it (LOOP_NOT_AUTHORED): the builder offers Loop only on allowlisted locations, so
-add it there where it is offered.
+container with its own body and validators) is the builder's way to repeat steps. The engine authors
+it as a Loop (`loopOver` `list` or `range`; see capabilities.md). The builder offers Loop only on the
+accounts it is enabled for, so build it there.
 
 `attributes.loopIdentified` is **backend-stamped and read-only** — never emit it. Emitting it
 fabricates a lock (`ACTION-DRAWERS-2.md:1675`).
@@ -348,6 +348,22 @@ correct steps included — so a panel that won't open under automation proves no
 diff the step's key set + attributes against what you sent (the engine's round-trip
 verify does exactly this), and check the node renders with the right type/icon on the
 canvas. Only a human manually clicking the node is a valid panel test.
+
+## Containers: split modes and the A/B test (w6c-10)
+
+This section is hand-written, because `capabilities.md` is generated from the engine catalogue, which does not yet carry A/B.
+
+- **`workflow_split`** has three modes: `even`, `weighted` (weights 0–100, one decimal) and `random`. The conditional mode is refused
+  (`SPLIT_MODE_UNPROVEN`): there is no split-conditional fixture, so its stored names are unproven. A split with no mode but weights drops
+  the weights.
+- **`workflow_ab_test`** is a container with 2–10 paths (`attributes.paths` and `transitions`). Its `attributes.extras` carries:
+  - `metric`: an event goal, `form_submission`, whose extras carry `formIds`;
+  - `endCondition`: `{type: contacts, numberOfContacts}`, `{type: conversions, numberOfConversions}` or `{type: date, endDate}`;
+  - `afterEnd`: `route_to_winner` or `keep_splitting`.
+  `[proven-live]` on a UI-built draft (read back on a separate request). Stats read live only after a publish with contacts (gate G1).
+  Declaring a winner routes every new contact to that path and is not run (gate G2).
+- **Once contacts enter, the paths and goal metric are locked**, so the counts keep comparing the same paths.
+  `[source-derived: the step-card note ruled in w6c-5; not tested live]`
 
 ## Linking multiple steps
 

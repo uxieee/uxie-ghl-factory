@@ -11,7 +11,9 @@ Supersedes the node table in `conversation-ai.md` where they disagree.
 
 ## The binding
 
-A flow bot's logic **is a workflow**: `workflowType: "agent"`, entered by a `conv_ai_trigger`.
+A **V1** flow bot's (`FLOW_BUILDER_BOT`) logic **is a workflow**: `workflowType: "agent"`, entered by a `conv_ai_trigger`.
+A **V2** flow agent (`FLOW_BUILDER_BOT_V2`, Labs `conversationsAI.flowBuilderV2`, 2026-10-29) is not: its logic is an
+Agent Studio node graph, and nothing on this page applies to it (`conversation-ai.md` → "V2 flow agents").
 
 **The flow binds to its agent through a CONDITION ROW, not a top-level key:**
 

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,6 +34,7 @@ function scratchPluginRoot() {
   cpSync(join(MCP, 'catalog'), join(mcp, 'catalog'), { recursive: true });
   cpSync(join(MCP, 'capability-manifest.json'), join(mcp, 'capability-manifest.json'));
   cpSync(join(MCP, 'scripts/build-endpoint-catalog.mjs'), join(mcp, 'scripts/build-endpoint-catalog.mjs'));
+  cpSync(join(MCP, 'scripts/rail-join.mjs'), join(mcp, 'scripts/rail-join.mjs'));
   return { root, mcp };
 }
 
@@ -89,6 +90,86 @@ test('a source artefact that knowledge/ has moved past is STALE, naming the rows
   assert.match(out, /knowledge\/ has 2099-01-01/);
   assert.ok(out.includes('+ freshness-test--newly-mined-row'), out);
   assert.match(out, /fix: .*merge-endpoint-catalogs\.mjs/);
+});
+
+test('freshness fails on a stale public-ops snapshot and skips when public-api-mcp is absent', (t) => {
+  const KNOWLEDGE = resolve(REPO, '..', 'knowledge');
+  const PUBLIC = resolve(REPO, '..', 'public-api-mcp', 'data/catalog.json');
+  if (!existsSync(join(KNOWLEDGE, 'scripts/snapshot-public-ops.mjs')) || !existsSync(PUBLIC)) return t.skip('knowledge/ or public-api-mcp/ not beside this repo');
+  const { root, mcp } = scratchPluginRoot();
+  const knowledge = mkdtempSync(join(tmpdir(), 'freshness-knowledge-'));
+  mkdirSync(join(knowledge, 'scripts')); mkdirSync(join(knowledge, 'catalog'));
+  for (const f of ['snapshot-public-ops.mjs', 'check-rail-ledger.mjs']) cpSync(join(KNOWLEDGE, 'scripts', f), join(knowledge, 'scripts', f));
+  // A snapshot taken before the public catalogue gained an op: the same stale bytes in knowledge and in the plugin copy,
+  // so only the re-projection can see it.
+  const snap = JSON.parse(readFileSync(join(mcp, 'catalog/public-ops.json'), 'utf8'));
+  const gone = snap.ops.find((o) => o.id === 'opportunities-v3__update-pipeline');
+  snap.ops = snap.ops.filter((o) => o !== gone);
+  for (const dir of [join(knowledge, 'catalog'), join(mcp, 'catalog')]) writeFileSync(join(dir, 'public-ops.json'), `${JSON.stringify(snap, null, 2)}\n`);
+  cpSync(join(mcp, 'catalog/rail-ledger.json'), join(knowledge, 'catalog/rail-ledger.json'));
+  const pub = mkdtempSync(join(tmpdir(), 'freshness-public-'));
+  mkdirSync(join(pub, 'data')); cpSync(PUBLIC, join(pub, 'data/catalog.json'));
+
+  const stale = run('--plugin-root', root, '--knowledge', knowledge, '--public-api', pub, '--only', 'rail-ledger');
+  assert.equal(stale.code, 1, stale.out);
+  assert.match(stale.out, /freshness: rail-ledger\s+STALE/);
+  assert.ok(stale.out.includes('+ opportunities-v3__update-pipeline'), stale.out);
+  assert.match(stale.out, /fix: .*snapshot-public-ops\.mjs/);
+
+  const absent = run('--plugin-root', root, '--knowledge', knowledge, '--public-api', join(pub, 'nowhere'), '--only', 'rail-ledger');
+  assert.equal(absent.code, 0, absent.out);
+  assert.match(absent.out, /freshness: rail-ledger\s+ok .*public-api-mcp not present/);
+});
+
+test('rail-ledger copies that knowledge/ has moved past are STALE', () => {
+  const { root, mcp } = scratchPluginRoot();
+  const knowledge = mkdtempSync(join(tmpdir(), 'freshness-knowledge-'));
+  mkdirSync(join(knowledge, 'scripts')); mkdirSync(join(knowledge, 'catalog'));
+  cpSync(join(mcp, 'catalog/public-ops.json'), join(knowledge, 'catalog/public-ops.json'));
+  const ledger = JSON.parse(readFileSync(join(mcp, 'catalog/rail-ledger.json'), 'utf8'));
+  ledger.rows[0].decision = 'both';
+  writeFileSync(join(knowledge, 'catalog/rail-ledger.json'), `${JSON.stringify(ledger, null, 2)}\n`);
+  const { code, out } = run('--plugin-root', root, '--knowledge', knowledge, '--public-api', join(knowledge, 'nowhere'), '--only', 'rail-ledger');
+  assert.equal(code, 1, out);
+  assert.match(out, /rail-ledger\.json differs from knowledge/);
+  assert.match(out, /fix: npm run sync/);
+});
+
+test('a skill block that no longer matches the ledger is STALE, naming the file', () => {
+  const { root, mcp } = scratchPluginRoot();
+  cpSync(join(MCP, 'scripts/render-rail-ledger.mjs'), join(mcp, 'scripts/render-rail-ledger.mjs'));
+  cpSync(join(PLUGIN, 'skills'), join(root, 'skills'), { recursive: true });
+  assert.equal(run('--plugin-root', root, '--only', 'rail-blocks').code, 0);
+  const f = join(root, 'skills/ghl-voice-ai/SKILL.md');
+  writeFileSync(f, readFileSync(f, 'utf8').replace('<!-- /rail-ledger:voice-ai -->', 'hand edit\n<!-- /rail-ledger:voice-ai -->'));
+  const { code, out } = run('--plugin-root', root, '--only', 'rail-blocks');
+  assert.equal(code, 1, out);
+  assert.match(out, /freshness: rail-blocks\s+STALE/);
+  assert.match(out, /ghl-voice-ai\/SKILL\.md/);
+  assert.match(out, /fix: .*render-rail-ledger\.mjs/);
+});
+
+test('a ledger the knowledge validator refuses is STALE, even when the copies match', (t) => {
+  const KNOWLEDGE = resolve(REPO, '..', 'knowledge');
+  if (!existsSync(join(KNOWLEDGE, 'scripts/check-rail-ledger.mjs'))) return t.skip('knowledge/ not beside this repo');
+  const { root, mcp } = scratchPluginRoot();
+  const knowledge = mkdtempSync(join(tmpdir(), 'freshness-knowledge-'));
+  for (const d of ['scripts', 'catalog', 'corpus']) mkdirSync(join(knowledge, d));
+  cpSync(join(KNOWLEDGE, 'scripts/check-rail-ledger.mjs'), join(knowledge, 'scripts/check-rail-ledger.mjs'));
+  for (const f of ['public-ops.json', 'internal-endpoints.source.json']) cpSync(join(KNOWLEDGE, 'catalog', f), join(knowledge, 'catalog', f));
+  cpSync(join(KNOWLEDGE, 'corpus/surfaces.json'), join(knowledge, 'corpus/surfaces.json'));
+  cpSync(join(KNOWLEDGE, 'sniffs/rail-ledger-2026-10-29'), join(knowledge, 'sniffs/rail-ledger-2026-10-29'), { recursive: true });
+  cpSync(join(KNOWLEDGE, 'sniffs/opp-wave-2026-09-25'), join(knowledge, 'sniffs/opp-wave-2026-09-25'), { recursive: true });
+  // A hand edit that decides a row its read does not support — the same bytes in knowledge and in the plugin copy.
+  const ledger = JSON.parse(readFileSync(join(mcp, 'catalog/rail-ledger.json'), 'utf8'));
+  ledger.rows.find((r) => r.product === 'calendars' && r.job === 'read').decision = 'pool-public';
+  for (const dir of [join(knowledge, 'catalog'), join(mcp, 'catalog')]) writeFileSync(join(dir, 'rail-ledger.json'), `${JSON.stringify(ledger, null, 2)}\n`);
+  cpSync(join(mcp, 'catalog/public-ops.json'), join(knowledge, 'catalog/public-ops.json'));
+  const { code, out } = run('--plugin-root', root, '--knowledge', knowledge, '--public-api', join(knowledge, 'nowhere'), '--only', 'rail-ledger');
+  assert.equal(code, 1, out);
+  assert.match(out, /freshness: rail-ledger\s+STALE/);
+  assert.match(out, /calendars\/read: criterion capability must be one of/);
+  assert.match(out, /fix: .*build-rail-ledger\.mjs/);
 });
 
 test('an unknown check name is refused, not silently ignored', () => {

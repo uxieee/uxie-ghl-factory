@@ -141,7 +141,30 @@ const ILLEGAL_SMS_WORDS = CATALOG_DATA?.workflowRules?.vocab?.illegalWordsSms ??
 // entries, and they are gone. call_status keeps a docNote below: that guidance is about how
 // dispositions MATCH and was never about the enum.
 
+// bl-481: enums the trigger-filter extractor left as {__dynamic__:'Enum.MEMBER'} option values. Members copied from the
+// recovered source (bundle 2026-09-29-2): utils/helper_types.ts EmailEventType (strings), types/message-type.ts MessageType
+// (numbers). Stored client triggers carry the same shapes: mailgun.event "complained", message.type 2.
+const DYNAMIC_ENUMS = {
+  EmailEventType: { OPENED: 'opened', CLICKED: 'clicked', UNSUBSCRIBED: 'unsubscribed', COMPLAINED: 'complained', FAILED: 'failed' },
+  MessageType: { TYPE_CALL: 1, TYPE_SMS: 2, TYPE_EMAIL: 3, TYPE_WEBCHAT: 5, TYPE_FACEBOOK: 11, TYPE_GMB: 15, TYPE_INSTAGRAM: 18,
+    TYPE_WHATSAPP: 19, TYPE_LIVE_CHAT: 29, TYPE_ALL_IN_ONE: 1000 },
+};
+const resolveDynamicOption = (o) => {
+  const ref = o?.value?.__dynamic__;
+  if (typeof ref !== 'string') return o;
+  const [enumName, member] = ref.split('.');
+  const v = DYNAMIC_ENUMS[enumName]?.[member];
+  return v === undefined ? o : { ...o, value: v };
+};
+const resolveDynamicRows = (rows) => rows.map((r) => (Array.isArray(r.options) && r.options.some((o) => o?.value?.__dynamic__)
+  ? { ...r, options: r.options.map(resolveDynamicOption) } : r));
+const DYNAMIC_REASON = 'bl-481: the generated filterRows carry unresolved {__dynamic__} enum objects as option values, and '
+  + "expandFilter's label match wrote that object to the wire. Resolved from the recovered enum source; retire when the extractor "
+  + 'resolves these enums (the staleness test will say so).';
+
 export const TRIGGER_CORRECTIONS = {
+  mailgun_email_event: { reason: DYNAMIC_REASON, correctFilterRows: resolveDynamicRows },
+  customer_reply: { reason: DYNAMIC_REASON, correctFilterRows: resolveDynamicRows },
   conv_ai_autonomous_trigger: {
     reason: "GHL's ~2026-08-27 builder update tightened save-time trigger validation: a "
       + "condition row with operator 'eq' is now refused with ruleId trigger-condition-invalid "
@@ -310,10 +333,13 @@ export const CATALOG_CORRECTIONS = {
       + '(ai-agent-components/hooks/use-agent-skill-attachment.ts:10-60) — bundle-2026-09-29-2; the 7-key '
       + 'example had none of them, so the ATTR_KEY guard and the gate refused builder-made agents',
     attrKeys: ['prompt', 'structuredResponse', 'model', 'tools', 'outputFormat', 'outputDescription', 'memoryEnabled',
-      'skills', 'mcpConnections', 'templateId', 'disableToolOutputGuards'],
-    docNote: '`skills: [{id, name}]` attaches Skills: at most 10 per step, a budget separate from tools. `id` is '
+      'skills', 'mcpConnections', 'templateId', 'disableToolOutputGuards', 'nativeTools'],
+    docNote: 'The builder turns web search ON by default for steps made in the UI, at about 1¢ per search (1.4¢ on Gemini). '
+      + 'The engine\'s default is OFF: `nativeTools: [{id, toolName, description, attributes}]` is web search, emitted only when the spec '
+      + 'asks for it (no key otherwise); `toolName` is `web_search`; an empty list deletes the key. '
+      + '`skills: [{id, name}]` attaches Skills: at most 10 per step, a budget separate from tools. `id` is '
       + '`builtin:<key>` or a skill document id (list them read-only with GET /workflow/agent/{loc}/skills); `name` '
-      + 'is display-only. Until 2026-10-25 the builder hides the Skills section on most accounts (a date gate, '
+      + 'is display-only. Before 2026-10-27T16:00Z the engine REFUSES skills (the builder hides the Skills section; a date gate, '
       + '`isLevelUp2026Enabled`), so an attached skill is stored but a person cannot see it in the drawer, and on the '
       + 'test sub-account the skills service answered 404 to list and resolve (2026-09-29) — a skill may not resolve '
       + 'at runtime before release. '
@@ -347,19 +373,23 @@ export const CATALOG_CORRECTIONS = {
       + 'and `{{sheetLookupResult.N.result}}` from lookup_multiple_rows #N. The Google account must be connected in the '
       + 'sub-account first; the engine cannot connect one.',
   },
-  // Listed in the index as buildable (◐) though the engine authored neither: a router compiled lane-less, a loop
-  // without a body. parseIR now refuses both by name (ir.mjs NOT_AUTHORED); the index says so.
+  // w6c-1 (bl-784): the Router is authored (kind 'router'): a condition-node root plus one branch-yes lane per branch, with
+  // GHL's offline refusals (router-authoring.mjs). The loop is authored too (w6c-3, kind 'loop').
   router: {
-    reason: 'the engine has no router kind; an authored router compiled into one lane-less step (sweep 2026-09-29 §4 #23)',
-    docNote: '⛔ **NOT authored** — refused with ROUTER_NOT_AUTHORED. GHL stores a router as a condition-node root plus one '
-      + 'template per lane, and offers it only on allowlisted locations (IS_ROUTER_ACTION_SHIPPED false). Use `if_else`, or '
-      + 'add the Router in the builder where it is offered; edits carry an existing router as stored.',
+    reason: 'authored as kind router (w6c-1): condition-node root + branch-yes lanes; GHL\'s branch, nesting and step rules refused offline',
+    docNote: 'Authored as a Router: give it `branches` (up to 10, one fallback at most, no always-run beside a fallback), each '
+      + 'custom branch with one complete condition, and the steps of each branch under `then`. A goto or a goal cannot sit in a '
+      + 'branch. Routers may nest up to 10 deep. The builder offers Router on the account it is enabled for; the engine writes '
+      + 'the stored shape.',
   },
+  // w6c-2 (bl-785): the Loop is authored (kind 'loop'): its `body` is the child sequence, GHL's list and range rules refused offline
+  // (loop-authoring.mjs). The builder offers Loop only on the accounts it is enabled for.
   loop: {
-    reason: 'the engine has no loop-body scope; an authored loop compiled as a straight line (sweep 2026-09-29 §4 #22)',
-    docNote: '⛔ **NOT authored** — refused with LOOP_NOT_AUTHORED. GHL stores the body as steps tagged parentContainerId, '
-      + 'from the loop\'s next to attributes.exitNext, and offers Loop only on allowlisted locations (isLoopActionEnabled). '
-      + 'Add the loop in the builder where it is offered; edits carry an existing loop as stored.',
+    reason: 'authored as kind loop (w6c-2): body steps tagged parentContainerId, continuation at attributes.exitNext; GHL\'s items, range and body rules refused offline',
+    docNote: 'Authored as a Loop: `loopOver` is `list` (with `items` as ONE {{expression}} that resolves to a list) or `range` '
+      + '(`startNumber`..`endNumber`, at most 500 numbers, `{{loopCounter}}` only in range). The steps to repeat go under `body`. '
+      + 'Inside a body: no nested loop, goto, goal or remove-from-workflow, no appointment, booking, reply or condition wait. '
+      + 'The loop offers Loop on the accounts the builder enables it for; the engine writes the stored shape.',
   },
 };
 
@@ -912,15 +942,17 @@ export const COUPLED_FIELDS = {
   // it warns here too. compiler.mjs passes author weights through verbatim, so a 30/30 split
   // ships silently and every number measured downstream of it is wrong.
   workflow_split: [{
-    when: (a) => a.condition === 'random-split',
+    // w6c-4: weighted-split carries the same total as random-split (even-split stores no weights, so it is not checked here).
+    when: (a) => a.condition === 'random-split' || a.condition === 'weighted-split',
     check: (a) => {
       const dist = a.extras?.weightDistribution ?? {};
       const total = Math.round((a.paths ?? []).reduce((n, p) => n + (dist[p?.id] || 0), 0) * 10) / 10;
-      return total === 100 ? null : `has random-split weights totalling ${total}, not 100`;
+      return total === 100 ? null : `has ${a.condition} weights totalling ${total}, not 100`;
     },
     severity: 'warn',
     why: 'GHL rounds the weights to one decimal and requires exactly 100. Anything else '
-       + 'mis-splits traffic, which corrupts the measurement the split exists to produce.',
+       + 'mis-splits traffic, which corrupts the measurement the split exists to produce. '
+       + 'weighted-split needs the workflows.weightedSplit Labs flag, which is on at the sandbox only.',
   }],
 
   // createUpdateContactValidator / findContactValidator, contact-action-validators.ts:107-113

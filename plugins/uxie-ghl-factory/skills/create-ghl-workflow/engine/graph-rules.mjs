@@ -123,7 +123,14 @@ export function evaluateWorkflowRules(doc, rules) {
     if (bannedInLoop.has(t.type)) fire('checkUnsupportedActionsInsideLoop', `'${t.name ?? t.id}' (${t.type}) cannot sit inside a loop body`);
     if (t.type === 'wait' && bannedWaits.has(t.attributes?.type)) fire('checkUnsupportedWaitTypesInsideLoop', `wait '${t.name ?? t.id}' of type '${t.attributes?.type}' cannot sit inside a loop body (time-based waits only)`);
   }
-  for (const t of T) if (t.type === 'loop' && !T.some((c) => c.parentContainerId === t.id)) fire('checkLoopHasBody', `loop '${t.name ?? t.id}' has no body steps — an empty loop re-runs the step after it on every iteration`);
+  // w6c-3 (ruling 2026-11-07): a stored empty Loop that this write leaves as stored (same stepId, still empty) passes with a warning
+  // on edit and repair. A Loop this write adds, or empties, refuses. doc.storedEmptyLoopIds is the stored document's empty loops.
+  const storedEmpty = doc.storedEmptyLoopIds instanceof Set ? doc.storedEmptyLoopIds : new Set();
+  for (const t of T) if (t.type === 'loop' && !T.some((c) => c.parentContainerId === t.id)) {
+    const msg = `loop '${t.name ?? t.id}' has no body steps — an empty loop re-runs the step after it on every iteration`;
+    if (storedEmpty.has(t.id)) A.push({ rule: 'checkLoopHasBody', message: `${msg} (stored and kept as stored; GHL's validator refuses it on save)` });
+    else fire('checkLoopHasBody', msg);
+  }
 
   // 🔴 loop `items` — A BACKEND RULE WHOSE FAILURE IS SILENT. Recovered verbatim from GHL's own
   // model (models/actions/Loop.ts), which states it plainly: "the backend accepts exactly one
@@ -397,6 +404,25 @@ export function evaluateWorkflowRules(doc, rules) {
     notEvaluable.push("inboundWebhookTriggerValidator (needs the webhook's mapped sample: GET /hooks/inbound-webhook-request/reference/{triggerId})");
   if (doc.senderDomain === undefined && fromEmailNeedsDomain(doc.settings?.senderAddress?.from_email))
     notEvaluable.push("checkFromEmailFormat (needs this workflow's sending domain: GET /workflow/{loc}/email/domain-selection?workflowId=…)");
+  // w6c-5 (bl-788): GHL's workflowAbTestValidator (utils/validators/additional-action-validators.ts:938-968). All three findings are
+  // WARNINGS in GHL, so they are advisories here. Paths 2-10 (MIN/MAX_AB_TEST_PATHS); a metric that holds a condition
+  // (hasMetricCondition); an end condition that is complete (hasCompleteEndCondition: a contacts or conversions count, or an endDate).
+  for (const t of T) {
+    if (t.type !== 'workflow_ab_test') continue;
+    const a = t.attributes ?? {};
+    const label = t.name ?? t.id;
+    const pathCount = (a.paths ?? []).length;
+    if (pathCount < 2 || pathCount > 10) A.push({ rule: 'workflowAbTestValidator', message: `'${label}': ab_test_paths_required (2 to 10 paths, has ${pathCount})` });
+    const m = a.extras?.metric;
+    const hasMetric = !!m && (m.kind === 'contact-condition'
+      ? Boolean(m.condition?.segments?.length || m.condition?.branches?.length)
+      : (m.matchCriteria?.segments ?? []).some((s) => (s.conditions ?? []).length > 0));
+    if (!hasMetric) A.push({ rule: 'workflowAbTestValidator', message: `'${label}': ab_test_metric_required (no win condition)` });
+    const ec = a.extras?.endCondition;
+    const complete = !!ec && (ec.type === 'contacts' ? Boolean(ec.numberOfContacts)
+      : ec.type === 'conversions' ? Boolean(ec.numberOfConversions) : Boolean(ec.endDate));
+    if (!complete) A.push({ rule: 'workflowAbTestValidator', message: `'${label}': ab_test_end_condition_required (the end count or endDate is missing)` });
+  }
   return { findings: F, advisories: A, notEvaluable };
 }
 

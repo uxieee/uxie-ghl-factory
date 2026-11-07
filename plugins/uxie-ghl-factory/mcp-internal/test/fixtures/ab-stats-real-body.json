@@ -1,0 +1,45 @@
+{
+  "_note": "Real GET split/stats response (repeated pathIds form) on a published A/B test with six contacts, 2 per path, status running. Path ids replaced by PATH_A/B/C; the workflow id and tokens are not in this file.",
+  "status": 200,
+  "body": {
+    "totalContactsEntered": 6,
+    "PATH_A": 2,
+    "PATH_B": 2,
+    "PATH_C": 2,
+    "abTest": {
+      "status": "running",
+      "winnerPathId": null,
+      "perPath": {
+        "PATH_A": {
+          "entered": 2,
+          "converted": 0
+        },
+        "PATH_B": {
+          "entered": 2,
+          "converted": 0
+        },
+        "PATH_C": {
+          "entered": 2,
+          "converted": 0
+        }
+      }
+    }
+  },
+  "defs": [
+    {
+      "id": "PATH_A",
+      "name": "Path A"
+    },
+    {
+      "id": "PATH_B",
+      "name": "Path B"
+    },
+    {
+      "id": "PATH_C",
+      "name": "Path C"
+    }
+  ],
+  "isExecuted": {
+    "isStepExecuted": true
+  }
+}

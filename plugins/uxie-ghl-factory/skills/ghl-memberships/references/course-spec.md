@@ -20,7 +20,7 @@ Always `--dry-run` first — validation runs before anything touches the account
     "instructor": { "name": "…", "title": "…", "bio": "…" }
   },
 
-  "offer": { "type": "free", "publish": true }, // ONLY free is supported (see below)
+  "offer": { "type": "free", "publish": false }, // free is the default; paid needs amount, currency and (for subscription) interval (see below)
                                                 // omit entirely, or set null, for no offer
 
   "credential": {                               // optional — creates the template AND
@@ -83,8 +83,10 @@ Always `--dry-run` first — validation runs before anything touches the account
   `pdf`, `html` or `text` type** — `content_type` is a closed ENUM; text lessons simply omit media.
 - Quiz `questions[]` need ≥2 options and **at least one `isCorrect`**.
 - A lesson cannot have both `video` and `embed`.
-- `offer.type` other than `free` is **rejected**: `one_time`/`recurring` return 500 without a
-  payment provider connected on the sub-account.
+- **Visibility is DRAFT by default** (w8-11). A chapter is published only when the spec publishes it or one of its lessons; a lesson, quiz or assignment is published only when it says `visibility: "published"`; the offer is published only with `offer.publish: true`. Nothing else publishes.
+- `offer.type`: `free` (default), `one_time` (wire `onetime`) or `subscription` (`recurring` is an alias). A paid type needs an
+  explicit `amount > 0` **and** `currency` (no EUR default, w8-7). `interval` belongs to `subscription` only. A paid create needs a connected payment integration: on a sandbox with none it returns 400 "Integrations not found" (bl-877). The earlier 500 came from sending the wrong enum (corpus `20-api/offers.md`). Paid offers are a gated action
+  (G6); this skill does not create one without the owner's go.
 - Wall-clock is estimated up front and checked against token headroom, so a build fails *before*
   starting rather than dying half-done when the ~1 h token expires.
 

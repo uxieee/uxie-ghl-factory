@@ -449,9 +449,6 @@
     "GET /integrations/facebook/{locationId}/pages": {
       "reach": "proven"
     },
-    "GET /integrations/facebook/{locationId}/trigger/pages": {
-      "reach": "proven"
-    },
     "GET /integrations/google/connections": {
       "summary": "The location's Google integration connections.",
       "note": "🔴 SECRETS-BEARING — do not store or log the response. Proven live 2026-09-19 (200), and the body carries a Google OAuth REFRESH TOKEN in clear text alongside the connection row. Treat it like /workflow/{loc}/secret-manager: reachable, deliberately not harvested, never written to a fixture, a sniff or a corpus page. Recorded here so the next probe knows BEFORE calling it.",

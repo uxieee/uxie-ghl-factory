@@ -98,10 +98,10 @@ layers became reachable, and each was a live failure on a write the tests report
 
 ### Left in place on the sandbox (nothing deleted)
 
-- folder `6980504f-2c67-4ba4-842d-dce877edf988` "TEST-CAP-0.57.0 probes (2026-09-07)"
-- workflow `7fbb2603-a8e4-45e6-ae08-660c802cf68b` (draft, in that folder)
+- folder `<sandbox folder>` "TEST-CAP-0.57.0 probes (2026-09-07)"
+- workflow `<sandbox draft>` (draft, in that folder)
 - tags `probe-057-a`, `probe-057-b`, `probe-057-go`, `probe-057-changed`
-- Conversation AI agents `0az8xPNSEFlf25Hd6xoh` and `Itl3RL2G6LMjCprqcluI` (both mode off, unrouted)
+- Conversation AI agents `<sandbox agent A>` and `<sandbox agent B>` (both mode off, unrouted)
 - Probe driver + ledger: the session scratchpad (`probe057*.mjs`, `probe057-ledger.json`)
 
 ## The endpoint catalogue regenerates LOSSLESSLY again — root cause fixed, guarded

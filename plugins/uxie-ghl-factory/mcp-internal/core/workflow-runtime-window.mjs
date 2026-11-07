@@ -92,10 +92,12 @@ export const RUNTIME_WINDOW_RESULT_KEYS = Object.freeze([
 ]);
 
 // The cursor makes page size a throughput knob rather than a correctness one: completeness
-// comes from walking to a page with no new ids, at ANY page size. Bounded 1..5000 because
-// that is the range measured live — `limit` is honoured exactly up to the true row count and
-// then clamps cleanly, with no cap found even at 10,000.
-export const LOG_PAGE_SIZE_DEFAULT = 100;
+// comes from walking to a page with no new ids, at ANY page size. Bounded 1..5000 as an input range only — logs/v2
+// itself answers at most 100 rows a page whatever `limit` asks (live 2026-10-30, below).
+// 50, not 100 (live 2026-10-30): logs/v2 serves at most 100 rows a page whatever `limit` asks, and a full 100-row page of
+// real log rows overruns the audit gateway's 500-record identity cap (MAX_IDENTITY_RECORDS), which fails the walk closed —
+// so at 100 the window never completed on a busy workflow. 20 and 50 both completed the same 859-row window.
+export const LOG_PAGE_SIZE_DEFAULT = 50;
 export const LOG_PAGE_SIZE_MAX = 5000;
 export const ENROLLMENT_PAGE_SIZE = 20;   // fixedQueryValues.limit = '20' on the enrollment descriptor
 export const STEP_ROSTER_PAGE_SIZE = 50;  // numericQueryBounds.limit.max = 50 on details-by-step

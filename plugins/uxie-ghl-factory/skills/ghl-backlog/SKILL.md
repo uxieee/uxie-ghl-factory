@@ -56,6 +56,8 @@ not applied.
 node "$GHL_CONSOLE_DIR/bin/backlog.mjs" add "<one-line title>" \
   --surface <workflows|ai-agents|forms|platform|…> \
   --basis <executed|read-only|inferred> \
+  --kind <behaviour|knowledge> \
+  --workstream <W2|W3|W4|W5|W6|W7|W8|W9|W10|xander> \
   --body "<what you saw, where, and why it matters>" \
   --session "<this session's URL, if you have it>"
 ```
@@ -64,7 +66,38 @@ The CLI mints the id, stamps the date, validates, and refuses a finding with no 
 write the JSON: every writer going through one door is why the rows have the same shape.
 
 `--surface` is the corpus surface the finding belongs to — the directory name under `corpus/`. Use
-`platform` for anything cross-cutting.
+`platform` for anything cross-cutting. The CLI refuses a name that is not a known surface.
+
+**A finding arrives routed (since 2026-10-29).** `add` refuses a row without both:
+- `--kind`: `behaviour` = something to build, fix or prove by running it; `knowledge` = a fact to write down.
+- `--workstream`: where the work happens, from `console/PLAN-plugin-improvement-2026-10.md` §6: W2 watcher/drift,
+  W3 public catalogue, W4 rail choice, W5 teach the agent what GHL shipped, W6 workflow engine, W7 funnels and
+  websites, W8 courses and memberships, W9 every other surface, W10 corpus and docs, `xander` = only Xander can do it.
+
+**Before the session ends**, run `node "$GHL_CONSOLE_DIR/bin/backlog.mjs" list --untriaged` and route anything you
+filed that shows up (`update <id> --kind … --workstream …`). A duplicate of an open row is closed into it with
+`update <id> --state dropped --duplicate-of <canonical id>`, never left open beside it.
+
+## Rows the GHL watcher filed
+
+The console's release watcher (`bin/watch-ghl.mjs`, the **Check GHL releases** button on the Drift screen) files a row for
+every GHL release with no approval step, by the operator's decision: `origin.source` is `watcher` and the row lands in
+W2. Its title starts with the row's type, which is also stored as `origin.type`:
+
+- **`[teach + prove]`**: GHL shipped a feature on a surface the agent is taught.
+- **`[rail review]`**: GHL added or changed public API operations on a surface we cover. Decide whether the public or
+  the internal rail serves it better.
+- **`[census]`**: a release on a GHL area with no surface of ours yet. Later releases on that area add notes to the
+  open row.
+
+Every row starts with `Source: <link> (<date>)`. Work one through the **release loop**:
+1. Recon what it does and which rail reaches it.
+2. Teach the agent: a corpus or skill update, with unproven items marked as unproven.
+3. Prove it on the sandbox.
+4. Add a unit to that surface's parity inventory.
+
+Close the row with proof like any other. Do not file your own row for a release the watcher already filed: add a note
+to its row. The lines ending `(id …)` and `(key …)` are how the watcher knows what it has filed, so leave them in.
 
 ## When the console is not installed
 

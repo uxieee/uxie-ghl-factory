@@ -4,7 +4,7 @@ MCP server exposing the `uxie-ghl-factory` plugin's proven GoHighLevel **interna
 engines as schema-validated tools. Complements the plugin's skills — the specialists
 design, this server executes.
 
-**Status: shipped in `uxie-ghl-factory` since 0.8.0 (17 tools then, 83 as of 0.82.0). The original 17 were all LIVE-PROVEN on GROM AU (2026-07-21); every tool added since carries its own `proof:` label in `tool-descriptions.json`.**
+**Status: shipped in `uxie-ghl-factory` since 0.8.0 (17 tools then, 83 as of 0.82.0; <!-- doc-counts:tools -->121<!-- /doc-counts --> now, as of <!-- doc-counts:asof -->2026-11-07<!-- /doc-counts -->, from `scripts/doc-counts.mjs`). The original 17 were all LIVE-PROVEN on GROM AU (2026-07-21); every tool added since carries its own `proof:` label in `tool-descriptions.json`.**
 Every tool has been driven against a real account through a real MCP stdio session — see the
 per-tool ledgers below: the read tools; the confirm-gated workflow writes (`build_workflow`,
 `edit_workflow`, `publish_workflow`, `fast_forward_contacts`, non-GET `raw_request`); the
@@ -306,7 +306,7 @@ answers the question, and a short read can no longer look like a complete one.
 
 Inputs: `locationId`, `workflowId`, `fromDate`, `toDate` (epoch ms, rejected before any
 gateway is built when `fromDate >= toDate`), optional `contactId`, `eventTypes` (max 20),
-`stepIds` (max 20), the execution-log `logPageSize` (default 100, max 5000) and
+`stepIds` (max 20), the execution-log `logPageSize` (default 50, max 5000 — logs/v2 serves at most 100 rows a page, and a full 100-row page overruns the audit gateway's 500-record identity cap; at the default 200 pages a walk now reads at most 10,000 rows where it used to read 20,000 — raise `maxLogPages` for a longer window) and
 `maxLogPages` (default 200), the transient-fault allowance `maxLogRetries` (default 3), and
 the budgets `maxEnrollmentPages` (default 200) and `maxStepRosterPages` (default 200). The
 enrollment walk reads 20 rows per page and step rosters 50.
@@ -403,6 +403,25 @@ actually read and hands a reviewer the ids to verify. Conversation AI only: no r
 capture exists for Voice AI or Agent Studio, so their `routingRead`/`routingPinned`/
 `routingEnvelopeShape` fields are `null`.
 
+After routing, each Conversation AI agent's **outbound configs and triggers** are read
+(`GET /agent-deployment/outbound-configs` and `GET /agent-deployment/outbound-triggers`,
+`?locationId&agentId`, sealed the same way; wrapped `{configs:[…]}` / `{triggers:[…]}`
+envelopes, live-captured 2026-10-30). The rows land verbatim on the item as
+`outbound: {configs, triggers}` — `null` unless both halves were read — beside `outboundRead`
+and `outboundArmed`: `true` only when some config and some trigger have a strict
+`enabled: true` and the agent's `mode` is `auto-pilot` or `suggestive`, `false` when a leg is
+provably off or the mode is `off`, `null` when the rows were not read or the mode is unknown
+(unread, absent, or a value outside `off`/`suggestive`/`auto-pilot`). `outboundArmed` is config ∧
+trigger ∧ mode on: it EXCLUDES campaign eligibility — an agent with an enabled config and no
+enabled trigger can still be started by an AI Campaign, and `outboundEnabled` (an enabled
+config) is that floor; `update_convai_agent` counts either leg as arming. The component carries
+three floors of agent ids — `outboundEnabled`, `outboundArmed`, `outboundUnread` (arming
+unknown; never silently absent) — `null` on Voice AI and Agent Studio. Every non-2xx (404 and
+403 included: the Lab-off response was never measured) is `AI_OUTBOUND_READ_FAILED`, a 200 the
+rail cannot read is `AI_OUTBOUND_UNREADABLE`, and a row naming another agent is
+`IDENTITY_CONFLICT_QUARANTINE`; each makes the component incomplete. The bundle's
+`contractVersion` is `1.1.0` (additive; see the fixture README).
+
 ### Credentials, refresh, and partial runs
 
 Authentication continues to come from the configured token file. The location JWT is
@@ -475,13 +494,15 @@ imply live correct:
   than vanishing, but the shape itself is unverified.
 - **Envelope shapes.** `readTotal` requires a root-level finite `total`; the roster row and
   agent-record envelope key lists are likewise unverified against live payloads.
-- **Docs-matrix rows.** Seven composite routes carry no row in the capability matrix, and the
+- **Docs-matrix rows.** Nine composite routes carry no row in the capability matrix, and the
   matrix itself lives outside this repository: `/workflows/status/enroll-stats` (the legacy
   enrollment-totals fallback, read on every runtime-window run), `/voice-ai/agents/simple`,
   `/voice-ai/agents/{agentId}`, `/ai-employees/employees/{agentId}`,
   `/agent-studio/agents/agents-with-folders`,
   `/agent-studio/super-agent/agents/{agentId}` and
-  `/agent-deployment/routing-config/configs` (the per-agent routing read). No row id was
+  `/agent-deployment/routing-config/configs` (the per-agent routing read),
+  `/agent-deployment/outbound-configs` and `/agent-deployment/outbound-triggers` (the
+  per-agent outbound reads). No row id was
   invented to fill the gap;
   `tool-descriptions.json` records each uncited capability instead, and a test proves every
   declared route is either cited or recorded.

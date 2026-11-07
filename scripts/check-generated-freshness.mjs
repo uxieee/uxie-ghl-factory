@@ -9,6 +9,9 @@
 //   catalogue    source + endpoint-overlay.json + capability-manifest  →  mcp-internal/catalog/internal-endpoints.json
 //   manifests    core/tools.mjs  →  capability-manifest.json
 //   dist         everything above, embedded  →  dist/server.mjs
+//   rail-ledger  knowledge/catalog/{rail-ledger,public-ops}.json  →  mcp-internal/catalog/ (copied by sync); public-ops is
+//                also re-projected from ../public-api-mcp/data/catalog.json, so a stale snapshot cannot make publicEquivalent lie
+//   rail-blocks  that ledger copy  →  the <!-- rail-ledger:… --> blocks in skills/**/*.md + ghl-orientation/references/rail-ledger.md
 //
 // Nothing runs these on a corpus change, and a stale copy is worse than a missing one: it looks
 // like knowledge while teaching the wrong field set, the wrong reach, the wrong tool coverage.
@@ -28,7 +31,7 @@
 //   node scripts/check-generated-freshness.mjs                 # every check
 //   node scripts/check-generated-freshness.mjs --only catalogue,manifests
 //   node scripts/check-generated-freshness.mjs --skip dist
-//   --plugin-root <dir>  --knowledge <dir>                     # for tests; defaults are this repo's
+//   --plugin-root <dir>  --knowledge <dir>  --public-api <dir>  # for tests; defaults are this repo's siblings
 //
 // Checks that need knowledge/ SKIP (exit 0, say so) when it is absent — it is a sibling repo with
 // no remote, so a clone of this repo alone cannot run them. Everything else always runs.
@@ -46,11 +49,12 @@ const list = (name) => opt(name, '').split(',').map((s) => s.trim()).filter(Bool
 
 const PLUGIN = resolve(opt('--plugin-root', join(REPO, 'plugins/uxie-ghl-factory')));
 const KNOWLEDGE = resolve(opt('--knowledge', join(REPO, '..', 'knowledge')));
+const PUBLIC_API = resolve(opt('--public-api', join(REPO, '..', 'public-api-mcp')));
 const MCP = join(PLUGIN, 'mcp-internal');
 const ONLY = list('--only');
 const SKIP = list('--skip');
 
-const CHECKS = ['type-cards', 'skill-types', 'source', 'catalogue', 'manifests', 'proofs', 'dist'];
+const CHECKS = ['type-cards', 'skill-types', 'source', 'rail-ledger', 'rail-blocks', 'catalogue', 'manifests', 'proofs', 'dist'];
 for (const name of [...ONLY, ...SKIP]) {
   if (!CHECKS.includes(name)) { console.error(`freshness: unknown check "${name}" — one of ${CHECKS.join(', ')}`); process.exit(2); }
 }
@@ -174,6 +178,59 @@ if (wanted('source')) {
 // ---------------------------------------------------------------------------------------------
 // 3. catalogue — source + overlay + capability manifest → the compiled catalogue the MCP serves
 // ---------------------------------------------------------------------------------------------
+if (wanted('rail-ledger')) {
+  const fix = 'npm run sync   (copies knowledge/catalog/{rail-ledger,public-ops}.json into mcp-internal/catalog/)';
+  if (!hasKnowledge) skipped('rail-ledger', 'knowledge/ not present — cannot compare the ledger copies');
+  else {
+    const lines = [];
+    for (const f of ['rail-ledger.json', 'public-ops.json']) {
+      const theirs = join(KNOWLEDGE, 'catalog', f), ours = join(MCP, 'catalog', f);
+      if (!existsSync(theirs)) lines.push(`knowledge/catalog/${f} is MISSING`);
+      else if (!existsSync(ours)) lines.push(`mcp-internal/catalog/${f} is MISSING`);
+      else if (readFileSync(theirs, 'utf8') !== readFileSync(ours, 'utf8')) lines.push(`${f} differs from knowledge/catalog/${f}`);
+    }
+    // The ledger itself must pass knowledge's validator: matching copies of a ledger that decides a row without proof
+    // are still wrong. Skipped when knowledge lacks the validator or its inputs.
+    const validator = join(KNOWLEDGE, 'scripts/check-rail-ledger.mjs');
+    if (!lines.length && existsSync(validator) && existsSync(join(KNOWLEDGE, 'catalog/internal-endpoints.source.json'))) {
+      try { execFileSync('node', [validator], { cwd: KNOWLEDGE, encoding: 'utf8', stdio: 'pipe' }); }
+      catch (e) {
+        const problems = String(e.stdout || e.stderr || e.message).split('\n').filter(Boolean);
+        stale('rail-ledger', ['knowledge/catalog/rail-ledger.json fails its validator:', ...problems.slice(0, 30)], 'edit knowledge/scripts/build-rail-ledger.mjs, run it and node knowledge/scripts/check-rail-ledger.mjs, commit in knowledge/, then npm run sync');
+      }
+    }
+    const catalog = join(PUBLIC_API, 'data/catalog.json');
+    const projector = join(KNOWLEDGE, 'scripts/snapshot-public-ops.mjs');
+    if (results.some((r) => r.name === 'rail-ledger')) { /* the validator already reported */ }
+    else if (lines.length) stale('rail-ledger', lines, fix);
+    else if (!existsSync(catalog) || !existsSync(projector)) ok('rail-ledger', 'copies match knowledge; public-api-mcp not present — public-ops not re-projected');
+    else {
+      const reFix = 'node knowledge/scripts/snapshot-public-ops.mjs, commit catalog/public-ops.json in knowledge/, then npm run sync';
+      try {
+        const { projectPublicOps } = await import(pathToFileURL(projector).href);
+        const fresh = projectPublicOps(readJson(catalog)).ops;
+        const d = diffById(readJson(join(KNOWLEDGE, 'catalog/public-ops.json')).ops, fresh, (o) => o.id, 'public ops');
+        d.stale ? stale('rail-ledger', ['catalog/public-ops.json no longer matches public-api-mcp/data/catalog.json:', ...d.lines], reFix)
+          : ok('rail-ledger', `copies match knowledge; ${fresh.length} public ops re-projected`);
+      } catch (e) { failed('rail-ledger', e, reFix); }
+    }
+  }
+}
+
+if (wanted('rail-blocks')) {
+  const fix = 'node plugins/uxie-ghl-factory/mcp-internal/scripts/render-rail-ledger.mjs   (run by npm run sync)';
+  const renderer = join(MCP, 'scripts/render-rail-ledger.mjs');
+  if (!existsSync(join(PLUGIN, 'skills')) || !existsSync(renderer)) skipped('rail-blocks', 'no skills/ or renderer in this plugin root');
+  else if (!existsSync(join(MCP, 'catalog/rail-ledger.json'))) stale('rail-blocks', ['mcp-internal/catalog/rail-ledger.json is MISSING'], 'npm run sync');
+  else {
+    try {
+      const { renderAll } = await import(pathToFileURL(renderer).href);
+      const { stale: files } = renderAll({ skillsDir: join(PLUGIN, 'skills'), ledger: readJson(join(MCP, 'catalog/rail-ledger.json')), write: false });
+      files.length ? stale('rail-blocks', files.map((f) => `skills/${f} differs from a fresh render of the ledger`), fix) : ok('rail-blocks', 'every skill block matches the ledger');
+    } catch (e) { failed('rail-blocks', e, fix); }
+  }
+}
+
 if (wanted('catalogue')) {
   const gen = join(MCP, 'scripts/build-endpoint-catalog.mjs');
   const shippedPath = join(MCP, 'catalog/internal-endpoints.json');

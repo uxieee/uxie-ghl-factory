@@ -1,0 +1,287 @@
+---
+expect:
+  locationId: ["loc_1"]
+---
+{
+ "ok": true,
+ "data": {
+  "product": "conversation_ai",
+  "models": {
+   "count": 22,
+   "defaultModelId": "gpt-4.1",
+   "models": [
+    {
+     "id": "gpt-4.1",
+     "provider": "openai",
+     "inputPrice": 2,
+     "outputPrice": 8,
+     "priceUnit": "$",
+     "costTier": 3,
+     "recommended": true,
+     "isDefault": true,
+     "isNew": false,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-4.1-mini",
+     "provider": "openai",
+     "inputPrice": 0.4,
+     "outputPrice": 1.6,
+     "priceUnit": "$",
+     "costTier": 1,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": false,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-6.1-sol",
+     "provider": "openai",
+     "inputPrice": 2,
+     "outputPrice": 10,
+     "priceUnit": "$",
+     "costTier": 3,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-6-sol",
+     "provider": "openai",
+     "inputPrice": 2,
+     "outputPrice": 10,
+     "priceUnit": "$",
+     "costTier": 3,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-6-luna",
+     "provider": "openai",
+     "inputPrice": 0.1,
+     "outputPrice": 0.5,
+     "priceUnit": "$",
+     "costTier": 1,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-5.6-sol",
+     "provider": "openai",
+     "inputPrice": 4,
+     "outputPrice": 20,
+     "priceUnit": "$",
+     "costTier": 4,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-5.6-luna",
+     "provider": "openai",
+     "inputPrice": 0.2,
+     "outputPrice": 1.2,
+     "priceUnit": "$",
+     "costTier": 1,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-5.5",
+     "provider": "openai",
+     "inputPrice": 5,
+     "outputPrice": 30,
+     "priceUnit": "$",
+     "costTier": 4,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-5.4",
+     "provider": "openai",
+     "inputPrice": 2.5,
+     "outputPrice": 15,
+     "priceUnit": "$",
+     "costTier": 3,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-5.4-mini",
+     "provider": "openai",
+     "inputPrice": 0.75,
+     "outputPrice": 4.5,
+     "priceUnit": "$",
+     "costTier": 2,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-5.4-nano",
+     "provider": "openai",
+     "inputPrice": 0.2,
+     "outputPrice": 1.25,
+     "priceUnit": "$",
+     "costTier": 1,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-5.2",
+     "provider": "openai",
+     "inputPrice": 1.75,
+     "outputPrice": 14,
+     "priceUnit": "$",
+     "costTier": 3,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-5.1",
+     "provider": "openai",
+     "inputPrice": 1.25,
+     "outputPrice": 10,
+     "priceUnit": "$",
+     "costTier": 2,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "claude-opus-5-5",
+     "provider": "anthropic",
+     "inputPrice": 4.4,
+     "outputPrice": 22,
+     "priceUnit": "$",
+     "costTier": 4,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "claude-sonnet-5-5",
+     "provider": "anthropic",
+     "inputPrice": 2.2,
+     "outputPrice": 11,
+     "priceUnit": "$",
+     "costTier": 3,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "claude-haiku-5-5",
+     "provider": "anthropic",
+     "inputPrice": 0.11,
+     "outputPrice": 0.55,
+     "priceUnit": "$",
+     "costTier": 1,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "claude-haiku-4-5-20251001",
+     "provider": "anthropic",
+     "inputPrice": 1.1,
+     "outputPrice": 5.5,
+     "priceUnit": "$",
+     "costTier": 2,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gemini-3.8-flash",
+     "provider": "google",
+     "inputPrice": 0.75,
+     "outputPrice": 3.75,
+     "priceUnit": "$",
+     "costTier": 2,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gemini-3.7-flash",
+     "provider": "google",
+     "inputPrice": 0.75,
+     "outputPrice": 3.75,
+     "priceUnit": "$",
+     "costTier": 2,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gemini-3.5-flash-lite",
+     "provider": "google",
+     "inputPrice": 0.3,
+     "outputPrice": 2.5,
+     "priceUnit": "$",
+     "costTier": 1,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": true,
+     "deprecation": null
+    },
+    {
+     "id": "gpt-5",
+     "provider": "openai",
+     "inputPrice": 1.25,
+     "outputPrice": 10,
+     "priceUnit": "$",
+     "costTier": 2,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": false,
+     "deprecation": {
+      "replacement": "gpt-4.1",
+      "effectiveAt": "2026-10-30T23:59:59.999Z"
+     }
+    },
+    {
+     "id": "gpt-5-mini",
+     "provider": "openai",
+     "inputPrice": 0.25,
+     "outputPrice": 2,
+     "priceUnit": "$",
+     "costTier": 1,
+     "recommended": false,
+     "isDefault": false,
+     "isNew": false,
+     "deprecation": {
+      "replacement": "gpt-4.1-mini",
+      "effectiveAt": "2026-10-30T23:59:59.999Z"
+     }
+    }
+   ]
+  },
+  "note": "Set on the agent as llm {primary, secondary} (create_convai_agent / update_convai_agent). Prices are per million tokens. primary and secondary must differ (the server refuses them equal)."
+ }
+}

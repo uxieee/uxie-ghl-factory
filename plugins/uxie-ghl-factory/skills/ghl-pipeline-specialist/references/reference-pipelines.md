@@ -225,9 +225,33 @@ The workflow engine resolves `lostReason` by NAME (`list_account_entities` → `
 spec can say "Too expensive" and the compiler supplies the id — or refuses if the account has no
 such reason.
 
+## Which rail, per job
+
+`edit_pipeline` and the public `opportunities-v3__update-pipeline` call the same `PUT /opportunities/pipelines/{id}`; the
+rail ledger records which one each job uses.
+
+<!-- rail-ledger:pipelines -->
+_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+
+| Job | Decision | Routed today | Internal | Public |
+|---|---|---|---|---|
+| read | both | split | `raw_request:GET /opportunities/pipelines` | `opportunities-v3__get-pipelines`, `opportunities__get-pipelines`, `opportunities-v3__get-pipeline`, `opportunities__get-pipeline` |
+| create | undecided | public | `raw_request:POST /opportunities/pipelines` | `opportunities-v3__create-pipeline`, `opportunities__create-pipeline` |
+| edit | undecided | internal | `edit_pipeline` | `opportunities-v3__update-pipeline`, `opportunities__update-pipeline` |
+| delete | undecided | public | `raw_request:DELETE /opportunities/pipelines/{pipelineId}` | `opportunities-v3__delete-pipeline`, `opportunities__delete-pipeline` |
+
+- **read:** Reads run on either rail.
+- **create:** The pipeline specialist creates pipelines on the public rail; its proven rules ship as patches in the public catalogue.
+- **edit:** edit_pipeline is the typed tool, and it calls the very path the public update-pipeline calls, with a different token.
+- **delete:** The pipeline specialist deletes on the public rail, behind its confirmation gate.
+
+Internal only: forecast; clone; reorder; permissions; restore.
+Public only: nothing recorded.
+<!-- /rail-ledger:pipelines -->
+
 ## Writing a pipeline through the internal rail (proven 31 Aug – 2 Sep 2026)
 
-The public API reads pipelines; the internal rail writes them:
+Both rails write pipelines, through the same path; the internal rail's call is:
 `PUT /opportunities/pipelines/{pipelineId}?locationId={loc}` (corpus `pipelines-opportunities/`).
 
 - **The body is a TRIMMED echo of GET.** Strip `id`, `dateAdded`, `dateUpdated`, `locationId` and

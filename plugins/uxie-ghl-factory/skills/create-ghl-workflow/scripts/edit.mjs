@@ -53,6 +53,7 @@
 //   { "op":"moveStep",        "stepId":"<id>", "afterId":"<id>" }
 //   { "op":"addBranch",       "containerId":"<id>", "name":"...", "conditions":[...] }
 //   { "op":"deleteContainer", "containerId":"<id>" }
+//   { "op":"dissolveContainer", "containerId":"<id>", "keep":"<branch name | __branchKey__ | id>" }   # one lane stays, in place
 //   { "op":"deleteBranch",    "containerId":"<id>", "branch":"<name | __branchKey__ | id>" }
 //   { "op":"repairParentKeys" }   # re-point every DANGLING parentKey (one that references a
 //     deleted step) at its true inbound `next` source — the graph-truth repair for the
@@ -109,7 +110,7 @@ import { dirname, join, resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { editCommitBody } from '../engine/edit.mjs';
 import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps, externalRefsOf,
-  opsNeedResolution, resolveOps } from '../engine/edit-driver.mjs';
+  opsNeedResolution, resolveOps, expandInsertSteps } from '../engine/edit-driver.mjs';
 import { buildResolvers } from '../engine/resolve.mjs';
 import { fetchEntities } from '../engine/orchestrate.mjs';
 import { planStickyNoteOp } from '../engine/sticky-notes.mjs';
@@ -170,7 +171,8 @@ if (!LOC || !WID || !specPath) {
 }
 
 const spec = JSON.parse(readFileSync(specPath, 'utf8'));
-const ops = spec.ops ?? [];
+// insertAfter {steps} → single-step ops before any pre-pass reads them (bl-389)
+const ops = expandInsertSteps(spec.ops ?? []);
 if (!ops.length) { console.error('edit-spec has no ops[]'); process.exit(1); }
 
 const T = (readFileSync(tokFile, 'utf8').match(/Bearer (ey[A-Za-z0-9._-]+)/) || [])[1];

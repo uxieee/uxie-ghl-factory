@@ -77,7 +77,8 @@ test('a response that is not a verdict is reported as the HTTP failure, never as
 });
 
 test('it POSTs, so it declares the POST and stays out of the GET-only audit profile', () => {
-  assert.deepEqual(tool.capabilities.map((c) => c.method), ['GET', 'GET', 'POST']);
+  // spec mode (W6a item 4) adds the dry run's tag read and the stateless validate-assets POST
+  assert.deepEqual(tool.capabilities.map((c) => c.method), ['GET', 'GET', 'POST', 'GET', 'POST']);
   assert.ok(tool.capabilities.some((c) => c.path === '/workflow/{loc}/{wid}/validate-workflows'));
 });
 

@@ -36,14 +36,14 @@ test('updates[] genuinely unknown field throws OPP_FIELD_UNKNOWN', () => {
 // `property <id> should not exist` and the step SKIPS with a 400 nobody reads. Only the
 // `custom_fields.` prefix makes the action build a customFields entry. Standard properties
 // (pipelineStageId, status, lostReasonId, monetaryValue) keep their bare name.
-const OPP_CF = { id: 'wcuc5AkMTW8iL5FtABWG', name: 'Treatment Interest', fieldKey: 'opportunity.treatment_interest', dataType: 'TEXT', model: 'opportunity' };
+const OPP_CF = { id: 'Lq7TestCf00000000001', name: 'Treatment Interest', fieldKey: 'opportunity.treatment_interest', dataType: 'TEXT', model: 'opportunity' };
 
 test('updates[] custom field is emitted with the custom_fields. prefix and the joined dataType', () => {
   const warnings = [];
   const ctx = baseCtx({ customFields: [OPP_CF], warn: (m) => warnings.push(m) });
-  const built = compile(oppUpdate([{ field: 'wcuc5AkMTW8iL5FtABWG', value: 'skin peel' }]), ctx);
-  assert.equal(fieldOf(built, 'wcuc5AkMTW8iL5FtABWG'), undefined, 'the bare id must NOT be emitted');
-  const f = fieldOf(built, 'custom_fields.wcuc5AkMTW8iL5FtABWG');
+  const built = compile(oppUpdate([{ field: 'Lq7TestCf00000000001', value: 'skin peel' }]), ctx);
+  assert.equal(fieldOf(built, 'Lq7TestCf00000000001'), undefined, 'the bare id must NOT be emitted');
+  const f = fieldOf(built, 'custom_fields.Lq7TestCf00000000001');
   assert.ok(f, 'emitted under the custom_fields. prefix');
   assert.equal(f.value, 'skin peel');
   assert.equal(f.valueFieldType, 'string');
@@ -55,16 +55,16 @@ test('updates[] custom field is emitted with the custom_fields. prefix and the j
 
 test('updates[] accepts the prefixed spelling and the fieldKey, and never double-prefixes', () => {
   const ctx = () => baseCtx({ customFields: [OPP_CF] });
-  for (const spelling of ['custom_fields.wcuc5AkMTW8iL5FtABWG', 'opportunity.treatment_interest']) {
+  for (const spelling of ['custom_fields.Lq7TestCf00000000001', 'opportunity.treatment_interest']) {
     const built = compile(oppUpdate([{ field: spelling, value: 'skin peel' }]), ctx());
-    assert.ok(fieldOf(built, 'custom_fields.wcuc5AkMTW8iL5FtABWG'), `resolved from ${spelling}`);
+    assert.ok(fieldOf(built, 'custom_fields.Lq7TestCf00000000001'), `resolved from ${spelling}`);
     assert.equal(fieldOf(built, `custom_fields.${spelling}`), undefined, 'no double prefix');
   }
 });
 
 test('an authored dataType still wins over the joined one', () => {
-  const built = compile(oppUpdate([{ field: 'wcuc5AkMTW8iL5FtABWG', value: '2000', dataType: 'MONETORY' }]), baseCtx({ customFields: [OPP_CF] }));
-  assert.equal(fieldOf(built, 'custom_fields.wcuc5AkMTW8iL5FtABWG').dataType, 'MONETORY');
+  const built = compile(oppUpdate([{ field: 'Lq7TestCf00000000001', value: '2000', dataType: 'MONETORY' }]), baseCtx({ customFields: [OPP_CF] }));
+  assert.equal(fieldOf(built, 'custom_fields.Lq7TestCf00000000001').dataType, 'MONETORY');
 });
 
 // Regression: the edit path builds a ctx WITHOUT customFields. A real custom field then

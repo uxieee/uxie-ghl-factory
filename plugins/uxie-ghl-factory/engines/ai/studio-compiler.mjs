@@ -21,8 +21,8 @@
 //     /agent-studio/super-agent/agents/from-template {templateId, locationId, folderId?, folderName?} (316f@10170).
 //   - compileSuperAgentUpdate(ir, opts) -> PUT /agent-studio/super-agent/agents/:agentId with { locationId, config }.
 //     The builder sends the WHOLE config on every save, so this compiler emits the complete config from a full IR;
-//     the build's own generated config is replaced by it.
-import { parseSuperAgentIR, refuseUnappliedStudioKeys, IRError } from './studio-ir.mjs';
+//     every key it sends overwrites the build's own; a top-level key it omits is KEPT by the server (live 2026-10-30).
+import { parseSuperAgentIR, refuseUnappliedStudioKeys, IRError, COMPUTER_TOOLS, FOLLOW_UP_TOOL } from './studio-ir.mjs';
 
 export const AUTH_HEADER = 'ai';
 
@@ -68,8 +68,27 @@ function buildTriggers(norm) {
 // studio-update.json's request_body.config (and studio-create.json's
 // final_config_update_event.data, the same shape). `norm` must already be normalized
 // (parseSuperAgentIR).
+// tools[] with the switch-owned ids applied: Computer adds the three sandbox ids, Wait & follow up adds wait_until (as the
+// editor's autosave does, live 2026-10-30). A switch the IR leaves unset adds nothing.
+function switchTools(norm, base) {
+  const tools = new Set(base);
+  if (norm.computer?.enabled) COMPUTER_TOOLS.forEach((t) => tools.add(t));
+  if (norm.followUp?.enabled) tools.add(FOLLOW_UP_TOOL);
+  return tools;
+}
+
+// The keys the 2026-10 wave added, each only when the IR sets it: the server KEEPS a config key a PUT omits (subagents and
+// starterPrompts proven live 2026-10-30), so an unset key must stay out rather than overwrite with a default. `computer` is
+// sent null when switched on, as the editor sends it; the server then stamps {approvalRevision}.
+function waveKeys(norm) {
+  return {
+    ...(norm.subagents !== undefined ? { subagents: norm.subagents } : {}),
+    ...(norm.computer?.enabled ? { computer: null } : {}),
+  };
+}
+
 function buildConfig(norm) {
-  const tools = new Set(norm.tools ?? []);
+  const tools = switchTools(norm, norm.tools ?? []);
   // knowledgeBaseIds: capture shows `null` when unset (never an empty array) and a
   // populated array when a KB is attached — preserve that null-vs-array distinction
   // rather than defaulting to [].
@@ -96,6 +115,7 @@ function buildConfig(norm) {
     ...(norm.mediaSettings !== undefined ? { mediaSettings: norm.mediaSettings } : {}),
     // The editor's Custom API switch is a top-level config key, sent only by this PUT (superagentsApp 3b22@151825).
     ...(norm.customApiEnabled !== undefined ? { customApiEnabled: norm.customApiEnabled } : {}),
+    ...waveKeys(norm),
   };
 }
 
@@ -158,7 +178,13 @@ export function templateOverrides(ir) {
   const o = {};
   for (const k of ['name', 'description', 'model', 'systemPrompt', 'plugins', 'starterPrompts', 'knowledgeBaseIds',
     'imageGeneration', 'mediaSettings', 'customApiEnabled']) if (ir[k] !== undefined) o[k] = ir[k];
-  if (ir.tools !== undefined) o.tools = [...new Set([...ir.tools, ...(Array.isArray(ir.knowledgeBaseIds) && ir.knowledgeBaseIds.length ? ['kb_search'] : [])])];
+  if (ir.tools !== undefined) {
+    o.tools = [...switchTools(ir, [...ir.tools, ...(Array.isArray(ir.knowledgeBaseIds) && ir.knowledgeBaseIds.length ? ['kb_search'] : [])])];
+  } else if (ir.computer?.enabled || ir.followUp?.enabled) {
+    // No tools authored: the switch ids are ADDED to the template's own tools at merge time, never put in their place.
+    o.addTools = [...switchTools(ir, [])];
+  }
+  Object.assign(o, waveKeys(ir));
   if (ir.reasoningEffort !== undefined) o.reasoning = { effort: ir.reasoningEffort };
   if (ir.trigger !== undefined || (Array.isArray(ir.triggers) && ir.triggers.length)) o.triggers = buildTriggers(ir);
   return o;
@@ -168,7 +194,9 @@ export function templateOverrides(ir) {
 // sticks is each trigger sent back with enabled:false. So a spec's `triggers: []` means "disable every trigger".
 export const disablesTriggers = (ir) => Array.isArray(ir.triggers) && ir.triggers.length === 0 && ir.trigger === undefined;
 export function mergeTemplateConfig(templateConfig, overrides, { disableTriggers = false } = {}) {
-  const merged = { ...(templateConfig ?? {}), ...overrides };
+  const { addTools, ...rest } = overrides ?? {};
+  const merged = { ...(templateConfig ?? {}), ...rest };
+  if (addTools) merged.tools = [...new Set([...(templateConfig?.tools ?? []), ...addTools])];
   if (disableTriggers) merged.triggers = (templateConfig?.triggers ?? []).map((t) => ({ ...t, enabled: false }));
   return merged;
 }

@@ -948,13 +948,15 @@ test('split: default weights total exactly 100 (remainder on the last path)', ()
   assert.equal(weightsOf(splitIR([{}, {}, {}, {}, {}, ])).reduce((a, b) => a + b, 0), 100);
 });
 test('split: more than 5 paths, a stale mode, or authored weights not totalling 100 are refused', () => {
-  assert.throws(() => compile(splitIR([{}, {}, {}, {}, {}, {}]), ctx()), /5/);
-  assert.throws(() => compile(splitIR([{}, {}], { condition: 'even-split' }), ctx()), /random-split/);
+  // w6c-4 (plan Task 4): up to 10 paths; a split may now be even, weighted or random (even-split is valid); a bogus mode is refused.
+  assert.throws(() => compile(splitIR(Array.from({ length: 11 }, () => ({}))), ctx()), /10/);
+  assert.throws(() => compile(splitIR([{}, {}], { condition: 'bogus-split' }), ctx()), /bogus-split/);
   assert.throws(() => compile(splitIR([{ weight: 60 }, { weight: 30 }], { mode: 'weighted' }), ctx()), /100/);
 });
 test('CONTROL: authored weights totalling 100 compile as written', () => {
   assert.deepEqual(weightsOf(splitIR([{ weight: 70 }, { weight: 30 }], { mode: 'weighted' })), [70, 30]);
-  assert.deepEqual(weightsOf(splitIR([{ weight: 33.3 }, { weight: 33.3 }, { weight: 33.4 }], { mode: 'weighted' })), [33.3, 33.3, 33.4]);
+  // w6c-4 (plan Task 4): weights are whole percentages summing to 100; a fraction is refused (split-modes.test).
+  assert.deepEqual(weightsOf(splitIR([{ weight: 33 }, { weight: 33 }, { weight: 34 }], { mode: 'weighted' })), [33, 33, 34]);
 });
 
 // wave23 W23-1 (completeness sweep 2026-09-29 §4 #24): the drawer writes skills, mcpConnections, templateId and
@@ -963,7 +965,7 @@ test('CONTROL: authored weights totalling 100 compile as written', () => {
 const agentIR = (attrs) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
   { ref: 'a', kind: 'action', type: 'ai_agent', name: 'Agent', attributes: { prompt: 'Answer {{contact.first_name}}', outputFormat: 'text', ...attrs } }] });
 const agentOf = (ir, c = ctx()) => compile(ir, c).autoSaveBody.workflowData.templates.find((s) => s.type === 'ai_agent').attributes;
-const BEFORE = Date.parse('2026-10-01T00:00:00Z'), AFTER = Date.parse('2026-10-26T00:00:00Z');
+const BEFORE = Date.parse('2026-10-01T00:00:00Z'), AFTER = Date.parse('2026-10-28T00:00:00Z'); // AFTER is past the 2026-10-27T16:00Z skills gate
 test('ai_agent: skills, mcpConnections, templateId and disableToolOutputGuards compile through verbatim', () => {
   const skills = [{ id: 'builtin:web_search', name: 'Web search' }, { id: '6650aa11bb22cc33dd44ee55', name: 'Refunds' }];
   const mcp = [{ connectionId: 'c1', name: 'Docs', serverUrl: 'https://mcp.x.test', selectedTools: ['search'] }];
@@ -981,10 +983,11 @@ test('ai_agent skills: >10, a bad shape, an extra key and a duplicate id are ref
     [{ id: 'builtin:x', name: 'x' }, { id: 'builtin:x', name: 'y' }]])
     assert.throws(() => agentOf(agentIR({ skills: bad })), (e) => e.code === 'AGENT_SKILLS', JSON.stringify(bad));
 });
-test('ai_agent skills warn before 2026-10-25 (the builder hides Skills) and not after', () => {
-  const run = (now) => { const w = []; agentOf(agentIR({ skills: [{ id: 'builtin:x', name: 'X' }] }), { ...ctx(), now, warn: (m) => w.push(m) }); return w; };
-  assert.ok(run(BEFORE).some((m) => /2026-10-25/.test(m)), 'warns before');
-  assert.equal(run(AFTER).filter((m) => /2026-10-25/.test(m)).length, 0, 'silent after');
+// w6c-7 (bl-787): the skills gate moved to 2026-10-27T16:00Z (RL). Before it skills are REFUSED, not warned; after it they are accepted.
+test('ai_agent skills are refused before 2026-10-27T16:00Z (the builder hides Skills) and accepted after', () => {
+  const sk = [{ id: 'builtin:x', name: 'X' }];
+  assert.throws(() => agentOf(agentIR({ skills: sk }), { ...ctx(), now: BEFORE }), (e) => e.code === 'AGENT_SKILLS_GATE');
+  assert.deepEqual(agentOf(agentIR({ skills: sk }), { ...ctx(), now: AFTER }).skills, sk);
 });
 test('ai_agent: mcpConnections / templateId / disableToolOutputGuards shapes are checked; tools+MCP over 10 warns', () => {
   assert.throws(() => agentOf(agentIR({ mcpConnections: [{ name: 'no id' }] })), (e) => e.code === 'AGENT_MCP');
@@ -1054,14 +1057,25 @@ test('CONTROL: a complete create_row compiles exactly as before (no lookup/forma
 // validated clean and could not branch; an authored loop compiled as a straight line. Both are refused by name now.
 const oneNode = (node) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
   graph: [node, { ref: 'x', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['a'] } }] });
-test('router: authoring one is refused (ROUTER_NOT_AUTHORED) with the lane shape and the allowlist named', () => {
-  for (const node of [{ ref: 'r', type: 'router', name: 'R', attributes: { branches: [{ id: 'b1', name: 'All', branchType: 'always_run', segments: [] }] } },
-    { ref: 'r', kind: 'action', type: 'router', name: 'R' }])
-    assert.throws(() => compile(oneNode(node), ctx()), (e) => e.code === 'ROUTER_NOT_AUTHORED' && /lane/.test(e.message) && /allowlisted/.test(e.message) && /if_else/.test(e.message));
+// w6c-1 (bl-784): the router is authored now. The refusal test became "router now compiles" (router-authoring.test.mjs holds
+// the full contract and the refusals); a router with no branches is still a router root, not a linear step.
+test('router: an authored router compiles to a condition-node root with its lanes (w6c-1: no longer refused)', () => {
+  const t = compile({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'r', kind: 'router', name: 'R', branches: [{ ref: 'a', name: 'All', branchType: 'always_run', then: [] }] }] },
+  ctx()).autoSaveBody.workflowData.templates;
+  const root = t.find((s) => s.type === 'router' && s.nodeType === 'condition-node');
+  assert.ok(root, 'the router root is emitted');
+  const lanes = t.filter((s) => s.nodeType === 'branch-yes');
+  assert.equal(lanes.length, 1, 'one lane per branch');
+  assert.deepEqual(root.next, lanes.map((l) => l.id), 'root next = its lane ids');
+  assert.equal(lanes[0].name, 'All');
 });
-test('loop: authoring one is refused (LOOP_NOT_AUTHORED) with the body shape and the allowlist named', () => {
-  assert.throws(() => compile(oneNode({ ref: 'l', type: 'loop', name: 'L', attributes: { items: '{{contact.tags}}' } }), ctx()),
-    (e) => e.code === 'LOOP_NOT_AUTHORED' && /parentContainerId/.test(e.message) && /allowlisted/.test(e.message));
+test('loop (w6c-2): an authored loop compiles to a loop step, not a refusal; compile accepts a list loop with no body (graph-rules checkLoopHasBody refuses it on the edit path; the engine does not name GHL\'s loop-body-empty offline)', () => {
+  const t = compile({ ...oneNode({ ref: 'l', kind: 'loop', name: 'L', loopOver: 'list', items: '{{contact.tags}}', mode: 'sequential', body: [] }) }, ctx()).autoSaveBody.workflowData.templates;
+  const loop = t.find((s) => s.type === 'loop');
+  assert.ok(loop, 'a loop step is emitted');
+  assert.equal(loop.attributes.loopOver, 'list');
+  assert.equal(loop.attributes.items, '{{contact.tags}}');
 });
 test('CONTROL: a raw (builder-made) router step is carried through; if_else still compiles', () => {
   const raw = { ref: 'r', kind: 'raw', type: 'router', name: 'R', attributes: { routerName: 'R', branches: [], version: 1 } };
