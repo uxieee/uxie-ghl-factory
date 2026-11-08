@@ -152,3 +152,39 @@ test('a link_click goal with its linkIds compiles; an email_event goal with no s
   assert.doesNotThrow(() => compileAb(abIr({ metric: { kind: 'event', goal: 'link_click', goalExtras: { linkIds: ['L1'] } } })));
   assert.throws(() => compileAb(abIr({ metric: { kind: 'event', goal: 'email_event', goalExtras: {} } })), (e) => /ab_test_goal_extras_missing/.test(e.message));
 });
+
+// wf-3 (bl-788, part 2): the contact-tag goal. The builder keys it as tags[] (ContactTagGoalCondition), and ab-1 proved it live: the draft
+// stored goal_condition add_contact_tag with extras.tags, and GHL counted the tag. RED first: GOAL_REFERENCE had no entry for it, so an empty
+// tag goal was saved with an empty criterion (the bl-788 failure mode).
+const tagGoalIr = (extras, paths2 = [
+  { ref: 'pa', then: [{ ref: 'ta', kind: 'action', type: 'add_contact_tag', name: 'Path A tag', attributes: { tags: ['test-conf-ab-path-a'] } }] },
+  { ref: 'pb', then: [{ ref: 'tb', kind: 'action', type: 'add_contact_tag', name: 'Path B tag', attributes: { tags: ['test-conf-ab-path-b'] } }] },
+]) => ({ name: 'AB-1', triggers: [{ ref: 't', type: 'contact_tag', name: 'Tag added', filters: [{ field: 'tagsAdded', value: 'test-conf-ab-enter' }] }],
+  graph: [{ ref: 'ab', kind: 'ab_test', name: 'A/B Test', paths: paths2,
+    metric: { kind: 'event', goal: 'add_contact_tag', goalExtras: extras },
+    endCondition: { type: 'contacts', numberOfContacts: 200 }, afterEnd: 'route_to_winner' }] });
+
+test('an add_contact_tag goal with no tags is refused (ab_test_goal_extras_missing): an empty tag criterion must not be saved', () => {
+  assert.throws(() => compileAb(tagGoalIr({})), (e) => /ab_test_goal_extras_missing/.test(e.message));
+  assert.throws(() => compileAb(tagGoalIr({ tags: [] })), (e) => /ab_test_goal_extras_missing/.test(e.message));
+});
+
+test('the ab-1 shape compiles to the stored win criterion: goal_condition add_contact_tag, extras.tags as given (proven live 2026-11-08)', () => {
+  const ts = compileAb(tagGoalIr({ tags: ['test-conf-ab-won'] }));
+  const cond = abOf(ts).attributes.extras.metric.matchCriteria.segments[0].conditions[0];
+  assert.equal(cond.goal_condition, 'add_contact_tag');
+  assert.deepEqual(cond.extras, { tags: ['test-conf-ab-won'] });
+});
+
+test('the change does not widen: a goal type with no key is still accepted as before (review_request_clicked, no extras)', () => {
+  assert.doesNotThrow(() => compileAb({ name: 'AB', triggers: trig, graph: [{ ref: 'ab', kind: 'ab_test', name: 'A/B Test', paths: paths(2),
+    metric: { kind: 'event', goal: 'review_request_clicked', goalExtras: {} }, endCondition: { type: 'contacts', numberOfContacts: 200 } }] }));
+});
+
+// wf-3b (QA follow-up a, ruled by the orchestrator): a blank or whitespace-only tag is not a tag. A tag goal that names one (["", "  "], or a
+// real tag beside a blank one) would save a criterion GHL cannot match. RED first: the goal accepted any non-empty list.
+test('an add_contact_tag goal whose tags include a blank or whitespace-only name is refused (ab_test_goal_extras_missing)', () => {
+  assert.throws(() => compileAb(tagGoalIr({ tags: [''] })), (e) => /ab_test_goal_extras_missing/.test(e.message));
+  assert.throws(() => compileAb(tagGoalIr({ tags: ['  '] })), (e) => /ab_test_goal_extras_missing/.test(e.message));
+  assert.throws(() => compileAb(tagGoalIr({ tags: ['test-conf-ab-won', ' '] })), (e) => /ab_test_goal_extras_missing/.test(e.message));
+});

@@ -200,15 +200,31 @@ export function makeW6cTools(deps) {
     },
     {
       name: 'list_workflow_error_notifications',
-      description: describe('list_workflow_error_notifications', 'The workflow error notifications for the location (GET error-notification/list). One request, never retried. Paging is UNKNOWN: '
-        + 'the route answered 500 live (2026-11-07), so this is not a complete walk. Reads only. (proof: live-read 2026-11-07 answered 500; the error is the finding.)'),
-      inputSchema: schema({ locationId: z.string() }),
+      description: describe('list_workflow_error_notifications', 'The workflow error notifications for the location (GET error-notification/list?skip&limit). The route answers 500 WITHOUT skip and limit '
+        + '(live 2026-11-08, 3 of 3) and 200 with {list, totalCount} with them, so this pages by skip until totalCount (page size 100 by default). '
+        + 'complete:true only when the rows reach totalCount. A failing page is an error, never retried. Reads only. (proof: live 2026-11-08, bl-838.)'),
+      inputSchema: schema({ locationId: z.string(), limit: z.number().int().positive().optional() }),
       capabilities: [{ method: 'GET', path: '/workflow/{loc}/error-notification/list' }],
       handler: async (args, handlerDeps) => guard(async () => {
         const gw = handlerDeps.makeGw({ loc: args.locationId, state: handlerDeps.state });
-        const r = await gw.call('GET', `/workflow/${encodeURIComponent(args.locationId)}/error-notification/list`);
-        if (!r.ok) return fromHttp(r.status, r.json);
-        return ok({ notifications: Array.isArray(r.json) ? r.json : (r.json?.notifications ?? []) });
+        const limit = Number.isInteger(args.limit) && args.limit > 0 ? args.limit : 100;
+        const rows = [];
+        const seen = new Set();
+        let total = null;
+        for (let page = 0; page < 100; page++) {
+          const skip = page * limit;
+          const q = new URLSearchParams({ skip: String(skip), limit: String(limit) });
+          const r = await gw.call('GET', `/workflow/${encodeURIComponent(args.locationId)}/error-notification/list?${q}`);
+          if (!r.ok) return fromHttp(r.status, r.json);
+          if (Array.isArray(r.json)) { rows.push(...r.json); break; }   // the older bare-array shape: no total, one read
+          const list = Array.isArray(r.json?.list) ? r.json.list : [];
+          if (typeof r.json?.totalCount === 'number') total = r.json.totalCount;
+          let added = 0;
+          for (const n of list) { const k = n?.id ?? JSON.stringify(n); if (!seen.has(k)) { seen.add(k); rows.push(n); added += 1; } }
+          if (total !== null && rows.length >= total) break;
+          if (list.length < limit || added === 0) break;   // a short page ends the walk; a page that adds nothing (skip ignored) stops it
+        }
+        return ok({ notifications: rows, totalCount: total, complete: total !== null && rows.length >= total });
       }),
     },
   ];

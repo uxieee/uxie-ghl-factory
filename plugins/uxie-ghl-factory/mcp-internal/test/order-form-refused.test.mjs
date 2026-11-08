@@ -5,14 +5,22 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { refusedKindProblems, makeLeaf } from '../core/funnel-pages.mjs';
 
-const page = (metas) => ({ sections: [{ elements: metas.map((m) => ({ type: 'element', meta: m })) }] });
+// fn-3 (2026-11-08): the refusal now covers the OLD composer shape only (empty steps, productOrder, bumps, orderFormTheme and
+// showOrderBump). A GHL-shaped order-form is composed and not refused; these fixtures are the old shape, so they test the refusal.
+const oldOrderForm = () => {
+  const n = makeLeaf({ meta: 'order-form' });
+  n.extra.steps = { value: '' }; n.extra.productOrder = { value: '' }; n.extra.bumps = { value: '' };
+  n.extra.orderFormTheme = { value: '' }; n.extra.showOrderBump = { value: '' };
+  return n;
+};
+const page = (metas) => ({ sections: [{ elements: metas.map((m) => (m === 'order-form' ? oldOrderForm() : { type: 'element', meta: m })) }] });
 
-test('order-form is refused, with the reason and the remediation', () => {
+test('an OLD-shape order-form is refused, with the reason and the remediation', () => {
   const p = refusedKindProblems(page(['heading', 'order-form']));
   assert.equal(p.length, 1);
   assert.match(p[0].message, /order-form/);
-  assert.match(p[0].message, /GHL-built props/);
-  assert.match(p[0].remediation, /one-step-order or two-setp-order/);
+  assert.match(p[0].message, /old composer shape/);
+  assert.match(p[0].remediation, /build_funnel_page/);
 });
 
 test('the two order kinds that render, and the other new kinds, are not refused', () => {
@@ -24,7 +32,11 @@ test('a page with no order-form is not refused, and nothing is refused for an em
   assert.deepEqual(refusedKindProblems({}), []);
 });
 
-test('makeLeaf still builds an order-form node: only the composer refuses it (the refusal is a write-path rule, not a builder fact)', () => {
+test('a GHL-shaped order-form (what makeLeaf composes now) is NOT refused on the composer path', () => {
+  assert.deepEqual(refusedKindProblems({ sections: [{ elements: [makeLeaf({ meta: 'order-form' })] }] }), []);
+});
+
+test('makeLeaf still builds an order-form node: only the old shape is refused, never the composed one', () => {
   assert.equal(makeLeaf({ meta: 'order-form' }).meta, 'order-form');
 });
 
@@ -38,7 +50,7 @@ const PAGE_ORDER = 'order-form';
 const fixtureWithOrderForm = () => {
   resetIds();
   const p = makeLeaf({ meta: 'paragraph', extra: { text: val('<p>Hi</p>') } });
-  const of = makeLeaf({ meta: PAGE_ORDER });
+  const of = oldOrderForm();
   const col = makeColumn({ children: [p, of], widthPct: 100 });
   const section = makeSection({ columns: [{ col, leaves: [p, of], widthPct: 100 }], pageId: 'P', funnelId: 'F', locationId: 'L' });
   return { p, of, col, section, data: buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [section] }) };
@@ -47,12 +59,12 @@ const fixtureWithOrderForm = () => {
 test('insert of an order-form node is refused: the report carries the refusal and the page gets no new node', () => {
   const { col, data } = fixtureWithOrderForm();
   const before = JSON.stringify(data);
-  const leaf = makeLeaf({ meta: PAGE_ORDER });
+  const leaf = oldOrderForm();
   const { report } = applyPageEdits(data, [{ op: 'insert', parentId: col.id, leaf }]);
   const err = report.find((r) => r.error);
   assert.ok(err, 'an insert of order-form must be refused');
   assert.match(err.error, /order-form/);
-  assert.match(err.error, /one-step-order or two-setp-order/);
+  assert.match(err.error, /old composer shape/);
   assert.equal(JSON.stringify(data), before, 'the refused insert writes nothing');
 });
 
@@ -66,7 +78,7 @@ test('append-section carrying an order-form node is refused', () => {
   const { section, data } = fixtureWithOrderForm();
   resetIds();
   const p2 = makeLeaf({ meta: 'paragraph', extra: { text: val('<p>x</p>') } });
-  const of2 = makeLeaf({ meta: PAGE_ORDER });
+  const of2 = oldOrderForm();
   const col2 = makeColumn({ children: [p2, of2], widthPct: 100 });
   const newSection = makeSection({ columns: [{ col: col2, leaves: [p2, of2], widthPct: 100 }], pageId: 'P', funnelId: 'F', locationId: 'L' });
   const { report } = applyPageEdits(data, [{ op: 'append-section', section: newSection }]);
@@ -91,7 +103,7 @@ test('an unrelated edit to a stored order-form node is NOT refused: it gets a wa
 // first and refuse when a page holds an order-form (the copy would bring the node in). Driven through the tool with a fake gateway.
 import { TOOLS } from '../core/tools.mjs';
 const editFunnel = TOOLS.find((t) => t.name === 'edit_funnel');
-const pageWithOrderForm = () => { resetIds(); const of = makeLeaf({ meta: PAGE_ORDER }); const col = makeColumn({ children: [of], widthPct: 100 }); const sec = makeSection({ columns: [{ col, leaves: [of], widthPct: 100 }], pageId: 'PSRC', funnelId: 'F1', locationId: 'LOC' }); return buildPageData({ pageId: 'PSRC', stepId: 'S1', funnelId: 'F1', locationId: 'LOC', sections: [sec] }); };
+const pageWithOrderForm = () => { resetIds(); const of = oldOrderForm(); const col = makeColumn({ children: [of], widthPct: 100 }); const sec = makeSection({ columns: [{ col, leaves: [of], widthPct: 100 }], pageId: 'PSRC', funnelId: 'F1', locationId: 'LOC' }); return buildPageData({ pageId: 'PSRC', stepId: 'S1', funnelId: 'F1', locationId: 'LOC', sections: [sec] }); };
 const pageWithQuiz = () => { resetIds(); const q = makeLeaf({ meta: 'quiz', extra: { quizId: val('x') } }); const col = makeColumn({ children: [q], widthPct: 100 }); const sec = makeSection({ columns: [{ col, leaves: [q], widthPct: 100 }], pageId: 'PQ', funnelId: 'F1', locationId: 'LOC' }); return buildPageData({ pageId: 'PQ', stepId: 'S1', funnelId: 'F1', locationId: 'LOC', sections: [sec] }); };
 const funnelWith = (pageId) => ({ _id: 'F1', id: 'F1', name: 'F', steps: [{ id: 'S1', name: 'S', url: 'compose-probe', type: 'misc_funnel_page', pages: [pageId], split: false }], domainId: 'D', funnelPath: '/f' });
 const fakeDeps = (pages, srcPageId = 'PSRC') => ({ state: {}, makeGw: () => ({ uid: 'U1', call: async (method, path) => {
@@ -105,7 +117,7 @@ test('edit_funnel clone-step is refused when the source step holds an order-form
   const res = await editFunnel.handler({ locationId: 'LOC', funnelId: 'F1', op: 'clone-step', stepId: 'S1', confirm: true }, fakeDeps({ PSRC: pageWithOrderForm() }));
   assert.equal(res.ok, false);
   assert.match(JSON.stringify(res), /order-form/);
-  assert.match(JSON.stringify(res), /one-step-order or two-setp-order/);
+  assert.match(JSON.stringify(res), /old composer shape/);
 });
 
 test('edit_funnel clone-step is NOT refused when the source step holds only a quiz (quiz stays copyable)', async () => {
@@ -147,14 +159,14 @@ function pageWithQuiz2() { resetIds(); const q = makeLeaf({ meta: 'quiz', extra:
 
 // (2) POPUPS: an order-form inside a popup is refused in the shared check (compose popups[]) and in append-popup.
 test('refusedKindProblems walks popupsList: an order-form in a popup is refused', () => {
-  const of = makeLeaf({ meta: PAGE_ORDER });
+  const of = oldOrderForm();
   const p = refusedKindProblems({ sections: [], popupsList: [{ id: 'pp', elements: [of] }] });
   assert.equal(p.length, 1);
   assert.match(p[0].message, /order-form/);
 });
 test('append-popup carrying an order-form is refused (nothing is added)', () => {
   const { data } = fixtureWithOrderForm();
-  const of = makeLeaf({ meta: PAGE_ORDER });
+  const of = oldOrderForm();
   const { report, pageData } = applyPageEdits(data, [{ op: 'append-popup', popup: { name: 'pp', css: '', entry: { id: 'pp', name: 'pp', elements: [of] } } }]);
   assert.ok(report.some((r) => r.error && /order-form/.test(r.error)), 'append-popup with an order-form must be refused');
   assert.equal((pageData.popupsList ?? []).length, 0, 'the refused popup is not added');
@@ -187,7 +199,7 @@ test('edit_funnel clone-funnel is refused when the source funnel holds an order-
   const res = await editFunnel.handler({ locationId: 'LOC', funnelId: 'F1', op: 'clone-funnel', name: 'Copy of F1', confirm: true }, deps);
   assert.equal(res.ok, false);
   assert.match(JSON.stringify(res), /would copy an order-form/);
-  assert.match(JSON.stringify(res), /one-step-order or two-setp-order/);
+  assert.match(JSON.stringify(res), /old composer shape/);
 });
 test('edit_funnel clone-funnel is allowed when the source funnel holds only a quiz (preview returned)', async () => {
   const deps = { state: {}, makeGw: () => gwFor({ funnels: { F1: SRC_FUNNEL }, lists: { F1: [{ _id: 'PQ' }] }, pages: { PQ: pageWithQuiz() } }) };

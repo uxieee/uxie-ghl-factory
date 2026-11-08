@@ -143000,17 +143000,28 @@ function normalizeVideoExtra(extra = {}) {
   if (!given.value?.type) v.type = v.selfHostedVideo.id ? "selfHosted" : videoTypeOf(v.url);
   return { ...extra, videoProperties: { value: v } };
 }
-var REFUSED_KINDS = Object.freeze({
-  "order-form": "order-form needs GHL-built props that are not captured yet (a public page with one alone returns 500)"
+var REFUSED_KINDS = Object.freeze({});
+var OLD_ORDER_FORM_MESSAGE = "order-form stored in the old composer shape (empty steps, productOrder, bumps, orderFormTheme or showOrderBump): a public page with one returns 500";
+var REFUSED_KIND_REMEDIATION = "rebuild the order form with build_funnel_page (it writes the GHL shape) or remove the old node; the old shape is not composed any more";
+var GHL_TERMS = 'I agree to the <a href="https://www.example.com" target="_blank"> terms and conditions</a>';
+var ORDER_FORM_NODE_DEFAULTS = Object.freeze({
+  termsAndConditions: { value: { isEnabledForStep1: false, isEnabledForStep2: false, step1: GHL_TERMS, step2: GHL_TERMS } },
+  visibility: { value: { hideDesktop: false, hideTablet: false, hideMobile: false } },
+  visitWebsite: { value: { url: "", newTab: false } }
 });
-var REFUSED_KIND_REMEDIATION = "use one-step-order or two-setp-order (both render); order-form returns once its GHL-built props are captured";
+function orderFormOldShape(el) {
+  if (el?.meta !== "order-form") return false;
+  const v = (k) => el.extra?.[k]?.value;
+  const theme = v("orderFormTheme");
+  return !(Array.isArray(v("steps")) && Array.isArray(v("productOrder")) && Array.isArray(v("bumps")) && theme !== null && typeof theme === "object" && typeof v("showOrderBump") === "boolean");
+}
 function refusedKindProblems(pageData) {
   const out = [];
   const leaves2 = [...(pageData?.sections ?? []).flatMap((sec) => sec.elements ?? []), ...(pageData?.popupsList ?? []).flatMap((p2) => p2?.elements ?? [])];
   for (const el of leaves2) {
-    if (el?.type === "element" && Object.prototype.hasOwnProperty.call(REFUSED_KINDS, el.meta)) {
-      out.push({ message: `${el.meta}: ${REFUSED_KINDS[el.meta]}`, remediation: REFUSED_KIND_REMEDIATION });
-    }
+    if (el?.type !== "element") continue;
+    if (Object.prototype.hasOwnProperty.call(REFUSED_KINDS, el.meta)) out.push({ message: `${el.meta}: ${REFUSED_KINDS[el.meta]}`, remediation: REFUSED_KIND_REMEDIATION });
+    else if (orderFormOldShape(el)) out.push({ message: `${el.meta}: ${OLD_ORDER_FORM_MESSAGE}`, remediation: REFUSED_KIND_REMEDIATION });
   }
   return out;
 }
@@ -143049,6 +143060,7 @@ function videoSourceProblems(pageData, onlyIds = null) {
   return out;
 }
 var TOOL_COMPILED_KINDS = Object.freeze(/* @__PURE__ */ new Set(["heading", "sub-heading", "paragraph", "rich-text", "bulletList", "button"]));
+var isEmptyOrderProp = (x) => x === "" || x === null || x === void 0 || typeof x === "object" && x !== null && !Array.isArray(x) && "value" in x && (x.value === "" || x.value === null || x.value === void 0);
 var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt, wrapper, tabletStyles, mobileStyles, tabletWrapper, mobileWrapper }) => {
   if (!ELEMENTS[meta3]) throw new Error(`unknown element meta '${meta3}' \u2014 the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta3, salt);
@@ -143065,8 +143077,9 @@ var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt
   if (oracleStyles) Object.assign(base, oracleStyles);
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
   const routed = routeEmbedExtra(meta3, routeClickAction(meta3, meta3 === "video" ? normalizeVideoExtra(extra) : extra));
+  const givenProps = meta3 === "order-form" ? { ...ORDER_FORM_NODE_DEFAULTS, ...Object.fromEntries(Object.entries(routed).filter(([, x]) => !isEmptyOrderProp(x))) } : routed;
   const oracleExtra = KIND_ORACLE_EXTRA[meta3]?.((/* @__PURE__ */ new Date()).toISOString()) ?? {};
-  const filled = fillTextFieldInitials(meta3, unshare(completeExtra(meta3, routed)));
+  const filled = fillTextFieldInitials(meta3, unshare(completeExtra(meta3, givenProps)));
   for (const [k, v] of Object.entries(oracleExtra)) if (!Object.prototype.hasOwnProperty.call(routed, k) && (k in filled || KIND_ORACLE_NEW_KEYS[meta3]?.includes(k))) filled[k] = structuredClone(v);
   if (KIND_OMIT_EXTRA[meta3]) {
     for (const k of Object.keys(filled)) if (KIND_OMIT_EXTRA[meta3].test(k) && !Object.prototype.hasOwnProperty.call(routed, k)) delete filled[k];
@@ -145307,7 +145320,7 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "", compileSizes 
       }
       hit.node.updated = true;
       report.push({ i, op: "set", nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...typeof o.title === "string" ? { title: o.title } : {}, ...layerPatch } });
-      if (Object.prototype.hasOwnProperty.call(REFUSED_KINDS, hit.node.meta)) report.push({ i, op: "set", nodeId: o.nodeId, warn: `${hit.node.meta} is stored on this page: ${REFUSED_KINDS[hit.node.meta]}. The edit was applied; the node still needs its GHL-built props (see the order-form backlog row).` });
+      if (orderFormOldShape(hit.node)) report.push({ i, op: "set", nodeId: o.nodeId, warn: `${hit.node.meta} is stored on this page in the old composer shape: ${OLD_ORDER_FORM_MESSAGE}. The edit was applied; rebuild the order form with build_funnel_page.` });
     } else if (o.op === "append-section") {
       const refusedIn = refusedKindProblems({ sections: [o.section] });
       if (refusedIn.length) {
@@ -146501,14 +146514,39 @@ function makeW6cTools(deps) {
     },
     {
       name: "list_workflow_error_notifications",
-      description: describe4("list_workflow_error_notifications", "The workflow error notifications for the location (GET error-notification/list). One request, never retried. Paging is UNKNOWN: the route answered 500 live (2026-11-07), so this is not a complete walk. Reads only. (proof: live-read 2026-11-07 answered 500; the error is the finding.)"),
-      inputSchema: schema2({ locationId: external_exports.string() }),
+      description: describe4("list_workflow_error_notifications", "The workflow error notifications for the location (GET error-notification/list?skip&limit). The route answers 500 WITHOUT skip and limit (live 2026-11-08, 3 of 3) and 200 with {list, totalCount} with them, so this pages by skip until totalCount (page size 100 by default). complete:true only when the rows reach totalCount. A failing page is an error, never retried. Reads only. (proof: live 2026-11-08, bl-838.)"),
+      inputSchema: schema2({ locationId: external_exports.string(), limit: external_exports.number().int().positive().optional() }),
       capabilities: [{ method: "GET", path: "/workflow/{loc}/error-notification/list" }],
       handler: async (args, handlerDeps) => guard2(async () => {
         const gw = handlerDeps.makeGw({ loc: args.locationId, state: handlerDeps.state });
-        const r = await gw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/error-notification/list`);
-        if (!r.ok) return fromHttp(r.status, r.json);
-        return ok({ notifications: Array.isArray(r.json) ? r.json : r.json?.notifications ?? [] });
+        const limit = Number.isInteger(args.limit) && args.limit > 0 ? args.limit : 100;
+        const rows = [];
+        const seen = /* @__PURE__ */ new Set();
+        let total = null;
+        for (let page = 0; page < 100; page++) {
+          const skip = page * limit;
+          const q3 = new URLSearchParams({ skip: String(skip), limit: String(limit) });
+          const r = await gw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/error-notification/list?${q3}`);
+          if (!r.ok) return fromHttp(r.status, r.json);
+          if (Array.isArray(r.json)) {
+            rows.push(...r.json);
+            break;
+          }
+          const list2 = Array.isArray(r.json?.list) ? r.json.list : [];
+          if (typeof r.json?.totalCount === "number") total = r.json.totalCount;
+          let added = 0;
+          for (const n of list2) {
+            const k = n?.id ?? JSON.stringify(n);
+            if (!seen.has(k)) {
+              seen.add(k);
+              rows.push(n);
+              added += 1;
+            }
+          }
+          if (total !== null && rows.length >= total) break;
+          if (list2.length < limit || added === 0) break;
+        }
+        return ok({ notifications: rows, totalCount: total, complete: total !== null && rows.length >= total });
       })
     }
   ];
@@ -218596,7 +218634,11 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         link_click: (x) => nonEmpty2(x.linkIds),
         appointment_status: (x) => Boolean(x.calendarId),
         payment_received: (x) => nonEmpty2(x.globalProductIds),
-        document_status: (x) => Boolean(x.templateId)
+        document_status: (x) => Boolean(x.templateId),
+        // wf-3 (bl-788): the contact-tag win goal. The builder keys it as tags[] (ContactTagGoalCondition), and ab-1 proved it live (2026-11-08):
+        // the stored criterion was goal_condition add_contact_tag with extras.tags, and GHL counted the tag. Only this goal gets a key here.
+        // wf-3b: every tag must be a non-blank string; a blank or whitespace-only name is not a tag GHL can match.
+        add_contact_tag: (x) => nonEmpty2(x.tags) && x.tags.every((t) => typeof t === "string" && t.trim() !== "")
       };
       const referenceOk = GOAL_REFERENCE[n.metric.goal];
       if (referenceOk && !referenceOk(n.metric.goalExtras ?? {}))
@@ -246490,6 +246532,12 @@ var TOOLS2 = [
         const step = fr.res.ok ? (fr.funnel?.steps ?? []).find((st) => st.id === args.stepId) : void 0;
         stepType = step?.type;
         if (pdp) stepCtx.stepKey = step?.key;
+      }
+      const orderFormAnywhere = [...pageData.sections.flatMap((sec) => sec.elements), ...(pageData.popupsList ?? []).flatMap((p2) => p2?.elements ?? [])].some((e) => e?.type === "element" && e.meta === "order-form");
+      if (orderFormAnywhere) {
+        const sp = await readStepProducts(deps.makeGw({ loc: args.locationId, state: deps.state }), args.locationId, args.funnelId, args.stepId);
+        if (!sp.res.ok) return fail(CODES.VALIDATION_FAILED, `the step products of step ${args.stepId} could not be read, so the order form cannot be proven to have a product; nothing was written`, "Retry. Nothing was written.");
+        if (sp.rows.length === 0) return fail(CODES.VALIDATION_FAILED, `step ${args.stepId} has no step product, so an order form on it would have nothing to sell; nothing was written`, "Add a product to the step first: edit_funnel op add-step-product (a TEST zero-amount price for tests), then build again.");
       }
       const problems = auditPageData(pageData, { stepType, ...stepCtx });
       if (problems.length) {

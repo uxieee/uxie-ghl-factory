@@ -512,21 +512,36 @@ export function normalizeVideoExtra(extra = {}) {
   return { ...extra, videoProperties: { value: v } };
 }
 // A composed video with no source renders an empty box in public while every write answers 201.
-// w7-6 (orchestrator DECISION): kinds the composer refuses. order-form needs GHL-built props that are not captured yet, and a page
-// holding one alone breaks the public render (origin 500; knowledge sniffs/funnels-w7-2026-11-06/bisect-log.md). Refused with a code
-// and a remediation; nothing is written. The two order kinds that render are not listed.
-export const REFUSED_KINDS = Object.freeze({
-  'order-form': 'order-form needs GHL-built props that are not captured yet (a public page with one alone returns 500)',
+// Kinds the composer refuses outright. None now: fn-3 (2026-11-08) measured GHL's own order-form node (fn1-order-form-node.json)
+// and the composer writes that shape. An order-form is refused only in the OLD composer shape (orderFormOldShape), which answers 500.
+export const REFUSED_KINDS = Object.freeze({});
+export const OLD_ORDER_FORM_MESSAGE = 'order-form stored in the old composer shape (empty steps, productOrder, bumps, orderFormTheme or showOrderBump): a public page with one returns 500';
+export const REFUSED_KIND_REMEDIATION = 'rebuild the order form with build_funnel_page (it writes the GHL shape) or remove the old node; the old shape is not composed any more';
+// fn-3 (QA, 2026-11-08): the two node-level props GHL stores with values the factory and the catalogue fill do not carry. Taken from GHL's own
+// order-form node (knowledge sniffs funnels-fn-2026-11-08/fn1-order-form-node.json): termsAndConditions is an object of two step flags and
+// two step texts, and visibility carries hideTablet as well as hideDesktop and hideMobile. Used for an order-form when the caller gives none.
+const GHL_TERMS = 'I agree to the <a href="https://www.example.com" target="_blank"> terms and conditions</a>';
+export const ORDER_FORM_NODE_DEFAULTS = Object.freeze({
+  termsAndConditions: { value: { isEnabledForStep1: false, isEnabledForStep2: false, step1: GHL_TERMS, step2: GHL_TERMS } },
+  visibility: { value: { hideDesktop: false, hideTablet: false, hideMobile: false } },
+  visitWebsite: { value: { url: '', newTab: false } },
 });
-export const REFUSED_KIND_REMEDIATION = 'use one-step-order or two-setp-order (both render); order-form returns once its GHL-built props are captured';
+// The GHL types of an order-form's typed props: steps, productOrder and bumps are arrays, orderFormTheme an object, showOrderBump a boolean.
+export function orderFormOldShape(el) {
+  if (el?.meta !== 'order-form') return false;
+  const v = (k) => el.extra?.[k]?.value;
+  const theme = v('orderFormTheme');
+  return !(Array.isArray(v('steps')) && Array.isArray(v('productOrder')) && Array.isArray(v('bumps'))
+    && theme !== null && typeof theme === 'object' && typeof v('showOrderBump') === 'boolean');
+}
 // Every leaf of the page, popups included (a popup's content is page content: compose popups[] and append-popup both add it).
 export function refusedKindProblems(pageData) {
   const out = [];
   const leaves = [...(pageData?.sections ?? []).flatMap((sec) => sec.elements ?? []), ...(pageData?.popupsList ?? []).flatMap((p) => p?.elements ?? [])];
   for (const el of leaves) {
-    if (el?.type === 'element' && Object.prototype.hasOwnProperty.call(REFUSED_KINDS, el.meta)) {
-      out.push({ message: `${el.meta}: ${REFUSED_KINDS[el.meta]}`, remediation: REFUSED_KIND_REMEDIATION });
-    }
+    if (el?.type !== 'element') continue;
+    if (Object.prototype.hasOwnProperty.call(REFUSED_KINDS, el.meta)) out.push({ message: `${el.meta}: ${REFUSED_KINDS[el.meta]}`, remediation: REFUSED_KIND_REMEDIATION });
+    else if (orderFormOldShape(el)) out.push({ message: `${el.meta}: ${OLD_ORDER_FORM_MESSAGE}`, remediation: REFUSED_KIND_REMEDIATION });
   }
   return out;
 }
@@ -563,6 +578,7 @@ export function videoSourceProblems(pageData, onlyIds = null) {
 // The kinds whose CSS this tool compiles itself, as the builder does (f1: textElementMediaQueryStyle, buttonElementStyle).
 export const TOOL_COMPILED_KINDS = Object.freeze(new Set(['heading', 'sub-heading', 'paragraph', 'rich-text', 'bulletList', 'button']));
 
+const isEmptyOrderProp = (x) => x === '' || x === null || x === undefined || (typeof x === 'object' && x !== null && !Array.isArray(x) && 'value' in x && (x.value === '' || x.value === null || x.value === undefined));
 export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', salt, wrapper, tabletStyles, mobileStyles, tabletWrapper, mobileWrapper }) => {
   if (!ELEMENTS[meta]) throw new Error(`unknown element meta '${meta}' — the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta, salt);
@@ -595,8 +611,13 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
   if (oracleStyles) Object.assign(base, oracleStyles);
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
   const routed = routeEmbedExtra(meta, routeClickAction(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra));
+  // fn-3 (bl-841): for order-form a caller's EMPTY value ('', null, or {value: ''}) is absent, so the GHL default is used.
+  // fn-3 (QA): the GHL node-level defaults fill what the caller does not give; a caller's own value still wins.
+  const givenProps = meta === 'order-form'
+    ? { ...ORDER_FORM_NODE_DEFAULTS, ...Object.fromEntries(Object.entries(routed).filter(([, x]) => !isEmptyOrderProp(x))) }
+    : routed;
   const oracleExtra = KIND_ORACLE_EXTRA[meta]?.(new Date().toISOString()) ?? {};
-  const filled = fillTextFieldInitials(meta, unshare(completeExtra(meta, routed)));
+  const filled = fillTextFieldInitials(meta, unshare(completeExtra(meta, givenProps)));
   for (const [k, v] of Object.entries(oracleExtra)) if (!Object.prototype.hasOwnProperty.call(routed, k) && (k in filled || KIND_ORACLE_NEW_KEYS[meta]?.includes(k))) filled[k] = structuredClone(v);
   if (KIND_OMIT_EXTRA[meta]) for (const k of Object.keys(filled)) if (KIND_OMIT_EXTRA[meta].test(k) && !Object.prototype.hasOwnProperty.call(routed, k)) delete filled[k];
   const node = envelope(id, 'element', meta, KIND_TAGNAME[meta] ?? ELEMENTS[meta].tagName, filled, withDefaults, cls, TOOL_COMPILED_KINDS.has(meta) ? undefined : KIND_FACTORY_WRAPPER[meta]);

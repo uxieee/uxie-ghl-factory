@@ -19,7 +19,7 @@ export function findNode(pageData, nodeId) {
 }
 
 import { createHash } from 'node:crypto';
-import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch, withElement, REFUSED_KINDS, REFUSED_KIND_REMEDIATION, refusedKindProblems, refusedInSubtree } from './funnel-pages.mjs';
+import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf, routeClickAction, sectionStylingPatch, withElement, REFUSED_KINDS, REFUSED_KIND_REMEDIATION, refusedKindProblems, refusedInSubtree, orderFormOldShape, OLD_ORDER_FORM_MESSAGE } from './funnel-pages.mjs';
 import { randomId, allIds, subtreeIds, parentOf, positionIn, movedIndex, cloneSubtree, copyRulesUnderNewIds, stripRulesNaming, findPopup, popupRoot } from './page-structure.mjs';
 import { nodeLayerCss, storedMap, LAYER_SPEC_KEYS } from './style-layer.mjs';
 import { applyDynamicText, DTR_KINDS } from './dynamic-text.mjs';
@@ -369,7 +369,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '', compil
       hit.node.updated = true;
       report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch, ...(typeof o.title === 'string' ? { title: o.title } : {}), ...layerPatch } });
       // w7-6 (orchestrator DECISION 2026-11-07): an unrelated edit to a STORED order-form is allowed; it gets a warning, not a refusal.
-      if (Object.prototype.hasOwnProperty.call(REFUSED_KINDS, hit.node.meta)) report.push({ i, op: 'set', nodeId: o.nodeId, warn: `${hit.node.meta} is stored on this page: ${REFUSED_KINDS[hit.node.meta]}. The edit was applied; the node still needs its GHL-built props (see the order-form backlog row).` });
+      if (orderFormOldShape(hit.node)) report.push({ i, op: 'set', nodeId: o.nodeId, warn: `${hit.node.meta} is stored on this page in the old composer shape: ${OLD_ORDER_FORM_MESSAGE}. The edit was applied; rebuild the order form with build_funnel_page.` });
     } else if (o.op === 'append-section') {
       // w7-6 (orchestrator DECISION 2026-11-07): a section carrying a refused kind (order-form) is refused; nothing is written.
       const refusedIn = refusedKindProblems({ sections: [o.section] });

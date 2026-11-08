@@ -2222,6 +2222,10 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         appointment_status: (x) => Boolean(x.calendarId),
         payment_received: (x) => nonEmpty(x.globalProductIds),
         document_status: (x) => Boolean(x.templateId),
+        // wf-3 (bl-788): the contact-tag win goal. The builder keys it as tags[] (ContactTagGoalCondition), and ab-1 proved it live (2026-11-08):
+        // the stored criterion was goal_condition add_contact_tag with extras.tags, and GHL counted the tag. Only this goal gets a key here.
+        // wf-3b: every tag must be a non-blank string; a blank or whitespace-only name is not a tag GHL can match.
+        add_contact_tag: (x) => nonEmpty(x.tags) && x.tags.every((t) => typeof t === 'string' && t.trim() !== ''),
       };
       const referenceOk = GOAL_REFERENCE[n.metric.goal];
       if (referenceOk && !referenceOk(n.metric.goalExtras ?? {}))

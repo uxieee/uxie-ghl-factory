@@ -13234,6 +13234,15 @@ export const TOOLS = [
         stepType = step?.type;
         if (pdp) stepCtx.stepKey = step?.key;
       }
+      // fn-3 (bl-841): an order form needs a step product on its step (GHL's own probe had one). Read before any write.
+      // fn-3 (QA): a popup's content is page content, so an order form in a popup needs the product too (leavesOf walks sections only).
+      const orderFormAnywhere = [...pageData.sections.flatMap((sec) => sec.elements), ...(pageData.popupsList ?? []).flatMap((p) => p?.elements ?? [])]
+        .some((e) => e?.type === 'element' && e.meta === 'order-form');
+      if (orderFormAnywhere) {
+        const sp = await readStepProducts(deps.makeGw({ loc: args.locationId, state: deps.state }), args.locationId, args.funnelId, args.stepId);
+        if (!sp.res.ok) return fail(CODES.VALIDATION_FAILED, `the step products of step ${args.stepId} could not be read, so the order form cannot be proven to have a product; nothing was written`, 'Retry. Nothing was written.');
+        if (sp.rows.length === 0) return fail(CODES.VALIDATION_FAILED, `step ${args.stepId} has no step product, so an order form on it would have nothing to sell; nothing was written`, 'Add a product to the step first: edit_funnel op add-step-product (a TEST zero-amount price for tests), then build again.');
+      }
       const problems = auditPageData(pageData, { stepType, ...stepCtx });
       if (problems.length) {
         return withFailureData(
