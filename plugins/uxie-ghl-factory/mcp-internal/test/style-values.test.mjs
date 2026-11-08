@@ -57,7 +57,11 @@ const deps = (calls) => ({ state: {}, makeGw: () => ({ uid: 'U', call: async (me
   if (path.startsWith('/funnels/builder/autosave/')) return { ok: true, status: 201, json: {} };
   if (path.startsWith('/funnels/builder/get-versions')) return { ok: true, status: 200, json: [] };
   if (path.startsWith('/funnels/page/')) return { ok: true, status: 200, json: { _id: 'P1', locationId: 'L', funnelId: 'F', meta: {} } };
-  if (path.startsWith('/funnels/builder/page/data')) { const s = [...calls].reverse().find((c) => c.path.startsWith('/funnels/builder/autosave/')); return { ok: true, status: 200, json: s.body.pageData }; }
+  if (path.startsWith('/funnels/builder/page/data')) {
+    // Before the write the page has no stored data (404): the compose's pre-save read has nothing to keep (fn-7).
+    const s = [...calls].reverse().find((c) => c.path.startsWith('/funnels/builder/autosave/'));
+    return s ? { ok: true, status: 200, json: s.body.pageData } : { ok: false, status: 404, json: null };
+  }
   throw new Error(`unexpected ${method} ${path}`);
 } }) });
 

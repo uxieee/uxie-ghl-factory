@@ -82278,7 +82278,7 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_funnel_page: {
-        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: failing (2026-10-29); risk: write",
+        description: "Compose, validate and write a funnel page from native elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them \u2014 proof: failing (2026-10-29); risk: write",
         risk: "write",
         proof: "failing (2026-10-29)",
         proofFloor: "live-runtime (2026-09-09)",
@@ -117161,7 +117161,7 @@ function redactUrlTokens(value) {
 import { readFileSync as readFileSync4, existsSync as existsSync4, writeFileSync as writeFileSync2, mkdirSync as mkdirSync2 } from "node:fs";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { dirname as dirname3, resolve as resolve3, join as join4, isAbsolute as isAbsolute2 } from "node:path";
-import { createHash as createHash9, randomUUID as randomUUID4 } from "node:crypto";
+import { createHash as createHash10, randomUUID as randomUUID4 } from "node:crypto";
 
 // core/errors.mjs
 init_define_BUILDER_VALIDATORS();
@@ -126080,6 +126080,116 @@ function kindCss(node, palette = [], spec = KIND_CSS_SPEC[node?.meta]) {
 }
 var KIND_CSS_KINDS = Object.freeze(Object.keys(KIND_CSS_SPEC));
 var kindCssUnverifiedKinds = () => Object.keys(KIND_CSS_SOURCE.checked ?? {}).filter((k) => KIND_CSS_SOURCE.checked[k]?.verified === false);
+
+// core/compose-keep.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+import { createHash as createHash2 } from "node:crypto";
+var popupTitle = (p2) => p2?.elements?.find((e) => e?.meta === "hl_main_popup")?.title ?? p2?.id ?? "?";
+var unionBy = (stored = [], composed = [], keyOf = (x) => x) => {
+  const have = new Set(stored.map(keyOf));
+  return [...stored, ...composed.filter((c) => !have.has(keyOf(c)))];
+};
+function rootVarsOf(css = "") {
+  const out = {};
+  for (const block of String(css).matchAll(/:root\s*\{([^}]*)\}/g)) {
+    for (const d of block[1].matchAll(/(--[\w-]+)\s*:\s*([^;]+)/g)) out[d[1]] = d[2].trim();
+  }
+  return out;
+}
+function keepStoredPageFields(next, stored, { popupsGiven = false, givenTypography = {} } = {}) {
+  const kept = [];
+  const replaced = [];
+  if (!stored || typeof stored !== "object") return { kept, replaced, refused: null };
+  const storedPopups = stored.popupsList ?? [];
+  const refused = storedPopups.length && !popupsGiven ? [{ field: "popupsList", storedCount: storedPopups.length, names: storedPopups.map(popupTitle) }] : null;
+  if (storedPopups.length && popupsGiven) replaced.push(...storedPopups.map(popupTitle));
+  const t = stored.trackingCode ?? {};
+  next.trackingCode = { headerCode: t.headerCode ?? "", footerCode: t.footerCode ?? "" };
+  if (t.headerCode) kept.push("headerCode");
+  if (t.footerCode) kept.push("footerCode");
+  const sg = stored.general?.general ?? {};
+  const ng = next.general?.general;
+  if (ng) {
+    if (sg.customFonts?.length) {
+      ng.customFonts = unionBy(sg.customFonts, ng.customFonts ?? [], (f) => f?.id);
+      kept.push("customFonts");
+    }
+    const composedColors = ng.colors ?? [];
+    const extraColors = (sg.colors ?? []).filter((c) => !composedColors.some((b) => JSON.stringify(b) === JSON.stringify(c)));
+    if (extraColors.length) {
+      ng.colors = [...composedColors, ...extraColors];
+      kept.push("colors");
+    }
+    const composedFonts = ng.fontsToLoad ?? [];
+    const extraFonts = (sg.fontsToLoad ?? []).filter((f) => !composedFonts.includes(f));
+    if (extraFonts.length) {
+      ng.fontsToLoad = [...composedFonts, ...extraFonts];
+      ng.fontsToLoadForPreview = unionBy(sg.fontsToLoadForPreview ?? extraFonts, ng.fontsToLoadForPreview ?? []);
+      kept.push("fontsToLoad");
+    }
+    if (sg.pageStyles) {
+      ng.pageStyles = sg.pageStyles;
+      kept.push("customCss");
+    }
+  }
+  let served = next.pageStyles ?? "";
+  if (sg.pageStyles && !served.includes(sg.pageStyles)) served += sg.pageStyles;
+  const have = rootVarsOf(served);
+  const missing = Object.entries(rootVarsOf(stored.pageStyles ?? "")).filter(([k]) => !(k in have));
+  if (missing.length) served += `:root{${missing.map(([k, v]) => `${k}:${v};`).join("")}}`;
+  next.pageStyles = served;
+  if (missing.length) kept.push("rootVariables");
+  const ss = stored.settings?.settings ?? {};
+  const ns = next.settings?.settings;
+  const bg = ss.background;
+  if (ns && bg) {
+    ns.background = bg;
+    if ((bg.backgroundColor?.value ?? "var(--white)") !== "var(--white)" || bg.bgImage?.value?.url) kept.push("background");
+  }
+  const st = ss.typography;
+  const nt = ns?.typography;
+  if (nt && st) {
+    const DEFAULT_FONT = "inherit";
+    const DEFAULT_COLOR = { textColor: "#000000", linkColor: "#188bf6" };
+    for (const k of ["headlineFont", "contentFont"]) {
+      if (givenTypography[k] === void 0 && st.fonts?.[k]) {
+        nt.fonts = nt.fonts ?? {};
+        nt.fonts[k] = st.fonts[k];
+        if ((st.fonts[k].value?.value ?? DEFAULT_FONT) !== DEFAULT_FONT) kept.push(k);
+      }
+    }
+    for (const k of ["textColor", "linkColor"]) {
+      if (givenTypography[k] === void 0 && st.colors?.[k]) {
+        nt.colors = nt.colors ?? {};
+        nt.colors[k] = st.colors[k];
+        if ((st.colors[k].value?.value ?? DEFAULT_COLOR[k]) !== DEFAULT_COLOR[k]) kept.push(k);
+      }
+    }
+  }
+  return { kept, replaced, refused };
+}
+function keptNoteOf(kept) {
+  return `Kept from the stored page, which this full build did not send: ${kept.join(", ")}. To change any of them, use edit mode (edits: page, append-popup, remove-popup).`;
+}
+var stable = (v) => JSON.stringify(v, (_k, x) => x && typeof x === "object" && !Array.isArray(x) ? Object.fromEntries(Object.keys(x).sort().map((key) => [key, x[key]])) : x);
+function storedFingerprint(stored) {
+  const s = stored && typeof stored === "object" ? stored : {};
+  const g = s.general?.general ?? {};
+  const ss = s.settings?.settings ?? {};
+  return createHash2("sha256").update(stable({
+    trackingCode: s.trackingCode ?? null,
+    general: { customFonts: g.customFonts ?? null, colors: g.colors ?? null, fontsToLoad: g.fontsToLoad ?? null, pageStyles: g.pageStyles ?? null },
+    pageStyles: s.pageStyles ?? null,
+    background: ss.background ?? null,
+    typography: ss.typography ?? null,
+    popups: (s.popupsList ?? []).map((p2) => [p2?.id ?? null, popupTitle(p2)])
+  })).digest("hex");
+}
 
 // core/funnel-pages.mjs
 init_define_BUILDER_VALIDATORS();
@@ -144606,7 +144716,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash2 } from "node:crypto";
+import { createHash as createHash3 } from "node:crypto";
 
 // core/page-structure.mjs
 init_define_BUILDER_VALIDATORS();
@@ -144974,7 +145084,7 @@ var mergeInto = (node, key, patch) => {
 };
 var inPopup = (pageData, nodeId) => (pageData.popupsList ?? []).some((p2) => (p2.elements ?? []).some((e) => e.id === nodeId));
 var fencedBlock = (kind, text) => {
-  const marker = `uxie:append:${createHash2("sha1").update(text).digest("hex").slice(0, 8)}`;
+  const marker = `uxie:append:${createHash3("sha1").update(text).digest("hex").slice(0, 8)}`;
   const body2 = kind === "css" ? `/* ${marker} */${text}/* /uxie:append */` : `<!-- ${marker} -->${text}<!-- /uxie:append -->`;
   return { marker, text: body2 };
 };
@@ -148038,7 +148148,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash3 } from "node:crypto";
+import { createHash as createHash4 } from "node:crypto";
 var RUNTIME_WINDOW_CONTRACT_VERSION = "2.0.0";
 var RUNTIME_WINDOW_RESULT_KEYS = Object.freeze([
   "contractVersion",
@@ -148208,7 +148318,7 @@ var canonicalize = (value) => {
   }
   return value;
 };
-var sha256Canonical = (value) => createHash3("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+var sha256Canonical = (value) => createHash4("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
 var RUNTIME_WINDOW_CAPABILITY_IDS = Object.freeze([
   "workflow_detail",
   "workflow_triggers",
@@ -216376,9 +216486,9 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash4 } from "node:crypto";
+import { createHash as createHash5 } from "node:crypto";
 var isObj2 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
-var fingerprint = (v) => createHash4("sha1").update(JSON.stringify(v) ?? "undefined").digest("hex").slice(0, 12);
+var fingerprint = (v) => createHash5("sha1").update(JSON.stringify(v) ?? "undefined").digest("hex").slice(0, 12);
 var same2 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function remapIds(value, map2) {
   if (!map2 || map2.size === 0) return value;
@@ -220833,7 +220943,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash6 } from "node:crypto";
+import { createHash as createHash7 } from "node:crypto";
 
 // core/audit-configuration.mjs
 init_define_BUILDER_VALIDATORS();
@@ -220842,7 +220952,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash5 } from "node:crypto";
+import { createHash as createHash6 } from "node:crypto";
 var AUDIT_CONFIGURATION_CONTRACT_VERSION = "1.1.0";
 var ROSTER_MAX_PAGE_SIZE = 100;
 var AI_DISCOVERY_PAGE_SIZE = 100;
@@ -221039,7 +221149,7 @@ var canonicalize2 = (value) => {
   }
   return value;
 };
-var sha256Canonical2 = (value) => createHash5("sha256").update(JSON.stringify(canonicalize2(value))).digest("hex");
+var sha256Canonical2 = (value) => createHash6("sha256").update(JSON.stringify(canonicalize2(value))).digest("hex");
 function resolveConfigurationDescriptors(capabilityIds, descriptors = AUDIT_CAPABILITIES) {
   return capabilityIds.map((capabilityId) => {
     const descriptor2 = descriptors.find((candidate) => candidate.capabilityId === capabilityId);
@@ -222259,7 +222369,7 @@ var time3 = (v, name) => {
   if (!Number.isFinite(t)) throw new Error(`${name} must be an ISO date-time (e.g. 2026-10-01T00:00:00Z)`);
   return t;
 };
-var filterKey = (o) => createHash6("sha256").update(JSON.stringify([
+var filterKey = (o) => createHash7("sha256").update(JSON.stringify([
   o.folderId ?? null,
   o.statuses ?? null,
   o.updatedAfter ?? null,
@@ -222673,7 +222783,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash7, randomUUID as randomUUID3 } from "node:crypto";
+import { createHash as createHash8, randomUUID as randomUUID3 } from "node:crypto";
 function makeUuidV4() {
   return randomUUID3();
 }
@@ -222681,7 +222791,7 @@ function makeDeterministicIdGen(seed) {
   let n = 0;
   return () => {
     n += 1;
-    const bytes = createHash7("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
+    const bytes = createHash8("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
     bytes[6] = bytes[6] & 15 | 64;
     bytes[8] = bytes[8] & 63 | 128;
     const hex3 = bytes.toString("hex");
@@ -228710,7 +228820,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash8 } from "node:crypto";
+import { createHash as createHash9 } from "node:crypto";
 var MERGE_TAG = /\{\{\s*[A-Za-z_][\w.-]*\s*\}\}/g;
 function mergeTagsOf(attrs) {
   const found = /* @__PURE__ */ new Set();
@@ -228751,11 +228861,11 @@ function fingerprintWorkflow(templates, triggers) {
     type: t.type,
     conditions: (t.conditions ?? []).map((c) => [c.field, c.operator, c.value])
   })).sort((a, b) => String(a.id).localeCompare(String(b.id)));
-  return createHash8("sha256").update(JSON.stringify({ steps, trg })).digest("hex").slice(0, 16);
+  return createHash9("sha256").update(JSON.stringify({ steps, trg })).digest("hex").slice(0, 16);
 }
 var stableJson = (v) => Array.isArray(v) ? `[${v.map(stableJson).join(",")}]` : v && typeof v === "object" ? `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${stableJson(v[k])}`).join(",")}}` : JSON.stringify(v) ?? "null";
 function fingerprintDocument(templates) {
-  return createHash8("sha256").update(stableJson(stripNullNext(templates ?? []))).digest("hex").slice(0, 16);
+  return createHash9("sha256").update(stableJson(stripNullNext(templates ?? []))).digest("hex").slice(0, 16);
 }
 function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [], now = Date.now() } = {}) {
   const templates = (doc?.workflowData?.templates ?? doc?.templates ?? []).filter(Boolean);
@@ -236306,7 +236416,7 @@ function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) 
   const sample = rows.slice(0, 10);
   const statusIds = rows.map((row) => row._id);
   const canonicalRows = rows.map((row) => ({ statusId: row._id, contactId: row.contactId ?? null })).sort((left, right) => String(left.statusId).localeCompare(String(right.statusId)) || String(left.contactId).localeCompare(String(right.contactId)));
-  const previewToken = createHash9("sha256").update(JSON.stringify(canonicalize3({
+  const previewToken = createHash10("sha256").update(JSON.stringify(canonicalize3({
     locationId,
     workflowId,
     stepId,
@@ -246478,7 +246588,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, popups?, typography?): writes the nodes AND the compiled stylesheet. Sizes, margins, tablet/mobile styles and defaults sit on the nodes and compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, insert, move, clone, remove-node, page (trackingCode, customCss, background, typography), append-popup, set-popup, remove-popup, order-popups; seo writes the page record AND the version. Target checked first (pageId on stepId, stepName exact); every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages \u2192 references/build-funnel-page.md. Siblings: edit_funnel, get_funnel, create_funnel.`,
+    description: `${describe3("build_funnel_page", "Compose, validate and write a funnel page from native elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them")}. Preview by default; confirm:true autosaves the DRAFT; publish:true publishes. COMPOSE (sections, popups?, typography?): writes nodes AND the compiled stylesheet. Node styles compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, insert, move, clone, remove-node, page (trackingCode, customCss, background, typography), append-popup, set-popup, remove-popup, order-popups; seo writes the page record AND the version. Target checked first; every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages \u2192 references/build-funnel-page.md.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -246546,6 +246656,7 @@ var TOOLS2 = [
       colors: external_exports.array(external_exports.record(external_exports.any())).optional(),
       pageVersion: external_exports.number().int().positive().default(1),
       verifyUrl: external_exports.string().optional(),
+      previewToken: external_exports.string().optional().describe("confirm: the previewToken the preview returned; a stored page that changed since is refused with PREVIEW_STALE"),
       publish: external_exports.boolean().default(false),
       confirm: external_exports.boolean().default(false)
     }),
@@ -246824,6 +246935,20 @@ var TOOLS2 = [
         willPublish: args.publish === true
       };
       if (args.confirm !== true) {
+        try {
+          const pr = await deps.makeGw({ loc: args.locationId, state: deps.state }).call("GET", `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`);
+          if (pr.ok || pr.status === 404) {
+            const stored = pr.ok ? pr.json : null;
+            const k = keepStoredPageFields(structuredClone(pageData), stored, { popupsGiven: args.popups !== void 0, givenTypography: args.typography ?? {} });
+            Object.assign(preview, {
+              kept: k.kept,
+              ...k.kept.length ? { keptNote: keptNoteOf(k.kept) } : {},
+              ...k.refused ? { wouldRefuse: k.refused } : {},
+              previewToken: storedFingerprint(stored)
+            });
+          }
+        } catch {
+        }
         return withFailureData(
           fail(
             CODES.CONFIRM_REQUIRED,
@@ -246846,6 +246971,38 @@ var TOOLS2 = [
           CODES.ENGINE_ABORT,
           "the page record (its SEO meta) could not be read, so nothing was written: publishing a version without meta strips the page's <title> and description",
           "Retry; or write without publish:true and publish from the builder, which sends its own meta."
+        );
+      }
+      let storedRes;
+      try {
+        storedRes = await gw.call("GET", `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`);
+      } catch {
+        storedRes = { ok: false, status: 0 };
+      }
+      if (!storedRes.ok && storedRes.status !== 404) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          "the stored page could not be read, so nothing was written: a full build would reset its header and footer code, custom CSS and fonts",
+          "Retry. Nothing was written."
+        );
+      }
+      const freshToken = storedFingerprint(storedRes.ok ? storedRes.json : null);
+      if (args.previewToken !== void 0 && args.previewToken !== freshToken) {
+        return withFailureData(fail(
+          CODES.PREVIEW_STALE,
+          "the stored page changed after this preview (its header or footer code, custom CSS, fonts, background, typography, palette or popups); nothing was written",
+          "Preview again on the current page, then confirm with the new previewToken."
+        ), { previewToken: freshToken });
+      }
+      const keep = keepStoredPageFields(pageData, storedRes.ok ? storedRes.json : null, { popupsGiven: args.popups !== void 0, givenTypography: args.typography ?? {} });
+      if (keep.refused) {
+        return withFailureData(
+          fail(
+            CODES.VALIDATION_FAILED,
+            `this full build would remove ${keep.refused[0].storedCount} popup(s) stored on the page (${keep.refused[0].names.join(", ")}) and no popups were sent; nothing was written`,
+            "Send `popups` with every popup the page should keep (the new set replaces the stored one), or change the page in edit mode (append-popup / remove-popup). Nothing was written."
+          ),
+          { droppedContent: keep.refused }
         );
       }
       const saved = await gw.call(
@@ -246963,6 +247120,10 @@ var TOOLS2 = [
         ...preview,
         readBack: { sections: storedIds.length, missingSections: missing, attempts: settledRead.attempts },
         stored: missing.length === 0,
+        // fn-7: what this full build kept from the stored page (only fields with content), and the popups it replaced.
+        kept: keep.kept,
+        ...keep.kept.length ? { keptNote: keptNoteOf(keep.kept) } : {},
+        ...keep.replaced.length ? { replacedPopups: keep.replaced } : {},
         publishState,
         ...published ? { published } : {},
         ...render ? { render } : {},

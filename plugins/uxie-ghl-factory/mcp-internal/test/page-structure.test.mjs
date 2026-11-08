@@ -154,7 +154,8 @@ test('compose preview: popups + a button that opens one; an unknown popup name i
       { meta: 'heading', html: '<h1>Hi</h1>', entranceAnimation: { name: 'fadeIn', duration: 1 } },
       { meta: 'button', extra: { text: { value: 'Open' } }, openPopup: 'Offer', hoverAnimation: { name: 'hvr-grow', scale: 1.1 } }] }] }] }, deps);
   assert.equal(good.code, 'CONFIRM_REQUIRED');
-  assert.equal(calls.length, 0);
+  // fn-7b: the preview reads the stored page (one GET) so it can show what the write keeps; it still writes nothing.
+  assert.equal(calls.filter(([method]) => method !== 'GET').length, 0, 'the preview writes nothing');
   const bad = await tool.handler({ ...base, sections: [{ columns: [{ elements: [{ meta: 'button', openPopup: 'Nope' }] }] }] }, deps);
   assert.equal(bad.code, 'VALIDATION_FAILED');
   assert.match(bad.detail ?? bad.message ?? JSON.stringify(bad), /names no popup/);

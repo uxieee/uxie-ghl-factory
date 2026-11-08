@@ -16,6 +16,7 @@ import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-ga
 import { makeGateway } from './gateway.mjs';
 import { nodeLayerCss } from './style-layer.mjs';
 import { KIND_CSS_KINDS } from './kind-css.mjs';
+import { keepStoredPageFields, keptNoteOf, storedFingerprint } from './compose-keep.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn, COLUMN_SPEC_KEYS, MAX_COLUMNS_PER_ROW,
   makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, nodeExtraFromCss, elementSizeCss, buttonColourCss, applyPalette, resetIds, val,
@@ -12924,15 +12925,15 @@ export const TOOLS = [
   },
   {
     name: 'build_funnel_page',
-    description: `${describe('build_funnel_page', 'Compose a funnel page from native elements and write it')}. `
-      + 'Preview by default; confirm:true autosaves the DRAFT; publish:true also publishes. COMPOSE (sections, '
-      + 'popups?, typography?): writes the nodes AND the compiled stylesheet. '
-      + 'Sizes, margins, tablet/mobile styles and defaults sit on the nodes and compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a '
+    description: `${describe('build_funnel_page', 'Compose, validate and write a funnel page from native elements; optionally publish it. A full build keeps the page\'s existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them')}. `
+      + 'Preview by default; confirm:true autosaves the DRAFT; publish:true publishes. COMPOSE (sections, '
+      + 'popups?, typography?): writes nodes AND the compiled stylesheet. '
+      + 'Node styles compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a '
       + 'meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does '
       + 'not take (text → html), an empty popup, an openPopup naming no popup, a video with no '
       + 'source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, insert, move, clone, '
       + 'remove-node, page (trackingCode, customCss, background, typography), append-popup, set-popup, remove-popup, order-popups; seo writes the page '
-      + 'record AND the version. Target checked first (pageId on stepId, stepName exact); every op verified '
+      + 'record AND the version. Target checked first; every op verified '
       + 'by value on a separate read. 🔴 Visitors see only the PUBLISHED version: pass publish:true for content and '
       + 'SEO. 🔴 After someone edits the page in the builder, re-read its buttons: the first builder save adds an '
       + 'empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is '
@@ -12940,7 +12941,7 @@ export const TOOLS = [
       + 'element\'s font \'headline\'|\'content\'; families are written as var(--name) so a builder save keeps loading '
       + 'them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column '
       + 'layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: '
-      + 'ghl-funnels-pages → references/build-funnel-page.md. Siblings: edit_funnel, get_funnel, create_funnel.',
+      + 'ghl-funnels-pages → references/build-funnel-page.md.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
@@ -13003,6 +13004,7 @@ export const TOOLS = [
       colors: z.array(z.record(z.any())).optional(),
       pageVersion: z.number().int().positive().default(1),
       verifyUrl: z.string().optional(),
+      previewToken: z.string().optional().describe('confirm: the previewToken the preview returned; a stored page that changed since is refused with PREVIEW_STALE'),
       publish: z.boolean().default(false),
       confirm: z.boolean().default(false),
     }),
@@ -13272,6 +13274,21 @@ export const TOOLS = [
         willPublish: args.publish === true,
       };
       if (args.confirm !== true) {
+        // fn-7b: the preview reads the stored page (a GET, nothing written) and shows what the write would keep, the popup
+        // refusal it would hit, and a token the confirm must send back. An unreadable page leaves those out.
+        try {
+          const pr = await deps.makeGw({ loc: args.locationId, state: deps.state }).call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`);
+          if (pr.ok || pr.status === 404) {
+            const stored = pr.ok ? pr.json : null;
+            const k = keepStoredPageFields(structuredClone(pageData), stored, { popupsGiven: args.popups !== undefined, givenTypography: args.typography ?? {} });
+            Object.assign(preview, {
+              kept: k.kept,
+              ...(k.kept.length ? { keptNote: keptNoteOf(k.kept) } : {}),
+              ...(k.refused ? { wouldRefuse: k.refused } : {}),
+              previewToken: storedFingerprint(stored),
+            });
+          }
+        } catch { /* the preview still shows the composed page; the write reads the stored page itself */ }
         return withFailureData(
           fail(CODES.CONFIRM_REQUIRED, 'Funnel page compose preview is ready; no write was sent.',
             'Repeat with confirm:true to autosave the draft.'),
@@ -13289,6 +13306,30 @@ export const TOOLS = [
       if (!recMeta?.ok && args.publish === true) {
         return fail(CODES.ENGINE_ABORT, 'the page record (its SEO meta) could not be read, so nothing was written: publishing a version without meta strips the page\'s <title> and description',
           'Retry; or write without publish:true and publish from the builder, which sends its own meta.');
+      }
+      // fn-7 (2026-11-08): a full build composes the page from scratch, so it keeps what it cannot send: header and
+      // footer code, custom CSS and fonts, background, typography, palette (core/compose-keep.mjs). Read the stored
+      // page before the write; a page with no data yet (404) has nothing to keep. A failed read writes nothing.
+      let storedRes;
+      try { storedRes = await gw.call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`); } catch { storedRes = { ok: false, status: 0 }; }
+      if (!storedRes.ok && storedRes.status !== 404) {
+        return fail(CODES.ENGINE_ABORT, 'the stored page could not be read, so nothing was written: a full build would reset its header and footer code, custom CSS and fonts',
+          'Retry. Nothing was written.');
+      }
+      // fn-7b: a confirm that sends back the preview's previewToken is refused when the stored fields it depends on changed.
+      const freshToken = storedFingerprint(storedRes.ok ? storedRes.json : null);
+      if (args.previewToken !== undefined && args.previewToken !== freshToken) {
+        return withFailureData(fail(CODES.PREVIEW_STALE,
+          'the stored page changed after this preview (its header or footer code, custom CSS, fonts, background, typography, palette or popups); nothing was written',
+          'Preview again on the current page, then confirm with the new previewToken.'), { previewToken: freshToken });
+      }
+      const keep = keepStoredPageFields(pageData, storedRes.ok ? storedRes.json : null, { popupsGiven: args.popups !== undefined, givenTypography: args.typography ?? {} });
+      if (keep.refused) {
+        return withFailureData(
+          fail(CODES.VALIDATION_FAILED, `this full build would remove ${keep.refused[0].storedCount} popup(s) stored on the page (${keep.refused[0].names.join(', ')}) and no popups were sent; nothing was written`,
+            'Send `popups` with every popup the page should keep (the new set replaces the stored one), or change the page in edit mode (append-popup / remove-popup). Nothing was written.'),
+          { droppedContent: keep.refused },
+        );
       }
       const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
         { ...withPopupFlag(autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion })), ...(recMeta?.ok ? { meta: seoMeta(recMeta.json?.meta ?? {}, {}) } : {}) });
@@ -13428,6 +13469,10 @@ export const TOOLS = [
         ...preview,
         readBack: { sections: storedIds.length, missingSections: missing, attempts: settledRead.attempts },
         stored: missing.length === 0,
+        // fn-7: what this full build kept from the stored page (only fields with content), and the popups it replaced.
+        kept: keep.kept,
+        ...(keep.kept.length ? { keptNote: keptNoteOf(keep.kept) } : {}),
+        ...(keep.replaced.length ? { replacedPopups: keep.replaced } : {}),
         publishState,
         ...(published ? { published } : {}),
         ...(render ? { render } : {}),

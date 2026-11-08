@@ -232,8 +232,10 @@ test('build_funnel_page: a page-data read that lags is re-read, not reported as 
     if (path.startsWith('/funnels/builder/autosave/')) return { ok: true, status: 201, json: {} };
     if (path.startsWith('/funnels/builder/page/data')) {
       reads += 1;
-      const sent = calls.find((c) => c.path.startsWith('/funnels/builder/autosave/')).body.pageData.sections;
-      return { ok: true, status: 200, json: { sections: reads === 1 ? [] : sent.map((s) => ({ id: s.id })) } };
+      // read 1 is the compose's pre-save read of the stored page (fn-7); read 2 is the first read after the write, and it lags.
+      const save = calls.find((c) => c.path.startsWith('/funnels/builder/autosave/'));
+      const sent = save ? save.body.pageData.sections : [];
+      return { ok: true, status: 200, json: { sections: reads === 2 ? [] : sent.map((s) => ({ id: s.id })) } };
     }
     if (path.startsWith('/funnels/builder/get-versions')) return { ok: true, status: 200, json: [] };
     if (path.startsWith('/funnels/page/')) return { ok: true, status: 200, json: { meta: { title: 'T' } } };

@@ -150,7 +150,7 @@
     ]
   },
   "build_funnel_page": {
-    "description": "Compose, validate and write a funnel page from native elements; optionally publish it — proof: failing (2026-10-29); risk: write",
+    "description": "Compose, validate and write a funnel page from native elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them — proof: failing (2026-10-29); risk: write",
     "risk": "write",
     "proof": "failing (2026-10-29)",
     "proofFloor": "live-runtime (2026-09-09)",

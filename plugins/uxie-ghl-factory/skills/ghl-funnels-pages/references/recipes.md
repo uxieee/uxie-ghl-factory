@@ -792,6 +792,37 @@ Schema markup is its own object, not a field of the page. The page record only c
 `GET /funnels/page/{pageId}?locationId=…` → `versionHistory[].schemaMarkupId` (the live version's id).
 Measured on a TEST-CONF-W7 Landing page, 2026-11-07 (knowledge `corpus/funnels/20-api/schema-markup.md`).
 
+**THE way to keep a custom schema live (fn-6, measured 2026-11-08; knowledge `sniffs/funnels-fn-6-2026-11-08/fn6-RESULT.md`).**
+Do not use the schema store for this. Write the JSON-LD into the page's header code, with AI generation OFF:
+1. Set `autoGenerateSchema` OFF on the funnel (`edit_funnel op:settings`), and read it back on a separate request.
+2. Write the block through the EDIT path of `build_funnel_page`, not the full build:
+   `edits: [{op:"page", appendHeaderCode:'<script type="application/ld+json">{…}</script>'}]`, with `stepName`, `publish: true`
+   and `confirm: true`. The write is fenced (`<!-- uxie:append:<hash> -->`), is idempotent (a second apply is skipped), and publishes.
+3. Read the public page twice, check `x-ghl-cache` on each read, and count the `<script type="application/ld+json">` blocks. Our block
+   must be served and no AI block present.
+4. A full publish (a `build_funnel_page` write without `edits`) KEEPS the header and footer code, and the custom CSS, custom fonts,
+   page background, typography, palette and fonts to load (fn-7, plugin commit 55459cf7; live check 2026-11-08 ran on cd9229a8, the same keep logic before the `kept` result and the description were added: the header block was
+   kept by a full publish, and the public page served one JSON-LD block, ours). Step 2 is therefore written once, not re-applied after
+   every full publish. A build from BEFORE fn-7 blanked header AND footer code on every full publish, silently (no droppedContent,
+   audit "clean"; observed M1b): if the page was last written by such a build, apply step 2 again.
+
+Caveats:
+- With AI ON the custom block is still served, but GHL adds its AI `WebPage` block next to it: two JSON-LD blocks on the page. Keep AI
+  OFF when the page should carry one schema.
+- This route writes only the page's header code. It writes no schema-store document and sets no pointer.
+- A full build cannot carry header code: a top-level `trackingCode` is refused ("tool arguments contain unsupported fields"), so header
+  code is written only through the edit path.
+- A full build keeps the page's stored fields (fn-7) and names them in its result: `kept` lists only the fields the composed page would
+  otherwise lose (for example `headerCode`, `footerCode`, `customCss`; a default page keeps nothing), `keptNote` says how to change them,
+  and `replacedPopups` names any popups it replaced. The preview (no `confirm`) reads the stored page and shows the same `kept`, the popup
+  refusal (`wouldRefuse`) and a `previewToken`. Send that token with `confirm:true`: a stored page that changed since the preview is refused
+  with `PREVIEW_STALE`, and nothing is written. When a block matters, still read the page data on a separate request
+  (`GET /funnels/builder/page/data?pageId=`) and then the public page. Live (fn-7b, plugin `fcc769bd`, 2026-11-08): a footer comment was
+  kept by a full publish, the header and footer read back identical, a stale token was refused, and a fresh token confirmed.
+- A full build on a page that has popups is refused, with `droppedContent` naming them, unless `popups` is sent with the popups to keep.
+- Not measured: whether the builder UI's own Publish keeps header code, and whether the block is read by search engines as intended
+  (only that it is served in the public HTML).
+
 **Read (GET, safe):**
 - `GET /schema-markup/schemas/{schemaMarkupId}?locationId=<loc>` — the `locationId` query is required (422 without
   it). The `/funnels/schema-markup` prefix is a 403 wrong-prefix trap, not a permission problem.
@@ -806,17 +837,33 @@ Measured on a TEST-CONF-W7 Landing page, 2026-11-07 (knowledge `corpus/funnels/2
   plus one), `previousVersion` and `previousDocId`. It does NOT re-point the page record (its `schemaMarkupId` still names
   the old document) and it does NOT change the public page.
 - 🔴 **A publish regenerates the schema on its own.** With `autoGenerateSchema` on (the settings default), a republish
-  generates an AI-generated schema for the new version and does NOT serve a manual save made before it (measured 2026-11-07:
-  the saved document was not served; the public page showed the AI WebPage). So a manual schema saved on a page with the
-  default settings does not survive a publish. Whether `autoGenerateSchema: false` keeps it is UNPROVEN: set it and check the
-  public JSON-LD after a publish before you rely on it.
-- **No measured way makes a SAVED schema document the one the public page serves.** Measured 2026-11-07: a republish
-  (48f718df, the orchestrator's G5 publish) served a NEW AI-generated schema and not the saved document, with
-  `autoGenerateSchema` on (the default). Whether `autoGenerateSchema: false` keeps a manual schema through a publish is
-  unproven. Do not promise a saved schema goes live with a publish. Verify after any publish: read the public page (fresh
-  query string) and count its `<script type="application/ld+json">` blocks, then compare the shape with the saved document.
-  Open: bl-622.
+  regenerates the schema of the document the page points at, and the public page shows the AI WebPage. Measured 2026-11-07 and
+  2026-11-08 (knowledge sniffs/funnels-fn-5-2026-11-08, fn5-RESULT.md): the ON publish attached the page's saved document and
+  REPLACED its content in place (same document id, same version, `isAIGenerated: true`). So a manual schema saved on a page with the
+  default settings does not survive a publish.
+- 🔴 **Switching `autoGenerateSchema` OFF does not keep a saved schema either (measured 2026-11-08).** With it OFF, every publish
+  served NO JSON-LD at all, the saved document was never attached, and a publish with OFF dropped the pointer an earlier ON publish
+  had set. OFF alone does not keep a schema-store document: it removes the schema from the page. (The header-code route above
+  keeps a custom block with OFF, because that block is not in the schema store.)
+- **The builder's own Schema markup path does not keep a saved schema either (measured 2026-11-08, fn-5b;
+  `knowledge sniffs/funnels-fn-5-2026-11-08/fn5b-RESULT.md`).** On the page: SEO & AI search optimization -> Schema markup -> Add schema
+  (JSON view) -> Validate. Validate sends `POST /schema-markup/schemas/save` with `ownerType` `funnel_page` and `ownerId` the page, and
+  no pointer. It returns 201 "draft updated": the same document id, version unchanged, `isDraft` true. It does NOT re-point the page.
+  Do not use "Create with AI" (it generates the schema).
+- **Funnel-level panel.** The funnel's SEO & AEO tab lists each published page's schema, with a "Generate schema" button. Its Settings
+  say "Auto-generate schema: Automatically add schema markup to pages that don't have it when published." Measured: with it ON, a publish
+  REGENERATED a saved schema on a page that had one, so the text does not match the behaviour.
+- **Re-pointing is not a separate step in either path.** The publish attaches the page's saved document as the live pointer, and, with
+  `autoGenerateSchema` on, regenerates that document in place. A tool that tried to keep a custom schema would need a pointer write on the
+  live version (no such write has been observed) and a way to stop the publish from regenerating the document it names. That is a research
+  item, not a small change; do not build it on a guess.
+- **Live result, both states (builder path, TEST page):** setting OFF: the public page serves no JSON-LD. Setting ON: the public page serves
+  the generated `WebPage` in place of the saved document. Read the public page twice per state (fresh query string), check the
+  `x-ghl-cache` header on each read (a HIT can be stale for about a minute; a fresh query string did not bypass it), and count the
+  `<script type="application/ld+json">` blocks.
+- **Still open:** the site-level schema panel (not checked), a page-record write that sets a schema pointer (not tried), and what the
+  builder's own Publish sends (not captured). bl-622; bl-869 (corpus correction is in the knowledge corpus).
 
 **Gate:** the save is a write on the page's schema, not on its content; the republish is a write on the live page. Do both
-only on the account and page the operator approved, and read the draft first. Site-level and funnel-level schema (the
-builder's own Schema markup panel) are NOT captured by this recipe: they are open on bl-622.
+only on the account and page the operator approved, and read the draft first. The Schema markup panel's "Create with AI" and
+"Generate schema" buttons are generation writes: do not click them to keep a manual schema.
