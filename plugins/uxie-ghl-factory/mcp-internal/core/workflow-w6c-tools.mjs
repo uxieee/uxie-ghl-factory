@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES } from './errors.mjs';
 import { pathIdsQuery, rollupAbStats, declareWinnerRequest, DECLARE_PREVIEW } from './ab-test.mjs';
 import { checkHeatMapWindow, rollupEnrollmentCounts, windowGuard } from './workflow-heat-map.mjs';
+import { makeLinkedAssetsTools } from './workflow-linked-assets.mjs';   // wf-5 (bl-839): spread here so the seam wiring of tools.mjs is unchanged
 
 // The pathIds serialisation is proven live (G1, 2026-11-07): GHL reads the repeated form (200); the csv form returns 500. The bracket form
 // also returns 200 with the same numbers; ab-test.mjs pins all three in tests.
@@ -227,5 +228,6 @@ export function makeW6cTools(deps) {
         return ok({ notifications: rows, totalCount: total, complete: total !== null && rows.length >= total });
       }),
     },
+    ...makeLinkedAssetsTools(deps),
   ];
 }

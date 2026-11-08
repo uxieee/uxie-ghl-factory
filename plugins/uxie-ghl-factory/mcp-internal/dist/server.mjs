@@ -43625,7 +43625,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_workflow_linked_assets"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -146330,6 +146332,128 @@ function windowGuard(fromDate, toDate) {
   return true;
 }
 
+// core/workflow-linked-assets.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var ROUTE = "/workflows/es/linked-assets";
+var DEFAULT_PAGE = 100;
+var MAX_PAGE = 500;
+var MAX_PAGES = 100;
+var LINKED_ASSET_TYPES = [
+  "tags",
+  "forms",
+  "calendars",
+  "surveys",
+  "facebookForms",
+  "tikTokForms",
+  "triggerLinks",
+  "users",
+  "pipelines",
+  "pipelineStages",
+  "funnels",
+  "funnelPages",
+  "funnelProducts",
+  "globalProducts",
+  "globalProductPrices",
+  "membershipOffers",
+  "membershipProducts",
+  "membershipCategories",
+  "videos",
+  "templates",
+  "quizzes",
+  "certificateTemplates",
+  "customValues",
+  "contactCustomFields",
+  "opportunityCustomFields",
+  "invoiceTemplates",
+  "customObjects",
+  "adAccounts",
+  "membershipLessons",
+  "workflowLinks",
+  "estimateTemplates",
+  "aiStudioProjects",
+  "services",
+  "listings",
+  "listingCategories",
+  "chatWidgets",
+  "facebookPages"
+];
+var DESCRIPTION = 'Which workflows use which assets (tags, forms, calendars, pipelines, custom values and so on), by step: POST /workflows/es/linked-assets, the route behind the Workflow Maps page. Pages by searchAfter until the rows reach count; complete:false when the walk stopped short. workflowIds narrows the read (a named workflow comes back even when it uses no asset); forAsset {type, value} keeps only the workflows that use that asset (value matches an id or a name, case-insensitive). includeWorkflowsWithoutAssets (default false, sent explicitly): with false, an unnarrowed read lists only workflows that use at least one asset (measured 2026-11-08: count 998, no asset-less row in the first 200); with true, the route also lists asset-less workflows (count 1774, 63 asset-less rows in the same first 200). So the default answers "what uses what", not "how many workflows": count workflows with list_workflows. Reads only (risk: read). (proof: live 2026-11-08 on GROM Sandbox, 201 for pageLimit 500 and 100; the flag measured both ways, knowledge sniffs/workflows-wf5-2026-11-08/live-wf5-flag-2026-11-08.json; corpus workflow-maps.md, proven-live 2026-09-29.)';
+function usesOf(wf) {
+  const out = [];
+  for (const list2 of Object.values(wf?.linkedAssets ?? {})) {
+    if (!Array.isArray(list2)) continue;
+    for (const row of list2) {
+      out.push({ stepId: row.stepId ?? null, stepName: row.name ?? null, docKey: row.docKey ?? null, type: row.type ?? null, values: row.values ?? [] });
+    }
+  }
+  return out;
+}
+var matchesAsset = (use, asset) => use.type === asset.type && use.values.some((v) => String(v?.id) === asset.value || String(v?.name ?? "").toLowerCase() === asset.value.toLowerCase());
+function makeLinkedAssetsTools(deps) {
+  const { describe: describe4, schema: schema2, guard: guard2 } = deps;
+  return [
+    {
+      name: "get_workflow_linked_assets",
+      description: describe4("get_workflow_linked_assets", DESCRIPTION),
+      inputSchema: schema2({
+        locationId: external_exports.string(),
+        workflowIds: external_exports.array(external_exports.string()).optional(),
+        forAsset: external_exports.object({ type: external_exports.string(), value: external_exports.string() }).optional(),
+        pageLimit: external_exports.number().int().positive().optional(),
+        includeWorkflowsWithoutAssets: external_exports.boolean().optional()
+      }),
+      capabilities: [{ method: "POST", path: ROUTE }],
+      // Verified read: the one POST is a search (the page's linked-assets read), cleared one tool at a time like find_workflows_using.
+      readOnly: true,
+      handler: async (args, handlerDeps) => guard2(async () => {
+        const gw = handlerDeps.makeGw({ loc: args.locationId, state: handlerDeps.state });
+        const pageLimit = Number.isInteger(args.pageLimit) && args.pageLimit > 0 ? Math.min(args.pageLimit, MAX_PAGE) : DEFAULT_PAGE;
+        const base = {
+          locationId: args.locationId,
+          assetTypes: LINKED_ASSET_TYPES,
+          pageLimit,
+          includeWorkflowsWithoutAssets: args.includeWorkflowsWithoutAssets === true
+        };
+        if (Array.isArray(args.workflowIds)) base.workflowIds = args.workflowIds;
+        const rows = [];
+        const seen = /* @__PURE__ */ new Set();
+        let count2 = null;
+        let searchAfter = void 0;
+        for (let page = 0; page < MAX_PAGES; page += 1) {
+          const body2 = searchAfter === void 0 ? base : { ...base, searchAfter };
+          const r = await gw.call("POST", ROUTE, body2);
+          if (!r.ok) return fromHttp(r.status, r.json);
+          const list2 = Array.isArray(r.json?.workflows) ? r.json.workflows : [];
+          if (typeof r.json?.count === "number") count2 = r.json.count;
+          let added = 0;
+          for (const wf of list2) {
+            const k = wf?.id ?? JSON.stringify(wf);
+            if (!seen.has(k)) {
+              seen.add(k);
+              rows.push(wf);
+              added += 1;
+            }
+          }
+          if (count2 !== null && rows.length >= count2) break;
+          const next = r.json?.searchAfter;
+          if (!Array.isArray(next) || next.length === 0) break;
+          if (list2.length === 0 || added === 0) break;
+          searchAfter = next;
+        }
+        let workflows = rows.map((wf) => ({ id: wf.id, name: wf.name ?? null, status: wf.status ?? null, parentId: wf.parentId ?? null, uses: usesOf(wf) }));
+        if (args.forAsset) workflows = workflows.filter((w) => w.uses.some((u) => matchesAsset(u, args.forAsset)));
+        const complete = count2 !== null && rows.length >= count2;
+        return ok({ count: count2, complete, workflows, ...args.forAsset ? { forAsset: args.forAsset } : {} });
+      })
+    }
+  ];
+}
+
 // core/workflow-w6c-tools.mjs
 var AB_PATHIDS_FORM = "repeated";
 var STATS_DESCRIPTION = "Read an A/B Test step: contacts entered, converted and rate for each path (an unknown count stays unknown, not zero), the path names, the paths the stats did not report (absent), the winning path if one stands, and the step status. Reads only; it changes nothing. (proof: capture-only until gate G1 reads a published A/B workflow with contacts in it.) A draft has no stats.";
@@ -146548,7 +146672,8 @@ function makeW6cTools(deps) {
         }
         return ok({ notifications: rows, totalCount: total, complete: total !== null && rows.length >= total });
       })
-    }
+    },
+    ...makeLinkedAssetsTools(deps)
   ];
 }
 
@@ -226669,14 +226794,14 @@ async function fetchEntities(gw) {
     }
     return null;
   };
-  const MAX_PAGES = 60;
+  const MAX_PAGES2 = 60;
   const readRow = async (e) => {
     if (!e.page) {
       const json2 = await read(e.key, e.path(loc));
       return json2 ? e.pick(json2).map(e.project) : [];
     }
     const rows = [], seen = /* @__PURE__ */ new Set();
-    for (let i = 0; i < MAX_PAGES; i++) {
+    for (let i = 0; i < MAX_PAGES2; i++) {
       const json2 = await read(e.key, e.path(loc, { offset: i * e.page.limit, limit: e.page.limit }));
       if (!json2) break;
       const got = e.pick(json2).map(e.project);

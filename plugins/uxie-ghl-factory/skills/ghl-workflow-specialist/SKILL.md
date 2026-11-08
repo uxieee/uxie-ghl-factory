@@ -42,7 +42,7 @@ ID, NOT a name. The engine resolves a workflow NAME to its id for add_to_workflo
 directly is checked by the asset pre-flight (`ASSET_WORKFLOW_NOT_FOUND`). Never skip that pre-flight: a wrong id that gets past it publishes clean and silently no-ops.
 
 ## Diagnostics, review and the overlap check
-- **Before a new trigger:** run the trigger-overlap check (`references/diagnostics.md`, "Trigger overlap"). A published workflow on the same trigger type "may also fire": its filters are not evaluated, so it is a candidate to inspect.
+- **Before a new trigger:** run the trigger-overlap check (`references/diagnostics.md`, "Trigger overlap"). Each published workflow on the same trigger is one of three: **will also fire** (same trigger, same filters), **might also fire** (the filters cannot be decided statically, so it is a candidate to inspect), or **cannot fire on the same event** (a single-valued field, such as the form id, with disjoint values; a tag is multi-valued, so tag = VIP vs tag = Lead is only a might).
 - **Before publishing or after an edit:** `check_workflow`, then the client's lint pack (`.ghl/<locationId>/lint-pack.json`) if there is one. Lint-pack findings are advisory.
 - **Reading a live workflow or its failures:** the read tools in `references/diagnostics.md` (heat map, journeys, history, step counts, A/B stats, test results, error notifications), with their gates and their "absent is not zero" caveats.
 - **Review mode** (the user asks why a workflow is not getting through, is failing, or whether an A/B test is done): `references/review-mode.md`. It reads and proposes; it never edits, publishes, restores, or declares an A/B winner.

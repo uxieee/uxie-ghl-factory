@@ -43438,7 +43438,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_workflow_linked_assets"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

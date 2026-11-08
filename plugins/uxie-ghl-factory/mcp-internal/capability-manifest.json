@@ -2745,6 +2745,11 @@
     "path": "/workflow/{loc}/error-notification/list"
   },
   {
+    "tool": "get_workflow_linked_assets",
+    "method": "POST",
+    "path": "/workflows/es/linked-assets"
+  },
+  {
     "tool": "get_course_progress",
     "method": "GET",
     "path": "/membership/locations/{loc}/products/user-progress/{productId}?pageLimit={pageLimit}&pageNumber={pageNumber}&email={email}"

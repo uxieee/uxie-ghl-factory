@@ -10,7 +10,7 @@ Use this when the user asks to review a workflow that is running (or was): "why 
   `get_workflow_heat_map` at most 60 days, and so on).
 - **Absent is not zero.** A workflow the heat map does not name, a path the A/B stats do not report, a step with no test result, a refused
   count: say that, and do not turn it into a zero.
-- **Incomplete reads say so.** `list_workflow_error_notifications` is partial by design (paging unknown). Say the error list may be incomplete.
+- **Incomplete reads say so.** `list_workflow_error_notifications` says `complete:false` when its walk stopped short. Say the error list may be incomplete then.
 - **Never declare an A/B winner from a review.** `declare_ab_test_winner` routes every new contact live and cannot be undone. A review may
   name a candidate with its numbers. The decision is the user's, and the call needs `confirm: true` after they name the path.
 
@@ -27,6 +27,8 @@ Use this when the user asks to review a workflow that is running (or was): "why 
 6. **Branch and A/B evidence.** If the digest shows an A/B Test step, `get_ab_test_stats` for it. A draft has no stats; say so.
 7. **Tests.** For a step the user asks about, `get_step_latest_test_result` (a `present:false` is a proven absence, not a failure). List runs
    with `list_workflow_test_runs` only if the user asks; starting a test run is not something this skill does.
+8. **Assets.** `get_workflow_linked_assets` with `workflowIds` set to this workflow: the tags, forms, calendars and other assets it uses, by step.
+   A narrowed read answers even when the workflow uses none, so say "uses no asset" only from that answer. `complete:false` means say the list may be partial.
 
 ## What a proposal looks like
 
@@ -42,7 +44,7 @@ The proposal types this mode produces:
 - **Failing step.** A step with error rows or error notifications. Proposal: the failing configuration, with the error text as given.
 - **A/B winner candidate.** The path with the best rate and an adequate sample, with its numbers, the unknown counts, and the caveat that the
   decision is the user's. Never a declaration.
-- **Trigger overlap** (if the user is building a second workflow on the same trigger). Use the overlap check; label it "may also fire".
+- **Trigger overlap** (if the user is building a second workflow on the same trigger). Use the overlap check; label each hit WILL, "might also fire", or CANT (cannot fire on the same event).
 
 ## What the review does not say
 

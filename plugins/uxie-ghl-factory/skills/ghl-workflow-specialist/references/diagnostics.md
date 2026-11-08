@@ -20,7 +20,8 @@ Three rules hold for every tool here:
 | `list_workflow_test_runs` | Listing a workflow's test runs, newest first (one page of ten). | Reads only; it starts nothing. | Whether a test run would succeed. Starting one is send-class and is not done by any tool here. |
 | `get_workflow_test_run` | Reading one test run's progress and, given a step, that step's events. | Reads only. | Anything about a run that has not happened. Not live-proven yet: the live proof waits for a run (w6c-11). |
 | `get_step_latest_test_result` | "Does this step have a pinned test result, and what was it?" | A workflow with no result answers `present:false` with the reason. That is a proven absence, not an error. | Whether the step works in production. |
-| `list_workflow_error_notifications` | Triage: which workflows have had step failures. | One request, never retried. | A complete list. Paging is **unknown**: the route answered 500 live on 2026-11-07, so treat the result as partial and say so. |
+| `list_workflow_error_notifications` | Triage: which workflows have had step failures. | Pages by `skip` until `totalCount` (the route answers 500 without the query, live 2026-11-08). A failing page is an error, never retried. | A complete list when `complete:true`; otherwise say the list may be partial. |
+| `get_workflow_linked_assets` | "What uses this tag, form or calendar?" (impact), and the review's asset step. | Pages by `searchAfter` to `count`; `forAsset: {type, value}` keeps the workflows that use one asset. Narrowed by `workflowIds`, a named workflow comes back even when it uses no asset. | A workflow count. Unnarrowed with `includeWorkflowsWithoutAssets` false (the default), the route lists **only workflows that use at least one asset** (measured 2026-11-08); `true` adds the asset-less ones. Count workflows with `list_workflows`. |
 | `get_workflow_digest` | The read half of an edit: a compact structure, version and per-step lines. | Pass the version back as `expectedVersion` on the edit, so a concurrent change is refused instead of overwritten. Roughly a tenth of `export_workflow`. | The untrimmed document. `include:"raw"` makes the response larger. |
 | `check_workflow` | Before publishing and after editing: reproduce the builder's "Resolve N Errors" list without opening the UI. | Matches the builder on a known-broken workflow (live 2026-07-27). Also reports `marketplaceDrift`. Lint-pack findings are advisory (see below). | "Publishable". The marketplace catalog omits core native actions (`add_contact_tag`, `send_email`, `if_else`, `wait`, …), so a clean result means nothing was found in the marketplace types it describes. |
 
@@ -48,10 +49,14 @@ has a policy that is not a GHL rule (for example "no send before 8am"). Do not p
 Before you create a workflow that listens for a trigger type, check which workflows already listen for it:
 
 1. `find_workflows_using` with `types` set to the draft's trigger types, `returns: "workflows"`, and a `limit` above the expected count.
-2. Pipe its `data` into the overlap check: `node scripts/trigger-overlap-cli.mjs` in the create skill's folder, with stdin
-   `{"types": [...], "found": <that data>, "excludeId": "<the draft's id, if it exists>"}`.
-3. Read the result. **Every result says "may also fire: trigger filters not evaluated".** The check does not read a trigger's filters, so a
-   published overlap is a candidate to inspect, not a collision. An incomplete read is not a clear answer.
+2. For each hit, read its triggers: one `GET /workflow/{loc}/trigger?workflowId=` per hit, keeping each row's `type` and `conditions`. Read the
+   draft's own trigger rows the same way (or from the draft you are building).
+3. Pipe into the overlap check: `node scripts/trigger-overlap-cli.mjs` in the create skill's folder, with stdin
+   `{"types": [...], "draftTriggers": [{type, conditions}], "found": <that data, each workflow with a "triggers" array>, "excludeId": "<the draft's id, if it exists>"}`.
+4. Read the verdicts. **WILL** = same trigger type with no filters or identical filters: both fire on the same event. **MIGHT** = "might also
+   fire": the filters cannot be decided statically (one side filters and the other does not, different fields, or a filter that was not read),
+   so it is a candidate to inspect, not a collision. **CANT** (`cannotOverlap`) = a single-valued field (the form id, a pipeline stage, a calendar; an allowlist per trigger type) with disjoint values, form A vs form B: the two cannot both match one event. A tag or any multi-valued field is never CANT (one add can carry VIP and Lead together: tag = VIP vs tag = Lead is MIGHT). No event is simulated. A workflow whose triggers were not passed is a
+   MIGHT with the reason. Only published workflows are `hits`; a draft that would overlap is in `draftHits` (a draft fires nothing until it is published). An incomplete read is not a clear answer.
 
 ## Use in a build
 
