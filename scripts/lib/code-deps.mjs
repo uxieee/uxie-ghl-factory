@@ -27,14 +27,49 @@ export function toolBlocks(src) {
   return out;
 }
 
-export function withoutDescription(block) {
+// indent is the column of the tool's keys (4 in core/tools.mjs; 6 in a seam module that nests the tool one level deeper).
+export function withoutDescription(block, indent = '    ') {
   const out = []; let skipping = false;
+  const close = indent.slice(2);
+  const descRe = new RegExp(`^${indent}description:`);
+  const keyRe = new RegExp(`^${indent}[A-Za-z_$][\\w$]*:`);
+  const endRe = new RegExp(`^${close}[}\\]]`);
   for (const l of block.split('\n')) {
-    if (/^    description:/.test(l)) { skipping = true; continue; }
-    if (skipping && (/^    [A-Za-z_$][\w$]*:/.test(l) || /^  [}\]]/.test(l))) skipping = false;
+    if (descRe.test(l)) { skipping = true; continue; }
+    if (skipping && (keyRe.test(l) || endRe.test(l))) skipping = false;
     if (!skipping) out.push(l);
   }
   return out.join('\n');
+}
+
+// fn-4 (2026-11-08): a tool that a module declares and core/tools.mjs imports (the p2 seam: funnel-render-tools.mjs). Its object opens on
+// the line above `name:` and closes on the first line at that opening's column. Returns {text, indent} or null.
+export function seamBlock(src, tool) {
+  const lines = src.split('\n');
+  const i = lines.findIndex((l) => { const m = /^( +)name: '([a-z0-9_]+)',\s*$/.exec(l); return m && m[2] === tool; });
+  if (i < 1) return null;
+  const indent = /^( +)/.exec(lines[i])[1];
+  const open = indent.slice(2);
+  if (lines[i - 1] !== `${open}{`) return null;
+  let end = i + 1;
+  while (end < lines.length && lines[end] !== `${open}},` && lines[end] !== `${open}}`) end++;
+  if (end >= lines.length) return null;
+  return { text: lines.slice(i - 1, end + 1).join('\n'), indent };
+}
+
+// Where a tool is declared: core/tools.mjs first (its keys are unchanged), then the modules it imports directly. One level deep: the
+// seam is one import, and a deeper search would hash modules no tool depends on.
+function locateTool(toolsFile, tool, read) {
+  const src = read(toolsFile);
+  const block = toolBlocks(src).get(tool);
+  if (block) return { file: toolsFile, src, block, indent: '    ' };
+  for (const f of localImports(toolsFile, read)) {
+    if (!existsSync(f)) continue;
+    const s = read(f);
+    const seam = seamBlock(s, tool);
+    if (seam) return { file: f, src: s, block: seam.text, indent: seam.indent };
+  }
+  return null;
 }
 
 const DECL = /^(?:export\s+)?(?:async\s+)?(?:function\*?\s+([A-Za-z_$][\w$]*)|(?:const|let|var|class)\s+([A-Za-z_$][\w$]*))/;
@@ -90,17 +125,17 @@ function localImports(file, read) {
 const escapeRe = (s) => s.replace(/[$]/g, '\\$');
 
 export function codeDeps({ toolsFile, tool, root, read = (f) => readFileSync(f, 'utf8') }) {
-  const src = read(toolsFile);
-  const block = toolBlocks(src).get(tool);
-  if (!block) throw new Error(`no tool block for ${tool}`);
+  const found = locateTool(toolsFile, tool, read);
+  if (!found) throw new Error(`no tool block for ${tool}`);
+  const { file, src, block, indent } = found;
   const cut = src.indexOf('\nexport const TOOLS = [');
   const helpers = topLevelDecls(cut < 0 ? src : src.slice(0, cut));
-  const bindings = importBindings(src, toolsFile);
+  const bindings = importBindings(src, file);
   const names = [...new Set([...helpers.keys(), ...bindings.keys()])];
   const refs = (text) => names.filter((n) => new RegExp(`(?<![\\w$.])${escapeRe(n)}(?![\\w$])`).test(text));
 
   const usedHelpers = new Set(); const modules = new Set();
-  const queue = [withoutDescription(block)];
+  const queue = [withoutDescription(block, indent)];
   while (queue.length) {
     for (const n of refs(queue.pop())) {
       if (helpers.has(n)) { if (!usedHelpers.has(n)) { usedHelpers.add(n); queue.push(helpers.get(n)); } }
@@ -114,8 +149,8 @@ export function codeDeps({ toolsFile, tool, root, read = (f) => readFileSync(f, 
     seen.add(f); stack.push(...localImports(f, read));
   }
   const rel = (f) => relative(root, f).split('\\').join('/');
-  const self = [withoutDescription(block), ...[...usedHelpers].sort().map((h) => helpers.get(h))].join('\n\u0000\n');
-  const out = { [`${rel(toolsFile)}#${tool}`]: sha256(self) };
+  const self = [withoutDescription(block, indent), ...[...usedHelpers].sort().map((h) => helpers.get(h))].join('\n\u0000\n');
+  const out = { [`${rel(file)}#${tool}`]: sha256(self) };
   for (const f of [...seen].sort()) out[rel(f)] = sha256(read(f));
   return out;
 }

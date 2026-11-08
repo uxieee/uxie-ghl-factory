@@ -13,7 +13,9 @@ import { join } from 'node:path';
 //
 // Their tool DESCRIPTION label stays frozen regardless: syncLabels may not overwrite it,
 // because the description is what an operator reads when deciding how far to trust a sweep.
-export const LABEL_FROZEN_TOOLS = Object.freeze(['get_workflow_runtime_window', 'list_workflows', 'get_ai_configuration_bundle']);
+// compare_page_renders (fn-4, 2026-11-08): a pure function with no account call. Its runs are checks of the comparers, and labelFor would
+// read a passing one as a live proof, so the seed's pure label is kept.
+export const LABEL_FROZEN_TOOLS = Object.freeze(['get_workflow_runtime_window', 'list_workflows', 'get_ai_configuration_bundle', 'compare_page_renders']);
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TOOL = /^[a-z0-9_]+$/;

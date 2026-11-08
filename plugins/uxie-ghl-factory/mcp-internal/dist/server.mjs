@@ -84846,7 +84846,7 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       compare_page_renders: {
-        description: "Compare a funnel page's three renders (builder canvas, preview, live) at 1440 and 390 px \u2014 proof: pure function: no account call; correctness by unit tests; risk: read",
+        description: "Judge a funnel page's renders: preview against live at 1440 and 390 px (must match); the builder canvas against the public page at 1440 px on structure and layout only (builder chrome and editor styles listed, not failing); the canvas at 390 px is not judged, because the builder mobile toggle keeps the window at 1440. Returns a verdict (match, differs or incomplete) and each scope's result \u2014 proof: pure function: no account call; correctness by unit tests; risk: read",
         risk: "read",
         proof: "pure function: no account call; correctness by unit tests",
         proofFloor: "pure function: no account call; correctness by unit tests",
@@ -146594,15 +146594,19 @@ var PROBE_SOURCE = `(() => {
 })()`;
 var NUM = ["x", "y", "w", "h"];
 var STYLE_KEYS = ["fontSize", "fontFamily", "color", "backgroundColor", "padding", "margin", "borderRadius", "display"];
-function compareRenders({ canvas, preview, live }, { tolerancePx = 2, widths = [1440, 390] } = {}) {
+function compareRenders({ canvas, preview, live }, { tolerancePx = 2, widths = [1440, 390], notMeasurable = [] } = {}) {
   const surfaces = { canvas, preview, live };
+  const skipped2 = new Set(notMeasurable);
   const diffs = [];
   const missing = [];
   let incomplete = false;
   const close = (a, b) => typeof a === "number" && typeof b === "number" ? Math.abs(a - b) <= tolerancePx : a === b;
   for (const w of widths) {
     const nodesOf = {};
+    let wanted = 0;
     for (const [name, set2] of Object.entries(surfaces)) {
+      if (skipped2.has(`${name}@${w}`)) continue;
+      wanted++;
       const p2 = set2?.[w];
       if (!p2 || typeof p2 !== "object" || !p2.nodes || typeof p2.nodes !== "object") {
         incomplete = true;
@@ -146611,7 +146615,7 @@ function compareRenders({ canvas, preview, live }, { tolerancePx = 2, widths = [
       nodesOf[name] = p2.nodes;
     }
     const names = Object.keys(nodesOf);
-    if (names.length < 3) continue;
+    if (names.length < wanted) continue;
     const ids = new Set(names.flatMap((n) => Object.keys(nodesOf[n])));
     for (const id of ids) {
       const lacking = names.filter((n) => !nodesOf[n][id]);
@@ -146620,42 +146624,145 @@ function compareRenders({ canvas, preview, live }, { tolerancePx = 2, widths = [
         incomplete = true;
       }
       if (lacking.length) continue;
-      const base = nodesOf.canvas[id];
-      const at = (n) => nodesOf[n][id];
-      const record2 = (field, get3) => diffs.push({ width: w, nodeId: id, field, canvas: get3("canvas"), preview: get3("preview"), live: get3("live") });
+      const side = (n) => nodesOf[n]?.[id];
+      const base = side(names[0]);
+      const record2 = (field, pick3) => diffs.push({ width: w, nodeId: id, field, canvas: pick3(side("canvas")), preview: pick3(side("preview")), live: pick3(side("live")) });
       for (const f of NUM) {
         if (f === "x" && base.text) continue;
-        const vals = names.map((n) => at(n)[f]);
-        if (!vals.every((v) => close(v, vals[0]))) record2(f, (n) => at(n)[f]);
+        const vals = names.map((n) => side(n)[f]);
+        if (!vals.every((v) => close(v, vals[0]))) record2(f, (nd) => nd?.[f]);
       }
-      if (names.some((n) => at(n).visible !== base.visible)) record2("visible", (n) => at(n).visible);
+      if (names.some((n) => side(n).visible !== base.visible)) record2("visible", (nd) => nd?.visible);
       for (const k of STYLE_KEYS) {
-        const vals = names.map((n) => at(n).styles?.[k]);
-        if (!vals.every((v) => v === vals[0])) record2(`styles.${k}`, (n) => at(n).styles?.[k]);
+        const vals = names.map((n) => side(n).styles?.[k]);
+        if (!vals.every((v) => v === vals[0])) record2(`styles.${k}`, (nd) => nd?.styles?.[k]);
       }
     }
   }
   const verdict = incomplete ? "incomplete" : diffs.length ? "differs" : "match";
   return { verdict, diffs, missing };
 }
+var BUILDER_CHROME_IDS = Object.freeze(["image-dropdown-file-input"]);
+function compareStructure(canvas, live, { tolerancePx = 2, chromeIds = BUILDER_CHROME_IDS } = {}) {
+  const c = canvas?.nodes;
+  const l = live?.nodes;
+  const empty2 = !c || !l || typeof c !== "object" || typeof l !== "object" || !Object.keys(c).length || !Object.keys(l).length;
+  if (empty2) return { verdict: "incomplete", failures: [], expected: { builderChrome: [], horizontal: 0, editorStyles: 0 }, shared: 0 };
+  const shared = Object.keys(c).filter((id) => l[id]);
+  const canvasOnly = Object.keys(c).filter((id) => !l[id]);
+  const liveOnly = Object.keys(l).filter((id) => !c[id]);
+  const failures = [];
+  const builderChrome = canvasOnly.filter((id) => chromeIds.includes(id));
+  for (const id of canvasOnly) if (!chromeIds.includes(id)) failures.push({ kind: "canvas-only", nodeId: id });
+  for (const id of liveOnly) failures.push({ kind: "live-only", nodeId: id });
+  let horizontal = 0;
+  let editorStyles = 0;
+  for (const id of shared) {
+    const a = c[id];
+    const b = l[id];
+    if (a.visible !== b.visible) failures.push({ kind: "visibility", nodeId: id, canvas: a.visible, live: b.visible });
+    if (Math.abs(a.y - b.y) > tolerancePx) failures.push({ kind: "vertical", nodeId: id, canvas: a.y, live: b.y });
+    if (Math.abs(a.x - b.x) > tolerancePx || Math.abs(a.w - b.w) > tolerancePx) horizontal++;
+    if (STYLE_KEYS.some((k) => a.styles?.[k] !== b.styles?.[k])) editorStyles++;
+  }
+  const order = (n) => shared.slice().sort((p2, q3) => n[p2].y - n[q3].y || n[p2].x - n[q3].x).join("|");
+  if (order(c) !== order(l)) failures.push({ kind: "order", canvas: order(c), live: order(l) });
+  return { verdict: failures.length ? "differs" : "match", failures, expected: { builderChrome, horizontal, editorStyles }, shared: shared.length };
+}
+function probeShape(p2, w) {
+  if (!p2 || typeof p2 !== "object") return "not an object";
+  if (p2.width !== w) return `width is ${p2.width}, expected ${w}`;
+  if (!p2.origin || typeof p2.origin.x !== "number" || typeof p2.origin.y !== "number") return "no origin (the first section corner)";
+  if (!p2.nodes || typeof p2.nodes !== "object" || Object.keys(p2.nodes).length === 0) return "no nodes";
+  for (const [id, n] of Object.entries(p2.nodes)) {
+    if (!n || typeof n.x !== "number" || typeof n.y !== "number" || typeof n.visible !== "boolean") return `node ${id} lacks x/y/visible`;
+    if (!n.styles || typeof n.styles !== "object") return `node ${id} lacks styles`;
+    const missing = STYLE_KEYS.filter((k) => !(k in n.styles));
+    if (missing.length) return `node ${id} lacks styles: ${missing.join(", ")}`;
+  }
+  return null;
+}
+var MOBILE_TOGGLE_REASON = "builder mobile toggle: the window stays at 1440, so the canvas probe at 390 reports width 1440 and cannot be measured at 390 (the verdict at 390 is preview against live)";
+var NOT_SUPPLIED_REASON = "not supplied: the canvas is not probed at 390 (the builder mobile toggle keeps the window at 1440); the verdict at 390 is preview against live";
+function judgeRenders(probes, { label: label2 = (s, w) => `${s}-${w}`, tolerancePx = 2 } = {}) {
+  const problems = [];
+  const notMeasurable = [];
+  const unjudged = [];
+  const held = { canvas: {}, preview: {}, live: {} };
+  const at = (s, w) => probes?.[s]?.[w] ?? probes?.[s]?.[String(w)];
+  for (const s of ["canvas", "preview", "live"]) {
+    for (const w of [1440, 390]) {
+      const p2 = at(s, w);
+      if (p2 === void 0 || p2 === null) {
+        if (s === "canvas" && w === 390) notMeasurable.push({ surface: s, width: w, reason: NOT_SUPPLIED_REASON });
+        else problems.push(`${label2(s, w)} is missing`);
+        continue;
+      }
+      if (s === "canvas" && w === 390 && typeof p2 === "object" && p2.width === 1440) {
+        const why2 = probeShape(p2, 1440);
+        if (why2) problems.push(`${label2(s, w)} is not PROBE_SOURCE output: ${why2}`);
+        else notMeasurable.push({ surface: s, width: w, reason: MOBILE_TOGGLE_REASON });
+        continue;
+      }
+      const why = probeShape(p2, w);
+      if (why) {
+        problems.push(`${label2(s, w)} is not PROBE_SOURCE output: ${why}`);
+        continue;
+      }
+      if (s === "canvas" && w === 390) {
+        unjudged.push({ surface: s, width: w, reason: "supplied at its own width but not judged: the ruled scopes do not use the canvas at 390" });
+        continue;
+      }
+      held[s][w] = p2;
+    }
+  }
+  const pl = compareRenders({ canvas: {}, preview: held.preview, live: held.live }, { tolerancePx, widths: [1440, 390], notMeasurable: ["canvas@1440", "canvas@390"] });
+  const cs = held.canvas[1440] && held.live[1440] ? compareStructure(held.canvas[1440], held.live[1440], { tolerancePx }) : { verdict: "incomplete", failures: [], expected: { builderChrome: [], horizontal: 0, editorStyles: 0 }, shared: 0 };
+  const verdict = problems.length ? "incomplete" : pl.verdict !== "match" ? pl.verdict : cs.verdict === "match" ? "match" : cs.verdict === "incomplete" ? "incomplete" : "differs";
+  return {
+    verdict,
+    scopes: { previewVsLive: { verdict: pl.verdict, diffs: pl.diffs, missing: pl.missing }, canvasStructure: cs },
+    notMeasurable,
+    unjudged,
+    problems,
+    diffs: pl.diffs,
+    missing: pl.missing,
+    structure: cs
+  };
+}
 
 // core/funnel-render-tools.mjs
-var SURFACE = external_exports.record(external_exports.any()).describe('one surface: {"1440": probe, "390": probe}; a probe is {origin, nodes} as PROBE_SOURCE returns');
+var COMPARE_PAGE_RENDERS_LEAD = "Judge a funnel page's renders: preview against live at 1440 and 390 px (must match); the builder canvas against the public page at 1440 px on structure and layout only (builder chrome and editor styles listed, not failing); the canvas at 390 px is not judged, because the builder mobile toggle keeps the window at 1440. Returns a verdict (match, differs or incomplete) and each scope's result";
+var SURFACE = external_exports.record(external_exports.any()).describe('one surface: {"1440": probe, "390": probe}; a probe is {width, origin, nodes} as PROBE_SOURCE returns. The canvas may omit "390" (the builder mobile toggle cannot be measured at 390)');
 function makeFunnelRenderTools({ describe: describe4, schema: schema2, guard: guard2 }) {
   return [
     {
       name: "compare_page_renders",
-      description: describe4("compare_page_renders", "Compare a funnel page's three renders (builder canvas, preview, live) at 1440 and 390 px. Returns a verdict: match, differs or incomplete; incomplete when a width or a node is missing"),
+      description: describe4("compare_page_renders", COMPARE_PAGE_RENDERS_LEAD),
       inputSchema: schema2({
-        probes: external_exports.object({ canvas: SURFACE, preview: SURFACE, live: SURFACE }).describe("the three probe sets, measured in the browser with PROBE_SOURCE (references/render-check.md)"),
+        probes: external_exports.object({ canvas: SURFACE, preview: SURFACE, live: SURFACE }).describe("the probe sets, measured in the browser with PROBE_SOURCE (references/render-check.md): canvas at 1440 (and 390 only as a probe it can make), preview and live at 1440 and 390"),
         tolerancePx: external_exports.number().min(0).max(20).optional().describe("position and size tolerance in px (default 2)")
       }),
       capabilities: [],
       handler: async (args, deps) => guard2(async () => {
         void deps;
         if (!args?.probes || typeof args.probes !== "object") return fail(CODES.VALIDATION_FAILED, "probes is required", "Pass {canvas, preview, live}, each keyed by width.");
-        const r = compareRenders(args.probes, { tolerancePx: args.tolerancePx ?? 2, widths: [1440, 390] });
-        return ok({ ...r, proof: "engine source", widths: [1440, 390], tolerancePx: args.tolerancePx ?? 2 });
+        const tolerancePx = args.tolerancePx ?? 2;
+        const j = judgeRenders(args.probes, { tolerancePx });
+        return ok({
+          verdict: j.verdict,
+          scopes: j.scopes,
+          notMeasurable: j.notMeasurable,
+          unjudged: j.unjudged,
+          problems: j.problems,
+          diffs: j.diffs,
+          missing: j.missing,
+          structure: j.structure,
+          scopeNote: "preview is judged against live at 1440 and 390; the canvas is judged against live at 1440 on structure and layout only; the canvas at 390 is not judged",
+          proof: "engine source",
+          widths: [1440, 390],
+          tolerancePx
+        });
       }, args)
     }
   ];
@@ -228758,6 +228865,31 @@ function buildColumns(keys) {
   return keys.map((k, i) => ({ key: k, value: k, order: i }));
 }
 
+// core/page-publish-state.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+function publishStateOf(versions, { justPublished = null } = {}) {
+  const rows = Array.isArray(versions) ? versions : [];
+  const liveIdx = rows.findIndex((v) => v.pageType === "live");
+  const newest = rows[0] ?? null;
+  const pinnedTo = liveIdx >= 0 ? rows[liveIdx] : null;
+  const secs = (v) => v?.updated_at?._seconds ?? 0;
+  const publishTook = justPublished !== null && liveIdx >= 0 && pinnedTo.version_id === justPublished;
+  const servingNote = publishTook ? `Verified after this call's publish: the public URL serves version ${justPublished}, the one this call published.` : liveIdx >= 0 ? "This page is PINNED to a published version. The public URL serves that version, NOT the draft this call just wrote." : "This page has never been published, so the public URL serves the draft this call just wrote. \u{1F534} On a new page GHL was measured turning the FIRST version live on the SECOND save; if it does here, the next write will not be public until a publish (publish:true). publishState on the next run shows which happened.";
+  return {
+    versions: rows.length,
+    pinned: liveIdx >= 0,
+    // Drafts stacked behind the pinned version: work the public cannot see.
+    draftsSincePublish: liveIdx >= 0 ? liveIdx : null,
+    staleBySeconds: liveIdx >= 0 ? Math.max(0, secs(newest) - secs(pinnedTo)) : null,
+    servingNote
+  };
+}
+
 // core/pipelines.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -246611,18 +246743,8 @@ var TOOLS2 = [
       let versions = [];
       const vres = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
       if (Array.isArray(vres.json)) versions = vres.json;
-      const liveIdx = versions.findIndex((v) => v.pageType === "live");
       const newest = versions[0] ?? null;
-      const pinnedTo = liveIdx >= 0 ? versions[liveIdx] : null;
-      const secs = (v) => v?.updated_at?._seconds ?? 0;
-      const publishState = {
-        versions: versions.length,
-        pinned: liveIdx >= 0,
-        // Drafts stacked behind the pinned version: work the public cannot see.
-        draftsSincePublish: liveIdx >= 0 ? liveIdx : null,
-        staleBySeconds: liveIdx >= 0 ? Math.max(0, secs(newest) - secs(pinnedTo)) : null,
-        servingNote: liveIdx >= 0 ? "This page is PINNED to a published version. The public URL serves that version, NOT the draft this call just wrote." : "This page has never been published, so the public URL serves the draft this call just wrote. \u{1F534} On a new page GHL was measured turning the FIRST version live on the SECOND save; if it does here, the next write will not be public until a publish (publish:true). publishState on the next run shows which happened."
-      };
+      let publishState = publishStateOf(versions);
       let published = null;
       if (args.publish === true) {
         if (missing.length) {
@@ -246682,6 +246804,7 @@ var TOOLS2 = [
             { published, publishState }
           );
         }
+        publishState = publishStateOf(rows, { justPublished: target.version_id });
       }
       let render = null;
       if (args.verifyUrl) {

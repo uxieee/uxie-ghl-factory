@@ -1,15 +1,19 @@
 # Render check — builder canvas = preview = live
 
-Use this after any change that alters how a funnel page looks (w7-3, bl-538, bl-541). A page is done only when the three renders match at **1440 px and 390 px**. `differs` and `incomplete` both mean the page is **not** done.
+Use this after any change that alters how a funnel page looks (w7-3, bl-538, bl-541). A page is done only when **preview matches live at 1440 px and 390 px**, and **the builder canvas matches the public page's structure at 1440 px** (fn-4, 2026-11-08). `differs` and `incomplete` both mean the page is **not** done.
+
+The three renders are judged on two different scopes, and the tool applies both (`compare_page_renders`, the same function the offline render section uses):
+- **Preview against live** at 1440 and 390: geometry and styles must match.
+- **Canvas against live** at 1440 only: structure and layout (which nodes exist, their visibility, their vertical place and order). The builder's chrome and the editor's fonts and widths are expected to differ, so the tool lists them and does not fail on them.
 
 ## Procedure
 
-1. **Canvas.** Open the builder (the `funnel-builder` frame). Probe the desktop canvas at its own width. Then press the builder's mobile toggle: its mobile view is a ~1440 px frame (bl-541), so probe the canvas **there**, not at 390 px, and record it as the 390 probe.
+1. **Canvas.** Open the builder (the `funnel-builder` frame). Probe the desktop canvas at its own width, **1440 px**, and save it as the canvas 1440 probe. Do **not** probe the canvas at 390 px. The builder's mobile toggle keeps the window at 1440 px (bl-541), so a probe taken there reports `width: 1440`, cannot be measured at 390, and is not a 390 measurement. The tool names the canvas at 390 as NOT MEASURABLE when it is supplied, and does not judge it.
 2. **Preview.** Open the preview URL. Call `browser_resize` to 1440, run the probe, then 390, run the probe again.
 3. **Live.** Open the live URL the same way. The live version is the one the public URL serves; a page that has never been published serves its draft, and a pinned page serves its pinned version. Never publish to obtain a live version (that is gate G5).
-4. Run the probe in each frame with `browser_evaluate` set to PROBE_SOURCE below. Save each probe as JSON beside the screenshots. Save the screenshots too.
-5. Call `compare_page_renders` with `{probes: {canvas: {1440, 390}, preview: {1440, 390}, live: {1440, 390}}}`.
-6. `match` is the only pass. `differs` lists each field and its three values; `incomplete` lists the missing nodes or widths.
+4. Run the probe in each frame with `browser_evaluate` set to PROBE_SOURCE below. Save each probe as JSON beside the screenshots, and record the `location.href` of each frame with its probe, so that identical preview and live files cannot be mistaken for a failed navigation. Save the screenshots too.
+5. Call `compare_page_renders` with `{probes: {canvas: {1440}, preview: {1440, 390}, live: {1440, 390}}}`. The canvas is sent at 1440 only: a canvas at 390 cannot be measured (step 1), so sending it would be sending a number that does not mean what its key says. The tool answers with `scopes.previewVsLive` (1440 and 390) and `scopes.canvasStructure` (1440), plus `notMeasurable`.
+6. `verdict: match` is the only pass. It requires `scopes.previewVsLive.verdict` and `scopes.canvasStructure.verdict` to both be `match`. `differs` lists each field and its values in the scope that failed (`canvasStructure.failures` names each node and kind); `incomplete` lists the missing probes or nodes, or a probe that is not PROBE_SOURCE output.
 
 Probes are measured through the slot `browser` (one holder at a time). Never raw Playwright clicks on a builder save.
 

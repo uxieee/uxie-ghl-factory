@@ -1,0 +1,46 @@
+{
+  "tool": "compare_page_renders",
+  "surfaces": [
+    "unassigned"
+  ],
+  "runs": [
+    {
+      "at": "2026-11-08",
+      "result": "pass",
+      "how": "suite",
+      "suite": "render-scope",
+      "evidence": [
+        "commit:42c379d3"
+      ]
+    },
+    {
+      "at": "2026-11-08",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:89f4c26d"
+      ]
+    },
+    {
+      "at": "2026-11-08",
+      "result": "fail",
+      "how": "manual",
+      "evidence": [
+        "commit:89f4c26d"
+      ],
+      "failures": [
+        "canvas-structure-1440"
+      ]
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-11-08",
+    "endpoints": {},
+    "builds": {},
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-render-tools.mjs#compare_page_renders": "df2a68ac027bd4f0e30a6639c840adefab2217ec6452b178415d9fcbf472b0fc",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-render-check.mjs": "9f51e1954ec24c51893260efea98a8442b26b900fefee06972f952eaf87e060f"
+    }
+  }
+}

@@ -114,6 +114,7 @@ import {
   isGroup,
   leaves as filterLeaves,
 } from './smart-lists.mjs';
+import { publishStateOf } from './page-publish-state.mjs';
 import { planPipelineEdit, readBackWithBackoff, readBaseWithBackoff, RECENT_WRITE_MS, COLOR_RENDER_MODES, strayArrivals, cardsInRemovedStages } from './pipelines.mjs';
 import { CLOSE_DATE_BUCKETS, DRILLDOWN_BY, FORECAST_VIEWS, GROUP_BY, PATHS as FORECAST_PATHS, forecastBody, nameMaps, shapeForecast } from './forecast.mjs';
 import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId, listAgencyLocations, resolveTargets } from './snapshots.mjs';
@@ -13335,24 +13336,9 @@ export const TOOLS = [
       let versions = [];
       const vres = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
       if (Array.isArray(vres.json)) versions = vres.json;
-      const liveIdx = versions.findIndex((v) => v.pageType === 'live');
       const newest = versions[0] ?? null;
-      const pinnedTo = liveIdx >= 0 ? versions[liveIdx] : null;
-      const secs = (v) => v?.updated_at?._seconds ?? 0;
-      const publishState = {
-        versions: versions.length,
-        pinned: liveIdx >= 0,
-        // Drafts stacked behind the pinned version: work the public cannot see.
-        draftsSincePublish: liveIdx >= 0 ? liveIdx : null,
-        staleBySeconds: liveIdx >= 0 ? Math.max(0, secs(newest) - secs(pinnedTo)) : null,
-        servingNote: liveIdx >= 0
-          ? 'This page is PINNED to a published version. The public URL serves that version, NOT the draft this call just wrote.'
-          // Measured 2026-09-29 (knowledge sniffs/funnels-wave14-object-tools-2026-09-29 live-differential.first-version-live.json):
-          // on a NEW page the SECOND autosave flipped the FIRST version to `live`, so "newest draft is served" lasted one
-          // save. Older never-published pages were measured (2026-09-10) holding many drafts and no live version, so this
-          // is not every page — but a caller must know it can happen on the very next write.
-          : 'This page has never been published, so the public URL serves the draft this call just wrote. 🔴 On a new page GHL was measured turning the FIRST version live on the SECOND save; if it does here, the next write will not be public until a publish (publish:true). publishState on the next run shows which happened.',
-      };
+      // fn-4 (2026-11-08): one function (core/page-publish-state.mjs). Recomputed after a verified publish, below.
+      let publishState = publishStateOf(versions);
 
       let published = null;
       if (args.publish === true) {
@@ -13407,6 +13393,8 @@ export const TOOLS = [
             { published, publishState },
           );
         }
+        // fn-4 (QA, fn-3r): the state the result reports is the one AFTER this publish, read back on its own request.
+        publishState = publishStateOf(rows, { justPublished: target.version_id });
       }
 
       let render = null;

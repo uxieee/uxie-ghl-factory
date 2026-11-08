@@ -66,15 +66,18 @@ test('compare_page_renders is in TOOLS, takes no capability, makes no account ca
   const tool = TOOLS.find((t) => t.name === 'compare_page_renders');
   assert.ok(tool, 'the tool is registered through the funnels seam');
   assert.deepEqual(tool.capabilities, []);
-  const s = { 1440: { nodes: { 'heading-1': node() } }, 390: { nodes: { 'heading-1': node() } } };
+  // fn-4 (2026-11-08): probes are PROBE_SOURCE outputs (width, origin, nodes). The canvas at 390 is not judged: it may be omitted.
+  const pr = (w) => ({ width: w, origin: { x: 0, y: 0 }, nodes: { 'heading-1': node() } });
+  const s = { 1440: pr(1440), 390: pr(390) };
   const calls = [];
   const deps = { state: {}, makeGw: () => ({ call: async (...a) => { calls.push(a); throw new Error('no account call allowed'); } }) };
   const res = await tool.handler({ probes: { canvas: s, preview: s, live: s } }, deps);
   assert.equal(res.ok, true);
   assert.equal(res.data.verdict, 'match');
   assert.equal(calls.length, 0, 'no account call');
-  const partial = await tool.handler({ probes: { canvas: { 1440: s[1440] }, preview: s, live: s } }, deps);
-  assert.equal(partial.data.verdict, 'incomplete');
+  const partial = await tool.handler({ probes: { canvas: { 1440: s[1440] }, preview: s, live: { 1440: s[1440] } } }, deps);
+  assert.equal(partial.data.verdict, 'incomplete', 'a missing live at 390 is never a pass');
+  assert.equal(partial.data.notMeasurable[0].surface, 'canvas', 'the canvas at 390 is named, not required');
 });
 
 // The probe runs in a browser; this runs the same string against a small fake DOM. A builder UI element (nav-menu-popup)

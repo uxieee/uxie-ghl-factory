@@ -2720,7 +2720,7 @@
     ]
   },
   "compare_page_renders": {
-    "description": "Compare a funnel page's three renders (builder canvas, preview, live) at 1440 and 390 px — proof: pure function: no account call; correctness by unit tests; risk: read",
+    "description": "Judge a funnel page's renders: preview against live at 1440 and 390 px (must match); the builder canvas against the public page at 1440 px on structure and layout only (builder chrome and editor styles listed, not failing); the canvas at 390 px is not judged, because the builder mobile toggle keeps the window at 1440. Returns a verdict (match, differs or incomplete) and each scope's result — proof: pure function: no account call; correctness by unit tests; risk: read",
     "risk": "read",
     "proof": "pure function: no account call; correctness by unit tests",
     "proofFloor": "pure function: no account call; correctness by unit tests",

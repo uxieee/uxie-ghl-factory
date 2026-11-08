@@ -46,7 +46,8 @@ test('labels: latest fail wins; otherwise the latest pass and its class', () => 
 // went with core/audit-proof.mjs on 2026-09-16, and an exclusion whose alternative no longer
 // exists is just "unprovable forever".
 test('the label-frozen tools are named, and match the frozen description test', () => {
-  assert.deepEqual([...LABEL_FROZEN_TOOLS].sort(), ['get_ai_configuration_bundle', 'get_workflow_runtime_window', 'list_workflows']);
+  // compare_page_renders joined in fn-4 (2026-11-08): a pure function, so a passing run must not read as a live proof.
+  assert.deepEqual([...LABEL_FROZEN_TOOLS].sort(), ['compare_page_renders', 'get_ai_configuration_bundle', 'get_workflow_runtime_window', 'list_workflows']);
 });
 
 test('a label-frozen tool may still carry a proof record', () => {
