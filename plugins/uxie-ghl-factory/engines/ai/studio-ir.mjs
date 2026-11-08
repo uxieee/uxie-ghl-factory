@@ -193,11 +193,11 @@ function checkStarterPrompts(prompts) {
 // The keys create_studio_agent applies (buildPrompt is the build message; the rest land in the config PUT). Anything
 // else is refused before the build starts: the compiler used to copy only what it knew, so an unknown key was dropped
 // and the create still reported success.
-// memoryEnabled is deliberately absent: the proven write is PATCH …/memory/settings (it sets config.memoryEnabled), and
-// whether a config PUT carrying it does the same was not tested.
+// memoryEnabled (bl-716, 2026-11-08): a config PUT carrying it switches memory on, read back on a separate GET; the same
+// write as PATCH …/memory/settings.
 export const CREATE_KEYS = ['name', 'buildPrompt', 'systemPrompt', 'description', 'model', 'tools', 'trigger', 'triggers',
   'plugins', 'reasoningEffort', 'knowledgeBaseIds', 'starterPrompts', 'imageGeneration', 'mediaSettings',
-  'templateId', 'folderId', 'folderName', 'customApiEnabled', 'subagents', 'computer', 'followUp'];
+  'templateId', 'folderId', 'folderName', 'customApiEnabled', 'subagents', 'computer', 'followUp', 'memoryEnabled'];
 // The "Start from a use case" cards — a CLIENT-side list (superagentsApp 1a50@63158); the server creates from these ids.
 export const STUDIO_TEMPLATE_IDS = ['knowledge-base-assistant', 'social-media-posting', 'lead-qualifier', 'welcome-email',
   'review-request', 'deal-brief', 'opportunity-pipeline', 'email-campaign', 'weekly-creative-studio', 'prospect-finder',
@@ -222,6 +222,7 @@ function checkPlacementAndSwitches(ir) {
   if (ir.folderId === '') throw new IRError('SCHEMA', 'folderId must be a Managed Agent folder id');
   if (ir.folderName !== undefined && ir.folderId === undefined) throw new IRError('SCHEMA', 'folderName needs folderId');
   if (ir.customApiEnabled !== undefined && typeof ir.customApiEnabled !== 'boolean') throw new IRError('SCHEMA', 'customApiEnabled must be a boolean');
+  if (ir.memoryEnabled !== undefined && typeof ir.memoryEnabled !== 'boolean') throw new IRError('SCHEMA', 'memoryEnabled must be a boolean');
 }
 
 // The template door: POST …/from-template creates the agent from a use-case template (no AI build), and a PUT then

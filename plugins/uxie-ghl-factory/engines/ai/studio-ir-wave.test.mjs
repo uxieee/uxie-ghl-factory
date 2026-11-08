@@ -72,9 +72,9 @@ test('Computer off sends the tools without the sandbox ids', () => {
   assert.deepEqual(c.tools, ['web_fetch']);
 });
 
-test('create accepts subagents, computer and followUp; memoryEnabled is refused (only the settings PATCH is proven)', () => {
-  refuseUnappliedStudioKeys({ ...base(), subagents: [], computer: { enabled: false }, followUp: { enabled: false } });
-  assert.throws(() => refuseUnappliedStudioKeys({ ...base(), memoryEnabled: true }), code('SPEC_KEY_UNAPPLIED'));
+test('create accepts subagents, computer, followUp and memoryEnabled (bl-716: proven live 2026-11-08)', () => {
+  refuseUnappliedStudioKeys({ ...base(), subagents: [], computer: { enabled: false }, followUp: { enabled: false }, memoryEnabled: true });
+  assert.throws(() => refuseUnappliedStudioKeys({ ...base(), notAKey: true }), code('SPEC_KEY_UNAPPLIED'));
 });
 
 test('a template create overlays subagents and the switches too', () => {

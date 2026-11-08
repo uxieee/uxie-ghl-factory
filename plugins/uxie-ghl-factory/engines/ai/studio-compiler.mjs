@@ -115,6 +115,8 @@ function buildConfig(norm) {
     ...(norm.mediaSettings !== undefined ? { mediaSettings: norm.mediaSettings } : {}),
     // The editor's Custom API switch is a top-level config key, sent only by this PUT (superagentsApp 3b22@151825).
     ...(norm.customApiEnabled !== undefined ? { customApiEnabled: norm.customApiEnabled } : {}),
+    // bl-716: the memory switch rides the config PUT (proven live 2026-11-08 on a draft).
+    ...(norm.memoryEnabled !== undefined ? { memoryEnabled: norm.memoryEnabled } : {}),
     ...waveKeys(norm),
   };
 }
@@ -177,7 +179,7 @@ export function compileSuperAgentFromTemplate({ templateId, folderId, folderName
 export function templateOverrides(ir) {
   const o = {};
   for (const k of ['name', 'description', 'model', 'systemPrompt', 'plugins', 'starterPrompts', 'knowledgeBaseIds',
-    'imageGeneration', 'mediaSettings', 'customApiEnabled']) if (ir[k] !== undefined) o[k] = ir[k];
+    'imageGeneration', 'mediaSettings', 'customApiEnabled', 'memoryEnabled']) if (ir[k] !== undefined) o[k] = ir[k];
   if (ir.tools !== undefined) {
     o.tools = [...switchTools(ir, [...ir.tools, ...(Array.isArray(ir.knowledgeBaseIds) && ir.knowledgeBaseIds.length ? ['kb_search'] : [])])];
   } else if (ir.computer?.enabled || ir.followUp?.enabled) {

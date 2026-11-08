@@ -233533,7 +233533,8 @@ var CREATE_KEYS2 = [
   "customApiEnabled",
   "subagents",
   "computer",
-  "followUp"
+  "followUp",
+  "memoryEnabled"
 ];
 var STUDIO_TEMPLATE_IDS = [
   "knowledge-base-assistant",
@@ -233565,6 +233566,7 @@ function checkPlacementAndSwitches(ir) {
   if (ir.folderId === "") throw new IRError2("SCHEMA", "folderId must be a Managed Agent folder id");
   if (ir.folderName !== void 0 && ir.folderId === void 0) throw new IRError2("SCHEMA", "folderName needs folderId");
   if (ir.customApiEnabled !== void 0 && typeof ir.customApiEnabled !== "boolean") throw new IRError2("SCHEMA", "customApiEnabled must be a boolean");
+  if (ir.memoryEnabled !== void 0 && typeof ir.memoryEnabled !== "boolean") throw new IRError2("SCHEMA", "memoryEnabled must be a boolean");
 }
 function parseSuperAgentTemplateIR(ir) {
   if (!ir || typeof ir !== "object") throw new IRError2("SCHEMA", "IR must be an object");
@@ -233666,6 +233668,8 @@ function buildConfig(norm3) {
     ...norm3.mediaSettings !== void 0 ? { mediaSettings: norm3.mediaSettings } : {},
     // The editor's Custom API switch is a top-level config key, sent only by this PUT (superagentsApp 3b22@151825).
     ...norm3.customApiEnabled !== void 0 ? { customApiEnabled: norm3.customApiEnabled } : {},
+    // bl-716: the memory switch rides the config PUT (proven live 2026-11-08 on a draft).
+    ...norm3.memoryEnabled !== void 0 ? { memoryEnabled: norm3.memoryEnabled } : {},
     ...waveKeys(norm3)
   };
 }
@@ -233713,7 +233717,8 @@ function templateOverrides(ir) {
     "knowledgeBaseIds",
     "imageGeneration",
     "mediaSettings",
-    "customApiEnabled"
+    "customApiEnabled",
+    "memoryEnabled"
   ]) if (ir[k] !== void 0) o[k] = ir[k];
   if (ir.tools !== void 0) {
     o.tools = [...switchTools(ir, [...ir.tools, ...Array.isArray(ir.knowledgeBaseIds) && ir.knowledgeBaseIds.length ? ["kb_search"] : []])];
@@ -235439,12 +235444,13 @@ function compileAiAgentPlan(kind, args) {
   };
   const create = compileSuperAgentCreate(studioSpec, { locationId: args.locationId, companyId: args.companyId });
   const update = compileSuperAgentUpdate(studioSpec, { agentId: "{agentId}", locationId: args.locationId });
-  const { name, systemPrompt, plugins, triggers, customApiEnabled, subagents, tools } = update.body.config ?? {};
+  const { name, systemPrompt, plugins, triggers, customApiEnabled, subagents, tools, memoryEnabled } = update.body.config ?? {};
   const verified = { name, systemPrompt };
   if (args.spec?.plugins !== void 0) verified.plugins = plugins;
   if (args.spec?.trigger !== void 0 || args.spec?.triggers !== void 0) verified.triggers = triggers;
   if (args.spec?.customApiEnabled !== void 0) verified.customApiEnabled = customApiEnabled;
   if (args.spec?.subagents !== void 0) verified.subagents = subagents;
+  if (args.spec?.memoryEnabled !== void 0) verified.memoryEnabled = memoryEnabled;
   if (args.spec?.tools !== void 0 || args.spec?.computer !== void 0 || args.spec?.followUp !== void 0) verified.tools = tools;
   return {
     create,
@@ -237871,7 +237877,7 @@ var TOOLS2 = [
   },
   {
     name: "create_studio_agent",
-    description: `${describe3("create_studio_agent", "Create Agent Studio agent")}. Creates a Managed Agent (the UI's AI Agents \u2192 Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt \u2014 either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several, incl. customer_reply/inbound_webhook/api; chat stands alone, workflows and api combine with either). subagents [{name, description, systemPrompt, model?}] ([] = no delegation; models checked against the server roster). model defaults to claude-sonnet-5-5; an unknown one is refused. computer/followUp {enabled} are the Computer and Wait & follow up switches \u2014 \u{1F534} Computer's sandbox has no stop route. \u{1F534} Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none \u2014 the preview names what applies. \u{1F534} A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. templateId (one of the 12 "Start from a use case" ids) creates from a template instead: no build, the template's own config kept and only what spec authors (name required) applied over it; \u{1F534} a template may carry an ENABLED trigger and the Default plugin \u2014 pass triggers:[] (it DISABLES every trigger: a PUT cannot remove one) and plugins:[]. folderId (+ folderName) files the agent at create, checked in the folder list; customApiEnabled flips the Custom API switch. The agent is created as a draft (never published). Any other spec key is refused before anything is sent. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_studio_agent", "Create Agent Studio agent")}. Creates a Managed Agent (the UI's AI Agents \u2192 Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt \u2014 either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several, incl. customer_reply/inbound_webhook/api; chat stands alone, workflows and api combine with either). subagents [{name, description, systemPrompt, model?}] ([] = no delegation; models checked against the server roster). model defaults to claude-sonnet-5-5; an unknown one is refused. computer/followUp {enabled} are the Computer and Wait & follow up switches \u2014 \u{1F534} Computer's sandbox has no stop route. \u{1F534} Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none \u2014 the preview names what applies. \u{1F534} A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. templateId (one of the 12 "Start from a use case" ids) creates from a template instead: no build, the template's own config kept and only what spec authors (name required) applied over it; \u{1F534} a template may carry an ENABLED trigger and the Default plugin \u2014 pass triggers:[] (it DISABLES every trigger: a PUT cannot remove one) and plugins:[]. folderId (+ folderName) files the agent at create, checked in the folder list; customApiEnabled flips the Custom API switch; memoryEnabled switches memory on. The agent is created as a draft (never published). Any other spec key is refused before anything is sent. If the builder stops to ask questions (build_question + awaiting_input), the call fails STUDIO_BUILD_AWAITING_INPUT naming each question and its options, and nothing is sent after the build: put the answers in buildPrompt and create again. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), companyId: external_exports.string().optional(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "SSE", path: "/agent-studio/super-agents/build" },
