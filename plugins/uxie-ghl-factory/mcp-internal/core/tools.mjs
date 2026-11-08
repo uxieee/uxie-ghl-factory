@@ -12926,7 +12926,7 @@ export const TOOLS = [
   },
   {
     name: 'build_funnel_page',
-    description: `${describe('build_funnel_page', 'Compose, validate and write a funnel page from native elements; optionally publish it. A full build keeps the page\'s existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them')}. `
+    description: `${describe('build_funnel_page', 'Compose, validate and write a funnel page from elements; optionally publish it. A full build keeps the page\'s existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them')}. `
       + 'Preview by default; confirm:true autosaves the DRAFT; publish:true publishes. COMPOSE (sections, '
       + 'popups?, typography?): writes nodes AND the compiled stylesheet. '
       + 'Node styles compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a '

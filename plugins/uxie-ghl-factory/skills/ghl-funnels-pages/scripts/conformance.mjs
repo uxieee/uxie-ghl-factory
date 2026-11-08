@@ -123,14 +123,34 @@ check(draft.data?.publishState?.pinned === false, 'a never-published page report
   const stored = await gw.call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(pageId)}`);
   const nodes = (stored.json?.sections ?? []).flatMap((s) => s.elements ?? []);
   const btn = nodes.find((n) => n.meta === 'button');
-  const cssPara = nodes.find((n) => n.meta === 'paragraph' && n.styles?.fontFamily?.value === 'Georgia');
+  const cssPara = nodes.find((n) => n.meta === 'paragraph' && n.styles?.fontFamily?.value === 'var(--georgia)'); // stored shape, see the re-baseline note below
   const typo = stored.json?.settings?.settings?.typography;
   check(typo?.colors?.textColor?.value?.value === '#000000' && typo?.colors?.linkColor?.value?.value === '#188bf6',
     'READ-BACK (bl-121): the stored page carries typography.colors, which the builder reads unguarded', JSON.stringify(typo?.colors ?? null));
   check(Boolean(btn?.styles?.color?.value || btn?.styles?.secondaryColor?.value),
     'READ-BACK (bl-119): a button authored with no styles is stored WITH a colour key', JSON.stringify(btn?.styles ?? null));
-  check(cssPara?.styles?.color?.value === '#333333' && cssPara?.styles?.fontWeight?.value === 600,
-    'READ-BACK (bl-120): a leaf styled only through css also stores the node styles it implies', JSON.stringify(cssPara?.styles ?? null));
+  // RE-BASELINED 2026-11-09 (w9-d6, DECISION (a)): the check encoded a shape the builder never stores. The builder writes a weight
+  // as {value:"", desktop, mobile} (knowledge sniffs/funnels-wave34-f4c-recon-2026-09-30/live-read.3-body.json: fontWeight
+  // {"value":"","desktop":"500","mobile":"500"}), and a family as var(--slug) with its face declared in the page's :root
+  // (core/page-fonts.mjs), so the literal name 'Georgia' is never the stored value. The check now asserts those shapes, and that
+  // the :root declares --georgia as Georgia.
+  const rootGeorgia = /--georgia:\s*['"]?Georgia['"]?\s*[;}]/.test(String(stored.json?.pageStyles ?? ''));
+  check(cssPara?.styles?.color?.value === '#333333'
+    && String(cssPara?.styles?.fontWeight?.desktop) === '600' && String(cssPara?.styles?.fontWeight?.mobile) === '600'
+    && cssPara?.styles?.fontFamily?.value === 'var(--georgia)' && rootGeorgia,
+    'READ-BACK (bl-120): a leaf styled only through css stores the node styles it implies, in the builder shape (weight 600 desktop and mobile; family var(--georgia) with :root --georgia: Georgia)',
+    JSON.stringify({ styles: cssPara?.styles ?? null, rootGeorgia }));
+  // READ-BACK (render), one separate GET (DECISION 2026-11-09, w9-d6): the builder's preview route serves the saved page's
+  // HTML with its compiled CSS, with no publish and no funnel domain. Assert the paragraph's own rule and the :root family.
+  const prev = await fetch(`https://sites.leadconnectorhq.com/preview/${encodeURIComponent(pageId)}`, { headers: { 'user-agent': 'ghl-knowledge-readonly' } });
+  const html = await prev.text();
+  const at = html.indexOf('Styled through css only');
+  const cls = at >= 0 ? [...html.slice(0, at).matchAll(/class="([^"]*)"/g)].map((m) => m[1]).flatMap((c) => c.split(/\s+/)).filter((t) => /^cparagraph-/.test(t)).pop() : null;
+  const decls = cls ? [...html.matchAll(new RegExp(`\\.${cls}\\s*\\{([^}]*)\\}`, 'g'))].map((m) => m[1]).join(';') : '';
+  const rootGeorgiaInPreview = /--georgia:\s*['"]?Georgia['"]?/.test(html);
+  check(prev.status === 200 && at >= 0 && /font-weight:600/.test(decls) && /font-family:var\(--georgia\)/.test(decls) && rootGeorgiaInPreview,
+    'READ-BACK (render): the preview route renders the paragraph at weight 600 in var(--georgia), and :root --georgia is Georgia (one GET, no publish)',
+    JSON.stringify({ http: prev.status, found: at >= 0, cls, weight600: /font-weight:600/.test(decls), georgiaVar: /font-family:var\(--georgia\)/.test(decls), rootGeorgiaInPreview }));
 }
 
 // 3. PUBLISH, AND THE FREEZE IT CAUSES ---------------------------------------------------------

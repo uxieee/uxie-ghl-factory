@@ -18,9 +18,9 @@
     ]
   },
   "audit_site": {
-    "description": "Read-only audit of a GHL funnel or website — dangling references, missing merge tags, foreign locationIds, publish drift — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Read-only audit of a GHL funnel or website — dangling references, missing merge tags, foreign locationIds, publish drift — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "funnels-service--get-funnels",
@@ -150,9 +150,9 @@
     ]
   },
   "build_funnel_page": {
-    "description": "Compose, validate and write a funnel page from native elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them — proof: failing (2026-10-29); risk: write",
+    "description": "Compose, validate and write a funnel page from elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them — proof: live-runtime (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "failing (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "funnels--builder-autosave",

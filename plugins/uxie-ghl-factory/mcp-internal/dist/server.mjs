@@ -82146,9 +82146,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       audit_site: {
-        description: "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "funnels-service--get-funnels",
@@ -82278,9 +82278,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_funnel_page: {
-        description: "Compose, validate and write a funnel page from native elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them \u2014 proof: failing (2026-10-29); risk: write",
+        description: "Compose, validate and write a funnel page from elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them \u2014 proof: live-runtime (2026-11-08); risk: write",
         risk: "write",
-        proof: "failing (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "funnels--builder-autosave",
@@ -246594,7 +246594,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose, validate and write a funnel page from native elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them")}. Preview by default; confirm:true autosaves the DRAFT; publish:true publishes. COMPOSE (sections, popups?, typography?): writes nodes AND the compiled stylesheet. Node styles compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, insert, move, clone, remove-node, page (trackingCode, customCss, background, typography), append-popup, set-popup, remove-popup, order-popups; seo writes the page record AND the version. Target checked first; every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages \u2192 references/build-funnel-page.md.`,
+    description: `${describe3("build_funnel_page", "Compose, validate and write a funnel page from elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them")}. Preview by default; confirm:true autosaves the DRAFT; publish:true publishes. COMPOSE (sections, popups?, typography?): writes nodes AND the compiled stylesheet. Node styles compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (text \u2192 html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, insert, move, clone, remove-node, page (trackingCode, customCss, background, typography), append-popup, set-popup, remove-popup, order-popups; seo writes the page record AND the version. Target checked first; every op verified by value on a separate read. \u{1F534} Visitors see only the PUBLISHED version: pass publish:true for content and SEO. \u{1F534} After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages \u2192 references/build-funnel-page.md.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
