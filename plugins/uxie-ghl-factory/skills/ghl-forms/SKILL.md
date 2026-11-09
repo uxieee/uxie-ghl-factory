@@ -1,6 +1,6 @@
 ---
 name: ghl-forms
-description: GoHighLevel forms, surveys and quizzes — the builders under Sites. Use when a task involves listing, reading, creating, editing, duplicating, foldering or embedding a form, when a form_submission trigger needs the form's real field tags, or when someone asks why a form edit lost fields, why a survey is not on the forms list, or what a form's public URL is. Also use before writing to any form by raw_request — the save replaces the whole document and there is no undo.
+description: GoHighLevel forms, surveys and quizzes — the builders under Sites. Use when a task involves listing, reading, creating, editing, duplicating, foldering or embedding a form, when a form_submission trigger needs the form's real field tags, or when someone asks why a form edit lost fields, why a survey is not on the forms list, or what a form's public URL is. Also use before writing to any form by raw_request — the save merges at formData.form, so send only the keys you change.
 ---
 
 # Forms, surveys and quizzes

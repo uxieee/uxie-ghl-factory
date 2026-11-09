@@ -1,6 +1,6 @@
 ---
 name: ghl-orientation
-description: GoHighLevel platform fluency — the GHL object model, terminology, which API surface (public MCP vs internal) fits a job, and cross-domain gotchas (calendars, forms, custom fields, tags, snapshots). Use at the start of any GHL task, when unsure what a GHL term means, where a thing lives in GHL, or which API/tool can touch it.
+description: GoHighLevel platform fluency — the GHL object model, terminology, which API surface (public MCP vs internal) fits a job, and cross-domain gotchas (calendars, forms, custom fields, tags, snapshots). Use at the start of any GHL task, when asked what a GHL term or object is (a snapshot, a template, a pipeline), when unsure where a thing lives in GHL, how an account's pieces connect (a map or diagram of them), or which API/tool can touch it.
 ---
 
 # GHL Orientation
@@ -26,6 +26,9 @@ Ground rules for agents working GHL:
    already covers it, and whether a location token has been PROVEN to reach it.
    `describe_endpoint` then hands you the exact call. This is also the first stop
    before any reverse-engineering: the answer is often already catalogued.
+
+**Smart lists.** A smart list silently drops a filter the contacts screen will not apply. `check_smart_lists` (read)
+audits the account's lists for those; `create_smart_list` (a write: confirm first) builds one whose filter the screen applies.
 
 ## Specialists
 

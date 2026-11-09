@@ -134,6 +134,25 @@ copilot makes. Before attaching a number to a test or draft agent, turn it off w
 `isDefaultNumber:true`, so workflow SMS and call steps that had no sender now have one, and any call to it reaches the
 attached agent. "Proceed to Buy" in the UI is the purchase, not a preview. US SMS from it needs A2P 10DLC registration.
 
+## Writing a voice agent's prompt
+
+A caller hears the prompt, so write for the ear. Use short turns, one or two sentences each. Never send a caller to
+something they must read or click ("see the link", "tap here", "see attached"). No emoji in the prompt or the greeting,
+and no narration of what the agent is about to do. Read names, emails and phone numbers back one character or one digit
+at a time (with the country code for a number), and let the caller correct them.
+
+Make the prompt handle both kinds of caller: when the record already has a name, email or number, confirm it; when it is
+empty, ask for it. Keep the greeting on one line of 190 characters or fewer. Offer a booking only when a calendar is
+attached to the agent; without one, the agent should not mention booking at all. Never invent a price, discount or
+guarantee: when the caller asks, offer a team callback to quote it. Do not name the voice provider to the caller.
+
+Set the language from the callers' own words: if most of the inbound messages are in one non-English language (about
+70% or more of the words), use that language; otherwise use English.
+
+When the agent is created and then its actions are attached, a partial failure should not roll the agent back. Say which
+actions failed, by the label the page shows, and point to the agent page to retry. Publish is confirmed by the agent's
+status being active, nothing more.
+
 ## Deployment is a phone number, not a publish
 
 An agent goes live by being attached to a number:

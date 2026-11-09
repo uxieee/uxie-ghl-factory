@@ -98,7 +98,9 @@ A post carries rich-HTML `description` (the body) + ONE primary media + N `post_
 ## Traps that will cost you hours
 
 1. **`contentType` is a CLOSED MySQL ENUM: `video | audio | quiz | assignment` — or OMIT it.**
-   A text-only lesson omits the key. `text`/`embed`/`html`/`pdf`/`file`/`link` all return
+   GHL has no `text` lesson type. A text lesson is a `video`-typed post with the text in its description: send
+   `contentType: 'video'` explicitly and put the text in `description`. Do not read a `video` read-back on a text
+   lesson as a bug. `text`/`embed`/`html`/`pdf`/`file`/`link` all return
    `500 Data truncated for column 'content_type'`. There is no embed or PDF *lesson type*.
 2. **Embeds: `POST /posts` SILENTLY DROPS `embedJson`.** It returns 200 and the embed is simply
    absent on read-back. **Create the post, then PUT it** (`api.setEmbed()`). The server mints

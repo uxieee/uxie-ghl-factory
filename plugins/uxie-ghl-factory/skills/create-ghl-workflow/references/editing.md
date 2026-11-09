@@ -19,6 +19,7 @@ It GETs the live workflow, applies the ops to `workflowData.templates`, and comm
 the **plain `PUT /workflow/{loc}/{wid}`** (NOT `/auto-save` — that 422s on an existing
 workflow). `--dry-run` computes + prints the diff without sending the PUT. The edit-spec is
 `{ "ops": [ … ] }` applied in order; ops: `appendStep`, `insertAfter`, `appendToBranch`
+A tag that an edit's own add-tag step creates is not reported as "Referenced Tag does not exist": the write creates it, and the check runs before the write. Any other tag the edit uses still gets that warning (bl-919, first half).
 (anchor by `branchEntryId`, by `containerId` + `branch` — display name, `__branchKey__`, or id —
 or by `branchRef`, a branch `ref` authored earlier in the same call),
 `insertBefore`
@@ -433,7 +434,10 @@ across workflows (`addTrigger` takes `conditions` verbatim too). Refused by name
 `conditions`/`filters`/`status`/`active` at the op's top level; `triggerId` together with a
 top-level `name` (the top-level `name` is the MATCHER — R-101's "rename" that verified clean and
 never happened); `trigger.status` (activation is `trigger.active`); an unknown key inside
-`trigger`; both `filters` and `conditions`. A patch whose every value already matches the store
+`trigger`; both `filters` and `conditions`. A trigger tag written in mixed case is refused the same way: the call
+fails `VALIDATION_FAILED` with `TRIGGER_TAG_CASE` before anything is written. Write the tag in lower case (GHL stores
+tags lower-cased). Before this refusal existed, the write landed and the caller got `ENGINE_ABORT`; do not retry an
+`ENGINE_ABORT` on a mixed-case tag, fix the case first (bl-916, live-proven on the W9 sandbox). A patch whose every value already matches the store
 is planned as a **NOOP** — shown in the preview with the reason, warned `TRIGGER_NOOP`, and not
 sent (D-67: a no-op PUT "verified" a write that never happened).
 

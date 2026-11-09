@@ -24,7 +24,7 @@ Use this when the user asks to review a workflow that is running (or was): "why 
 4. **Sample journeys (only if the user names a contact or asks for examples).** `get_contact_workflow_history` for that contact, narrowed with
    `workflowId`. Follow `nextCursor` only as far as needed.
 5. **Failures.** `list_workflow_error_notifications` for the location, then keep the rows that name this workflow. Say the list may be partial.
-6. **Branch and A/B evidence.** If the digest shows an A/B Test step, `get_ab_test_stats` for it. A draft has no stats; say so.
+6. **Branch and A/B evidence.** If the digest shows an A/B Test step, `get_ab_test_stats` for it. On a draft the tool answers zeros with a null rate (seen 2026-11-07, bl-900 open): report that as no data yet, never as a 0% result.
 7. **Tests.** For a step the user asks about, `get_step_latest_test_result` (a `present:false` is a proven absence, not a failure). List runs
    with `list_workflow_test_runs` only if the user asks; starting a test run is not something this skill does.
 8. **Assets.** `get_workflow_linked_assets` with `workflowIds` set to this workflow: the tags, forms, calendars and other assets it uses, by step.

@@ -190,7 +190,8 @@ bound to a client, and check `auth_status` rather than the browser for which acc
    cp "${CLAUDE_PLUGIN_ROOT}/mcp-internal/launch.mjs" "$HOME/.uxie-ghl-internal-mcp/launch.mjs"
    ```
 
-2. **Capture the token to the project-local file** (leak-safe). Open the Playwright browser in a
+2. **Capture the token to the project-local file** (leak-safe). The server reads the file from `GHL_INTERNAL_TOK_FILE`, or
+   from the `set_token_file` tool, which takes a **path** (never a token). Open the Playwright browser in a
    profile belonging to THIS folder — never the machine's default, and never the profile another
    client was last logged into (see **Per-project layout**; the user's normal GHL login does not
    carry over either) — to the **AI Agents** surface so one capture yields both credentials:

@@ -43,7 +43,7 @@ The detail is in the sections below and in the corpus research page.
 | `PUT` | `/agent-studio/super-agent/agents/:id` | Update — the UI sends the whole config; the server **keeps a top-level key you omit** (2026-10) |
 | `PUT` | `/agent-studio/super-agent/agents/:id/avatar` | `{locationId, avatar: {kind: "bot", index, tint}}` (proven live 2026-10-30) |
 | `GET` / `POST` | `/agent-studio/super-agent/agents/:id/memory` | the memory list (cap 25) / add one `{locationId, text, category}` (proven live 2026-10-30) |
-| `PATCH` | `/agent-studio/super-agent/agents/:id/memory/settings` | `{locationId, enabled}` — sets `config.memoryEnabled` (proven live). This is the proven memory switch; a config PUT carrying `memoryEnabled` was not tested |
+| `PATCH` | `/agent-studio/super-agent/agents/:id/memory/settings` | `{locationId, enabled}` — sets `config.memoryEnabled` (proven live). Memory can also be switched on at create: `create_studio_agent` accepts `memoryEnabled: true` (proven live, read back on a separate GET) |
 | `GET` | `/agent-studio/super-agent/agents/:id?locationId=` | Fetch one |
 | `GET` | `/agent-studio/super-agent/agents/:id/activity?locationId=` | Trigger/chat run log |
 | `POST` | `/agent-studio/super-agent/agents/:id/publish` | `{locationId}` → `status: "published"`; arms the triggers, mints a `triggerId` on each (proven live) |

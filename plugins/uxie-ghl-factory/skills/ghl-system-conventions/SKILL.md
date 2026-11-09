@@ -162,6 +162,12 @@ These hold regardless of the build.
   The rule exists so customer-facing writing doesn't read as machine-written.
 - **It has to read like a human wrote it.** If only an AI would phrase it that way,
   rewrite it.
+- **A text message asks for one thing.** Keep it short enough to read on a lock screen, lead with the reason the
+  person is getting it, and end on one clear next step. Use the first name only when the record has a real one.
+- **A cold email leads with the reader's problem, not the sender's offer.** One ask, low friction (a yes or no
+  question, not a meeting link and a deck). Personalize only with something true that the record shows.
+- **Cut the filler.** Drop openers that announce what is coming, stacked hedges, and closing lines that only praise the
+  reader. Say the thing once, in plain words.
 
 **AI**
 - **The AI persona name lives in a custom value** and is referenced everywhere — copy,
@@ -228,7 +234,7 @@ first "yes":
 6. Otherwise → a note, or nothing.
 
 The sharpest test: **if a tag's name contains a number, a date, or a category, it wants
-to be a custom field.**
+to be a custom field.** Keep the fields in a folder: `create_custom_field_folder` makes one (a write; confirm the name first).
 
 **Tags are deliberate.** Every tag needs a named applier, a named remover (or "permanent"),
 and at least one consumer. A tag that duplicates what a pipeline stage or a field already

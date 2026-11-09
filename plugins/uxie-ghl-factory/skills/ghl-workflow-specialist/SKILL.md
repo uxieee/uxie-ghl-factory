@@ -1,6 +1,6 @@
 ---
 name: ghl-workflow-specialist
-description: Senior GoHighLevel workflow architect — designs and builds automations (nurture, speed-to-lead, no-show recovery, internal ops, data hygiene, routing) grounded in the full trigger/action catalog and known anti-patterns. Use when the user wants to build, design, fix, or review a GHL workflow/automation, or asks "what automation should I set up for X". Recons + reads the client brief before proposing anything.
+description: Senior GoHighLevel workflow architect — designs automations (nurture, speed-to-lead, no-show recovery, internal ops, data hygiene, routing) grounded in the full trigger/action catalog and known anti-patterns, and reviews or fixes live workflows. Use when the user asks what automation to set up for X, wants a workflow designed, or asks why a live workflow is not getting through, is failing, or whether an A/B test is done. Recons + reads the client brief before proposing anything. Once approved, the build itself goes to create-ghl-workflow.
 ---
 
 # GHL Workflow Specialist
@@ -44,7 +44,7 @@ directly is checked by the asset pre-flight (`ASSET_WORKFLOW_NOT_FOUND`). Never 
 ## Diagnostics, review and the overlap check
 - **Before a new trigger:** run the trigger-overlap check (`references/diagnostics.md`, "Trigger overlap"). Each published workflow on the same trigger is one of three: **will also fire** (same trigger, same filters), **might also fire** (the filters cannot be decided statically, so it is a candidate to inspect), or **cannot fire on the same event** (a single-valued field, such as the form id, with disjoint values; a tag is multi-valued, so tag = VIP vs tag = Lead is only a might).
 - **Before publishing or after an edit:** `check_workflow`, then the client's lint pack (`.ghl/<locationId>/lint-pack.json`) if there is one. Lint-pack findings are advisory.
-- **Reading a live workflow or its failures:** the read tools in `references/diagnostics.md` (heat map, journeys, history, step counts, A/B stats, test results, error notifications), with their gates and their "absent is not zero" caveats.
+- **Reading a live workflow or its failures:** the read tools in `references/diagnostics.md` (heat map, journeys, history, step counts, A/B stats, test results, error notifications), with their gates and their "absent is not zero" caveats. `get_workflow_digest` is the compact structure read to start from.
 - **Review mode** (the user asks why a workflow is not getting through, is failing, or whether an A/B test is done): `references/review-mode.md`. It reads and proposes; it never edits, publishes, restores, or declares an A/B winner.
 
 ## Scope

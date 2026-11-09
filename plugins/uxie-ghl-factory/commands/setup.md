@@ -1,5 +1,6 @@
 ---
 description: First-run setup for the ghl plugin — prerequisites, GHL API token, MCP connection test, version check
+disable-model-invocation: true
 ---
 
 # /uxie-ghl-factory:setup

@@ -201,6 +201,18 @@ If the user wants one of these, **GHL can do it** — say so and point to the sc
 | Create with AI (Beta) | KB list → "Create with AI" | it opens the Ask AI copilot ("Create a knowledge base from brand voice") and makes no KB call of its own |
 | Open the KB screen at all | AI Agents → Knowledge Base | the page sits behind the `conversation_AI` billing opt-in (`config.optIn`), not `enabled` |
 
+## Writing FAQs from real conversations
+
+When the job is to fill a knowledge base from what customers already asked, keep only the questions a customer asked to
+get facts (products, services, prices, hours, policies, how things work). Drop greetings, bookings, one-word replies,
+staff-only notes and system lines. Take the question from the customer's side and the answer from the business's side.
+Remove anything personal (names, numbers, addresses, billing details) and anything only true on one day ("closed today",
+a slot time). Rewrite colloquial questions so each one stands alone and names its product. Answers the bot gave that
+said it did not know are the most useful candidates: complete them where the facts are known. Where a value is unknown
+and changes (a price, hours, a phone number), write a clear placeholder such as [price] instead of inventing it or leaving
+the answer empty. Merge questions that ask the same thing into one pair, then save them in one bulk call and read back
+how many were created, updated or failed.
+
 ## Limits
 
 Files ≤ 10 MB (`.pdf .doc .docx .md`) · table CSV ≤ 50 MB · rich text ≤ 25,000 characters and 512 KiB of HTML

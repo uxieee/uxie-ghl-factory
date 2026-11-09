@@ -77,6 +77,12 @@ under it (2 on the test sub-account, measured 2026-09-07, alongside 4 `knowledge
 `platform/40-rules/snapshot-carry-matrix.md` before promising a rollout carries something — the
 matrix is per-asset and several answers are counter-intuitive.
 
+## Loading a snapshot: `push_snapshot` (destructive)
+
+`push_snapshot` loads a snapshot into sub-accounts. It is destructive: name each target sub-account and get the user's
+explicit go-ahead on that list first. Never send it to a client account the user has not named. Then run the
+install check below.
+
 ## After a snapshot or template install: run `audit_site`
 
 An install copies the funnels, forms and calendars of the SOURCE account, and their embedded references keep pointing at that source. A form or calendar id that the new account does not hold shows its correct name beside a wrong id, so the page looks right in the builder and fails for visitors. After any snapshot or template install that brings funnels or websites, run `audit_site` on each funnel for the account (read-only) and fix every HIGH dangling reference before handing the site over. Its coverage line says which lists it read to the end; a check listed as not run has not been verified.

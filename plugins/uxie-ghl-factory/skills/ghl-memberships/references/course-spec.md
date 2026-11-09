@@ -38,7 +38,7 @@ Always `--dry-run` first — validation runs before anything touches the account
       "description": "",
       "lessons": [
 
-        // TEXT lesson — omit every media key
+        // TEXT lesson — a video-typed post whose body is the text (GHL has no text type)
         { "title": "Welcome", "text": "<h2>Hi</h2><p>Rich <strong>HTML</strong> works.</p>" },
 
         // VIDEO (uploaded) — path relative to the spec file
@@ -80,7 +80,8 @@ Always `--dry-run` first — validation runs before anything touches the account
 
 - `course.title` and at least one chapter with a title.
 - `lessons[].type` ∈ `lesson | quiz | assignment` (default `lesson`). **There is no `embed`,
-  `pdf`, `html` or `text` type** — `content_type` is a closed ENUM; text lessons simply omit media.
+  `pdf`, `html` or `text` type** — `content_type` is a closed ENUM. A text lesson is sent as `contentType: 'video'` with
+  the text in the description; it reads back as `video`, which is GHL's real model, not a bug.
 - Quiz `questions[]` need ≥2 options and **at least one `isCorrect`**.
 - A lesson cannot have both `video` and `embed`.
 - **Visibility is DRAFT by default** (w8-11). A chapter is published only when the spec publishes it or one of its lessons; a lesson, quiz or assignment is published only when it says `visibility: "published"`; the offer is published only with `offer.publish: true`. Nothing else publishes.

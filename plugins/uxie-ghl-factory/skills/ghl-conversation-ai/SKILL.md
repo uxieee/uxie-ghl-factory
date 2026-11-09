@@ -72,6 +72,10 @@ The internal rail is also the only rail for:
   equivalent. **Write a row with `set_agent_deployment`**: it touches only the named agent's row and fails unless every
   other row reads back byte-identical. Read the table with `raw_request` (`host:"ai"`, omit `agentId` for every row).
   See the next section.
+- **Which connected agent answers a widget** (the chat widget's Agent tab) is **UI-only in this build**: there is no
+  write route for it, and the assignments editor path answers 404. Set it in the chat widget's Agent tab and tell the
+  user. The routing rows behind it are read with `get_ai_configuration_bundle` (it reads
+  `GET /agent-deployment/routing-config/configs`). Evidence: console report `routing-assignments-E-exclusion` (2026-11-09).
 
 `references/conversation-ai.md` documents the internal endpoints — read it when you need the
 per-contact switch, prompt history or the routing table, not as the default path. Those, and every other
@@ -112,7 +116,9 @@ symptom: contacts get created, no reply, no enrolment, no error anywhere. Diagno
 1. Read the routing rows (`raw_request`, `host:"ai"`; no agent read shows them) and fix any row pointing at
    nothing — `set_agent_deployment` with `allIdentifiers: true` ("All widgets"). The table is account-wide: check the
    preview's `collisions` before confirming.
-2. Only after every row checks out: the per-contact switch, `mode`, `channels[]`, then the prompt.
+2. Only after every row checks out: the per-contact switch, `mode`, `channels[]`, then the prompt. The switch is
+   `get_contact_ai_status` (read) and `set_contact_ai_status` (a write: confirm with the user first). To see why the bot
+   wrote one reply, `get_ai_response_details` returns the prompt, history and retrieval behind that one outbound message.
 3. If working hours are on: an editor Save with **no channel ticked** in Deploy → Schedule → Working hours sends only the
    agent PUT and silently skips the working-hours write — no error, no toast `[proven-live 2026-10-29]` (corpus
    `40-rules/builder-vs-server.md`). Read `GET /ai-employees/employees/{agentId}/working-hours` (404 = no record) before
@@ -136,6 +142,14 @@ Recon here = read existing agents before asking anything:
 
 Never ask the user something recon or the brief already answers.
 
+**Settle the brief before the prompt.** A new agent's prompt is only as good as the decisions above it. Before writing
+any prompt text, fix these in the brief, in this order: the job in one sentence (inbound replies, or outbound texts
+that start the conversation); the channels it answers on; for an outbound agent, the trigger (a missed call, a new lead
+from a form or funnel, a pipeline stage that has stalled, or a one-off run on a smart list of old contacts); the working
+hours and what it does outside them; and when it hands over to a person. Only then write the prompt, and check each of
+those decisions against the prompt you wrote. An outbound trigger or an AI Campaign texts real people: confirm it with
+the operator first, as the confirm section below says.
+
 ## Knowledge (load what the task needs)
 - `references/conversation-ai.md` — agent config, the 7 action-record types, merge-PUT semantics,
   driving `convai-compiler.mjs`.
@@ -144,6 +158,7 @@ Never ask the user something recon or the brief already answers.
   cost, AI Campaigns (DND skip, no de-dup), where each send is logged.
 - `references/agent-studio.md` — **Managed Agents** (the UI's "Agent Studio" tab; the internal
   `/agent-studio/super-agent/*` surface that `create_studio_agent` drives; edits are a raw_request PUT of the config).
+- `list_ai_agent_skills` — GHL's AI Agent skill library: a read that walks every page, or resolves up to ten skill ids.
   **Load it for ANY Managed Agent task.** Two run-time traps to know even before you do: 🔴 a subagent on
   `openrouter/google/gemini-3.8-flash` is accepted on save but FAILS every delegation at run time (the parent quietly
   does the work) — omit the subagent's model or pick another from the roster; 🔴 **Computer** (`sandbox_browser`,
@@ -218,6 +233,21 @@ never assume a write succeeded because the response was 200.
 
 Delegate never-hand-roll: don't call these endpoints ad hoc — drive them through the
 `engine/` compilers so behavior stays traced to the captures.
+
+## Writing an agent's prompt
+
+- **Choose the shape by the job.** Booking, support and FAQ bots work well as a warm, numbered flow: a welcome, an
+  intent check, the answers, qualification, then the next step, with the common questions in an FAQ list. Sales and
+  objection bots need a stage-gated flow instead: hook and qualify, surface the problem, walk through the solution,
+  handle objections, then one clear call to action. Advance a stage once its exit condition is met, and never explain the solution before the problem is named.
+- **Take the voice from the account's own history when it exists.** Read the team's past messages for tone and for
+  the questions staff repeatedly ask. Use the questions as the intake list, rephrased generically (no names, dates or
+  numbers), and never quote a real message back.
+- **Keep it inside the builder's targets.** Aim for a personality of about 50 to 150 words, a goal of 30 words or fewer,
+  and instructions of roughly 300 to 1500 words. Trim padding before adding a section.
+- **Never invent facts.** No price, discount, guarantee, hour or service that is not in the inputs. Write a placeholder
+  that says the team will confirm it.
+- **Promise only what the agent can do.** Mention booking only when a calendar is attached to the agent.
 
 ## Confirm before anything goes live
 

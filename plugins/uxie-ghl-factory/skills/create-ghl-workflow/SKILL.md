@@ -119,6 +119,16 @@ them to where it lives in the UI. Never report it as impossible, and never build
 | **The Mention tool and the trigger-links icon in a rich-text field** | The message editor of an SMS or a marketplace step (internal comment): **@** Mention, lightning icon for trigger links | A picked mention is stored as plain text, `@{{user.name}}[[uid:{{user.id}}]]` for the assigned user; write that string. The Mention list ignores paging and search. |
 | **Premium opt-in, rebilling and plans** for the workflow premium and AI features | Agency settings → Workflow premium features / external AI models; Automation Settings → View plans | Billing changes are excluded. Build and edit preflight read the opt-in gate, and `get_premium_usage` reads consumption. |
 | **Template listing settings** (a workflow's template categories and description) | The workflow's **Settings** tab, shown only on a template (snapshot-source) location | The plugin does not publish templates. Those fields do not exist on an ordinary location. |
+| **The AI builder chat test** | Automation → Workflows → the AI builder, the chat test panel | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
+| **The AI builder's named-account lookup** | Automation → Workflows → the AI builder, when it looks up an account by name | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
+| **Workflow Maps linked canvas** | Automation → Workflows → Maps → the linked canvas view | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
+| **Workflow Maps AI assistant** | Automation → Workflows → Maps → the AI assistant | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
+| **Workflow Maps guided onboarding** | Automation → Workflows → Maps → the guided onboarding | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
+| **The AI Agent web search switch** | The AI Agent step → its web search switch | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
+| **Attaching a skill to an AI Agent step** | The AI Agent step → its skills panel | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
+| **AI Agent hosted chat** (the shared-agents route) | The AI Agent's hosted chat page, from the agent's sharing settings | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
+| **The AI Video Generation action** | The workflow's action list → AI Video Generation, in the GHL UI | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
+| **The AI Analyze Video action** | The workflow's action list → AI Analyze Video, in the GHL UI | UI-only in this build: no tool exists for it yet (backlog bl-945). Do it in the GHL UI and tell the user; do not try to author, toggle or read it through a tool. |
 
 ## Which rail, per job
 
@@ -173,13 +183,14 @@ Public only: server-side publish gate; logs/aggregate that refuses to truncate.
 
 | The job | Read |
 |---|---|
-| Author a new workflow: the IR shape, settings, sticky notes, object workflows, step outputs, inbound-webhook samples, custom code | `references/authoring-ir.md` |
-| Change a workflow that already exists: retype a step, insert before the first, multipath containers, edit triggers, the dead-branch guard | `references/editing.md` |
+| Author a new workflow: the IR shape, settings, sticky notes, object workflows, step outputs, inbound-webhook samples, custom code | `references/authoring-ir.md` (a custom-code step can be run in the sandbox first with `test_custom_code`, which changes nothing in the account) |
+| Change a workflow that already exists: retype a step, insert before the first, multipath containers, edit triggers, the dead-branch guard | `references/editing.md` (read the structure first with `get_workflow_digest`: one compact read of identity, version, steps and merge tags) |
 | The exact field set for one step or trigger type | **`describe_step_type`** (the tool — not a file) |
 | Build one of the recipes end to end | `references/build-recipe.md` |
 | Merge tags in step text: trigger data, `formatList`, dates, `default`, the picker, what the engine refuses | `references/merge-tags.md` |
 | The five appointment-family waits, the deprecated `eventStartDate` setting, trigger toggle rows and deprecated operators, reading logs and stats, Save version | `references/waits-settings-triggers.md` |
-| Marketplace / third-party steps and triggers | `references/marketplace-steps.md` |
+| Marketplace / third-party steps and triggers: `list_marketplace_apps`, and `describe_marketplace_action` for one action's published schema and whether its app is connected | `references/marketplace-steps.md` |
+| Workflow folders: `list_workflow_folders` (read), `create_workflow_folder` and `move_workflows` (writes: move takes workflows between folders and the root) | the tools (no reference) |
 | The advanced canvas: what a person's gestures store, that our tools keep canvas layout on edit (proven 2026-09-29), and rescuing a goto that lost its target | `references/advanced-canvas.md` |
 | What a step's stored shape must look like, and why mirroring one example misleads | `references/step-shapes.md` |
 | Everything the engine can build | `references/capabilities.md` |
