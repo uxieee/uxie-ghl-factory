@@ -46,7 +46,7 @@ doesn't, or vice versa) is a normal outcome of this split, not a bug to chase.
 
 **4. There is no agency-level list.** Projects are per sub-account. Before concluding a site does
 not exist, sweep every location the registration is bound to. Within one location, `list_studio_sites`
-lists its AI Studio sites (a read) when the site is known by name but not yet resolved.
+lists its AI Studio sites (a read) when the site is known by name but not yet resolved. It is an AI Studio project tool: input `locationId`; it returns the projects and folders, each project with its id, name, slug and folderId.
 
 ## Reading a site
 
@@ -63,7 +63,7 @@ PNG. Do not paste one anywhere you would not paste the draft itself.
 
 `generate_studio_site` preflights usage, sends the prompt, waits for the build and returns the
 version, the diffs and **what it cost**. A generation still running can be stopped with
-`cancel_studio_generation` (a write: confirm with the user first). It spends real money, metered in USD. Watch
+`cancel_studio_generation` (a write: confirm with the user first). It is an AI Studio project tool: inputs `locationId`, `projectId` and `messageId`; the project must belong to that location, and it is checked before the cancel is sent. It spends real money, metered in USD. Watch
 `sessionSpendUsd`, and read `spendMeter` beside it: the meter depends on the billing mode. Under
 `billingModeIfCharged: "agency_free_ai"` (the sandbox since 2026-10) the `AI_STUDIO` usage snapshot does
 not move per turn, so the tool reads the project policy's `fup.usedAmount` instead

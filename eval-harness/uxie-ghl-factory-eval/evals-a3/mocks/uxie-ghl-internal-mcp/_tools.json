@@ -642,6 +642,10 @@
           "confirm": {
             "default": false,
             "type": "boolean"
+          },
+          "confirmationToken": {
+            "description": "bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.",
+            "type": "string"
           }
         },
         "required": [
@@ -1057,7 +1061,7 @@
     },
     {
       "name": "publish_workflow",
-      "description": "Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT's own draft→published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs — proof: live-runtime (2026-10-29), floor: documented; risk: destructive",
+      "description": "Publishing is TWO-STEP (bl-946). Call publish_workflow with confirm:true and NO token first: it publishes nothing and returns a preview (validation, the steps that send, the trigger changes) and a short-lived data.confirmationToken. Then call it again with confirm:true and that confirmationToken to publish. confirm:true without a valid token never publishes. A version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT's own draft→published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs — proof: live-runtime (2026-10-29), floor: documented; risk: destructive",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1070,6 +1074,10 @@
           "confirm": {
             "default": false,
             "type": "boolean"
+          },
+          "confirmationToken": {
+            "description": "bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to publish. A call without a valid token previews and publishes nothing. The token is bound to this workflow and version, lasts 5 minutes and works once.",
+            "type": "string"
           },
           "allowValidationFailure": {
             "description": "Publish even though the validation gate refused. The gate runs every layer: GHL's own WorkflowValidator rules (including the publish-only ones), the advanced canvas's stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL's live validator. Findings are still reported in full.",

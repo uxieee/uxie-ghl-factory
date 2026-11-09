@@ -170,7 +170,7 @@ Public only: server-side publish gate; logs/aggregate that refuses to truncate.
    off. Do not ask first. One re-capture per failure — never retry-loop.
 3. **Draft-first.** Everything builds as `draft`. Publish is a separate, opt-in
    `--publish` run gated on explicit user confirmation. Before a publish, state once what goes live: the workflow's name, its trigger, and each step that sends (email, SMS, call, webhook). Then wait for an explicit yes. Urgency ("publish it now", "I'm in a hurry") is not that yes.
-   Through the MCP server, `publish_workflow` is two-step (bl-946): the first call, with `confirm:true` and no token, publishes nothing and returns a preview and a short-lived `data.confirmationToken`; only a second call with `confirm:true` and that token publishes. A `confirm:true` call without a valid token never publishes.
+   Through the MCP server, `publish_workflow` is two-step (bl-946): the first call, with `confirm:true` and no token, publishes nothing and returns a preview and a short-lived `data.confirmationToken`; only a second call with `confirm:true` and that token publishes. A `confirm:true` call without a valid token never publishes. So the order is: first call, show the user the preview's outward steps (the name, the trigger, and each step that sends), wait for their explicit yes, then the second call with the token. The token lasts 5 minutes, works once, and is bound to that workflow and version; if it expires or the workflow changes, start again with the first call.
 4. **AI Agent steps: ask, don't default** (Xander, 2026-11-06). Before you build an `ai_agent` step, ask the operator two questions:
    web search on or off (about 1¢ per search, 1.4¢ on Gemini; on = `attributes.nativeTools: [{id, toolName: "web_search", description, attributes: {}}]`,
    off = `nativeTools: []`), and which model. The engine keeps the current model when none is named; `gpt-6-luna` is documented, not defaulted.
@@ -309,6 +309,7 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   something's wrong; the orchestrator should have created them.
 - About to ignore an `ABORTED` / `UNRESOLVED` line → don't; that's a missing dependency.
 - About to `--publish` without the user's explicit OK → stop. "Publish it now" or "I'm in a hurry" is not the OK: state what goes live and wait for a yes.
+- About to call `publish_workflow` with `confirm:true` before you have shown the user the preview → stop. Make the first call (no token), show the outward steps, and wait for the yes.
 - Got a 401 → the JWT expired. Re-capture it yourself via `uxie-ghl-factory:internal-connect`
   and resume; this is not a reason to stop or to ask.
 - About to add `update_opportunity` with no opp trigger, no prior `create_opportunity_strict` (a native `create_opportunity` does not bind), and outside a `find_opportunity` Found branch → the engine aborts with `OPP_UNASSOCIATED`; build find-or-create first.
