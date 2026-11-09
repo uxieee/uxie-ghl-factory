@@ -137,3 +137,22 @@ test('w8-7: a subscription carries its interval and an explicit amount and curre
   assert.equal(gw.calls[0].body.currency, 'GBP');
   assert.equal(gw.calls[0].body.amount, 10);
 });
+
+// bl-797 (RED first, then the default holds): a text-only lesson has no text content type. GHL stores it as
+// 'video' with its text in description. course-builder passes contentType undefined on purpose, so the
+// createPost default must turn undefined into 'video'. Reverting that default makes these fail.
+test('bl-797: a text-only lesson sent with contentType undefined goes out as video, text in description', async () => {
+  const gw = stubGateway([{ status: 200, ok: true, json: { id: 'P1' } }]);
+  const api = new GhlMembershipsApi({ gw });
+  await api.createPost({ title: 'Text', description: '<p>body</p>', categoryId: 'C1', productId: 'PR1',
+    sequenceNo: 0, contentType: undefined, visibility: 'draft' });
+  assert.equal(gw.calls[0].body.contentType, 'video');
+  assert.equal(gw.calls[0].body.description, '<p>body</p>');
+});
+
+test('bl-797: a text-only lesson with contentType omitted entirely goes out as video', async () => {
+  const gw = stubGateway([{ status: 200, ok: true, json: { id: 'P2' } }]);
+  const api = new GhlMembershipsApi({ gw });
+  await api.createPost({ title: 'Text', description: '<p>body</p>', categoryId: 'C1', productId: 'PR1' });
+  assert.equal(gw.calls[0].body.contentType, 'video');
+});

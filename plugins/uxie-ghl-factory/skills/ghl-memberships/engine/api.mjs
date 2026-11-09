@@ -76,8 +76,10 @@ export class GhlMembershipsApi {
 
   // ---------- post (lesson) ----------
   /**
-   * contentType is a CLOSED MySQL ENUM: video | audio | quiz | assignment,
-   * or OMIT for a text-only lesson. 'text'/'embed'/'html'/'pdf' all 500.
+   * contentType is a CLOSED MySQL ENUM: video | audio | quiz | assignment.
+   * 'text'/'embed'/'html'/'pdf' all 500. There is no text lesson type: a text-only
+   * lesson is contentType 'video' (the default here) with its text in `description`
+   * and no media; the server stores and returns it that way (bl-797).
    *
    * EMBEDS: pass `embed` = {src, width, height, allowFullScreen}. An embed lesson
    * is contentType 'video' + an `embedJson` object — NOT a separate content type.

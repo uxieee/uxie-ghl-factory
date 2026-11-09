@@ -106,12 +106,13 @@ async function main() {
     created.categoryId = category.id;
     assert('category created', !!category.id);
 
-    // text lesson = OMIT contentType (content_type is a MySQL ENUM; 'text' is invalid)
+    // text-only lesson = contentType 'video' with the text in description (bl-797). There is no text content type:
+    // content_type is a MySQL ENUM and 'text' is invalid. createPost defaults to 'video'; OMIT is not the way.
     const textLesson = await api.createPost({
       title: 'Text lesson', description: '<p>body</p>',
-      categoryId: category.id, productId: product.id, sequenceNo: 0, contentType: undefined, visibility: 'draft',
+      categoryId: category.id, productId: product.id, sequenceNo: 0, visibility: 'draft',
     });
-    assert('text lesson created (contentType omitted)', !!textLesson.id);
+    assert('text lesson created (contentType defaults to video)', !!textLesson.id);
 
     let enumGuard = false;
     try { await api.createPost({ title: 'bad', categoryId: category.id, productId: product.id, contentType: 'text' }); }
