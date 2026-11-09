@@ -1071,11 +1071,11 @@ test('router: an authored router compiles to a condition-node root with its lane
   assert.equal(lanes[0].name, 'All');
 });
 test('loop (w6c-2): an authored loop compiles to a loop step, not a refusal; compile accepts a list loop with no body (graph-rules checkLoopHasBody refuses it on the edit path; the engine does not name GHL\'s loop-body-empty offline)', () => {
-  const t = compile({ ...oneNode({ ref: 'l', kind: 'loop', name: 'L', loopOver: 'list', items: '{{contact.tags}}', mode: 'sequential', body: [] }) }, ctx()).autoSaveBody.workflowData.templates;
+  const t = compile({ ...oneNode({ ref: 'l', kind: 'loop', name: 'L', loopOver: 'list', items: '{{inboundWebhookRequest.items}}', mode: 'sequential', body: [] }) }, ctx()).autoSaveBody.workflowData.templates;
   const loop = t.find((s) => s.type === 'loop');
   assert.ok(loop, 'a loop step is emitted');
   assert.equal(loop.attributes.loopOver, 'list');
-  assert.equal(loop.attributes.items, '{{contact.tags}}');
+  assert.equal(loop.attributes.items, '{{inboundWebhookRequest.items}}');
 });
 test('CONTROL: a raw (builder-made) router step is carried through; if_else still compiles', () => {
   const raw = { ref: 'r', kind: 'raw', type: 'router', name: 'R', attributes: { routerName: 'R', branches: [], version: 1 } };

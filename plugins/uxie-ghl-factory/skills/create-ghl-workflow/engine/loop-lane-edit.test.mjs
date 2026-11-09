@@ -20,7 +20,7 @@ const catalog = loadCatalog();
 const ctx = (seed = 'a') => ({ loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 27, idGen: makeSeededIdGen(seed), catalog });
 const trig = [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }];
 const tag = (ref, tags = ['x']) => ({ ref, kind: 'action', type: 'add_contact_tag', name: `Tag ${ref}`, attributes: { tags } });
-const listLoop = (ref, body) => ({ ref, kind: 'loop', name: 'Loop', loopOver: 'list', items: '{{contact.tags}}', mode: 'sequential', body });
+const listLoop = (ref, body) => ({ ref, kind: 'loop', name: 'Loop', loopOver: 'list', items: '{{inboundWebhookRequest.items}}', mode: 'sequential', body });
 const build = (graph) => compile({ name: 'L', triggers: trig, graph }, ctx()).autoSaveBody.workflowData.templates;
 const byName = (ts, name) => ts.find((t) => t.name === name);
 const fresh = (templates) => ({ _id: 'W', name: 'W', status: 'draft', workflowData: { templates } });

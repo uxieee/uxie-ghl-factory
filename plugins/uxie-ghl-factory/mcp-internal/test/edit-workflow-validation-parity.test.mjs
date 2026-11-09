@@ -362,3 +362,18 @@ test('adding a sticky note to a draft that already breaks a rule is not refused;
   assert.match(String(step.detail), /validateWaitStep/);
   assert.equal(calls2.filter((c) => c.method === 'PUT').length, 0);
 });
+
+// bl-919 (w9-w5): a tag the SAME edit creates is judged by the asset pre-check BEFORE the tag exists, so GHL's
+// "Referenced Tag does not exist" for it is expected, not a defect. The edit pre-creates every tag its ops reference, so a warning
+// for a tag those ops reference must not reach the caller as a problem.
+const TAG_GONE = (name) => ({
+  ruleId: 'ASSET_TAG_NOT_FOUND', assetType: 'tag', assetId: name,
+  message: 'Referenced Tag does not exist or does not belong to this location', severity: 'warning', stepId: null, stepName: null, stepType: null,
+});
+test('bl-919: a tag the edit itself creates does not produce a "Referenced Tag does not exist" warning', async () => {
+  const { gw } = gateway([AI_STEP()], { assetVerdict: { errors: [], warnings: [TAG_GONE('test-conf-w9-wf-bl919-new')] } });
+  const result = await run(gw, { confirm: false, ops: [{ op: 'insertAfter', afterId: 's1', step: { type: 'add_contact_tag', name: 'Tag bl919', attributes: { tags: ['TEST-CONF-W9-WF-bl919-new'] } } }] });
+  const ws = result.warnings ?? result.data?.warnings ?? [];
+  assert.equal(ws.some((w) => /Referenced Tag does not exist/.test(w) && /bl919/i.test(w)), false,
+    'the warning for a tag this edit creates must not be reported: ' + JSON.stringify(ws).slice(0, 300));
+});

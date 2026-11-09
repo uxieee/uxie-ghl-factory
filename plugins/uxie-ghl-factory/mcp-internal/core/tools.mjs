@@ -1085,6 +1085,12 @@ async function addEngineReferenceFindings(gw, loc, templates, verdict) {
 
 async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings, ops = [] }) {
   const verdict = await validateAssets((m, p, b) => gw.call(m, p, b), loc, { templates, triggers, companyId });
+  // bl-919: a tag this edit's OWN ops reference is created by this write (tagsToCreate), and the pre-write check runs before
+  // it exists, so its "Referenced Tag does not exist" finding is expected here, not a defect. Only such tag findings are dropped.
+  const ownTags = new Set(collectOpTags(ops).map((t) => String(t).trim().toLowerCase()));
+  const isOwnTagFinding = (f) => f?.assetType === 'tag' && ownTags.has(String(f.assetId ?? '').trim().toLowerCase());
+  verdict.errors = (verdict.errors ?? []).filter((f) => !isOwnTagFinding(f));
+  verdict.warnings = (verdict.warnings ?? []).filter((f) => !isOwnTagFinding(f));
   const assetPreflight = { phase: 'pre-write', ...verdict };
   await addEngineReferenceFindings(gw, loc, templates, assetPreflight);
   for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
@@ -7231,6 +7237,20 @@ export const TOOLS = [
       });
       for (const r of triggerPlan) {
         if (r.noop) warnings.push(`TRIGGER_NOOP: ${r.op} on ${r.triggerId} — ${r.reason}. If you expected a change, the value you sent equals what is stored; nothing will be written for this op.`);
+      }
+      // bl-916 (w9-w5): a planned trigger row whose tag/value is mixed-case (TRIGGER_TAG_CASE) does not fire on GHL, and
+      // the post-write intent check used to report the landed write as ENGINE_ABORT ("the write persisted, but the stored
+      // document does not express the intent"), inviting a retry of a change that already landed. The same lint now runs on
+      // the PLANNED bodies BEFORE any write, so a refused edit lands nothing. Stored, untouched triggers are not judged here.
+      {
+        const plannedBodies = triggerPlan.filter((r) => !r.noop && r.body).map((r) => r.body);
+        const caseErrors = lintTriggerRows(plannedBodies, ctx.catalog).filter((f) => f.severity === "error");
+        if (caseErrors.length) {
+          const r = refuseOrRecord(fail(CODES.VALIDATION_FAILED,
+            "TRIGGER_TAG_CASE: the planned trigger row(s) would store a value GHL does not fire on: " + caseErrors.map((f) => f.msg).join("; ") + ". Nothing was written.",
+            "Use the tag in lower case (GHL does not match a stored mixed-case tag), then re-run the edit."), "trigger_rows");
+          if (r) return r;
+        }
       }
 
       // Asset pre-flight (validate_assets) + account readiness (G15) — see the shared helpers.

@@ -23,12 +23,23 @@ const nameOf = (n) => n?.name ?? n?.ref ?? n?.type ?? n?.kind ?? 'step';
 // The wire type a body step will carry, read from the authored node (a goto is authored by kind).
 const typeOf = (n) => n.type ?? (n.kind === 'goto' ? 'goto' : n.kind === 'loop' ? 'loop' : undefined);
 
-function checkItems(loop) {
+// bl-917 (2026-11-09 amendment): a list loop over a CONTACT field is refused. Contact fields are not lists (tags, custom fields,
+// the rest), so GHL runs the loop 0 times, silently. A list SOURCE is accepted: an inbound webhook payload, a step output, a
+// marketplace output. The refusal is for AUTHORED loops; a stored loop replayed by the round trip (ctx.pinIds) keeps what the
+// builder stored, as the w6c-3 ruling does for an empty loop.
+const CONTACT_FIELD = /^\{\{\s*contact\./;
+
+function checkItems(loop, ctx = {}) {
   const items = String(loop.items ?? '').trim();
   if (!items) throw new IRError('LOOP_ITEMS', `loop_items_required: loop '${nameOf(loop)}' has no items expression — choose the list to loop over.`);
   if (!SINGLE_EXPRESSION.test(items)) {
     throw new IRError('LOOP_ITEMS', `loop_items_single_expression: loop '${nameOf(loop)}' items must be ONE {{expression}} that resolves to a list — `
       + `'${items.slice(0, 60)}' concatenates, which compiles to a string and iterates ZERO times (silently).`);
+  }
+  if (CONTACT_FIELD.test(items) && ctx.pinIds !== true) {
+    throw new IRError('LOOP_ITEMS_CONTACT_FIELD', `LOOP_ITEMS_CONTACT_FIELD (loop_items_contact_field): loop '${nameOf(loop)}' loops over '${items}'. `
+      + 'contact fields are not lists; GHL runs this loop 0 times. Loop over a list source instead: an inbound webhook payload list, '
+      + 'a step output list, or a marketplace output list.');
   }
 }
 
@@ -85,7 +96,7 @@ export function checkLoops(graph, ctx = {}) {
     if (!isLoop(n)) return;
     const over = n.loopOver ?? 'list';
     if (over !== 'list' && over !== 'range') throw new IRError('LOOP_BODY', `loop '${nameOf(n)}' loopOver '${over}' is not 'list' or 'range'.`);
-    if (over === 'list') checkItems(n);
+    if (over === 'list') checkItems(n, ctx);
     else checkRange(n);
     checkBody(n);
   });

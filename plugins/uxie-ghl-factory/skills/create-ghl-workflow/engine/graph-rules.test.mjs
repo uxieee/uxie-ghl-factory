@@ -303,7 +303,7 @@ test('validateIfElseCondition: a draft is warned, not refused', () => {
 // them. Reading the model, not the registry, is what surfaced them.
 const loopDoc = (items, name = 'My loop') => ({
   templates: [
-    { id: 'L1', type: 'loop', name, attributes: { type: 'loop', items, limit: null, mode: 'sequential' } },
+    { id: 'L1', type: 'loop', name, next: 'b1', attributes: { type: 'loop', items, limit: null, mode: 'sequential' } },
     { id: 'b1', type: 'add_contact_tag', name: 'In loop', parentContainerId: 'L1', attributes: { tags: ['x'] } },
   ],
   triggers: [{ type: 'contact_created' }],
@@ -342,4 +342,70 @@ test('a NESTED loop still fires the existing unsupported-action rule, not a new 
     attributes: { type: 'loop', items: '{{ y }}', limit: null, mode: 'sequential' } });
   const fired = rulesOf(doc);
   assert.ok(fired.includes('checkUnsupportedActionsInsideLoop'), `got ${JSON.stringify(fired)}`);
+});
+
+// bl-918 (w9-w5): a RANGE loop stores items '' by design (the bounds are startNumber/endNumber). The builder saves it that way, and the
+// items rules refused it (loop_items_required), so edit_workflow and build_workflow refused a loop the builder itself makes. The items
+// rules apply to LIST loops only; a range loop's items are not read.
+const rangeDoc = (items) => ({
+  templates: [
+    { id: 'L1', type: 'loop', name: 'Range loop', next: 'b1', attributes: { type: 'loop', items, limit: null, mode: 'sequential', loopOver: 'range', startNumber: '1', endNumber: '5' } },
+    { id: 'b1', type: 'add_contact_tag', name: 'In loop', parentContainerId: 'L1', attributes: { tags: ['x'] } },
+  ],
+  triggers: [trig('contact_tag')],
+});
+test('bl-918: a range loop with empty items is not refused (the builder stores items \'\' for a range loop)', () => {
+  assert.deepEqual(rulesOf(rangeDoc('')), [], 'a range loop has no items list, so an empty items is correct, not a refusal');
+});
+test('bl-918 guard: a LIST loop with empty items is still refused', () => {
+  assert.deepEqual(rulesOf(loopDoc('')), ['loop_items_required']);
+});
+
+// w9-w5 d2 FIX REQUEST (2026-11-09): GHL's WorkflowValidator gained two runsOnSave rules in bundle-2026-11-09 (workflow-rules.json).
+// checkDisconnectedLoopSteps is a port of getDisconnectedLoopSteps (utils/loop.ts): a loop body step the loop can never reach is
+// refused, and only the head of a detached fragment is reported. RED first.
+const loopDisc = (templates) => evaluateWorkflowRules({ templates, triggers: [trig('contact_tag')] }, R());
+test('d2 checkDisconnectedLoopSteps: a loop body wired from its loop is not refused', () => {
+  const r = loopDisc([step('L', 'loop', { next: 'B1' }), step('B1', 'add_contact_tag', { parentContainerId: 'L' })]);
+  assert.ok(!r.findings.some((f) => f.rule === 'checkDisconnectedLoopSteps'), JSON.stringify(r.findings));
+});
+test('d2 checkDisconnectedLoopSteps: a tagged body step nothing in its loop leads to is refused', () => {
+  const r = loopDisc([step('L', 'loop', { next: null }), step('B2', 'add_contact_tag', { parentContainerId: 'L' })]);
+  const hit = r.findings.filter((f) => f.rule === 'checkDisconnectedLoopSteps');
+  assert.equal(hit.length, 1, JSON.stringify(r.findings));
+  assert.match(hit[0].message, /B2/);
+});
+test('d2 checkDisconnectedLoopSteps: a detached chain is reported once, at its head', () => {
+  const r = loopDisc([step('L', 'loop', { next: null }),
+    step('B3', 'add_contact_tag', { parentContainerId: 'L', next: 'B4' }),
+    step('B4', 'add_contact_tag', { parentContainerId: 'L' })]);
+  const hit = r.findings.filter((f) => f.rule === 'checkDisconnectedLoopSteps');
+  assert.equal(hit.length, 1, JSON.stringify(hit));
+  assert.match(hit[0].message, /B3/);
+});
+// checkOpportunityRecipientContext: GHL's guard reads the `opportunities.decoupling` labs flag, which the document does not carry
+// and our reads do not return (live-w3-feature-flags.json has no such key). So the mirror cannot decide: it reports the rule
+// NOT EVALUABLE rather than passing or refusing a send to all associated contacts of an opportunity.
+test('d2 checkOpportunityRecipientContext: an email to all associated contacts of an opportunity is reported not evaluable, not passed', () => {
+  const email = step('E1', 'email', { attributes: { emailRecipients: 'all_associated_contacts_of_opportunity' } });
+  const r = evaluateWorkflowRules({ templates: [email], triggers: [trig('contact_tag')] }, R());
+  assert.ok(!r.findings.some((f) => f.rule === 'checkOpportunityRecipientContext'));
+  assert.ok(r.notEvaluable.some((x) => x.startsWith('checkOpportunityRecipientContext')), JSON.stringify(r.notEvaluable));
+});
+test('d2 checkOpportunityRecipientContext: an email to enrolled contacts is not checked', () => {
+  const email = step('E2', 'email', { attributes: { emailRecipients: 'enrolled_contacts' } });
+  const r = evaluateWorkflowRules({ templates: [email], triggers: [trig('contact_tag')] }, R());
+  assert.ok(!r.notEvaluable.some((x) => x.startsWith('checkOpportunityRecipientContext')));
+});
+// d2 catalogue facts from bundle-2026-11-09 (written after the workflowRules splice, not before it): the loop check left
+// validateChainOrder for collect(), the four new trigger restrictions (two of them the google_sheets key) and the two new rules.
+test('d2 catalogue: validateChainOrder no longer names the loop check; the new trigger restrictions and rules are present', () => {
+  const r = R();
+  assert.deepEqual(r.validateChainOrder, ['collect', 'checkFromEmailFormat']);
+  assert.deepEqual(r.vocab.triggerActionRestrictions.lc_slack_new_message_in_channel, ['slack_message']);
+  assert.deepEqual(r.vocab.triggerActionRestrictions.lc_slack_user_invited_to_channel, ['lc_slack_invite_user_to_channel']);
+  assert.deepEqual(r.vocab.triggerActionRestrictions.lc_google_sheets_new_row, ['google_sheets']);
+  assert.deepEqual(r.vocab.triggerActionRestrictions.lc_google_sheets_updated_row, ['google_sheets']);
+  assert.ok(r.rules.some((x) => x.rule === 'checkDisconnectedLoopSteps' && x.runsOnSave));
+  assert.ok(r.rules.some((x) => x.rule === 'checkOpportunityRecipientContext' && x.runsOnSave));
 });

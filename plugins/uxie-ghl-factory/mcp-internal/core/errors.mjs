@@ -23,6 +23,10 @@ export const CODES = Object.freeze({
   // re-authentication cycle on something re-authenticating cannot fix.
   ACCESS_DENIED: 'ACCESS_DENIED',
   VALIDATION_FAILED: 'VALIDATION_FAILED',
+  // bl-917 (2026-11-09): a list loop authored over a contact field (e.g. {{contact.tags}}). Contact fields are not lists, so GHL runs
+  // the loop 0 times. Raised by the workflow engine (skills/create-ghl-workflow/engine/loop-authoring.mjs) as the IRError code of the
+  // same name; the message names a list source to use instead. Stored loops replayed by the round trip are not refused.
+  LOOP_ITEMS_CONTACT_FIELD: 'LOOP_ITEMS_CONTACT_FIELD',
   // raw_request POST/PUT/PATCH with nothing to send ({}, [], or no body). Refused before the confirm
   // gate: an empty start-workflow body enrolled a phantom (measured), and an empty write elicits
   // nothing safe. allowEmptyBody:true is the way through for a route that really takes no body.

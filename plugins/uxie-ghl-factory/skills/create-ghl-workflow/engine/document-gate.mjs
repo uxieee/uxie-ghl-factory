@@ -60,7 +60,9 @@ export const MODEL_KEYS_UNMAPPED_BY_EXTRACTOR = { send_to_eliza: ['sendToSpecifi
 // loop.exitNext: the builder persists the step that runs after the loop — "the one fact that cannot be recovered from
 // the tree" (utils/loop.helper.ts:571-596, use-latest-node-saved.ts:935). Absent from the census only because no
 // census workflow had a loop.
-const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'], workflow_ai_generate_image: ['__dynamicAttachments__'], loop: ['exitNext'],
+// bl-919 (w9-w5), from SOURCE: the builder writes and reads these router keys (utils/router.ts:634 writes routerBranch on each
+// branch; models/conditions/Router.ts:122-170 reads and writes routerName; the root carries version and branches). Not invented.
+const CONDITIONAL_ATTR_KEYS = { router: ['routerName', 'version', 'branches', 'routerBranch'], conversationai_objective: ['closingMessage', 'tags'], workflow_ai_generate_image: ['__dynamicAttachments__'], loop: ['exitNext'],
   ...MODEL_KEYS_UNMAPPED_BY_EXTRACTOR };
 
 // Keys GHL's SERVER writes onto a step when the document is saved. The author never sends them and

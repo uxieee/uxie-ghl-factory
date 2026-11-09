@@ -117191,6 +117191,10 @@ var CODES = Object.freeze({
   // re-authentication cycle on something re-authenticating cannot fix.
   ACCESS_DENIED: "ACCESS_DENIED",
   VALIDATION_FAILED: "VALIDATION_FAILED",
+  // bl-917 (2026-11-09): a list loop authored over a contact field (e.g. {{contact.tags}}). Contact fields are not lists, so GHL runs
+  // the loop 0 times. Raised by the workflow engine (skills/create-ghl-workflow/engine/loop-authoring.mjs) as the IRError code of the
+  // same name; the message names a list source to use instead. Stored loops replayed by the round trip are not refused.
+  LOOP_ITEMS_CONTACT_FIELD: "LOOP_ITEMS_CONTACT_FIELD",
   // raw_request POST/PUT/PATCH with nothing to send ({}, [], or no body). Refused before the confirm
   // gate: an empty start-workflow body enrolled a phantom (measured), and an empty write elicits
   // nothing safe. allowEmptyBody:true is the way through for a route that really takes no body.
@@ -150842,6 +150846,18 @@ var catalog_data_default = {
         ],
         lc_google_tasks_new_task_list: [
           "lc_google_tasks_create_task_list"
+        ],
+        lc_slack_new_message_in_channel: [
+          "slack_message"
+        ],
+        lc_slack_user_invited_to_channel: [
+          "lc_slack_invite_user_to_channel"
+        ],
+        lc_google_sheets_new_row: [
+          "google_sheets"
+        ],
+        lc_google_sheets_updated_row: [
+          "google_sheets"
         ]
       },
       illegalWordsSms: [
@@ -150961,7 +150977,6 @@ var catalog_data_default = {
     },
     validateChainOrder: [
       "collect",
-      "checkUnsupportedActionsInsideLoop",
       "checkFromEmailFormat"
     ],
     skipHatch: {
@@ -151169,6 +151184,18 @@ var catalog_data_default = {
         ]
       },
       {
+        rule: "checkDisconnectedLoopSteps",
+        runsOnSave: true,
+        reads: [
+          "templates"
+        ],
+        messages: [
+          {
+            i18nKey: "loop_disconnected_step_error"
+          }
+        ]
+      },
+      {
         rule: "checkUnsupportedActionsInsideLoop",
         runsOnSave: true,
         reads: [
@@ -151215,6 +151242,18 @@ var catalog_data_default = {
         ],
         messages: [
           'The Global Workflow Setting field "From Name" requires the "From Email" to be filled in also. Please fill in both fields to save this Workflow.'
+        ]
+      },
+      {
+        rule: "checkOpportunityRecipientContext",
+        runsOnSave: true,
+        reads: [
+          "templates"
+        ],
+        messages: [
+          {
+            i18nKey: "workflow.actions.sendEmail.opportunityContextRequired"
+          }
         ]
       },
       {
@@ -216313,7 +216352,8 @@ function evaluateMergeTags(templates, mergeTags, opts = {}) {
   for (const t of templates ?? []) {
     if (!t?.attributes || t.type === "transition") continue;
     const where = `'${t.name ?? t.id}' (${t.type})`;
-    walk4(t.attributes, (s) => {
+    const attrsToCheck = t.type === "loop" ? { ...t.attributes, items: void 0 } : t.attributes;
+    walk4(attrsToCheck, (s) => {
       const opens = (s.match(/\{\{/g) ?? []).length, closes = (s.match(/\}\}/g) ?? []).length;
       const rest = s.replace(/\{\{[^{}]*\}\}/g, "");
       const unclosed = /\{\{/.test(rest);
@@ -216869,11 +216909,15 @@ var BANNED_WAITS = ["appointment", "service_booking", "rental_booking", "overdue
 var isLoop = (n) => n?.kind === "loop" || n?.kind === void 0 && n?.type === "loop";
 var nameOf = (n) => n?.name ?? n?.ref ?? n?.type ?? n?.kind ?? "step";
 var typeOf = (n) => n.type ?? (n.kind === "goto" ? "goto" : n.kind === "loop" ? "loop" : void 0);
-function checkItems(loop) {
+var CONTACT_FIELD = /^\{\{\s*contact\./;
+function checkItems(loop, ctx = {}) {
   const items = String(loop.items ?? "").trim();
   if (!items) throw new IRError("LOOP_ITEMS", `loop_items_required: loop '${nameOf(loop)}' has no items expression \u2014 choose the list to loop over.`);
   if (!SINGLE_EXPRESSION.test(items)) {
     throw new IRError("LOOP_ITEMS", `loop_items_single_expression: loop '${nameOf(loop)}' items must be ONE {{expression}} that resolves to a list \u2014 '${items.slice(0, 60)}' concatenates, which compiles to a string and iterates ZERO times (silently).`);
+  }
+  if (CONTACT_FIELD.test(items) && ctx.pinIds !== true) {
+    throw new IRError("LOOP_ITEMS_CONTACT_FIELD", `LOOP_ITEMS_CONTACT_FIELD (loop_items_contact_field): loop '${nameOf(loop)}' loops over '${items}'. contact fields are not lists; GHL runs this loop 0 times. Loop over a list source instead: an inbound webhook payload list, a step output list, or a marketplace output list.`);
   }
 }
 function checkRange(loop) {
@@ -216920,7 +216964,7 @@ function checkLoops(graph, ctx = {}) {
     if (!isLoop(n)) return;
     const over = n.loopOver ?? "list";
     if (over !== "list" && over !== "range") throw new IRError("LOOP_BODY", `loop '${nameOf(n)}' loopOver '${over}' is not 'list' or 'range'.`);
-    if (over === "list") checkItems(n);
+    if (over === "list") checkItems(n, ctx);
     else checkRange(n);
     checkBody(n);
   });
@@ -225694,8 +225738,10 @@ function evaluateWorkflowRules(doc, rules) {
   const LOOP_ITEMS_SINGLE_EXPRESSION = /^\{\{\s*[^{}]+\s*\}\}$/;
   for (const t of T) {
     if (t.type !== "loop") continue;
+    const isRange = t.attributes?.loopOver === "range";
     const items = String(t.attributes?.items ?? "").trim();
-    if (!items) {
+    if (isRange) {
+    } else if (!items) {
       fire("loop_items_required", `loop '${t.name ?? t.id}' has no items expression \u2014 choose the list to loop over`);
     } else if (!LOOP_ITEMS_SINGLE_EXPRESSION.test(items)) {
       fire("loop_items_single_expression", `loop '${t.name ?? t.id}' items must be ONE {{expression}} that resolves to a list \u2014 '${items.slice(0, 60)}' concatenates, which compiles to a string and iterates ZERO times (silently)`);
@@ -225908,7 +225954,44 @@ function evaluateWorkflowRules(doc, rules) {
     const bad = new Set(acts);
     for (const t of T) if (bad.has(t.type)) A.push({ rule: "inCompatibleActions", message: `'${t.name ?? t.id}' (${t.type}) is greyed out in the builder while a '${trigType}' trigger is present \u2014 the UI cannot produce this combination` });
   }
+  const nextIdsOfT = (t) => (Array.isArray(t?.next) ? t.next : typeof t?.next === "string" ? [t.next] : []).filter((x) => typeof x === "string" && x);
+  const byIdT = new Map(T.map((t) => [t.id, t]));
+  const namedByNext = new Set(T.flatMap((t) => nextIdsOfT(t)));
+  const byParentKey = /* @__PURE__ */ new Map();
+  for (const t of T) if (t.parentKey && !namedByNext.has(t.id)) {
+    const a = byParentKey.get(t.parentKey) ?? [];
+    a.push(t.id);
+    byParentKey.set(t.parentKey, a);
+  }
+  const childIdsT = (id) => {
+    const fromNext = nextIdsOfT(byIdT.get(id)).filter((c) => byIdT.has(c));
+    const fromKey = byParentKey.get(id) ?? [];
+    return fromNext.length === 0 ? fromKey : [.../* @__PURE__ */ new Set([...fromNext, ...fromKey])];
+  };
+  for (const loop of T) {
+    if (loop.type !== "loop") continue;
+    const members = new Set(T.filter((t) => t.parentContainerId === loop.id).map((t) => t.id));
+    if (!members.size) continue;
+    const reached = /* @__PURE__ */ new Set();
+    const walk4 = (id) => {
+      for (const c of childIdsT(id)) {
+        if (!members.has(c) || reached.has(c)) continue;
+        reached.add(c);
+        walk4(c);
+      }
+    };
+    walk4(loop.id);
+    const unreached = [...members].filter((id) => !reached.has(id));
+    for (const id of unreached) {
+      const head = !unreached.some((o) => childIdsT(o).includes(id));
+      if (!head) continue;
+      const s = byIdT.get(id);
+      fire("checkDisconnectedLoopSteps", `loop body step '${s?.name ?? id}' inside loop '${loop.name ?? loop.id}' is not connected to it, so the loop never runs it (loop_disconnected_step_error)`);
+    }
+  }
   const notEvaluable = [];
+  if (T.some((t) => t.type === "email" && t.attributes?.emailRecipients === "all_associated_contacts_of_opportunity"))
+    notEvaluable.push("checkOpportunityRecipientContext (needs GHL's opportunities.decoupling labs flag, which no read here returns)");
   if (firstHook && doc.webhookReference === void 0)
     notEvaluable.push("inboundWebhookTriggerValidator (needs the webhook's mapped sample: GET /hooks/inbound-webhook-request/reference/{triggerId})");
   if (doc.senderDomain === void 0 && fromEmailNeedsDomain(doc.settings?.senderAddress?.from_email))
@@ -226465,6 +226548,7 @@ var BUILDER_TEMPLATE_KEYS = Object.freeze([
 var STEP_TOP_LEVEL_KEYS = /* @__PURE__ */ new Set([...OBSERVED_TOP_LEVEL_KEYS, ...BUILDER_TEMPLATE_KEYS]);
 var MODEL_KEYS_UNMAPPED_BY_EXTRACTOR = { send_to_eliza: ["sendToSpecificUser", "userId"] };
 var CONDITIONAL_ATTR_KEYS = {
+  router: ["routerName", "version", "branches", "routerBranch"],
   conversationai_objective: ["closingMessage", "tags"],
   workflow_ai_generate_image: ["__dynamicAttachments__"],
   loop: ["exitNext"],
@@ -235742,6 +235826,10 @@ async function addEngineReferenceFindings(gw, loc, templates, verdict) {
 }
 async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings, ops = [] }) {
   const verdict = await validateAssets((m, p2, b) => gw.call(m, p2, b), loc, { templates, triggers, companyId });
+  const ownTags = new Set(collectOpTags(ops).map((t) => String(t).trim().toLowerCase()));
+  const isOwnTagFinding = (f) => f?.assetType === "tag" && ownTags.has(String(f.assetId ?? "").trim().toLowerCase());
+  verdict.errors = (verdict.errors ?? []).filter((f) => !isOwnTagFinding(f));
+  verdict.warnings = (verdict.warnings ?? []).filter((f) => !isOwnTagFinding(f));
   const assetPreflight = { phase: "pre-write", ...verdict };
   await addEngineReferenceFindings(gw, loc, templates, assetPreflight);
   for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
@@ -241366,6 +241454,18 @@ var TOOLS2 = [
         });
         for (const r of triggerPlan) {
           if (r.noop) warnings.push(`TRIGGER_NOOP: ${r.op} on ${r.triggerId} \u2014 ${r.reason}. If you expected a change, the value you sent equals what is stored; nothing will be written for this op.`);
+        }
+        {
+          const plannedBodies = triggerPlan.filter((r) => !r.noop && r.body).map((r) => r.body);
+          const caseErrors = lintTriggerRows(plannedBodies, ctx.catalog).filter((f) => f.severity === "error");
+          if (caseErrors.length) {
+            const r = refuseOrRecord(fail(
+              CODES.VALIDATION_FAILED,
+              "TRIGGER_TAG_CASE: the planned trigger row(s) would store a value GHL does not fire on: " + caseErrors.map((f) => f.msg).join("; ") + ". Nothing was written.",
+              "Use the tag in lower case (GHL does not match a stored mixed-case tag), then re-run the edit."
+            ), "trigger_rows");
+            if (r) return r;
+          }
         }
         let assetPreflight = null;
         let readiness = [];

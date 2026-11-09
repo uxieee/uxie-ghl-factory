@@ -153,7 +153,9 @@ export function evaluateMergeTags(templates, mergeTags, opts = {}) {
   for (const t of templates ?? []) {
     if (!t?.attributes || t.type === 'transition') continue;
     const where = `'${t.name ?? t.id}' (${t.type})`;
-    walk(t.attributes, (s) => {
+    // bl-917: a loop's `items` is a LIST REFERENCE (the builder stores {{contact.tags}} there), not rendered text: it is not judged as text.
+    const attrsToCheck = t.type === 'loop' ? { ...t.attributes, items: undefined } : t.attributes;
+    walk(attrsToCheck, (s) => {
       const opens = (s.match(/\{\{/g) ?? []).length, closes = (s.match(/\}\}/g) ?? []).length;
       // Count what is LEFT once complete tags are removed. A JSON body ends its objects in '}}' — a custom_webhook
       // rawData like {"a":{"b":"{{contact.email}}"}} is balanced and was flagged (live 2026-09-28, knowledge

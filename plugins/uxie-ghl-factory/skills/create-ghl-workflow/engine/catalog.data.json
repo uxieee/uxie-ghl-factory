@@ -270,6 +270,18 @@
     ],
     "lc_google_tasks_new_task_list": [
      "lc_google_tasks_create_task_list"
+    ],
+    "lc_slack_new_message_in_channel": [
+     "slack_message"
+    ],
+    "lc_slack_user_invited_to_channel": [
+     "lc_slack_invite_user_to_channel"
+    ],
+    "lc_google_sheets_new_row": [
+     "google_sheets"
+    ],
+    "lc_google_sheets_updated_row": [
+     "google_sheets"
     ]
    },
    "illegalWordsSms": [
@@ -389,7 +401,6 @@
   },
   "validateChainOrder": [
    "collect",
-   "checkUnsupportedActionsInsideLoop",
    "checkFromEmailFormat"
   ],
   "skipHatch": {
@@ -597,6 +608,18 @@
     ]
    },
    {
+    "rule": "checkDisconnectedLoopSteps",
+    "runsOnSave": true,
+    "reads": [
+     "templates"
+    ],
+    "messages": [
+     {
+      "i18nKey": "loop_disconnected_step_error"
+     }
+    ]
+   },
+   {
     "rule": "checkUnsupportedActionsInsideLoop",
     "runsOnSave": true,
     "reads": [
@@ -643,6 +666,18 @@
     ],
     "messages": [
      "The Global Workflow Setting field \"From Name\" requires the \"From Email\" to be filled in also. Please fill in both fields to save this Workflow."
+    ]
+   },
+   {
+    "rule": "checkOpportunityRecipientContext",
+    "runsOnSave": true,
+    "reads": [
+     "templates"
+    ],
+    "messages": [
+     {
+      "i18nKey": "workflow.actions.sendEmail.opportunityContextRequired"
+     }
     ]
    },
    {

@@ -142,3 +142,18 @@ test('sheet / sheetLookupResult tags are owned by step-outputs, not flagged here
   const w2 = []; checkMergeTags(tpl('{{sheetz.1.A}}'), catalog, { warn: (m) => w2.push(m) });
   assert.ok(w2.some((m) => /sheetz/.test(m)), JSON.stringify(w2));
 });
+
+// bl-917 (w9-w5): a loop's `items` is a LIST REFERENCE, not rendered text. The builder UI stores `{{contact.tags}}` there (W6c draft),
+// and build_workflow used to refuse it as MERGE_TAG_UNKNOWN: the contact namespace is checked against the account's custom fields,
+// and `tags` is not one of them. A loop's items are not judged as text; a bad tag in a rendered text field is still refused.
+import { checkMergeTags as _checkMergeTags } from './merge-tags.mjs';
+const _catalog = { mergeTags: { tags: [{ tag: 'contact.name' }] } };
+const _ctx = { customFields: [{ fieldKey: 'contact.source', model: 'contact' }] };
+test('bl-917: a loop over {{contact.tags}} is not refused as an unknown merge tag', () => {
+  const loop = { id: 'L1', type: 'loop', name: 'Loop tags', attributes: { type: 'loop', items: '{{contact.tags}}', limit: null } };
+  assert.doesNotThrow(() => _checkMergeTags([loop], _catalog, _ctx));
+});
+test('bl-917 guard: an unknown tag in a rendered text field is still refused', () => {
+  const tag = { id: 'T1', type: 'send_sms', name: 'Text', attributes: { message: 'Hi {{appointment.nosuchtag}}' } };
+  assert.throws(() => _checkMergeTags([tag], _catalog, _ctx), /MERGE_TAG_UNKNOWN/);
+});

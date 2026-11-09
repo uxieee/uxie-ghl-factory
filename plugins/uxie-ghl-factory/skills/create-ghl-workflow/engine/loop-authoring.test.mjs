@@ -21,7 +21,7 @@ const catalog = loadCatalog();
 const ctx = (seed = 'a', extra = {}) => ({ loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 27, idGen: makeSeededIdGen(seed), catalog, ...extra });
 const trig = [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }];
 const tag = (ref, tags = ['x']) => ({ ref, kind: 'action', type: 'add_contact_tag', name: `Tag ${ref}`, attributes: { tags } });
-const listLoop = (ref, body, over = {}) => ({ ref, kind: 'loop', name: 'Loop', loopOver: 'list', items: '{{contact.tags}}', mode: 'sequential', body, ...over });
+const listLoop = (ref, body, over = {}) => ({ ref, kind: 'loop', name: 'Loop', loopOver: 'list', items: '{{inboundWebhookRequest.items}}', mode: 'sequential', body, ...over });
 const rangeLoop = (ref, body, over = {}) => ({ ref, kind: 'loop', name: 'Loop', loopOver: 'range', startNumber: '1', endNumber: '10', mode: 'sequential', body, ...over });
 const irOf = (graph) => ({ name: 'L', triggers: trig, graph });
 const templatesOf = (ir, c = ctx()) => compile(ir, c).autoSaveBody.workflowData.templates;
@@ -72,6 +72,22 @@ test('items must be one {{...}} expression (loop_items_single_expression)', () =
   assert.throws(() => compile(irOf([listLoop('l', [], { items: 'a,b' })]), ctx()), (e) => /loop_items_single_expression/.test(e.message));
 });
 
+// bl-917 amendment (2026-11-09, orchestrator DECISION): a loop's items may come from a LIST source (a webhook payload, a step
+// output, a marketplace output). A loop over a contact field is refused with its reason, because contact fields are not lists
+// and GHL runs such a loop 0 times. A stored loop replayed by the round trip (pinIds) is not refused: see the round-trip tests.
+test('bl-917: a list loop over a webhook payload list is accepted', () => {
+  assert.doesNotThrow(() => compile(irOf([listLoop('l', [tag('b1')], { items: '{{inboundWebhookRequest.items}}' })]), ctx()));
+});
+test('bl-917: a list loop over a step output list is accepted', () => {
+  assert.doesNotThrow(() => compile(irOf([listLoop('l', [tag('b1')], { items: '{{custom_webhook.1.response.items}}' })]), ctx()));
+});
+test('bl-917: a list loop over a contact field is refused LOOP_ITEMS_CONTACT_FIELD with the reason', () => {
+  for (const items of ['{{contact.tags}}', '{{ contact.customFields.budget }}']) {
+    assert.throws(() => compile(irOf([listLoop('l', [tag('b1')], { items })]), ctx()),
+      (e) => e.code === 'LOOP_ITEMS_CONTACT_FIELD' && /contact fields are not lists; GHL runs this loop 0 times/.test(e.message), items);
+  }
+});
+
 test('a range whose end is below its start is refused', () => {
   assert.throws(() => compile(irOf([rangeLoop('l', [], { startNumber: '5', endNumber: '2' })]), ctx()), (e) => /end/.test(e.message) && /start/.test(e.message));
 });
@@ -89,7 +105,7 @@ test('a body step not reachable from loop.next is refused loop_disconnected_step
 
 test('loop, workflow_goal, goto, remove_from_workflow and remove_from_all_workflows in the body are refused', () => {
   const banned = [
-    { ref: 'x', kind: 'loop', name: 'Inner', loopOver: 'list', items: '{{contact.tags}}', body: [] },
+    { ref: 'x', kind: 'loop', name: 'Inner', loopOver: 'list', items: '{{inboundWebhookRequest.items}}', body: [] },
     { ref: 'x', kind: 'action', type: 'workflow_goal', name: 'Goal', attributes: {} },
     { ref: 'x', kind: 'goto', name: 'Goto', target: 'l' },
     { ref: 'x', kind: 'action', type: 'remove_from_workflow', name: 'Remove', attributes: {} },

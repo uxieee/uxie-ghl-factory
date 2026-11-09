@@ -16,7 +16,7 @@ const build = (graph) => compile({ name: 'L', triggers: trig, graph }, ctx()).au
 const byName = (ts, name) => ts.find((t) => t.name === name);
 
 test('loop (list) followed by a step: the continuation is parented to the last body step, and that step points at it', () => {
-  const ts = build([{ ref: 'l', kind: 'loop', name: 'Loop list', loopOver: 'list', items: '{{contact.tags}}', mode: 'sequential',
+  const ts = build([{ ref: 'l', kind: 'loop', name: 'Loop list', loopOver: 'list', items: '{{inboundWebhookRequest.items}}', mode: 'sequential',
     body: [tag('a'), tag('b')] }, wait('w')]);
   const loop = byName(ts, 'Loop list'); const a = byName(ts, 'Tag a'); const b = byName(ts, 'Tag b'); const w = byName(ts, 'Wait w');
   assert.equal(b.next, w.id, 'the last body step points at the continuation');
@@ -34,13 +34,13 @@ test('loop (range) followed by a step: the same continuation rule', () => {
 });
 
 test('a step after a loop with a body of one step: the continuation is parented to that step', () => {
-  const ts = build([{ ref: 'l', kind: 'loop', name: 'Loop one', loopOver: 'list', items: '{{contact.tags}}', mode: 'sequential',
+  const ts = build([{ ref: 'l', kind: 'loop', name: 'Loop one', loopOver: 'list', items: '{{inboundWebhookRequest.items}}', mode: 'sequential',
     body: [tag('a')] }, wait('w')]);
   assert.equal(byName(ts, 'Wait w').parentKey, byName(ts, 'Tag a').id);
 });
 
 test('a step BEFORE a loop is unchanged: the loop is parented to the step before it', () => {
-  const ts = build([wait('w0'), { ref: 'l', kind: 'loop', name: 'Loop list', loopOver: 'list', items: '{{contact.tags}}', mode: 'sequential',
+  const ts = build([wait('w0'), { ref: 'l', kind: 'loop', name: 'Loop list', loopOver: 'list', items: '{{inboundWebhookRequest.items}}', mode: 'sequential',
     body: [tag('a')] }]);
   assert.equal(byName(ts, 'Loop list').parentKey, byName(ts, 'Wait w0').id);
 });
@@ -50,7 +50,7 @@ import { insertAfter } from './edit.mjs';
 const newTag = (id) => ({ id, type: 'add_contact_tag', name: 'New', attributes: { tags: ['n'] }, order: 0 });
 
 test('edit: insert after the last body step, the continuation follows the new step (w6c-11b)', () => {
-  const t = build([{ ref: 'l', kind: 'loop', name: 'Loop list', loopOver: 'list', items: '{{contact.tags}}', mode: 'sequential',
+  const t = build([{ ref: 'l', kind: 'loop', name: 'Loop list', loopOver: 'list', items: '{{inboundWebhookRequest.items}}', mode: 'sequential',
     body: [tag('a'), tag('b')] }, wait('w')]);
   const b = byName(t, 'Tag b'); const w = byName(t, 'Wait w');
   const { templates } = insertAfter(t, newTag('n1'), b.id);
@@ -60,7 +60,7 @@ test('edit: insert after the last body step, the continuation follows the new st
 });
 
 test('edit: insert after the loop (with a body), the new continuation is parented to the body tail (w6c-11b)', () => {
-  const t = build([{ ref: 'l', kind: 'loop', name: 'Loop list', loopOver: 'list', items: '{{contact.tags}}', mode: 'sequential',
+  const t = build([{ ref: 'l', kind: 'loop', name: 'Loop list', loopOver: 'list', items: '{{inboundWebhookRequest.items}}', mode: 'sequential',
     body: [tag('a'), tag('b')] }]);
   const loop = byName(t, 'Loop list'); const b = byName(t, 'Tag b');
   const { templates } = insertAfter(t, newTag('n2'), loop.id);

@@ -1392,3 +1392,23 @@ test('CONTROL: a replaceTag PUT the server acknowledges but does not apply is st
   assert.equal(result.ok, false);
   assert.equal(result.code, 'ENGINE_ABORT');
 });
+
+// bl-916 (w9-w5): a modifyTrigger that names a MIXED-CASE tag row does not fire on GHL (the stored row keeps its case and the
+// live test did not fire it: TRIGGER_TAG_CASE). The old path PUT the trigger, then read it back and reported ENGINE_ABORT
+// "The write persisted, but the stored document does not express the intent", which told the caller a landed change may be
+// partial and invited a retry of the same write. The fix refuses that edit BEFORE any write, so nothing lands.
+test('bl-916: modifyTrigger to a mixed-case tag is refused before any write, with no PUT sent and TRIGGER_TAG_CASE named', async () => {
+  const existingTrigger = {
+    id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag', name: 'Original', active: false,
+    conditions: [{ field: 'tagsAdded', operator: 'index-of-true', value: 'TEST-CONF-W9-WF-in', title: 'Tag added', type: 'select', id: 'tag-added' }],
+  };
+  const { gw, calls } = editGateway({ triggers: [existingTrigger] });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { filters: [{ field: 'tagsAdded', operator: 'index-of-true', value: 'TEST-CONF-W9-WF-in3', title: 'Tag added', type: 'select', id: 'tag-added' }] } }],
+  }, deps(gw));
+  const triggerWrites = calls.filter((c) => c.method !== 'GET' && String(c.path).includes('/trigger'));
+  assert.equal(result.ok, false, 'a mixed-case tag row must be refused, not written');
+  assert.equal(triggerWrites.length, 0, 'the refusal must come before the trigger PUT: a refused edit must not land a partial change');
+  assert.match(JSON.stringify(result), /TRIGGER_TAG_CASE/, 'the refusal must name the rule so the caller can fix the case');
+});

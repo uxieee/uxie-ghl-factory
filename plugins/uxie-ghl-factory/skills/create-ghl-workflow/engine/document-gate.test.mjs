@@ -307,3 +307,15 @@ test('CONTROL: a write that touches neither the container nor any branch only wa
   assert.equal(r.errors.some((f) => f.check === 'IF_ELSE_STRUCTURE'), false);
   assert.ok(r.warnings.some((f) => f.check === 'IF_ELSE_STRUCTURE'));
 });
+
+// bl-919 second half (w9-w5), settled from SOURCE: the builder writes and reads these router keys. router.ts:634 writes
+// attributes.routerBranch on each branch; Router.ts:122-170 reads and writes attributes.routerName (and the root carries version
+// and branches). They are not invented, so the key check must not flag them. A made-up key on a router still is.
+test('bl-919: the builder-owned router keys are not flagged as invented; a made-up router key still is', () => {
+  const routerKeys = (t) => { const r = gateDocument([t], { catalog, marketplaceTypes: new Set() }); return [...r.errors, ...r.warnings].filter((f) => f.check === 'ATTRIBUTE_KEY'); };
+  const root = { id: 'r', type: 'router', name: 'Router', attributes: { routerName: 'Router', version: 1, branches: [] } };
+  const branch = { id: 'b1', type: 'router', name: 'Branch 1', attributes: { routerBranch: true } };
+  assert.equal(routerKeys(root).length, 0, 'routerName, version and branches are builder-owned on the router root');
+  assert.equal(routerKeys(branch).length, 0, 'routerBranch is the builder\'s branch marker');
+  assert.equal(routerKeys({ ...branch, attributes: { routerBranch: true, madeUpKey: 1 } }).length, 1, 'a made-up key must still be flagged');
+});

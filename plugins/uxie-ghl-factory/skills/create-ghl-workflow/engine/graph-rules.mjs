@@ -149,8 +149,12 @@ export function evaluateWorkflowRules(doc, rules) {
   const LOOP_ITEMS_SINGLE_EXPRESSION = /^\{\{\s*[^{}]+\s*\}\}$/;
   for (const t of T) {
     if (t.type !== 'loop') continue;
+    // bl-918: a RANGE loop has no items list (its bounds are startNumber/endNumber; the builder stores items ''), so the items rules
+    // apply to list loops only.
+    const isRange = t.attributes?.loopOver === 'range';
     const items = String(t.attributes?.items ?? '').trim();
-    if (!items) {
+    if (isRange) { /* range loop: no items check */ }
+    else if (!items) {
       fire('loop_items_required', `loop '${t.name ?? t.id}' has no items expression — choose the list to loop over`);
     } else if (!LOOP_ITEMS_SINGLE_EXPRESSION.test(items)) {
       fire('loop_items_single_expression', `loop '${t.name ?? t.id}' items must be ONE {{expression}} that resolves to a list — `
@@ -398,8 +402,42 @@ export function evaluateWorkflowRules(doc, rules) {
     for (const t of T) if (bad.has(t.type)) A.push({ rule: 'inCompatibleActions', message: `'${t.name ?? t.id}' (${t.type}) is greyed out in the builder while a '${trigType}' trigger is present — the UI cannot produce this combination` });
   }
 
+  // d2 (2026-11-09, bundle-2026-11-09 workflow-rules.json): checkDisconnectedLoopSteps, a port of getDisconnectedLoopSteps
+  // (utils/loop.ts). A body step tagged to a loop that the loop cannot reach through `next` is refused; a detached chain is
+  // reported once, at its head. Children are the `next` targets, plus parentKey children of steps no `next` names.
+  const nextIdsOfT = (t) => (Array.isArray(t?.next) ? t.next : typeof t?.next === 'string' ? [t.next] : []).filter((x) => typeof x === 'string' && x);
+  const byIdT = new Map(T.map((t) => [t.id, t]));
+  const namedByNext = new Set(T.flatMap((t) => nextIdsOfT(t)));
+  const byParentKey = new Map();
+  for (const t of T) if (t.parentKey && !namedByNext.has(t.id)) { const a = byParentKey.get(t.parentKey) ?? []; a.push(t.id); byParentKey.set(t.parentKey, a); }
+  const childIdsT = (id) => {
+    const fromNext = nextIdsOfT(byIdT.get(id)).filter((c) => byIdT.has(c));
+    const fromKey = byParentKey.get(id) ?? [];
+    return fromNext.length === 0 ? fromKey : [...new Set([...fromNext, ...fromKey])];
+  };
+  for (const loop of T) {
+    if (loop.type !== 'loop') continue;
+    const members = new Set(T.filter((t) => t.parentContainerId === loop.id).map((t) => t.id));
+    if (!members.size) continue;
+    const reached = new Set();
+    const walk = (id) => { for (const c of childIdsT(id)) { if (!members.has(c) || reached.has(c)) continue; reached.add(c); walk(c); } };
+    walk(loop.id);
+    const unreached = [...members].filter((id) => !reached.has(id));
+    for (const id of unreached) {
+      const head = !unreached.some((o) => childIdsT(o).includes(id));
+      if (!head) continue;
+      const s = byIdT.get(id);
+      fire('checkDisconnectedLoopSteps', `loop body step '${s?.name ?? id}' inside loop '${loop.name ?? loop.id}' is not connected to it, so the loop never runs it (loop_disconnected_step_error)`);
+    }
+  }
+
   // A rule whose INPUT is missing is reported as unjudged, never as passed.
   const notEvaluable = [];
+  // d2: checkOpportunityRecipientContext. GHL passes an email to all associated contacts of an opportunity only when the labs flag
+  // `opportunities.decoupling` is on AND an opportunity context exists. The flag is in neither the document nor any read here
+  // (live-w3-feature-flags.json returns no such key), so the rule is NOT EVALUABLE here, never passed or refused.
+  if (T.some((t) => t.type === 'email' && t.attributes?.emailRecipients === 'all_associated_contacts_of_opportunity'))
+    notEvaluable.push("checkOpportunityRecipientContext (needs GHL's opportunities.decoupling labs flag, which no read here returns)");
   if (firstHook && doc.webhookReference === undefined)
     notEvaluable.push("inboundWebhookTriggerValidator (needs the webhook's mapped sample: GET /hooks/inbound-webhook-request/reference/{triggerId})");
   if (doc.senderDomain === undefined && fromEmailNeedsDomain(doc.settings?.senderAddress?.from_email))
