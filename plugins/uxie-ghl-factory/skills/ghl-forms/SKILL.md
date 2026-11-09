@@ -109,6 +109,24 @@ Internal only: create; formData write (merges at formData.form; an omitted key i
 Public only: upload to a submission.
 <!-- /rail-ledger:forms -->
 
+## Conditional logic, the merge caveat, and what is UI-only in W9
+
+**Conditional logic is writable through `update_form_data`** (the `conditionalLogic` key). A rule is a list of conditions, each with a field, an operation, a value and an outcome. Live-proven on a TEST-CONF form: each one was stored and read back on a separate GET (evidence: knowledge `sniffs/forms-w9-2026-11-08/live-f5c/live-f5c-evidence.json` and `live-f5c-evidence-product.json`).
+- **Operators (15):** is equal to, is not equal to, contains, does not contain, starts with, ends with, is empty, is filled, before, after, greater than, less than, between, is checked, is not checked.
+- **Outcomes (6):** redirect to a URL, show or hide fields, display a message, disqualify, jump to a step, free roam.
+- **Product conditions (3 shapes on a product):** is selected, is not selected, and a bump-product target. These are written on the product's key, not a field key.
+
+**Merge caveat (bl-1004).** A save merges into the stored document, so a key cannot be removed by leaving it out. To restore an absent key, set it explicitly to `null` or `[]`. The batch 3 TEST form kept residue for this reason, recorded in bl-1004.
+
+**Setting write keys.** Two of these settings are proven write keys under the form's `formAction` object, which `update_form_data` writes:
+- footer HTML: `formAction.footerHtml`
+- disqualify after submit: `formAction.endsurveyType`
+- background blur on the message styling: `style.blur` is accepted and stored by the write, but it is NOT yet confirmed as the builder's background-blur key (the UI does not prove the mapping). Do not rely on it until forms confirms it; its UI-only status is still held open, so it is not in the list below.
+
+**UI-only in W9 (30 units, no tool writes them).** Each is a toggle or text in the builder's Settings tab or Integrate tab. `update_form_data` writes only `fields`, `formAction`, `style`, `conditionalLogic` and `name` of the stored document, and these items are stored and rendered outside those keys, so no W9 tool writes them. Do them in the GHL UI.
+- **Settings (bl-1002, 9 items):** sticky contact; timezone capture; the GDPR font; save progress and the exit confirmation; create a contact on a partial submission; create a conversation on submission; generate the submission PDF; full screen; cookie consent.
+- **Integrations and the Integrate tab (bl-1003, 21 items):** the Facebook pixel ID and events; opportunity creation and setup; contact association and the association picker; the email notification; the auto responder; the Integrate tab (embed code and its modal, embed type and button, the embed preview, embedding in Funnels or Websites, the basic embed, the share link and social share, email connections and templates, linked workflows, the post-save panel).
+
 ## Out of scope, and why
 
 Never executed on any account, so no tool exposes them and the corpus marks them unproven:
