@@ -110,9 +110,71 @@ const RULES = [
   },
 ];
 
+// w7 (security review, MEDIUM): the rules above were written against the literal path. A router that decodes
+// percent-escapes and folds case would send `/Workflow/…` or `/%77orkflow/…` to the same handler and skip every
+// refusal. So a path is judged in its NORMALISED form (decoded once, lowercased), and a /workflow or /opportunities
+// path that carries an escape, or a static segment in capitals, is refused outright: no legitimate call writes one.
+const FAMILY = /^\/(workflow|opportunities)(\/|$)/;
+const STATIC_WORDS = new Set(['workflow', 'trigger', 'permission', 'change-status', 'remove-stuck-statuses',
+  'start-workflow', 'opportunities', 'pipelines', 'position']);
+const ESCAPE = /%[0-9a-f]{2}/i;
+// One decoding pass that never throws: a run of valid escapes is decoded, anything else is left as written.
+const decodeLoose = (s) => s.replace(/(%[0-9a-f]{2})+/gi, (run) => {
+  try { return decodeURIComponent(run); } catch { return run; }
+});
+// w8 (automated security review on 95d4f17b): the judged path is the one the WIRE parses. The query and fragment are not part of
+// the path, dot segments are resolved by the URL parser, and the parse is made on the same origin-plus-path form the gateway sends.
+const WIRE_ORIGIN = 'https://wire.invalid';
+function wireParse(path) {
+  const noQuery = String(path).split('?')[0];
+  const pre = noQuery.split('#')[0];
+  let pathname = null;
+  try { pathname = new URL(WIRE_ORIGIN + pre).pathname; } catch { pathname = null; }
+  return { pre, hasFragment: noQuery.includes('#'), pathname };
+}
+/** The path the rules judge: the wire path, decoded once, lowercased, no trailing slash. */
+export const normalizedPath = (path) => {
+  const { pathname } = wireParse(path);
+  return decodeLoose(pathname ?? pathOnly(path)).toLowerCase().replace(/\/+$/, '');
+};
+const NON_CANONICAL = (why) => ({
+  rule: 'non-canonical-path',
+  message: `A /workflow or /opportunities path that ${why} is refused: the server resolves it differently from its literal text, so the publish-door rules cannot judge it.`,
+  hint: 'Send the path exactly as the catalogue writes it: one slash between segments, no fragment, no dot segments, lowercase static segments, no percent-escapes. Use publish_workflow for a publish.',
+});
+// The family test is made on the decoded, slash-collapsed path, so a doubled leading slash is still the family.
+const familyOf = (text) => FAMILY.test(decodeLoose(text).toLowerCase().replace(/\/{2,}/g, '/'));
+function canonicalFault(path) {
+  const { pre, hasFragment, pathname } = wireParse(path);
+  const raw = pathOnly(path);
+  if (ESCAPE.test(raw)) {
+    // Decode up to three passes: a double-encoded family name is still the family.
+    let cur = raw, family = familyOf(pathname ?? raw);
+    for (let i = 0; i < 3; i++) {
+      const next = decodeLoose(cur);
+      if (next === cur) break;
+      cur = next;
+      if (FAMILY.test(cur.toLowerCase())) family = true;
+    }
+    return family ? NON_CANONICAL('carries a percent-escape') : null;
+  }
+  if (!familyOf(pathname ?? raw)) return null;
+  if (hasFragment) return NON_CANONICAL('carries a URL fragment');
+  if (pathname === null) return NON_CANONICAL('does not parse as a URL');
+  if (pathname.includes('//')) return NON_CANONICAL('repeats a slash');
+  if (pre !== pathname) return NON_CANONICAL('contains dot segments or characters the URL parser rewrites');
+  for (const seg of pathname.split('/')) {
+    const low = seg.toLowerCase();
+    if (STATIC_WORDS.has(low) && seg !== low) return NON_CANONICAL(`names the static segment "${seg}" in capitals`);
+  }
+  return null;
+}
+
 /** The refusal for this call, or null. `method` upper-case; `body` already JSON-parsed. */
 export function refuseRawRequest({ method, path, body }) {
-  const p = pathOnly(path);
+  const fault = canonicalFault(path);
+  if (fault) return fault;
+  const p = normalizedPath(path);
   const wire = onWire(body);
   for (const r of RULES) {
     if (r.method === method && r.path.test(p) && r.refuses(wire)) return { rule: r.rule, message: r.message, hint: r.hint };
@@ -149,7 +211,7 @@ export function refuseEmptyWriteBody({ method, body, allowEmptyBody = false }) {
  */
 export function matchCatalogRow(pool, method, path) {
   const want = String(method).toUpperCase();
-  const segs = pathOnly(path).split('/');
+  const segs = normalizedPath(path).split('/');
   let best = null, bestLiteral = -1;
   for (const row of pool) {
     if (row.method !== want) continue;
@@ -158,7 +220,7 @@ export function matchCatalogRow(pool, method, path) {
     let literal = 0, ok = true;
     for (let i = 0; i < rs.length; i++) {
       if (/^\{[^}]+\}$/.test(rs[i])) continue;
-      if (rs[i] !== segs[i]) { ok = false; break; }
+      if (rs[i].toLowerCase() !== segs[i]) { ok = false; break; }
       literal++;
     }
     if (ok && literal > bestLiteral) { best = row; bestLiteral = literal; }

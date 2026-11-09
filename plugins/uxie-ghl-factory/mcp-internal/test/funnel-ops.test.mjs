@@ -1,3 +1,6 @@
+import { setPublishMinAgeForTests } from '../core/publish-confirmation.mjs';
+// w7: these cases preview and publish in one process. The minimum age (20 s, a same-turn refusal) is lowered for them.
+setPublishMinAgeForTests(0);
 // get_funnel / edit_funnel, and build_funnel_page's lag-tolerant read-back.
 // Each behaviour pinned here was measured live on the sandbox (knowledge/sniffs/funnels-wave1-2026-09-26,
 // funnels-wave4-page-2026-09-26); the fixtures mirror the real response shapes.

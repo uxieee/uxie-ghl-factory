@@ -2,6 +2,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { issuePublishToken, verifyPublishToken, outwardStepsOf, PUBLISH_TOKEN_TTL_MS } from '../core/publish-confirmation.mjs';
+import { setPublishMinAgeForTests } from '../core/publish-confirmation.mjs';
+// The older cases verify a token straight after issuing it; the minimum age is lowered for them. The w7 cases restore the default.
+setPublishMinAgeForTests(0);
 
 const base = { locationId: 'LOC', workflowId: 'WID', version: 3 };
 
@@ -83,4 +86,41 @@ test('a token issued for a studio site is refused for a workflow publish, and th
   assert.equal(asStudio.ok, false);
   assert.match(asStudio.reason, /different kind/);
   assert.deepEqual(verifyPublishToken(studio, { locationId: 'LOC', workflowId: 'P1', version: 'V1', kind: 'studio_site' }, { now: 2000 }), { ok: true });
+});
+
+// w7 (orchestrator 2026-11-09, DECISIONS): an agent re-run showed the model takes the preview's token and publishes in the same
+// turn with no user reply. The token is now valid only from 20 s after its preview, to the 5-minute expiry. A same-turn call is
+// refused with a message to show the preview and wait for the user's yes; the refusal spends nothing.
+import { PUBLISH_MIN_AGE_MS } from '../core/publish-confirmation.mjs';
+
+test('w7: a token presented in the same moment as its preview is refused, the refusal says to wait for the user, and the token is not spent', () => {
+  setPublishMinAgeForTests(PUBLISH_MIN_AGE_MS);
+  const token = issuePublishToken(base, { now: 1000 });
+  const early = verifyPublishToken(token, base, { now: 2000 });
+  assert.equal(early.ok, false);
+  assert.match(early.reason, /show the preview to the user and wait for their yes/);
+  // not spent by the refusal: the same token works once the minimum age has passed
+  assert.deepEqual(verifyPublishToken(token, base, { now: 1000 + PUBLISH_MIN_AGE_MS }), { ok: true });
+});
+
+test('w7: the minimum age is 20 seconds, exactly: 19.999 s refused, 20 s accepted', () => {
+  setPublishMinAgeForTests(PUBLISH_MIN_AGE_MS);
+  assert.equal(PUBLISH_MIN_AGE_MS, 20 * 1000);
+  const token = issuePublishToken(base, { now: 5000 });
+  assert.equal(verifyPublishToken(token, base, { now: 5000 + 19999 }).ok, false);
+  assert.deepEqual(verifyPublishToken(token, base, { now: 5000 + 20000 }), { ok: true });
+});
+
+test('w7: the 5-minute expiry is unchanged, and a token past it is refused as expired', () => {
+  setPublishMinAgeForTests(PUBLISH_MIN_AGE_MS);
+  const token = issuePublishToken(base, { now: 0 });
+  const late = verifyPublishToken(token, base, { now: PUBLISH_TOKEN_TTL_MS + 1 });
+  assert.equal(late.ok, false);
+  assert.match(late.reason, /expired/);
+});
+
+test('w7: the minimum age does not weaken the other checks (a wrong workflow is still refused, after the age has passed)', () => {
+  setPublishMinAgeForTests(PUBLISH_MIN_AGE_MS);
+  const token = issuePublishToken(base, { now: 0 });
+  assert.match(verifyPublishToken(token, { ...base, workflowId: 'OTHER' }, { now: PUBLISH_MIN_AGE_MS }).reason, /another workflow/);
 });

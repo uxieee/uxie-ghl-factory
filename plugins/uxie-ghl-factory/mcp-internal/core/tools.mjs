@@ -1738,8 +1738,8 @@ const outwardTokenRefusal = (args, { kind, targetId, digest, preview, what }) =>
   return withFailureData(
     fail(
       CODES.CONFIRM_REQUIRED,
-      refused ? `${what} not sent: ${check.reason}. No write was sent.` : `${what} preview is ready; no write was sent.`,
-      'Review data.preview, then call again with confirm:true and confirmationToken set to data.confirmationToken. The token lasts 5 minutes and works once.',
+      refused ? `${what} not sent: ${check.reason}. No write was sent.` : `${what} preview is ready; no write was sent. Show data.preview to the user and wait for their explicit yes.`,
+      'Show data.preview to the user and wait for their explicit yes; do not call again in this turn. Then call with confirm:true and confirmationToken set to data.confirmationToken. The token is valid from 20 seconds after the preview to 5 minutes, and works once.',
     ),
     { preview, confirmationToken },
   );

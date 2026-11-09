@@ -1,3 +1,6 @@
+import { setPublishMinAgeForTests } from '../core/publish-confirmation.mjs';
+// w7: these cases preview and publish in one process. The minimum age (20 s, a same-turn refusal) is lowered for them.
+setPublishMinAgeForTests(0);
 // The publish path on build_funnel_page, and the publish STATE it reports on every run.
 //
 // Why the state matters enough to test: the public renderer serves the newest `live` version if a

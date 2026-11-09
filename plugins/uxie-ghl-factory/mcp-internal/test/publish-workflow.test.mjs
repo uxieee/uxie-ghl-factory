@@ -4,7 +4,9 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { TOOLS, registerTools } from '../core/tools.mjs';
-import { issuePublishToken } from '../core/publish-confirmation.mjs';
+import { issuePublishToken, setPublishMinAgeForTests, PUBLISH_MIN_AGE_MS } from '../core/publish-confirmation.mjs';
+// Most cases here preview and publish in one process, so the minimum age is lowered for them. The w7 case restores the default.
+setPublishMinAgeForTests(0);
 
 const publishTool = () => TOOLS.find((candidate) => candidate.name === 'publish_workflow');
 // The reply measured 2026-09-28 on a publish that LANDED (workflows wave21).
@@ -676,4 +678,21 @@ test('bl-946: a version that moves between the token check and the pre-PUT re-re
   // so the refusal carries no token and no preview. The caller runs a fresh preview.
   assert.equal(result.data?.confirmationToken, undefined, 'no token may be issued for a version nobody previewed');
   assert.equal(result.data?.preview, undefined, 'the old preview must not be returned as if it described the new version');
+});
+
+// w7 (orchestrator 2026-11-09): the model read the preview and published in the same turn. A token presented in the same moment as
+// its preview is refused with a message to show the preview and wait for the user's yes, and nothing is written.
+test('w7: publish_workflow refuses a token presented in the same turn as its preview, with the wait-for-yes message, and writes nothing', async () => {
+  setPublishMinAgeForTests(PUBLISH_MIN_AGE_MS);
+  try {
+    const { gw, calls } = publishGateway({ initial: workflow() });
+    const preview = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+    assert.ok(preview.data?.confirmationToken, JSON.stringify(preview).slice(0, 300));
+    const same = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true, confirmationToken: preview.data.confirmationToken }, deps(gw));
+    assert.equal(same.ok, false, JSON.stringify(same).slice(0, 300));
+    assert.match(JSON.stringify(same), /show the preview to the user and wait for their yes/);
+    assert.equal(calls.some(({ method }) => method === 'PUT'), false, 'no PUT may be sent for a same-turn token');
+  } finally {
+    setPublishMinAgeForTests(0);
+  }
 });

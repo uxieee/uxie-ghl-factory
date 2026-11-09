@@ -1,3 +1,6 @@
+import { setPublishMinAgeForTests } from '../core/publish-confirmation.mjs';
+// w7: these cases preview and publish in one process. The minimum age (20 s, a same-turn refusal) is lowered for them.
+setPublishMinAgeForTests(0);
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';

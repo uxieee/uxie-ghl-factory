@@ -117991,13 +117991,15 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 var PUBLISH_TOKEN_TTL_MS = 5 * 60 * 1e3;
+var PUBLISH_MIN_AGE_MS = 20 * 1e3;
+var minAgeMs = PUBLISH_MIN_AGE_MS;
 var SECRET = randomBytes(32);
 var spent = /* @__PURE__ */ new Map();
 var sign = (payloadPart) => createHmac("sha256", SECRET).update(payloadPart).digest("hex");
 var PREFIX = "pc1-";
 var HEX = /^[0-9a-f]+$/;
 function issuePublishToken({ locationId, workflowId, version: version2, kind = "workflow" }, { now = Date.now() } = {}) {
-  const body2 = { loc: locationId, wid: workflowId, ver: version2 ?? null, k: kind, exp: now + PUBLISH_TOKEN_TTL_MS, jti: randomUUID() };
+  const body2 = { loc: locationId, wid: workflowId, ver: version2 ?? null, k: kind, iat: now, exp: now + PUBLISH_TOKEN_TTL_MS, jti: randomUUID() };
   const payloadPart = Buffer.from(JSON.stringify(body2)).toString("hex");
   return `${PREFIX}${payloadPart}.${sign(payloadPart)}`;
 }
@@ -118024,6 +118026,9 @@ function verifyPublishToken(token, { locationId, workflowId, version: version2, 
   if (body2.loc !== locationId) return { ok: false, reason: "the confirmation token is for another location" };
   if (body2.wid !== workflowId) return { ok: false, reason: "the confirmation token is for another workflow" };
   if (body2.ver !== (version2 ?? null)) return { ok: false, reason: "the workflow version changed after the preview; preview again" };
+  if (typeof body2.iat !== "number" || now - body2.iat < minAgeMs) {
+    return { ok: false, reason: "the preview was only just shown: show the preview to the user and wait for their yes, then call again (no write was sent)" };
+  }
   if (typeof body2.exp !== "number" || body2.exp < now) return { ok: false, reason: "the confirmation token expired; preview again" };
   if (spent.has(body2.jti)) return { ok: false, reason: "the confirmation token was already used" };
   spent.set(body2.jti, body2.exp);
@@ -118157,8 +118162,76 @@ var RULES = [
     hint: "Use edit_pipeline, which carries every stage's probability for you. For a raw call, give every stage its stageWinProbability (read the current values with an edit_pipeline preview) and read the pipeline back."
   }
 ];
+var FAMILY = /^\/(workflow|opportunities)(\/|$)/;
+var STATIC_WORDS = /* @__PURE__ */ new Set([
+  "workflow",
+  "trigger",
+  "permission",
+  "change-status",
+  "remove-stuck-statuses",
+  "start-workflow",
+  "opportunities",
+  "pipelines",
+  "position"
+]);
+var ESCAPE = /%[0-9a-f]{2}/i;
+var decodeLoose = (s) => s.replace(/(%[0-9a-f]{2})+/gi, (run) => {
+  try {
+    return decodeURIComponent(run);
+  } catch {
+    return run;
+  }
+});
+var WIRE_ORIGIN = "https://wire.invalid";
+function wireParse(path) {
+  const noQuery = String(path).split("?")[0];
+  const pre = noQuery.split("#")[0];
+  let pathname = null;
+  try {
+    pathname = new URL(WIRE_ORIGIN + pre).pathname;
+  } catch {
+    pathname = null;
+  }
+  return { pre, hasFragment: noQuery.includes("#"), pathname };
+}
+var normalizedPath = (path) => {
+  const { pathname } = wireParse(path);
+  return decodeLoose(pathname ?? pathOnly(path)).toLowerCase().replace(/\/+$/, "");
+};
+var NON_CANONICAL = (why) => ({
+  rule: "non-canonical-path",
+  message: `A /workflow or /opportunities path that ${why} is refused: the server resolves it differently from its literal text, so the publish-door rules cannot judge it.`,
+  hint: "Send the path exactly as the catalogue writes it: one slash between segments, no fragment, no dot segments, lowercase static segments, no percent-escapes. Use publish_workflow for a publish."
+});
+var familyOf = (text) => FAMILY.test(decodeLoose(text).toLowerCase().replace(/\/{2,}/g, "/"));
+function canonicalFault(path) {
+  const { pre, hasFragment, pathname } = wireParse(path);
+  const raw = pathOnly(path);
+  if (ESCAPE.test(raw)) {
+    let cur = raw, family = familyOf(pathname ?? raw);
+    for (let i = 0; i < 3; i++) {
+      const next = decodeLoose(cur);
+      if (next === cur) break;
+      cur = next;
+      if (FAMILY.test(cur.toLowerCase())) family = true;
+    }
+    return family ? NON_CANONICAL("carries a percent-escape") : null;
+  }
+  if (!familyOf(pathname ?? raw)) return null;
+  if (hasFragment) return NON_CANONICAL("carries a URL fragment");
+  if (pathname === null) return NON_CANONICAL("does not parse as a URL");
+  if (pathname.includes("//")) return NON_CANONICAL("repeats a slash");
+  if (pre !== pathname) return NON_CANONICAL("contains dot segments or characters the URL parser rewrites");
+  for (const seg of pathname.split("/")) {
+    const low = seg.toLowerCase();
+    if (STATIC_WORDS.has(low) && seg !== low) return NON_CANONICAL(`names the static segment "${seg}" in capitals`);
+  }
+  return null;
+}
 function refuseRawRequest({ method, path, body: body2 }) {
-  const p2 = pathOnly(path);
+  const fault = canonicalFault(path);
+  if (fault) return fault;
+  const p2 = normalizedPath(path);
   const wire = onWire(body2);
   for (const r of RULES) {
     if (r.method === method && r.path.test(p2) && r.refuses(wire)) return { rule: r.rule, message: r.message, hint: r.hint };
@@ -118178,7 +118251,7 @@ function refuseEmptyWriteBody({ method, body: body2, allowEmptyBody = false }) {
 }
 function matchCatalogRow(pool, method, path) {
   const want = String(method).toUpperCase();
-  const segs = pathOnly(path).split("/");
+  const segs = normalizedPath(path).split("/");
   let best = null, bestLiteral = -1;
   for (const row of pool) {
     if (row.method !== want) continue;
@@ -118187,7 +118260,7 @@ function matchCatalogRow(pool, method, path) {
     let literal2 = 0, ok2 = true;
     for (let i = 0; i < rs.length; i++) {
       if (/^\{[^}]+\}$/.test(rs[i])) continue;
-      if (rs[i] !== segs[i]) {
+      if (rs[i].toLowerCase() !== segs[i]) {
         ok2 = false;
         break;
       }
@@ -118305,10 +118378,10 @@ var onWire2 = (body2) => {
   }
 };
 var normMethod = (method) => String(method ?? "").trim().toUpperCase();
-var WIRE_ORIGIN = "https://wire.invalid";
+var WIRE_ORIGIN2 = "https://wire.invalid";
 function wirePathname(p2) {
   try {
-    return new URL(WIRE_ORIGIN + (p2.startsWith("/") ? p2 : `/${p2}`)).pathname;
+    return new URL(WIRE_ORIGIN2 + (p2.startsWith("/") ? p2 : `/${p2}`)).pathname;
   } catch {
     return null;
   }
@@ -119390,9 +119463,9 @@ function hostBaseFor(host) {
   }
   return AUDIT_HOSTS[host];
 }
-var segmentsOf = (normalizedPath) => normalizedPath.split("/").filter(Boolean);
+var segmentsOf = (normalizedPath2) => normalizedPath2.split("/").filter(Boolean);
 var isVariable = (segment) => segment.startsWith("{") && segment.endsWith("}");
-var staticSegmentCount = (normalizedPath) => segmentsOf(normalizedPath).filter((s) => !isVariable(s)).length;
+var staticSegmentCount = (normalizedPath2) => segmentsOf(normalizedPath2).filter((s) => !isVariable(s)).length;
 function resolveCapability({ host, method, path }, descriptors = AUDIT_CAPABILITIES) {
   if (method !== "GET") {
     throw auditError(
@@ -236444,8 +236517,8 @@ var outwardTokenRefusal = (args, { kind, targetId, digest, preview, what }) => {
   return withFailureData(
     fail(
       CODES.CONFIRM_REQUIRED,
-      refused ? `${what} not sent: ${check2.reason}. No write was sent.` : `${what} preview is ready; no write was sent.`,
-      "Review data.preview, then call again with confirm:true and confirmationToken set to data.confirmationToken. The token lasts 5 minutes and works once."
+      refused ? `${what} not sent: ${check2.reason}. No write was sent.` : `${what} preview is ready; no write was sent. Show data.preview to the user and wait for their explicit yes.`,
+      "Show data.preview to the user and wait for their explicit yes; do not call again in this turn. Then call with confirm:true and confirmationToken set to data.confirmationToken. The token is valid from 20 seconds after the preview to 5 minutes, and works once."
     ),
     { preview, confirmationToken }
   );

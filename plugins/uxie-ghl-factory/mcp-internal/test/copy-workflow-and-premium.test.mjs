@@ -1,3 +1,6 @@
+import { setPublishMinAgeForTests } from '../core/publish-confirmation.mjs';
+// w7: these cases preview and publish in one process. The minimum age (20 s, a same-turn refusal) is lowered for them.
+setPublishMinAgeForTests(0);
 // copy_workflow_to_location and get_premium_usage (operator-approved 2026-09-23).
 // The copy writes into a SECOND account, so the tests pin the target fence, the measured body, and
 // that success is the new workflow APPEARING in the target (GHL only queues the copy).

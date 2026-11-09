@@ -1,3 +1,6 @@
+import { setPublishMinAgeForTests } from '../core/publish-confirmation.mjs';
+// w7: these cases preview and publish in one process. The minimum age (20 s, a same-turn refusal) is lowered for them.
+setPublishMinAgeForTests(0);
 // Handler tests for set_agent_deployment: the routing table is account-wide, so the tool's contract is "write only the
 // named agent's row, and prove every other row identical". The engine is tested in engines/ai/deployment.test.mjs;
 // this file locks the tool surface: preview = one read, refusals before any call, the confirmed sequence.

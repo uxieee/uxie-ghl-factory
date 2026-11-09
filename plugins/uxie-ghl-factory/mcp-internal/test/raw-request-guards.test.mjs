@@ -227,3 +227,94 @@ test('bl-946: raw PUT of one trigger with status published is refused (it activa
   assert.match(hit.hint, /publish_workflow/);
   assert.equal(refuseRawRequest({ method: 'PUT', path: trig, body: { status: 'draft' } }), null);
 });
+
+// w7 (security review, MEDIUM, 2026-11-09): the path rules matched the RAW path, so a case or encoding variant of
+// /workflow or /opportunities skipped every refusal. Matching now runs on the path decoded once and lowercased, and a
+// static segment that arrives percent-encoded or in non-lowercase letters is refused outright.
+const PUB = { status: 'published', updatedBy: 'u' };
+const DRAFT = { status: 'draft', updatedBy: 'u' };
+const ENC_W = '%77orkflow'; // "w"
+const ENC_T = '%74rigger'; // "t"
+const ENC_O = '%6Fpportunities'; // "o"
+
+test('w7: the document publish door is refused for a capitalised /Workflow path (RED: the raw match let it through)', () => {
+  const r = refuseRawRequest({ method: 'PUT', path: `/Workflow/${L}/${W}`, body: PUB });
+  assert.notEqual(r, null, 'capitalised /Workflow with status published must be refused');
+});
+
+test('w7: the document publish door is refused for a percent-encoded /%77orkflow path', () => {
+  const r = refuseRawRequest({ method: 'PUT', path: `/${ENC_W}/${L}/${W}`, body: PUB });
+  assert.notEqual(r, null, 'percent-encoded static segment with status published must be refused');
+});
+
+test('w7: the trigger activation door is refused for a percent-encoded /%74rigger path', () => {
+  const r = refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/${ENC_T}/trig-1`, body: PUB });
+  assert.notEqual(r, null, 'percent-encoded trigger segment with status published must be refused');
+});
+
+test('w7: the bulk and per-workflow change-status doors are refused for capitalised paths too', () => {
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/WORKFLOW/${L}/change-status`, body: { workflowIds: [W], ...PUB } }), null);
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/Change-Status/${W}`, body: PUB }), null);
+});
+
+test('w7: an encoded slash that splits a publish path into the publish shape is refused (decode before the split)', () => {
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}%2F${W}`, body: PUB }), null);
+});
+
+test('w7: a double-encoded static segment is refused, not decoded twice', () => {
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/%2577orkflow/${L}/${W}`, body: PUB }), null);
+});
+
+test('w7: a malformed percent-escape on a /workflow path is refused (fail closed), and a malformed escape elsewhere is not this guard', () => {
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/${W}%ZZ`, body: PUB }), null);
+  assert.equal(refuseRawRequest({ method: 'PUT', path: `/contacts/${L}%ZZ`, body: PUB }), null);
+});
+
+test('w7: the pipeline position rule is refused for a capitalised or encoded /opportunities path', () => {
+  assert.notEqual(refuseRawRequest({ method: 'PATCH', path: `/Opportunities/pipelines/P1/position`, body: {} }), null);
+  assert.notEqual(refuseRawRequest({ method: 'PATCH', path: `/${ENC_O}/pipelines/P1/position`, body: {} }), null);
+});
+
+test('w7: the pipeline stages rule is refused for a capitalised /Opportunities path with a stage missing its probability', () => {
+  const r = refuseRawRequest({ method: 'PUT', path: `/OPPORTUNITIES/pipelines/P1`, body: { name: 'X', stages: [{ name: 'A' }] } });
+  assert.notEqual(r, null);
+});
+
+test('w7 controls: the canonical lowercase paths behave exactly as before (publish refused, draft passes, mixed-case ids pass)', () => {
+  assert.equal(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/${W}`, body: PUB })?.rule, 'workflow-document-publish-door');
+  assert.equal(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/${W}`, body: DRAFT }), null);
+  // Location and workflow ids are case-sensitive values, not static segments: a mixed-case id is not refused.
+  assert.equal(refuseRawRequest({ method: 'PUT', path: `/workflow/LocMixedCase1Ab/Wf-ABC-1`, body: DRAFT }), null);
+  assert.equal(refuseRawRequest({ method: 'PUT', path: `/workflow/LocMixedCase1Ab/Wf-ABC-1`, body: PUB })?.rule, 'workflow-document-publish-door');
+});
+
+test('w7: the catalogue lookup finds the row for a case or encoding variant of the same path', () => {
+  const pool = [{ method: 'PUT', path: '/workflow/{locationId}/{workflowId}', rowId: 'doc' }];
+  assert.equal(matchCatalogRow(pool, 'PUT', `/Workflow/${L}/${W}`)?.rowId, 'doc');
+  assert.equal(matchCatalogRow(pool, 'PUT', `/${ENC_W}/${L}/${W}`)?.rowId, 'doc');
+});
+
+// w8 (automated security review, MEDIUM x2, on 95d4f17b): the judged path must be the path the wire parses. Repeated slashes,
+// dot segments and a URL fragment each put a publish route past the rules while the server still resolves it to one.
+test('w8: a publish door is refused when the path opens with a double slash', () => {
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `//workflow/${L}/${W}`, body: PUB }), null);
+});
+
+test('w8: a publish door is refused when the path has a doubled slash between segments', () => {
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}//${W}`, body: PUB }), null);
+});
+
+test('w8: a publish door is refused when a URL fragment rides after the workflow id', () => {
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/${W}#/x`, body: PUB }), null);
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/${W}#`, body: PUB }), null);
+});
+
+test('w8: a publish door is refused when a dot segment resolves the path to the publish route', () => {
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/workflow/x/../${L}/${W}`, body: PUB }), null);
+  assert.notEqual(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/./${W}`, body: PUB }), null);
+});
+
+test('w8 controls: a trailing slash on the canonical publish path is still refused, and a draft on the canonical path still passes', () => {
+  assert.equal(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/${W}/`, body: PUB })?.rule, 'workflow-document-publish-door');
+  assert.equal(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/${W}`, body: DRAFT }), null);
+});

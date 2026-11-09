@@ -6,6 +6,13 @@ import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from
 
 export const PUBLISH_TOKEN_TTL_MS = 5 * 60 * 1000;
 
+// w7 (orchestrator 2026-11-09): a token is valid only from this long after its preview. A model that reads the preview and calls
+// publish in the same turn, with no user reply, is refused: the user has not had the chance to say yes. Test files that drive a
+// preview and a publish in one process lower it with setPublishMinAgeForTests; no production path calls that.
+export const PUBLISH_MIN_AGE_MS = 20 * 1000;
+let minAgeMs = PUBLISH_MIN_AGE_MS;
+export function setPublishMinAgeForTests(ms) { minAgeMs = ms; }
+
 const SECRET = randomBytes(32);
 // jti -> expiry, for tokens already spent. Pruned on every verify, so it never holds more than one lifetime of tokens.
 const spent = new Map();
@@ -19,7 +26,7 @@ const HEX = /^[0-9a-f]+$/;
 
 // `kind` says what is being published ('workflow' or 'studio_site'), so a token for one cannot publish the other.
 export function issuePublishToken({ locationId, workflowId, version, kind = 'workflow' }, { now = Date.now() } = {}) {
-  const body = { loc: locationId, wid: workflowId, ver: version ?? null, k: kind, exp: now + PUBLISH_TOKEN_TTL_MS, jti: randomUUID() };
+  const body = { loc: locationId, wid: workflowId, ver: version ?? null, k: kind, iat: now, exp: now + PUBLISH_TOKEN_TTL_MS, jti: randomUUID() };
   const payloadPart = Buffer.from(JSON.stringify(body)).toString('hex');
   return `${PREFIX}${payloadPart}.${sign(payloadPart)}`;
 }
@@ -45,6 +52,9 @@ export function verifyPublishToken(token, { locationId, workflowId, version, kin
   if (body.loc !== locationId) return { ok: false, reason: 'the confirmation token is for another location' };
   if (body.wid !== workflowId) return { ok: false, reason: 'the confirmation token is for another workflow' };
   if (body.ver !== (version ?? null)) return { ok: false, reason: 'the workflow version changed after the preview; preview again' };
+  if (typeof body.iat !== 'number' || now - body.iat < minAgeMs) {
+    return { ok: false, reason: 'the preview was only just shown: show the preview to the user and wait for their yes, then call again (no write was sent)' };
+  }
   if (typeof body.exp !== 'number' || body.exp < now) return { ok: false, reason: 'the confirmation token expired; preview again' };
   if (spent.has(body.jti)) return { ok: false, reason: 'the confirmation token was already used' };
   spent.set(body.jti, body.exp);
