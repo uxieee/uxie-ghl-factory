@@ -121,10 +121,20 @@
         "receipt:2026-11-08-2256"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-09",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-11-09-2149"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-08",
+    "hashedAt": "2026-11-09",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
       "GET https://services.leadconnectorhq.com /snapshots/{}/assets": "cbc2a942dac75d9badf97abd73d183beac044882a63200d4c7f87f82337e5080"
@@ -132,14 +142,14 @@
     "builds": {
       "contactsApp": 3008,
       "customFieldsApp": 2973,
-      "snapshotsApp": 2250
+      "snapshotsApp": 2272
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_snapshot_contents": "7875d71e7270f56b3fa4aae46ade292cb74bee8724fb9d54d9ebdb3ff6f6cdc8",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "782876e6fb737ca645eaf1b14361697115a29c3cab95b4fa215fed4a30997869",
       "plugins/uxie-ghl-factory/mcp-internal/core/snapshots.mjs": "6ad76fe387b90c1bfdd7df545e21c11420b5a15ebf1cf94680421a47dfb3de60"
     }
   }

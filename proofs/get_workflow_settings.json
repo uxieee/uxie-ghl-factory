@@ -602,10 +602,20 @@
         "receipt:2026-11-08-2256"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-09",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-11-09-2149"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-08",
+    "hashedAt": "2026-11-09",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/auto-save/settings": "2a2115f980d56e564a36ef8a9820659eb11a4650f8ad06fd3a93516a2844ab34",
       "GET https://backend.leadconnectorhq.com /workflow/{}/eliza-users": "4de96ee6b2e2d8196114259b90ee81a390731760a46d366497ca5ab423e1935b",
@@ -615,14 +625,14 @@
       "GET https://backend.leadconnectorhq.com /workflow/{}/workflow-location-setting/settings": "969136a0d4759272936b0360fd7b75108a1cc4a76e49a8afc613e78ab66ccece"
     },
     "builds": {
-      "builder-chunks": "assets/index-fs7onDEi.js"
+      "builder-chunks": "assets/index-V8vU7Pxn.js"
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_workflow_settings": "8ddee6908b053d660b5e964734fc3060c03006cacdd1511d348b9f91dfba8a5e",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "782876e6fb737ca645eaf1b14361697115a29c3cab95b4fa215fed4a30997869"
     }
   }
 }

@@ -562,28 +562,38 @@
         "receipt:2026-11-08-2256"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-09",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-11-09-2149"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-08",
+    "hashedAt": "2026-11-09",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
       "GET https://backend.leadconnectorhq.com /locations/{}/customValues": "7528d8d44a9a81689c4ff5dc3875cd96f40b6c37d613bd11156e149b728ac054",
       "POST https://backend.leadconnectorhq.com /workflow/{}/validate-assets": "c20cfea15e92c2f773c04a40f625895ca13e1d81f14a4f0fa312bd80b9715ca0"
     },
     "builds": {
-      "builder-chunks": "assets/index-fs7onDEi.js"
+      "builder-chunks": "assets/index-V8vU7Pxn.js"
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#search_merge_tags": "05246f62e08b6a0fb53033fdf59079b0fb30fbd5611e00d254a8fcb7bcebda5b",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.data.json": "05617f852fb45670878c4b1149a65dae8820ec560c88934255761c8f841a0b02",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "782876e6fb737ca645eaf1b14361697115a29c3cab95b4fa215fed4a30997869",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.data.json": "114c9d6283197454390b8c734e0f2a7e62c3dea328a52c64ac1b8221820caaea",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.mjs": "3f916a17f8a3614927e2cb573e0191c90dc381872f08b6025ce3bc992756dad4",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/ir.mjs": "8873ad19805ed1b85f7711a1a7767a930984214d66371001464e8f6234f6bc84",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/merge-tags.mjs": "f0a27e2cba7978cdab8297548a0a983fdffdf46ad167b7dc6fb8127790422495",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/merge-tags.mjs": "aa44a91733cd1909b57a86e4f644a116828dadc69b87178ee582a7649f9c0212",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "9f480ab94fa7198471af4926f19ff661077bde0b48be268540d26cad648b6e79",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/text-rules.mjs": "368e4f6ffeeb33d3f373c7c29c35efefbee0c793d70b28309ac18746b5ae1dc3"
     }
