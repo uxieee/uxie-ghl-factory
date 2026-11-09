@@ -245738,13 +245738,14 @@ var TOOLS2 = [
   },
   {
     name: "update_form_data",
-    description: `${describe3("update_form_data", "Edit a form's stored document safely \u2014 risk: write")}. Preview by default; confirm:true writes. THE SAVE IS A WHOLE-DOCUMENT REPLACE and there is no A form an earlier create_form made (before 1.36.0) opens EMPTY in the form builder; passing its fields back (\`fields\`) repairs it \u2014 the builder's per-element keys are filled in and reported as builderShape; an update naming no \`fields\` leaves the fields as they are. PATCH \u2014 PUT and PATCH both 404 \u2014 so this reads the current document first, merges your change into it and writes the whole thing back. The preview shows exactly which top-level keys of \`formData.form\` would change. Two keys are renamed by the server on write (formAction.redirect_url \u2192 redirectUrl, style.ac_branding \u2192 acBranding), so the read-back compares on the names GHL stores, not the ones you sent. \`fields\` get the same renderer check as create_form: a built-in tag without \`type\` is completed the builder's way, any other is refused.`,
+    description: `${describe3("update_form_data", "Edit a form's stored document safely \u2014 risk: write")}. Preview by default; confirm:true writes. THE SAVE IS A WHOLE-DOCUMENT REPLACE and there is no A form an earlier create_form made (before 1.36.0) opens EMPTY in the form builder; passing its fields back (\`fields\`) repairs it \u2014 the builder's per-element keys are filled in and reported as builderShape; an update naming no \`fields\` leaves the fields as they are. \`conditionalLogic\` (the rule list: {id, operation, field, value, action, redirect_url}) is written whole, like \`fields\`. PATCH \u2014 PUT and PATCH both 404 \u2014 so this reads the current document first, merges your change into it and writes the whole thing back. The preview shows exactly which top-level keys of \`formData.form\` would change. Two keys are renamed by the server on write (formAction.redirect_url \u2192 redirectUrl, style.ac_branding \u2192 acBranding), so the read-back compares on the names GHL stores, not the ones you sent. \`fields\` get the same renderer check as create_form: a built-in tag without \`type\` is completed the builder's way, any other is refused.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       formId: external_exports.string(),
       fields: external_exports.array(external_exports.record(external_exports.any())).optional(),
       formAction: external_exports.record(external_exports.any()).optional(),
       style: external_exports.record(external_exports.any()).optional(),
+      conditionalLogic: external_exports.array(external_exports.record(external_exports.any())).optional(),
       name: external_exports.string().optional(),
       confirm: external_exports.boolean().default(false)
     }),
@@ -245753,7 +245754,11 @@ var TOOLS2 = [
       { method: "POST", path: "/forms/{id}" }
     ],
     handler: async (args, deps) => guard(async () => {
-      const patch = ["fields", "formAction", "style"].filter((k) => args[k] !== void 0);
+      if (args.formAction && "redirectUrl" in args.formAction) {
+        const { redirectUrl, ...rest } = args.formAction;
+        args = { ...args, formAction: rest.redirect_url === void 0 ? { ...rest, redirect_url: redirectUrl } : rest };
+      }
+      const patch = ["fields", "formAction", "style", "conditionalLogic"].filter((k) => args[k] !== void 0);
       if (!patch.length && args.name === void 0) {
         return fail(
           CODES.VALIDATION_FAILED,

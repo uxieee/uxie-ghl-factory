@@ -11657,6 +11657,7 @@ export const TOOLS = [
       + 'A form an earlier create_form made (before 1.36.0) opens EMPTY in the form builder; passing its fields back '
       + '(`fields`) repairs it — the builder\'s per-element keys are filled in and reported as builderShape; an update '
       + 'naming no `fields` leaves the fields as they are. '
+      + '`conditionalLogic` (the rule list: {id, operation, field, value, action, redirect_url}) is written whole, like `fields`. '
       + 'PATCH — PUT and PATCH both 404 — so this reads the current document first, merges your change '
       + 'into it and writes the whole thing back. The preview shows exactly which top-level keys of '
       + '`formData.form` would change. Two keys are renamed by the server on write '
@@ -11669,6 +11670,7 @@ export const TOOLS = [
       fields: z.array(z.record(z.any())).optional(),
       formAction: z.record(z.any()).optional(),
       style: z.record(z.any()).optional(),
+      conditionalLogic: z.array(z.record(z.any())).optional(),
       name: z.string().optional(),
       confirm: z.boolean().default(false),
     }),
@@ -11677,7 +11679,13 @@ export const TOOLS = [
       { method: 'POST', path: '/forms/{id}' },
     ],
     handler: async (args, deps) => guard(async () => {
-      const patch = ['fields', 'formAction', 'style'].filter((k) => args[k] !== undefined);
+      // bl-950: GHL stores the redirect target as formAction.redirectUrl but reads it back from the write key redirect_url.
+      // A redirectUrl sent by a caller was dropped on write (verified:false). Map it to the write key here.
+      if (args.formAction && 'redirectUrl' in args.formAction) {
+        const { redirectUrl, ...rest } = args.formAction;
+        args = { ...args, formAction: rest.redirect_url === undefined ? { ...rest, redirect_url: redirectUrl } : rest };
+      }
+      const patch = ['fields', 'formAction', 'style', 'conditionalLogic'].filter((k) => args[k] !== undefined);
       if (!patch.length && args.name === undefined) {
         return fail(CODES.VALIDATION_FAILED, 'nothing to change',
           'Pass at least one of fields, formAction, style or name.');
