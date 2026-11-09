@@ -134,6 +134,11 @@ them to where it lives in the UI. Never report it as impossible, and never build
 | **Maps sticky notes** ("Add sticky note" toolbar control) | Automation → Workflows → Maps → Add sticky note | UI-only in this build: no internal tool in W9 (see `console/domain/workflows-ui-only.md`; backlog bl-945 and bl-985). The sticky note is not in the layout store, so no tool sets it. Do it in the GHL UI and tell the user. |
 | **The sender name shown in Settings** (the from name at send time) | Settings → the sender name for workflow messages | Warn, do not promise it: `build_workflow` accepts a sender address with a from name, but the from name does not show at send time. Set the sender name in the GHL UI and tell the user (backlog bl-959). |
 
+**Not proven in this build (no claim to the user).** These three are not verified, so do not tell the user they work. Say what you tried, and check them in the GHL UI.
+- **The Abandoned Checkout trigger:** the draft saves, but its run needs a public checkout that this build has not exercised (backlog bl-1015).
+- **The location_owner merge tags** (owner first name, last name, email): they render empty on the TEST sandbox because that location has no owner record, so their rendered value is not proven (backlog bl-1016).
+- **The custom-object variant of Send SMS** (a Send SMS step on a custom-object trigger): the variant is not in the Add action picker on the probe drafts, and GHL enables it for all accounts on 2026-11-10, and it is not proven in this build (backlog bl-890).
+
 ## Which rail, per job
 
 GHL's public workflow API is allow-listed: on the sandbox it answered 403 "not enabled for location" for a definition,
