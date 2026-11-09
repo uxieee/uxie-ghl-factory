@@ -11,6 +11,70 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.43.0] — 2026-11-10
+
+**Outward writes now need a preview and a yes. Raw requests are judged on the canonical path. Workflow, form, funnel and course work from W9 is in, and the known issues are listed by tool.**
+
+### Added
+- A two-step gate on the outward tools. `publish_workflow`, `publish_studio_site`, the publish operation of `build_funnel_page`,
+  the publish operation of `edit_funnel`, `copy_workflow_to_location`, `push_snapshot`, `fast_forward_contacts` and
+  `set_agent_deployment` publish nothing on the first call. That call returns a preview and a confirmation token. Only a
+  second call that presents the token, with `confirm: true`, does the write. The token lasts five minutes, works once, and is
+  bound to one location, one target and the version the preview saw. It is valid only from twenty seconds after its
+  preview, so a preview and a publish in the same turn are refused until the user has had the chance to say yes.
+- Workflow read surfaces: the error list, the A/B and test-run reads, the Maps index of which workflows use which tags, forms,
+  calendars and other assets (`get_workflow_linked_assets`), and a trigger-overlap check that says "will overlap", "can't
+  overlap" or "might", with drafts listed apart.
+- Workflow step types: router, loop, split, AI agent and A/B test, with fixtures and validators.
+- Funnels: CSS rules, render probes and paging for `audit_site`. `compare_page_renders` judges preview and live at desktop and
+  phone width, and the builder canvas at desktop width on structure and layout only.
+- Forms: `update_form_data` writes conditional logic, with the merge caveat (a key left out is kept; to remove one, set it to
+  `null` or `[]`), and the survey write key for one question at a time.
+- Skill text: the Workflow Maps views that are UI-only in this build (saved layout, folder colour, sticky notes); the form
+  layout and schedule settings that are UI-only; the date window of `list_form_submissions`; and a "not proven in this build"
+  paragraph for the workflow items that the sandbox cannot yet show (the Abandoned Checkout trigger, the location owner merge
+  tags, and the custom-object variant of Send SMS). The calendar UI-only list in the house conventions skill grows to match.
+- Courses: text lessons carry their content type, and the build reports conformance.
+- Proof records re-run on the current code for the courses engine and the AI Studio and AI agents tools; the evidence behind
+  each record is cited to files on main.
+
+### Changed
+- Raw requests are judged on the canonical path. The guards decode the path once and lowercase it, and refuse non-canonical
+  paths on the workflow and opportunity rules: percent-escapes (including double and malformed ones), uppercase static
+  segments, double slashes, fragments and dot segments.
+- A full `build_funnel_page` write reads the stored page first and keeps what it cannot send (header and footer code, custom
+  CSS and fonts, the background, the stored palette and fonts, and root variables). It refuses rather than drop stored
+  popups, and its result names what it kept.
+- Build defaults: a course is created as a draft. The build reports a version conflict as its own error.
+- `build_funnel_page` reports its publish state from a read-back after a verified publish.
+
+### Fixed
+- The workflow error list answered 500 without its paging parameters; it now pages to the total.
+- The A/B test's contact-tag win goal is keyed the way GHL stores it, and a blank tag is refused.
+- An order-form block that rendered a 500 is now composed correctly, and an old-shape order form is refused on copy and insert.
+- Plugin tests remove the temporary fixture directories they create, and a guard test refuses raw temporary-directory calls.
+- Freshness gate and its tests clean up their temporary copies.
+- `update_form_data` redirect mapping is corrected.
+- Proof records re-cited to files on main, so each record points at evidence that every checkout has.
+
+### Security
+- Outward writes need the two-step gate above; a token cannot be replayed, carried across locations or used for another target.
+- Raw-request path normalisation, as above, closes the bypasses that percent-escapes, case and dot segments allowed.
+- Token-bearing URLs in exported files are redacted, and the release privacy gate runs with placeholder identifiers only.
+
+### Known issues
+- `compare_page_renders`: on three probe pages (landing, sales, booking) the builder canvas differs from the live page in
+  structure and vertical layout; the cause is not yet known.
+- `create_studio_site`: the site is stored under a different name from the one you sent. Rename it in the GHL UI.
+- `push_snapshot`: pushing a snapshot back into the location it was taken from is accepted and queued but can reach zero
+  locations, so nothing loads. Check the target in the GHL UI before you rely on it.
+- `export_workflow`: a webhook's authorization header is dropped from the export rather than replaced by a placeholder. Re-enter it by hand after import.
+- `validate_workflow`: it can't restore that authorization from the stored step.
+- `repair_workflow`: it does not yet refuse a document that still carries redaction placeholders.
+- `publish_workflow`: now needs the two-step confirm: a preview, then a confirm with the token after about 20 seconds. Its automated check does not yet do the confirm step, so the latest run (2026-11-09) stops at the preview. Publishing through the two-step flow was tested live separately.
+- `copy_workflow_to_location`: the same two-step confirm, and the same gap in the automated check as `publish_workflow`.
+- `edit_workflow`: its latest automated run failed on cases that start from a published workflow, which the check could not set up without the publish confirm step, and on one upstream server error. The edit itself is unchanged.
+
 ## [1.42.5] — 2026-10-01
 
 **Proof records only. Every tool has now been proven live on the current code.**

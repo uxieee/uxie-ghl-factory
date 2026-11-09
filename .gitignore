@@ -11,3 +11,6 @@ plugins/*/skills/*-workspace/
 # (The two already tracked stay tracked; gitignore does not untrack.)
 STATUS-*.md
 HANDOFF.md
+
+# Local worktree copies (release lanes and scratch copies); never part of the plugin tree.
+.wt/
