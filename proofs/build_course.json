@@ -91,10 +91,20 @@
       "failures": [
         "lesson-text-reads-back-as-video"
       ]
+    },
+    {
+      "at": "2026-11-09",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "sniff:sniffs/courses-w9-2026-11-08/live-build-course-text-lesson-2026-11-09.json",
+        "commit:af243030"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-08",
+    "hashedAt": "2026-11-09",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /membership/locations/{}/certificate-attachments/products/{}": "af5cec11d38db53cfdebc165812667a61316b863870b85d89c621d01492b3bec",
       "GET https://services.leadconnectorhq.com /membership/locations/{}/assessments/assignment/{}": "746cc836b484b4e6cf6e5c93244151d344f854a702c34934fb59414390a5a21b",
@@ -143,12 +153,12 @@
       "membershipApp": 2260
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_course": "dcd5e0f31a51b7a35f4551d9e149efd7830b3244c96457724941478c107678cf",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_course": "1103d0f46ba5296b2dcd0e6d97d38908a3568519325cc8e7e5bf10bf9f3c69e7",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303",
-      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "660acfcc1f5c9ad9f3a4d0d7ce42b27b78070cc03556cfc7e1db77f064f409e2",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "782876e6fb737ca645eaf1b14361697115a29c3cab95b4fa215fed4a30997869",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "f731016d229bd390f7ee6cb033a806cee8399e106bf2a14432635251a59740db",
       "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/assessments.mjs": "b2690fd25b8733e0d7bc791d791744a7eb54b1291f6a34145e891340aaccfdc2",
       "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/course-builder.mjs": "9a5820b77caab82880e5a7a3eafbe6a69e6c2b9b1d064212c3c9d42516e0fae4",
       "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/credentials.mjs": "74d9202416cb056db3d88500fa11154223bf0c9524cedbfd8bf6100d2f991741",

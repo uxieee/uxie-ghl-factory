@@ -82188,9 +82188,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_course: {
-        description: "Build course \u2014 proof: failing (2026-11-09), floor: documented; risk: write",
+        description: "Build course \u2014 proof: live-runtime (2026-11-09), floor: documented; risk: write",
         risk: "write",
-        proof: "failing (2026-11-09)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "documented",
         proofRows: [
           "memberships-assessment-assignment-create",
