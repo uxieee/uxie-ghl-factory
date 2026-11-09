@@ -95,6 +95,26 @@
         "receipt:2026-11-08-1742"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-08",
+      "result": "pass",
+      "how": "suite",
+      "suite": "funnels",
+      "evidence": [
+        "receipt:2026-11-08-2256"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-08",
+      "result": "pass",
+      "how": "suite",
+      "suite": "funnels",
+      "evidence": [
+        "receipt:2026-11-08-2256"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {

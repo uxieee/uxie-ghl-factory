@@ -54,10 +54,22 @@
         "commit:b77293bb"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-09",
+      "result": "fail",
+      "how": "manual",
+      "evidence": [
+        "row:bl-338"
+      ],
+      "location": "…zn6B",
+      "failures": [
+        "effect-unproven-sandbox-to-sandbox-loads-zero-locations"
+      ]
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-30",
+    "hashedAt": "2026-11-09",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
       "GET https://backend.leadconnectorhq.com /snapshots-appengine/snapshot/{}/get_assets": "3aa546c6c86ab847690ae42254ccbd48b288bb32da441fbd9fe090b9df2a0b05",
@@ -71,17 +83,17 @@
       "POST https://services.leadconnectorhq.com /snapshots/snapshot-push/v2/{}/set_assets_to_locations": "f2b4f1a98db73934013c54318a94c762d690f03d467f6ac6f4afd2833923365c"
     },
     "builds": {
-      "contactsApp": 2444,
-      "customFieldsApp": 2079,
-      "snapshotsApp": 1900
+      "contactsApp": 3008,
+      "customFieldsApp": 2973,
+      "snapshotsApp": 2250
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#push_snapshot": "2632f774149c4d0b9a07ddcd6c047e148f4fac56e33737eb947c5f05bced8515",
-      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
-      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "e643d74b3e42bddbed538584740d42f0a9e58c8de0a0bd5560867d76fd083c5f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303",
+      "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "fd4278e14af76ca07772731ac57c6c19124f743910a7074e874eb2845906b6fa",
       "plugins/uxie-ghl-factory/mcp-internal/core/snapshots.mjs": "6ad76fe387b90c1bfdd7df545e21c11420b5a15ebf1cf94680421a47dfb3de60"
     }
   }

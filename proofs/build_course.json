@@ -79,10 +79,22 @@
         "receipt:2026-10-29-0726"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-09",
+      "result": "fail",
+      "how": "manual",
+      "evidence": [
+        "sniff:sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
+      ],
+      "location": "…zn6B",
+      "failures": [
+        "lesson-text-reads-back-as-video"
+      ]
     }
   ],
   "depends": {
-    "hashedAt": "2026-10-29",
+    "hashedAt": "2026-11-08",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /membership/locations/{}/certificate-attachments/products/{}": "af5cec11d38db53cfdebc165812667a61316b863870b85d89c621d01492b3bec",
       "GET https://services.leadconnectorhq.com /membership/locations/{}/assessments/assignment/{}": "746cc836b484b4e6cf6e5c93244151d344f854a702c34934fb59414390a5a21b",
@@ -127,20 +139,20 @@
       "PUT https://services.leadconnectorhq.com /membership/locations/{}/products/apply-theme/{}": "81f0bdd355c8c94a6f10ebbfb5b59587baa7d667c40f3b686f8b8faa2e537480"
     },
     "builds": {
-      "certificatesApp": 2209,
-      "membershipApp": 2200
+      "certificatesApp": 2241,
+      "membershipApp": 2260
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_course": "dcd5e0f31a51b7a35f4551d9e149efd7830b3244c96457724941478c107678cf",
-      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa",
-      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "b103c2c9ff3ed263775cd2d804034a2aa7b9c7ed4751f2d5e82c56b8ba6ecd51",
-      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/assessments.mjs": "a1f3630ace4cd84fbd2e58b65e4d14c446754219043c744f3199347158d1603a",
-      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/course-builder.mjs": "cc26ab0a3b82785b33298449094922a51f464dfdfad178e95e78c7fb5e96671a",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "660acfcc1f5c9ad9f3a4d0d7ce42b27b78070cc03556cfc7e1db77f064f409e2",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/assessments.mjs": "b2690fd25b8733e0d7bc791d791744a7eb54b1291f6a34145e891340aaccfdc2",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/course-builder.mjs": "9a5820b77caab82880e5a7a3eafbe6a69e6c2b9b1d064212c3c9d42516e0fae4",
       "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/credentials.mjs": "74d9202416cb056db3d88500fa11154223bf0c9524cedbfd8bf6100d2f991741",
-      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/members.mjs": "63f77956e88e2fa08868e0efcfc0ecace9a2a8dba84a92d9c8b8df5bf7abf404"
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/members.mjs": "ad99703bf5f583c674430c0ab26174c415647cd44f17ec78a61b085f70236ab7"
     }
   }
 }

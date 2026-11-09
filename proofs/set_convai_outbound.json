@@ -9,7 +9,7 @@
       "result": "pass",
       "how": "manual",
       "evidence": [
-        "commit:a82feaaf"
+        "sniff:sniffs/convai-wave-2026-10-29/live-tools-w5a.jsonl"
       ],
       "location": "…zn6B"
     },
@@ -18,7 +18,7 @@
       "result": "pass",
       "how": "manual",
       "evidence": [
-        "commit:4f92fd57"
+        "sniff:sniffs/convai-wave-2026-10-29/live-tools-w5a.jsonl"
       ],
       "location": "…zn6B"
     }

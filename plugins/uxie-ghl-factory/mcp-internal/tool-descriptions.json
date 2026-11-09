@@ -60,9 +60,9 @@
     ]
   },
   "build_course": {
-    "description": "Build course — proof: live-runtime (2026-10-29), floor: documented; risk: write",
+    "description": "Build course — proof: failing (2026-11-09), floor: documented; risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "failing (2026-11-09)",
     "proofFloor": "documented",
     "proofRows": [
       "memberships-assessment-assignment-create",
@@ -180,9 +180,9 @@
     ]
   },
   "build_workflow": {
-    "description": "Build workflow — proof: live-runtime (2026-10-29), floor: documented; risk: write",
+    "description": "Build workflow — proof: live-runtime (2026-11-08), floor: documented; risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "documented",
     "proofRows": [
       "entities-tags-create",
@@ -231,9 +231,9 @@
     ]
   },
   "check_smart_lists": {
-    "description": "Audit smart lists for filters the contacts screen will silently discard — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Audit smart lists for filters the contacts screen will silently discard — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-07)",
     "proofRows": [
       "smartlist-search",
@@ -253,9 +253,9 @@
     ]
   },
   "check_snapshot_conflicts": {
-    "description": "See what loading a snapshot would collide with — proof: live-runtime (2026-09-30); risk: read",
+    "description": "See what loading a snapshot would collide with — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-30)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -275,9 +275,9 @@
     ]
   },
   "check_workflow": {
-    "description": "Read-only conformance check: replays GHL's own validators against a workflow — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Read-only conformance check: replays GHL's own validators against a workflow — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "workflow-service--find-by-id",
@@ -327,9 +327,9 @@
     ]
   },
   "create_custom_field_folder": {
-    "description": "Create custom field folder — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Create custom field folder — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "entities-custom-field-folder-create",
@@ -348,9 +348,9 @@
     ]
   },
   "create_form": {
-    "description": "Create a form and save its document — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Create a form and save its document — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-create",
@@ -374,9 +374,9 @@
     ]
   },
   "create_smart_list": {
-    "description": "Create a smart list whose filter the contacts screen will actually apply — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Create a smart list whose filter the contacts screen will actually apply — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-07)",
     "proofRows": [
       "platform--contacts-smartlist",
@@ -404,9 +404,9 @@
     ]
   },
   "create_snapshot": {
-    "description": "Capture a sub-account into an agency snapshot — proof: live-runtime (2026-09-30); risk: write",
+    "description": "Capture a sub-account into an agency snapshot — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-30)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -480,9 +480,9 @@
     ]
   },
   "create_workflow_folder": {
-    "description": "Create workflow folder — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Create workflow folder — proof: live-runtime (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "workflow-folder-create",
@@ -501,9 +501,9 @@
     ]
   },
   "describe_marketplace_action": {
-    "description": "Describe a marketplace action — its published schema and whether its app is connected — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Describe a marketplace action — its published schema and whether its app is connected — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "source-derived (builder bundle 2026-09-14)",
     "rows": [
       "marketplace-action-schema"
@@ -519,17 +519,17 @@
     ]
   },
   "describe_step_type": {
-    "description": "Describe one workflow step or trigger type — proof: live-runtime (2026-10-29), 2026-09-29); risk: read",
+    "description": "Describe one workflow step or trigger type — proof: live-runtime (2026-11-09), 2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "documented",
     "rows": [],
     "riskRows": []
   },
   "duplicate_workflow": {
-    "description": "Duplicate workflow — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Duplicate workflow — proof: live-runtime (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "workflow-duplicate",
@@ -551,9 +551,9 @@
     ]
   },
   "edit_workflow": {
-    "description": "Edit workflow — proof: live-runtime (2026-10-29), floor: live-roundtrip (2026-07-17); risk: destructive",
+    "description": "Edit workflow — proof: live-runtime (2026-11-08), floor: live-roundtrip (2026-07-17); risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-roundtrip (2026-07-17)",
     "proofRows": [
       "triggers-create-for-edit"
@@ -578,9 +578,9 @@
     ]
   },
   "export_workflow": {
-    "description": "Export workflow — proof: failing (2026-10-29); risk: read",
+    "description": "Export workflow — proof: failing (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "failing (2026-10-29)",
+    "proof": "failing (2026-11-08)",
     "proofFloor": "documented",
     "proofRows": [
       "triggers-list",
@@ -604,9 +604,9 @@
     ]
   },
   "fast_forward_contacts": {
-    "description": "Fast-forward contacts — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Fast-forward contacts — proof: live-runtime (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-07-18)",
     "proofRows": [
       "fast-forward-count-per-step",
@@ -630,9 +630,9 @@
     ]
   },
   "find_ghl_site": {
-    "description": "Find ghl site — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Find ghl site — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects",
@@ -652,9 +652,9 @@
     ]
   },
   "find_workflows_using": {
-    "description": "Find which workflows contain a step or trigger type — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Find which workflows contain a step or trigger type — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "source-derived (builder bundle 2026-09-14)",
     "rows": [
       "workflow-es-search"
@@ -696,9 +696,9 @@
     ]
   },
   "get_account_workflow_overview": {
-    "description": "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "workflows-statistics",
@@ -789,9 +789,9 @@
     ]
   },
   "get_ai_agent_options": {
-    "description": "List the models and MCP connections an ai_agent step can use — proof: live-runtime (2026-10-29); risk: read",
+    "description": "List the models and MCP connections an ai_agent step can use — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "source-derived (builder bundle 2026-09-14)",
     "rows": [
       "workflow-agent-options"
@@ -896,9 +896,9 @@
     ]
   },
   "get_contacts_at_step": {
-    "description": "List contacts at step — proof: live-runtime (2026-10-29); risk: read",
+    "description": "List contacts at step — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-07-18)",
     "proofRows": [
       "logs-details-by-step"
@@ -914,9 +914,9 @@
     ]
   },
   "get_form": {
-    "description": "Read one form and its stored document — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Read one form and its stored document — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-detail",
@@ -936,9 +936,9 @@
     ]
   },
   "get_snapshot_manifest": {
-    "description": "Read everything a sub-account could put in a snapshot — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Read everything a sub-account could put in a snapshot — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -1056,9 +1056,9 @@
     ]
   },
   "get_trigger_logs": {
-    "description": "Trigger attempt logs + top failed reasons — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Trigger attempt logs + top failed reasons — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "trigger-logs-triggerId",
@@ -1080,9 +1080,9 @@
     ]
   },
   "get_workflow": {
-    "description": "Get workflow — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Get workflow — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "documented",
     "proofRows": [
       "workflow-read"
@@ -1098,9 +1098,9 @@
     ]
   },
   "get_workflow_digest": {
-    "description": "Compact read of one workflow — identity, version, structure, merge tags per step — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Compact read of one workflow — identity, version, structure, merge tags per step — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "workflow-service--find-by-id",
@@ -1120,9 +1120,9 @@
     ]
   },
   "get_workflow_logs": {
-    "description": "Get workflow logs — proof: live-runtime (2026-10-29), floor: documented; risk: read",
+    "description": "Get workflow logs — proof: live-runtime (2026-11-08), floor: documented; risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "documented",
     "proofRows": [
       "logs-count-per-step",
@@ -1201,9 +1201,9 @@
     ]
   },
   "get_workflow_settings": {
-    "description": "Read the account-level workflow settings rail — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Read the account-level workflow settings rail — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "source-derived (builder bundle 2026-09-14)",
     "rows": [
       "workflow-settings-read",
@@ -1223,9 +1223,9 @@
     ]
   },
   "get_workflow_stats": {
-    "description": "Workflow stats view — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Workflow stats view — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "stats-aggregate",
@@ -1247,9 +1247,9 @@
     ]
   },
   "get_workflow_version": {
-    "description": "Get workflow version snapshot — proof: live-runtime (2026-11-07); risk: read",
+    "description": "Get workflow version snapshot — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-11-07)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "workflow-history"
@@ -1265,9 +1265,9 @@
     ]
   },
   "list_account_entities": {
-    "description": "List account entities — proof: live-runtime (2026-11-07), floor: documented; risk: read",
+    "description": "List account entities — proof: live-runtime (2026-11-08), floor: documented; risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-11-07)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "documented",
     "proofRows": [
       "entities-ai-employees-agents-list",
@@ -1332,9 +1332,9 @@
     ]
   },
   "list_courses": {
-    "description": "List courses — proof: live-runtime (2026-10-29); risk: read",
+    "description": "List courses — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "documented",
     "proofRows": [
       "memberships-products-list"
@@ -1350,9 +1350,9 @@
     ]
   },
   "list_form_submissions": {
-    "description": "List form submissions — proof: live-runtime (2026-10-29); risk: read",
+    "description": "List form submissions — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-submissions"
@@ -1368,9 +1368,9 @@
     ]
   },
   "list_forms": {
-    "description": "List forms in a sub-account — proof: live-runtime (2026-10-29); risk: read",
+    "description": "List forms in a sub-account — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-list",
@@ -1412,9 +1412,9 @@
     ]
   },
   "list_snapshots": {
-    "description": "List the agency's snapshots — proof: live-runtime (2026-10-29); risk: read",
+    "description": "List the agency's snapshots — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -1456,9 +1456,9 @@
     ]
   },
   "list_workflow_folders": {
-    "description": "List workflow folders — proof: live-runtime (2026-10-29); risk: read",
+    "description": "List workflow folders — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "workflow-folder-list"
@@ -1474,9 +1474,9 @@
     ]
   },
   "list_workflow_templates": {
-    "description": "List the workflow templates GHL offers — proof: live-runtime (2026-10-29); risk: read",
+    "description": "List the workflow templates GHL offers — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "source-derived (builder bundle 2026-09-14)",
     "rows": [
       "workflow-templates-list"
@@ -1492,9 +1492,9 @@
     ]
   },
   "list_workflow_versions": {
-    "description": "List workflow versions — proof: live-runtime (2026-11-07); risk: read",
+    "description": "List workflow versions — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-11-07)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "workflow-history"
@@ -1529,9 +1529,9 @@
     "undocumentedCapabilities": []
   },
   "move_workflows": {
-    "description": "Move workflows between folders and root — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Move workflows between folders and root — proof: live-runtime (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "workflow-move-batch",
@@ -1557,9 +1557,9 @@
     ]
   },
   "pin_webhook_sample": {
-    "description": "Inbound-webhook sample → reference pin → merge tags — proof: live-runtime (2026-10-29); risk: write (replaces the trigger's reference)",
+    "description": "Inbound-webhook sample → reference pin → merge tags — proof: live-runtime (2026-11-08); risk: write (replaces the trigger's reference)",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-canary (2026-08-22)",
     "proofRows": [
       "hooks-webhook-trigger-post",
@@ -1603,9 +1603,9 @@
     ]
   },
   "publish_workflow": {
-    "description": "Publish workflow — proof: live-runtime (2026-10-29), floor: documented; risk: destructive",
+    "description": "Publish workflow — proof: live-runtime (2026-11-08), floor: documented; risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "documented",
     "proofRows": [
       "workflow-publish"
@@ -1623,9 +1623,9 @@
     ]
   },
   "push_snapshot": {
-    "description": "Load a snapshot into sub-accounts — proof: live-runtime (2026-09-30); risk: destructive",
+    "description": "Load a snapshot into sub-accounts — proof: failing (2026-11-09); risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-09-30)",
+    "proof": "failing (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "platform--v2-set-assets-to-locations",
@@ -1665,9 +1665,9 @@
     ]
   },
   "refresh_snapshot": {
-    "description": "Re-capture a snapshot without losing its curation — proof: live-runtime (2026-09-30); risk: write",
+    "description": "Re-capture a snapshot without losing its curation — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-30)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -1687,9 +1687,9 @@
     ]
   },
   "repair_workflow": {
-    "description": "Repair a workflow from an export or a raw templates body — proof: failing (2026-10-29); risk: write",
+    "description": "Repair a workflow from an export or a raw templates body — proof: failing (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "failing (2026-10-29)",
+    "proof": "failing (2026-11-08)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "workflow-service--find-by-id",
@@ -1749,9 +1749,9 @@
     ]
   },
   "search_merge_tags": {
-    "description": "Search the merge-tag picker's static tags plus this account's own custom values — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Search the merge-tag picker's static tags plus this account's own custom values — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "custom-field-service--get-contact-custom-fields",
@@ -1771,9 +1771,9 @@
     ]
   },
   "search_step_types": {
-    "description": "Search workflow step and trigger types — proof: live-runtime (2026-10-29), 2026-09-29); risk: read",
+    "description": "Search workflow step and trigger types — proof: live-runtime (2026-11-09), 2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "documented",
     "rows": [],
     "riskRows": []
@@ -1819,9 +1819,9 @@
     ]
   },
   "set_workflow_error_alerts": {
-    "description": "Set who GHL emails when a workflow step fails — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Set who GHL emails when a workflow step fails — proof: live-runtime (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "workflow-error-notification-settings-read",
@@ -1847,9 +1847,9 @@
     ]
   },
   "test_custom_code": {
-    "description": "Custom Code sandbox test-run (no account mutation) — proof: live-runtime (2026-10-29); risk: sandbox-exec",
+    "description": "Custom Code sandbox test-run (no account mutation) — proof: live-runtime (2026-11-08); risk: sandbox-exec",
     "risk": "sandbox-exec",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "custom-code-run-test"
@@ -1887,9 +1887,9 @@
     ]
   },
   "unpublish_workflows": {
-    "description": "Stand published workflows back down to draft, in bulk — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Stand published workflows back down to draft, in bulk — proof: live-runtime (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "workflow-service--bulk-update-status"
@@ -1927,9 +1927,9 @@
     ]
   },
   "update_form_data": {
-    "description": "Edit a form's stored document safely — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Edit a form's stored document safely — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-detail",
@@ -1949,9 +1949,9 @@
     ]
   },
   "validate_workflow": {
-    "description": "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: failing (2026-10-29); risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. 🔴 valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and 🔴 it IGNORES the document's `status` — the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
+    "description": "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: failing (2026-11-08); risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. 🔴 valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and 🔴 it IGNORES the document's `status` — the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
     "risk": "read-only",
-    "proof": "failing (2026-10-29)",
+    "proof": "failing (2026-11-08)",
     "proofRows": [
       "workflow-read",
       "triggers-list",
@@ -1974,9 +1974,9 @@
     ]
   },
   "rename_workflow": {
-    "description": "Rename workflows — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Rename workflows — proof: live-runtime (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "workflow-rename-subject-read",
@@ -1998,9 +1998,9 @@
     ]
   },
   "copy_workflow_to_location": {
-    "description": "Copy a workflow into another sub-account — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Copy a workflow into another sub-account — proof: live-runtime (2026-11-08); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "workflow-copy-source-read",
@@ -2025,9 +2025,9 @@
     ]
   },
   "get_premium_usage": {
-    "description": "Read premium-action and workflow-AI usage — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Read premium-action and workflow-AI usage — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "workflow-premium-usage-read"
@@ -2043,9 +2043,9 @@
     ]
   },
   "get_snapshot_contents": {
-    "description": "Read what a snapshot actually contains — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Read what a snapshot actually contains — proof: live-runtime (2026-11-08); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-08)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "snapshot-contents-read"
@@ -2061,9 +2061,9 @@
     ]
   },
   "edit_pipeline": {
-    "description": "Edit a pipeline and its stages safely — proof: live-runtime (2026-09-30); risk: write",
+    "description": "Edit a pipeline and its stages safely — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-30)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "pipelines-opportunities--opportunities-pipelines",
@@ -2092,9 +2092,9 @@
     ]
   },
   "get_pipeline_forecast": {
-    "description": "Read the opportunity forecast — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Read the opportunity forecast — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "pipelines-opportunities--forecast-summary",
@@ -2152,9 +2152,9 @@
     ]
   },
   "get_funnel": {
-    "description": "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "funnels-service--get-funnel-by-id",
@@ -2178,9 +2178,9 @@
     ]
   },
   "edit_funnel": {
-    "description": "Edit a GHL funnel/website: settings, steps, publish state, headers — preview, confirm, read back — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Edit a GHL funnel/website: settings, steps, publish state, headers — preview, confirm, read back — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "funnels--funnel-update-settings",
@@ -2208,9 +2208,9 @@
     ]
   },
   "edit_redirects": {
-    "description": "Create, retarget or delete a URL redirect (Settings → Domains & URL Redirects) — proof: live-runtime (2026-09-30); risk: write",
+    "description": "Create, retarget or delete a URL redirect (Settings → Domains & URL Redirects) — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-30)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "funnels--redirect-list",
@@ -2230,9 +2230,9 @@
     ]
   },
   "create_funnel": {
-    "description": "Create a funnel, website, store, webinar or blog document on a location — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Create a funnel, website, store, webinar or blog document on a location — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "funnels--funnel-create",
@@ -2256,9 +2256,9 @@
     ]
   },
   "restore_workflow_version": {
-    "description": "Restore a workflow to an earlier version — proof: live-runtime (2026-11-07); risk: write",
+    "description": "Restore a workflow to an earlier version — proof: live-runtime (2026-11-09); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-11-07)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "workflow-service--update",
@@ -2390,9 +2390,9 @@
     ]
   },
   "get_contact_workflow_history": {
-    "description": "Contact workflow run history — proof: live-runtime (2026-10-29); risk: read",
+    "description": "Contact workflow run history — proof: live-runtime (2026-11-09); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-09)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "workflows--search-contact-executions",

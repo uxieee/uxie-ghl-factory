@@ -562,10 +562,30 @@
         "receipt:2026-10-29-0659"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-08",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-11-08-2256"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-08",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-11-08-2256"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-10-29",
+    "hashedAt": "2026-11-08",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflows-marketplace/actions/options/{}": "4714a407b6a3e1e6ff7f8474721ec28caba1945fe775daeb8b01a6a7ce1c6c68",
       "GET https://backend.leadconnectorhq.com /workflows-marketplace/actions/published/{}": "0062bcd495ce7bc6ad025830d1b3cfd340c9f3e7e34f76458c32441f334af892",
@@ -573,14 +593,14 @@
       "GET https://backend.leadconnectorhq.com /workflows-marketplace/integration/{}/oauth": "065347133579a2c352759c3413857c4876eca8eae7f656028796bf132636733c"
     },
     "builds": {
-      "builder-chunks": "assets/index-BZBeFyAW.js"
+      "builder-chunks": "assets/index-fs7onDEi.js"
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#describe_marketplace_action": "12cc4a65a83823103cd78d4811a9101e2b2e5cb80456dd8479b4f76989a78b86",
-      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "6f2de505dd9c304e94a936a7bcf20a3d43b56be4f4b507697fb673b88bc4e955",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "31e6e0aec0d35d6f26b14e2c7b5b48baf0d23cc9431a66186899d93392faa4fa"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303"
     }
   }
 }

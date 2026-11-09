@@ -7,15 +7,6 @@
     {
       "at": "2026-11-08",
       "result": "pass",
-      "how": "suite",
-      "suite": "render-scope",
-      "evidence": [
-        "commit:42c379d3"
-      ]
-    },
-    {
-      "at": "2026-11-08",
-      "result": "pass",
       "how": "manual",
       "evidence": [
         "commit:89f4c26d"

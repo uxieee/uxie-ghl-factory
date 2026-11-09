@@ -82188,9 +82188,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_course: {
-        description: "Build course \u2014 proof: live-runtime (2026-10-29), floor: documented; risk: write",
+        description: "Build course \u2014 proof: failing (2026-11-09), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "failing (2026-11-09)",
         proofFloor: "documented",
         proofRows: [
           "memberships-assessment-assignment-create",
@@ -82308,9 +82308,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_workflow: {
-        description: "Build workflow \u2014 proof: live-runtime (2026-10-29), floor: documented; risk: write",
+        description: "Build workflow \u2014 proof: live-runtime (2026-11-08), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "documented",
         proofRows: [
           "entities-tags-create",
@@ -82359,9 +82359,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_smart_lists: {
-        description: "Audit smart lists for filters the contacts screen will silently discard \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Audit smart lists for filters the contacts screen will silently discard \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-07)",
         proofRows: [
           "smartlist-search",
@@ -82381,9 +82381,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_snapshot_conflicts: {
-        description: "See what loading a snapshot would collide with \u2014 proof: live-runtime (2026-09-30); risk: read",
+        description: "See what loading a snapshot would collide with \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-30)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -82403,9 +82403,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_workflow: {
-        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -82455,9 +82455,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_custom_field_folder: {
-        description: "Create custom field folder \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Create custom field folder \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "entities-custom-field-folder-create",
@@ -82476,9 +82476,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_form: {
-        description: "Create a form and save its document \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Create a form and save its document \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-create",
@@ -82502,9 +82502,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_smart_list: {
-        description: "Create a smart list whose filter the contacts screen will actually apply \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Create a smart list whose filter the contacts screen will actually apply \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-07)",
         proofRows: [
           "platform--contacts-smartlist",
@@ -82532,9 +82532,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_snapshot: {
-        description: "Capture a sub-account into an agency snapshot \u2014 proof: live-runtime (2026-09-30); risk: write",
+        description: "Capture a sub-account into an agency snapshot \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-30)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -82608,9 +82608,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_workflow_folder: {
-        description: "Create workflow folder \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Create workflow folder \u2014 proof: live-runtime (2026-11-08); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-folder-create",
@@ -82629,9 +82629,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       describe_marketplace_action: {
-        description: "Describe a marketplace action \u2014 its published schema and whether its app is connected \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Describe a marketplace action \u2014 its published schema and whether its app is connected \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "source-derived (builder bundle 2026-09-14)",
         rows: [
           "marketplace-action-schema"
@@ -82647,17 +82647,17 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       describe_step_type: {
-        description: "Describe one workflow step or trigger type \u2014 proof: live-runtime (2026-10-29), 2026-09-29); risk: read",
+        description: "Describe one workflow step or trigger type \u2014 proof: live-runtime (2026-11-09), 2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "documented",
         rows: [],
         riskRows: []
       },
       duplicate_workflow: {
-        description: "Duplicate workflow \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Duplicate workflow \u2014 proof: live-runtime (2026-11-08); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-duplicate",
@@ -82679,9 +82679,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_workflow: {
-        description: "Edit workflow \u2014 proof: live-runtime (2026-10-29), floor: live-roundtrip (2026-07-17); risk: destructive",
+        description: "Edit workflow \u2014 proof: live-runtime (2026-11-08), floor: live-roundtrip (2026-07-17); risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-roundtrip (2026-07-17)",
         proofRows: [
           "triggers-create-for-edit"
@@ -82706,9 +82706,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       export_workflow: {
-        description: "Export workflow \u2014 proof: failing (2026-10-29); risk: read",
+        description: "Export workflow \u2014 proof: failing (2026-11-08); risk: read",
         risk: "read",
-        proof: "failing (2026-10-29)",
+        proof: "failing (2026-11-08)",
         proofFloor: "documented",
         proofRows: [
           "triggers-list",
@@ -82732,9 +82732,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       fast_forward_contacts: {
-        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-11-08); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
           "fast-forward-count-per-step",
@@ -82758,9 +82758,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       find_ghl_site: {
-        description: "Find ghl site \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Find ghl site \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects",
@@ -82780,9 +82780,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       find_workflows_using: {
-        description: "Find which workflows contain a step or trigger type \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Find which workflows contain a step or trigger type \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "source-derived (builder bundle 2026-09-14)",
         rows: [
           "workflow-es-search"
@@ -82824,9 +82824,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_account_workflow_overview: {
-        description: "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflows-statistics",
@@ -82917,9 +82917,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_ai_agent_options: {
-        description: "List the models and MCP connections an ai_agent step can use \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "List the models and MCP connections an ai_agent step can use \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "source-derived (builder bundle 2026-09-14)",
         rows: [
           "workflow-agent-options"
@@ -83024,9 +83024,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_contacts_at_step: {
-        description: "List contacts at step \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "List contacts at step \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
           "logs-details-by-step"
@@ -83042,9 +83042,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_form: {
-        description: "Read one form and its stored document \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Read one form and its stored document \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-detail",
@@ -83064,9 +83064,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_snapshot_manifest: {
-        description: "Read everything a sub-account could put in a snapshot \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Read everything a sub-account could put in a snapshot \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -83184,9 +83184,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_trigger_logs: {
-        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "trigger-logs-triggerId",
@@ -83208,9 +83208,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow: {
-        description: "Get workflow \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Get workflow \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "documented",
         proofRows: [
           "workflow-read"
@@ -83226,9 +83226,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_digest: {
-        description: "Compact read of one workflow \u2014 identity, version, structure, merge tags per step \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Compact read of one workflow \u2014 identity, version, structure, merge tags per step \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -83248,9 +83248,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_logs: {
-        description: "Get workflow logs \u2014 proof: live-runtime (2026-10-29), floor: documented; risk: read",
+        description: "Get workflow logs \u2014 proof: live-runtime (2026-11-08), floor: documented; risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "documented",
         proofRows: [
           "logs-count-per-step",
@@ -83329,9 +83329,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_settings: {
-        description: "Read the account-level workflow settings rail \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Read the account-level workflow settings rail \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "source-derived (builder bundle 2026-09-14)",
         rows: [
           "workflow-settings-read",
@@ -83351,9 +83351,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_stats: {
-        description: "Workflow stats view \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Workflow stats view \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "stats-aggregate",
@@ -83375,9 +83375,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_version: {
-        description: "Get workflow version snapshot \u2014 proof: live-runtime (2026-11-07); risk: read",
+        description: "Get workflow version snapshot \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-11-07)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflow-history"
@@ -83393,9 +83393,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_account_entities: {
-        description: "List account entities \u2014 proof: live-runtime (2026-11-07), floor: documented; risk: read",
+        description: "List account entities \u2014 proof: live-runtime (2026-11-08), floor: documented; risk: read",
         risk: "read",
-        proof: "live-runtime (2026-11-07)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "documented",
         proofRows: [
           "entities-ai-employees-agents-list",
@@ -83460,9 +83460,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_courses: {
-        description: "List courses \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "List courses \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "documented",
         proofRows: [
           "memberships-products-list"
@@ -83478,9 +83478,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_form_submissions: {
-        description: "List form submissions \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "List form submissions \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-submissions"
@@ -83496,9 +83496,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_forms: {
-        description: "List forms in a sub-account \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "List forms in a sub-account \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-list",
@@ -83540,9 +83540,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_snapshots: {
-        description: "List the agency's snapshots \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "List the agency's snapshots \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -83584,9 +83584,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflow_folders: {
-        description: "List workflow folders \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "List workflow folders \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-folder-list"
@@ -83602,9 +83602,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflow_templates: {
-        description: "List the workflow templates GHL offers \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "List the workflow templates GHL offers \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "source-derived (builder bundle 2026-09-14)",
         rows: [
           "workflow-templates-list"
@@ -83620,9 +83620,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflow_versions: {
-        description: "List workflow versions \u2014 proof: live-runtime (2026-11-07); risk: read",
+        description: "List workflow versions \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-11-07)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflow-history"
@@ -83657,9 +83657,9 @@ var init_define_TOOL_CATALOG = __esm({
         undocumentedCapabilities: []
       },
       move_workflows: {
-        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-11-08); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-move-batch",
@@ -83685,9 +83685,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       pin_webhook_sample: {
-        description: "Inbound-webhook sample \u2192 reference pin \u2192 merge tags \u2014 proof: live-runtime (2026-10-29); risk: write (replaces the trigger's reference)",
+        description: "Inbound-webhook sample \u2192 reference pin \u2192 merge tags \u2014 proof: live-runtime (2026-11-08); risk: write (replaces the trigger's reference)",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-canary (2026-08-22)",
         proofRows: [
           "hooks-webhook-trigger-post",
@@ -83731,9 +83731,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       publish_workflow: {
-        description: "Publish workflow \u2014 proof: live-runtime (2026-10-29), floor: documented; risk: destructive",
+        description: "Publish workflow \u2014 proof: live-runtime (2026-11-08), floor: documented; risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "documented",
         proofRows: [
           "workflow-publish"
@@ -83751,9 +83751,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       push_snapshot: {
-        description: "Load a snapshot into sub-accounts \u2014 proof: live-runtime (2026-09-30); risk: destructive",
+        description: "Load a snapshot into sub-accounts \u2014 proof: failing (2026-11-09); risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-30)",
+        proof: "failing (2026-11-09)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "platform--v2-set-assets-to-locations",
@@ -83793,9 +83793,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       refresh_snapshot: {
-        description: "Re-capture a snapshot without losing its curation \u2014 proof: live-runtime (2026-09-30); risk: write",
+        description: "Re-capture a snapshot without losing its curation \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-30)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -83815,9 +83815,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       repair_workflow: {
-        description: "Repair a workflow from an export or a raw templates body \u2014 proof: failing (2026-10-29); risk: write",
+        description: "Repair a workflow from an export or a raw templates body \u2014 proof: failing (2026-11-08); risk: write",
         risk: "write",
-        proof: "failing (2026-10-29)",
+        proof: "failing (2026-11-08)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -83877,9 +83877,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       search_merge_tags: {
-        description: "Search the merge-tag picker's static tags plus this account's own custom values \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Search the merge-tag picker's static tags plus this account's own custom values \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "unrecorded",
         proofRows: [
           "custom-field-service--get-contact-custom-fields",
@@ -83899,9 +83899,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       search_step_types: {
-        description: "Search workflow step and trigger types \u2014 proof: live-runtime (2026-10-29), 2026-09-29); risk: read",
+        description: "Search workflow step and trigger types \u2014 proof: live-runtime (2026-11-09), 2026-09-29); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "documented",
         rows: [],
         riskRows: []
@@ -83947,9 +83947,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       set_workflow_error_alerts: {
-        description: "Set who GHL emails when a workflow step fails \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Set who GHL emails when a workflow step fails \u2014 proof: live-runtime (2026-11-08); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-error-notification-settings-read",
@@ -83975,9 +83975,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       test_custom_code: {
-        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-10-29); risk: sandbox-exec",
+        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-11-08); risk: sandbox-exec",
         risk: "sandbox-exec",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "custom-code-run-test"
@@ -84015,9 +84015,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       unpublish_workflows: {
-        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-11-08); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "workflow-service--bulk-update-status"
@@ -84055,9 +84055,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_form_data: {
-        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-detail",
@@ -84077,9 +84077,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       validate_workflow: {
-        description: "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: failing (2026-10-29); risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. \u{1F534} valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and \u{1F534} it IGNORES the document's `status` \u2014 the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
+        description: "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: failing (2026-11-08); risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. \u{1F534} valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and \u{1F534} it IGNORES the document's `status` \u2014 the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
         risk: "read-only",
-        proof: "failing (2026-10-29)",
+        proof: "failing (2026-11-08)",
         proofRows: [
           "workflow-read",
           "triggers-list",
@@ -84102,9 +84102,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       rename_workflow: {
-        description: "Rename workflows \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Rename workflows \u2014 proof: live-runtime (2026-11-08); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-rename-subject-read",
@@ -84126,9 +84126,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       copy_workflow_to_location: {
-        description: "Copy a workflow into another sub-account \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Copy a workflow into another sub-account \u2014 proof: live-runtime (2026-11-08); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-copy-source-read",
@@ -84153,9 +84153,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_premium_usage: {
-        description: "Read premium-action and workflow-AI usage \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Read premium-action and workflow-AI usage \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-premium-usage-read"
@@ -84171,9 +84171,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_snapshot_contents: {
-        description: "Read what a snapshot actually contains \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Read what a snapshot actually contains \u2014 proof: live-runtime (2026-11-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-08)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "snapshot-contents-read"
@@ -84189,9 +84189,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_pipeline: {
-        description: "Edit a pipeline and its stages safely \u2014 proof: live-runtime (2026-09-30); risk: write",
+        description: "Edit a pipeline and its stages safely \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-30)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "pipelines-opportunities--opportunities-pipelines",
@@ -84220,9 +84220,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_pipeline_forecast: {
-        description: "Read the opportunity forecast \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Read the opportunity forecast \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "pipelines-opportunities--forecast-summary",
@@ -84280,9 +84280,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_funnel: {
-        description: "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "funnels-service--get-funnel-by-id",
@@ -84306,9 +84306,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_funnel: {
-        description: "Edit a GHL funnel/website: settings, steps, publish state, headers \u2014 preview, confirm, read back \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Edit a GHL funnel/website: settings, steps, publish state, headers \u2014 preview, confirm, read back \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "funnels--funnel-update-settings",
@@ -84336,9 +84336,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_redirects: {
-        description: "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects) \u2014 proof: live-runtime (2026-09-30); risk: write",
+        description: "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects) \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-30)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "funnels--redirect-list",
@@ -84358,9 +84358,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_funnel: {
-        description: "Create a funnel, website, store, webinar or blog document on a location \u2014 proof: live-runtime (2026-10-29); risk: write",
+        description: "Create a funnel, website, store, webinar or blog document on a location \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "funnels--funnel-create",
@@ -84384,9 +84384,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       restore_workflow_version: {
-        description: "Restore a workflow to an earlier version \u2014 proof: live-runtime (2026-11-07); risk: write",
+        description: "Restore a workflow to an earlier version \u2014 proof: live-runtime (2026-11-09); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-11-07)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-service--update",
@@ -84518,9 +84518,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_contact_workflow_history: {
-        description: "Contact workflow run history \u2014 proof: live-runtime (2026-10-29); risk: read",
+        description: "Contact workflow run history \u2014 proof: live-runtime (2026-11-09); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-10-29)",
+        proof: "live-runtime (2026-11-09)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflows--search-contact-executions",
