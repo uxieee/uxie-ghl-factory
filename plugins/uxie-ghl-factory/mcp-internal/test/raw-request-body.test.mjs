@@ -10,6 +10,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const raw = TOOLS.find((t) => t.name === 'raw_request');
 
@@ -89,13 +90,13 @@ test('a body-less GET is unaffected', async () => {
 // above becomes wrong and this test says so.
 test('the gateway still JSON.stringifies, which is why the parse-back is needed', async () => {
   const { makeGateway } = await import('../core/gateway.mjs');
-  const { writeFileSync, mkdtempSync } = await import('node:fs');
+  const { writeFileSync } = await import('node:fs');
   const { join } = await import('node:path');
   const { tmpdir } = await import('node:os');
 
   const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
   const exp = Math.floor(Date.now() / 1000) + 3600;
-  const tokenFile = join(mkdtempSync(join(tmpdir(), 'rawbody-')), 'tok.txt');
+  const tokenFile = join(tempDir('rawbody-'), 'tok.txt');
   writeFileSync(tokenFile, `Bearer eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u-1', exp })}.sig\n`);
 
   let wire;

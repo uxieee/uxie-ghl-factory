@@ -4,16 +4,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readdirSync, readFileSync } from 'node:fs';
+import { writeFileSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tempDir } from './_tmp.mjs';
 
 const GATE = fileURLToPath(new URL('../../../../scripts/check-privacy.mjs', import.meta.url));
 const EXAMPLES = fileURLToPath(new URL('../../skills/create-ghl-workflow/catalog/step-examples/', import.meta.url));
 // The plugin gate scans the git-listed files of its working directory, so each case is a throwaway git repo holding one file.
 const gateRefuses = (name, content) => {
-  const dir = mkdtempSync(join(tmpdir(), 'privacy-vocab-'));
+  const dir = tempDir('privacy-vocab-');
   execFileSync('git', ['init', '-q', dir]); writeFileSync(join(dir, name), content);
   try { execFileSync('node', [GATE], { cwd: dir, encoding: 'utf8', stdio: 'pipe' }); return false; } catch { return true; }
 };

@@ -4,11 +4,12 @@
 // description is not (writing a proof label must never stale the proof it describes).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeDeps } from '../../../../scripts/lib/code-deps.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MI = resolve(HERE, '..');
@@ -32,7 +33,7 @@ test('a tool that no module declares is still refused', () => {
 });
 
 function fixture(description, body) {
-  const dir = mkdtempSync(join(tmpdir(), 'codedeps-seam-'));
+  const dir = tempDir('codedeps-seam-');
   mkdirSync(join(dir, 'core'));
   writeFileSync(join(dir, 'core/helper.mjs'), 'export const add = (a, b) => a + b;\n');
   writeFileSync(join(dir, 'core/seam.mjs'), [

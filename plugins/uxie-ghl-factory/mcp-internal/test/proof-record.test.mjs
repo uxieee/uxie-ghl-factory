@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { validateRecord, labelFor, LABEL_FROZEN_TOOLS } from '../../../../scripts/lib/proof-record.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const good = () => ({
   tool: 'build_workflow', surfaces: ['workflows'],
@@ -69,7 +70,7 @@ test('sniff: ordinary hyphenated and underscored names still pass', () => {
 });
 
 test('sniff: when the knowledge sibling is present, the file must exist on disk', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'sniff-check-'));
+  const dir = tempDir('sniff-check-');
   try {
     mkdirSync(join(dir, 'sniffs', 'drift'), { recursive: true });
     writeFileSync(join(dir, 'sniffs', 'drift', 'live-a.json'), '{}');

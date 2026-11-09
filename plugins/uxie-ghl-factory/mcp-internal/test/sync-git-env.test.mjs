@@ -1,13 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { cleanGitEnv, gitOut } from '../../../../scripts/lib/git.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const repo = (name) => {
-  const dir = mkdtempSync(join(tmpdir(), `${name}-`));
+  const dir = tempDir(`${name}-`);
   execFileSync('git', ['init', '-q'], { cwd: dir });
   return dir;
 };

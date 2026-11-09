@@ -2,10 +2,11 @@
 // (or {ops}) — the same way repair_workflow takes templatesPath.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { TOOLS } from '../core/tools.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const tool = TOOLS.find((t) => t.name === 'edit_workflow');
 const DOC = { _id: 'W', id: 'W', name: 'WF', status: 'draft', version: 3, workflowData: { templates: [
@@ -17,7 +18,7 @@ const gw = () => ({ loc: 'L', uid: 'U', call: async (m, p) => {
 } });
 const run = (args) => tool.handler({ locationId: 'L', workflowId: 'W', ...args }, { state: {}, makeGw: () => gw() });
 const OPS = [{ op: 'renameStep', stepId: 's1', name: 'Head renamed' }];
-const file = (content) => { const d = mkdtempSync(join(tmpdir(), 'ops-')); const p = join(d, 'ops.json'); writeFileSync(p, JSON.stringify(content)); return p; };
+const file = (content) => { const d = tempDir('ops-'); const p = join(d, 'ops.json'); writeFileSync(p, JSON.stringify(content)); return p; };
 const strip = (r) => JSON.parse(JSON.stringify(r).replace(/"(capturedAt|at|readAt)":"[^"]*"/g, ''));
 
 test('opsPath (a bare array or {ops}) previews exactly what the same ops inline preview', async () => {

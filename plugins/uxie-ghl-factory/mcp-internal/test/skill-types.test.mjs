@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tempDir } from './_tmp.mjs';
 
 // The ghl-system-conventions skill ships the type catalogue so it works STANDALONE. Three
 // things must stay true or the standalone user is quietly worse off than the plugin user:
@@ -66,7 +67,7 @@ test('search matches key, title and summary; an exact key wins on the CLI', () =
 });
 
 test('build-skill-types.mjs is idempotent: a second render into a temp dir matches what ships', () => {
-  const out = mkdtempSync(join(tmpdir(), 'skill-types-'));
+  const out = tempDir('skill-types-');
   const r = spawnSync('node', [join(REPO, 'scripts/build-skill-types.mjs'), '--out-dir', out], { encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
   assert.equal(readFileSync(join(out, 'ghl-types-index.md'), 'utf8'), readFileSync(join(SKILL, 'references/ghl-types-index.md'), 'utf8'));

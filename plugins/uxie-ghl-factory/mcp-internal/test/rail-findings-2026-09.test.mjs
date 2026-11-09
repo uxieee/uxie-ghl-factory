@@ -3,10 +3,11 @@
 // field-caps.test.mjs, edit.test.mjs, lints/*.test.mjs).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { TOOLS } from '../core/tools.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const tool = (name) => TOOLS.find((candidate) => candidate.name === name);
 const deps = (gw) => ({ state: { tokenFile: '/fixture/token.txt' }, makeGw: () => gw, now: '2026-09-06T10:00:00.000Z' });
@@ -137,7 +138,7 @@ test('replaceFieldId refuses a NEW id that does not resolve on this account, and
 
 // ── Backlog 27 + 21: read-back and repair through files ──────────────────────────────────────
 test('export_workflow narrows to stepIds and can write the scrubbed export to a file; repair_workflow reads that file back', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'rail-findings-'));
+  const dir = tempDir('rail-findings-');
   const out = join(dir, 'export.json');
   const gw = gwStub({}, { initial: workflow({ status: 'draft' }) });
   const narrowed = await tool('export_workflow').handler({ locationId: 'LOC', workflowId: 'WID', stepIds: ['s2', 'ghost'] }, deps(gw));
@@ -191,7 +192,7 @@ test('get_workflow_logs labels an objective row whose field write the AI service
   assert.equal(r.data.logs[1].objectiveWriteFailed, undefined);
   assert.equal(r.data.objectiveWriteFailures, 1);
 
-  const dir = mkdtempSync(join(tmpdir(), 'rail-findings-logs-'));
+  const dir = tempDir('rail-findings-logs-');
   const out = join(dir, 'logs.json');
   const w = await tool('get_workflow_logs').handler({ locationId: 'LOC', workflowId: 'WID', writeTo: out }, deps(gw));
   assert.equal(w.ok, true, JSON.stringify(w));

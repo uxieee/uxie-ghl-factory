@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { makeGateway } from '../core/gateway.mjs';
@@ -9,7 +9,7 @@ const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const jwt = `eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u-1', exp: Math.floor(Date.now() / 1000) + 3600 })}.sig`;
 const tokenId = `eyJhbGciOiJIUzI1NiJ9.${b64({ iss: 'securetoken.google.com/highlevel-backend', role: 'admin', type: 'agency', exp: Math.floor(Date.now() / 1000) + 3600 })}.sig`;
 function fixture({ bearer = jwt, token = tokenId } = {}) {
-  const p = join(mkdtempSync(join(tmpdir(), 'gw-')), 'tok.txt');
+  const p = join(tempDir('gw-'), 'tok.txt');
   writeFileSync(p, `Bearer ${bearer}\n${token ? `token-id: ${token}\n` : ''}`);
   return p;
 }
@@ -378,6 +378,7 @@ test('readBackUntil: sleeps only between attempts, returns the first hit, and ne
 // bl-059: a 401 that survives the retry is checked against a CONTROL read on the same credential.
 // Measured 2026-09-08: one endpoint 401'd three times while list_workflows succeeded on either side.
 import { fromHttp } from '../core/errors.mjs';
+import { tempDir } from './_tmp.mjs';
 const routed = (calls, byPath) => async (url, init) => {
   calls.push({ url, init });
   const hit = Object.entries(byPath).find(([frag]) => url.includes(frag));

@@ -2,10 +2,11 @@
 // after one, changes what those contacts do next. Only deletes were warned about; repair warned about nothing.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { TOOLS } from '../core/tools.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const tool = (n) => TOOLS.find((t) => t.name === n);
 const STEP = (id, next, parentKey, order, tags) => ({ id, type: 'add_contact_tag', name: `Step ${id}`, next, parentKey, order, attributes: { type: 'add_contact_tag', tags } });
@@ -28,7 +29,7 @@ function gateway(status, counts) {
   } };
   return { gw, calls };
 }
-const state = () => ({ tokenFile: join(mkdtempSync(join(tmpdir(), 'ghl-parked-')), 'tok.txt') });
+const state = () => ({ tokenFile: join(tempDir('ghl-parked-'), 'tok.txt') });
 const warningsOf = (r) => [...(r.data?.preview?.warnings ?? []), ...(r.data?.warnings ?? [])];
 
 test('modifying a step contacts are parked on warns EDIT_TOUCHES_PARKED_CONTACTS with the count', async () => {

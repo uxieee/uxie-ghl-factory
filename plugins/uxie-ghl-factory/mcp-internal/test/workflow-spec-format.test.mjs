@@ -4,7 +4,7 @@
 // changes exactly that step. Trigger differences are reported, never written (triggers are a separate document).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { TOOLS } from '../core/tools.mjs';
@@ -13,6 +13,7 @@ import { makeSeededIdGen } from '../../skills/create-ghl-workflow/engine/idgen.m
 // A synthetic Stripe-shaped key, built at runtime so no source line carries a full key shape (GitHub push protection).
 const FAKE_STRIPE = ['sk', 'live', 'abcdefghijklmnopqrstuvwx'].join('_');
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const tool = (name) => TOOLS.find((t) => t.name === name);
 const IR = {
@@ -93,7 +94,7 @@ const cleanSpec = async () => {
 
 test('repair_workflow {spec} unchanged: the preview changes no step', async () => {
   const { spec, doc } = await cleanSpec();
-  const path = join(mkdtempSync(join(tmpdir(), 'spec-')), 'spec.json');
+  const path = join(tempDir('spec-'), 'spec.json');
   writeFileSync(path, JSON.stringify({ spec }));
   const r = await repair(gateway(doc).gw, { specPath: path });
   assert.equal(r.code, 'CONFIRM_REQUIRED', r.detail);
@@ -104,7 +105,7 @@ test('repair_workflow {spec} with one edited attribute changes exactly that step
   const { spec, doc } = await cleanSpec();
   const textId = doc.workflowData.templates[1].id;
   spec.graph.find((n) => n.ref === textId).attributes.body = 'hello again';
-  const path = join(mkdtempSync(join(tmpdir(), 'spec-')), 'spec.json');
+  const path = join(tempDir('spec-'), 'spec.json');
   writeFileSync(path, JSON.stringify(spec));
   const g = gateway(doc);
   const r = await repair(g.gw, { specPath: path, confirm: true });
@@ -118,7 +119,7 @@ test('repair_workflow {spec} with one edited attribute changes exactly that step
 test('a trigger change in the spec is reported, not written', async () => {
   const { spec, doc } = await cleanSpec();
   spec.triggers[0].filters[0].value = 'changed';
-  const path = join(mkdtempSync(join(tmpdir(), 'spec-')), 'spec.json');
+  const path = join(tempDir('spec-'), 'spec.json');
   writeFileSync(path, JSON.stringify(spec));
   const g = gateway(doc);
   const r = await repair(g.gw, { specPath: path });

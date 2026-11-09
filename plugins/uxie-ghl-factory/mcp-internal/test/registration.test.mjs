@@ -7,7 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -15,12 +15,13 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { TOOLS, registerTools } from '../core/tools.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const b64 = (value) => Buffer.from(JSON.stringify(value)).toString('base64url');
 
 function validTokenFile() {
-  const dir = mkdtempSync(join(tmpdir(), 'ghl-registration-'));
+  const dir = tempDir('ghl-registration-');
   const path = join(dir, 'tok.txt');
   const jwt = `eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u', exp: Math.floor(Date.now() / 1000) + 3600 })}.sig`;
   writeFileSync(path, `Authorization: Bearer ${jwt}\ntoken-id: tid-fixture\n`);

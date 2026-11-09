@@ -4,11 +4,12 @@
 // reader, and asserts the old bare format still FAILS, so the defect cannot silently return.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { formatTokenFile } from '../scripts/capture-token.mjs';
 import { readCredentials } from '../core/auth.mjs';
+import { tempDir } from './_tmp.mjs';
 
 // A syntactically valid JWT whose payload decodes. No real credential is ever used in a test.
 const jwt = (payload) => {
@@ -20,7 +21,7 @@ const BEARER = jwt({ authClassId: 'user-abc', exp: inOneHour });
 const TOKEN_ID = jwt({ iss: 'firebase', role: 'admin', exp: inOneHour });
 
 const fixture = (contents) => {
-  const p = join(mkdtempSync(join(tmpdir(), 'tokfmt-')), 'tok.txt');
+  const p = join(tempDir('tokfmt-'), 'tok.txt');
   writeFileSync(p, contents, { mode: 0o600 });
   return p;
 };

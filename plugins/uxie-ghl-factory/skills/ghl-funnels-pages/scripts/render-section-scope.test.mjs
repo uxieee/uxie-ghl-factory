@@ -3,10 +3,11 @@
 // public page at 1440 is judged on structure only. Fixtures only: no browser, no GHL call.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { renderSection, runRenderSection } from './render-section.mjs';
+import { tempDir } from '../../../mcp-internal/test/_tmp.mjs';
 
 const STYLE = { fontSize: '16px', fontFamily: 'Inter', color: 'rgb(0,0,0)', backgroundColor: 'transparent', padding: '0px',
   margin: '0px', borderRadius: '0px', display: 'block' };
@@ -15,7 +16,7 @@ const probe = (w, nodes) => ({ width: w, origin: { x: 0, y: 0 }, nodes });
 const base = () => ({ 'heading-S0C00': node({ text: true, y: 60 }), 'button-S0C02': node({ y: 262, h: 23 }) });
 
 function dirWith(sets) {
-  const dir = mkdtempSync(join(tmpdir(), 'render-section-scope-'));
+  const dir = tempDir('render-section-scope-');
   for (const [name, p] of Object.entries(sets)) writeFileSync(join(dir, `${name}.json`), JSON.stringify(p));
   return dir;
 }

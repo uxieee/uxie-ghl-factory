@@ -4,12 +4,13 @@
 // gateway built without a renewer behaves exactly as before.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeGateway } from '../core/gateway.mjs';
 import { makeGatewayFactory } from '../core/tools.mjs';
 import { makeRenewer, formatTokenFile, REFRESH_PATH } from '../core/token-renewal.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const TEST_KEY = ['AIza', 'TESTKEY', '0'.repeat(28)].join('');
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
@@ -19,7 +20,7 @@ const liveJwt = (ttl) => mkJwt({ authClassId: 'u-1', exp: now() + ttl, iat: now(
 const liveTid = (ttl) => mkJwt({ iss: 'https://securetoken.google.com/highlevel-backend', role: 'admin', scope: 'agency', exp: now() + ttl });
 
 const fixture = (ttl) => {
-  const tokenFile = join(mkdtempSync(join(tmpdir(), 'gwr-')), 'tok.txt');
+  const tokenFile = join(tempDir('gwr-'), 'tok.txt');
   writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(ttl), tokenId: liveTid(ttl) }), { mode: 0o600 });
   return tokenFile;
 };

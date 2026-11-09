@@ -22,11 +22,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { tempDir } from './_tmp.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const STDIO_ENTRY = resolve(HERE, '../stdio.mjs');
@@ -41,7 +42,7 @@ const OTHER_LOC = 'LOCPOISONOTHERLOC001';
 // GHL_INTERNAL_TOK_FILE always points at a guaranteed-nonexistent path below — but keeping the
 // same discipline avoids depending on that fact).
 function childEnv(overrides) {
-  const env = { ...process.env, HOME: mkdtempSync(join(tmpdir(), 'ghl-rename-home-')) };
+  const env = { ...process.env, HOME: tempDir('ghl-rename-home-') };
   for (const [key, value] of Object.entries(overrides)) {
     if (value === undefined) delete env[key];
     else env[key] = value;
@@ -55,7 +56,7 @@ async function callGetWorkflow(locationOverrides) {
     args: [STDIO_ENTRY],
     env: childEnv({
       GHL_TOK_FILE: undefined,
-      GHL_INTERNAL_TOK_FILE: join(mkdtempSync(join(tmpdir(), 'ghl-rename-notok-')), 'tok.txt'), // never written — guaranteed missing
+      GHL_INTERNAL_TOK_FILE: join(tempDir('ghl-rename-notok-'), 'tok.txt'), // never written — guaranteed missing
       GHL_LOCATIONS: undefined,
       GHL_INTERNAL_LOCATIONS: undefined,
       ...locationOverrides,

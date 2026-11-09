@@ -1,12 +1,13 @@
 // w7-9 (2026-11-07): offline tests for the render section (render-section.mjs). Fixtures only: no browser, no GHL call.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync, existsSync } from 'node:fs';
+import { writeFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { renderSection, probeShape, runRenderSection } from './render-section.mjs';
+import { tempDir } from '../../../mcp-internal/test/_tmp.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -17,7 +18,7 @@ const probe = (w, nodes) => ({ width: w, origin: { x: 0, y: 0 }, nodes });
 
 // Writes one file per surface and width into a fresh directory; `sets` maps "<surface>-<width>" to the probe (or omits it).
 function dirWith(sets) {
-  const dir = mkdtempSync(join(tmpdir(), 'render-section-'));
+  const dir = tempDir('render-section-');
   for (const [name, p] of Object.entries(sets)) writeFileSync(join(dir, `${name}.json`), JSON.stringify(p));
   return dir;
 }

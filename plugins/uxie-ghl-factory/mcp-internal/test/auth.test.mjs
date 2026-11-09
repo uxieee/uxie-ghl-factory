@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { authStatus, readCredentials, safeClaims, secondsRemaining } from '../core/auth.mjs';
 import { ok, CODES } from '../core/errors.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const jwtWith = (claims) => `eyJhbGciOiJIUzI1NiJ9.${b64(claims)}.sig`;
@@ -12,7 +13,7 @@ const future = Math.floor(Date.now() / 1000) + 3600;
 const past = Math.floor(Date.now() / 1000) - 60;
 
 function fixture(contents) {
-  const dir = mkdtempSync(join(tmpdir(), 'ghlauth-'));
+  const dir = tempDir('ghlauth-');
   const p = join(dir, 'tok.txt');
   writeFileSync(p, contents);
   return p;

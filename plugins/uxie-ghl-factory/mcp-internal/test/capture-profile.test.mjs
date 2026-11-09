@@ -12,11 +12,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
+import { mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveProfileDir } from '../scripts/capture-token.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const SCRIPT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'scripts', 'capture-token.mjs');
 const HOME_DIR = join(homedir(), '.uxie-ghl-internal-mcp');
@@ -84,7 +85,7 @@ test('NOTHING resolves to the pre-0.51.0 shared profile', () => {
 });
 
 test('symlinked token files resolve to ONE profile — they are one login', () => {
-  const tmp = mkdtempSync(join(tmpdir(), 'ghl-profile-'));
+  const tmp = tempDir('ghl-profile-');
   const project = join(tmp, 'Real Client');
   mkdirSync(join(project, '.ghl'), { recursive: true });
   const real = tokenFileIn(project);

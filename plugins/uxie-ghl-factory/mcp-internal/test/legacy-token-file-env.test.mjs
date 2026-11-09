@@ -14,13 +14,14 @@
 // entry point the server has.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { tempDir } from './_tmp.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ENTRY_POINTS = [
@@ -41,7 +42,7 @@ function validTokenFile(dir) {
 // A throwaway HOME per test, so DEFAULT_TOKEN_FILE never points at a real credential file on
 // the machine running the suite — see file header.
 function scratchHome() {
-  return mkdtempSync(join(tmpdir(), 'ghl-rename-home-'));
+  return tempDir('ghl-rename-home-');
 }
 
 // Builds the child's env from process.env + HOME override, then applies `overrides` — a value
@@ -76,7 +77,7 @@ async function callAuthStatus(entryPath, overrides) {
 
 for (const { label, path } of ENTRY_POINTS) {
   test(`${label}: old name only (GHL_TOK_FILE set, GHL_INTERNAL_TOK_FILE unset) — auth_status reports LEGACY_TOKEN_FILE_ENV, not a silent fallback`, async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ghl-rename-old-'));
+    const dir = tempDir('ghl-rename-old-');
     const tokFile = validTokenFile(dir);
     const contract = await callAuthStatus(path, { GHL_TOK_FILE: tokFile, GHL_INTERNAL_TOK_FILE: undefined });
     assert.equal(contract.ok, true, 'auth_status must REPORT the misconfiguration, not hard-fail the tool call');
@@ -88,7 +89,7 @@ for (const { label, path } of ENTRY_POINTS) {
   });
 
   test(`${label}: new name only (GHL_INTERNAL_TOK_FILE set) — works exactly as before the rename`, async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ghl-rename-new-'));
+    const dir = tempDir('ghl-rename-new-');
     const tokFile = validTokenFile(dir);
     const contract = await callAuthStatus(path, { GHL_INTERNAL_TOK_FILE: tokFile, GHL_TOK_FILE: undefined });
     assert.equal(contract.ok, true);
@@ -97,7 +98,7 @@ for (const { label, path } of ENTRY_POINTS) {
   });
 
   test(`${label}: both set — the new name wins, no refusal`, async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ghl-rename-both-'));
+    const dir = tempDir('ghl-rename-both-');
     const goodTokFile = validTokenFile(dir);
     // The OLD var points somewhere that would fail if it were ever consulted — proving the new
     // name's value is what actually gets used, not merely that both happen to agree.

@@ -7,10 +7,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tempDir } from './_tmp.mjs';
 
 const GATE = fileURLToPath(new URL('../../../../scripts/check-privacy.mjs', import.meta.url));
 const KNOWLEDGE = fileURLToPath(new URL('../../../../../knowledge/', import.meta.url));
@@ -37,7 +38,7 @@ const knownId = () => {
 };
 
 const gateOn = (files) => {
-  const dir = mkdtempSync(join(tmpdir(), 'privacy-structural-'));
+  const dir = tempDir('privacy-structural-');
   execFileSync('git', ['init', '-q', dir]);
   for (const [name, content] of Object.entries(files)) writeFileSync(join(dir, name), content);
   try {

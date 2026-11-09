@@ -3,12 +3,13 @@
 // whole templates array, so the other edit is simply gone and nothing reports it.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, statSync, readFileSync } from 'node:fs';
+import { statSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readCache, scrubUpstream } from '../core/read-cache.mjs';
+import { tempDir } from './_tmp.mjs';
 
-const state = () => ({ tokenFile: join(mkdtempSync(join(tmpdir(), 'ghl-cache-')), 'tok.txt') });
+const state = () => ({ tokenFile: join(tempDir('ghl-cache-'), 'tok.txt') });
 
 test('a snapshot round-trips, and the file is 0600', () => {
   const c = readCache(state());

@@ -2,16 +2,17 @@
 // built for real. A dry run exists now (W6a item 4); an unknown flag is refused before any token is read or call made.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { tempDir } from './_tmp.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BUILD = resolve(HERE, '../../skills/create-ghl-workflow/scripts/build.mjs');
 const run = (args) => {
-  const home = mkdtempSync(join(tmpdir(), 'build-cli-'));
+  const home = tempDir('build-cli-');
   const ir = join(home, 'ir.json');
   writeFileSync(ir, JSON.stringify({ name: 'W', triggers: [], graph: [] }));
   // no token file exists in this HOME: a run that got past the flag check would fail on the token, not the flag

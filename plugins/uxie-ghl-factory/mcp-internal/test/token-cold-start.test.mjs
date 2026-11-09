@@ -10,7 +10,7 @@
 //   - removing the access token entirely makes the app log out; only an EXPIRED one refreshes.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -19,6 +19,7 @@ import {
 } from '../core/token-renewal.mjs';
 import { readCredentials } from '../core/auth.mjs';
 import { makeGateway } from '../core/gateway.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const TEST_KEY = ['AIza', 'TESTKEY', '0'.repeat(28)].join('');
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
@@ -54,7 +55,7 @@ const chainFetch = (calls, { exchange = { status: 201 }, current = { status: 200
 const hits = (calls, suffix) => calls.filter((c) => c.url.endsWith(suffix) || c.url.includes(suffix)).length;
 
 const fileWith = ({ ttl, tid = tidIn(ttl), refreshToken = RT_OLD, firebaseKey = TEST_KEY }) => {
-  const dir = mkdtempSync(join(tmpdir(), 'cold-'));
+  const dir = tempDir('cold-');
   const tokenFile = join(dir, 'tok.txt');
   writeFileSync(tokenFile, formatTokenFile({ bearer: jwtIn(ttl), tokenId: tid, firebaseKey, refreshToken }), { mode: 0o600 });
   return { dir, tokenFile };

@@ -12,11 +12,12 @@
 // statement about a process that is not the one running.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdirSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tempDir } from './_tmp.mjs';
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(HERE, '..');
@@ -26,7 +27,7 @@ const FULL_LAUNCHER = join(ROOT, 'launch.mjs');
 // per version, so a version that predates the audit profile is expressible — that is the
 // scenario the fail-closed rule exists for and it cannot be tested any other way.
 function fakeHome(versions) {
-  const home = mkdtempSync(join(tmpdir(), 'ghl-launcher-'));
+  const home = tempDir('ghl-launcher-');
   for (const [version, bundles] of Object.entries(versions)) {
     const dist = join(home, '.claude', 'plugins', 'cache', 'uxieee', 'uxie-ghl-factory', version, 'mcp-internal', 'dist');
     mkdirSync(dist, { recursive: true });
@@ -66,7 +67,7 @@ test('the launcher picks the NEWEST installed build by semver, not lexicographic
 });
 
 test('the launcher refuses cleanly when no plugin is installed at all', async () => {
-  const home = mkdtempSync(join(tmpdir(), 'ghl-launcher-empty-'));
+  const home = tempDir('ghl-launcher-empty-');
   try {
     const result = runLauncher(FULL_LAUNCHER, home);
     assert.notEqual(result.code, 0, 'the launcher must exit non-zero with no plugin installed');

@@ -9,7 +9,7 @@
 //   - ONE refresh per cycle is harmless; hammering the endpoint logged the profile out.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, statSync, readdirSync, existsSync, writeFileSync } from 'node:fs';
+import { readFileSync, statSync, readdirSync, existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -17,6 +17,7 @@ import {
   autoRenewEnabled, needsRenewal, renewCredentials, writeTokenFile, makeRenewer, formatTokenFile, readFirebaseKey,
 } from '../core/token-renewal.mjs';
 import { readCredentials } from '../core/auth.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const TEST_KEY = ['AIza', 'TESTKEY', '0'.repeat(28)].join(''); // shape-valid, not a real key
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
@@ -133,7 +134,7 @@ test('renewCredentials with NO firebase key on record renews the bearer only and
 });
 
 test('readFirebaseKey: env override wins, then the token file line, else null — and a malformed value is ignored', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'renew-'));
+  const dir = tempDir('renew-');
   const tokenFile = join(dir, 'tok.txt');
   writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(), tokenId: liveTid(), firebaseKey: TEST_KEY }), { mode: 0o600 });
   assert.equal(readFirebaseKey({ tokenFile, env: {} }), TEST_KEY);
@@ -155,7 +156,7 @@ test('renewCredentials: an authToken that is not JWT-shaped is refused rather th
 // ---------- the file ----------
 
 test('formatTokenFile + writeTokenFile round-trip through the real reader, at mode 0600, atomically', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'renew-'));
+  const dir = tempDir('renew-');
   const tokenFile = join(dir, 'tok.txt');
   const bearer = liveJwt(); const tid = liveTid();
   writeTokenFile({ tokenFile, bearer, tokenId: tid, firebaseKey: TEST_KEY });
@@ -169,7 +170,7 @@ test('formatTokenFile + writeTokenFile round-trip through the real reader, at mo
 });
 
 test('writeTokenFile keeps the EXISTING token-id when the new one is null (partial renewal)', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'renew-'));
+  const dir = tempDir('renew-');
   const tokenFile = join(dir, 'tok.txt');
   const oldTid = liveTid(900);
   writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(200), tokenId: oldTid, firebaseKey: TEST_KEY }), { mode: 0o600 });
@@ -184,7 +185,7 @@ test('writeTokenFile keeps the EXISTING token-id when the new one is null (parti
 // ---------- the renewer (rate discipline) ----------
 
 const renewerFixture = ({ ttl = 200, tidTtl = 200, fetchOpts } = {}) => {
-  const dir = mkdtempSync(join(tmpdir(), 'renew-'));
+  const dir = tempDir('renew-');
   const tokenFile = join(dir, 'tok.txt');
   writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(ttl), tokenId: liveTid(tidTtl), firebaseKey: TEST_KEY }), { mode: 0o600 });
   const calls = [];

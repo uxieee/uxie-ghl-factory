@@ -8,11 +8,12 @@
 // The refusal itself must survive both fixes: a graph that DID move is still PREVIEW_STALE.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { TOOLS } from '../core/tools.mjs';
 import { readCache } from '../core/read-cache.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const tool = (n) => TOOLS.find((t) => t.name === n);
 const TAG = (tags) => ({ id: 't1', type: 'add_contact_tag', name: 'Tag', next: null, parent: null, parentKey: null, order: 0,
@@ -41,7 +42,7 @@ function gateway(templates, version) {
   };
   return { gw, calls, put: () => calls.filter((c) => c.method === 'PUT').length };
 }
-const project = () => ({ tokenFile: join(mkdtempSync(join(tmpdir(), 'ghl-stale-')), 'tok.txt') });
+const project = () => ({ tokenFile: join(tempDir('ghl-stale-'), 'tok.txt') });
 const edit = (gw, state, extra = {}) => tool('edit_workflow').handler({ locationId: 'LOC', workflowId: 'WID', confirm: true,
   ops: [{ op: 'modifyStep', stepId: 't1', attrPatch: { tags: ['after'] } }], ...extra }, { makeGw: () => gw, state });
 

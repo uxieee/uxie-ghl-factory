@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tempDir } from './_tmp.mjs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createExerciseLog, assertionId } from '../core/exercise-log.mjs';
@@ -28,7 +29,7 @@ test('assertions attribute to the most recently called tool; none before the fir
 
 test('write goes to GHL_EXERCISED_OUT only when set', () => {
   const log = createExerciseLog();
-  const file = join(mkdtempSync(join(tmpdir(), 'ex-')), 'out.json');
+  const file = join(tempDir('ex-'), 'out.json');
   process.env.GHL_EXERCISED_OUT = file;
   log.write();
   delete process.env.GHL_EXERCISED_OUT;
@@ -94,14 +95,17 @@ test('the exit handler writes what had been driven so far, even mid-run', async 
   const build = log.wrap({ name: 'build_workflow', handler: async () => 'built' });
   await build.handler({}, {});
   log.result(true, 'built fine');
-  const file = join(mkdtempSync(join(tmpdir(), 'ex-')), 'exit.json');
-  process.env.GHL_EXERCISED_OUT = file;
-  const onExit = () => log.write();
-  process.on('exit', onExit);
-  process.emit('exit', 0); // simulate the process ending mid-run, as a crash would trigger
-  process.off('exit', onExit);
-  delete process.env.GHL_EXERCISED_OUT;
-  assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), [
-    { tool: 'build_workflow', calls: 1, passed: 1, failed: 0, failures: [] },
-  ]);
+  const dir = mkdtempSync(join(tmpdir(), 'ex-'));
+  try {
+    const file = join(dir, 'exit.json');
+    process.env.GHL_EXERCISED_OUT = file;
+    const onExit = () => log.write();
+    process.on('exit', onExit);
+    process.emit('exit', 0); // simulate the process ending mid-run, as a crash would trigger
+    process.off('exit', onExit);
+    delete process.env.GHL_EXERCISED_OUT;
+    assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), [
+      { tool: 'build_workflow', calls: 1, passed: 1, failed: 0, failures: [] },
+    ]);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

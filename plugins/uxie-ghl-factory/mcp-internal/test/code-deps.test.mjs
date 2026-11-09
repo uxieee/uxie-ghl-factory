@@ -1,9 +1,10 @@
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { toolBlocks, withoutDescription, codeDeps } from '../../../../scripts/lib/code-deps.mjs';
+import { tempDir } from './_tmp.mjs';
 
 let root, toolsFile;
 const TOOLS_SRC = (desc = 'Build it', helper = 'return 1;') => `import { compile } from '../engine/compiler.mjs';
@@ -30,7 +31,7 @@ export const TOOLS = [
 `;
 
 before(() => {
-  root = mkdtempSync(join(tmpdir(), 'code-'));
+  root = tempDir('code-');
   mkdirSync(join(root, 'mi/core'), { recursive: true });
   mkdirSync(join(root, 'mi/engine'), { recursive: true });
   writeFileSync(join(root, 'mi/engine/compiler.mjs'), "import { util } from './util.mjs';\nexport const compile = (x) => util(x);\n");

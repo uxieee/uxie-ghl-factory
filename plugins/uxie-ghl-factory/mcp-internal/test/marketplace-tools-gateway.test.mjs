@@ -3,18 +3,19 @@
 // which is how a tool that threw on every live call stayed green for eleven releases (F5-11).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { makeGateway } from '../core/gateway.mjs';
 import { TOOLS, makeGatewayFactory } from '../core/tools.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const exp = Math.floor(Date.now() / 1000) + 3600;
 const jwt = `eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u-1', exp })}.sig`;
 const tokenId = `eyJhbGciOiJIUzI1NiJ9.${b64({ iss: 'securetoken.google.com/highlevel-backend', role: 'admin', type: 'agency', exp })}.sig`;
 const tokenFile = () => {
-  const p = join(mkdtempSync(join(tmpdir(), 'mkt-')), 'tok.txt');
+  const p = join(tempDir('mkt-'), 'tok.txt');
   writeFileSync(p, `Bearer ${jwt}\ntoken-id: ${tokenId}\n`);
   return p;
 };

@@ -4,10 +4,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tempDir } from './_tmp.mjs';
 
 const GATE = fileURLToPath(new URL('../../../../scripts/check-privacy.mjs', import.meta.url));
 const SYNTHETIC_ID = 'Lq7TestLoc0000000001';
@@ -19,7 +20,7 @@ const SANDBOX_ID_HASH = '2bdf35474a3ff3aa9018f37b6eefc8aec29897936b9ed54e9c5e9e8
 // The plugin gate scans the git-listed files of its working directory, so each case is a throwaway git repo holding one file.
 // The refusal text itself (rel-10b masking): a refusal must never print the matched value.
 const gateStderr = (name, content, extraEnv = {}) => {
-  const dir = mkdtempSync(join(tmpdir(), 'privacy-mask-'));
+  const dir = tempDir('privacy-mask-');
   execFileSync('git', ['init', '-q', dir]); writeFileSync(join(dir, name), content);
   try { execFileSync('node', [GATE], { cwd: dir, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, ...extraEnv } }); return ''; }
   catch (e) { return String(e.stderr ?? '') + String(e.stdout ?? ''); }
@@ -43,7 +44,7 @@ test('a refusal names the file and the line, and never prints the matched value'
 });
 
 const gateRefuses = (name, content, extraEnv = {}) => {
-  const dir = mkdtempSync(join(tmpdir(), 'privacy-sandbox-'));
+  const dir = tempDir('privacy-sandbox-');
   execFileSync('git', ['init', '-q', dir]); writeFileSync(join(dir, name), content);
   try {
     execFileSync('node', [GATE], { cwd: dir, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, ...extraEnv } });

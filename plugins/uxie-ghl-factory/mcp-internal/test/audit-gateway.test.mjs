@@ -3,7 +3,7 @@
 // `.code` and a message that never echoes a credential-looking value.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { makeGateway } from '../core/gateway.mjs';
@@ -12,6 +12,7 @@ import { AUDIT_CAPABILITIES } from '../core/audit-capabilities.mjs';
 import {
   isSafePathSegment, makeAuditCircuit, makeAuditGateway, makeAuditLimiter,
 } from '../core/audit-gateway.mjs';
+import { tempDir } from './_tmp.mjs';
 
 const BACKEND = 'https://backend.leadconnectorhq.com';
 const SERVICES = 'https://services.leadconnectorhq.com';
@@ -28,7 +29,7 @@ const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const jwt = `eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u-1', exp: Math.floor(Date.now() / 1000) + 3600 })}.sig`;
 const tokenId = `eyJhbGciOiJIUzI1NiJ9.${b64({ iss: 'securetoken.google.com/highlevel-backend', role: 'admin', type: 'agency', exp: Math.floor(Date.now() / 1000) + 3600 })}.sig`;
 function fixture({ bearer = jwt, token = tokenId } = {}) {
-  const p = join(mkdtempSync(join(tmpdir(), 'audit-gw-')), 'tok.txt');
+  const p = join(tempDir('audit-gw-'), 'tok.txt');
   writeFileSync(p, `Bearer ${bearer}\n${token ? `token-id: ${token}\n` : ''}`);
   return p;
 }

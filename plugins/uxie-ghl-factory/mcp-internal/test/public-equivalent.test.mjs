@@ -1,12 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, rmSync } from 'node:fs';
 import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { publicEquivalentFor, railDecisionFor } from '../scripts/rail-join.mjs';
+import { tempDir } from './_tmp.mjs';
 
 // W4 (2026-10-29): each catalogue row names its public twins and the rail-ledger decision for its path, both joined by
 // opKey from the copies knowledge ships (catalog/public-ops.json, catalog/rail-ledger.json).
@@ -51,7 +52,7 @@ test('railDecision comes from the ledger row that claims the opKey', () => {
 });
 
 test('the build fails when a ledger copy is missing', () => {
-  const root = mkdtempSync(join(tmpdir(), 'rail-join-'));
+  const root = tempDir('rail-join-');
   try {
     mkdirSync(join(root, 'scripts'), { recursive: true });
     cpSync(join(MCP, 'catalog'), join(root, 'catalog'), { recursive: true });
