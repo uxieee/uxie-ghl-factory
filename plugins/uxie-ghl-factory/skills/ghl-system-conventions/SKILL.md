@@ -393,6 +393,20 @@ are the default and prose is the support.
 Full spec is in `references/build-doc-spec.md`, and an approved worked example ships at
 `assets/example-prebuild-doc.html` — match it rather than reinventing the format.
 
+## Calendar features that are UI-only in W9
+
+These calendar and event features have no tool in W9. Do them in the GHL UI and tell the user; do not try to author, toggle or read them through a tool. Each row cites the backlog row that tracks it.
+
+| Feature | Where in the GHL UI | Status |
+|---|---|---|
+| **Event list and event detail** (the events list and an event's detail page) | Calendars → Events | no tool in W9; do it in the GHL UI; backlog bl-995 |
+| **Event tickets, sold-out state** | Event → Tickets | no tool in W9; do it in the GHL UI; backlog bl-995 |
+| **Event admin templates** (font pairing, date and name copy) | Event → Admin template | no tool in W9; do it in the GHL UI; backlog bl-995 |
+| **Event sponsors and ads** | Event → Sponsors and ads | no tool in W9; do it in the GHL UI; backlog bl-995 |
+| **Event errors** (the copy shown when an event action fails) | Event pages | no tool in W9; do it in the GHL UI; backlog bl-995 |
+| **Staff badges** (team member badges and where a badge is assigned) | Settings → Team → badges | no tool in W9; do it in the GHL UI; backlog bl-995 |
+| **Calendar AI assistant** (the AI assistant on the calendar) | Calendars → AI assistant | no tool in W9; do it in the GHL UI; backlog bl-995 |
+
 ## References
 
 - `references/tags-and-data.md` — tag namespaces, lifecycle classes, worked taxonomies,
