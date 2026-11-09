@@ -1,0 +1,1140 @@
+{
+  "tools": [
+    {
+      "name": "build_course",
+      "description": "Build and verify a GHL Memberships course — proof: live-runtime (2026-10-29), floor: documented; risk: write The course's certificate/badge template goes under spec.award {title, type: certificate|badge} (\"credential\" is refused by the secret guard). The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Paid offers are supported by the engine (onetime or subscription, with an explicit amount and currency); creating one needs a connected payment integration (bl-877: 400 'Integrations not found' on a sandbox with none). Checkout is unproven. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "locationId",
+          "spec"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "build_funnel_page",
+      "description": "Compose, validate and write a funnel page from elements; optionally publish it. A full build keeps the page's existing header/footer code, custom CSS, fonts and background, refuses if stored popups are not sent, and edit mode changes them — proof: live-runtime (2026-11-08); risk: write. Preview by default; confirm:true autosaves the DRAFT; publish:true publishes. COMPOSE (sections, popups?, typography?): writes nodes AND the compiled stylesheet. Node styles compile as the builder does; kinds only the builder can style are listed under builderStyling. Refuses what autosave accepts with 201 and then breaks: a meta outside the 72 kinds, a missing declared extra prop (500s the page), an element-spec key the kind does not take (text → html), an empty popup, an openPopup naming no popup, a video with no source, a store-pdp-v2-* block off a product-detail step or outside a pdp:true section. EDIT (edits + stepName): ops set (merge extra/styles into a node by id), append-section, insert, move, clone, remove-node, page (trackingCode, customCss, background, typography), append-popup, set-popup, remove-popup, order-popups; seo writes the page record AND the version. Target checked first; every op verified by value on a separate read. 🔴 Visitors see only the PUBLISHED version: pass publish:true for content and SEO. 🔴 After someone edits the page in the builder, re-read its buttons: the first builder save adds an empty popup and can rewrite an empty action to openPopup. A form, survey or calendar with no on-submit action is flagged under submitAction: submissions store, but the visitor sees no success state. Fonts: typography {headlineFont, contentFont} + an element's font 'headline'|'content'; families are written as var(--name) so a builder save keeps loading them. Not offered (the builder does it): schema markup, button theme presets, brand-palette colours, column layout knobs, saved and global sections, font upload. Keys per kind, animations, popups, fonts, traps: ghl-funnels-pages → references/build-funnel-page.md.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "funnelId": {
+            "type": "string"
+          },
+          "pageId": {
+            "type": "string"
+          },
+          "stepId": {
+            "type": "string"
+          },
+          "sections": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "popups": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "typography": {
+            "type": "object",
+            "properties": {
+              "headlineFont": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "customFontId": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "customFontId"
+                    ]
+                  }
+                ]
+              },
+              "contentFont": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "customFontId": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "customFontId"
+                    ]
+                  }
+                ]
+              },
+              "textColor": {
+                "type": "string",
+                "minLength": 1
+              },
+              "linkColor": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "edits": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "set",
+                    "append-section",
+                    "insert",
+                    "move",
+                    "clone",
+                    "append-popup",
+                    "set-popup",
+                    "remove-popup",
+                    "order-popups",
+                    "remove-node",
+                    "page"
+                  ]
+                },
+                "element": {
+                  "description": "insert: the new element, the same shape as an element of a column",
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "parentId": {
+                  "description": "insert: the column to insert into; move: the column of the same section to move an element into",
+                  "type": "string"
+                },
+                "after": {
+                  "description": "a position: put it right after this sibling (insert / move: an element, row or column; append-section: a section id)",
+                  "type": "string"
+                },
+                "before": {
+                  "description": "a position: put it right before this sibling",
+                  "type": "string"
+                },
+                "index": {
+                  "description": "a position: the 0-based place among the siblings",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "direction": {
+                  "description": "move: one step up / down, or to the top / bottom of its siblings (instead of a position)",
+                  "type": "string",
+                  "enum": [
+                    "up",
+                    "down",
+                    "top",
+                    "bottom"
+                  ]
+                },
+                "popupId": {
+                  "description": "set-popup / remove-popup: the popup id or its name",
+                  "type": "string"
+                },
+                "order": {
+                  "description": "order-popups: popup ids or names, first = highest priority; unlisted popups follow",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "disabled": {
+                  "description": "set-popup: the popup's Disable Popup switch",
+                  "type": "boolean"
+                },
+                "closeOnOutsideClick": {
+                  "description": "set-popup: close on clicking outside",
+                  "type": "boolean"
+                },
+                "showOn": {
+                  "description": "set-popup: 'exit' | 'none' | {delay: seconds}",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "exit",
+                        "none"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "delay": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "delay"
+                      ]
+                    }
+                  ]
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "title": {
+                  "description": "set: the element's name (Settings → Element name; shown in Layers)",
+                  "type": "string"
+                },
+                "dynamicText": {
+                  "description": "set (paragraph, heading, sub-heading): {paramName: {default?, transform?: none|upper|lower|title|sentence|capitalize, normalize?}} — turns the {{query_param.paramName}} placeholders in the text into the builder's 'dynamic text from URL' pills",
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "extra": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "styles": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "entranceAnimation": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "enum": [
+                        "fadeIn",
+                        "fadeInUp",
+                        "fadeInDown",
+                        "fadeInLeft",
+                        "fadeInRight",
+                        "slideInUp",
+                        "slideInDown",
+                        "slideInLeft",
+                        "slideInRight",
+                        "bounceIn",
+                        "bounceInUp",
+                        "bounceInDown",
+                        "bounceInLeft",
+                        "bounceInRight",
+                        "flip",
+                        "flipInX",
+                        "flipInY",
+                        "rollIn",
+                        "zoomIn",
+                        "lightSpeedInLeft",
+                        "lightSpeedInRight",
+                        "buttonPulseGlow",
+                        "buttonRocking",
+                        "buttonBounce"
+                      ]
+                    },
+                    "duration": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "delay": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "scale": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "easing": {
+                      "type": "string",
+                      "enum": [
+                        "linear",
+                        "ease-in",
+                        "ease-out",
+                        "ease-in-out"
+                      ]
+                    },
+                    "disableOnMobile": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                },
+                "hoverAnimation": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "enum": [
+                        "hvr-grow",
+                        "hvr-shrink",
+                        "hvr-pulse",
+                        "hvr-bounce-in",
+                        "hvr-rotate",
+                        "hvr-skew-forward",
+                        "hvr-float",
+                        "hvr-wobble-horizontal",
+                        "hvr-buzz",
+                        "hoverElevate",
+                        "hvr-fade",
+                        "hvr-sweep-to-right",
+                        "hvr-sweep-to-bottom",
+                        "hvr-radial-in",
+                        "hvr-bounce-to-top",
+                        "hvr-ripple-out",
+                        "hvr-outline-in",
+                        "hvr-underline-from-center",
+                        "hvr-shadow",
+                        "hvr-glow",
+                        "hvr-box-shadow-outset"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ],
+                  "additionalProperties": {}
+                },
+                "openPopup": {
+                  "type": "string"
+                },
+                "font": {
+                  "type": "string",
+                  "enum": [
+                    "headline",
+                    "content"
+                  ]
+                },
+                "typography": {
+                  "type": "object",
+                  "properties": {
+                    "headlineFont": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "customFontId": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "customFontId"
+                          ]
+                        }
+                      ]
+                    },
+                    "contentFont": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "customFontId": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "customFontId"
+                          ]
+                        }
+                      ]
+                    },
+                    "textColor": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "linkColor": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "sticky": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "top",
+                    "bottom"
+                  ]
+                },
+                "width": {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "wide",
+                    "midWide",
+                    "small"
+                  ]
+                },
+                "fullWidthRows": {
+                  "type": "boolean"
+                },
+                "wrapper": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "tabletStyles": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "mobileStyles": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "tabletWrapper": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "mobileWrapper": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "visibility": {
+                  "type": "object",
+                  "properties": {
+                    "hideDesktop": {
+                      "type": "boolean"
+                    },
+                    "hideTablet": {
+                      "type": "boolean"
+                    },
+                    "hideMobile": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "customClass": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "bgImage": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "type": "string"
+                    },
+                    "opacity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  },
+                  "required": [
+                    "url"
+                  ]
+                },
+                "section": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "popup": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "trackingCode": {
+                  "type": "object",
+                  "properties": {
+                    "headerCode": {
+                      "type": "string"
+                    },
+                    "footerCode": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "customCss": {
+                  "description": "page: REPLACES the custom CSS (the stored rules not in this text are reported as droppedContent); use appendCss to add",
+                  "type": "string"
+                },
+                "appendCss": {
+                  "description": "page: adds CSS after the stored custom CSS, fenced so the same block is never added twice; keeps the old rules; not with customCss",
+                  "type": "string"
+                },
+                "appendHeaderCode": {
+                  "description": "page: adds HTML (e.g. a <link>) after the header code, fenced once; keeps the old header code",
+                  "type": "string"
+                },
+                "appendFooterCode": {
+                  "description": "page: adds HTML after the footer code, fenced once; keeps the old footer code",
+                  "type": "string"
+                },
+                "background": {
+                  "type": "object",
+                  "properties": {
+                    "imageUrl": {
+                      "type": "string"
+                    },
+                    "imageOptions": {
+                      "type": "string"
+                    },
+                    "color": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "op"
+              ]
+            }
+          },
+          "seo": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "keywords": {
+                "type": "string"
+              },
+              "author": {
+                "type": "string"
+              },
+              "imageUrl": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string"
+              },
+              "customMeta": {
+                "type": "array",
+                "items": {}
+              },
+              "canonicalMeta": {
+                "type": "array",
+                "items": {}
+              }
+            }
+          },
+          "stepName": {
+            "type": "string"
+          },
+          "pageStyles": {
+            "type": "string"
+          },
+          "fonts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "colors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "pageVersion": {
+            "default": 1,
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "verifyUrl": {
+            "type": "string"
+          },
+          "previewToken": {
+            "description": "confirm: the previewToken the preview returned; a stored page that changed since is refused with PREVIEW_STALE",
+            "type": "string"
+          },
+          "publish": {
+            "default": false,
+            "type": "boolean"
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "locationId",
+          "funnelId",
+          "pageId",
+          "stepId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "build_workflow",
+      "description": "Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes. The spec is an IR with `triggers[]` and `graph[]` (the step list is `graph`, not `steps`), and a trigger's filter rows are `filters`. A trigger POST that fails after retries is reported in data.triggerIntegrity and flips data.partial to true — the draft then has no working trigger for it. data.triggerIntegrity also reports a trigger GHL stored WITHOUT the filters it was authored with: that trigger exists but is unscoped and fires on everything of its type — proof: live-runtime (2026-10-29), floor: documented; risk: write",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {},
+            "description": "The workflow IR: {name, triggers: [{type, name, filters: [{field, operator, value}]}], graph: [{ref, kind, type, name, attributes}]}. The step list is `graph`, NOT `steps`. A trigger's filter rows are `filters` — `conditions` is how GHL STORES them and is refused here, because nothing reads it and the trigger would go live unscoped. `locationId` is this tool's own argument and does not belong inside spec. To file the build in a folder: `folderPath: [\"Outer\", \"Inner\"]` (exact names, outermost first) and `createFolderIfMissing: true` to create missing levels after every check; a name shared by two folders at one level is refused. A spec from export_workflow {format:'spec'} is accepted as it is and built as a NEW workflow with fresh ids."
+          },
+          "ignoreUnresolved": {
+            "default": false,
+            "type": "boolean"
+          },
+          "ignoreAssetErrors": {
+            "default": false,
+            "type": "boolean"
+          },
+          "skipWorkflowRules": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "strictCustomCode": {
+            "default": false,
+            "type": "boolean"
+          },
+          "skipCustomCodeTest": {
+            "default": false,
+            "type": "boolean"
+          },
+          "strictMergeTags": {
+            "type": "boolean"
+          },
+          "skipMergeTagCheck": {
+            "type": "boolean"
+          },
+          "skipIfElseVocab": {
+            "type": "boolean"
+          },
+          "pinWebhookSample": {
+            "type": "boolean"
+          },
+          "allowValidationFailure": {
+            "description": "Write even though the validation gate refused. The gate runs every layer over the document: GHL's own WorkflowValidator rules (including the publish-only ones when this write publishes), the advanced canvas's stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL's live validator. Findings are still reported in full.",
+            "type": "boolean"
+          },
+          "dryRun": {
+            "description": "Run every check a build runs (resolve, compile, the offline validation gate, validate-assets, engine references, the custom-code sandbox) and create NOTHING: no tag, no email template, no workflow. The sandbox test RUNS each custom_code step's code, which can make HTTP calls; pass skipCustomCodeTest to leave it out. Answers {valid, errors:[{code, path, stage, context}], warnings, server, wouldCreate}. GHL's server validator needs a workflow id, so it is reported as not run.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "locationId",
+          "spec"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "find_workflows_using",
+      "description": "Find which workflows contain a step or trigger type — risk: read — proof: live-runtime (2026-10-29); risk: read. Pass step/trigger TYPE names (as `describe_step_type` spells them, e.g. `wait`, `appointment`). returns:\"workflows\" (default) lists workflows containing any; returns:\"steps\" lists the matching step documents with workflowId and stored attributes. 🔴 The modes count DIFFERENT THINGS (`wait`: 438 step documents in 61 workflows) — never report one as the other. 🔴 OFFSET PAGING IS UNSTABLE (measured 2026-09-21: 326 rows walked at limit 100 gave 300 unique) and `searchAfter` in the body is IGNORED (page 1 again). The complete read is ONE call with `limit` above `count`; rows are reconciled against GHL's `count` and deduped, and a short result is `complete:false` with a coded warning. 🔴 It CANNOT filter on attribute VALUES (no working operator for the attributes sub-document); that needs an export. problems:\"mixed-case-tag-rows\" (no types) is the exception: trigger docs and if/else step docs carry their stored conditions, so it lists every trigger row and if/else tag condition naming a tag with a CAPITAL letter — such a row NEVER MATCHES (GHL stores tags lower case; measured live 2026-09-30) — with workflow, value and the edit_workflow replaceTag fix. One call per index slice, one GET per hit. Add/remove-tag STEPS are not affected (measured); the tag rows of other trigger types were not fired (says so).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "types": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "problems": {
+            "type": "string",
+            "enum": [
+              "mixed-case-tag-rows"
+            ]
+          },
+          "returns": {
+            "default": "workflows",
+            "type": "string",
+            "enum": [
+              "workflows",
+              "steps"
+            ]
+          },
+          "kind": {
+            "default": "any",
+            "type": "string",
+            "enum": [
+              "action",
+              "trigger",
+              "any"
+            ]
+          },
+          "limit": {
+            "default": 100,
+            "type": "number"
+          },
+          "offset": {
+            "default": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "locationId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "get_funnel",
+      "description": "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) — proof: live-runtime (2026-10-29); risk: read. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action — the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), store-setup (a store: the location-wide onboarding checklist — stores, domains, products, payments, shipping, orders), share (the funnel's share link if one exists — read-only; creating one is left to the UI: it cannot be removed below the $497 plan), archived-pages (restorable with edit_funnel restore-page), step-products {stepId} (a step's order-form and sell-button products with names; add one with edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default 30 days; filters?} (per-step page views, opt-in and sale rates, earnings per view, plus the Analytics cards: page views, opt-ins, sales and value, opt-in rate, hosted-video plays, pauses, completion, drop-off spike and progress graph; filters = the Advanced filter, groups of field is/is not values; 🔴 only a HOSTED video reports; RESETTING stats is not offered: irreversible, ~30 s async, clears Sites Analytics too — funnel → Stats → Reset), filter-values {field} (the values a filter can pick), sales (the Sales tab: version-1 order forms only), webinar (type, schedule, recurrence, form, link/video, sessions, notification rows, guests + recipe links). Siblings: find_ghl_site resolves a domain/name to the id first; audit_site sweeps a whole site for dangling references and publish drift. Read-only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "funnelId": {
+            "type": "string"
+          },
+          "view": {
+            "default": "summary",
+            "type": "string",
+            "enum": [
+              "summary",
+              "lookups",
+              "settings",
+              "versions",
+              "security",
+              "events",
+              "cookie-consent",
+              "share",
+              "archived-pages",
+              "step-products",
+              "stats",
+              "webinar",
+              "filter-values",
+              "sales",
+              "store-setup"
+            ]
+          },
+          "pageId": {
+            "type": "string"
+          },
+          "stepId": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "filters": {
+            "description": "stats: the Analytics screen's Advanced filter — groups of conditions (field is/is not values). Top group OR, nested groups AND by default; ≤5 groups, ≤5 conditions each",
+            "type": "object",
+            "properties": {
+              "group": {
+                "type": "string",
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
+              },
+              "filters": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "group": {
+                      "type": "string",
+                      "enum": [
+                        "OR",
+                        "AND"
+                      ]
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string",
+                            "enum": [
+                              "city",
+                              "region",
+                              "country",
+                              "pageId",
+                              "browser",
+                              "deviceType",
+                              "trafficSource",
+                              "trafficChannel"
+                            ]
+                          },
+                          "operator": {
+                            "type": "string",
+                            "enum": [
+                              "in",
+                              "not_in"
+                            ]
+                          },
+                          "value": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "field",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "filters"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "filters"
+            ]
+          },
+          "field": {
+            "description": "filter-values: the field whose values exist in the range",
+            "type": "string",
+            "enum": [
+              "city",
+              "region",
+              "country",
+              "pageId",
+              "browser",
+              "deviceType",
+              "trafficSource",
+              "trafficChannel"
+            ]
+          },
+          "search": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "locationId",
+          "funnelId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "get_workflow",
+      "description": "Get one workflow summary — proof: live-runtime (2026-10-29); risk: read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId",
+          "workflowId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "list_courses",
+      "description": "List course summaries — proof: live-runtime (2026-10-29); risk: read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "list_workflows",
+      "description": "Every workflow in a location, walked to a reconciled terminal proof Optional `status` (published|draft) and `search` filter the walk, and the reconciled total is then the total FOR THAT FILTER. A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and workflows:null — never an empty or partial list — so a short answer can never read as a complete one; the rows it did read are under partialWorkflows. Live canary required before Full audit — proof: external-receipt-required; risk: read. Optional `status` (published|draft) and `search` filter the walk, and the reconciled total is then the total FOR THAT FILTER. A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and a null roster, never an empty list — so a short answer can never read as a complete one. Live canary required before Full audit.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          },
+          "pageSize": {
+            "default": 100,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "maxPages": {
+            "default": 100,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "folderId": {
+            "description": "A folder id (the row's parentId), or \"root\" for workflows in no folder.",
+            "type": "string"
+          },
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updatedAfter": {
+            "description": "ISO date-time; updatedAt >= this.",
+            "type": "string"
+          },
+          "updatedBefore": {
+            "description": "ISO date-time; updatedAt < this.",
+            "type": "string"
+          },
+          "updatedBy": {
+            "description": "A user id (the row's updatedBy).",
+            "type": "string"
+          },
+          "ids": {
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sort": {
+            "description": "field: name | updatedAt | createdAt; direction asc | desc.",
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "field"
+            ]
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "publish_workflow",
+      "description": "Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT's own draft→published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs — proof: live-runtime (2026-10-29), floor: documented; risk: destructive",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "allowValidationFailure": {
+            "description": "Publish even though the validation gate refused. The gate runs every layer: GHL's own WorkflowValidator rules (including the publish-only ones), the advanced canvas's stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL's live validator. Findings are still reported in full.",
+            "type": "boolean"
+          },
+          "skipWorkflowRules": {
+            "description": "Skip GHL's WorkflowValidator rules — true, or a list of rule names. The other layers still run.",
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "locationId",
+          "workflowId"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    {
+      "name": "rename_workflow",
+      "description": "Rename workflows — risk: write — proof: live-runtime (2026-10-29); risk: write. Rename one or many workflows through GHL's dedicated rename route, the only rename path that does NOT re-run the step validator (a rename via edit_workflow can be refused by a healthy published workflow's own stored steps). Batch by design: renames[] of {workflowId, name}. Preview by default; pass confirm:true to write. Changes the NAME only: no steps, triggers, enrolments or publish state. Refuses a FOLDER id before sending (the route answers a bare \"Not Found\" for one, which reads like a wrong route), and refuses an empty or whitespace name locally. Every rename is verified by reading the name back; the version before and after is reported, because whether a rename bumps it is not settled. A batch that lands partly is reported as partial, naming each rename.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "renames": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "workflowId": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "workflowId",
+                "name"
+              ]
+            }
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "locationId",
+          "renames"
+        ],
+        "additionalProperties": {}
+      }
+    }
+  ]
+}

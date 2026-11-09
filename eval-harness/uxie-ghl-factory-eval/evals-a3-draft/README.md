@@ -1,3 +1,5 @@
+> **Superseded.** This folder is replaced by `../evals-a3/` (same nine cases, with the fixture location `loc_1` and the grader fixes: full MCP tool names). Kept, not deleted, per the nothing-is-deleted rule.
+
 # a3 behaviour-eval drafts (not run)
 
 Drafted 2026-11-09 by w9-agent for W9 task w9-a3 (behaviour evals for workflows, funnels and courses).

@@ -50,4 +50,4 @@ directly is checked by the asset pre-flight (`ASSET_WORKFLOW_NOT_FOUND`). Never 
 ## Scope
 IN: workflow/automation design + build, multi-workflow architecture, debugging
 existing automations. OUT: pipeline structure (use ghl-pipeline-specialist), funnels/
-pages (use ghl-funnels-pages), publishing a workflow. This skill says whether a workflow should publish and writes that into the blueprint; the publish itself is the create skill's gated `publish_workflow`, and it runs only after the user's explicit yes naming the workflow.
+pages (use ghl-funnels-pages), publishing a workflow. This skill says whether a workflow should publish and writes that into the blueprint; the publish itself is the create skill's gated `publish_workflow`, and it runs only after the user's explicit yes naming the workflow. Before a publish, state once what goes live: the workflow's name, its trigger, and each step that sends (email, SMS, call, webhook). Then wait for an explicit yes. Urgency ("publish it now", "I'm in a hurry") is not that yes.

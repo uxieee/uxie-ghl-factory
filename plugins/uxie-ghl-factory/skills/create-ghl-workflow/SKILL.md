@@ -169,7 +169,7 @@ Public only: server-side publish gate; logs/aggregate that refuses to truncate.
    re-capture it YOURSELF (invoke `uxie-ghl-factory:internal-connect`) and resume where you left
    off. Do not ask first. One re-capture per failure — never retry-loop.
 3. **Draft-first.** Everything builds as `draft`. Publish is a separate, opt-in
-   `--publish` run gated on explicit user confirmation.
+   `--publish` run gated on explicit user confirmation. Before a publish, state once what goes live: the workflow's name, its trigger, and each step that sends (email, SMS, call, webhook). Then wait for an explicit yes. Urgency ("publish it now", "I'm in a hurry") is not that yes.
 4. **AI Agent steps: ask, don't default** (Xander, 2026-11-06). Before you build an `ai_agent` step, ask the operator two questions:
    web search on or off (about 1¢ per search, 1.4¢ on Gemini; on = `attributes.nativeTools: [{id, toolName: "web_search", description, attributes: {}}]`,
    off = `nativeTools: []`), and which model. The engine keeps the current model when none is named; `gpt-6-luna` is documented, not defaulted.
@@ -296,7 +296,7 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
 - **A step type's card, not its example.** An example is one capture, so it pins one value of every
   discriminator. `describe_step_type` carries the union.
 - **Publishing is never implied.** Everything builds as `draft`; `--publish` is opt-in and gated on
-  the user's explicit OK.
+  the user's explicit OK. Before a publish, state once what goes live: the workflow's name, its trigger, and each step that sends (email, SMS, call, webhook). Then wait for an explicit yes. Urgency ("publish it now", "I'm in a hurry") is not that yes.
 - `DELETE /workflow/{loc}/{wid}` works — use it to tear down throwaway builds rather than leaving
   them on the account.
 
@@ -307,7 +307,7 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
 - Build report says `created tags: (none needed)` but your workflow uses new tags →
   something's wrong; the orchestrator should have created them.
 - About to ignore an `ABORTED` / `UNRESOLVED` line → don't; that's a missing dependency.
-- About to `--publish` without the user's explicit OK → stop.
+- About to `--publish` without the user's explicit OK → stop. "Publish it now" or "I'm in a hurry" is not the OK: state what goes live and wait for a yes.
 - Got a 401 → the JWT expired. Re-capture it yourself via `uxie-ghl-factory:internal-connect`
   and resume; this is not a reason to stop or to ask.
 - About to add `update_opportunity` with no opp trigger, no prior `create_opportunity_strict` (a native `create_opportunity` does not bind), and outside a `find_opportunity` Found branch → the engine aborts with `OPP_UNASSOCIATED`; build find-or-create first.

@@ -42,7 +42,7 @@ const stripDescriptions = (node) => {
   return node;
 };
 
-for (const { suite, neutral } of [{ suite: 'evals', neutral: false }, { suite: 'evals-skill', neutral: true }]) {
+for (const { suite, neutral } of [{ suite: 'evals', neutral: false }, { suite: 'evals-skill', neutral: true }, { suite: 'evals-a3', neutral: false }]) {
   const mockDir = join(harness, suite, 'mocks', 'uxie-ghl-internal-mcp');
   const mocked = readdirSync(mockDir)
     .filter((f) => f.endsWith('.md') && !f.startsWith('_'))
