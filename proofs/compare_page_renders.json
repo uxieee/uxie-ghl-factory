@@ -22,6 +22,23 @@
       "failures": [
         "canvas-structure-1440"
       ]
+    },
+    {
+      "at": "2026-11-09",
+      "result": "fail",
+      "how": "manual",
+      "failures": [
+        "canvas-structure-1440"
+      ],
+      "evidence": [
+        "sniff:sniffs/funnels-fn-2026-11-08/fn2-probes/landing/canvas-1440.json",
+        "sniff:sniffs/funnels-fn-2026-11-08/fn2-probes/landing/live-1440.json",
+        "sniff:sniffs/funnels-fn-2026-11-08/fn2-probes/sales/canvas-1440.json",
+        "sniff:sniffs/funnels-fn-2026-11-08/fn2-probes/sales/live-1440.json",
+        "sniff:sniffs/funnels-fn-2026-11-08/fn2-probes/booking/canvas-1440.json",
+        "sniff:sniffs/funnels-fn-2026-11-08/fn2-probes/booking/live-1440.json",
+        "sniff:sniffs/funnels-fn-2026-11-08/fn-d11-canvas-rerun-2026-11-09.json"
+      ]
     }
   ],
   "depends": {
