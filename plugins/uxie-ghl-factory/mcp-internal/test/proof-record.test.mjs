@@ -1,5 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { validateRecord, labelFor, LABEL_FROZEN_TOOLS } from '../../../../scripts/lib/proof-record.mjs';
 
 const good = () => ({
@@ -22,9 +25,61 @@ test('unknown keys are refused at every level', () => {
   assert.ok(errs.some((e) => /unknown key "contact"/.test(e)));
 });
 
-test('evidence must be one of the allowlisted forms — never a sniff path', () => {
-  const r = good(); r.runs[0].evidence = ['sniff:sniffs/agent-logs/live-04-responseDetails-hJPQx.json'];
+test('evidence must be one of the allowlisted forms', () => {
+  const r = good(); r.runs[0].evidence = ['bogus:sniffs/agent-logs/live-04.json'];
   assert.ok(validateRecord(r).some((e) => /evidence/.test(e)));
+});
+
+// sniff: (approved 2026-11-09, DECISIONS): a committed log under knowledge/sniffs/. The path is
+// relative to the knowledge root, must begin with sniffs/, and is refused if it escapes or
+// carries an id-shaped segment (this repo is public).
+const withSniff = (p) => { const r = good(); r.runs[0].evidence = [`sniff:${p}`]; return validateRecord(r).filter((e) => /evidence/.test(e)); };
+
+test('sniff: accepts a committed sniff path under sniffs/', () => {
+  assert.deepEqual(withSniff('sniffs/ai-studio-m4b-2026-11-09/api-proof-scripts/live-api-raw-output-2026-11-09.txt'), []);
+  assert.deepEqual(withSniff('sniffs/drift-w9-2026-11-08/probes-d3/live-w9-d3-2333-probe.json'), []);
+});
+
+test('sniff: refuses a path that escapes the knowledge root with ..', () => {
+  assert.ok(withSniff('sniffs/../../etc/passwd.json').length > 0, 'parent segment must be refused');
+  assert.ok(withSniff('sniffs/x/../../y.json').length > 0, 'nested parent segment must be refused');
+});
+
+test('sniff: refuses an absolute or non-sniffs path', () => {
+  assert.ok(withSniff('/sniffs/x/y.json').length > 0, 'absolute path must be refused');
+  assert.ok(withSniff('corpus/workflows/index.md').length > 0, 'a path outside sniffs/ must be refused');
+});
+
+test('sniff: refuses an id-shaped segment (location or contact id) anywhere in the path', () => {
+  assert.ok(withSniff('sniffs/ai-studio/Ab3Cd9Ef2Gh7Jk1Mn5Pq8.json').length > 0, 'a 20-char mixed-case id in the filename');
+  assert.ok(withSniff('sniffs/Ab3Cd9Ef2Gh7Jk1Mn5Pq8/live-04.json').length > 0, 'an id-shaped directory');
+});
+
+test('sniff: refuses an id embedded in a hyphenated or underscored name (a token, not only a whole segment)', () => {
+  assert.ok(withSniff('sniffs/x/live-Ab3Cd9Ef2Gh7Jk1Mn5Pq8-readback.json').length > 0, 'a 20-char id between hyphens');
+  assert.ok(withSniff('sniffs/agent-logs-2026-09-03/live-05-spans-Ab3Cd9Ef2Gh7Jk1Mn5Pq8.json').length > 0, 'an id at the end of a hyphenated name');
+  assert.ok(withSniff('sniffs/x/live_Zx9Cv8Bn7Mq6We5Rt4Yu.json').length > 0, 'an id after an underscore');
+  assert.ok(withSniff('sniffs/x/live.Ab3Cd9Ef2Gh7Jk1Mn5Pq8.json').length > 0, 'an id after a dot');
+});
+
+test('sniff: ordinary hyphenated and underscored names still pass', () => {
+  assert.deepEqual(withSniff('sniffs/ai-studio-m4b-2026-11-09/live-tools-m4b-rows.jsonl'), []);
+  assert.deepEqual(withSniff('sniffs/convai-wave-2026-10-29/live_tools_w5a-summary.json'), []);
+  assert.deepEqual(withSniff('sniffs/internationalization-readbacks/live-internationalizationpreview.json'), [], 'a long plain-letter word is not an id');
+});
+
+test('sniff: when the knowledge sibling is present, the file must exist on disk', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'sniff-check-'));
+  try {
+    mkdirSync(join(dir, 'sniffs', 'drift'), { recursive: true });
+    writeFileSync(join(dir, 'sniffs', 'drift', 'live-a.json'), '{}');
+    const r = good(); r.runs[0].evidence = ['sniff:sniffs/drift/live-a.json'];
+    assert.deepEqual(validateRecord(r, { knowledgeDir: dir }).filter((e) => /evidence/.test(e)), []);
+    r.runs[0].evidence = ['sniff:sniffs/drift/live-missing.json'];
+    assert.ok(validateRecord(r, { knowledgeDir: dir }).some((e) => /evidence.*not found/.test(e)), 'a missing file must be refused');
+    // no sibling: no disk check, the shape alone decides
+    assert.deepEqual(validateRecord(r, { knowledgeDir: join(dir, 'no-such-sibling') }).filter((e) => /evidence/.test(e)), []);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
 test('a full location id is refused; last four only', () => {

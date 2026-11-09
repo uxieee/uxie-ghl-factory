@@ -23,6 +23,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
 const MI = join(ROOT, 'plugins/uxie-ghl-factory/mcp-internal');
 const PROOFS = join(ROOT, 'proofs');
+// The knowledge sibling: sniff: evidence paths resolve here when it is present (proof-record.mjs).
+const KNOWLEDGE_SIBLING = process.env.GHL_KNOWLEDGE_DIR ?? resolve(ROOT, '../knowledge');
 const DESCRIPTIONS = join(MI, 'tool-descriptions.json');
 const MANIFEST_URL = 'https://production.app-manifest.leadconnectorhq.com/latest/manifest.json';
 const readJSON = (p) => JSON.parse(readFileSync(p, 'utf8'));
@@ -203,7 +205,7 @@ async function loadContext({ offline }) {
 }
 
 const write = (rec) => {
-  const errs = validateRecord(rec);
+  const errs = validateRecord(rec, { knowledgeDir: KNOWLEDGE_SIBLING });
   if (errs.length) throw new Error(`refusing to write ${rec.tool}:\n  ${errs.join('\n  ')}`);
   mkdirSync(PROOFS, { recursive: true });
   writeFileSync(join(PROOFS, `${rec.tool}.json`), `${JSON.stringify(rec, null, 2)}\n`);
@@ -218,7 +220,7 @@ async function main(argv) {
   if (cmd === 'validate') {
     let bad = 0;
     for (const rec of Object.values(loadRecords(PROOFS))) {
-      const errs = validateRecord(rec);
+      const errs = validateRecord(rec, { knowledgeDir: KNOWLEDGE_SIBLING });
       if (errs.length) { bad++; console.error(`${rec.tool}:\n  ${errs.join('\n  ')}`); }
     }
     console.log(bad ? `${bad} invalid record(s)` : 'proofs: every record valid');

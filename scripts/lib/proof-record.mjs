@@ -23,7 +23,22 @@ const SURFACE = /^[a-z0-9-]+$/;
 // corpus: paths are lowercase-kebab directory names with optional uppercase in the final filename, always with extension
 // ledger: session (dates or claimSlug-derived) and slug (from claimSlug) both contain hyphens, lowercase only
 // row: proofRows are machine-derived from the catalogue (never typed); must contain hyphens and allow [a-zA-Z0-9_:.-]
-const EVIDENCE = /^(?:receipt:\d{4}-\d{2}-\d{2}-\d{4}|ledger:[a-z0-9-]+-[a-z0-9-]+#[a-z0-9-]+-[a-z0-9-]+|corpus:(?:[a-z0-9_-]+(?:\/[a-z0-9_.-]+)*\/[A-Za-z0-9_.-]+|[A-Za-z0-9_.-]+)\.[a-z0-9]+|row:(?=[a-zA-Z0-9_:.\-]*\-)[a-zA-Z0-9_:.\-]+|commit:[0-9a-f]{7,40})$/;
+// sniff: a committed log under knowledge/sniffs/ (approved 2026-11-09, DECISIONS). The path is relative to the
+// knowledge root and must begin with sniffs/. Segment shape follows corpus:; sniffProblem() adds the rest.
+const EVIDENCE = /^(?:receipt:\d{4}-\d{2}-\d{2}-\d{4}|ledger:[a-z0-9-]+-[a-z0-9-]+#[a-z0-9-]+-[a-z0-9-]+|corpus:(?:[a-z0-9_-]+(?:\/[a-z0-9_.-]+)*\/[A-Za-z0-9_.-]+|[A-Za-z0-9_.-]+)\.[a-z0-9]+|sniff:sniffs(?:\/[a-z0-9_.-]+)*\/[A-Za-z0-9_.-]+\.[a-z0-9]+|row:(?=[a-zA-Z0-9_:.\-]*\-)[a-zA-Z0-9_:.\-]+|commit:[0-9a-f]{7,40})$/;
+// An id-shaped token (a location or contact id pasted into a path) is refused. Tokens are the pieces of a
+// path segment split on - _ . 16+ characters, mixing letters with digits or upper with lower case.
+// Ordinary words pass. A plain run of letters with no digit is not treated as an id.
+const ID_SHAPED = (s) => /^[A-Za-z0-9]{16,}$/.test(s) && (/\d/.test(s) || (/[a-z]/.test(s) && /[A-Z]/.test(s)));
+// Why a well-shaped sniff: path is refused, or null. The disk check runs only when the knowledge sibling exists.
+function sniffProblem(e, knowledgeDir) {
+  const p = e.slice('sniff:'.length);
+  if (p.includes('..') || p.split('/').includes('.')) return 'parent or current-directory segment';
+  // every token, not only whole segments: an id inside "live-<id>-readback.json" is still an id
+  if (p.split('/').some((s) => s.replace(/\.[a-z0-9]+$/, '').split(/[-_.]/).some(ID_SHAPED))) return 'id-shaped token';
+  if (knowledgeDir && existsSync(knowledgeDir) && !existsSync(join(knowledgeDir, p))) return 'file not found under the knowledge sibling';
+  return null;
+}
 const LOCATION = /^…[A-Za-z0-9]{4}$/;
 const ASSERTION = /^[a-z0-9-]{1,80}$/;
 const SUITE = /^[a-z0-9-]+$/;
@@ -37,7 +52,8 @@ const keysOnly = (obj, allowed, where, errs) => {
   for (const k of Object.keys(obj ?? {})) if (!allowed.includes(k)) errs.push(`${where}: unknown key "${k}"`);
 };
 
-export function validateRecord(rec) {
+// opts.knowledgeDir: the knowledge sibling. When it exists, each sniff: path must resolve on disk; when it does not, only the shape is checked.
+export function validateRecord(rec, opts = {}) {
   const errs = [];
   if (!rec || typeof rec !== 'object') return ['record is not an object'];
   keysOnly(rec, ['tool', 'surfaces', 'runs', 'depends'], 'record', errs);
@@ -52,7 +68,12 @@ export function validateRecord(rec) {
     if (!['suite', 'manual'].includes(r.how)) errs.push(`${w}.how: suite | manual`);
     if (r.proofClass !== undefined && !['live-runtime', 'live-canary'].includes(r.proofClass)) errs.push(`${w}.proofClass: live-runtime | live-canary`);
     if (r.suite !== undefined && !SUITE.test(r.suite)) errs.push(`${w}.suite: a suite name`);
-    if (!Array.isArray(r.evidence) || !r.evidence.length || !r.evidence.every((e) => EVIDENCE.test(e))) errs.push(`${w}.evidence: at least one receipt: ledger: corpus: row: commit: reference`);
+    if (!Array.isArray(r.evidence) || !r.evidence.length || !r.evidence.every((e) => EVIDENCE.test(e))) errs.push(`${w}.evidence: at least one receipt: ledger: corpus: sniff: row: commit: reference`);
+    for (const e of Array.isArray(r.evidence) ? r.evidence : []) {
+      if (typeof e !== 'string' || !e.startsWith('sniff:') || !EVIDENCE.test(e)) continue;
+      const why = sniffProblem(e, opts.knowledgeDir);
+      if (why) errs.push(`${w}.evidence: ${why}: ${e}`);
+    }
     if (r.location !== undefined && !LOCATION.test(r.location)) errs.push(`${w}.location: last four characters only, as …abcd`);
     if (r.failures !== undefined && !(Array.isArray(r.failures) && r.failures.every((f) => ASSERTION.test(f)))) errs.push(`${w}.failures: assertion ids`);
     if (r.backfilled !== undefined && r.backfilled !== true) errs.push(`${w}.backfilled: true or absent`);
