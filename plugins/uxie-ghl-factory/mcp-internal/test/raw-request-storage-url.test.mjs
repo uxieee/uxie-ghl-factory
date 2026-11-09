@@ -89,6 +89,9 @@ test('a document carrying signed storage URLs survives a full GET → PUT round 
     // the rename this whole exercise exists to support.
     const put = document();
     put.workflowData.templates[0].name = 'Welcome (renamed)';
+    // bl-946: a raw PUT with status 'published' is refused (publish_workflow is the only publish door). This test is about the
+    // storage URLs round-tripping, so the document goes back as a draft.
+    put.status = 'draft';
     const write = await client.callTool({
       name: 'raw_request',
       arguments: { locationId: LOC, method: 'PUT', path: `/workflow/${LOC}/${WID}`, body: put, confirm: true },

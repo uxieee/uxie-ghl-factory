@@ -239,12 +239,15 @@ const pushGw = ({ wfStatus = { wf1: 'draft', wf2: 'draft' }, sourceLoc = 'SRC', 
     readBackUntil: async (fn) => ({ hit: await fn(), attempts: 1 }),
   };
 };
-const runPush = (args, opts = {}) => {
+// bl-946: a confirmed push is two calls. The first returns the preview and token; the second presents the token and pushes.
+const runPush = async (args, opts = {}) => {
   const gw = pushGw(opts);
-  return tool('push_snapshot').handler(
-    { locationId: 'LOC', snapshotId: 's1', targetLocationIds: ['TGT'], ...args },
-    { state: {}, makeGw: () => gw },
-  ).then((r) => ({ r, gw }));
+  const deps = { state: {}, makeGw: () => gw };
+  const base = { locationId: 'LOC', snapshotId: 's1', targetLocationIds: ['TGT'], ...args };
+  if (base.confirm !== true) return { r: await tool('push_snapshot').handler(base, deps), gw };
+  const preview = await tool('push_snapshot').handler({ ...base, confirm: true }, deps);
+  if (!preview.data?.confirmationToken) return { r: preview, gw };
+  return { r: await tool('push_snapshot').handler({ ...base, confirm: true, confirmationToken: preview.data.confirmationToken }, deps), gw };
 };
 
 // The target id appears in THREE places in the wire body. Getting one wrong is not an error —
@@ -446,4 +449,23 @@ test('push_snapshot preview NAMES each target (id + location name); the queued r
   assert.equal(go.r.ok, true, JSON.stringify(go.r));
   assert.deepEqual(go.r.data.targetsNamed, [{ id: 'TGT', name: 'Target One' }]);
   assert.deepEqual(go.gw.seen.push.selectedLocationIds, ['TGT']);
+});
+
+// bl-946 (DECISIONS 2026-11-09, part of w6): a push writes into OTHER sub-accounts and cannot be read back. It takes the two-step token
+// gate: confirm:true with no token sends nothing; the token from the preview pushes once; a replay does not push again.
+test('bl-946: push_snapshot with confirm:true and NO token sends nothing; the token pushes exactly once', async () => {
+  const gw = pushGw();
+  const deps = { state: {}, makeGw: () => gw };
+  const base = { locationId: 'LOC', snapshotId: 's1', targetLocationIds: ['TGT'], assets: { tags: ['t1'] } };
+  const first = await tool('push_snapshot').handler({ ...base, confirm: true }, deps);
+  assert.equal(first.code, 'CONFIRM_REQUIRED', JSON.stringify(first));
+  assert.equal(gw.seen.push, null, 'the first call must not push');
+  assert.equal(typeof first.data.confirmationToken, 'string');
+  const second = await tool('push_snapshot').handler({ ...base, confirm: true, confirmationToken: first.data.confirmationToken }, deps);
+  assert.ok(gw.seen.push, 'the token pushes');
+  const pushed = gw.seen.push;
+  const replay = await tool('push_snapshot').handler({ ...base, confirm: true, confirmationToken: first.data.confirmationToken }, deps);
+  assert.equal(replay.ok, false, 'a spent token must not push again');
+  assert.equal(gw.seen.push, pushed, 'the replay must not reach the push');
+  assert.ok(second.ok || second.code, 'the second call reaches the push');
 });

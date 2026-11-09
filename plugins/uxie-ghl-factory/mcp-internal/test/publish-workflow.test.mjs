@@ -4,6 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { TOOLS, registerTools } from '../core/tools.mjs';
+import { issuePublishToken } from '../core/publish-confirmation.mjs';
 
 const publishTool = () => TOOLS.find((candidate) => candidate.name === 'publish_workflow');
 // The reply measured 2026-09-28 on a publish that LANDED (workflows wave21).
@@ -29,7 +30,7 @@ const workflow = ({ status = 'draft', version = 3 } = {}) => ({
 });
 
 function publishGateway({
-  initial = workflow(), refreshVersion, failWorkflowGets = [], throwAfterPublishApply = false,
+  initial = workflow(), refreshVersion, refreshOnGet = 2, failWorkflowGets = [], throwAfterPublishApply = false,
   // The publish PUT's reply fails WITHOUT being applied: 'throw' (transport) or '503' (the measured
   // envoy body). Paired with throwAfterPublishApply / publish503AfterApply, which apply it first.
   publishFailsBeforeApply = null, publish503AfterApply = false,
@@ -66,7 +67,7 @@ function publishGateway({
       calls.push({ method, path, body });
       if (method === 'GET' && path === '/workflow/LOC/WID?includeScheduledPauseInfo=true') {
         workflowGets++;
-        if (workflowGets === 2 && refreshVersion != null) current.version = refreshVersion;
+        if (workflowGets === refreshOnGet && refreshVersion != null) current.version = refreshVersion;
         if (failingGets.delete(workflowGets)) {
           return { status: 503, ok: false, json: { message: `workflow GET ${workflowGets} unavailable` } };
         }
@@ -174,9 +175,10 @@ test('publish_workflow preview reports current status/version and performs reads
 });
 
 test('confirmed publish re-GETs immediately before PUT, uses that version, strips sessions, and verifies', async () => {
-  const { gw, calls, current, triggers } = publishGateway({ refreshVersion: 9 });
+  const { gw, calls, current, triggers } = publishGateway();
+  // bl-946: this test is about the re-read before the PUT, so it presents a token for the version the call starts from (3).
   const result = await publishTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+    { locationId: 'LOC', workflowId: 'WID', confirm: true, confirmationToken: issuePublishToken({ locationId: 'LOC', workflowId: 'WID', version: 3 }) },
     deps(gw),
   );
 
@@ -187,7 +189,7 @@ test('confirmed publish re-GETs immediately before PUT, uses that version, strip
   assert.equal(calls[putIndex - 1].path, '/workflow/LOC/WID?includeScheduledPauseInfo=true',
     'the version-bearing workflow GET must be immediately before PUT');
   const body = calls[putIndex].body;
-  assert.equal(body.version, 9, 'publish must use the immediately refreshed current version');
+  assert.equal(body.version, 3, 'publish must use the version the re-read confirmed, unchanged since the preview');
   assert.equal(body.status, 'published');
   // The fixture's fresh GET carries a stored `next: null` (workflow() above) — publish echoes
   // that document straight back as a PUT, so it inherits every stored null the same way an
@@ -224,9 +226,8 @@ test('confirmed publish fills input_trigger_params on a legacy add_to_workflow s
   // Params is required", and that refusal blocks EVERY save on the workflow. publish_workflow
   // echoes the stored document straight back as a PUT, so it must repair this the same way
   // editCommitBody already does on the edit path.
-  const { gw, calls } = publishGateway({ refreshVersion: 9 });
-  const result = await publishTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+  const { gw, calls } = publishGateway();
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }),
     deps(gw),
   );
 
@@ -243,10 +244,9 @@ test('confirmed publish fills input_trigger_params on a legacy add_to_workflow s
 test('v0.3.4 regression: publishing an already-published workflow never drafts it or turns triggers off', async () => {
   const { gw, calls, current, triggers } = publishGateway({
     initial: workflow({ status: 'published', version: 40 }),
-    refreshVersion: 41,
+
   });
-  const result = await publishTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }, 40),
     deps(gw),
   );
 
@@ -273,8 +273,7 @@ test('v0.3.4 regression: publishing an already-published workflow never drafts i
 // the case the cascade does NOT reach, where a per-trigger PUT is exactly what gets sent.
 test('publish_workflow sends no per-trigger activation PUT when the publish PUT alone already activated every trigger', async () => {
   const { gw, calls } = publishGateway();
-  const result = await publishTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }),
     deps(gw),
   );
   assert.equal(result.ok, true);
@@ -288,8 +287,7 @@ test('publish_workflow sends no per-trigger activation PUT when the publish PUT 
 // PUT per trigger still reading inactive after the cascade — before reporting failure.
 test('publish_workflow REPAIRS a trigger that still reads inactive after the publish PUT — one per-trigger status write, verified by read-back', async () => {
   const { gw, calls, current, triggers } = publishGateway({ triggersActivateOnPublish: false });
-  const result = await publishTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }),
     deps(gw),
   );
 
@@ -309,8 +307,7 @@ test('post-publish verification fails loudly, naming the trigger, when it is STI
   // trigger reads back UNCHANGED. The engine's job is to ATTEMPT the repair, but the write's
   // 200 must never be trusted — only the re-list decides.
   const { gw, calls, current } = publishGateway({ triggersActivateOnPublish: false, repairActivates: false });
-  const result = await publishTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }),
     deps(gw),
   );
 
@@ -329,8 +326,7 @@ test('post-publish verification fails loudly, naming the trigger, when it is STI
 
 test('post-PUT verification failure reports acknowledged publish progress and urgent remediation', async () => {
   const { gw, current } = publishGateway({ failWorkflowGets: [3] });
-  const result = await publishTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }),
     deps(gw),
   );
 
@@ -350,7 +346,7 @@ test('post-PUT verification failure reports acknowledged publish progress and ur
 for (const [label, opts] of [['a transport throw', { throwAfterPublishApply: true }], ['the measured 503 upstream reset', { publish503AfterApply: true }]]) {
   test(`publish PUT applied, then ${label}: a fresh read shows published → ok, publishedDespiteTransportError, verified`, async () => {
     const { gw, current, calls } = publishGateway(opts);
-    const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+    const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }), deps(gw));
     assert.equal(result.ok, true, JSON.stringify(result));
     assert.equal(current().status, 'published');
     assert.equal(result.data.verify.roundTrip, true);
@@ -365,7 +361,7 @@ for (const [label, opts] of [['a transport throw', { throwAfterPublishApply: tru
 for (const kind of ['throw', '503']) {
   test(`publish PUT NOT applied (${kind}): a fresh read shows draft → failure that SAYS it was not published`, async () => {
     const { gw, current } = publishGateway({ publishFailsBeforeApply: kind });
-    const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+    const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }), deps(gw));
     assert.equal(result.ok, false);
     assert.equal(current().status, 'draft');
     assert.equal(result.data.partialProgress.putApplied, false);
@@ -378,7 +374,7 @@ for (const kind of ['throw', '503']) {
 test('publish PUT fails AND the re-read fails: still an urgent AMBIGUOUS failure (nothing is claimed either way)', async () => {
   // GETs 1 and 2 are the preflight refresh and the version-bearing refresh; 3 is the re-read after the failed PUT.
   const { gw } = publishGateway({ throwAfterPublishApply: true, failWorkflowGets: [3] });
-  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }), deps(gw));
   assert.equal(result.ok, false);
   assert.equal(result.code, 'ENGINE_ABORT');
   assert.match(result.detail, /transport lost after publish PUT applied/);
@@ -398,7 +394,7 @@ test('publish refuses an EMPTY workflow — checkEmptyPublish, the rule only a p
   const empty = workflow();
   empty.workflowData.templates = [];
   const { gw, calls } = publishGateway({ initial: empty });
-  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }), deps(gw));
   assert.equal(result.ok, false);
   assert.match(result.detail ?? '', /WORKFLOW_RULE|empty/i);
   assert.equal(calls.some(({ method }) => method === 'PUT'), false, 'nothing was written');
@@ -408,7 +404,7 @@ test("publish refuses a step the canvas itself has flagged", async () => {
   const flagged = workflow();
   flagged.workflowData.templates = [{ id: 's1', type: 'sms', name: 'Text', attributes: { type: 'sms', body: 'hi' }, next: null, advanceCanvasMeta: { hasErrors: true } }];
   const { gw, calls } = publishGateway({ initial: flagged });
-  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }), deps(gw));
   assert.equal(result.ok, false);
   assert.match(JSON.stringify(result.data?.validation ?? result), /CANVAS_HAS_ERRORS/);
   assert.equal(calls.some(({ method }) => method === 'PUT'), false);
@@ -418,7 +414,7 @@ test('allowValidationFailure publishes anyway, and still reports what it skipped
   const empty = workflow();
   empty.workflowData.templates = [];
   const { gw, calls } = publishGateway({ initial: empty });
-  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true, allowValidationFailure: true }, deps(gw));
+  const result = await publishConfirmed({ locationId: 'LOC', workflowId: 'WID', confirm: true, allowValidationFailure: true }, deps(gw));
   assert.equal(result.ok, true, JSON.stringify(result).slice(0, 300));
   assert.equal(calls.some(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID'), true);
   assert.match(JSON.stringify(result.data.warnings ?? []), /VALIDATION BYPASSED/);
@@ -431,7 +427,7 @@ const hookTrigger = { id: 'hk1', name: 'Inbound Webhook', type: 'inbound_webhook
 
 test('publish refuses an inbound webhook with no mapped sample, and names the fix', async () => {
   const { gw, calls } = publishGateway({ initialTriggers: [hookTrigger] });
-  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }), deps(gw));
   assert.ok(calls.some(({ method, path }) => method === 'GET' && path.startsWith('/hooks/inbound-webhook-request/reference/hk1?')));
   assert.equal(result.ok, false);
   assert.match(result.detail ?? '', /inboundWebhookTriggerValidator/);
@@ -466,7 +462,7 @@ test('publish refuses an AI step with none of the triggers it requires (validate
   const w = workflow();
   w.workflowData = { templates: [{ id: 'a1', name: 'Reply', type: 'conversationai_custom_message', order: 0, next: null, attributes: {} }] };
   const { gw, calls } = publishGateway({ initial: w, initialTriggers: [] });
-  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }), deps(gw));
   assert.equal(result.ok, false);
   assert.match(result.detail ?? '', /validateRequiredTriggersForActions/);
   assert.equal(calls.some(({ method }) => method === 'PUT'), false);
@@ -478,7 +474,7 @@ test("publish reads the workflow's sending domain, so checkFromEmailFormat can b
   const w = workflow();
   w.senderAddress = { from_name: 'Grom', from_email: 'marketing' };
   const { gw, calls } = publishGateway({ initial: w, domains: [{ domain: 'mail.example.com', selected: true }] });
-  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  const result = await publishTool().handler(tokenFor({ locationId: 'LOC', workflowId: 'WID' }), deps(gw));
   assert.equal(calls.some(({ method, path }) => method === 'GET' && path.includes('/email/domain-selection')), true,
     'the sending domain must be read, or the rule silently passes');
   assert.equal(result.ok, false);
@@ -575,4 +571,109 @@ test('bl-309 CONTROL: without the list the same step draws the ATTRIBUTE_KEY war
   const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', skipWorkflowRules: true }, deps(gw));
   assert.equal(attributeKeyWarnings(result).length, 1);
   assert.match(attributeKeyWarnings(result)[0], /convertToMultipath/);
+});
+
+// bl-946: the tests that count workflow reads cannot take a preview call first (it adds reads), so they present a token for the
+// version the publish starts from (3, the fixture's first version) on the one call. The two-step flow is covered above.
+const tokenFor = (args, version = 3) => ({ ...args, confirm: true, confirmationToken: issuePublishToken({ locationId: args.locationId, workflowId: args.workflowId, version }) });
+
+// bl-946: every confirmed publish is now two calls. The first previews and returns the token; the second presents it.
+async function publishConfirmed(args, dependencies) {
+  const preview = await publishTool().handler({ ...args, confirm: true }, dependencies);
+  if (!preview.data?.confirmationToken) return preview;
+  return publishTool().handler({ ...args, confirm: true, confirmationToken: preview.data.confirmationToken }, dependencies);
+}
+
+// bl-946 (DECISIONS 2026-11-09): publish is TWO-STEP. An agent told "publish it now" passed confirm:true on the
+// first call and published with no preview read. Call 1 never writes; it returns the preview and a short-lived
+// confirmationToken. Call 2 publishes only with that token. confirm:true without a valid token never publishes.
+const publishArgs = (extra = {}) => ({ locationId: 'LOC', workflowId: 'WID', confirm: true, ...extra });
+const publishPuts = (calls) => calls.filter(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID');
+
+test('bl-946: publish_workflow schema carries confirmationToken next to confirm', async () => {
+  const server = new McpServer({ name: 'test-server', version: '0.0.0' });
+  const client = new Client({ name: 'test-client', version: '0.0.0' });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  registerTools(server, { state: {}, makeGw: () => { throw new Error('unused'); } }, [publishTool()]);
+  await server.connect(serverTransport);
+  await client.connect(clientTransport);
+  const listed = await client.listTools();
+  const input = listed.tools[0].inputSchema;
+  assert.equal(input.properties.confirmationToken?.type, 'string', 'confirmationToken must be a declared string input');
+  assert.match(publishTool().description, /confirmationToken/, 'the description must tell the caller about the token');
+});
+
+test('bl-946: confirm:true with NO token publishes nothing and returns a preview plus a confirmationToken', async () => {
+  const { gw, calls, current } = publishGateway();
+  const result = await publishTool().handler(publishArgs(), deps(gw));
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.equal(publishPuts(calls).length, 0, 'the first call must not write');
+  assert.equal(current().status, 'draft');
+  assert.equal(typeof result.data.confirmationToken, 'string');
+  assert.ok(result.data.preview, 'the preview must come back with the token');
+});
+
+test('bl-946: confirm absent also publishes nothing (preview and token only)', async () => {
+  const { gw, calls, current } = publishGateway();
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.equal(publishPuts(calls).length, 0);
+  assert.equal(current().status, 'draft');
+  assert.equal(typeof result.data.confirmationToken, 'string');
+});
+
+test('bl-946: the token from the preview publishes on the second call', async () => {
+  const { gw, calls, current } = publishGateway();
+  const first = await publishTool().handler(publishArgs(), deps(gw));
+  const second = await publishTool().handler(publishArgs({ confirmationToken: first.data.confirmationToken }), deps(gw));
+  assert.equal(second.ok, true, JSON.stringify(second));
+  assert.equal(current().status, 'published');
+  assert.equal(publishPuts(calls).length, 1);
+});
+
+test('bl-946: a token that was never issued publishes nothing', async () => {
+  const { gw, calls, current } = publishGateway();
+  const result = await publishTool().handler(publishArgs({ confirmationToken: 'not-a-real-token' }), deps(gw));
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.equal(publishPuts(calls).length, 0);
+  assert.equal(current().status, 'draft');
+});
+
+test('bl-946: a token is single use: replaying it after a publish sends no second PUT', async () => {
+  const { gw, calls } = publishGateway();
+  const first = await publishTool().handler(publishArgs(), deps(gw));
+  const token = first.data.confirmationToken;
+  assert.equal((await publishTool().handler(publishArgs({ confirmationToken: token }), deps(gw))).ok, true);
+  const replay = await publishTool().handler(publishArgs({ confirmationToken: token }), deps(gw));
+  assert.equal(replay.ok, false, 'a replayed token must be refused');
+  assert.equal(publishPuts(calls).length, 1, 'the replay must not send a second publish PUT');
+});
+
+test('bl-946: the workflow version moved after the preview: the token is refused and nothing publishes', async () => {
+  // refreshVersion: the fixture moves the version on its second workflow GET, which is the first GET of the confirm call.
+  const { gw, calls, current } = publishGateway({ refreshVersion: 9 });
+  const first = await publishTool().handler(publishArgs(), deps(gw));
+  const result = await publishTool().handler(publishArgs({ confirmationToken: first.data.confirmationToken }), deps(gw));
+  assert.equal(result.ok, false, JSON.stringify(result));
+  assert.equal(publishPuts(calls).length, 0, 'a stale preview must not publish');
+  assert.equal(current().status, 'draft');
+});
+
+// bl-946 TOCTOU (security review): the token checks the version the preview saw, but the publish uses a document re-read just before
+// the PUT. If the workflow moved between those two reads, the document being published is not the one previewed: refuse and re-preview.
+test('bl-946: a version that moves between the token check and the pre-PUT re-read publishes nothing', async () => {
+  // GET 1 is the preview, GET 2 is the confirm call's own read (the token check), GET 3 is the re-read just before the PUT.
+  const { gw, calls, current } = publishGateway({ refreshVersion: 9, refreshOnGet: 3 });
+  const first = await publishTool().handler(publishArgs(), deps(gw));
+  const result = await publishTool().handler(publishArgs({ confirmationToken: first.data.confirmationToken }), deps(gw));
+  assert.equal(result.ok, false, JSON.stringify(result));
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.equal(publishPuts(calls).length, 0, 'the document changed after the preview: it must not be published');
+  assert.equal(current().status, 'draft');
+  // security review: the token would attest to a version the caller has not previewed (the preview on this refusal is the OLD one),
+  // so the refusal carries no token and no preview. The caller runs a fresh preview.
+  assert.equal(result.data?.confirmationToken, undefined, 'no token may be issued for a version nobody previewed');
+  assert.equal(result.data?.preview, undefined, 'the old preview must not be returned as if it described the new version');
 });

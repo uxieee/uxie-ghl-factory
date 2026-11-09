@@ -176,7 +176,7 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-11-07",
+      generated: "2026-11-09",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
       count: 1763,
       endpoints: [
@@ -117161,7 +117161,7 @@ function redactUrlTokens(value) {
 import { readFileSync as readFileSync4, existsSync as existsSync4, writeFileSync as writeFileSync2, mkdirSync as mkdirSync2 } from "node:fs";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { dirname as dirname3, resolve as resolve3, join as join4, isAbsolute as isAbsolute2 } from "node:path";
-import { createHash as createHash10, randomUUID as randomUUID4 } from "node:crypto";
+import { createHash as createHash11, randomUUID as randomUUID5 } from "node:crypto";
 
 // core/errors.mjs
 init_define_BUILDER_VALIDATORS();
@@ -117982,6 +117982,82 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
   return null;
 }
 
+// core/publish-confirmation.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+var PUBLISH_TOKEN_TTL_MS = 5 * 60 * 1e3;
+var SECRET = randomBytes(32);
+var spent = /* @__PURE__ */ new Map();
+var sign = (payloadPart) => createHmac("sha256", SECRET).update(payloadPart).digest("hex");
+var PREFIX = "pc1-";
+var HEX = /^[0-9a-f]+$/;
+function issuePublishToken({ locationId, workflowId, version: version2, kind = "workflow" }, { now = Date.now() } = {}) {
+  const body2 = { loc: locationId, wid: workflowId, ver: version2 ?? null, k: kind, exp: now + PUBLISH_TOKEN_TTL_MS, jti: randomUUID() };
+  const payloadPart = Buffer.from(JSON.stringify(body2)).toString("hex");
+  return `${PREFIX}${payloadPart}.${sign(payloadPart)}`;
+}
+function verifyPublishToken(token, { locationId, workflowId, version: version2, kind = "workflow" }, { now = Date.now() } = {}) {
+  for (const [jti, exp] of spent) if (exp < now) spent.delete(jti);
+  if (typeof token !== "string" || token === "") return { ok: false, reason: "no confirmation token was given" };
+  if (!token.startsWith(PREFIX)) return { ok: false, reason: "the confirmation token is malformed" };
+  const parts = token.slice(PREFIX.length).split(".");
+  if (parts.length !== 2) return { ok: false, reason: "the confirmation token is malformed" };
+  const [payloadPart, sig] = parts;
+  if (!HEX.test(payloadPart) || !HEX.test(sig)) return { ok: false, reason: "the confirmation token is malformed" };
+  const expected = Buffer.from(sign(payloadPart));
+  const given = Buffer.from(sig);
+  if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
+    return { ok: false, reason: "the confirmation token signature does not match" };
+  }
+  let body2;
+  try {
+    body2 = JSON.parse(Buffer.from(payloadPart, "hex").toString("utf8"));
+  } catch {
+    return { ok: false, reason: "the confirmation token is malformed" };
+  }
+  if ((body2.k ?? "workflow") !== kind) return { ok: false, reason: "the confirmation token is for a different kind of publish" };
+  if (body2.loc !== locationId) return { ok: false, reason: "the confirmation token is for another location" };
+  if (body2.wid !== workflowId) return { ok: false, reason: "the confirmation token is for another workflow" };
+  if (body2.ver !== (version2 ?? null)) return { ok: false, reason: "the workflow version changed after the preview; preview again" };
+  if (typeof body2.exp !== "number" || body2.exp < now) return { ok: false, reason: "the confirmation token expired; preview again" };
+  if (spent.has(body2.jti)) return { ok: false, reason: "the confirmation token was already used" };
+  spent.set(body2.jti, body2.exp);
+  return { ok: true };
+}
+var OUTWARD_STEP_TYPES = /* @__PURE__ */ new Set([
+  "email",
+  "send_email",
+  "sms",
+  "send_sms",
+  "whatsapp",
+  "send_whatsapp",
+  "send_whatsapp_flow",
+  "webhook",
+  "outbound_webhook",
+  "custom_webhook",
+  "call",
+  "voicemail",
+  "send_voicemail",
+  "facebook_messenger",
+  "send_facebook_message",
+  "instagram_dm",
+  "send_instagram_message",
+  "send_document",
+  "send_invoice",
+  "live_chat_message"
+]);
+function outwardStepsOf(templates) {
+  return (Array.isArray(templates) ? templates : []).filter((step) => OUTWARD_STEP_TYPES.has(step?.type)).map((step) => ({ id: step.id ?? null, type: step.type, name: step.name ?? null }));
+}
+function digestOf(value) {
+  return createHash("sha256").update(JSON.stringify(value ?? null)).digest("hex").slice(0, 32);
+}
+
 // core/raw-request-guards.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -118032,6 +118108,22 @@ var RULES = [
     refuses: (wire) => isPlainObject3(wire) && String(wire.status ?? "").trim().toLowerCase() === "published",
     message: 'PUT \u2026/change-status (no trailing workflowId) with status:"published" is the BULK publish door \u2014 it runs NONE of the validation layers publish_workflow runs, and it does so for every id in body.workflowIds at once.',
     hint: 'Use publish_workflow. Setting status:"draft" through this route is not refused \u2014 bulk stand-down is legitimate; unpublish_workflows is the tool for it.'
+  },
+  {
+    rule: "workflow-document-publish-door",
+    method: "PUT",
+    path: /^\/workflow\/[^/]+\/[^/]+$/,
+    refuses: (wire) => isPlainObject3(wire) && String(wire.status ?? "").trim().toLowerCase() === "published",
+    message: 'PUT /workflow/{loc}/{wid} with status:"published" is a publish that skips the gate publish_workflow runs (the preview, the confirmation token, the version check).',
+    hint: "Use publish_workflow (preview first, then confirm:true with the confirmationToken). A draft write through this route is not refused."
+  },
+  {
+    rule: "trigger-activation-publish-door",
+    method: "PUT",
+    path: /^\/workflow\/[^/]+\/trigger\/[^/]+$/,
+    refuses: (wire) => isPlainObject3(wire) && String(wire.status ?? "").trim().toLowerCase() === "published",
+    message: `PUT /workflow/{loc}/trigger/{id} with status:"published" activates one trigger outside publish_workflow's gate and its round-trip check.`,
+    hint: 'Use publish_workflow, which activates and verifies every trigger. Setting status:"draft" through this route is not refused.'
   },
   {
     rule: "permission-needs-key",
@@ -118195,7 +118287,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash } from "node:crypto";
+import { createHash as createHash2 } from "node:crypto";
 var isPlainObject4 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 var onWire2 = (body2) => {
   if (body2 === void 0) return void 0;
@@ -118343,7 +118435,7 @@ var canonical = (v) => {
 function ackTokenFor(method, path, wireBody, rule2) {
   const wire = onWire2(wireBody);
   const material = JSON.stringify([normMethod(method), normalisePath(path), wire === void 0 ? null : canonical(wire), String(rule2)]);
-  return createHash("sha256").update(material).digest("hex").slice(0, 16);
+  return createHash2("sha256").update(material).digest("hex").slice(0, 16);
 }
 function sendClassWithToken(sendClass, { method, path, wireBody }) {
   if (!sendClass) return null;
@@ -126092,7 +126184,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash2 } from "node:crypto";
+import { createHash as createHash3 } from "node:crypto";
 var popupTitle = (p2) => p2?.elements?.find((e) => e?.meta === "hl_main_popup")?.title ?? p2?.id ?? "?";
 var unionBy = (stored = [], composed = [], keyOf = (x) => x) => {
   const have = new Set(stored.map(keyOf));
@@ -126185,7 +126277,7 @@ function storedFingerprint(stored) {
   const s = stored && typeof stored === "object" ? stored : {};
   const g = s.general?.general ?? {};
   const ss = s.settings?.settings ?? {};
-  return createHash2("sha256").update(stable({
+  return createHash3("sha256").update(stable({
     trackingCode: s.trackingCode ?? null,
     general: { customFonts: g.customFonts ?? null, colors: g.colors ?? null, fontsToLoad: g.fontsToLoad ?? null, pageStyles: g.pageStyles ?? null },
     pageStyles: s.pageStyles ?? null,
@@ -142743,7 +142835,7 @@ var BG_IMAGE = Object.freeze({ value: Object.freeze({
 }) });
 var MARGINS = () => ({ marginLeft: px(0), marginRight: px(0), marginTop: px(0), marginBottom: px(0) });
 var BOX = () => ({ borders: val2("noBorder"), borderRadius: val2("radius0"), radiusEdge: val2("none") });
-var PREFIX = ".hl_page-preview--content";
+var PREFIX2 = ".hl_page-preview--content";
 var ACTION_VALUES = Object.freeze([
   "go-to-next-funnel-step",
   "go-to-product-collection",
@@ -143431,8 +143523,8 @@ var nodeExtraFromCss = (meta3, o = {}) => {
 var textCss = (id, o) => {
   const weight = o.weight ?? 400;
   return [
-    `${PREFIX} #${id}{margin:0}`,
-    `${PREFIX} .c${id}{font-family:${o.font};color:${o.color};font-weight:${weight};padding:0;opacity:1;line-height:${o.lineHeight ?? "1.35em"};letter-spacing:${o.letterSpacing ?? 0}px;text-align:${o.align ?? "center"};background-color:transparent}`
+    `${PREFIX2} #${id}{margin:0}`,
+    `${PREFIX2} .c${id}{font-family:${o.font};color:${o.color};font-weight:${weight};padding:0;opacity:1;line-height:${o.lineHeight ?? "1.35em"};letter-spacing:${o.letterSpacing ?? 0}px;text-align:${o.align ?? "center"};background-color:transparent}`
   ].join("");
 };
 var KEBAB = (k) => k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
@@ -143452,16 +143544,16 @@ var leafStyleCss = (id, styles) => {
     const out = declValue(v);
     return out === null || out === "" ? null : `${KEBAB(k)}:${out}`;
   }).filter(Boolean);
-  return decls.length ? `${PREFIX} .${id}{${decls.join(";")}}` : "";
+  return decls.length ? `${PREFIX2} .${id}{${decls.join(";")}}` : "";
 };
 var buttonColourCss = (node) => {
   const st = node.styles ?? {};
   const d = [["color", st.color], ["background-color", st.backgroundColor]].filter(([, v]) => typeof v?.value === "string" && v.value).map(([k, v]) => `${k}:${v.value}`);
-  return d.length ? `${PREFIX} .c${node.id}{${d.join(";")}}` : "";
+  return d.length ? `${PREFIX2} .c${node.id}{${d.join(";")}}` : "";
 };
 var buttonCss = (id, o) => [
-  `${PREFIX} .${id}{margin:0;text-align:${o.align ?? "center"}}`,
-  `${PREFIX} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;letter-spacing:.3px;width:auto;display:inline-block}`
+  `${PREFIX2} .${id}{margin:0;text-align:${o.align ?? "center"}}`,
+  `${PREFIX2} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;letter-spacing:.3px;width:auto;display:inline-block}`
 ].join("");
 var builderSettings = (pageBackground = "var(--white)") => ({
   background: { bgImage: { value: { url: "", options: "bgCover" } }, backgroundColor: { value: pageBackground } },
@@ -143681,7 +143773,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { randomUUID } from "node:crypto";
+import { randomUUID as randomUUID2 } from "node:crypto";
 var SETTINGS_KEYS = Object.freeze({
   // update-settings key : where the value lives on GET /funnels/funnel/fetch
   funnelName: "name",
@@ -143824,7 +143916,7 @@ function planCreateStep({ funnel, step }) {
   if (!STEP_TYPES.includes(type)) return { refuse: `step.type ${JSON.stringify(type)} is not one the Add-step modal offers (${STEP_TYPES.join(", ")}); webinar and store steps come from their template installs` };
   const pathCheck = checkStepPath(step.url);
   if (pathCheck.refuse) return pathCheck;
-  const id = step.id ?? randomUUID();
+  const id = step.id ?? randomUUID2();
   return {
     method: "POST",
     path: "/funnels/funnel/create-step",
@@ -144021,13 +144113,13 @@ function planDeleteStore({ funnel, expectName, locationId, userId }) {
 }
 var splitStamp = (d = /* @__PURE__ */ new Date()) => {
   const off = -d.getTimezoneOffset();
-  const sign = off >= 0 ? "+" : "-";
+  const sign2 = off >= 0 ? "+" : "-";
   const a = Math.abs(off);
   const hh = d.getHours() % 12 || 12;
   const mm = String(d.getMinutes()).padStart(2, "0");
   const ss = String(d.getSeconds()).padStart(2, "0");
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${hh}:${mm}:${ss} ${d.getHours() < 12 ? "AM" : "PM"} UTC${sign}${String(Math.floor(a / 60)).padStart(2, "0")}:${String(a % 60).padStart(2, "0")}`;
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${hh}:${mm}:${ss} ${d.getHours() < 12 ? "AM" : "PM"} UTC${sign2}${String(Math.floor(a / 60)).padStart(2, "0")}:${String(a % 60).padStart(2, "0")}`;
 };
 function additionalRoutesOf({ step, lookups, domainName }) {
   const own = normPath(step?.url ?? "");
@@ -144271,7 +144363,7 @@ function planAddProductPage({ funnel, locationId, name, url: url2, products }) {
   if (pathCheck.refuse) return pathCheck;
   const held = (funnel.steps ?? []).find((s) => normPath(s.url) === pathCheck.path);
   if (held) return { refuse: `${pathCheck.path} is already the path of step "${held.name}" on this store` };
-  const id = randomUUID();
+  const id = randomUUID2();
   return {
     method: "POST",
     path: "/funnels/funnel/create-custom-product-detail-page",
@@ -144720,7 +144812,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash3 } from "node:crypto";
+import { createHash as createHash4 } from "node:crypto";
 
 // core/page-structure.mjs
 init_define_BUILDER_VALIDATORS();
@@ -145088,7 +145180,7 @@ var mergeInto = (node, key, patch) => {
 };
 var inPopup = (pageData, nodeId) => (pageData.popupsList ?? []).some((p2) => (p2.elements ?? []).some((e) => e.id === nodeId));
 var fencedBlock = (kind, text) => {
-  const marker = `uxie:append:${createHash3("sha1").update(text).digest("hex").slice(0, 8)}`;
+  const marker = `uxie:append:${createHash4("sha1").update(text).digest("hex").slice(0, 8)}`;
   const body2 = kind === "css" ? `/* ${marker} */${text}/* /uxie:append */` : `<!-- ${marker} -->${text}<!-- /uxie:append -->`;
   return { marker, text: body2 };
 };
@@ -146216,7 +146308,7 @@ var POSITION = {
   right: "position:absolute!important;left:auto!important;bottom:auto!important;transform:translate(0,0)!important;right:20px!important",
   left: "position:absolute!important;left:20px!important;bottom:auto!important;right:auto!important;transform:translate(0,0)!important"
 };
-var PREFIX2 = ".hl_page-preview--content";
+var PREFIX3 = ".hl_page-preview--content";
 function makePopup(spec, i, composeLeaf, saltBase = "P", label2 = `popups[${i}]`) {
   if (!spec?.name) throw new Error(`${label2}.name is required (it is how a button's openPopup names it)`);
   const cols = spec.columns ?? [];
@@ -146297,7 +146389,7 @@ function makePopup(spec, i, composeLeaf, saltBase = "P", label2 = `popups[${i}]`
     }
   };
   const body2 = `${POSITION[position]};box-shadow:none;padding:${pad2 ? `${pad2}px` : 0};margin-top:0;border-width:0;border-style:none;border-radius:0;background-color:${background};width:${widthPx}px`;
-  const popupCss = `#${id}.popup-body{${body2}}.--mobile #${id}.popup-body{width:380px!important}@media screen and (min-width:0px) and (max-width:767px){#${id}.popup-body{width:380px!important}}.drop-zone-draggable .${rowId2}{margin:0 auto;padding:0;width:100%;background-color:transparent}` + columns.map(({ col, widthPct }) => `.drop-zone-draggable .${col.id}{padding:0 ${c0(col)};width:${widthPct}%;margin:0;background-color:transparent}#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`).join("") + css.join("").split(PREFIX2).join(".drop-zone-draggable");
+  const popupCss = `#${id}.popup-body{${body2}}.--mobile #${id}.popup-body{width:380px!important}@media screen and (min-width:0px) and (max-width:767px){#${id}.popup-body{width:380px!important}}.drop-zone-draggable .${rowId2}{margin:0 auto;padding:0;width:100%;background-color:transparent}` + columns.map(({ col, widthPct }) => `.drop-zone-draggable .${col.id}{padding:0 ${c0(col)};width:${widthPct}%;margin:0;background-color:transparent}#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`).join("") + css.join("").split(PREFIX3).join(".drop-zone-draggable");
   return {
     entry: { id, elements: [node, row, ...columns.flatMap(({ col, leaves: leaves2 }) => [col, ...leaves2])], activeElementId: id },
     css: popupCss,
@@ -147023,7 +147115,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { readFile } from "node:fs/promises";
-import { randomUUID as randomUUID2 } from "node:crypto";
+import { randomUUID as randomUUID3 } from "node:crypto";
 import { basename } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -147204,7 +147296,7 @@ ${detail.slice(0, 400)}`);
       { source: "courses", entityId: this.loc, type: "videos", mimeType: "video/mp4" }
     );
     await this.putBytes(signed.signedUrl, bytes, "video/mp4");
-    const sourceEntityId = randomUUID2();
+    const sourceEntityId = randomUUID3();
     const path = signed.path.startsWith("/") ? signed.path : `/${signed.path}`;
     const { licenseId } = await this.req("POST", `${this.D}/assets`, {
       asset: { sourceEntityId, sourceEntityType: "videos", entityId: this.loc, entityType: "Location" },
@@ -148152,7 +148244,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash4 } from "node:crypto";
+import { createHash as createHash5 } from "node:crypto";
 var RUNTIME_WINDOW_CONTRACT_VERSION = "2.0.0";
 var RUNTIME_WINDOW_RESULT_KEYS = Object.freeze([
   "contractVersion",
@@ -148322,7 +148414,7 @@ var canonicalize = (value) => {
   }
   return value;
 };
-var sha256Canonical = (value) => createHash4("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+var sha256Canonical = (value) => createHash5("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
 var RUNTIME_WINDOW_CAPABILITY_IDS = Object.freeze([
   "workflow_detail",
   "workflow_triggers",
@@ -148409,8 +148501,8 @@ var toEpochMs = (raw) => {
   const offsetHours = Number(digits.slice(0, 2));
   const offsetMinutes = Number(digits.slice(2, 4));
   if (offsetHours > 23 || offsetMinutes > 59) return null;
-  const sign = offsetText[0] === "-" ? -1 : 1;
-  return utc - sign * (offsetHours * 60 + offsetMinutes) * 6e4;
+  const sign2 = offsetText[0] === "-" ? -1 : 1;
+  return utc - sign2 * (offsetHours * 60 + offsetMinutes) * 6e4;
 };
 var readEventTime = (row) => {
   if (!row || typeof row !== "object") {
@@ -149896,8 +149988,8 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-var PREFIX3 = "inboundWebhookRequest";
-function webhookMergeTags(payload, { prefix = PREFIX3, includeHeaders = false } = {}) {
+var PREFIX4 = "inboundWebhookRequest";
+function webhookMergeTags(payload, { prefix = PREFIX4, includeHeaders = false } = {}) {
   const out = {};
   const walk4 = (val4, path) => {
     if (val4 !== null && typeof val4 === "object") {
@@ -216526,9 +216618,9 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash5 } from "node:crypto";
+import { createHash as createHash6 } from "node:crypto";
 var isObj2 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
-var fingerprint = (v) => createHash5("sha1").update(JSON.stringify(v) ?? "undefined").digest("hex").slice(0, 12);
+var fingerprint = (v) => createHash6("sha1").update(JSON.stringify(v) ?? "undefined").digest("hex").slice(0, 12);
 var same2 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function remapIds(value, map2) {
   if (!map2 || map2.size === 0) return value;
@@ -220987,7 +221079,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash7 } from "node:crypto";
+import { createHash as createHash8 } from "node:crypto";
 
 // core/audit-configuration.mjs
 init_define_BUILDER_VALIDATORS();
@@ -220996,7 +221088,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash6 } from "node:crypto";
+import { createHash as createHash7 } from "node:crypto";
 var AUDIT_CONFIGURATION_CONTRACT_VERSION = "1.1.0";
 var ROSTER_MAX_PAGE_SIZE = 100;
 var AI_DISCOVERY_PAGE_SIZE = 100;
@@ -221193,7 +221285,7 @@ var canonicalize2 = (value) => {
   }
   return value;
 };
-var sha256Canonical2 = (value) => createHash6("sha256").update(JSON.stringify(canonicalize2(value))).digest("hex");
+var sha256Canonical2 = (value) => createHash7("sha256").update(JSON.stringify(canonicalize2(value))).digest("hex");
 function resolveConfigurationDescriptors(capabilityIds, descriptors = AUDIT_CAPABILITIES) {
   return capabilityIds.map((capabilityId) => {
     const descriptor2 = descriptors.find((candidate) => candidate.capabilityId === capabilityId);
@@ -222413,7 +222505,7 @@ var time3 = (v, name) => {
   if (!Number.isFinite(t)) throw new Error(`${name} must be an ISO date-time (e.g. 2026-10-01T00:00:00Z)`);
   return t;
 };
-var filterKey = (o) => createHash7("sha256").update(JSON.stringify([
+var filterKey = (o) => createHash8("sha256").update(JSON.stringify([
   o.folderId ?? null,
   o.statuses ?? null,
   o.updatedAfter ?? null,
@@ -222827,15 +222919,15 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash8, randomUUID as randomUUID3 } from "node:crypto";
+import { createHash as createHash9, randomUUID as randomUUID4 } from "node:crypto";
 function makeUuidV4() {
-  return randomUUID3();
+  return randomUUID4();
 }
 function makeDeterministicIdGen(seed) {
   let n = 0;
   return () => {
     n += 1;
-    const bytes = createHash8("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
+    const bytes = createHash9("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
     bytes[6] = bytes[6] & 15 | 64;
     bytes[8] = bytes[8] & 63 | 128;
     const hex3 = bytes.toString("hex");
@@ -228904,7 +228996,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { createHash as createHash9 } from "node:crypto";
+import { createHash as createHash10 } from "node:crypto";
 var MERGE_TAG = /\{\{\s*[A-Za-z_][\w.-]*\s*\}\}/g;
 function mergeTagsOf(attrs) {
   const found = /* @__PURE__ */ new Set();
@@ -228945,11 +229037,11 @@ function fingerprintWorkflow(templates, triggers) {
     type: t.type,
     conditions: (t.conditions ?? []).map((c) => [c.field, c.operator, c.value])
   })).sort((a, b) => String(a.id).localeCompare(String(b.id)));
-  return createHash9("sha256").update(JSON.stringify({ steps, trg })).digest("hex").slice(0, 16);
+  return createHash10("sha256").update(JSON.stringify({ steps, trg })).digest("hex").slice(0, 16);
 }
 var stableJson = (v) => Array.isArray(v) ? `[${v.map(stableJson).join(",")}]` : v && typeof v === "object" ? `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${stableJson(v[k])}`).join(",")}}` : JSON.stringify(v) ?? "null";
 function fingerprintDocument(templates) {
-  return createHash9("sha256").update(stableJson(stripNullNext(templates ?? []))).digest("hex").slice(0, 16);
+  return createHash10("sha256").update(stableJson(stripNullNext(templates ?? []))).digest("hex").slice(0, 16);
 }
 function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [], now = Date.now() } = {}) {
   const templates = (doc?.workflowData?.templates ?? doc?.templates ?? []).filter(Boolean);
@@ -229221,7 +229313,7 @@ var TOP_LEVEL = ["name", "showInFunnel", "showInPieChart", "useOpportunityProbab
 var DERIVED = ["showInFunnel", "showInPieChart"];
 var NEW_STAGE_COLOR = "#64748B";
 var STAGE_PROPS = ["name", "stageWinProbability", "color", "showInFunnel", "showInPieChart"];
-var HEX = /^#[0-9A-Fa-f]{6}$/;
+var HEX2 = /^#[0-9A-Fa-f]{6}$/;
 var trimName = (s) => typeof s === "string" ? s.trim() : s;
 function planPipelineEdit(row, edit = {}) {
   const errors = [];
@@ -229286,7 +229378,7 @@ function planPipelineEdit(row, edit = {}) {
     if (typeof p2 !== "number" || !Number.isFinite(p2) || p2 < 0 || p2 > 100) {
       errors.push(`stage "${s.name}" needs stageWinProbability 0\u2013100 \u2014 GHL rewrites EVERY stage's probability to an even ramp when one is missing`);
     }
-    if (s.color !== void 0 && !HEX.test(String(s.color))) errors.push(`stage "${s.name}": color must be #RRGGBB (got ${s.color})`);
+    if (s.color !== void 0 && !HEX2.test(String(s.color))) errors.push(`stage "${s.name}": color must be #RRGGBB (got ${s.color})`);
   }
   for (const k of DERIVED) if (edit[k] !== void 0) {
     errors.push(`${k} at pipeline level is derived from the stages (true when any stage has it on, as the GHL UI sends it); set it per stage in updateStages / addStages instead`);
@@ -235724,9 +235816,9 @@ function triggerPublishInstruction(triggerPlan, workflowStatus, { committed }) {
   const matches = triggerPlan.filter((request) => triggerRequiresPublish(request, workflowStatus));
   if (matches.length === 0) return null;
   if (matches.some((request) => request.op === "modifyTrigger")) {
-    return committed ? "This trigger is now active, but its workflow is still draft \u2014 GHL will not enrol anyone until the workflow itself is published. Invoke publish_workflow with confirm:true to publish it." : "This trigger will be active, but its workflow is still draft \u2014 GHL will not enrol anyone until the workflow itself is published. After verifying the edit, invoke publish_workflow with confirm:true to publish it.";
+    return committed ? "This trigger is now active, but its workflow is still draft \u2014 GHL will not enrol anyone until the workflow itself is published. Invoke publish_workflow with confirm:true to publish it." : "This trigger will be active, but its workflow is still draft \u2014 GHL will not enrol anyone until the workflow itself is published. After verifying the edit, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) to publish it.";
   }
-  return committed ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : "Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.";
+  return committed ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) to activate it explicitly." : "Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) to activate it explicitly.";
 }
 var ATTR_WRITING_OPS = /* @__PURE__ */ new Set([
   "addBranch",
@@ -236343,6 +236435,21 @@ function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
   };
 }
 var withFailureData = (failure2, data2) => ({ ...failure2, data: ok(data2).data });
+var outwardTokenRefusal = (args, { kind, targetId, digest, preview, what }) => {
+  const key = { locationId: args.locationId, workflowId: targetId, version: digest, kind };
+  const check2 = args.confirm === true && typeof args.confirmationToken === "string" ? verifyPublishToken(args.confirmationToken, key) : { ok: false, reason: args.confirm === true ? "no confirmation token was given" : "confirm was not true" };
+  if (check2.ok) return null;
+  const confirmationToken = issuePublishToken(key);
+  const refused = args.confirm === true && args.confirmationToken !== void 0;
+  return withFailureData(
+    fail(
+      CODES.CONFIRM_REQUIRED,
+      refused ? `${what} not sent: ${check2.reason}. No write was sent.` : `${what} preview is ready; no write was sent.`,
+      "Review data.preview, then call again with confirm:true and confirmationToken set to data.confirmationToken. The token lasts 5 minutes and works once."
+    ),
+    { preview, confirmationToken }
+  );
+};
 function fromThrown(error51, { beforeWrite = false } = {}) {
   if (error51?.gatewayResponse) {
     return fromHttp(error51.gatewayResponse.status, error51.gatewayResponse.json);
@@ -236382,7 +236489,7 @@ function urgentPartialFailure(failure2, data2, publishedStateVerified = false) {
 function editWriteFailure(failure2, data2) {
   return withFailureData({
     ...failure2,
-    remediation: `URGENT: the edit may be partially applied. Inspect the workflow and re-run a read-only edit preview before retrying. If trigger changes landed, invoke publish_workflow with confirm:true only after the intended configuration is verified. ${failure2.remediation ?? ""}`.trim()
+    remediation: `URGENT: the edit may be partially applied. Inspect the workflow and re-run a read-only edit preview before retrying. If trigger changes landed, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) only after the intended configuration is verified. ${failure2.remediation ?? ""}`.trim()
   }, data2);
 }
 function rawWriteFailure(failure2, data2, { ambiguous = false } = {}) {
@@ -236510,7 +236617,7 @@ function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) 
   const sample = rows.slice(0, 10);
   const statusIds = rows.map((row) => row._id);
   const canonicalRows = rows.map((row) => ({ statusId: row._id, contactId: row.contactId ?? null })).sort((left, right) => String(left.statusId).localeCompare(String(right.statusId)) || String(left.contactId).localeCompare(String(right.contactId)));
-  const previewToken = createHash10("sha256").update(JSON.stringify(canonicalize3({
+  const previewToken = createHash11("sha256").update(JSON.stringify(canonicalize3({
     locationId,
     workflowId,
     stepId,
@@ -237896,7 +238003,8 @@ var TOOLS2 = [
       includeTagsOperator: external_exports.string().optional().describe("AND | OR (default AND)"),
       excludeTags: external_exports.array(external_exports.string()).optional(),
       excludeTagsOperator: external_exports.string().optional().describe("AND | OR (default AND)"),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
     }),
     capabilities: [
       { method: "GET", path: DEPLOY_PATH },
@@ -237911,6 +238019,26 @@ var TOOLS2 = [
         return fail(CODES.VALIDATION_FAILED, error51.message, "Fix the arguments; nothing was sent.");
       }
       const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      if (args.confirm === true) {
+        const dry = await executeDeployment({ gw, locationId: args.locationId, intent, confirm: false });
+        if (dry.http) return withFailureData(fromHttp(dry.http.status ?? 502, dry.http.json), { preview: dry.preview, verification: dry.verification });
+        if (!dry.preview || dry.ok === false) {
+          return fail(CODES.ENGINE_ABORT, "the routing dry run did not produce a preview; nothing was written", "Re-read the routing table and try again.");
+        }
+        if (dry.preview.action !== "noop") {
+          const digest = digestOf(dry.preview);
+          const gate = outwardTokenRefusal(args, { kind: "agent_deployment", targetId: args.locationId, digest, preview: dry.preview, what: "Deployment" });
+          if (gate) return gate;
+          const again = await executeDeployment({ gw, locationId: args.locationId, intent, confirm: false });
+          if (again.http || !again.preview || digestOf(again.preview) !== digest) {
+            return fail(
+              CODES.CONFIRM_REQUIRED,
+              "The routing table changed since the preview, so nothing was written.",
+              "Call again with confirm:true and no token to get a fresh preview, then confirm with its token."
+            );
+          }
+        }
+      }
       const report = await executeDeployment({ gw, locationId: args.locationId, intent, confirm: args.confirm === true });
       if (report.http) {
         return withFailureData(fromHttp(report.http.status ?? 502, report.http.json), { preview: report.preview, verification: report.verification });
@@ -241967,7 +242095,7 @@ var TOOLS2 = [
             cid: void 0,
             uid: gw.uid,
             companyAge: 0,
-            idGen: () => randomUUID4(),
+            idGen: () => randomUUID5(),
             catalog: loadCatalog(),
             marketplace,
             pinIds: true,
@@ -242352,11 +242480,12 @@ var TOOLS2 = [
   },
   {
     name: "publish_workflow",
-    description: describe3("publish_workflow", "Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT's own draft\u2192published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs."),
+    description: describe3("publish_workflow", "Publishing is TWO-STEP (bl-946). Call publish_workflow with confirm:true and NO token first: it publishes nothing and returns a preview (validation, the steps that send, the trigger changes) and a short-lived data.confirmationToken. Then call it again with confirm:true and that confirmationToken to publish. confirm:true without a valid token never publishes. A version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT's own draft\u2192published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
       confirm: external_exports.boolean().default(false),
+      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to publish. A call without a valid token previews and publishes nothing. The token is bound to this workflow and version, lasts 5 minutes and works once."),
       allowValidationFailure: external_exports.boolean().optional().describe("Publish even though the validation gate refused. The gate runs every layer: GHL's own WorkflowValidator rules (including the publish-only ones), the advanced canvas's stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL's live validator. Findings are still reported in full."),
       skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional().describe("Skip GHL's WorkflowValidator rules \u2014 true, or a list of rule names. The other layers still run.")
     }),
@@ -242431,16 +242560,22 @@ var TOOLS2 = [
             willActivate: listed.triggers.filter((trigger) => trigger.active !== true).length
           },
           strips: ["autoSaveSession", "autoSaveSessionId"].filter((key) => key in (current ?? {}))
-        }
+        },
+        // bl-946: the steps that send something outward, so the preview shows what a publish turns on.
+        outwardSteps: outwardStepsOf(current?.workflowData?.templates)
       };
-      if (args.confirm !== true) {
+      const versionNow = current?.version ?? null;
+      const tokenCheck = args.confirm === true && typeof args.confirmationToken === "string" ? verifyPublishToken(args.confirmationToken, { locationId: args.locationId, workflowId: args.workflowId, version: versionNow }) : { ok: false, reason: args.confirm === true ? "no confirmation token was given" : "confirm was not true" };
+      if (!tokenCheck.ok) {
+        const confirmationToken = issuePublishToken({ locationId: args.locationId, workflowId: args.workflowId, version: versionNow });
+        const refused = args.confirm === true && args.confirmationToken !== void 0;
         return withFailureData(
           fail(
             CODES.CONFIRM_REQUIRED,
-            "Publish preview is ready; no write was sent.",
-            "Review data.preview, then repeat the request with confirm:true to publish."
+            refused ? `Publish not sent: ${tokenCheck.reason}. No write was sent.` : "Publish preview is ready; no write was sent.",
+            "Review data.preview (the steps that send are in outwardSteps), then call publish_workflow again with confirm:true and confirmationToken set to data.confirmationToken. The token lasts 5 minutes and works once."
           ),
-          { preview }
+          { preview, confirmationToken }
         );
       }
       const partialProgress = {
@@ -242510,6 +242645,13 @@ var TOOLS2 = [
         );
       }
       const freshResponse = freshCall.value;
+      if ((freshResponse.json?.version ?? null) !== versionNow) {
+        return fail(
+          CODES.CONFIRM_REQUIRED,
+          "Publish not sent: the workflow changed between the preview and the publish (its version moved). No write was sent.",
+          "Call publish_workflow again with confirm:true and no token to get a fresh preview, review it, then confirm with its token."
+        );
+      }
       const publishable = { ...freshResponse.json };
       delete publishable.autoSaveSession;
       delete publishable.autoSaveSessionId;
@@ -243770,7 +243912,8 @@ var TOOLS2 = [
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
       targetLocationId: external_exports.string(),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
     }),
     capabilities: [
       { method: "GET", path: "/workflow/{loc}/{wid}" },
@@ -243849,16 +243992,14 @@ var TOOLS2 = [
           existingWithThisName: before.length
         }
       };
-      if (args.confirm !== true) {
-        return withFailureData(
-          fail(
-            CODES.CONFIRM_REQUIRED,
-            "Copy preview is ready; no write was sent.",
-            "Review data.preview, then repeat with confirm:true. The copy is QUEUED by GHL and read back from the target."
-          ),
-          { preview }
-        );
-      }
+      const copyGate = outwardTokenRefusal(args, {
+        kind: "workflow_copy",
+        targetId: args.workflowId,
+        digest: digestOf({ target, version: src.json?.version ?? null, name }),
+        preview,
+        what: "Copy"
+      });
+      if (copyGate) return copyGate;
       const uid = gw.uid;
       if (typeof uid !== "string" || !uid) {
         return fail(CODES.ENGINE_ABORT, "the credential carries no user id, which the copy body requires", "Nothing was sent.");
@@ -244177,7 +244318,8 @@ var TOOLS2 = [
       statusIds: external_exports.array(external_exports.string()).optional(),
       all: external_exports.boolean().optional(),
       previewToken: external_exports.string().optional(),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
     }),
     capabilities: [
       { method: "GET", path: "/workflows/status/search/count-per-step" },
@@ -244228,6 +244370,14 @@ var TOOLS2 = [
           { preview }
         );
       }
+      const ffGate = outwardTokenRefusal(args, {
+        kind: "fast_forward",
+        targetId: args.workflowId,
+        digest: digestOf({ stepId: args.stepId, previewToken: preview.previewToken }),
+        preview,
+        what: "Fast-forward"
+      });
+      if (ffGate) return ffGate;
       if (typeof args.previewToken !== "string" || args.previewToken !== preview.previewToken) {
         return withFailureData(
           fail(
@@ -245185,13 +245335,14 @@ var TOOLS2 = [
     name: "publish_studio_site",
     description: describe3(
       "publish_studio_site",
-      "Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: this puts the site on the public internet. Requires confirm:true"
+      "Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: this puts the site on the public internet. TWO-STEP (bl-946): call with confirm:true and no token first; it publishes nothing and returns data.preview and a short-lived data.confirmationToken. Call again with confirm:true and that token to publish."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
       projectId: external_exports.string(),
       versionId: external_exports.string(),
-      confirm: external_exports.boolean().optional()
+      confirm: external_exports.boolean().optional(),
+      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to publish.")
     }),
     capabilities: [
       { method: "POST", path: "/vibe-ai/projects/{projectId}/publish" },
@@ -245208,6 +245359,29 @@ var TOOLS2 = [
       const { api } = studioDeps(args, deps);
       const { error: error51 } = await assertProjectLocation(api, args.projectId, args.locationId);
       if (error51) return error51;
+      const before = (await api.getProject(args.projectId)).json ?? {};
+      const preview = {
+        projectId: args.projectId,
+        versionId: args.versionId,
+        locationId: args.locationId,
+        currentlyPublished: before.published_at ?? null,
+        currentlyPublishedVersionId: before.published_version_id ?? null,
+        note: "Publishing puts this version on the public internet at the site's slug or custom domain."
+      };
+      const studioKey = { locationId: args.locationId, workflowId: args.projectId, version: args.versionId, kind: "studio_site" };
+      const tokenCheck = typeof args.confirmationToken === "string" ? verifyPublishToken(args.confirmationToken, studioKey) : { ok: false, reason: "no confirmation token was given" };
+      if (!tokenCheck.ok) {
+        const confirmationToken = issuePublishToken(studioKey);
+        const refused = args.confirmationToken !== void 0;
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            refused ? `Publish not sent: ${tokenCheck.reason}. No write was sent.` : "Publish preview is ready; no write was sent.",
+            "Review data.preview, then call publish_studio_site again with confirm:true and confirmationToken set to data.confirmationToken. The token lasts 5 minutes and works once."
+          ),
+          { preview, confirmationToken }
+        );
+      }
       const res = await api.publish(args.projectId, args.versionId);
       const back = (await api.getProject(args.projectId)).json ?? {};
       return ok({
@@ -245814,7 +245988,8 @@ var TOOLS2 = [
       assets: external_exports.record(external_exports.any()),
       allowPublishedWorkflows: external_exports.boolean().default(false),
       overwriteConflicts: external_exports.boolean().default(false),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
     }),
     capabilities: [
       { method: "GET", path: "/locations/{locationId}" },
@@ -245910,35 +246085,32 @@ var TOOLS2 = [
         );
       }
       const body2 = buildPushBody(args.targetLocationIds, args.assets, { overwriteConflicts: args.overwriteConflicts });
-      if (args.confirm !== true) {
-        return withFailureData(
-          fail(
-            CODES.CONFIRM_REQUIRED,
-            `Push preview: ${check2.requested} asset(s) across ${categories.length} category(ies) into ${args.targetLocationIds.length} sub-account(s). No write was sent.`,
-            "Review data.preview, then repeat with confirm:true."
-          ),
-          {
-            preview: {
-              companyId,
-              snapshotId: args.snapshotId,
-              targets: args.targetLocationIds,
-              targetsNamed: targets.resolved,
-              categories,
-              assetCount: check2.requested,
-              workflows: workflows.length ? workflows : void 0,
-              publishedOnSource: published.length ? published : void 0,
-              undeterminedWorkflows: undetermined.length ? undetermined : void 0,
-              overwriteConflicts: args.overwriteConflicts,
-              standDown: wanted.length ? standDown : void 0,
-              warnings: [
-                'The push answers "queued". Nothing here can be read back to confirm what it wrote.',
-                "Conflicts only cover what THIS snapshot loaded here before \u2014 never assets built by hand on the target. An empty result is not clearance.",
-                ...undetermined.length ? [`${undetermined.length} selected workflow id(s) could not be read on the source, so their published state is UNKNOWN \u2014 a folder id looks like this too.`] : []
-              ]
-            }
-          }
-        );
-      }
+      const pushPreview = {
+        companyId,
+        snapshotId: args.snapshotId,
+        targets: args.targetLocationIds,
+        targetsNamed: targets.resolved,
+        categories,
+        assetCount: check2.requested,
+        workflows: workflows.length ? workflows : void 0,
+        publishedOnSource: published.length ? published : void 0,
+        undeterminedWorkflows: undetermined.length ? undetermined : void 0,
+        overwriteConflicts: args.overwriteConflicts,
+        standDown: wanted.length ? standDown : void 0,
+        warnings: [
+          'The push answers "queued". Nothing here can be read back to confirm what it wrote.',
+          "Conflicts only cover what THIS snapshot loaded here before \u2014 never assets built by hand on the target. An empty result is not clearance.",
+          ...undetermined.length ? [`${undetermined.length} selected workflow id(s) could not be read on the source, so their published state is UNKNOWN \u2014 a folder id looks like this too.`] : []
+        ]
+      };
+      const pushGate = outwardTokenRefusal(args, {
+        kind: "snapshot_push",
+        targetId: args.snapshotId,
+        digest: digestOf(body2),
+        preview: pushPreview,
+        what: "Push"
+      });
+      if (pushGate) return pushGate;
       const r = await gw.call("POST", `/snapshots/snapshot-push/v2/${encodeURIComponent(args.snapshotId)}/set_assets_to_locations?companyId=${encodeURIComponent(companyId)}`, body2);
       if (!r.ok) return fromHttp(r.status, r.json);
       return ok({
@@ -246764,7 +246936,8 @@ var TOOLS2 = [
       verifyUrl: external_exports.string().optional(),
       previewToken: external_exports.string().optional().describe("confirm: the previewToken the preview returned; a stored page that changed since is refused with PREVIEW_STALE"),
       publish: external_exports.boolean().default(false),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
     }),
     capabilities: [
       { method: "POST", path: "/funnels/builder/autosave/{pageId}" },
@@ -246952,7 +247125,19 @@ var TOOLS2 = [
         if (secCls) built.general.sectionStyles += entranceCss(built.id, built.metaData.class);
         return built;
       };
-      if (args.edits || args.seo) return editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts, paletteRef });
+      if (args.edits || args.seo) {
+        if (args.publish === true) {
+          const editGate = outwardTokenRefusal(args, {
+            kind: "funnel_page_publish",
+            targetId: args.pageId,
+            digest: digestOf({ edits: args.edits ?? null, seo: args.seo ?? null, pageId: args.pageId }),
+            preview: { mode: "edit", pageId: args.pageId, publish: true, edits: args.edits ?? null, seo: args.seo ?? null },
+            what: "Funnel page publish"
+          });
+          if (editGate) return editGate;
+        }
+        return editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts, paletteRef });
+      }
       if (!args.sections) return fail(CODES.VALIDATION_FAILED, "pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)", "See the tool description for both shapes.");
       let pageData;
       try {
@@ -247064,6 +247249,16 @@ var TOOLS2 = [
           // The compose preview names what a builder save would undo in this page (w7-2, bl-517), before any write.
           decoratePageResult({ preview }, pageData, { customCss: args.pageStyles })
         );
+      }
+      if (args.publish === true) {
+        const pageGate = outwardTokenRefusal(args, {
+          kind: "funnel_page_publish",
+          targetId: args.pageId,
+          digest: digestOf(pageData),
+          preview,
+          what: "Funnel page publish"
+        });
+        if (pageGate) return pageGate;
       }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       let recMeta = null;
@@ -247749,7 +247944,8 @@ var TOOLS2 = [
       quantity: external_exports.object({ max: external_exports.number().int().min(1).optional(), allowMultiple: external_exports.boolean().optional() }).optional(),
       bump: external_exports.boolean().optional(),
       resetSplitTests: external_exports.boolean().optional(),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
     }),
     capabilities: [
       { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
@@ -248146,6 +248342,16 @@ var TOOLS2 = [
         };
         if (args.confirm !== true) {
           return withFailureData(fail(CODES.CONFIRM_REQUIRED, `edit_funnel ${args.op} preview is ready; no write was sent.`, args.op === "create-step" && !args.step?.id ? "Repeat with confirm:true (pass step.id from this preview to send the identical id)." : "Repeat with confirm:true to send exactly this request."), { preview });
+        }
+        if (args.op === "publish-page") {
+          const pubGate = outwardTokenRefusal(args, {
+            kind: "funnel_publish",
+            targetId: args.pageId,
+            digest: digestOf({ path: plan2.path ?? null, body: plan2.body ?? null, steps: plan2.steps ?? null }),
+            preview,
+            what: "Funnel page publish"
+          });
+          if (pubGate) return pubGate;
         }
         let pageRename = null;
         if (args.op === "split-test" && args.action === "add-variation") {

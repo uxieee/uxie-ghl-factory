@@ -21,6 +21,13 @@ const base = { locationId: 'LOC', funnelId: 'F1', pageId: 'P1', stepId: 'S1', se
 // updated_at is a Firestore {_seconds,_nanoseconds} object, not a string — mirror the real shape.
 const v = (id, pageType, secs) => ({ version_id: id, pageType, updated_at: { _seconds: secs, _nanoseconds: 0 } });
 
+// bl-946: a confirmed publish is two calls: the first returns the token; the second presents it.
+const pubHandler = async (args, dependencies) => {
+  const first = await tool.handler(args, dependencies);
+  if (!first.data?.confirmationToken) return first;
+  return tool.handler({ ...args, confirmationToken: first.data.confirmationToken }, dependencies);
+};
+
 // versionsFn is called fresh each time so a test can change the answer after the publish write.
 const deps = ({ versions = [], uid = 'USER1', calls = [], publishStatus = 201, sections = null }) => ({
   state: {},
@@ -102,7 +109,7 @@ test('publish:true publishes the NEWEST version by snake_case version_id and ass
   const versions = (c) => (c.some((x) => x.path === '/funnels/builder/publish-version')
     ? [v('new', 'live', 900), v('old', 'draft', 100)]
     : [v('new', 'draft', 900), v('old', 'draft', 100)]);
-  const res = await tool.handler({ ...base, publish: true }, deps({ versions, calls }));
+  const res = await pubHandler({ ...base, publish: true }, deps({ versions, calls }));
   assert.equal(res.ok, true);
   const pub = calls.find((c) => c.path === '/funnels/builder/publish-version');
   assert.ok(pub, 'publish-version must be called');
@@ -114,7 +121,7 @@ test('publish:true publishes the NEWEST version by snake_case version_id and ass
 
 test('publish REFUSES when the version list has no usable version_id — camelCase is not accepted', async () => {
   const calls = [];
-  const res = await tool.handler({ ...base, publish: true },
+  const res = await pubHandler({ ...base, publish: true },
     deps({ versions: [{ versionId: 'camel', pageType: 'draft' }], calls }));
   assert.equal(res.ok, false);
   assert.ok(!calls.some((c) => c.path === '/funnels/builder/publish-version'),
@@ -124,7 +131,7 @@ test('publish REFUSES when the version list has no usable version_id — camelCa
 
 test('publish REFUSES on a blank uid rather than sending a 422', async () => {
   const calls = [];
-  const res = await tool.handler({ ...base, publish: true },
+  const res = await pubHandler({ ...base, publish: true },
     deps({ versions: [v('new', 'draft', 900)], uid: '  ', calls }));
   assert.equal(res.ok, false);
   assert.ok(!calls.some((c) => c.path === '/funnels/builder/publish-version'));
@@ -133,7 +140,7 @@ test('publish REFUSES on a blank uid rather than sending a 422', async () => {
 
 test('publish REFUSES when the draft read back with sections missing', async () => {
   const calls = [];
-  const res = await tool.handler({ ...base, publish: true },
+  const res = await pubHandler({ ...base, publish: true },
     deps({ versions: [v('new', 'draft', 900)], sections: [], calls }));
   assert.equal(res.ok, false);
   assert.ok(!calls.some((c) => c.path === '/funnels/builder/publish-version'),
@@ -142,7 +149,7 @@ test('publish REFUSES when the draft read back with sections missing', async () 
 });
 
 test('publish reports VERIFY_FAILED when the version does not read back as live', async () => {
-  const res = await tool.handler({ ...base, publish: true },
+  const res = await pubHandler({ ...base, publish: true },
     deps({ versions: [v('new', 'draft', 900)] })); // never flips
   assert.equal(res.ok, false);
   assert.match(res.detail, /did not read back as live/);
@@ -165,7 +172,7 @@ test('the preview says whether the call will publish, before any write', async (
 test('compose mode carries the page record\'s meta into every autosave, so publish:true keeps the title', async () => {
   const calls = [];
   const versions = (cs) => (cs.some((c) => c.path === '/funnels/builder/publish-version') ? [v('a', 'live', 100)] : [v('a', 'draft', 100)]);
-  const res = await tool.handler({ ...base, publish: true }, deps({ versions, calls }));
+  const res = await pubHandler({ ...base, publish: true }, deps({ versions, calls }));
   assert.equal(res.ok, true);
   const save = calls.find((c) => c.path.startsWith('/funnels/builder/autosave/'));
   assert.equal(save.body.meta?.title, 'Kept title');
@@ -202,8 +209,42 @@ test('edit mode also carries the record\'s meta into its autosave when no seo is
 test('compose publish:true refuses to write at all when the page record cannot be read (it would strip SEO)', async () => {
   const calls = [];
   const d = { state: {}, makeGw: () => ({ uid: 'U', call: async (method, path, body) => { calls.push({ path }); if (path.startsWith('/funnels/page/')) return { ok: false, status: 500, json: {} }; throw new Error(`unexpected ${path}`); } }) };
-  const res = await tool.handler({ ...base, publish: true }, d);
+  const res = await pubHandler({ ...base, publish: true }, d);
   assert.equal(res.ok, false);
   assert.match(res.detail, /strips the page/);
   assert.ok(!calls.some((c) => c.path.startsWith('/funnels/builder/autosave/')), 'nothing written');
+});
+
+// bl-946 (DECISIONS 2026-11-09, part of w6): a publish makes the page public, so publish:true takes the two-step token gate. Without a
+// valid token nothing is autosaved and nothing is published; the token from the preview autosaves and publishes once.
+test('bl-946: publish:true with confirm:true and NO token writes nothing; the token from the preview publishes once', async () => {
+  const calls = [];
+  const d = deps({ versions: [v('a', 'draft', 100)], calls });
+  const first = await tool.handler({ ...base, publish: true }, d);
+  assert.equal(first.code, 'CONFIRM_REQUIRED', JSON.stringify(first));
+  assert.equal(calls.filter((c) => c.path.startsWith('/funnels/builder/autosave/')).length, 0, 'the first call must not autosave');
+  assert.equal(calls.filter((c) => c.path === '/funnels/builder/publish-version').length, 0, 'the first call must not publish');
+  assert.equal(typeof first.data.confirmationToken, 'string');
+  await tool.handler({ ...base, publish: true, confirmationToken: first.data.confirmationToken }, d);
+  assert.equal(calls.filter((c) => c.path === '/funnels/builder/publish-version').length, 1, 'the token publishes once');
+});
+
+// bl-946 security review (edit-mode bypass): publish through edits or seo takes the same token as a compose publish.
+test('bl-946: edit-mode publish (seo with publish:true) writes nothing without a token', async () => {
+  const calls = [];
+  const base2 = deps({ versions: [v('a', 'draft', 100)], calls });
+  const d = { ...base2, makeGw: () => {
+    const g = base2.makeGw();
+    return { ...g, call: async (m, p, b) => {
+      if (m === 'GET' && p.startsWith('/funnels/funnel/fetch/')) { calls.push({ method: m, path: p, body: b }); return { ok: true, status: 200, json: { _id: 'F1', steps: [{ id: 'S1', name: 'Step one', pages: ['P1'] }] } }; }
+      if (m === 'GET' && p.startsWith('/funnels/builder/page/data')) { calls.push({ method: m, path: p, body: b }); return { ok: true, status: 200, json: { sections: [{ id: 'section-X', elements: [], general: { sectionStyles: '' } }], settings: {}, general: {} } }; }
+      if (m === 'GET' && p.startsWith('/funnels/page/P1')) { calls.push({ method: m, path: p, body: b }); return { ok: true, status: 200, json: { _id: 'P1', locationId: 'LOC', funnelId: 'F1', name: 'Step one', url: 'step-one', meta: { title: 'Kept', language: 'en' } } }; }
+      return g.call(m, p, b);
+    } };
+  } };
+  const res = await tool.handler({ locationId: 'LOC', funnelId: 'F1', pageId: 'P1', stepId: 'S1', stepName: 'Step one', seo: { title: 'T' }, publish: true, confirm: true }, d);
+  assert.equal(res.code, 'CONFIRM_REQUIRED', JSON.stringify(res));
+  assert.equal(calls.filter((c) => c.method !== 'GET').length, 0, 'edit mode without a token must not write');
+  assert.equal(calls.filter((c) => c.path === '/funnels/builder/publish-version').length, 0);
+  assert.equal(typeof res.data.confirmationToken, 'string');
 });

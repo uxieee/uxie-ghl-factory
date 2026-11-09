@@ -864,9 +864,12 @@ test('publish reports the live URL and verified state from read-back', async () 
       throw new Error(`unexpected call: ${method} ${path}`);
     },
   };
+  // bl-946: two calls. The first returns the preview and token; the second presents the token and publishes.
+  const deps = { state: {}, makeGw: () => gw };
+  const preview = await publishTool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V123', confirm: true }, deps);
   const result = await publishTool.handler(
-    { locationId: 'LOC', projectId: 'P1', versionId: 'V123', confirm: true },
-    { state: {}, makeGw: () => gw }
+    { locationId: 'LOC', projectId: 'P1', versionId: 'V123', confirm: true, confirmationToken: preview.data.confirmationToken },
+    deps
   );
   assert.equal(result.ok, true);
   assert.equal(result.data.liveUrl, 'https://test-site.vibepreview.com', 'live URL from publish response');
@@ -1349,4 +1352,61 @@ test('review I2: get_studio_generation_status explains a superseded build instea
   assert.equal(result.data.buildStatus, 'superseded');
   assert.match(result.data.note ?? '', /superseded/i);
   assert.match(result.data.note ?? '', /history/i);
+});
+
+// bl-946 (DECISIONS 2026-11-09, security review): publish_studio_site is two-step like publish_workflow. A confirm:true call with no
+// valid token publishes nothing: it reads the project (the location check runs first) and returns a preview and a token. Only a
+// call presenting that token, for the same project and version, publishes.
+const studioPublishGw = (log) => ({
+  call: async (method, path, body) => {
+    log.push({ method, path, body });
+    if (method === 'POST' && path.includes('/publish')) {
+      return { status: 200, ok: true, json: { status: 'published', live_url: 'https://test-site.vibepreview.com' } };
+    }
+    if (method === 'GET' && path.includes('/projects')) {
+      return { status: 200, ok: true, json: { alt_id: 'LOC', published_at: null, published_version_id: null } };
+    }
+    throw new Error(`unexpected call: ${method} ${path}`);
+  },
+});
+const studioPublishes = (log) => log.filter(({ method, path }) => method === 'POST' && path.includes('/publish'));
+
+test('bl-946: publish_studio_site with confirm:true and NO token publishes nothing and returns a preview and a token', async () => {
+  const tool = TOOLS.find((t) => t.name === 'publish_studio_site');
+  const log = [];
+  const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true }, { state: {}, makeGw: () => studioPublishGw(log) });
+  assert.equal(result.ok, false, JSON.stringify(result));
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.equal(studioPublishes(log).length, 0, 'the first call must not publish');
+  assert.equal(typeof result.data.confirmationToken, 'string');
+  assert.equal(result.data.preview.projectId, 'P1');
+  assert.equal(result.data.preview.versionId, 'V1');
+});
+
+test('bl-946: the studio token publishes on the second call, once', async () => {
+  const tool = TOOLS.find((t) => t.name === 'publish_studio_site');
+  const log = [];
+  const deps = { state: {}, makeGw: () => studioPublishGw(log) };
+  const first = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true }, deps);
+  const token = first.data.confirmationToken;
+  const second = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true, confirmationToken: token }, deps);
+  assert.equal(second.ok, true, JSON.stringify(second));
+  assert.equal(studioPublishes(log).length, 1);
+  const replay = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true, confirmationToken: token }, deps);
+  assert.equal(replay.ok, false, 'a spent studio token must not publish again');
+  assert.equal(studioPublishes(log).length, 1);
+});
+
+test('bl-946: a studio token is refused for a different version, and a workflow token is refused here', async () => {
+  const tool = TOOLS.find((t) => t.name === 'publish_studio_site');
+  const log = [];
+  const deps = { state: {}, makeGw: () => studioPublishGw(log) };
+  const first = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true }, deps);
+  const otherVersion = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V2', confirm: true, confirmationToken: first.data.confirmationToken }, deps);
+  assert.equal(otherVersion.ok, false, 'a token for V1 must not publish V2');
+  const { issuePublishToken } = await import('../core/publish-confirmation.mjs');
+  const workflowToken = issuePublishToken({ locationId: 'LOC', workflowId: 'P1', version: 'V1' });
+  const crossKind = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true, confirmationToken: workflowToken }, deps);
+  assert.equal(crossKind.ok, false, 'a workflow publish token must not publish a studio site');
+  assert.equal(studioPublishes(log).length, 0);
 });

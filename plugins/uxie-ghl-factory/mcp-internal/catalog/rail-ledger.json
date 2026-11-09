@@ -289,7 +289,7 @@
       "product": "workflows",
       "job": "publish",
       "internal": {
-        "can": "publish (gate is browser-only)",
+        "can": "publish_workflow is two-step (bl-946): call 1 (confirm:true, no token) publishes nothing and returns the preview and a 5-minute single-use confirmationToken bound to location, workflow and version; call 2 with that token publishes. The re-read before the PUT refuses a version that moved. A raw PUT of the document or a trigger with status published is refused (publish-door rules). Browser publish gate is no longer the only path.",
         "tools": [
           "publish_workflow",
           "unpublish_workflows"
@@ -297,7 +297,7 @@
         "proof": []
       },
       "public": {
-        "can": "status change with a server-side publish gate",
+        "can": "status change with a server-side publish gate; two-step token gate (bl-946)",
         "actions": [
           "workflows-v3__update-workflow-status"
         ],

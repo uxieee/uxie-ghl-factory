@@ -61,6 +61,22 @@ const RULES = [
     hint: 'Use publish_workflow. Setting status:"draft" through this route is not refused — bulk stand-down is legitimate; unpublish_workflows is the tool for it.',
   },
   {
+    rule: 'workflow-document-publish-door',
+    method: 'PUT',
+    path: /^\/workflow\/[^/]+\/[^/]+$/,
+    refuses: (wire) => isPlainObject(wire) && String(wire.status ?? '').trim().toLowerCase() === 'published',
+    message: 'PUT /workflow/{loc}/{wid} with status:"published" is a publish that skips the gate publish_workflow runs (the preview, the confirmation token, the version check).',
+    hint: 'Use publish_workflow (preview first, then confirm:true with the confirmationToken). A draft write through this route is not refused.',
+  },
+  {
+    rule: 'trigger-activation-publish-door',
+    method: 'PUT',
+    path: /^\/workflow\/[^/]+\/trigger\/[^/]+$/,
+    refuses: (wire) => isPlainObject(wire) && String(wire.status ?? '').trim().toLowerCase() === 'published',
+    message: 'PUT /workflow/{loc}/trigger/{id} with status:"published" activates one trigger outside publish_workflow\'s gate and its round-trip check.',
+    hint: 'Use publish_workflow, which activates and verifies every trigger. Setting status:"draft" through this route is not refused.',
+  },
+  {
     rule: 'permission-needs-key',
     method: 'PUT',
     path: /^\/workflow\/[^/]+\/permission\/[^/]+$/,

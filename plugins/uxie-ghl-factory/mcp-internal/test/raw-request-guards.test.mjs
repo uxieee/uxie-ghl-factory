@@ -209,3 +209,21 @@ test('CONTROL: templates with no placeholder come back equal, with nothing resto
   assert.deepEqual(r.templates, [storedHook()]);
   assert.deepEqual([r.restored, r.unresolved], [[], []]);
 });
+
+// bl-946 security review: a raw PUT of the workflow document, or of one trigger, with status 'published' is a publish (or an
+// activation) that skips publish_workflow's gate. Refused, with the same hint. The draft control passes.
+test('bl-946: raw PUT of the workflow document with status published is refused; draft passes (control)', () => {
+  const doc = `/workflow/${L}/${W}`;
+  const hit = refuseRawRequest({ method: 'PUT', path: doc, body: { status: 'published', version: 3, workflowData: { templates: [] } } });
+  assert.equal(hit?.rule, 'workflow-document-publish-door');
+  assert.match(hit.hint, /publish_workflow/);
+  assert.equal(refuseRawRequest({ method: 'PUT', path: doc, body: { status: 'draft', version: 3, workflowData: { templates: [] } } }), null);
+});
+
+test('bl-946: raw PUT of one trigger with status published is refused (it activates the trigger outside the gate); draft passes', () => {
+  const trig = `/workflow/${L}/trigger/T1`;
+  const hit = refuseRawRequest({ method: 'PUT', path: trig, body: { status: 'published' } });
+  assert.equal(hit?.rule, 'trigger-activation-publish-door');
+  assert.match(hit.hint, /publish_workflow/);
+  assert.equal(refuseRawRequest({ method: 'PUT', path: trig, body: { status: 'draft' } }), null);
+});

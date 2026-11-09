@@ -6,6 +6,14 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { TOOLS, registerTools } from '../core/tools.mjs';
 
 const fastForwardTool = () => TOOLS.find((candidate) => candidate.name === 'fast_forward_contacts');
+// bl-946: a confirmed fast-forward is two calls now. The first returns the confirmation token; the second presents it.
+const ffHandler = async (args, deps) => {
+  const handler = fastForwardTool().handler;
+  if (args.confirm !== true || args.confirmationToken !== undefined) return handler(args, deps);
+  const first = await handler(args, deps);
+  if (!first.data?.confirmationToken) return first;
+  return handler({ ...args, confirmationToken: first.data.confirmationToken }, deps);
+};
 
 function depsFixture({
   rows = [], getFailure = null, postFailure = null, throwAfterPostApply = false,
@@ -65,7 +73,7 @@ const request = (selector, extra = {}) => ({
 
 async function previewFor(selector, rows) {
   const fixture = depsFixture({ rows });
-  const result = await fastForwardTool().handler(request(selector), fixture.deps);
+  const result = await ffHandler(request(selector), fixture.deps);
   assert.equal(result.code, 'CONFIRM_REQUIRED');
   return { result, fixture };
 }
@@ -105,7 +113,7 @@ test('fast_forward_contacts rejects zero, multiple, false, and empty selectors b
 
   for (const selector of invalidSelectors) {
     const fixture = depsFixture();
-    const result = await fastForwardTool().handler({
+    const result = await ffHandler({
       locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', ...selector,
     }, fixture.deps);
 
@@ -122,7 +130,7 @@ test('fast_forward_contacts preview walks every parked page and never writes', a
     contactId: `CONTACT_${index + 1}`,
   }));
   const fixture = depsFixture({ rows });
-  const result = await fastForwardTool().handler({
+  const result = await ffHandler({
     locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', all: true,
   }, fixture.deps);
 
@@ -148,7 +156,7 @@ test('fast_forward_contacts preview resolves contact and status selectors read-o
   ];
 
   const byContact = depsFixture({ rows });
-  const contactResult = await fastForwardTool().handler({
+  const contactResult = await ffHandler({
     locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', contactId: 'CONTACT_TARGET',
   }, byContact.deps);
   assert.equal(contactResult.code, 'CONFIRM_REQUIRED');
@@ -160,7 +168,7 @@ test('fast_forward_contacts preview resolves contact and status selectors read-o
   assert.equal(byContact.calls.some(({ method }) => method === 'POST'), false);
 
   const byStatus = depsFixture({ rows });
-  const statusResult = await fastForwardTool().handler({
+  const statusResult = await ffHandler({
     locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', statusIds: ['STATUS_1', 'STATUS_3'],
   }, byStatus.deps);
   assert.equal(statusResult.code, 'CONFIRM_REQUIRED');
@@ -180,7 +188,7 @@ test('confirmed fast-forward requeues exact workflow-status ULIDs and reports at
   const selector = { statusIds: ['STATUS_ULID_1', 'STATUS_ULID_2'] };
   const preview = await previewFor(selector, rows);
   const fixture = depsFixture({ rows });
-  const result = await fastForwardTool().handler({
+  const result = await ffHandler({
     locationId: 'LOC',
     workflowId: 'WID',
     stepId: 'STEP',
@@ -216,9 +224,9 @@ test('confirmed statusIds resolve the same current parked set as preview when li
     statusIds: ['STATUS_LIVE', 'STATUS_STALE'],
   };
   const previewFixture = depsFixture({ rows });
-  const preview = await fastForwardTool().handler(args, previewFixture.deps);
+  const preview = await ffHandler(args, previewFixture.deps);
   const confirmFixture = depsFixture({ rows });
-  const confirmed = await fastForwardTool().handler({
+  const confirmed = await ffHandler({
     ...args, confirm: true, previewToken: preview.data.preview.previewToken,
   }, confirmFixture.deps);
 
@@ -237,11 +245,11 @@ test('statusIds preview exposes the full resolved set even when samples are trun
   }));
   const statusIds = [...rows.map((row) => row._id), 'STATUS_STALE'];
   const previewFixture = depsFixture({ rows });
-  const preview = await fastForwardTool().handler({
+  const preview = await ffHandler({
     locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', statusIds,
   }, previewFixture.deps);
   const confirmFixture = depsFixture({ rows });
-  const confirmed = await fastForwardTool().handler({
+  const confirmed = await ffHandler({
     locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', statusIds, confirm: true,
     previewToken: preview.data.preview.previewToken,
   }, confirmFixture.deps);
@@ -255,7 +263,7 @@ test('confirmed stale-only statusIds resolve empty and do not POST', async () =>
   const rows = [{ _id: 'STATUS_OTHER', contactId: 'CONTACT_OTHER' }];
   const preview = await previewFor({ statusIds: ['STATUS_STALE'] }, rows);
   const fixture = depsFixture({ rows });
-  const result = await fastForwardTool().handler({
+  const result = await ffHandler({
     locationId: 'LOC', workflowId: 'WID', stepId: 'STEP',
     statusIds: ['STATUS_STALE'], confirm: true,
     previewToken: preview.result.data.preview.previewToken,
@@ -274,7 +282,7 @@ test('confirmed all selector walks every 50-row page before one exact requeue', 
   }));
   const preview = await previewFor({ all: true }, rows);
   const fixture = depsFixture({ rows });
-  const result = await fastForwardTool().handler({
+  const result = await ffHandler({
     locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', all: true, confirm: true,
     previewToken: preview.result.data.preview.previewToken,
   }, fixture.deps);
@@ -283,8 +291,9 @@ test('confirmed all selector walks every 50-row page before one exact requeue', 
   assert.equal(result.data.moved, 51);
   assert.deepEqual(result.data.statusIdsAttempted, rows.map((row) => row._id));
   assert.deepEqual(result.data.statusIdsMoved, rows.map((row) => row._id));
+  // bl-946: the gate's first call reads the roster too; the pages read immediately before the write are the ones that count.
   assert.deepEqual(
-    rosterPagesBeforeWrite(fixture.calls),
+    rosterPagesBeforeWrite(fixture.calls).slice(-2),
     ['0', '50'],
   );
   assert.equal(fixture.calls.filter(({ method }) => method === 'POST').length, 1);
@@ -297,7 +306,7 @@ test('requeue applied then transport throws is an urgent ambiguous failure, neve
     rows,
     throwAfterPostApply: true,
   });
-  const result = await fastForwardTool().handler({
+  const result = await ffHandler({
     locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', statusIds: ['STATUS_ULID_1'], confirm: true,
     previewToken: preview.result.data.preview.previewToken,
   }, fixture.deps);
@@ -325,7 +334,7 @@ test('ambiguous fast-forward recursively scrubs credential-looking parked identi
   const preview = await previewFor({ all: true }, rows);
   const fixture = depsFixture({ rows, throwAfterPostApply: true });
 
-  const result = await fastForwardTool().handler(request({ all: true }, {
+  const result = await ffHandler(request({ all: true }, {
     confirm: true,
     previewToken: preview.result.data.preview.previewToken,
   }), fixture.deps);
@@ -357,11 +366,21 @@ test('ambiguous fast-forward scrubs credential-looking parked identities through
       arguments: request({ all: true }),
     });
     const previewContract = JSON.parse(previewResult.content[0].text);
+    // bl-946: a confirmed call is two calls: the first returns the confirmation token, the second presents it.
+    const tokenResult = await client.callTool({
+      name: 'fast_forward_contacts',
+      arguments: request({ all: true }, {
+        confirm: true,
+        previewToken: previewContract.data.preview.previewToken,
+      }),
+    });
+    const confirmationToken = JSON.parse(tokenResult.content[0].text).data.confirmationToken;
     const confirmedResult = await client.callTool({
       name: 'fast_forward_contacts',
       arguments: request({ all: true }, {
         confirm: true,
         previewToken: previewContract.data.preview.previewToken,
+        confirmationToken,
       }),
     });
     const serialized = JSON.stringify(confirmedResult);
@@ -394,7 +413,7 @@ test('malformed selected parked rows fail closed before preview hashing or confi
   for (const scenario of scenarios) {
     for (const confirmation of [false, true]) {
       const fixture = depsFixture({ rows: scenario.rows });
-      const result = await fastForwardTool().handler(request(scenario.selector, confirmation ? {
+      const result = await ffHandler(request(scenario.selector, confirmation ? {
         confirm: true,
         previewToken: '0'.repeat(64),
       } : {}), fixture.deps);
@@ -419,7 +438,7 @@ test('preview maps structured details-by-step HTTP failures through the stable H
     const fixture = depsFixture({
       getFailure: { status: scenario.status, ok: false, json: { message: 'preview rejected' } },
     });
-    const result = await fastForwardTool().handler({
+    const result = await ffHandler({
       locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', all: true,
     }, fixture.deps);
 
@@ -442,7 +461,7 @@ test('requeue maps known HTTP failures without marking the responded write ambig
       rows,
       postFailure: { status: scenario.status, ok: false, json: { message: 'requeue rejected' } },
     });
-    const result = await fastForwardTool().handler({
+    const result = await ffHandler({
       locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', statusIds: ['STATUS_1'], confirm: true,
       previewToken: preview.result.data.preview.previewToken,
     }, fixture.deps);
@@ -463,7 +482,7 @@ test('preview token is stable across parked-row response order and binds selecto
   const first = await previewFor({ all: true }, rows);
   const reordered = await previewFor({ all: true }, [...rows].reverse());
   const otherStep = depsFixture({ rows });
-  const other = await fastForwardTool().handler({
+  const other = await ffHandler({
     locationId: 'LOC', workflowId: 'WID', stepId: 'OTHER_STEP', all: true,
   }, otherStep.deps);
 
@@ -475,7 +494,7 @@ test('confirm refuses missing or tampered preview tokens with a fresh read-only 
   const rows = [{ _id: 'STATUS_1', contactId: 'CONTACT_1' }];
   for (const previewToken of [undefined, 'tampered']) {
     const fixture = depsFixture({ rows });
-    const result = await fastForwardTool().handler(request(
+    const result = await ffHandler(request(
       { statusIds: ['STATUS_1'] },
       { confirm: true, ...(previewToken ? { previewToken } : {}) },
     ), fixture.deps);
@@ -496,7 +515,7 @@ test('all:true token goes stale when a new parked enrollment appears', async () 
     ...before,
     { _id: 'STATUS_2', contactId: 'CONTACT_2' },
   ] });
-  const result = await fastForwardTool().handler(request({ all: true }, {
+  const result = await ffHandler(request({ all: true }, {
     confirm: true, previewToken: preview.result.data.preview.previewToken,
   }), fixture.deps);
 
@@ -513,7 +532,7 @@ test('contact token goes stale when the selected enrollment or contact associati
   const fixture = depsFixture({
     rows: [{ _id: 'STATUS_1', contactId: 'CONTACT_OTHER' }],
   });
-  const result = await fastForwardTool().handler(request({ contactId: 'CONTACT_TARGET' }, {
+  const result = await ffHandler(request({ contactId: 'CONTACT_TARGET' }, {
     confirm: true, previewToken: preview.result.data.preview.previewToken,
   }), fixture.deps);
 
@@ -529,7 +548,7 @@ test('statusIds token goes stale when the requested live/stale resolution change
     { _id: 'STATUS_2', contactId: 'CONTACT_2' },
   ]);
   const fixture = depsFixture({ rows: [{ _id: 'STATUS_1', contactId: 'CONTACT_1' }] });
-  const result = await fastForwardTool().handler(request(selector, {
+  const result = await ffHandler(request(selector, {
     confirm: true, previewToken: preview.result.data.preview.previewToken,
   }), fixture.deps);
 
@@ -549,7 +568,7 @@ test('duplicate requested statusIds are deduplicated in first-occurrence order b
   assert.deepEqual(preview.result.data.preview.statusIds, ['STATUS_2', 'STATUS_1']);
 
   const fixture = depsFixture({ rows });
-  const result = await fastForwardTool().handler(request(selector, {
+  const result = await ffHandler(request(selector, {
     confirm: true, previewToken: preview.result.data.preview.previewToken,
   }), fixture.deps);
   assert.equal(result.ok, true);
@@ -563,10 +582,10 @@ test('bl-314: a draft is warned in the preview, and moved counts only what a re-
   const rows = [{ _id: 'S1', contactId: 'C1' }, { _id: 'S2', contactId: 'C2' }];
   const selector = { statusIds: ['S1', 'S2'] };
   const pv = depsFixture({ rows, workflowStatus: 'draft' });
-  const preview = await fastForwardTool().handler(request(selector), pv.deps);
+  const preview = await ffHandler(request(selector), pv.deps);
   assert.match(preview.data.preview.warning, /'draft', not published/);
   const fx = depsFixture({ rows, workflowStatus: 'draft' });
-  const r = await fastForwardTool().handler(request(selector, { confirm: true, previewToken: preview.data.preview.previewToken }), fx.deps);
+  const r = await ffHandler(request(selector, { confirm: true, previewToken: preview.data.preview.previewToken }), fx.deps);
   assert.equal(r.ok, true);
   assert.equal(r.data.moved, 0, 'GHL accepted but nobody left the step');
   assert.deepEqual(r.data.statusIdsStillParked, ['S1', 'S2']);
@@ -578,17 +597,17 @@ test('bl-314: a draft is warned in the preview, and moved counts only what a re-
 test('bl-314 CONTROL: a published workflow reports the ids that really left, with no warning', async () => {
   const rows = [{ _id: 'S1', contactId: 'C1' }];
   const pv = depsFixture({ rows });
-  const preview = await fastForwardTool().handler(request({ statusIds: ['S1'] }), pv.deps);
+  const preview = await ffHandler(request({ statusIds: ['S1'] }), pv.deps);
   assert.equal(preview.data.preview.warning, undefined);
   const fx = depsFixture({ rows });
-  const r = await fastForwardTool().handler(request({ statusIds: ['S1'] }, { confirm: true, previewToken: preview.data.preview.previewToken }), fx.deps);
+  const r = await ffHandler(request({ statusIds: ['S1'] }, { confirm: true, previewToken: preview.data.preview.previewToken }), fx.deps);
   assert.deepEqual([r.data.moved, r.data.statusIdsMoved, r.data.statusIdsStillParked, r.data.verified], [1, ['S1'], [], true]);
 });
 
 test('bl-314: a failed re-read reports moved as unverified, never as the attempted count', async () => {
   const rows = [{ _id: 'S1', contactId: 'C1' }];
   const pv = depsFixture({ rows });
-  const preview = await fastForwardTool().handler(request({ statusIds: ['S1'] }), pv.deps);
+  const preview = await ffHandler(request({ statusIds: ['S1'] }), pv.deps);
   const fx = depsFixture({ rows });
   let posted = false;
   const call = fx.deps.makeGw().call;
@@ -597,9 +616,29 @@ test('bl-314: a failed re-read reports moved as unverified, never as the attempt
     if (posted && m === 'GET' && p.includes('/details-by-step?')) return { status: 500, ok: false, json: { message: 'down' } };
     return call(m, p, b);
   } };
-  const r = await fastForwardTool().handler(request({ statusIds: ['S1'] }, { confirm: true, previewToken: preview.data.preview.previewToken }),
+  const r = await ffHandler(request({ statusIds: ['S1'] }, { confirm: true, previewToken: preview.data.preview.previewToken }),
     { ...fx.deps, makeGw: () => gw });
   assert.equal(r.data.verified, false);
   assert.equal(r.data.moved, 0);
   assert.match(r.data.note, /moved is unverified/);
+});
+
+// bl-946 (DECISIONS 2026-11-09, part of w6): the roster previewToken already gates the write, but it does not expire and it is reusable.
+// The bl-946 token is added on top: the roster token alone moves nobody; the confirmation token from the confirm call moves them once.
+test('bl-946: fast-forward with the roster preview token but NO confirmation token moves nobody; the confirmation token moves them once', async () => {
+  const rows = [{ _id: 'STATUS_A', contactId: 'C_A' }];
+  const selector = { statusIds: ['STATUS_A'] };
+  const preview = await previewFor(selector, rows);
+  const base = { locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', ...selector, previewToken: preview.result.data.preview.previewToken };
+  const fixture = depsFixture({ rows });
+  const first = await fastForwardTool().handler({ ...base, confirm: true }, fixture.deps);
+  assert.equal(first.code, 'CONFIRM_REQUIRED', JSON.stringify(first));
+  assert.equal(fixture.calls.filter(({ method }) => method === 'POST').length, 0, 'the first call must not requeue');
+  assert.equal(typeof first.data.confirmationToken, 'string');
+  const second = await fastForwardTool().handler({ ...base, confirm: true, confirmationToken: first.data.confirmationToken }, fixture.deps);
+  assert.equal(second.ok, true, JSON.stringify(second));
+  assert.equal(fixture.calls.filter(({ method }) => method === 'POST').length, 1, 'the confirmation token requeues once');
+  const replay = await fastForwardTool().handler({ ...base, confirm: true, confirmationToken: first.data.confirmationToken }, fixture.deps);
+  assert.equal(replay.ok, false, 'a spent token must not requeue again');
+  assert.equal(fixture.calls.filter(({ method }) => method === 'POST').length, 1);
 });

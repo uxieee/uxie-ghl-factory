@@ -53,7 +53,7 @@ test('copy preview: names source and target, counts same-name workflows already 
 
 test('copy refuses a target the registration is not bound to, before anything is sent', async () => {
   const { gw, calls } = copyGateway();
-  const r = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC'])));
+  const r = await copyConfirmed({}, deps(gw, new Set(['SRC'])));
   assert.equal(r.code, 'LOCATION_FORBIDDEN');
   assert.equal(calls.length, 0);
 });
@@ -69,7 +69,7 @@ test('the same refusal holds on the PREVIEW: a foreign or unbound target is neit
 
 test('a confirmed copy sends the builder\'s body and is proven by the NEW id appearing in the target', async () => {
   const { gw, calls } = copyGateway();
-  const r = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
+  const r = await copyConfirmed({}, deps(gw, new Set(['SRC', 'TGT'])));
   assert.equal(r.ok, true, JSON.stringify(r).slice(0, 300));
   const post = calls.find((c) => c.method === 'POST');
   assert.deepEqual(post.body, { userId: 'U1', subLocationId: 'TGT', subLocationName: 'Target Co' });
@@ -80,7 +80,7 @@ test('a confirmed copy sends the builder\'s body and is proven by the NEW id app
 
 test('a copy GHL queued but that never appears is reported as NOT done, with a do-not-resend warning', { timeout: 60000 }, async () => {
   const { gw } = copyGateway({ copyAppears: false });
-  const r = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
+  const r = await copyConfirmed({}, deps(gw, new Set(['SRC', 'TGT'])));
   assert.equal(r.ok, false);
   assert.match(r.detail, /queued the copy, but no new workflow/);
   assert.match(r.remediation, /Do not re-send/);
@@ -110,7 +110,7 @@ test('get_premium_usage: the two legacy tier keys still read but carry a note th
 
 test('a confirmed copy carries GHL\'s own copy-log row for THIS request, not an older one', async () => {
   const { gw } = copyGateway({ logResult: 'success' });
-  const r = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
+  const r = await copyConfirmed({}, deps(gw, new Set(['SRC', 'TGT'])));
   assert.equal(r.ok, true, JSON.stringify(r).slice(0, 300));
   assert.equal(r.data.copyLog.requestGroupId, 'NEW-G');
   assert.equal(r.data.copyLog.result, 'success', 'the row is re-read until it leaves processing');
@@ -120,10 +120,35 @@ test('a confirmed copy carries GHL\'s own copy-log row for THIS request, not an 
 test('a copy GHL\'s log marks FAILED is reported at once, with the step and GHL\'s own message', async () => {
   const { gw, calls } = copyGateway({ copyAppears: false, logResult: 'failed' });
   const t0 = Date.now();
-  const r = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
+  const r = await copyConfirmed({}, deps(gw, new Set(['SRC', 'TGT'])));
   assert.equal(r.ok, false);
   assert.match(r.detail, /marks this copy FAILED at step 'create_assets'/);
   assert.deepEqual(r.data.copyLog.steps, [{ step: 'create_assets', result: 'failed', message: 'custom field limit reached' }]);
   assert.ok(Date.now() - t0 < 10000, 'it did not wait out the 30 s poll');
+  assert.equal(calls.filter((c) => c.method === 'POST').length, 1);
+});
+
+// bl-946: a confirmed copy is two calls now. The preview call returns the token; the second presents it.
+const copyConfirmed = async (extra, dependencies) => {
+  const preview = await tool('copy_workflow_to_location').handler(args({ confirm: true, ...extra }), dependencies);
+  if (!preview.data?.confirmationToken) return preview;
+  return tool('copy_workflow_to_location').handler(args({ confirm: true, ...extra, confirmationToken: preview.data.confirmationToken }), dependencies);
+};
+
+// bl-946 (DECISIONS 2026-11-09, part of w6): the copy writes into a second account, so it takes the two-step token gate too.
+// confirm:true with no token sends nothing and returns the preview and a token; the token, presented once, copies once.
+test('bl-946: copy with confirm:true and NO token sends nothing; the token from the preview copies exactly once', async () => {
+  const { gw, calls } = copyGateway();
+  const first = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
+  assert.equal(first.code, 'CONFIRM_REQUIRED', JSON.stringify(first));
+  assert.equal(calls.filter((c) => c.method === 'POST').length, 0, 'the first call must not copy');
+  assert.equal(typeof first.data.confirmationToken, 'string');
+  const second = await tool('copy_workflow_to_location').handler(
+    args({ confirm: true, confirmationToken: first.data.confirmationToken }), deps(gw, new Set(['SRC', 'TGT'])));
+  assert.equal(calls.filter((c) => c.method === 'POST').length, 1, 'the token copies once');
+  assert.ok(second.ok || second.code, 'the second call reaches the copy');
+  const replay = await tool('copy_workflow_to_location').handler(
+    args({ confirm: true, confirmationToken: first.data.confirmationToken }), deps(gw, new Set(['SRC', 'TGT'])));
+  assert.equal(replay.ok, false, 'a spent token must not copy again');
   assert.equal(calls.filter((c) => c.method === 'POST').length, 1);
 });
