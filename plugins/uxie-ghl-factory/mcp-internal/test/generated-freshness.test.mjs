@@ -1,4 +1,17 @@
-import { test } from 'node:test';
+import { test as nodeTest } from 'node:test';
+import { rmSync } from 'node:fs';
+// Every temp directory this file makes is registered here and removed in the finally block of its own test, so a run leaves nothing
+// behind (each one holds a copy of the endpoint catalogue, about 26 MB).
+const made = [];
+const tempDir = (prefix) => { const d = mkdtempSync(join(tmpdir(), prefix)); made.push(d); return d; };
+const test = (name, fn) => nodeTest(name, (t) => {
+  const mark = made.length;
+  try {
+    return fn(t);
+  } finally {
+    for (const d of made.splice(mark)) rmSync(d, { recursive: true, force: true });
+  }
+});
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
@@ -28,7 +41,7 @@ const run = (...args) => {
 // shipped output. The compiler resolves everything relative to its own location, so the copy
 // must keep the mcp-internal/{scripts,catalog,capability-manifest.json} shape.
 function scratchPluginRoot() {
-  const root = mkdtempSync(join(tmpdir(), 'freshness-test-'));
+  const root = tempDir('freshness-test-');
   const mcp = join(root, 'mcp-internal');
   mkdirSync(join(mcp, 'scripts'), { recursive: true });
   cpSync(join(MCP, 'catalog'), join(mcp, 'catalog'), { recursive: true });
@@ -75,7 +88,7 @@ test('a compiled catalogue missing a row and carrying a flipped kind is STALE, a
 
 test('a source artefact that knowledge/ has moved past is STALE, naming the rows the plugin lacks', () => {
   const { root, mcp } = scratchPluginRoot();
-  const knowledge = mkdtempSync(join(tmpdir(), 'freshness-knowledge-'));
+  const knowledge = tempDir('freshness-knowledge-');
   mkdirSync(join(knowledge, 'scripts'));
   mkdirSync(join(knowledge, 'catalog'));
   const src = JSON.parse(readFileSync(join(mcp, 'catalog/internal-endpoints.source.json'), 'utf8'));
@@ -97,7 +110,7 @@ test('freshness fails on a stale public-ops snapshot and skips when public-api-m
   const PUBLIC = resolve(REPO, '..', 'public-api-mcp', 'data/catalog.json');
   if (!existsSync(join(KNOWLEDGE, 'scripts/snapshot-public-ops.mjs')) || !existsSync(PUBLIC)) return t.skip('knowledge/ or public-api-mcp/ not beside this repo');
   const { root, mcp } = scratchPluginRoot();
-  const knowledge = mkdtempSync(join(tmpdir(), 'freshness-knowledge-'));
+  const knowledge = tempDir('freshness-knowledge-');
   mkdirSync(join(knowledge, 'scripts')); mkdirSync(join(knowledge, 'catalog'));
   for (const f of ['snapshot-public-ops.mjs', 'check-rail-ledger.mjs']) cpSync(join(KNOWLEDGE, 'scripts', f), join(knowledge, 'scripts', f));
   // A snapshot taken before the public catalogue gained an op: the same stale bytes in knowledge and in the plugin copy,
@@ -107,7 +120,7 @@ test('freshness fails on a stale public-ops snapshot and skips when public-api-m
   snap.ops = snap.ops.filter((o) => o !== gone);
   for (const dir of [join(knowledge, 'catalog'), join(mcp, 'catalog')]) writeFileSync(join(dir, 'public-ops.json'), `${JSON.stringify(snap, null, 2)}\n`);
   cpSync(join(mcp, 'catalog/rail-ledger.json'), join(knowledge, 'catalog/rail-ledger.json'));
-  const pub = mkdtempSync(join(tmpdir(), 'freshness-public-'));
+  const pub = tempDir('freshness-public-');
   mkdirSync(join(pub, 'data')); cpSync(PUBLIC, join(pub, 'data/catalog.json'));
 
   const stale = run('--plugin-root', root, '--knowledge', knowledge, '--public-api', pub, '--only', 'rail-ledger');
@@ -123,7 +136,7 @@ test('freshness fails on a stale public-ops snapshot and skips when public-api-m
 
 test('rail-ledger copies that knowledge/ has moved past are STALE', () => {
   const { root, mcp } = scratchPluginRoot();
-  const knowledge = mkdtempSync(join(tmpdir(), 'freshness-knowledge-'));
+  const knowledge = tempDir('freshness-knowledge-');
   mkdirSync(join(knowledge, 'scripts')); mkdirSync(join(knowledge, 'catalog'));
   cpSync(join(mcp, 'catalog/public-ops.json'), join(knowledge, 'catalog/public-ops.json'));
   const ledger = JSON.parse(readFileSync(join(mcp, 'catalog/rail-ledger.json'), 'utf8'));
@@ -153,7 +166,7 @@ test('a ledger the knowledge validator refuses is STALE, even when the copies ma
   const KNOWLEDGE = resolve(REPO, '..', 'knowledge');
   if (!existsSync(join(KNOWLEDGE, 'scripts/check-rail-ledger.mjs'))) return t.skip('knowledge/ not beside this repo');
   const { root, mcp } = scratchPluginRoot();
-  const knowledge = mkdtempSync(join(tmpdir(), 'freshness-knowledge-'));
+  const knowledge = tempDir('freshness-knowledge-');
   for (const d of ['scripts', 'catalog', 'corpus']) mkdirSync(join(knowledge, d));
   cpSync(join(KNOWLEDGE, 'scripts/check-rail-ledger.mjs'), join(knowledge, 'scripts/check-rail-ledger.mjs'));
   for (const f of ['public-ops.json', 'internal-endpoints.source.json']) cpSync(join(KNOWLEDGE, 'catalog', f), join(knowledge, 'catalog', f));

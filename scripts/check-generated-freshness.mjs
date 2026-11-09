@@ -35,7 +35,7 @@
 //
 // Checks that need knowledge/ SKIP (exit 0, say so) when it is absent — it is a sibling repo with
 // no remote, so a clone of this repo alone cannot run them. Everything else always runs.
-import { readFileSync, existsSync, mkdtempSync } from 'node:fs';
+import { readFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -61,6 +61,8 @@ for (const name of [...ONLY, ...SKIP]) {
 const wanted = (name) => (!ONLY.length || ONLY.includes(name)) && !SKIP.includes(name);
 
 const tmp = mkdtempSync(join(tmpdir(), 'freshness-'));
+// Removed on every exit path (the checks run to completion or call process.exit); each run used to leave a copy of the catalogue here.
+process.on('exit', () => rmSync(tmp, { recursive: true, force: true }));
 const readJson = (p) => JSON.parse(readFileSync(p, 'utf8'));
 const hasKnowledge = existsSync(join(KNOWLEDGE, 'scripts')) && existsSync(join(KNOWLEDGE, 'catalog'));
 
