@@ -178,6 +178,7 @@ Every row below is written the same way: `raw_request` `POST /forms/{id}` with t
 - Nested objects merge as well as the top level. `style.padding`, `fieldStyle.padding` and `fieldStyle.border` keep the keys you did not send. Send every nested key you need, and restore a nested value by setting its keys back explicitly, not by omitting them.
 - An empty `redirect_url` does not clear a stored URL, and the builder ignores `redirectUrl` unless `actionType` is `"1"`.
 - Not in this table: the survey navigation keys and the default colour swatches. Neither has a whole-document save proof yet.
+- **fieldStyle changes made by API do not render until the form is saved in the builder.** The public widget draws its field styling from `formData.fieldCSS`, which only the builder regenerates on save (BuilderHeader.vue, createFieldCSS). A `POST /forms/{id}` that changes `fieldStyle` reads back correctly, but the public render does not change until the form is saved in the builder.
 
 ## Quiz questions a raw_request can write (proven live)
 
