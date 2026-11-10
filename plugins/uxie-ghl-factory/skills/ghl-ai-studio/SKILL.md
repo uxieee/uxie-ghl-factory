@@ -157,3 +157,5 @@ treat each as a write with side effects:
 Custom domains, deletes, and version restore are deliberately not exposed. Migrate-to-SSR needs an
 `Idempotency-Key` header raw_request cannot set. Brand boards and brand voices are **not** AI Studio —
 different surface, different rail.
+
+**Embed credentials.** AI Studio has no user control to view or set embed credentials; they are system-issued (walked 2026-11-10: studio list, builder, More view; no embed route in the live bundle).
