@@ -189,5 +189,5 @@ These routes are in the catalogue and were executed against the TEST sandbox wit
 | POST | `/vibe-ai/projects/{projectId}/meta/image` | set the project meta image |
 | POST | `/vibe-ai/projects/{projectId}/edit-code` | edit project code through the API |
 | GET | `/vibe-ai/projects/{projectId}/usage/policy` | read the usage policy (read only) |
-| GET | `/vibe-ai/banners/active` | read the active banners (read only) |
+| GET | `/vibe-ai/banners/active` | read the active banners. Not proven as a read: it returned null on every probe (2026-11-09), so the shape is unknown |
 | GET | `/chat-widget/list` | list chat widgets (read only; catalogue host services) |
