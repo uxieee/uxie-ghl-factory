@@ -58,6 +58,7 @@ creates a staff record for every user, and turns on staff e-mails for every book
 - **Keys outside the public update schema** (enable guests, guest collection mode, enable consent check, show seats per
   slot, reserve-service, price id) are writable only with a raw PUT to the same calendar route; the public tool does not
   accept them. The seats-per-slot flag shows on the public payload.
+- **Raw keys on the same calendar PUT** (`PUT /calendars/{calendarId}`, the whole document: send the team members and form id too, then read back on a separate GET and restore): look busy is the nested `lookBusyConfig` `{enabled, lookBusyPercentage}` (the flat `lookBusyEnabled` and `lookBusyPercentage` keys are refused 422 "should not exist"); the redirect after booking is `formSubmitType` `RedirectURL` together with `formSubmitRedirectURL` (capital R in URL), since the lower-case form is refused and the read-back key is `formSubmitRedirectUrl`; guests are `enableGuests` with `guestType` (set and restored on a TEST collective calendar). Evidence for each is cited in the knowledge calendars sniffs.
 - Creating a calendar in the UI also rewrites the assignee's default availability schedule with `calendarIds:
   [<new id>]` only. Whether that unbinds an earlier calendar is untested — read the schedule after.
 
