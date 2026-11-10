@@ -276,6 +276,21 @@ where the tool offers it, and never send a body whose keys you have not read fir
 Not covered here: course analytics progress and the analytics dashboards (their data is `POST /courses/analytics/...` queries; the progress view has
 no proven write), and learner-side rendering. Those stay as the corpus describes them.
 
+## Credential templates (certificates): list, create, designer save, delete
+
+Proven on the sandbox with a read on a separate request after each write. The template is the credential's design; a credential is issued from it.
+
+- **List templates:** `GET /certificates/locations/{locationId}/templates` → `{templates: [{_id, title, ...}]}`.
+- **Create a template:** `POST /certificates/locations/{locationId}/templates` with `{title, ...}`, `confirm: true`. Returns `201`. Read it back on a separate
+  list GET (`_id` and `title`). Create only with an explicit approval naming the type; it stays as residue (there is no delete in this section's use).
+- **Designer save (title and canvas fields):** `PATCH /certificates/locations/{locationId}/templates/{templateId}` with the body keys you change.
+  Proven: the title change read back on a separate list GET. Rules measured on the sandbox: the endpoint refuses an empty `title` (send the unchanged
+  title with every PATCH); the merge keeps keys you omit; the designer's `templateJson` cannot be cleared back to an empty string through this route
+  (a restore to `""` is stored as the two-character string `""`, not the empty value). Read the template first and send the exact before value for any
+  key you restore.
+- **Delete a template:** `DELETE /certificates/locations/{locationId}/templates/{templateId}` with `confirm: true`. Returns `200` with
+  `type: TEMPLATE_DELETED`. Read back on a separate list GET: the id is gone. Delete only a template you created for the test, by its own id.
+
 ## Full reference
 
 `references/course-spec.md` — spec format.
