@@ -249,6 +249,40 @@ Traps (the first three are measured on the sandbox; the rest are from the same r
 - Know-about only: which surface shows what, and what is still open, is in the corpus page `70-research/2026-11-06-communities-paid-channels-and-know-about.md`.
 - Course video analytics and the Discover Courses & Offers storefront have no route taught here; the courses analytics routes in the endpoint index are proven for dashboards, not for video watch data.
 
+## Routes with a proven raw_request write (settings, CSS and code, instructor fields, portal users)
+
+These operations have no typed tool. Each one was proven on the sandbox (the write, then a read on a separate request, then a restore), so the
+route and body shape below are evidence, not a guess. Send them with `raw_request {locationId, method, path, body, confirm: true}`. Preview first
+where the tool offers it, and never send a body whose keys you have not read first: several of these writes replace the whole object.
+
+- **Course CSS, custom code and header/footer (product document):** `PUT /membership/locations/{locationId}/products/{productId}` with the FULL product
+  object (read it with `GET` on the same path first). The custom fields are `customCss`, `customJs`, `customHeader`, `customFooter`. Proven: set to a TEST
+  value, read back on a separate GET, restored to `null`. Clearing a field back to `null` works; an empty string is not the same and is not used.
+- **Instructor name, title, bio and heading (customization):** `PUT /membership/locations/{locationId}/products/customizations/{customizationId}`, with
+  the customization record read first (`GET /membership/locations/{locationId}/products/{productId}`, the `customizations` block). Proven: name, title and
+  bio set and read back, the heading read back unchanged, then restored.
+- **Portal settings (portal banner text, app permissions, and the other portal-settings keys):** `PUT /clientclub/portal-settings/{locationId}` with the
+  full document. The keys the GET carries must equal the read value, except the one test field. Keys the GET does not carry are sent only as the form's
+  own defaults. Proven for `portalBannerText` and for app permissions: set, read back on a separate GET, restored. Once a portal name is set the UI
+  cannot clear it (an empty name is refused before any request), so a name is a one-way write on a sandbox.
+Not covered here: the course analytics dashboards (their data comes from read-only summary queries that the catalogue does not carry yet), the course
+analytics progress view (no proven write), and learner-side rendering. Those stay as the corpus describes them.
+
+## Credential templates (certificates): list, create, designer save, delete
+
+Proven on the sandbox with a read on a separate request after each write. The template is the credential's design; a credential is issued from it.
+
+- **List templates:** `GET /certificates/locations/{locationId}/templates` → `{templates: [{_id, title, ...}]}`.
+- **Create a template:** `POST /certificates/locations/{locationId}/templates` with `{title, ...}`, `confirm: true`. Returns `201`. Read it back on a separate
+  list GET (`_id` and `title`). Create only with an explicit approval naming the type. A created template stays as residue unless it is deleted with the route below.
+- **Designer save (title and canvas fields):** a partial update of the template record (the designer's own save route, not yet in the catalogue, so no path is named here); send the body keys you change.
+  Proven: the title change read back on a separate list GET. Rules measured on the sandbox: the endpoint refuses an empty `title` (send the unchanged
+  title with every PATCH); the merge keeps keys you omit; the designer's `templateJson` cannot be cleared back to an empty string through this route
+  (a restore to `""` is stored as the two-character string `""`, not the empty value). Read the template first and send the exact before value for any
+  key you restore.
+- **Delete a template:** the template's delete route (not yet in the catalogue, so no path is named here), with confirm. It returns `200` with
+  `type: TEMPLATE_DELETED`. Read back on a separate list GET: the id is gone. Delete only a template you created for the test, by its own id.
+
 ## Full reference
 
 `references/course-spec.md` — spec format.
