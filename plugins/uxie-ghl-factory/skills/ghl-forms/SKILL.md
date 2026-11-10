@@ -247,6 +247,11 @@ Quiz result rows use the same whole-document save as the quiz above: `POST /form
 - **Saving a version:** a `POST /forms/{id}` with the current `formData` unchanged returns 201 and adds one version entry. The content does not change, but the entry cannot be removed. Name it as residue in any record.
 - **Restoring a version:** `POST /forms/restore-version` is in the catalogue with reach `proven`. This lane has not run it; before relying on it, run it on a TEST form and read back on a separate GET.
 
+## Picture choice (a quiz slide only)
+
+- **Writing it:** `raw_request` `POST /forms/{id}` with the element in `formData.slides[].slideData[]`: `type` and `builderElementType` `PICTURE_CHOICE`, `dataType` `RADIO`, `optionDisplayType` `TEXT_WITH_IMAGE`, `picklistOptionsImage` (a list of `{label, src}`), and `pictureChoiceSettings` (`imageFit`, `selectionLimit`, `showOptionLabel`). It reads back on a separate GET with the same keys (proven on a TEST quiz).
+- **The typed path refuses it:** `update_form_data` with `fields` returns `VALIDATION_FAILED`, because the type is not a renderer the builder writes in the fields path (the tool's own message lists the accepted types). Do not try the typed route for this element.
+
 ## Out of scope, and why
 
 Never executed on any account, so no tool exposes them and the corpus marks them unproven:
