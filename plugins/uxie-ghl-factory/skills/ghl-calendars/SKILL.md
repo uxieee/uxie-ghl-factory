@@ -161,6 +161,8 @@ Each row names a catalogued route, the body shape the proof sent, and what to re
 - **Round robin event type:** `PUT /calendars/{calendarId}` with the event type, set and restored; the calendar type is set at create and read back.
 - **User default meeting location:** `PUT /users/{userId}` with locationWiseMeetingLocation for the location. Restored to null; the prior absence of the location key is not reproduced.
 - **Account language and week start:** `PUT /locations/{locationId}` with appStartDayOfWeek and the language, set and restored.
+- **Booking page, client portal booking:** `PUT /calendars/{calendarId}` with the stored key enableClientPortalBooking (false, then true, then restored), read back on a separate GET. The other keys on the booking-page screen are page copy and are not stored settings.
+- **Calendar view, view mode and week:** UI only. The view is kept in the browser (a local key, set and read back after a reload), and no server route stores it. There is no raw route to name, so the calendar setup and this view are a UI step.
 - **Module gate (read only):** `GET /calendars/configuration/location/{locationId}` returns subAccountConfig modules. No sub-account write route is captured, so the modules are read, not set.
 
 ## Side effects to tell the operator about
