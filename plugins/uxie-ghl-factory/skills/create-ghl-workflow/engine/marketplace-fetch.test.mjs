@@ -61,7 +61,7 @@ test('a native build whose attributes nest an object CONTAINING "marketplace":tr
     if (method === 'POST' && path.match(/\/workflow\/[^/]+$/)) return { ok: true, json: { id: 'WID_1' } };
     if (method === 'PUT' && path.includes('/auto-save')) return { ok: true, json: {} };
     if (method === 'POST' && path.includes('/trigger')) return { ok: true, json: { id: 'TRIG_1' } };
-    if (method === 'GET' && path.includes('/workflow/')) return { ok: true, json: { workflowData: { templates: [
+    if (method === 'GET' && path.includes('/workflow/')) return { ok: true, json: { status: 'draft', workflowData: { templates: [
       { id: 'WID_1', type: 'custom_webhook',
         attributes: { event: 'CUSTOM', method: 'POST', url: 'https://example.com/h', headers: { marketplace: true } } },
     ] } } };

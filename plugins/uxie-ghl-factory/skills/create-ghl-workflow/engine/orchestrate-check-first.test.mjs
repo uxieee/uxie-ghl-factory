@@ -20,7 +20,7 @@ function mockGateway({ tags = [], assets = { errors: [], warnings: [] }, server 
     if (method === 'POST' && path.match(/\/workflow\/[^/]+$/)) return { ok: true, json: { id: 'WID_1' } };
     if (method === 'PUT' && path.includes('/rename-workflow/')) return { ok: true, json: {} };
     if (method === 'PUT' && path.includes('/auto-save')) return { ok: true, json: {} };
-    if (method === 'GET' && path.includes('/workflow/')) return { ok: true, json: { name: '[REFUSED] W', workflowData: { templates: [] } } };
+    if (method === 'GET' && path.includes('/workflow/')) return { ok: true, json: { status: 'draft', name: '[REFUSED] W', workflowData: { templates: [] } } };
     if (method === 'GET') return { ok: true, json: {} };
     return { ok: true, json: {} };
   };

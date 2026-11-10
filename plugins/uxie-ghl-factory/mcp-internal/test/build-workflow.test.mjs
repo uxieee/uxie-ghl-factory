@@ -60,12 +60,17 @@ function buildGateway({
         sentTemplates = body.workflowData.templates;
         return { status: 200, ok: true, json: {} };
       }
+      if (method === 'PUT' && path === '/workflow/LOC/change-status') {
+        // bl-1028: build_workflow unpublishes a flow that reads back published; the fixture models the change taking effect.
+        if (body?.status === 'draft') readBackStatus = 'draft';
+        return { status: 200, ok: true, json: {} };
+      }
       if (method === 'GET' && path === '/workflow/LOC/WID_1?includeScheduledPauseInfo=true') {
         return {
           status: 200,
           ok: true,
           json: {
-            ...(readBackStatus !== undefined ? { status: readBackStatus } : {}),
+            status: readBackStatus ?? 'draft', // GHL always returns a status; a fresh workflow reads draft (bl-1028)
             workflowData: { templates: persistedSteps === 'sent' ? sentTemplates : [] },
           },
         };
@@ -152,7 +157,7 @@ test('build_workflow records the read-back status and words the note off it, not
 // Live-observed defect (out of scope to fix here, see orchestrate.mjs): a workflow can read
 // back status:"published" with no publish call and no --publish flag. buildWorkflowData must
 // not assert a safety property it never checked — it should surface exactly what it read back.
-test('build_workflow surfaces a loud warning when the read-back status is not draft, without touching the underlying cause', async () => {
+test('build_workflow corrects a non-draft read-back to draft and reads it back again', async () => {
   const { gw, calls } = buildGateway({ readBackStatus: 'published' });
   const result = await buildTool().handler(
     { locationId: 'LOC', spec: tagSpec(), ignoreUnresolved: false },
@@ -165,7 +170,7 @@ test('build_workflow surfaces a loud warning when the read-back status is not dr
   assert.equal(
     calls.some(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID_1'),
     false,
-    'the fix only reports the observation — it must not itself attempt to correct the status',
+    'the correction goes through change-status, never a whole-document PUT of the workflow',
   );
 });
 

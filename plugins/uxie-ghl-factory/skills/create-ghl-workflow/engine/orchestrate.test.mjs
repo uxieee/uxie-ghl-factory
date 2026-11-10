@@ -27,7 +27,7 @@ function mockGateway({ tags = [], pipelines = [], calendars = [], users = [], fo
     if (method === 'PUT' && path.includes('/auto-save')) return { ok: true, json: {} };
     if (method === 'POST' && path.includes('/trigger')) { postedTriggers.push({ ...body, id: `TRIG_${postedTriggers.length + 1}` }); return { ok: true, json: { id: `TRIG_${postedTriggers.length}` } }; }
     if (method === 'GET' && path.includes('/trigger?workflowId=')) return { ok: true, json: { triggers: postedTriggers } };
-    if (method === 'GET' && path.includes('/workflow/')) return { ok: true, json: { workflowData: { templates: [
+    if (method === 'GET' && path.includes('/workflow/')) return { ok: true, json: { status: 'draft', workflowData: { templates: [
       { id: 'WID_1', type: 'add_contact_tag', attributes: { tags: ['new-tag'] } },
     ] } } };
     return { ok: true, json: {} };

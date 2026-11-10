@@ -227931,6 +227931,25 @@ ${offline.summary}`;
   } else {
     report.schemaChecked = { source: "unavailable", note: "live action schema could not be fetched; required-field checks fell back to the attested map" };
   }
+  if (opts.publish !== true) {
+    const readStatus = async (phase) => {
+      const r = await callAt(phase, "GET", `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
+      return r ? { ok: r.ok === true, status: r.json?.status ?? null, http: r.status ?? null } : null;
+    };
+    let back2 = await readStatus("draft_check_get");
+    if (back2 && back2.ok && back2.status !== "draft") {
+      report.draftCorrection = { observed: back2.status, action: "change-status to draft" };
+      await callAt("draft_correction", "PUT", `/workflow/${loc}/change-status`, { status: "draft", updatedBy: uid, workflowIds: [WID] });
+      back2 = await readStatus("draft_recheck_get");
+    }
+    if (!back2) return report;
+    if (!back2.ok || back2.status !== "draft") {
+      report.failurePhase = "draft_check";
+      report.aborted = `Built workflow ${WID} reads ${back2.ok ? `"${back2.status}"` : `HTTP ${back2.http}`} after build_workflow, not draft, and the unpublish did not hold. This tool did not publish it; unpublish it by hand before anything else.`;
+      return report;
+    }
+    report.draftChecked = { wid: WID, status: "draft", separateGet: true };
+  }
   if (opts.publish) {
     const freshResponse = await callAt("publish_workflow_get", "GET", `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
     if (!freshResponse) return report;

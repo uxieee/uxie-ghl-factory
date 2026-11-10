@@ -976,6 +976,30 @@ async function runOrchestrate(ir, gw, opts, checkErrors) {
     report.schemaChecked = { source: 'unavailable', note: 'live action schema could not be fetched; required-field checks fell back to the attested map' };
   }
 
+  // 5b. bl-1028 (2026-11-10, SAFETY): build_workflow never publishes, and it says so by reading the flow back. GHL publishes an
+  //     agent-type flow on save (measured: an unbound conv_ai flow built here read back PUBLISHED straight after the build; our create
+  //     and autosave bodies say draft). So the status is read on a SEPARATE GET; if it is not draft it is unpublished through
+  //     change-status and read again. A flow that is still not a draft is a build failure, named, never a success.
+  if (opts.publish !== true) {
+    const readStatus = async (phase) => {
+      const r = await callAt(phase, 'GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
+      return r ? { ok: r.ok === true, status: r.json?.status ?? null, http: r.status ?? null } : null;
+    };
+    let back = await readStatus('draft_check_get');
+    if (back && back.ok && back.status !== 'draft') {
+      report.draftCorrection = { observed: back.status, action: 'change-status to draft' };
+      await callAt('draft_correction', 'PUT', `/workflow/${loc}/change-status`, { status: 'draft', updatedBy: uid, workflowIds: [WID] });
+      back = await readStatus('draft_recheck_get');
+    }
+    if (!back) return report; // a transport failure is already named in report.aborted
+    if (!back.ok || back.status !== 'draft') {
+      report.failurePhase = 'draft_check';
+      report.aborted = `Built workflow ${WID} reads ${back.ok ? `"${back.status}"` : `HTTP ${back.http}`} after build_workflow, not draft, and the unpublish did not hold. This tool did not publish it; unpublish it by hand before anything else.`;
+      return report;
+    }
+    report.draftChecked = { wid: WID, status: 'draft', separateGet: true };
+  }
+
   // 6. optional publish (opt-in). Mirrors the builder's real publish PUT — this is
   //    NOT a bare status flip. The UI sends the WHOLE workflow object as-is (it keeps
   //    filePath/fileUrl/version/autoSaveSessionId — do NOT strip them) and bumps `version`.

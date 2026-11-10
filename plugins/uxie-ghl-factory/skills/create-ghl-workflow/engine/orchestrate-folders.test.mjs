@@ -26,6 +26,8 @@ function mock({ folders = FOLDERS, pageSize = 100 } = {}) {
     if (method === 'POST' && path.endsWith('/directory')) { n += 1; return { ok: true, status: 200, json: { id: `NEW${n}` } }; }
     if (method === 'POST' && /\/workflow\/LOC$/.test(path)) return { ok: true, status: 200, json: { id: 'WID' } };
     if (method === 'POST' && path.includes('/validate-workflows')) return { ok: true, status: 200, json: { valid: true } };
+    // bl-1028: the built workflow reads back a draft status (GHL always returns one).
+    if (method === 'GET' && path.startsWith('/workflow/LOC/WID?')) return { ok: true, status: 200, json: { status: 'draft' } };
     if (method === 'GET' && path.match(/\/tags$/)) return { ok: true, status: 200, json: { tags: [] } };
     return { ok: true, status: 200, json: {} };
   };
