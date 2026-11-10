@@ -49,6 +49,15 @@ creates a staff record for every user, and turns on staff e-mails for every book
   never by `isCancelled` — it read `false` on a cancelled appointment.
 - `autoConfirm` decides the status an appointment is BORN with; a `status == new` trigger never sees an auto-confirmed
   booking.
+- **Stored settings the public calendar update accepts** (verified on a test calendar, each read back on a separate GET and
+  restored): the booking form (form id, submit type, redirect URL, thank-you message), `autoConfirm`, guest type and the
+  consent label. A changed value shows on the public widget payload (thank-you message, guest type and consent label do).
+- 🔴 **A partial calendar PUT is refused on a collective calendar** (the server answers that the primary team member flag is required). Send the team
+  members, form id, submit type and thank-you message from a fresh GET together with the change, then check that no
+  other field moved.
+- **Keys outside the public update schema** (enable guests, guest collection mode, enable consent check, show seats per
+  slot, reserve-service, price id) are writable only with a raw PUT to the same calendar route; the public tool does not
+  accept them. The seats-per-slot flag shows on the public payload.
 - Creating a calendar in the UI also rewrites the assignee's default availability schedule with `calendarIds:
   [<new id>]` only. Whether that unbinds an earlier calendar is untested — read the schedule after.
 
