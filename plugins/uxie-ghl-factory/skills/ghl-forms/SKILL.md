@@ -115,6 +115,7 @@ Public only: upload to a submission.
 **Conditional logic is writable through `update_form_data`** (the `conditionalLogic` key). A rule is a list of conditions, each with a field, an operation, a value and an outcome. Live-proven on a TEST-CONF form: each one was stored and read back on a separate GET.
 - **Operators (15):** is equal to, is not equal to, contains, does not contain, starts with, ends with, is empty, is filled, before, after, greater than, less than, between, is checked, is not checked.
 - **Outcomes (6):** redirect to a URL, show or hide fields, display a message, disqualify, jump to a step, free roam.
+- **The between operator reads its value as JSON.** The public widget parses `inputValue` as an object with `start`, `end`, `includeStart` and `includeEnd` (a plain `"a,b"` string never matches). `includeStart` and `includeEnd` default to true unless set to false. Source: the widget excerpt sniff `w9-studio2-2026-11-10/live-widget-logic-excerpts-2026-11-11.json` (served script, the between case).
 - **Product conditions (3 shapes on a product):** is selected, is not selected, and a bump-product target. These are written on the product's key, not a field key.
 
 **Merge caveat (bl-1004).** A save merges into the stored document, so a key cannot be removed by leaving it out. To restore an absent key, set it explicitly to `null` or `[]`. The batch 3 TEST form kept residue for this reason, recorded in bl-1004.
