@@ -147,6 +147,24 @@ assistant's troubleshoot state sticks across turns: start a new chat per questio
 
 The booking-pages list and the View booking page tab are a rendered view. The calendar object and the public widget payload carry no page-view key, so there is no API setting to read back or set. Open it in the app at `app.gohighlevel.com/v2/location/{locationId}/settings/calendars` (the settings tab, then the booking pages list). Do not send a write for the view itself.
 
+## Raw-route rows for calendar fields (proven by set and restore)
+
+Each row names a catalogued route, the body shape the proof sent, and what to read back. Every set is followed by a restore to the prior value and a separate read-back. Ids are left out.
+
+- **Editor Basic details, description:** `PUT /calendars/{calendarId}` with the whole document (teamMembers, formId, formSubmitType, formSubmitThanksMessage) and the one changed field. A partial body is refused on a collective calendar. Read back on a separate GET.
+- **Editor Staff and location, custom meeting location label:** `PUT /calendars/{calendarId}` with teamMembers, the custom label changed on one team member and the rest of the member kept. Read back on a separate GET; the label goes back to the original.
+- **Services create:** `POST /calendars/services` returns 201 for one service. Then `PUT /calendars/services/{serviceId}` with the full document and one changed field, read back, and the original document restored.
+- **Payments, recurring meetings:** `PUT /calendars/{calendarId}` with enableRecurring and stripe.recurringAppointmentsPaymentType, set and restored to false and {}. No checkout, no provider call.
+- **Payments, coupon on the payment page:** `PUT /calendars/{calendarId}` with stripe.isCouponEnabled, set and restored.
+- **Service setup, reserve service:** `PUT /calendars/{calendarId}` with reserveService, set and restored. The price id and the wizard step are not sent.
+- **Class seats per class:** `PUT /calendars/{calendarId}` with appointmentPerSlot. The key is proven on a class calendar; the UI label "Seats per class" is not yet confirmed to save to it.
+- **Round robin event type:** `PUT /calendars/{calendarId}` with the event type, set and restored; the calendar type is set at create and read back.
+- **User default meeting location:** `PUT /users/{userId}` with locationWiseMeetingLocation for the location. Restored to null; the prior absence of the location key is not reproduced.
+- **Account language and week start:** `PUT /locations/{locationId}` with appStartDayOfWeek and the language, set and restored.
+- **Booking page, client portal booking:** `PUT /calendars/{calendarId}` with the stored key enableClientPortalBooking (false, then true, then restored), read back on a separate GET. The other keys on the booking-page screen are page copy and are not stored settings.
+- **Calendar view, view mode and week:** UI only. The view is kept in the browser (a local key, set and read back after a reload), and no server route stores it. There is no raw route to name, so the calendar setup and this view are a UI step.
+- **Module gate (read only):** `GET /calendars/configuration/location/{locationId}` returns subAccountConfig modules. No sub-account write route is captured, so the modules are read, not set.
+
 ## Side effects to tell the operator about
 
 A booking on a calendar whose user has Google/Outlook connected is written to that external calendar. A calendar create
