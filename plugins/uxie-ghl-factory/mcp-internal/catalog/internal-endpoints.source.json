@@ -29,7 +29,7 @@
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
   "discoveredCallSites": 2036,
   "skippedCallSites": 861,
-  "count": 1765,
+  "count": 1767,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -61531,6 +61531,70 @@
       "sources": [
         "corpus/memberships-courses/20-api/course-progress-analytics.md",
         "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "clientclub-notification-preferences--create",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/clientclub/notification-preferences/{locationId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "create",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ [key: string]: any; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/client-portal-and-analytics.md",
+        "sniffs/courses-w9-2026-11-08/NOTE-NOTIFICATION-PREFS-2026-11-09.md"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "courses-assessments--review-submission",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/courses/locations/{locationId}/assessments/{submissionId}/review",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "update",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ [key: string]: any; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/build-api.md",
+        "sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
