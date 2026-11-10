@@ -131,6 +131,7 @@ Public only: upload to a submission.
 - **Layout (bl-1008, 9 items):** inline form; popup (trigger and activation); popup deactivation (after N, after lead, never); polite slide-in; sticky sidebar; single or two columns; image placement; survey navigation (back button, disable animation, scroll to top); survey footer (next, previous and submit buttons, progress bar).
 - **Schedule (bl-1008, 3 items):** open and close window; redirect when closed; closed page appearance.
 - Survey mode (one question at a time or all on one page) is not in the Layout list. It is the `formAction.fieldPerPage` write key above.
+- **Embed layout (inline, popup, polite slide-in, sticky sidebar, and the popup deactivation setting) is not stored on the form record.** The builder's Integrate tab writes it into the embed snippet: the iframe id (`inline-`, `popup-`, `sticky-sidebar-left-`, `polite-slide-in-…-`) plus the `data-layout`, `data-trigger-type`, `data-activation-type` and `data-deactivation-type` / `data-deactivation-value` attributes (`LayoutType.vue`, `getIframeDataAttributes`). The snippet is read from the builder's Copy embed code, and no W9 tool reads or writes it, so these units are E-excluded. Rendered differences of a snippet are the only proof: a local page with the snippet shows a fixed overlay for popup and a fixed container for sticky sidebar, and a `deactivateAfter` value hides it at load.
 
 ## Form-level fields a raw_request can write (proven live)
 
