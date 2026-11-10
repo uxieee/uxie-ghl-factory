@@ -29,7 +29,7 @@
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
   "discoveredCallSites": 2036,
   "skippedCallSites": 861,
-  "count": 1762,
+  "count": 1765,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -61438,6 +61438,102 @@
       ],
       "serviceClass": null,
       "serviceBasis": "declared"
+    },
+    {
+      "id": "courses-analytics--course-progress-summary",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/courses/analytics/locations/{locationId}/course-progress/summary",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/course-progress-analytics.md",
+        "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "courses-analytics--course-progress-funnel",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/courses/analytics/locations/{locationId}/course-progress/funnel",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/course-progress-analytics.md",
+        "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "courses-analytics--course-progress-members",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/courses/analytics/locations/{locationId}/course-progress/members",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/course-progress-analytics.md",
+        "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
     }
   ]
 }

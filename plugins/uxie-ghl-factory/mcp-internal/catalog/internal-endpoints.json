@@ -1,7 +1,7 @@
 {
   "generated": "2026-11-10",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1770,
+  "count": 1773,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -6006,6 +6006,126 @@
       },
       "sources": [
         "memberships-courses/20-api/build-api.md:177"
+      ]
+    },
+    {
+      "id": "courses-analytics--course-progress-funnel",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/courses/analytics/locations/{locationId}/course-progress/funnel",
+      "path": "/courses/analytics/locations/{locationId}/course-progress/funnel",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "tree": "memberships",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/course-progress-analytics.md",
+        "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
+      ]
+    },
+    {
+      "id": "courses-analytics--course-progress-members",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/courses/analytics/locations/{locationId}/course-progress/members",
+      "path": "/courses/analytics/locations/{locationId}/course-progress/members",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "tree": "memberships",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/course-progress-analytics.md",
+        "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
+      ]
+    },
+    {
+      "id": "courses-analytics--course-progress-summary",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/courses/analytics/locations/{locationId}/course-progress/summary",
+      "path": "/courses/analytics/locations/{locationId}/course-progress/summary",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "tree": "memberships",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/course-progress-analytics.md",
+        "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
       ]
     },
     {
