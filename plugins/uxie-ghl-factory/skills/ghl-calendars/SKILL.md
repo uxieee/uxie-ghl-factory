@@ -72,7 +72,7 @@ creates a staff record for every user, and turns on staff e-mails for every book
 | `stripe.deposit` and `stripe.depositType` (percentage) | booking deposit | live-log.jsonl |
 | `preBuffer` | the pre-buffer time before a booking (Booking rules) | live-f4s-b1-editor-set.json |
 | `slotBuffer` (with `slotBufferUnit`) | the post-buffer time after a booking (Booking rules) | live-log.jsonl |
-| `allowBookingAfter` (with `allowBookingAfterUnit`) | how far ahead a booking may be made, in hours (allow booking after) | live-log.jsonl |
+| `allowBookingAfter` (with `allowBookingAfterUnit`) | how far ahead a booking may be made, in hours (allow booking after). Clearing it needs both keys sent as explicit `null`: a PUT that omits them returns 200 and leaves the value (a restore without them did not take) | live-log.jsonl |
 | `allowCancellation` | whether a booker may cancel from the public page | live-cal2-bulk-d-scrubbed.json |
 | `allowReschedule` | whether a booker may reschedule from the public page | live-cal2-bulk-d-scrubbed.json |
 | `stickyContact` | sticky contact on the booking | live-log.jsonl |
