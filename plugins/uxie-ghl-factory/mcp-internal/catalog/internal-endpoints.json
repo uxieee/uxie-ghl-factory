@@ -1,7 +1,7 @@
 {
   "generated": "2026-11-10",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1763,
+  "count": 1770,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -3220,6 +3220,88 @@
       ]
     },
     {
+      "id": "certificates-service--delete-template",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/certificates/locations/{locationId}/templates/{templateId}",
+      "path": "/certificates/locations/{locationId}/templates/{templateId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "delete",
+      "service": "memberships-courses",
+      "tree": "memberships",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "templateId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "none-observed",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/credential-template-delete.md",
+        "sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
+      ]
+    },
+    {
+      "id": "certificates-service--update-template",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/certificates/locations/{locationId}/templates/{templateId}",
+      "path": "/certificates/locations/{locationId}/templates/{templateId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "update",
+      "service": "memberships-courses",
+      "tree": "memberships",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "templateId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; title: string; templateJson: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/credential-template-designer-save.md",
+        "sniffs/courses-w9-2026-11-08/cred-designer-json-set-2026-11-10/live-cred-designer-json-set.json"
+      ]
+    },
+    {
       "id": "ai-agents--chat-widget",
       "method": "DELETE",
       "url": "https://backend.leadconnectorhq.com/chat-widget/{locationId}/{widgetId}",
@@ -3786,6 +3868,46 @@
       },
       "sources": [
         "memberships-courses/20-api/build-api.md:270"
+      ]
+    },
+    {
+      "id": "clientclub-users--invite",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/clientclub/{locationId}/users/invite",
+      "path": "/clientclub/{locationId}/users/invite",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "create",
+      "service": "memberships-courses",
+      "tree": "memberships",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; email: string[]; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/portal-user-invite.md",
+        "sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
       ]
     },
     {
@@ -5884,6 +6006,126 @@
       },
       "sources": [
         "memberships-courses/20-api/build-api.md:177"
+      ]
+    },
+    {
+      "id": "courses-analytics--dashboard-products-summary",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/courses/analytics/locations/{locationId}/dashboard/products/summary",
+      "path": "/courses/analytics/locations/{locationId}/dashboard/products/summary",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "tree": "memberships",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/analytics-dashboard-summaries.md",
+        "sniffs/courses-w9-2026-11-08/walk-m3d2/requests.log"
+      ]
+    },
+    {
+      "id": "courses-analytics--dashboard-revenue-summary",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/courses/analytics/locations/{locationId}/dashboard/revenue/summary",
+      "path": "/courses/analytics/locations/{locationId}/dashboard/revenue/summary",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "tree": "memberships",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/analytics-dashboard-summaries.md",
+        "sniffs/courses-w9-2026-11-08/walk-m3d2/requests.log"
+      ]
+    },
+    {
+      "id": "courses-analytics--dashboard-users-summary",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/courses/analytics/locations/{locationId}/dashboard/users/summary",
+      "path": "/courses/analytics/locations/{locationId}/dashboard/users/summary",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "tree": "memberships",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/analytics-dashboard-summaries.md",
+        "sniffs/courses-w9-2026-11-08/walk-m3d2/requests.log"
       ]
     },
     {
@@ -54467,6 +54709,57 @@
       },
       "sources": [
         "calendars/20-api/appointment-statuses.md:29"
+      ]
+    },
+    {
+      "id": "calendars--statuses-rename",
+      "method": "PATCH",
+      "url": "https://services.leadconnectorhq.com/calendars/statuses/rename/{statusId}",
+      "path": "/calendars/statuses/rename/{statusId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "statusId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; status: string; }",
+        "properties": [
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/appointment-statuses.md:44",
+        "sniffs/calendars-f4b-2026-11-09/live-cal2-status-rename.json"
       ]
     },
     {

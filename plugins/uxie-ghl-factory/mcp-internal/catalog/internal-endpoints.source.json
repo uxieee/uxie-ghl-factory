@@ -29,7 +29,7 @@
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
   "discoveredCallSites": 2036,
   "skippedCallSites": 861,
-  "count": 1755,
+  "count": 1762,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -61206,6 +61206,237 @@
         "ask-ai/30-types/skills/crm-custom-fields.md:20",
         "ask-ai/30-types/skills/custom-fields--get-custom-field-by-id.md:26"
       ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "clientclub-users--invite",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/clientclub/{locationId}/users/invite",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "create",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; email: string[]; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/portal-user-invite.md",
+        "sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "courses-analytics--dashboard-revenue-summary",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/courses/analytics/locations/{locationId}/dashboard/revenue/summary",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/analytics-dashboard-summaries.md",
+        "sniffs/courses-w9-2026-11-08/walk-m3d2/requests.log"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "courses-analytics--dashboard-products-summary",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/courses/analytics/locations/{locationId}/dashboard/products/summary",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/analytics-dashboard-summaries.md",
+        "sniffs/courses-w9-2026-11-08/walk-m3d2/requests.log"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "courses-analytics--dashboard-users-summary",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/courses/analytics/locations/{locationId}/dashboard/users/summary",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "query",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ filters: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/analytics-dashboard-summaries.md",
+        "sniffs/courses-w9-2026-11-08/walk-m3d2/requests.log"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "certificates-service--update-template",
+      "method": "PATCH",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/certificates/locations/{locationId}/templates/{templateId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "update",
+      "service": "memberships-courses",
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; title: string; templateJson: object; }",
+        "properties": null,
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/credential-template-designer-save.md",
+        "sniffs/courses-w9-2026-11-08/cred-designer-json-set-2026-11-10/live-cred-designer-json-set.json"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "certificates-service--delete-template",
+      "method": "DELETE",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/certificates/locations/{locationId}/templates/{templateId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "memberships",
+      "extraHeaders": [],
+      "operation": "delete",
+      "service": "memberships-courses",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "resolved",
+        "body": "none-observed",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "corpus/memberships-courses/20-api/credential-template-delete.md",
+        "sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
+      ],
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "calendars--statuses-rename",
+      "method": "PATCH",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/calendars/statuses/rename/{statusId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "workflow-builder",
+      "operation": null,
+      "service": "calendars",
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; status: string; }",
+        "properties": [
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/appointment-statuses.md:44",
+        "sniffs/calendars-f4b-2026-11-09/live-cal2-status-rename.json"
+      ],
+      "serviceClass": null,
       "serviceBasis": "declared"
     }
   ]
