@@ -132,6 +132,53 @@ Public only: upload to a submission.
 - **Schedule (bl-1008, 3 items):** open and close window; redirect when closed; closed page appearance.
 - Survey mode (one question at a time or all on one page) is not in the Layout list. It is the `formAction.fieldPerPage` write key above.
 
+## Form-level fields a raw_request can write (proven live)
+
+Every row below is written the same way: `raw_request` `POST /forms/{id}` with the body `{"name": <current name>, "formData": <the formData from a GET, with the key under formData.form changed>}`. Read it back with `GET /forms/{id}` on a separate request and compare the key at the path shown. The save merges at `formData.form`, so the proof sent the full read-back `formData` with only the listed keys changed. Each row was set, read back on a separate request and restored.
+
+| Field | Key path | Notes |
+|---|---|---|
+| Sticky contact | `formData.form.stickyContact` | boolean |
+| Enable timezone capture | `formData.form.enableTimezone` | boolean |
+| GDPR-compliant font | `formData.form.isGDPRCompliant` | boolean |
+| Save-and-exit confirmation | `formData.form.enableSaveExitConfirmation` | boolean |
+| Create contact on partial submission | `formData.form.enablePartialContactCreation` | boolean |
+| Show submission in conversations | `formData.form.showSubmissionInConversationsFeed` | boolean |
+| Generate submission PDF | `formData.form.generateSubmissionDocument` | boolean |
+| Full-screen mode | `formData.form.fullScreenMode` | boolean |
+| Submit message styling | `formData.form.submitMessageStyle` | object |
+| Footer HTML | `formData.form.formAction.footerHtml` | string |
+| Facebook Pixel ID | `formData.form.fbPixelId` | string |
+| Facebook Pixel events | `formData.form.formSubmissionEvent`, `formData.form.pageViewEvent` | strings |
+| Contact association | `formData.form.contactAssociationSettings` | object, takes the association id from the location |
+| Opportunity settings | `formData.form.opportunitySettings` | object; its `payload` is public on the form-data read |
+| Email notifications | `formData.form.emailNotificationsConfig` | object; send no addresses in a test |
+| Auto-responder | `formData.form.autoResponderConfig` | object; send no addresses in a test |
+| Schedule visibility | `formData.form.formSchedule` | enabled flag and open/close windows |
+| Schedule, closed state redirect | `formData.form.formSchedule.states.before` | mode `redirect` with a URL |
+| Schedule appearance | `formData.form.formSchedule.appearance` | colours, corner radius, width, shadow, padding, margin |
+| Layout: single or two columns | `formData.form.layout` (desktop), `formData.form.mobileLayout` (mobile) | `1` one column, `2` two columns |
+| Image: show, desktop and mobile layout | `formData.form.showImage`, `formData.form.desktopImageLayout`, `formData.form.mobileImageLayout` | |
+| Survey mode (quiz, one question per page) | `formData.form.formAction.fieldPerPage` | boolean, on a quiz |
+| Quiz footer style | `formData.form.footerStyle` | object (`fontFamily`, `height`), on a quiz |
+| Background colour | `formData.form.style.background` | string |
+| Form padding and field spacing | `formData.form.style.padding`, `formData.form.style.fieldSpacing` | padding is an object (see the merge caveat below) |
+| Label colour, placeholder colour, input border colour and width, font size and weight | `formData.form.style.labelColor`, `placeholderColor`, `borderColor`, `borderWidth`, `fontSize`, `fontWeight` | set through `update_form_data` (the same save) |
+| Label alignment | `formData.form.fieldStyle.labelAlignment` | string |
+| Primary colour and button colour mapping | `formData.form.fieldStyle.primaryColor`, `formData.form.fieldStyle.mapPrimaryColorToButtonColor` | |
+| Input border | `formData.form.fieldStyle.border` | object |
+| Leading-icon input padding | `formData.form.fieldStyle.padding.left` | nested, see the merge caveat |
+| Theme | `formData.form.currentThemeId` | take the id from `GET /forms/themes` |
+| Submit: open a URL | `formData.form.formAction.actionType` = `"1"`, `formData.form.formAction.redirect_url` | read back as `redirectUrl` (trap 4 above) |
+| Submit: order confirmation | `formData.form.formAction.actionType` = `"3"` | |
+| Submit: thank-you message | `formData.form.formAction.actionType` = `"2"`, `formData.form.formAction.thankyouText` | |
+
+**Caveats from the proofs:**
+
+- Nested objects merge as well as the top level. `style.padding`, `fieldStyle.padding` and `fieldStyle.border` keep the keys you did not send. Send every nested key you need, and restore a nested value by setting its keys back explicitly, not by omitting them.
+- An empty `redirect_url` does not clear a stored URL, and the builder ignores `redirectUrl` unless `actionType` is `"1"`.
+- Not in this table: the survey navigation keys and the default colour swatches. Neither has a whole-document save proof yet.
+
 ## Out of scope, and why
 
 Never executed on any account, so no tool exposes them and the corpus marks them unproven:
