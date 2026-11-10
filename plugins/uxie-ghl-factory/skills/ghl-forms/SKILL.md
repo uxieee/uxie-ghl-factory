@@ -179,6 +179,32 @@ Every row below is written the same way: `raw_request` `POST /forms/{id}` with t
 - An empty `redirect_url` does not clear a stored URL, and the builder ignores `redirectUrl` unless `actionType` is `"1"`.
 - Not in this table: the survey navigation keys and the default colour swatches. Neither has a whole-document save proof yet.
 
+## Quiz questions a raw_request can write (proven live)
+
+A quiz is a `/forms/*` document with `productType: "quiz"`. Its questions are not `form.fields[]`: each question is one slide, and no typed tool writes slides (`create_form` cannot). The proof built one quiz with one question of each kind, in this order:
+
+1. `POST /forms/` with `{"locationId", "name", "productType": "quiz", "source": "landing_page"}` creates the quiz (201).
+2. For each question, `POST /locations/{locationId}/customFields` creates a contact field with `dataType` set to the kind's value below, and `options` for the choice kinds. The field's id becomes the slide's `tag`. A custom-field folder can be made first and its id given as `parentId`.
+3. `POST /forms/{quizId}` with `{"name", "formData": {"slides": [...], "logic": [], "category": [], "categoryCustomFields": [], "parentFolderId", "parentFolderName", "resultTemplate": {"categories": [], "showScore": false}, "form": {"formAction": {"actionType": 4, "endsurveyText": "<p>...</p>"}}}}` saves it (201). Each slide is `{"id", "slideName": "Page N", "slideData": [ {label, tag, type, dataType, typeLabel, picklistOptions, custom: true, parentId, uuid, id, model: "contact", name, fieldKey, position, documentType: "field", locationId, ...} ]}`. One slide is one page.
+
+| Question kind | `type` | `dataType` | `typeLabel` | `picklistOptions` on read-back |
+|---|---|---|---|---|
+| Single choice | `radio` | `RADIO` | Single Choice | the options sent |
+| Multiple choice | `checkbox` | `CHECKBOX` | Multiple Choice | the options sent |
+| Yes / No | `radio` | `RADIO` | Yes / No | `Yes`, `No` |
+| Short answer | `text` | `TEXT` | Short Answer | empty |
+| Long answer | `large_text` | `LARGE_TEXT` | Long Answer | empty |
+| Number | `numerical` | `NUMERICAL` | Number | empty |
+| Single dropdown | `single_options` | `SINGLE_OPTIONS` | Single Dropdown | the options sent |
+| Multi dropdown | `multiple_options` | `MULTIPLE_OPTIONS` | Multi Dropdown | the options sent |
+
+**Read-back.** `GET /forms/{quizId}` on a separate request returned the eight slides, each with its `type`, `dataType`, `typeLabel` and `picklistOptions`. The public quiz widget (`GET /widget/form/{quizId}`) rendered all eight labels. `endsurveyText` read back as sent.
+
+**Caveats from the proof:**
+
+- **Read-after-save lag.** A read taken straight after the save can return only the default slide, with the question slides not yet stored. Re-read after a pause before you judge the save by its read-back.
+- **Unproven here:** survey slides, quiz score and outcome logic, categories and category explanations, the result template beyond the empty default, and result PDFs. Do not write these from this table.
+
 ## Out of scope, and why
 
 Never executed on any account, so no tool exposes them and the corpus marks them unproven:
