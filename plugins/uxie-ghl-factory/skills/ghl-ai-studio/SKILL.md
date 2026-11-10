@@ -191,3 +191,4 @@ These routes are in the catalogue and were executed against the TEST sandbox wit
 | GET | `/vibe-ai/projects/{projectId}/usage/policy` | read the usage policy (read only) |
 | GET | `/vibe-ai/banners/active` | read the active banners. Not proven as a read: it returned null on every probe (2026-11-09), so the shape is unknown |
 | GET | `/chat-widget/list` | list chat widgets (read only; catalogue host services) |
+| GET | `/forms/submissions` | list form submissions for a window (`startAt`, `endAt`, `locationId`); read only; the More view submissions read. Proven live 2026-11-10 (200, five submissions, 30-day window) |
