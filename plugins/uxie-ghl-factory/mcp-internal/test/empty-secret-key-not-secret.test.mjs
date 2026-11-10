@@ -14,10 +14,12 @@ test('a non-empty value under a secret-named key is still refused (controls)', (
   assert.equal(containsSecrets({ attributes: { password: 'p' } }), true);
 });
 
-test('scrubSecrets passes an empty value and the no-auth object through, redacts everything else', async () => {
+// bl-112 (2026-11-10): a NONE/null authorization is no longer passed through: it carries the placeholder on its key, so validate and
+// repair can restore it from the stored step. Contract change; QA sign-off needed (the old contract let NONE/null out unmarked).
+test('scrubSecrets passes an empty value through, and puts the placeholder on every authorization key (bl-112), redacts everything else', async () => {
   const { scrubSecrets } = await import('../core/errors.mjs');
   const out = scrubSecrets({ attributes: { apiKey: '', authorization: { type: 'NONE', data: null } } });
-  assert.deepEqual(out, { attributes: { apiKey: '', authorization: { type: 'NONE', data: null } } });
+  assert.deepEqual(out, { attributes: { apiKey: '', authorization: '<redacted>' } });
   const ctl = scrubSecrets({ attributes: { apiKey: 'sk-abc', authorization: { type: 'BEARER', data: 'x' }, password: ' ' } });
   assert.deepEqual(ctl, { attributes: { apiKey: '<redacted>', authorization: '<redacted>', password: '<redacted>' } });
 });

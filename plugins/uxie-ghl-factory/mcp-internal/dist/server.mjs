@@ -117467,7 +117467,7 @@ function scrubSecrets(value, parentKey = "") {
         // step's apiKey:"" read back as "<redacted>", and writing that export back would store the
         // literal as the key (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
         // live-3P2-chatgpt-apikey.json).
-        isSecretKey(key) ? item === "" || isNoAuthObject(key, item) ? item : "<redacted>" : scrubSecrets(item, key)
+        isSecretKey(key) ? item === "" ? item : "<redacted>" : scrubSecrets(item, key)
       )
     ]));
   }
@@ -242203,6 +242203,11 @@ var TOOLS2 = [
           "templates must be a non-empty array of step objects.",
           "Pass the full workflowData.templates you want stored (inline, or via templatesPath). To empty a workflow, delete its steps with edit_workflow."
         );
+      }
+      if (JSON.stringify(args.templates ?? []).includes(REDACTED)) {
+        const storedGw = deps.makeGw({ loc: args.locationId, state: deps.state });
+        const stored = await storedGw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(args.workflowId)}?includeScheduledPauseInfo=true`);
+        if (stored.ok) args = { ...args, templates: restoreRedactedForValidation(args.templates, stored.json?.workflowData?.templates).templates };
       }
       const redactedRefusal = refuseRedactedWrite(args.templates);
       if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);

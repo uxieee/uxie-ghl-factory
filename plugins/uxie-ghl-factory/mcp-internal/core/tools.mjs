@@ -7879,6 +7879,14 @@ export const TOOLS = [
       // full-document PUT, no validator on the far side, silent. Shared guard — see
       // core/raw-request-guards.mjs — because templatesPath was the measured route but not the
       // only whole-document write; edit_workflow and raw_request carry the same call.
+      // bl-112 (2026-11-10): an exported custom_webhook authorization carries the placeholder on its KEY (the measured NONE/null too).
+      // Restore every exact placeholder from the stored step with the same id before the refusal; a placeholder with nothing stored
+      // to restore from stays, and refuseRedactedWrite refuses it, naming the step and the path. Nothing restored is returned.
+      if (JSON.stringify(args.templates ?? []).includes(REDACTED)) {
+        const storedGw = deps.makeGw({ loc: args.locationId, state: deps.state });
+        const stored = await storedGw.call('GET', `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(args.workflowId)}?includeScheduledPauseInfo=true`);
+        if (stored.ok) args = { ...args, templates: restoreRedactedForValidation(args.templates, stored.json?.workflowData?.templates).templates };
+      }
       const redactedRefusal = refuseRedactedWrite(args.templates);
       if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
       const badIds = args.templates.filter((t) => !t || typeof t !== 'object' || typeof t.id !== 'string' || !t.id);

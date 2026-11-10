@@ -357,7 +357,7 @@ export function scrubSecrets(value, parentKey = '') {
       // step's apiKey:"" read back as "<redacted>", and writing that export back would store the
       // literal as the key (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
       // live-3P2-chatgpt-apikey.json).
-      isSecretKey(key) ? (item === '' || isNoAuthObject(key, item) ? item : '<redacted>') : scrubSecrets(item, key),
+      isSecretKey(key) ? (item === '' ? item : '<redacted>') : scrubSecrets(item, key),
     ]));
   }
   return value;
