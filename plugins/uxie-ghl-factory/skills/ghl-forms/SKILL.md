@@ -203,7 +203,41 @@ A quiz is a `/forms/*` document with `productType: "quiz"`. Its questions are no
 **Caveats from the proof:**
 
 - **Read-after-save lag.** A read taken straight after the save can return only the default slide, with the question slides not yet stored. Re-read after a pause before you judge the save by its read-back.
-- **Unproven here:** survey slides, quiz score and outcome logic, categories and category explanations, the result template beyond the empty default, and result PDFs. Do not write these from this table.
+- **Unproven here:** quiz score and outcome logic (`formData.logic`), and the survey navigation keys. Categories, tiers, the result template, result PDFs and survey slides are in the next section.
+
+## Quiz categories, result template, duplicate, survey slides and element keys (proven live)
+
+Quiz result rows use the same whole-document save as the quiz above: `POST /forms/{quizId}` with the body `{"name", "formData": {...}}`, merged at `formData`. Read back with `GET /forms/{id}` on a separate request, after a pause (see the read-after-save lag above). Each row was set, read back and, where a setting was changed, restored.
+
+| Field | Key path | Shape (from the read-back) |
+|---|---|---|
+| Quiz categories | `formData.category` | array of `{id, name, description, minScore, maxScore, ruleBased}` |
+| Category explanation | `formData.category[].description` | string on each category |
+| Score tiers | `formData.resultTemplate.tiers` | array of `{id, label, color, fromPercent, toPercent}` |
+| Result template layout | `formData.resultTemplate.layout` | `{width, backgroundColor, backgroundImage}` |
+| Result PDF | `formData.form.generateQuizResultDocument` | boolean (the submission PDF is `formData.form.generateQuizSubmissionDocument`) |
+| Submit: quiz result template | `formData.resultTemplate` | the whole object above, written with the submit settings |
+| Survey slides | `formData.slides` | same slide shape as the quiz questions above; a survey save is `POST /forms/{surveyId}` |
+| Duplicate a form | `POST /forms/duplicate/{id}` with `{"name"}` | 201 on the second try; the copy reads back as its own form |
+
+**Element settings through the typed tool.** `update_form_data` with `fields` writes the element keys below; each one read back on a separate GET and matched, and a second `update_form_data` with the baseline field list restored the form. The keys proven this way:
+
+| Element | Keys written and read back |
+|---|---|
+| Country picker (phone) | `enableCountryPicker` |
+| Image | `url`, `imageWidth`, `imageHeight`, `alt` |
+| Radio, checkbox, dropdown | `picklistOptions`, `otherOption`, `otherOptionLabel`, `spreadColumns` |
+| File upload | `isMultipleFile`, `maxFileSize` |
+| Rating | `ratingCount` |
+| Date | `dateMode`, `timeFormat` |
+| Captcha | `captchaLabel` (the mode key is not stored; see below) |
+| URL | `urlValidation` |
+
+**Not in this section, and why:**
+- The captcha mode is not stored on the element, so there is no key to write.
+- Quiz score and outcome logic (`formData.logic`) is written empty in every proof; no non-empty logic has been read back.
+- The versions read and the labs flag have no route in the catalogue, so they stay out.
+- Deleting a form (`DELETE /forms/{id}`) is source-only; no proof.
 
 ## Out of scope, and why
 
