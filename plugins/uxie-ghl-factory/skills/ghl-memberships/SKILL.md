@@ -265,6 +265,7 @@ where the tool offers it, and never send a body whose keys you have not read fir
   full document. The keys the GET carries must equal the read value, except the one test field. Keys the GET does not carry are sent only as the form's
   own defaults. Proven for `portalBannerText` and for app permissions: set, read back on a separate GET, restored. Once a portal name is set the UI
   cannot clear it (an empty name is refused before any request), so a name is a one-way write on a sandbox.
+- **Invite a user to the client portal:** `POST /clientclub/{locationId}/users/invite` with `{locationId, email: [address]}`; returns `201` with `{success: true}`. Proven: the portal settings read (`invitedUsers`) went from absent to a count of 1 on two separate reads after the invite. The invite e-mails the address: send it only with an approval that names the address, and read the user back afterwards.
 Not covered here: the course analytics dashboards (their data comes from read-only summary queries that the catalogue does not carry yet), the course
 analytics progress view (no proven write), and learner-side rendering. Those stay as the corpus describes them.
 
@@ -275,12 +276,12 @@ Proven on the sandbox with a read on a separate request after each write. The te
 - **List templates:** `GET /certificates/locations/{locationId}/templates` → `{templates: [{_id, title, ...}]}`.
 - **Create a template:** `POST /certificates/locations/{locationId}/templates` with `{title, ...}`, `confirm: true`. Returns `201`. Read it back on a separate
   list GET (`_id` and `title`). Create only with an explicit approval naming the type. A created template stays as residue unless it is deleted with the route below.
-- **Designer save (title and canvas fields):** a partial update of the template record (the designer's own save route, not yet in the catalogue, so no path is named here); send the body keys you change.
+- **Designer save (title and canvas fields):** `PATCH /certificates/locations/{locationId}/templates/{templateId}` with `{locationId, title, ...}`; send the body keys you change.
   Proven: the title change read back on a separate list GET. Rules measured on the sandbox: the endpoint refuses an empty `title` (send the unchanged
   title with every PATCH); the merge keeps keys you omit; the designer's `templateJson` cannot be cleared back to an empty string through this route
   (a restore to `""` is stored as the two-character string `""`, not the empty value). Read the template first and send the exact before value for any
   key you restore.
-- **Delete a template:** the template's delete route (not yet in the catalogue, so no path is named here), with confirm. It returns `200` with
+- **Delete a template:** `DELETE /certificates/locations/{locationId}/templates/{templateId}`, with confirm. It returns `200` with
   `type: TEMPLATE_DELETED`. Read back on a separate list GET: the id is gone. Delete only a template you created for the test, by its own id.
 
 ## Full reference
