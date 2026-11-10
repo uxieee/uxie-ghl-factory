@@ -238,8 +238,14 @@ Quiz result rows use the same whole-document save as the quiz above: `POST /form
 **Not in this section, and why:**
 - The captcha mode is not stored on the element, so there is no key to write.
 - Quiz score and outcome logic (`formData.logic`) is written empty in every proof; no non-empty logic has been read back.
-- The versions read and the labs flag have no route in the catalogue, so they stay out.
+- The labs flag read has a catalogued route (`GET /labs/feature-flags/location/{locationId}`) but no SKILL row yet, so it stays out here. See the versions section below for the version history.
 - Deleting a form (`DELETE /forms/{id}`) is source-only; no proof.
+
+## Version history (proven live)
+
+- **Reading the history:** `get_form` returns the form's `versionHistory` (a count in the typed result; the entries are in the form read). A read is enough to see the versions; no separate route is needed.
+- **Saving a version:** a `POST /forms/{id}` with the current `formData` unchanged returns 201 and adds one version entry. The content does not change, but the entry cannot be removed. Name it as residue in any record.
+- **Restoring a version:** `POST /forms/restore-version` is in the catalogue with reach `proven`. This lane has not run it; before relying on it, run it on a TEST form and read back on a separate GET.
 
 ## Out of scope, and why
 
