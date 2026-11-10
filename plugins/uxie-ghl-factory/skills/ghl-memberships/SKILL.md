@@ -261,20 +261,12 @@ where the tool offers it, and never send a body whose keys you have not read fir
 - **Instructor name, title, bio and heading (customization):** `PUT /membership/locations/{locationId}/products/customizations/{customizationId}`, with
   the customization record read first (`GET /membership/locations/{locationId}/products/{productId}`, the `customizations` block). Proven: name, title and
   bio set and read back, the heading read back unchanged, then restored.
-- **Course site settings (site title, domain, builder settings):** three separate settings routes, sent together on one Save in the admin UI:
-  `PUT` on the domain route, the site-info route (title) and the builder-settings route (`downloadOption`, `pwaEnabled`, `appSettings`). Each body
-  must equal the value you read (a route that is not sent is left alone). Proven: site-info title set to a TEST value and read back on a separate GET,
-  then restored to the original empty string. Read the three keys before the write; a body that differs from the read is refused by the guard.
 - **Portal settings (portal banner text, app permissions, and the other portal-settings keys):** `PUT /clientclub/portal-settings/{locationId}` with the
   full document. The keys the GET carries must equal the read value, except the one test field. Keys the GET does not carry are sent only as the form's
   own defaults. Proven for `portalBannerText` and for app permissions: set, read back on a separate GET, restored. Once a portal name is set the UI
   cannot clear it (an empty name is refused before any request), so a name is a one-way write on a sandbox.
-- **Invite a portal user:** `POST /clientclub/{locationId}/users/invite` with the contact's email as the body field the invite form uses. It returns
-  `201 {success: true}`. The invite is not visible in the portal-settings totals until the person signs up (read `invitedUsers` instead). It sends a real
-  invite mail: only to a TEST contact you own, never to a real person.
-
-Not covered here: course analytics progress and the analytics dashboards (their data is `POST /courses/analytics/...` queries; the progress view has
-no proven write), and learner-side rendering. Those stay as the corpus describes them.
+Not covered here: the course analytics dashboards (their data comes from read-only summary queries that the catalogue does not carry yet), the course
+analytics progress view (no proven write), and learner-side rendering. Those stay as the corpus describes them.
 
 ## Credential templates (certificates): list, create, designer save, delete
 
@@ -282,7 +274,7 @@ Proven on the sandbox with a read on a separate request after each write. The te
 
 - **List templates:** `GET /certificates/locations/{locationId}/templates` → `{templates: [{_id, title, ...}]}`.
 - **Create a template:** `POST /certificates/locations/{locationId}/templates` with `{title, ...}`, `confirm: true`. Returns `201`. Read it back on a separate
-  list GET (`_id` and `title`). Create only with an explicit approval naming the type; it stays as residue (there is no delete in this section's use).
+  list GET (`_id` and `title`). Create only with an explicit approval naming the type. A created template stays as residue unless it is deleted with the route below.
 - **Designer save (title and canvas fields):** `PATCH /certificates/locations/{locationId}/templates/{templateId}` with the body keys you change.
   Proven: the title change read back on a separate list GET. Rules measured on the sandbox: the endpoint refuses an empty `title` (send the unchanged
   title with every PATCH); the merge keeps keys you omit; the designer's `templateJson` cannot be cleared back to an empty string through this route
