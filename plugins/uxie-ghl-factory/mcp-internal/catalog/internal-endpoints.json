@@ -1,7 +1,7 @@
 {
   "generated": "2026-11-10",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1775,
+  "count": 1788,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2355,6 +2355,102 @@
       ]
     },
     {
+      "id": "calendars--calendars-create",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/calendars/",
+      "path": "/calendars/",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [],
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; name: string; calendarType: string; slug: string; [key: string]: unknown; }",
+        "properties": [
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "calendarType",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "slug",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "slotDuration",
+            "type": "number",
+            "optional": true
+          },
+          {
+            "name": "slotDurationUnit",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "slotInterval",
+            "type": "number",
+            "optional": true
+          },
+          {
+            "name": "slotIntervalUnit",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "teamMembers",
+            "type": "unknown",
+            "optional": true
+          },
+          {
+            "name": "appointmentPerSlot",
+            "type": "number",
+            "optional": true
+          }
+        ],
+        "confidence": "open-map"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "open-map",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ],
+      "publicEquivalent": [
+        "calendars-v3__create-calendar",
+        "calendars__create-calendar"
+      ]
+    },
+    {
       "id": "shared--calendars",
       "aka": [
         "/calendars/{id}"
@@ -2886,6 +2982,71 @@
       }
     },
     {
+      "id": "calendars--resources-create",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/calendars/resources/{type}",
+      "path": "/calendars/resources/{type}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "type"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ name: string; capacity?: number; quantity?: number; locationId: string; }",
+        "properties": [
+          {
+            "name": "name",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "capacity",
+            "type": "number",
+            "optional": true
+          },
+          {
+            "name": "quantity",
+            "type": "number",
+            "optional": true
+          },
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ],
+      "publicEquivalent": [
+        "calendars-v3__create-calendar-resource",
+        "calendars__create-calendar-resource"
+      ]
+    },
+    {
       "id": "funnels--schedules-event-calendar",
       "method": "PUT",
       "url": "https://backend.leadconnectorhq.com/calendars/schedules/event-calendar/{calendarId}",
@@ -2928,6 +3089,104 @@
         "job": "edit",
         "decision": "undecided"
       }
+    },
+    {
+      "id": "calendars--service-menus-create",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/calendars/service-menus",
+      "path": "/calendars/service-menus",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [],
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; name: string; slug: string; description?: string; menu: unknown[]; }",
+        "properties": [
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "slug",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "menu",
+            "type": "unknown",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ]
+    },
+    {
+      "id": "calendars--service-menus-list",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/calendars/service-menus/{locationId}",
+      "path": "/calendars/service-menus/{locationId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ]
     },
     {
       "id": "ai-agents--calendars-services",
@@ -54216,6 +54475,83 @@
       ]
     },
     {
+      "id": "calendars--event-notifications-create",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/calendars/event-notifications",
+      "path": "/calendars/event-notifications",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [],
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; altId: string; altType: string; channel: string; notificationType: string; isActive: boolean; receiverType?: string; subject?: string; }",
+        "properties": [
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "altId",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "altType",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "channel",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "notificationType",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "isActive",
+            "type": "boolean",
+            "optional": false
+          },
+          {
+            "name": "receiverType",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "subject",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ]
+    },
+    {
       "id": "calendars--event-notifications-bulk-update",
       "method": "PUT",
       "url": "https://services.leadconnectorhq.com/calendars/event-notifications/bulk-update",
@@ -54275,6 +54611,297 @@
       },
       "sources": [
         "calendars/20-api/services-and-rentals.md:118"
+      ]
+    },
+    {
+      "id": "calendars--groups-create",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/calendars/groups",
+      "path": "/calendars/groups",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [],
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; name: string; slug: string; description?: string; }",
+        "properties": [
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "slug",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ],
+      "publicEquivalent": [
+        "calendars-v3__create-calendar-group",
+        "calendars__create-calendar-group"
+      ]
+    },
+    {
+      "id": "calendars--groups-update",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/calendars/groups/{groupId}",
+      "path": "/calendars/groups/{groupId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "groupId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ name: string; slug: string; }",
+        "properties": [
+          {
+            "name": "name",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "slug",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ],
+      "publicEquivalent": [
+        "calendars-v3__edit-group",
+        "calendars__edit-group"
+      ]
+    },
+    {
+      "id": "calendars--groups-status",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/calendars/groups/{groupId}/status",
+      "path": "/calendars/groups/{groupId}/status",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "groupId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ isActive: boolean; }",
+        "properties": [
+          {
+            "name": "isActive",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ],
+      "publicEquivalent": [
+        "calendars-v3__disable-group",
+        "calendars__disable-group"
+      ]
+    },
+    {
+      "id": "calendars--location-settings-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/calendars/location-settings/{locationId}",
+      "path": "/calendars/location-settings/{locationId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ]
+    },
+    {
+      "id": "calendars--location-service-settings-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/calendars/location-settings/{locationId}/service-settings",
+      "path": "/calendars/location-settings/{locationId}/service-settings",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ]
+    },
+    {
+      "id": "calendars--resources-list",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/calendars/resources/{type}",
+      "path": "/calendars/resources/{type}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "type"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "params"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "source": "params"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "resolved",
+        "body": "none-observed",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ],
+      "publicEquivalent": [
+        "calendars-v3__fetch-calendar-resources",
+        "calendars__fetch-calendar-resources"
       ]
     },
     {
@@ -54547,6 +55174,45 @@
       }
     },
     {
+      "id": "calendars--service-addons-list",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/calendars/service-addons",
+      "path": "/calendars/service-addons",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "params"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "resolved",
+        "body": "none-observed",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
+      ]
+    },
+    {
       "id": "calendars--calendars-service-addons",
       "method": "POST",
       "url": "https://services.leadconnectorhq.com/calendars/service-addons",
@@ -54575,6 +55241,97 @@
       },
       "sources": [
         "calendars/20-api/services-and-rentals.md:105"
+      ]
+    },
+    {
+      "id": "calendars--service-addons-update",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/calendars/service-addons/{addonId}",
+      "path": "/calendars/service-addons/{addonId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "addonId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "{ name, description, duration, durationUnit, price, maxQuantity, multiplyPrice, coverImage, isPrivate, locationId }",
+        "properties": [
+          {
+            "name": "name",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "description",
+            "type": "unknown",
+            "optional": true
+          },
+          {
+            "name": "duration",
+            "type": "unknown",
+            "optional": true
+          },
+          {
+            "name": "durationUnit",
+            "type": "unknown",
+            "optional": true
+          },
+          {
+            "name": "price",
+            "type": "unknown",
+            "optional": true
+          },
+          {
+            "name": "maxQuantity",
+            "type": "unknown",
+            "optional": true
+          },
+          {
+            "name": "multiplyPrice",
+            "type": "unknown",
+            "optional": true
+          },
+          {
+            "name": "coverImage",
+            "type": "unknown",
+            "optional": true
+          },
+          {
+            "name": "isPrivate",
+            "type": "unknown",
+            "optional": true
+          },
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "calendars/20-api/kept-routes-proven-live.md",
+        "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
       ]
     },
     {
