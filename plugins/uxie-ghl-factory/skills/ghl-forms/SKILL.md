@@ -249,7 +249,7 @@ Quiz result rows use the same whole-document save as the quiz above: `POST /form
 ## Picture choice (a quiz slide only)
 
 - **Writing it:** `raw_request` `POST /forms/{id}` with the element in `formData.slides[].slideData[]`: `type` and `builderElementType` `PICTURE_CHOICE`, `dataType` `RADIO`, `optionDisplayType` `TEXT_WITH_IMAGE`, `picklistOptionsImage` (a list of `{label, src}`), and `pictureChoiceSettings` (`imageFit`, `selectionLimit`, `showOptionLabel`). It reads back on a separate GET with the same keys (proven on a TEST quiz).
-- **The typed path refuses it:** `update_form_data` with `fields` returns `VALIDATION_FAILED` ("`type: "picture_choice"` is not a renderer the builder" accepts). Do not try the typed route for this element.
+- **The typed path refuses it:** `update_form_data` with `fields` returns `VALIDATION_FAILED`, because the type is not a renderer the builder writes in the fields path (the tool's own message lists the accepted types). Do not try the typed route for this element.
 
 ## Out of scope, and why
 
