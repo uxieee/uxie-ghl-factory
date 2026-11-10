@@ -201,6 +201,7 @@ Public only: server-side publish gate; logs/aggregate that refuses to truncate.
 | The five appointment-family waits, the deprecated `eventStartDate` setting, trigger toggle rows and deprecated operators, reading logs and stats, Save version | `references/waits-settings-triggers.md` |
 | Marketplace / third-party steps and triggers: `list_marketplace_apps`, and `describe_marketplace_action` for one action's published schema and whether its app is connected | `references/marketplace-steps.md` |
 | Workflow folders: `list_workflow_folders` (read), `create_workflow_folder` and `move_workflows` (writes: move takes workflows between folders and the root) | the tools (no reference) |
+| Test runs of a workflow (read only): `list_workflow_test_runs` (GET `/workflow/{loc}/test-workflow/{wf}/event-runs`, newest first) and the step latest-result read (GET `…/test-workflow/{wf}/steps/{stepId}/latest-result`). Starting a test run is not authored here: a test run on a draft runs every step for real on a contact | the tools (no reference) |
 | The advanced canvas: what a person's gestures store, that our tools keep canvas layout on edit (proven 2026-09-29), and rescuing a goto that lost its target | `references/advanced-canvas.md` |
 | What a step's stored shape must look like, and why mirroring one example misleads | `references/step-shapes.md` |
 | Everything the engine can build | `references/capabilities.md` |
