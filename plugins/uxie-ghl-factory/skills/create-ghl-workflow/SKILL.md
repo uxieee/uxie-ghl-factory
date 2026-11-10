@@ -90,6 +90,10 @@ only RUN if the app is installed on the location. A catalog miss doesn't prove G
 lacks the type — harvest a live example (`scripts/harvest-step.js`) and extend the
 catalog rather than improvising a shape.
 
+**`leadgen_ecommerce_add_to_cart` has no engine type and no tool path.** The engine cannot author it yet (no engine change in Phase 1; the missing type is backlog bl-942). The workflow save route writes it: `raw_request` on `PUT /workflow/{locationId}/{workflowId}` carries a trigger row with `type` set to the GHL name, `config` null and a `conditions` list (the proof sends `duration`, `cartValue`, `orderSource`, `subSource`, `globalProductIds`, `storeId` and `checkoutCompleted`). Read the row back on a separate GET. A run is not proven: the sandbox rules forbid the store event that would fire it. Built and persisted: sniff `live-3BT-wave16-reruns.json` (2026-09-28).
+
+**`leadgen_ecommerce_product_viewed` has no engine type and no tool path.** Same as add-to-cart: no engine change in Phase 1 (backlog bl-942), written by `raw_request` on `PUT /workflow/{locationId}/{workflowId}` with a `type` and `config` null, and the sent condition fields `duration`, `globalProductIds`, `orderSource`, `subSource`, `checkoutCompleted` and `storeId`. Read the row back on a separate GET. A run is not proven: the sandbox rules forbid the store event that would fire it. Built and persisted: sniff `live-3BT-wave16-reruns.json` (2026-09-28).
+
 ## What GHL can do that this plugin deliberately does not author
 
 These are real GHL capabilities, left out by the operator's decision (2026-09-23), not gaps. When a
@@ -282,6 +286,8 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   was never run. The engine cannot see any of this: whether a contact has a company
   is runtime data. The company steps' fields live in `__customInputFields__` rows
   (`{filterField: "business.<key>", valueField}`), not in `inputs`. Read the card.
+- **`{{form_data.*}}` in an add-notes step renders EMPTY.** On a `form_submission` workflow, `{{form_data.*}}` in an add-notes step rendered empty while `{{contact.*}}` in the same note rendered (two tries, 07:49Z and 08:42Z). The engine warns about `form_data` only when no trigger provides the key, so a clean build does not mean a filled note. Read the rendered note back before you rely on a form answer. The engine warning is tracked as bl-952.
+- **The from name does not reach the recipient.** `build_workflow` takes a sender address with a `from_name`, and the stored settings read it back. A test send on 2026-11-09 (12:02:05Z) showed `from_email` applied and the name dropped: the delivered From and Reply-To carried the address only. Set the sender name in the GHL UI and check the delivered header before you promise it (backlog bl-959).
 - **Email click tracking skips a link whose href is a contact merge tag.** With
   `trackingOptions.hasTrackingLinks: true`, a literal URL and a `{{custom_values.x}}` href are
   wrapped in tracking redirects, but `href="{{contact.website}}"` goes out raw. Clicks on it are
