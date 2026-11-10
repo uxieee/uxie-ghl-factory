@@ -76,11 +76,11 @@ are on. Throughout this repo they're called the **public rail** and the **intern
 |---|---|---|
 | What | GHL's official, documented v2/v3 API | the same endpoints GHL's own web app calls |
 | Auth | a Private Integration Token, long-lived | a browser session JWT, auto-renewed |
-| Surface | **<!-- doc-counts:publicOperations -->1520<!-- /doc-counts --> operations across <!-- doc-counts:categories -->90<!-- /doc-counts --> categories** | **<!-- doc-counts:internalEndpoints -->1763<!-- /doc-counts --> catalogued endpoints** |
+| Surface | **<!-- doc-counts:publicOperations -->1520<!-- /doc-counts --> operations across <!-- doc-counts:categories -->90<!-- /doc-counts --> categories** | **<!-- doc-counts:internalEndpoints -->1770<!-- /doc-counts --> catalogued endpoints** |
 | Server | `@uxieee/ghl-mcp` (npm, runs locally) | `uxie-ghl-internal-mcp` (bundled, local stdio) |
 | Status | supported, stable | undocumented, can change without notice |
 
-Counts as of <!-- doc-counts:asof -->2026-11-07<!-- /doc-counts -->, from `scripts/doc-counts.mjs`. Public operations are the non-deprecated entries of `mcp-internal/catalog/public-ops.json`; catalogued endpoints are the compiled catalogue, `mcp-internal/catalog/internal-endpoints.json`.
+Counts as of <!-- doc-counts:asof -->2026-11-10<!-- /doc-counts -->, from `scripts/doc-counts.mjs`. Public operations are the non-deprecated entries of `mcp-internal/catalog/public-ops.json`; catalogued endpoints are the compiled catalogue, `mcp-internal/catalog/internal-endpoints.json`.
 
 **Default to public.** The internal rail exists because the public API cannot reach the workflow
 builder, memberships and courses, events, funnel/page content, Voice AI behaviour, or knowledge
