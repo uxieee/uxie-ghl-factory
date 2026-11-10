@@ -244,7 +244,7 @@ Quiz result rows use the same whole-document save as the quiz above: `POST /form
 
 - **Reading the history:** `get_form` returns the form's `versionHistory` (a count in the typed result; the entries are in the form read). A read is enough to see the versions; no separate route is needed.
 - **Saving a version:** a `POST /forms/{id}` with the current `formData` unchanged returns 201 and adds one version entry. The content does not change, but the entry cannot be removed. Name it as residue in any record.
-- **Restoring a version:** `POST /forms/restore-version` is in the catalogue with reach `proven`. This lane has not run it; before relying on it, run it on a TEST form and read back on a separate GET.
+- **Restoring a version:** `POST /forms/restore-version` with body `{formId, versionId}` applies that version's content. Proven on a TEST quiz: after the restore, a separate GET returned the stored content of the chosen version (equal once object keys are sorted; the serialised JSON can differ in key order, so compare with sorted keys or leaf by leaf). Restoring the newest version put back the content exactly. Each restore adds a version entry, which cannot be removed.
 
 ## Picture choice (a quiz slide only)
 
