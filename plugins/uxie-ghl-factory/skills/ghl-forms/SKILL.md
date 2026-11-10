@@ -180,6 +180,7 @@ Every row below is written the same way: `raw_request` `POST /forms/{id}` with t
 - An empty `redirect_url` does not clear a stored URL, and the builder ignores `redirectUrl` unless `actionType` is `"1"`.
 - Not in this table: the survey navigation keys and the default colour swatches. Neither has a whole-document save proof yet.
 - **fieldStyle changes made by API do not reach the public render unless the save also carries a regenerated `formData.fieldCSS`.** The builder regenerates `fieldCSS` on save (BuilderHeader.vue, createFieldCSS). An API save that sends `fieldCSS` is not yet proven, so until it is, a builder save is the way to get a style change to render. A `POST /forms/{id}` that changes `fieldStyle` reads back correctly on its own.
+- **Adding the image layout keys is irreversible by save.** Once `showImage`, `imageCornerRadius`, `imageFieldSpacing`, `desktopImageLayout` or `mobileImageLayout` is stored, a save that omits them does not remove them, and an explicit key renders differently from an absent one even when the value equals the widget default (560389 pixels differ on the TEST form T5). Test only on a throwaway form. Evidence: knowledge sniffs `w9-studio2-2026-11-10` (commits 3c543f74 and 6a5540bc).
 
 ## Quiz questions a raw_request can write (proven live)
 
