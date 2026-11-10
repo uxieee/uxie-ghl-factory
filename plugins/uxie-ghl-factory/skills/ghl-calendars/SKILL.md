@@ -91,6 +91,8 @@ statuses under each state (Settings → Calendars → Preferences → Appointmen
 appointment is set to a *custom* status is **unproven** — do not promise a workflow filter on the old strings will
 catch custom statuses.
 
+**Rename a custom status** (proven live on the production services host: one rename and one restore, each read back on a separate GET): `PATCH /calendars/statuses/rename/{statusId}` with body `{locationId, status: "<new label>"}`. Only the rename route is covered here. Reorder, archive and restore are not proven, and custom statuses exist only with the Lab flag on.
+
 ## Recurring appointments
 
 The in-app Custom → Recurring create adds `isCustomRecurring: true` and an RFC 5545 `rrule`; each occurrence's id is
