@@ -9971,8 +9971,11 @@ export const TOOLS = [
       if (!write.ok || write.json?.error === true) return fromHttp(write.ok ? 422 : write.status, write.json);
       const known = new Set(before);
       let copyId = null, log = null;
-      for (let i = 0; i < 20 && !copyId; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+      // bl-1038: the poll and its sleep are injectable (deps.copyPoll, deps.sleep) so a test takes the same attempts without real time.
+      const poll = deps.copyPoll ?? { attempts: 20, intervalMs: 1500 };
+      const sleep = deps.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
+      for (let i = 0; i < poll.attempts && !copyId; i++) {
+        await sleep(poll.intervalMs);
         const logs = await copyLogs();
         log = (logs ?? []).find((l) => !logGroupsBefore.has(l.requestGroupId) && l.workflowId === args.workflowId && l.subLocationId === target) ?? log;
         if (log?.result === 'failed') break;
@@ -9983,7 +9986,7 @@ export const TOOLS = [
       // its row still said 'processing' at create_assets, and it settled to 'success' about 2 s later.
       // So once the copy has landed, the row is re-read a few times until it leaves 'processing'.
       for (let i = 0; i < 4 && copyId && log?.result === 'processing'; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await sleep(poll.intervalMs);
         const logs = await copyLogs();
         log = (logs ?? []).find((l) => !logGroupsBefore.has(l.requestGroupId) && l.workflowId === args.workflowId && l.subLocationId === target) ?? log;
       }
@@ -9999,7 +10002,7 @@ export const TOOLS = [
       }
       if (!copyId) {
         return withFailureData(
-          fail(CODES.ENGINE_ABORT, `GHL queued the copy, but no new workflow of that name appeared in the target within 30 s${copyLog ? ` (GHL's copy log: ${copyLog.result} at '${copyLog.currentStep}')` : ''}`,
+          fail(CODES.ENGINE_ABORT, `GHL queued the copy, but no new workflow of that name appeared in the target within ${Math.round(poll.attempts * poll.intervalMs / 1000)} s${copyLog ? ` (GHL's copy log: ${copyLog.result} at '${copyLog.currentStep}')` : ''}`,
             'It may still land: list the target\'s workflows by this name later. Do not re-send, or you may get two copies.'),
           { preview, copyLog, httpStatus: write.status, response: write.json ?? null },
         );

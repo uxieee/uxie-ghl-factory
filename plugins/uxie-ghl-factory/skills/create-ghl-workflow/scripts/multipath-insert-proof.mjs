@@ -1,3 +1,5 @@
+import { unpublishAndAssertDraft } from './probe-readback.mjs';
+import { confirmedCall } from './two-step.mjs';
 // LIVE: edit_workflow inserts a BRANCHING step into a PUBLISHED workflow, and it branches at runtime.
 //
 // Until 2026-09-23 an insert op carrying a bare find_opportunity (no onFound/onNotFound) compiled
@@ -36,7 +38,7 @@ export async function runMultipathInsertProof({ call, gw, LOCATION, NAME, STAMP,
   left.push(`workflow ${wid} (${NAME('mp-insert')}, was PUBLISHED for the run and unpublished after)`);
 
   subject('publish_workflow');
-  const pub = await call('publish_workflow', { workflowId: wid, confirm: true });
+  const pub = await confirmedCall(call, 'publish_workflow', { workflowId: wid });
   check(pub.ok === true && pub.data?.verify?.status === 'published' && pub.data?.verify?.totalTriggers === 0,
     'the probe is PUBLISHED with zero triggers before the insert', `${pub.code ?? ''} ${String(pub.detail ?? '').slice(0, 200)}`);
 
@@ -115,7 +117,7 @@ export async function runMultipathInsertProof({ call, gw, LOCATION, NAME, STAMP,
   }
 
   subject('unpublish_workflows');
-  const un = await call('unpublish_workflows', { workflowIds: [wid], confirm: true });
+  const un = await unpublishAndAssertDraft(call, check, wid, 'probe');
   check(un.ok === true, 'the probe is unpublished again', `${un.code ?? ''} ${String(un.detail ?? '').slice(0, 160)}`);
   subject(false);
 }

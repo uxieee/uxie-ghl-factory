@@ -4,6 +4,8 @@
 // else. Controls first: an UNBOUND registration and a target outside the bound set are both refused
 // before anything is sent. Then a bound copy of a TEST-CONF draft must APPEAR in the target as a NEW
 // id (GHL only queues it) with the source's step count. Everything created is a draft with no trigger.
+import { twoStep } from './two-step.mjs';
+
 export async function runCopyWorkflowProof({ tool, deps, LOCATION, NAME, check, left, log = null }) {
   const subject = (s) => log?.subject?.(s);
   const bound = { ...deps, state: { ...deps.state, allowedLocations: new Set([LOCATION]) } };
@@ -30,7 +32,7 @@ export async function runCopyWorkflowProof({ tool, deps, LOCATION, NAME, check, 
     && typeof pv.data?.preview?.target?.name === 'string',
     'PREVIEW: source (2 steps), the target\'s real name, and the one same-name workflow already there — nothing sent', JSON.stringify(pv.data?.preview ?? pv.code).slice(0, 300));
 
-  const cp = await run('copy_workflow_to_location', { workflowId: wid, targetLocationId: LOCATION, confirm: true }, bound);
+  const cp = (await twoStep((n, a) => run(n, a, bound), 'copy_workflow_to_location', { workflowId: wid, targetLocationId: LOCATION })).final;
   const copyId = cp.data?.copied?.workflowId;
   check(cp.ok === true && typeof copyId === 'string' && copyId !== wid, 'the copy APPEARS in the target as a NEW workflow id (GHL only queued it)',
     `${cp.code ?? ''} ${String(cp.detail ?? '').slice(0, 200)} ${JSON.stringify(cp.data?.copied ?? null)}`);

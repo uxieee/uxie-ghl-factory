@@ -81,9 +81,13 @@ test('a confirmed copy sends the builder\'s body and is proven by the NEW id app
   assert.equal(r.data.stepsMatch, true);
 });
 
-test('a copy GHL queued but that never appears is reported as NOT done, with a do-not-resend warning', { timeout: 60000 }, async () => {
+test('a copy GHL queued but that never appears is reported as NOT done, with a do-not-resend warning (bl-1038: the poll is injected, so it takes no real time)', async () => {
   const { gw } = copyGateway({ copyAppears: false });
-  const r = await copyConfirmed({}, deps(gw, new Set(['SRC', 'TGT'])));
+  // The production poll is 20 attempts at 1500 ms (30 s). The seam takes the same 20 attempts with a no-op sleep.
+  const fast = { sleep: async () => {}, copyPoll: { attempts: 20, intervalMs: 1500 } };
+  const t0 = Date.now();
+  const r = await copyConfirmed({}, { ...deps(gw, new Set(['SRC', 'TGT'])), ...fast });
+  assert.ok(Date.now() - t0 < 1000, `the copy poll must not wait real time under test (took ${Date.now() - t0} ms)`);
   assert.equal(r.ok, false);
   assert.match(r.detail, /queued the copy, but no new workflow/);
   assert.match(r.remediation, /Do not re-send/);

@@ -1,3 +1,5 @@
+import { unpublishAndAssertDraft } from './probe-readback.mjs';
+import { confirmedCall } from './two-step.mjs';
 // LIVE (bl-146): GHL stops checking if_else / router / wait once a workflow is PUBLISHED (its skipHatch),
 // so published documents carrying those violations exist. An edit of one that does not touch the
 // violating step must go through with a WARNING; the same violation INTRODUCED by an edit must still
@@ -37,8 +39,10 @@ export async function runPublishedBaselineProof({ call, gw, LOCATION, NAME, chec
   if (!wid) return;
   left.push(`workflow ${wid} (${NAME('published-baseline')}, was PUBLISHED with NO trigger and a deliberately broken wait (transition naming no step); unpublished after)`);
 
+  // bl-1021 (orchestrator 2026-11-10): the unpublish runs in a finally, so an early return or a thrown check cannot leave the probe published.
+  try {
   subject('publish_workflow');
-  const pub = await call('publish_workflow', { workflowId: wid, confirm: true });
+  const pub = await confirmedCall(call, 'publish_workflow', { workflowId: wid });
   check(pub.ok === true && pub.data?.verify?.status === 'published' && pub.data?.verify?.totalTriggers === 0,
     'the probe is PUBLISHED with zero triggers', `${pub.code ?? ''} ${String(pub.detail ?? '').slice(0, 200)}`);
   if (!pub.ok) return;
@@ -101,8 +105,10 @@ export async function runPublishedBaselineProof({ call, gw, LOCATION, NAME, chec
     'CONTROL: the same repair WITHOUT wait B broken goes through, warning on wait A — so the refusal above was B',
     `${kept2.code ?? ''} ${String(kept2.detail ?? '').slice(0, 300)}`);
 
-  subject('unpublish_workflows');
-  const un = await call('unpublish_workflows', { workflowIds: [wid], confirm: true });
-  check(un.ok === true, 'the probe is unpublished again', `${un.code ?? ''} ${String(un.detail ?? '').slice(0, 160)}`);
+  } finally {
+    subject('unpublish_workflows');
+    const un = await unpublishAndAssertDraft(call, check, wid, 'probe');
+    check(un.ok === true, 'the probe is unpublished again', `${un.code ?? ''} ${String(un.detail ?? '').slice(0, 160)}`);
+  }
   subject(false);
 }

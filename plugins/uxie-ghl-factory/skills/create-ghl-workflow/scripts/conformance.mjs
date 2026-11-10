@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { unpublishAndAssertDraft } from './probe-readback.mjs';
+import { sweepPublishedTestConf, boundaryMeter, callSafe } from './run-hygiene.mjs';
 /**
  * LIVE CONFORMANCE SUITE for the GHL workflow builder rail.
  *
@@ -28,6 +30,7 @@
  * them by id for a human to remove.
  */
 import { writeFileSync } from 'node:fs';
+import { twoStep, confirmedCall } from './two-step.mjs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { makeGatewayFactory, TOOLS } from '../../../mcp-internal/core/tools.mjs';
@@ -66,7 +69,8 @@ const log = createExerciseLog();
 // log.write() calls below are harmless and clearer, but this is what survives an uncaught throw.
 process.on('exit', () => log.write());
 const tool = (n) => log.wrap(TOOLS.find((t) => t.name === n));
-const call = (n, args) => tool(n).handler({ locationId: LOCATION, ...args }, deps);
+// bl-1021: every call routes through callSafe, so a transport failure is a reported result, not an uncaught crash.
+const call = (n, args) => callSafe((nm, a) => tool(nm).handler({ locationId: LOCATION, ...a }, deps), n, args);
 
 let passed = 0, failed = 0;
 const left = [];
@@ -76,6 +80,10 @@ const check = (cond, m, extra) => {
   else { failed++; console.log(`  FAIL  ${m}${extra ? `  — ${extra}` : ''}`); }
 };
 
+// bl-1021 (orchestrator 2026-11-10): an unhandled rejection is a reported FAIL, not a crash, and the run still reaches its summary.
+process.on('unhandledRejection', (e) => { console.log(`  FAIL  transport: unhandled rejection reported (${String(e?.cause?.message ?? e?.message ?? e).slice(0, 160)})`); process.exitCode = 1; });
+// bl-1021 START-OF-RUN SWEEP: a crashed run skips every finally, so unpublish every TEST-CONF workflow still published (updated in the last 12 h) and read each back as draft.
+await sweepPublishedTestConf({ call, check, sinceIso: new Date(Date.now() - 12 * 3600 * 1000).toISOString() });
 const code = (n) => ({ ref: `c${n}`, kind: 'action', type: 'custom_code', name: `Code ${n}`,
   attributes: { code: 'return {slot: 1}', language: 'javascript', output: { slot: 1 } } });
 const hook = (n) => ({ ref: `h${n}`, kind: 'action', type: 'custom_webhook', name: `Hook ${n}`,
@@ -125,6 +133,7 @@ if (wid) {
 // ── 2. the guards REFUSE, and refuse BEFORE writing ─────────────────────────────────────────
 // A refusal is only worth anything if the document is untouched afterwards. Each of these reads
 // the workflow back on a separate request and asserts the template count did not move.
+{ const m = await boundaryMeter({ call, label: 'guards refuse before writing', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nguards refuse before writing');
 log.subject('edit_workflow'); // every refusal/acceptance below is proving edit_workflow's guards
 // IDS, NOT A COUNT. A count says the document moved; it cannot say WHAT moved, and those are two
@@ -233,6 +242,7 @@ if (wid) {
 // Unbound, no agent can enter it; inactive, it cannot fire at all. An unbound trigger with empty
 // conditions is exactly the any-match shape that makes an ACTIVE one dangerous, so inactivity is
 // asserted before anything else runs, and the section stops if it does not hold.
+{ const m = await boundaryMeter({ call, label: 'flow-entry guard and its hatch', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nflow-entry guard and its hatch');
 log.subject('build_workflow'); // proves what build_workflow produced (the unbound, inactive trigger)
 const flow = await call('build_workflow', { spec: {
@@ -243,6 +253,9 @@ const flow = await call('build_workflow', { spec: {
 } });
 check(flow.ok === true, 'an agent-type flow with an UNBOUND conv_ai_trigger builds', flow.detail);
 const fwid = flow.data?.wid;
+// bl-1021 (orchestrator 2026-11-10): build_workflow leaves this agent-type flow published. It stays published through its validation
+// checks (the validate, edit and publish-refusal checks below expect that state); the finally unpublishes it and reads back draft, even if a check throws.
+try {
 if (fwid) left.push(`workflow ${fwid} (${NAME('flowentry')}, agent-type, trigger unbound and inactive)`);
 if (fwid) {
   const trig = (await call('export_workflow', { workflowId: fwid })).data?.workflow?.triggers
@@ -298,6 +311,7 @@ if (fwid) {
 // account: a real build passes both halves, an edit GHL would accept is refused by the engine half
 // with nothing written, a pre-existing server finding does not freeze an unrelated edit, and publish
 // refuses a workflow GHL itself calls invalid.
+{ const m = await boundaryMeter({ call, label: 'workflow validation gate', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nworkflow validation gate');
 log.subject('build_workflow'); // these two check built.data?.validation, from section 1's build_workflow call
 const gateReport = built.data?.validation;
@@ -400,6 +414,9 @@ if (fwid) {
     'PUBLISH: the preview is refused — GHL itself calls this flow invalid, and publishing is when every finding counts',
     `${pub.code} ${String(pub.detail).slice(0, 140)}`);
 }
+} finally {
+  if (fwid) await unpublishAndAssertDraft(call, check, fwid, 'flow-entry probe');
+}
 
 // ── 3. repair_workflow ──────────────────────────────────────────────────────────────────────
 // The riskiest tool in the plugin and, until tonight, the one with zero live proof: 12 endpoints,
@@ -412,6 +429,7 @@ if (fwid) {
 // {type:"NONE", data:null} and there is no credential anywhere near it. Feeding that back would
 // replace a real authorization with a seven-character string, through a full-document PUT with no
 // validator on the far side.
+{ const m = await boundaryMeter({ call, label: 'repair_workflow', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nrepair_workflow');
 if (wid) {
   log.subject('export_workflow'); // this assertion is specifically about export_workflow's own scrub behaviour
@@ -503,6 +521,7 @@ if (wid) {
 //   inherited from how the object was created 90 seconds earlier.
 //
 // It is unpublished again immediately, and the final state is asserted.
+{ const m = await boundaryMeter({ call, label: 'publish / unpublish', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\npublish / unpublish');
 if (wid) {
   log.subject(false); // the cumulative object state from earlier tools, not a fresh call's effect
@@ -520,7 +539,7 @@ if (wid) {
 
   log.subject('publish_workflow'); // covers the publish leg, whether it runs or is skipped below
   if (triggers.length === 0 && sends.length === 0) {
-    const pub = await call('publish_workflow', { workflowId: wid, confirm: true });
+    const pub = (await twoStep(call, 'publish_workflow', { workflowId: wid })).final;
     check(pub.ok === true, 'publish_workflow publishes a draft', pub.detail);
 
     const live = await call('export_workflow', { workflowId: wid });
@@ -529,7 +548,7 @@ if (wid) {
       `status ${live.data?.workflow?.status}`);
 
     log.subject('unpublish_workflows');
-    const un = await call('unpublish_workflows', { workflowIds: [wid], confirm: true });
+    const un = await unpublishAndAssertDraft(call, check, wid, 'probe');
     check(un.ok === true, 'unpublish_workflows takes it back down', un.detail);
 
     const after = await call('export_workflow', { workflowId: wid });
@@ -546,6 +565,7 @@ if (wid) {
 // the other 19 had no suite at all, so their proof records could never be anything but a
 // carried-over label and 23 of the surface's 51 "usable" routes rested on one. Reads are cheap to
 // exercise and there was no reason for them to be uncovered except that nobody had done it.
+{ const m = await boundaryMeter({ call, label: 'the read rail', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nthe read rail');
 if (wid) {
   // Settled, not a bare read: run 1951 of 2026-09-15 got an export with no templates here and took
@@ -771,6 +791,7 @@ if (wid) {
 // the walk must return EVERY row it reports, and its reported total must equal the total the
 // account reports for a one-row probe. A cap, if GHL brings one back, now shows up as
 // complete:false or as a row/total mismatch — both of which fail here.
+{ const m = await boundaryMeter({ call, label: 'the account rail', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nthe account rail');
 log.subject('list_workflows');
 // THE LIMIT IS DERIVED FROM THE ACCOUNT, NEVER A CONSTANT. Written as a literal this passed four
@@ -914,6 +935,7 @@ if (ovTotal !== total) {
 // rejection would come back wearing the SAME code and this section would still print PASS. So each
 // case also asserts a phrase out of the GUARD'S OWN message — `detail` is refusal.message here and
 // GHL's own body there, which is what makes them separable. Delete the guard and these go red.
+{ const m = await boundaryMeter({ call, label: 'raw_request: refused shapes', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nraw_request: refused shapes');
 log.subject('raw_request');
 {
@@ -945,6 +967,7 @@ log.subject('raw_request');
 // of the GUARD'S OWN message, not just the code, because an upstream 422 also maps to
 // VALIDATION_FAILED. confirm:true proves nothing is sent — the guard runs before the gateway call,
 // so this never reaches the sandbox (no workflow id is even required to be real).
+{ const m = await boundaryMeter({ call, label: 'raw_request: the redacted-payload guard', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nraw_request: the redacted-payload guard');
 log.subject('raw_request');
 {
@@ -973,6 +996,7 @@ log.subject('raw_request');
 // 🔴 The address below reaches a DELIVERABLE domain. validate-from-email is believed to send
 // nothing, but see engine/preflight.mjs — that is asserted, not measured — so the local part is
 // written so it cannot plausibly be a person's mailbox.
+{ const m = await boundaryMeter({ call, label: 'preflight: From-address check', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\npreflight: From-address check');
 log.subject(false);
 {
@@ -998,6 +1022,7 @@ log.subject(false);
 //
 // These routes had reach:null before 2026-09-15 — never probed, which on the parity page looks the
 // same as unreachable and is not.
+{ const m = await boundaryMeter({ call, label: 'the account settings rail', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nthe account settings rail');
 log.subject('get_workflow_settings');
 {
@@ -1039,6 +1064,7 @@ log.subject('get_workflow_settings');
 // ── set_workflow_error_alerts: read → merge → write → read back, then RESTORED ────────────────
 // Location-wide state on the sandbox, so the section puts back exactly what it found and proves it.
 // The write that matters is the MERGE: GHL's route replaces the list, the tool must not.
+{ const m = await boundaryMeter({ call, label: 'set_workflow_error_alerts', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nset_workflow_error_alerts');
 log.subject('set_workflow_error_alerts');
 {
@@ -1116,6 +1142,7 @@ log.subject('list_workflow_templates');
 // `count` is DOCUMENTS — 4161 unfiltered on an account holding 224 workflows. find_workflows_using
 // exposes two modes over it and they count different things; a caller who reads one as the other is
 // wrong by a large factor, silently. These assertions pin the DIFFERENCE, not either number.
+{ const m = await boundaryMeter({ call, label: 'the workflow content index', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nthe workflow content index');
 // ── inbound webhook: the ONE fixture with a trigger ─────────────────────────────────────────
 // Every other build here is trigger-less by design. This one carries an inbound_webhook trigger and
@@ -1123,6 +1150,7 @@ console.log('\nthe workflow content index');
 // the trigger stays INACTIVE — both asserted AFTER the pin, because "we did not activate it" is a
 // claim about the account, not about our intentions. A draft enrols nobody, so the sample POST is
 // recorded as a request and goes nowhere else.
+{ const m = await boundaryMeter({ call, label: 'inbound webhook sample', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\ninbound webhook sample');
 log.subject('build_workflow');
 const hookBuilt = await call('build_workflow', { spec: { name: NAME('webhook'),
@@ -1177,6 +1205,7 @@ if (hwid && htid) {
 // ── scheduler preview: a trigger that fires, and one that NEVER does ────────────────────────
 // Both triggers are inactive on a draft. The second is a real authoring mistake — days with no
 // times — that saves, validates and publishes cleanly and that GHL computes zero executions for.
+{ const m = await boundaryMeter({ call, label: 'scheduler preview', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nscheduler preview');
 log.subject('build_workflow');
 const schedBuilt = await call('build_workflow', { spec: { name: NAME('scheduler'),
@@ -1213,6 +1242,7 @@ if (swid) {
 // ── GHL's FIRST-PARTY panel items: steps and triggers that arrive through the marketplace list ──
 // 138 of them were unbuildable: refused as "app not installed" (there is no app), and their
 // triggers emitted masterType 'marketplace', which GHL's validator rejects. Both fixed 2026-09-19.
+{ const m = await boundaryMeter({ call, label: 'first-party marketplace items', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nfirst-party marketplace items');
 log.subject('build_workflow');
 const fpBuilt = await call('build_workflow', { spec: { name: NAME('firstparty'),
@@ -1361,6 +1391,7 @@ log.subject('find_workflows_using');
 // carrying only a traceId for a key that does not exist, and the agent rail wraps failures as
 // {success:false} inside a 200. A tool over either can look healthy while describing nothing, so
 // these assertions check the REFUSAL as hard as the success.
+{ const m = await boundaryMeter({ call, label: 'the marketplace and agent option rails', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nthe marketplace and agent option rails');
 log.subject('describe_marketplace_action');
 {
@@ -1414,6 +1445,7 @@ log.subject('get_ai_agent_options');
 }
 
 // ── 7. folders, and moving something into one ───────────────────────────────────────────────
+{ const m = await boundaryMeter({ call, label: 'folders', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nfolders');
 log.subject('list_workflow_folders');
 const beforeFolders = await call('list_workflow_folders', { limit: 100, offset: 0 });
@@ -1492,7 +1524,7 @@ if (wid) {
   log.subject('edit_workflow');
   const beforeName = (await call('get_workflow', { workflowId: wid })).data;
   const NEWNAME = NAME('stepindex-renamed');
-  const renamedWf = await call('edit_workflow', { workflowId: wid, confirm: true, acknowledgeDrift: true, ops: [{ op: 'updateSettings', settings: { name: NEWNAME } }] });
+  const renamedWf = (await twoStep(call, 'edit_workflow', { workflowId: wid, acknowledgeDrift: true, ops: [{ op: 'updateSettings', settings: { name: NEWNAME } }] })).final;
   check(renamedWf.ok === true, 'edit_workflow updateSettings{name} renames a workflow in place', `${renamedWf.code ?? ''} ${String(renamedWf.detail ?? '').slice(0, 200)}`);
   const afterName = (await call('get_workflow', { workflowId: wid })).data;
   check(afterName?.name === NEWNAME && afterName?.status === beforeName?.status && afterName?.stepCount === beforeName?.stepCount,
@@ -1540,6 +1572,7 @@ if (wid) {
 // A differential, not a smoke test: the same sandbox is asked for an OBJECT and then a PRIMITIVE.
 // The object round-trips; the primitive does not survive, which is why the engine requires
 // `output` to be an object and why a step returning a bare value reads as untested at runtime.
+{ const m = await boundaryMeter({ call, label: 'the custom-code sandbox', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nthe custom-code sandbox');
 log.subject('test_custom_code');
 const obj = await call('test_custom_code', { code: 'return {slot: 1, txt: "x"}', language: 'javascript', inputData: {} });
@@ -1578,6 +1611,7 @@ if (prim.ok !== true) {
 //   • the workflow has NO TRIGGER, so the only way in is the enrol call below
 //   • its steps are drip, tag, wait, tag — none of them sends anything to anyone
 // It is unpublished again at the end. This is the only section that proves anything RUNS.
+{ const m = await boundaryMeter({ call, label: 'runtime: enrolment, drip queue, fast-forward', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nruntime: enrolment, drip queue, fast-forward');
 {
   const gwr = deps.makeGw({ loc: LOCATION, state });
@@ -1596,7 +1630,7 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
     const dripId = tpls.find((t) => t.type === 'drip')?.id, waitId = tpls.find((t) => t.type === 'wait')?.id;
 
     log.subject('publish_workflow');
-    const pub = await call('publish_workflow', { workflowId: rwid, confirm: true });
+    const pub = await confirmedCall(call, 'publish_workflow', { workflowId: rwid });
     check(pub.ok === true && pub.data?.verify?.status === 'published' && pub.data?.verify?.totalTriggers === 0,
       'publish_workflow publishes a workflow that carries a drip step — GHL stamps `configuredAt` onto it on save, and the engine gate must not call that an invented key',
       `${pub.code ?? ''} ${String(pub.detail ?? '').slice(0, 240)}`);
@@ -1635,7 +1669,7 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
       const ffp = await call('fast_forward_contacts', { workflowId: rwid, stepId: waitId, contactId: ids[0] });
       check(ffp.code === 'CONFIRM_REQUIRED' && ffp.data?.preview?.count === 1 && !(await tagsOf(ids[0])).includes(TAG_WAIT),
         'fast_forward_contacts previews exactly ONE enrolment and moves nobody', `${ffp.code} count=${ffp.data?.preview?.count}`);
-      const ffc = await call('fast_forward_contacts', { workflowId: rwid, stepId: waitId, contactId: ids[0], previewToken: ffp.data?.preview?.previewToken, confirm: true });
+      const ffc = (await twoStep(call, 'fast_forward_contacts', { workflowId: rwid, stepId: waitId, contactId: ids[0] })).final;
       check(ffc.ok === true && ffc.data?.moved === 1, 'with the preview token and confirm it reports one moved', `${ffc.code ?? ''} ${JSON.stringify(ffc.data ?? ffc.detail ?? {}).slice(0, 160)}`);
       const past = await until(async () => (await tagsOf(ids[0])).includes(TAG_WAIT));
       check(past === true && !before.includes(TAG_WAIT), 'EFFECT: the step AFTER the 7-day wait ran — the second tag is on the contact\'s own record, and was not before', JSON.stringify(await tagsOf(ids[0])));
@@ -1669,7 +1703,7 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
         'the build does not call a first-party step it just looked up "not a known step type"', JSON.stringify(fr.data?.warnings ?? []).slice(0, 240));
       const frwid = fr.data?.wid;
       if (frwid) left.push(`workflow ${frwid} (${NAME('firstparty-run')}, published for the run and unpublished after)`);
-      const frPub = frwid ? await call('publish_workflow', { workflowId: frwid, confirm: true }) : { ok: false };
+      const frPub = frwid ? await confirmedCall(call, 'publish_workflow', { workflowId: frwid }) : { ok: false };
       log.subject(false);
       const conv = await gwr.call('POST', '/conversations/', { locationId: LOCATION, contactId: ids[3] });
       const convId = conv.json?.conversation?.id ?? conv.json?.id ?? conv.json?.conversationId;
@@ -1707,7 +1741,7 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
         const moved = landed === true ? await until(async () => (await stockOf()) === stockBefore + 1) : null;
         check(moved === true, 'EFFECT: Update Inventory RAN — the stock count on the products service is exactly one higher than before the enrolment', `${stockBefore} -> ${await stockOf()}`);
       } else console.log('  NOTE  no TEST-named product with inventory tracking on — the Update Inventory run was NOT exercised');
-      if (frwid) await call('unpublish_workflows', { workflowIds: [frwid], confirm: true });
+      if (frwid) await unpublishAndAssertDraft(call, check, frwid, 'probe');
 
       // THREE MORE first-party steps, each with an effect on ANOTHER service: Issue Badge (the
       // certificates registry), Grant and Revoke course access (the course's own enrolment list).
@@ -1731,7 +1765,7 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
           log.subject('build_workflow');
           const b = await call('build_workflow', { spec: { name: NAME(name), triggers: [], graph } });
           const id = b.data?.wid; if (id) left.push(`workflow ${id} (${NAME(name)}, published for the run and unpublished after)`);
-          const p = id ? await call('publish_workflow', { workflowId: id, confirm: true }) : { ok: false };
+          const p = id ? await confirmedCall(call, 'publish_workflow', { workflowId: id }) : { ok: false };
           log.subject(false);
           if (p.ok && mid) await gwr.call('POST', `/contacts/${mid}/workflow/${id}`, { eventStartTime: '' });
           // Carry the DETAIL, not just the code. This returned `code` alone until 2026-09-21, so the
@@ -1752,7 +1786,7 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
         check(g.ok, 'Issue Badge and Grant course access build and publish', g.code);
         check(badged === true, 'EFFECT: Issue Badge RAN — the certificates registry holds one more badge for this contact', `${badges0} -> ${await issuedTo()}`);
         check(granted === true, 'EFFECT: Grant course access RAN — the offer\'s member count on the memberships service is one higher', `${members0} -> ${await members()}`);
-        if (g.id) await call('unpublish_workflows', { workflowIds: [g.id], confirm: true });
+        if (g.id) await unpublishAndAssertDraft(call, check, g.id, 'probe');
         if (granted === true) {
           // 🔴 the revoke step's field is SINGULAR (`membership_default_course`); the grant's is plural.
           const r = await runOne('firstparty-revoke', [
@@ -1760,13 +1794,13 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
           const revoked = r.ok ? await until(async () => (await members()) === members0, { tries: 10, ms: 4000 }) : null;
           log.subject('build_workflow');
           check(revoked === true, 'EFFECT: Revoke course access RAN — the member count is back where it started', `${await members()} vs ${members0}`);
-          if (r.id) await call('unpublish_workflows', { workflowIds: [r.id], confirm: true });
+          if (r.id) await unpublishAndAssertDraft(call, check, r.id, 'probe');
         }
       }
     }
 
     log.subject('unpublish_workflows');
-    const un = await call('unpublish_workflows', { workflowIds: [rwid], confirm: true });
+    const un = await unpublishAndAssertDraft(call, check, rwid, 'probe');
     const st = (await call('get_workflow', { workflowId: rwid })).data?.status;
     check(un.ok === true && st === 'draft', 'FENCE: the runtime probe is a DRAFT again when the section ends', `${un.code ?? ''} status=${st}`);
   }
@@ -1774,30 +1808,43 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
 
 // ── edit_workflow: a BRANCHING step inserted into a published workflow branches at RUNTIME ──────
 // Same fence as the runtime block above. Lives in its own module so it can be run on its own.
+{ const m = await boundaryMeter({ call, label: 'edit_workflow: multipath insert, runtime', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nedit_workflow: multipath insert, runtime');
 await runMultipathInsertProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'edit_workflow: deleteBranch, runtime', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nedit_workflow: deleteBranch, runtime');
 await runDeleteBranchProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'check_workflow: trigger names matched against the account vocabulary', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\ncheck_workflow: trigger names matched against the account vocabulary');
 await runVocabularyRefsProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'rename_workflow: the dedicated rename route', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nrename_workflow: the dedicated rename route');
 await runRenameWorkflowProof({ call, NAME, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'custom-object record steps against the real schema', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\ncustom-object record steps against the real schema');
 await runCustomObjectProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'reference sites validate-assets does not read: a step calendar, round-robin user state', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nreference sites validate-assets does not read: a step calendar, round-robin user state');
 await runReferenceSitesProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'account lists are read to the end: a workflow past the first page resolves by name', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\naccount lists are read to the end: a workflow past the first page resolves by name');
 await runEntityPagingProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'copy_workflow_to_location (sandbox into itself) and get_premium_usage', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\ncopy_workflow_to_location (sandbox into itself) and get_premium_usage');
 await runCopyWorkflowProof({ tool, deps, LOCATION, NAME, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'an endpoint that refuses a LIVE credential is ACCESS_DENIED, not TOKEN_EXPIRED', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nan endpoint that refuses a LIVE credential is ACCESS_DENIED, not TOKEN_EXPIRED');
 await runAuthClassificationProof({ call, check, log });
+{ const m = await boundaryMeter({ call, label: 'get_snapshot_contents: what a snapshot carries, not what its source could', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nget_snapshot_contents: what a snapshot carries, not what its source could');
 await runSnapshotContentsProof({ call, check, log });
+{ const m = await boundaryMeter({ call, label: 'edit_workflow: a broken document is previewable, and a trigger repair is judged on what it writes', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nedit_workflow: a broken document is previewable, and a trigger repair is judged on what it writes');
 await runTriggerRepairProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'edit/repair of a PUBLISHED workflow that already breaks a rule GHL stops checking there (bl-146)', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nedit/repair of a PUBLISHED workflow that already breaks a rule GHL stops checking there (bl-146)');
 await runPublishedBaselineProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
+{ const m = await boundaryMeter({ call, label: 'the Documents & Contracts trigger names a document template by name and stores its id', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nthe Documents & Contracts trigger names a document template by name and stores its id');
 await runDocumentTemplateTriggerProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
 
@@ -1808,6 +1855,7 @@ await runDocumentTemplateTriggerProof({ call, gw: deps.makeGw({ loc: LOCATION, s
 // A path's child steps key is `then` (compiler.mjs reads `flattenGraph(p.then ?? [], …)`); with
 // `graph` both paths compile EMPTY and the differential would prove nothing while printing PASS.
 // `mode: 'weighted'` is what makes `weight` mean anything — without it every path gets an even share.
+{ const m = await boundaryMeter({ call, label: 'get_workflow_stats: split results', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nget_workflow_stats: split results');
 {
   const gws = deps.makeGw({ loc: LOCATION, state });
@@ -1830,7 +1878,7 @@ console.log('\nget_workflow_stats: split results');
     const b0names = (b0?.paths ?? []).map((p) => p.name).join('|');
     check(before.ok && b0names === 'Path A|Path B' && b0.totalContactsEntered === 0, 'BEFORE: one split, two NAMED paths, zero entered', JSON.stringify(before.data?.splits ?? null).slice(0, 240));
     log.subject('publish_workflow');
-    const pub = await call('publish_workflow', { workflowId: swid, confirm: true });
+    const pub = await confirmedCall(call, 'publish_workflow', { workflowId: swid });
     check(pub.ok === true && pub.data?.verify?.totalTriggers === 0, 'published with ZERO triggers', `${pub.code ?? ''}`);
     log.subject(false);
     const made = (await gws.call('POST', '/contacts/', { locationId: LOCATION, firstName: 'TEST-CONF', lastName: `${STAMP}-split (no email, no phone)`, tags: ['test-conf'] })).json;
@@ -1855,13 +1903,14 @@ console.log('\nget_workflow_stats: split results');
         'DIFFERENTIAL: split stats moved 0 → 1 on the SAME path the contact\'s tag names, and on no other', JSON.stringify(a0 ?? null).slice(0, 240));
     }
     log.subject('unpublish_workflows');
-    const sun = await call('unpublish_workflows', { workflowIds: [swid], confirm: true });
+    const sun = await unpublishAndAssertDraft(call, check, swid, 'probe');
     const sst = (await call('get_workflow', { workflowId: swid })).data?.status;
     check(sun.ok === true && sst === 'draft', 'FENCE: the split probe is a DRAFT again when the section ends — which is what its LEFT IN PLACE line claims', `${sun.code ?? ''} status=${sst}`);
   }
 }
 
 // ── coverage honesty ────────────────────────────────────────────────────────────────────────
+{ const m = await boundaryMeter({ call, label: 'NOT COVERED by this suite, and not counted as passing:', logPath: process.env.METER_LOG || null, loc: LOCATION }); console.log(`METER ${JSON.stringify(m)}`); if (m.stop) { console.log('STOP: the meter is past the ceiling (or unreadable) at a section boundary; the run stops here.'); process.exit(3); } }
 console.log('\nNOT COVERED by this suite, and not counted as passing:');
 console.log('  trigger activation    — a trigger is the ONLY enrolment path, so activating one is the');
 console.log('                          line between a draft nobody can enter and a live automation');

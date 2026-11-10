@@ -244116,8 +244116,10 @@ var TOOLS2 = [
       if (!write.ok || write.json?.error === true) return fromHttp(write.ok ? 422 : write.status, write.json);
       const known = new Set(before);
       let copyId = null, log = null;
-      for (let i = 0; i < 20 && !copyId; i++) {
-        await new Promise((resolve5) => setTimeout(resolve5, 1500));
+      const poll = deps.copyPoll ?? { attempts: 20, intervalMs: 1500 };
+      const sleep = deps.sleep ?? ((ms) => new Promise((resolve5) => setTimeout(resolve5, ms)));
+      for (let i = 0; i < poll.attempts && !copyId; i++) {
+        await sleep(poll.intervalMs);
         const logs = await copyLogs();
         log = (logs ?? []).find((l) => !logGroupsBefore.has(l.requestGroupId) && l.workflowId === args.workflowId && l.subLocationId === target) ?? log;
         if (log?.result === "failed") break;
@@ -244125,7 +244127,7 @@ var TOOLS2 = [
         copyId = (now ?? []).find((id) => !known.has(id)) ?? null;
       }
       for (let i = 0; i < 4 && copyId && log?.result === "processing"; i++) {
-        await new Promise((resolve5) => setTimeout(resolve5, 1500));
+        await sleep(poll.intervalMs);
         const logs = await copyLogs();
         log = (logs ?? []).find((l) => !logGroupsBefore.has(l.requestGroupId) && l.workflowId === args.workflowId && l.subLocationId === target) ?? log;
       }
@@ -244146,7 +244148,7 @@ var TOOLS2 = [
         return withFailureData(
           fail(
             CODES.ENGINE_ABORT,
-            `GHL queued the copy, but no new workflow of that name appeared in the target within 30 s${copyLog ? ` (GHL's copy log: ${copyLog.result} at '${copyLog.currentStep}')` : ""}`,
+            `GHL queued the copy, but no new workflow of that name appeared in the target within ${Math.round(poll.attempts * poll.intervalMs / 1e3)} s${copyLog ? ` (GHL's copy log: ${copyLog.result} at '${copyLog.currentStep}')` : ""}`,
             "It may still land: list the target's workflows by this name later. Do not re-send, or you may get two copies."
           ),
           { preview, copyLog, httpStatus: write.status, response: write.json ?? null }

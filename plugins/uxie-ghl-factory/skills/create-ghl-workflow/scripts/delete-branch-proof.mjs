@@ -1,3 +1,5 @@
+import { unpublishAndAssertDraft } from './probe-readback.mjs';
+import { confirmedCall } from './two-step.mjs';
 // LIVE: edit_workflow deleteBranch removes one if/else branch from a PUBLISHED workflow, and the
 // runtime routing changes with it. Proven by DIFFERENTIAL on two identical contacts:
 //   A (tagged hot) is enrolled BEFORE the delete and must take the Hot branch — the control that
@@ -24,7 +26,7 @@ export async function runDeleteBranchProof({ call, gw, LOCATION, NAME, STAMP, ch
   left.push(`workflow ${wid} (${NAME('delete-branch')}, was PUBLISHED for the run and unpublished after)`);
 
   subject('publish_workflow');
-  const pub = await call('publish_workflow', { workflowId: wid, confirm: true });
+  const pub = await confirmedCall(call, 'publish_workflow', { workflowId: wid });
   check(pub.ok === true && pub.data?.verify?.status === 'published' && pub.data?.verify?.totalTriggers === 0,
     'the probe is PUBLISHED with zero triggers', `${pub.code ?? ''} ${String(pub.detail ?? '').slice(0, 200)}`);
   if (!pub.ok) return;
@@ -71,7 +73,7 @@ export async function runDeleteBranchProof({ call, gw, LOCATION, NAME, STAMP, ch
   check(tb.includes(T_NONE) && !tb.includes(T_HOT), 'DIFFERENTIAL: after the delete, an identical hot contact falls to None and never gets the Hot tag', JSON.stringify(tb));
 
   subject('unpublish_workflows');
-  const un = await call('unpublish_workflows', { workflowIds: [wid], confirm: true });
+  const un = await unpublishAndAssertDraft(call, check, wid, 'probe');
   check(un.ok === true, 'the probe is unpublished again', `${un.code ?? ''} ${String(un.detail ?? '').slice(0, 160)}`);
   subject(false);
 }
