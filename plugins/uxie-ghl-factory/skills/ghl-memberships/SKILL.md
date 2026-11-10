@@ -249,6 +249,33 @@ Traps (the first three are measured on the sandbox; the rest are from the same r
 - Know-about only: which surface shows what, and what is still open, is in the corpus page `70-research/2026-11-06-communities-paid-channels-and-know-about.md`.
 - Course video analytics and the Discover Courses & Offers storefront have no route taught here; the courses analytics routes in the endpoint index are proven for dashboards, not for video watch data.
 
+## Routes with a proven raw_request write (settings, CSS and code, instructor fields, portal users)
+
+These operations have no typed tool. Each one was proven on the sandbox (the write, then a read on a separate request, then a restore), so the
+route and body shape below are evidence, not a guess. Send them with `raw_request {locationId, method, path, body, confirm: true}`. Preview first
+where the tool offers it, and never send a body whose keys you have not read first: several of these writes replace the whole object.
+
+- **Course CSS, custom code and header/footer (product document):** `PUT /membership/locations/{locationId}/products/{productId}` with the FULL product
+  object (read it with `GET` on the same path first). The custom fields are `customCss`, `customJs`, `customHeader`, `customFooter`. Proven: set to a TEST
+  value, read back on a separate GET, restored to `null`. Clearing a field back to `null` works; an empty string is not the same and is not used.
+- **Instructor name, title, bio and heading (customization):** `PUT /membership/locations/{locationId}/products/customizations/{customizationId}`, with
+  the customization record read first (`GET /membership/locations/{locationId}/products/{productId}`, the `customizations` block). Proven: name, title and
+  bio set and read back, the heading read back unchanged, then restored.
+- **Course site settings (site title, domain, builder settings):** three separate settings routes, sent together on one Save in the admin UI:
+  `PUT` on the domain route, the site-info route (title) and the builder-settings route (`downloadOption`, `pwaEnabled`, `appSettings`). Each body
+  must equal the value you read (a route that is not sent is left alone). Proven: site-info title set to a TEST value and read back on a separate GET,
+  then restored to the original empty string. Read the three keys before the write; a body that differs from the read is refused by the guard.
+- **Portal settings (portal banner text, app permissions, and the other portal-settings keys):** `PUT /clientclub/portal-settings/{locationId}` with the
+  full document. The keys the GET carries must equal the read value, except the one test field. Keys the GET does not carry are sent only as the form's
+  own defaults. Proven for `portalBannerText` and for app permissions: set, read back on a separate GET, restored. Once a portal name is set the UI
+  cannot clear it (an empty name is refused before any request), so a name is a one-way write on a sandbox.
+- **Invite a portal user:** `POST /clientclub/{locationId}/users/invite` with the contact's email as the body field the invite form uses. It returns
+  `201 {success: true}`. The invite is not visible in the portal-settings totals until the person signs up (read `invitedUsers` instead). It sends a real
+  invite mail: only to a TEST contact you own, never to a real person.
+
+Not covered here: course analytics progress and the analytics dashboards (their data is `POST /courses/analytics/...` queries; the progress view has
+no proven write), and learner-side rendering. Those stay as the corpus describes them.
+
 ## Full reference
 
 `references/course-spec.md` — spec format.
