@@ -59,6 +59,17 @@ creates a staff record for every user, and turns on staff e-mails for every book
   slot, reserve-service, price id) are writable only with a raw PUT to the same calendar route; the public tool does not
   accept them. The seats-per-slot flag shows on the public payload.
 - **Raw keys on the same calendar PUT** (`PUT /calendars/{calendarId}`, the whole document: send the team members and form id too, then read back on a separate GET and restore): look busy is the nested `lookBusyConfig` `{enabled, lookBusyPercentage}` (the flat `lookBusyEnabled` and `lookBusyPercentage` keys are refused 422 "should not exist"); the redirect after booking is `formSubmitType` `RedirectURL` together with `formSubmitRedirectURL` (capital R in URL), since the lower-case form is refused and the read-back key is `formSubmitRedirectUrl`; guests are `enableGuests` with `guestType` (set and restored on a TEST collective calendar). Evidence for each is cited in the knowledge calendars sniffs.
+
+**Calendar fields a raw_request PUT /calendars/{calendarId} sets** (the route is in the plugin catalogue on both hosts; send the required keys with the change, read back on a separate GET, restore):
+
+| Field (stored key) | What it controls | Live proof (knowledge sniff) |
+|---|---|---|
+| `enableOfficeHours` | the availability office-hours switch | live-f4s-b1-editor-set.json |
+| `showSeatsPerSlot` | the seats-per-slot display flag on event capacity | live-cal2-stored-seats.json |
+| `stripe.amount` | accept payments on a meetings calendar (a positive amount) | live-cal.payments.b.json |
+| `stripe.deposit` and `stripe.depositType` | a meeting deposit as an amount or a percentage | live-cal.payments.b.json |
+| `enableChargeGuests` with `enableGuests` and a `stripe` amount | charge per attendee | live-cal.payments.b.json |
+| `stripe.deposit` and `stripe.depositType` (percentage) | booking deposit | live-log.jsonl |
 - Creating a calendar in the UI also rewrites the assignee's default availability schedule with `calendarIds:
   [<new id>]` only. Whether that unbinds an earlier calendar is untested — read the schedule after.
 
