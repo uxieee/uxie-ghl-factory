@@ -2462,6 +2462,10 @@
       "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
     },
     {
+      "opKey": "GET /calendars/resources/{}",
+      "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
+    },
+    {
       "opKey": "GET /chat-widget/data/{}/{}",
       "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
     },
@@ -2594,6 +2598,18 @@
       "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9 (brand kit)"
     },
     {
+      "opKey": "POST /calendars",
+      "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
+    },
+    {
+      "opKey": "POST /calendars/groups",
+      "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
+    },
+    {
+      "opKey": "POST /calendars/resources/{}",
+      "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
+    },
+    {
       "opKey": "POST /chat-widget",
       "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
     },
@@ -2656,6 +2672,14 @@
     {
       "opKey": "POST /products/{}/price",
       "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9 (products, bl-479)"
+    },
+    {
+      "opKey": "PUT /calendars/groups/{}",
+      "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
+    },
+    {
+      "opKey": "PUT /calendars/groups/{}/status",
+      "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
     },
     {
       "opKey": "PUT /chat-widget/data/{}/{}",
