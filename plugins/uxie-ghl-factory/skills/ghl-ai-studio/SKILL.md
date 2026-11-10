@@ -159,3 +159,35 @@ Custom domains, deletes, and version restore are deliberately not exposed. Migra
 different surface, different rail.
 
 **Embed credentials.** AI Studio has no user control to view or set embed credentials; they are system-issued (walked 2026-11-10: studio list, builder, More view; no embed route in the live bundle).
+
+## Routes for the studio surface (raw_request, proven live 2026-11-09 on the TEST project)
+
+These routes are in the catalogue and were executed against the TEST sandbox with a read-back on a separate request. Use the stated path form (ids are placeholders); a write is an approved TEST action only.
+
+| Method | Path | What it does |
+|---|---|---|
+| GET | `/vibe-ai/projects` | list projects |
+| GET | `/vibe-ai/projects/{projectId}` | read one project (stored name, slug, starred state) |
+| PATCH | `/vibe-ai/projects/{projectId}/name` | rename the project; read back on a separate GET |
+| PATCH | `/vibe-ai/projects/{projectId}/star` | toggle the starred state; read back |
+| PATCH | `/vibe-ai/projects/{projectId}/slug` | store the slug literal; read back |
+| DELETE | `/vibe-ai/projects/{projectId}` | delete a project (match on id and stored name first) |
+| PATCH | `/vibe-ai/projects/{projectId}/folder` | move a project into a folder |
+| GET | `/vibe-ai/folders` | list folders |
+| POST | `/vibe-ai/folders` | create a folder |
+| PATCH | `/vibe-ai/folders/{folderId}` | rename a folder |
+| DELETE | `/vibe-ai/folders/{folderId}` | delete a folder |
+| GET | `/vibe-ai/projects/{projectId}/settings` | read project settings |
+| PATCH | `/vibe-ai/projects/{projectId}/settings` | write project settings; read back |
+| GET | `/vibe-ai/projects/{projectId}/sandbox` | sandbox state (ready flag) |
+| POST | `/vibe-ai/projects/{projectId}/sandbox` | start the sandbox. Billed where the AI meter applies: check the meter before and after |
+| POST | `/vibe-ai/projects/{projectId}/sandbox/keep-alive` | keep the sandbox alive. Billed where the AI meter applies |
+| POST | `/vibe-ai/projects/{projectId}/versions/{versionId}/restore` | restore a version; prewarm after |
+| POST | `/vibe-ai/projects/{projectId}/versions/{versionId}/prewarm` | prewarm a version |
+| GET | `/vibe-ai/projects/{projectId}/versions/{versionId}/download` | download a version |
+| PATCH | `/vibe-ai/projects/{projectId}/versions/bookmark` | bookmark a message version (message id and flag) |
+| POST | `/vibe-ai/projects/{projectId}/meta/image` | set the project meta image |
+| POST | `/vibe-ai/projects/{projectId}/edit-code` | edit project code through the API |
+| GET | `/vibe-ai/projects/{projectId}/usage/policy` | read the usage policy (read only) |
+| GET | `/vibe-ai/banners/active` | read the active banners (read only) |
+| GET | `/chat-widget/list` | list chat widgets (read only; catalogue host services) |
