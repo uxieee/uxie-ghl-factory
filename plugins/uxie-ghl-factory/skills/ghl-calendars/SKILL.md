@@ -70,6 +70,7 @@ creates a staff record for every user, and turns on staff e-mails for every book
 | `stripe.deposit` and `stripe.depositType` | a meeting deposit as an amount or a percentage | live-cal.payments.b.json |
 | `enableChargeGuests` with `enableGuests` and a `stripe` amount | charge per attendee | live-cal.payments.b.json |
 | `stripe.deposit` and `stripe.depositType` (percentage) | booking deposit | live-log.jsonl |
+| `preBuffer` | the pre-buffer time before a booking (Booking rules) | live-f4s-b1-editor-set.json |
 | `allowCancellation` | whether a booker may cancel from the public page | live-cal2-bulk-d-scrubbed.json |
 | `allowReschedule` | whether a booker may reschedule from the public page | live-cal2-bulk-d-scrubbed.json |
 | `stickyContact` | sticky contact on the booking | live-log.jsonl |
