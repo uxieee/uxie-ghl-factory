@@ -70,6 +70,9 @@ creates a staff record for every user, and turns on staff e-mails for every book
 | `stripe.deposit` and `stripe.depositType` | a meeting deposit as an amount or a percentage | live-cal.payments.b.json |
 | `enableChargeGuests` with `enableGuests` and a `stripe` amount | charge per attendee | live-cal.payments.b.json |
 | `stripe.deposit` and `stripe.depositType` (percentage) | booking deposit | live-log.jsonl |
+| `allowCancellation` | whether a booker may cancel from the public page | live-cal2-bulk-d-scrubbed.json |
+| `allowReschedule` | whether a booker may reschedule from the public page | live-cal2-bulk-d-scrubbed.json |
+| `stickyContact` | sticky contact on the booking | live-log.jsonl |
 - Creating a calendar in the UI also rewrites the assignee's default availability schedule with `calendarIds:
   [<new id>]` only. Whether that unbinds an earlier calendar is untested — read the schedule after.
 
