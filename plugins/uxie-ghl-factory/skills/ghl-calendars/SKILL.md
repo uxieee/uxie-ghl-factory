@@ -141,6 +141,10 @@ The calendar setup assistant's Troubleshoot mode reads the troubleshoot-free-slo
 7 AM" outside working hours gets no clean answer — check the availability schedule and `openHours` first. The
 assistant's troubleshoot state sticks across turns: start a new chat per question.
 
+## The booking-page view (UI only)
+
+The booking-pages list and the View booking page tab are a rendered view. The calendar object and the public widget payload carry no page-view key, so there is no API setting to read back or set. Open it in the app at `app.gohighlevel.com/v2/location/{locationId}/settings/calendars` (the settings tab, then the booking pages list). Do not send a write for the view itself.
+
 ## Side effects to tell the operator about
 
 A booking on a calendar whose user has Google/Outlook connected is written to that external calendar. A calendar create
