@@ -187,7 +187,7 @@ Every row below is written the same way: `raw_request` `POST /forms/{id}` with t
 
 The location palette, the swatches the colour pickers offer, is one list per sub-account. Write it with `raw_request`: `POST /forms/default-colors` with the body `{"locationId": "<location>", "colors": [{"name": "<label>", "value": "#RRGGBB"}]}` (or `#RRGGBBAA`). The list is replaced as a whole. The server accepts only this `{name, value}` shape. The builder's own `{label, labelValue, value8, alpha}` shape is refused with a 422. Read it with `GET /forms/default-colors?locationId=<location>`, which returns the stored list as `{name, value}`.
 
-Proof (2026-11-11, a TEST sub-account): add one swatch to the exact stored list (201), read back (the prior swatches unchanged), restore the exact stored list (201), and the final read equals the original exactly. Record: knowledge sniffs `live-f2/live-default-colors-swap-v3-f2-2026-11-11T075500Z.json`. Always restore with the full prior list. Whether the palette changes a rendered form has not been measured.
+Proof (2026-11-11, a TEST sub-account): add one swatch to the exact stored list (201), read back (the prior swatches unchanged), restore the exact stored list (201), and the final read equals the original exactly. Record: kept in the operator's private corpus (2026-11-11 swap v3). Always restore with the full prior list. Whether the palette changes a rendered form has not been measured.
 
 ## Quiz questions a raw_request can write (proven live)
 
