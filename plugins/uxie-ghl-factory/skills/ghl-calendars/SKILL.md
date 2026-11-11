@@ -158,12 +158,25 @@ Each row names a catalogued route, the body shape the proof sent, and what to re
 - **Payments, coupon on the payment page:** `PUT /calendars/{calendarId}` with stripe.isCouponEnabled, set and restored.
 - **Service setup, reserve service:** `PUT /calendars/{calendarId}` with reserveService, set and restored. The price id and the wizard step are not sent.
 - **Class seats per class:** `PUT /calendars/{calendarId}` with appointmentPerSlot. The key is proven on a class calendar; the UI label "Seats per class" is not yet confirmed to save to it.
-- **Round robin event type:** `PUT /calendars/{calendarId}` with the event type, set and restored; the calendar type is set at create and read back.
+- **Round robin event type and distribution:** `PUT /calendars/{calendarId}` with eventType, set between `RoundRobin_OptimizeForAvailability` and `RoundRobin_OptimizeForEqualDistribution` and restored to the prior value; read back on a separate GET. The calendar type is set at create and read back.
+- **Round robin staff priority:** `PUT /calendars/{calendarId}` with the whole teamMembers array, one member's priority changed (1 to 0.5) and the rest of the array unchanged. Read back on a separate GET; the array is restored to the exact prior value.
+- **Round robin max bookings per slot per user:** `PUT /calendars/{calendarId}` with appoinmentPerSlot (2) on the round-robin calendar. Read back on a separate GET; restored to absent, which reads back absent.
+- **Booking date range:** `PUT /calendars/{calendarId}` with allowBookingFor (60) and allowBookingForUnit (days), set and read back on a separate GET; restored with both keys null, which GHL drops, so the keys read back absent. Effect check: free-slots beyond day 60 go to zero after the set.
+- **Calendar groups:** `POST /calendars/groups` creates a group (201). `PUT /calendars/groups/{groupId}` with name and slug only (a body that carries locationId is refused 422) renames it, read back on a separate GET, then restored. `PUT /calendars/groups/{groupId}/status` with isActive set false, read back, then restored to true.
+- **Activity log (audit feed):** `GET /audit/search/v2` (services host; query page, pageSize, startAt, endAt, locationId). After a calendar PUT, the newest entries show a calendar UPDATED entry naming the changed field. The feed does not record every PUT, so the restore may not appear in it; read the calendar object to confirm the restore.
 - **User default meeting location:** `PUT /users/{userId}` with locationWiseMeetingLocation for the location. Restored to null; the prior absence of the location key is not reproduced.
 - **Account language and week start:** `PUT /locations/{locationId}` with appStartDayOfWeek and the language, set and restored.
 - **Booking page, client portal booking:** `PUT /calendars/{calendarId}` with the stored key enableClientPortalBooking (false, then true, then restored), read back on a separate GET. The other keys on the booking-page screen are page copy and are not stored settings.
 - **Calendar view, view mode and week:** UI only. The view is kept in the browser (a local key, set and read back after a reload), and no server route stores it. There is no raw route to name, so the calendar setup and this view are a UI step.
 - **Module gate (read only):** `GET /calendars/configuration/location/{locationId}` returns subAccountConfig modules. No sub-account write route is captured, so the modules are read, not set.
+
+### UI-only units (no raw route to name)
+
+These units are a rendered view, a browser-side setting, or a page the calendar object does not store. Use the app for them; do not send a write for them.
+
+- **Calendar list: service calendars (v1), calendar troubleshoot, calendar export, manage view, timezone release:** no catalogued write route was found for a stored value. The app is the only path named here.
+- **Appointment list view and settings modal:** the saved view and timezone keys go through a user-settings features route that is not in the catalogue. Read it in the app; no raw route is named.
+- **Booking page view:** blocked on the booking-page view; see the booking-page view section above.
 
 ## Side effects to tell the operator about
 
