@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10",
+  "generated": "2026-11-11",
   "trees": [
     {
       "tree": "workflow-builder",
@@ -29,7 +29,7 @@
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
   "discoveredCallSites": 2036,
   "skippedCallSites": 861,
-  "count": 1780,
+  "count": 1781,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -62246,6 +62246,38 @@
         "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
       ],
       "serviceClass": null,
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--post-forms-default-colors",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/default-colors",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": {
+        "typeName": "{ locationId: string; colors: Array<{ name: string; value: string }>; }",
+        "properties": null,
+        "confidence": "proven-live"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "proven-live",
+        "returns": "none-observed"
+      },
+      "proof": "executed",
+      "sources": [
+        "sniffs/forms-w9-2026-11-08/live-f2/live-default-colors-swap-v3-f2-2026-11-11T075500Z.json",
+        "sniffs/forms-w9-2026-11-08/builder-live-964bf0a3/src/service/FormServices.ts"
+      ],
       "serviceBasis": "declared"
     }
   ]
