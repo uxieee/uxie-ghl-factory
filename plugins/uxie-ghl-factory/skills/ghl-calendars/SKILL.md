@@ -174,7 +174,7 @@ Each row names a catalogued route, the body shape the proof sent, and what to re
 
 These units are a rendered view, a browser-side setting, or a page the calendar object does not store. Use the app for them; do not send a write for them.
 
-- **Calendar list: service calendars (v1), calendar troubleshoot, calendar export, manage view, timezone release, widget order, Facebook pixel:** no catalogued write route was found for the stored value. The app is the only path named here.
+- **Calendar list: service calendars (v1), calendar troubleshoot, calendar export, manage view, timezone release:** no catalogued write route was found for a stored value. The app is the only path named here.
 - **Appointment list view and settings modal:** the saved view and timezone keys go through a user-settings features route that is not in the catalogue. Read it in the app; no raw route is named.
 - **Booking page view:** blocked on the booking-page view; see the booking-page view section above.
 
