@@ -189,6 +189,12 @@ The location palette, the swatches the colour pickers offer, is one list per sub
 
 Proof (2026-11-11, a TEST sub-account): add one swatch to the exact stored list (201), read back (the prior swatches unchanged), restore the exact stored list (201), and the final read equals the original exactly. Record: kept in the operator's private corpus (2026-11-11 swap v3). Always restore with the full prior list. Whether the palette changes a rendered form has not been measured.
 
+## Custom-object fields, contact pairing and the labs flag (proven live)
+
+- **Map a custom-object field onto a form** (`update_form_data`, `fields`): add an element `{"tag": "<tag>", "type": "text", "label": "<label>", "custom": true, "customEdited": true, "fieldKey": "custom_objects.<object>.<field>", "dataType": "TEXT", "model": "custom_objects.<object>"}`. The field must already exist on the object. Preview with `confirm` false, then write. Read the element back on a separate GET, then write the original field list and read it back equal.
+- **Contact pairing for a form** (`raw_request` `POST /forms/{id}`, a whole-document save): send the current `formData` with `formData.form.contactAssociationSettings` set to `{"objectModel": "contact", "withObjectModel": "<other object>", "selectedAssociation": ["<associationId>"]}`. The association id comes from `GET /associations/objectKey/{objectModel}?withObjectKey={withObjectModel}`. Read the form back on a separate GET, then save the exact previous settings and read back again. The save does not create an association; a new one is a separate `POST /associations/`.
+- **The labs flag** (`GET /labs/feature-flags/location/{locationId}`): read it before and after a flag change, on a separate request each time. The flags are nested under `featureFlags.location`.
+
 ## Quiz questions a raw_request can write (proven live)
 
 A quiz is a `/forms/*` document with `productType: "quiz"`. Its questions are not `form.fields[]`: each question is one slide, and no typed tool writes slides (`create_form` cannot). The proof built one quiz with one question of each kind, in this order:
