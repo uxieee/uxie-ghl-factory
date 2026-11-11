@@ -4,7 +4,7 @@ MCP server exposing the `uxie-ghl-factory` plugin's proven GoHighLevel **interna
 engines as schema-validated tools. Complements the plugin's skills — the specialists
 design, this server executes.
 
-**Status: shipped in `uxie-ghl-factory` since 0.8.0 (17 tools then, 83 as of 0.82.0; <!-- doc-counts:tools -->122<!-- /doc-counts --> now, as of <!-- doc-counts:asof -->2026-11-10<!-- /doc-counts -->, from `scripts/doc-counts.mjs`). The original 17 were all LIVE-PROVEN on GROM AU (2026-07-21); every tool added since carries its own `proof:` label in `tool-descriptions.json`.**
+**Status: shipped in `uxie-ghl-factory` since 0.8.0 (17 tools then, 83 as of 0.82.0; <!-- doc-counts:tools -->122<!-- /doc-counts --> now, as of <!-- doc-counts:asof -->2026-11-11<!-- /doc-counts -->, from `scripts/doc-counts.mjs`). The original 17 were all LIVE-PROVEN on GROM AU (2026-07-21); every tool added since carries its own `proof:` label in `tool-descriptions.json`.**
 Every tool has been driven against a real account through a real MCP stdio session — see the
 per-tool ledgers below: the read tools; the confirm-gated workflow writes (`build_workflow`,
 `edit_workflow`, `publish_workflow`, `fast_forward_contacts`, non-GET `raw_request`); the
