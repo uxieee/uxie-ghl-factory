@@ -35,7 +35,7 @@ The singular internal `/knowledge-base/*` paths still answer after GHL's 2026-08
 the same knowledge bases as the public plural `/knowledge-bases` (2026-10-29).
 
 <!-- rail-ledger:knowledge-base -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|

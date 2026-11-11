@@ -177,8 +177,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-11-11",
-      note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1790,
+      note: "Compiled from internal-endpoints.source.json (mined by [private corpus]) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
+      count: 1792,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -233,9 +233,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "resolved"
           },
-          sources: [
-            "services/FacebookService.ts:73"
-          ],
           publicEquivalent: [
             "ad-publishing-v3__fb-get-ad-account",
             "ad-manager__fb-get-ad-account"
@@ -294,9 +291,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/FacebookService.ts:89"
-          ],
           publicEquivalent: [
             "ad-publishing-v3__fb-get-custom-audiences",
             "ad-manager__fb-get-custom-audiences"
@@ -350,9 +344,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/AdPublishing.ts:64"
-          ],
           publicEquivalent: [
             "ad-publishing-v3__fb-get-instagram-accounts",
             "ad-manager__fb-get-instagram-accounts"
@@ -405,9 +396,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/AdPublishing.ts:49"
-          ],
           publicEquivalent: [
             "ad-publishing-v3__fb-get-pages",
             "ad-manager__fb-get-pages"
@@ -469,10 +457,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/AdPublishing.ts:20",
-            "services/marketplaceServices/AdPublishing.ts:42"
-          ],
           publicEquivalent: [
             "ad-publishing-v3__fb-get-pixels",
             "ad-manager__fb-get-pixels"
@@ -509,9 +493,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps/add_to_affiliate_manager.md:63"
-          ],
           publicEquivalent: [
             "affiliate-manager-v3__list-affiliates",
             "affiliate-manager__list-affiliates"
@@ -555,9 +536,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/AffiliateService.ts:36"
-          ],
           publicEquivalent: [
             "affiliate-manager-v3__get-affiliate",
             "affiliate-manager__get-affiliate"
@@ -608,9 +586,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/AffiliateService.ts:19"
-          ],
           publicEquivalent: [
             "affiliate-manager-v3__list-campaigns",
             "affiliate-manager__list-campaigns"
@@ -646,10 +621,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps/add_to_affiliate_manager.md:61"
-          ]
+          }
         },
         {
           id: "workflows--affiliate-manager-skip-onboarding",
@@ -681,10 +653,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps/add_to_affiliate_manager.md:61"
-          ]
+          }
         },
         {
           id: "affiliate-service--get-affiliates",
@@ -745,10 +714,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/AffiliateService.ts:32"
-          ]
+          }
         },
         {
           id: "workflows--prompt-enhance",
@@ -784,10 +750,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/WORKFLOW-AI.md:39"
-          ]
+          }
         },
         {
           id: "ai-agents--agents",
@@ -819,10 +782,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:28"
-          ]
+          }
         },
         {
           id: "ai-agents--auto-supervise-stop",
@@ -857,10 +817,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:39"
-          ]
+          }
         },
         {
           id: "ai-agents--auto-supervise-run",
@@ -892,10 +849,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:38"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-eval-prompt",
@@ -927,10 +881,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:37"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-iterations",
@@ -962,10 +913,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:35"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-iterations-post",
@@ -997,10 +945,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:34"
-          ]
+          }
         },
         {
           id: "ai-agents--optimization-runtime-prepare",
@@ -1032,10 +977,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:33"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-scenarios",
@@ -1067,10 +1009,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:32"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-scenarios-post",
@@ -1102,10 +1041,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:31"
-          ]
+          }
         },
         {
           id: "ai-agents--scenarios-generate",
@@ -1137,10 +1073,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:30"
-          ]
+          }
         },
         {
           id: "ai-agents--ghl-past-scenarios",
@@ -1172,10 +1105,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:29"
-          ]
+          }
         },
         {
           id: "aiemployee-service--is-beta-enabled",
@@ -1221,10 +1151,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/AIEmployeeService.ts:31"
-          ]
+          }
         },
         {
           id: "aiemployee-service--get-employee-by-id",
@@ -1265,10 +1192,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/AIEmployeeService.ts:81"
-          ]
+          }
         },
         {
           id: "aiemployee-service--update-employee",
@@ -1326,10 +1250,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/AIEmployeeService.ts:67"
-          ]
+          }
         },
         {
           id: "aiemployee-service--get-employees-list",
@@ -1377,10 +1298,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/AIEmployeeService.ts:46"
-          ]
+          }
         },
         {
           id: "ai-usage--get-plan-location",
@@ -1420,11 +1338,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/usage-and-plan-gating.md:46"
-          ]
+          }
         },
         {
           id: "ai-studio--usage-policy",
@@ -1456,10 +1370,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/20-api/usage-and-plan-gating.md:47"
-          ]
+          }
         },
         {
           id: "ai-usage--get-usage-limits-location",
@@ -1498,10 +1409,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-usage--patch-usage-limits-location",
@@ -1537,10 +1445,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-usage--get-usage-limits-location-extra-usage",
@@ -1579,10 +1484,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-usage--patch-usage-limits-location-extra-usage",
@@ -1618,10 +1520,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-usage--get-usage-limits-location-requests",
@@ -1660,10 +1559,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-usage--post-usage-limits-request",
@@ -1699,10 +1595,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-usage--get-usage-v2-fup-status",
@@ -1748,10 +1641,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-usage--get-usage-v2-snapshots",
@@ -1790,10 +1680,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "eliza-service--get-eliza-info",
@@ -1828,10 +1715,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ElizaService.ts:18"
-          ]
+          }
         },
         {
           id: "shopify-service--update-shopify-webhooks",
@@ -1859,10 +1743,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ShopifyService.ts:12"
-          ]
+          }
         },
         {
           id: "backend--setup",
@@ -1898,11 +1779,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "components/actions/AddAIAppointmentBot.vue:344",
-            "components/actions/crm/SendToEliza.vue:230"
-          ]
+          }
         },
         {
           id: "memberships-courses--assessments-assignment",
@@ -1930,10 +1807,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:180"
-          ]
+          }
         },
         {
           id: "memberships-courses--assessments-quiz",
@@ -1961,10 +1835,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:179"
-          ]
+          }
         },
         {
           id: "memberships-courses--assets-drm-assets",
@@ -1994,12 +1865,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:88",
-            "memberships-courses/20-api/build-api.md:160",
-            "memberships-courses/20-api/build-api.md:182"
-          ]
+          }
         },
         {
           id: "memberships-courses--assets-license-processing-status",
@@ -2031,10 +1897,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:96"
-          ]
+          }
         },
         {
           id: "memberships-courses--signed-url-upload",
@@ -2064,10 +1927,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:86"
-          ]
+          }
         },
         {
           id: "associations-service--fetch-associations-for-object",
@@ -2118,10 +1978,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/AssociationsService.ts:17",
-            "workflows/70-research/ENDPOINTS.md:146"
-          ],
           publicEquivalent: [
             "associations-v3__get-association-by-object-keys",
             "associations__get-association-by-object-keys"
@@ -2153,10 +2009,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps-marketplace/company.md:99"
-          ]
+          }
         },
         {
           id: "ai-agents--auth-firebase-token",
@@ -2184,10 +2037,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:40"
-          ]
+          }
         },
         {
           id: "ai-agents--iterate-stream",
@@ -2215,10 +2065,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:36"
-          ]
+          }
         },
         {
           id: "workflows--blacklist",
@@ -2254,10 +2101,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:211"
-          ]
+          }
         },
         {
           id: "funnels--blogs-authors",
@@ -2285,10 +2129,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:78"
-          ]
+          }
         },
         {
           id: "funnels--blogs-posts",
@@ -2317,9 +2158,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/20-api/funnels-api.md:78"
-          ],
           publicEquivalent: [
             "blogs-v3__create-blog-post",
             "blogs__create-blog-post"
@@ -2361,9 +2199,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/20-api/funnels-api.md:79"
-          ],
           publicEquivalent: [
             "blogs-v3__update-blog-post",
             "blogs__update-blog-post"
@@ -2402,11 +2237,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:68",
-            "funnels/20-api/funnels-api.md:71"
-          ]
+          }
         },
         {
           id: "funnels--site-create",
@@ -2434,10 +2265,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:26"
-          ]
+          }
         },
         {
           id: "funnels--site-delete",
@@ -2465,10 +2293,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:27"
-          ]
+          }
         },
         {
           id: "backend--get-location-calendars",
@@ -2523,9 +2348,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/api/location-assets-service.ts:99"
-          ],
           publicEquivalent: [
             "calendars-v3__get-calendars",
             "calendars__get-calendars"
@@ -2618,10 +2440,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "open-map",
             returns: "none-observed"
           },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ],
           publicEquivalent: [
             "calendars-v3__create-calendar",
             "calendars__create-calendar"
@@ -2663,13 +2481,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "_shared/conformance/three-tiers-of-write-verification.md:70",
-            "calendars/20-api/events-and-appointments.md:24",
-            "calendars/20-api/events-and-appointments.md:87",
-            "calendars/40-rules/appointment-status-semantics.md:19",
-            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:45"
-          ],
           publicEquivalent: [
             "calendars-v3__get-calendar",
             "calendars__get-calendar"
@@ -2715,15 +2526,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "_shared/conformance/three-tiers-of-write-verification.md:11",
-            "_shared/conformance/three-tiers-of-write-verification.md:23",
-            "_shared/conformance/three-tiers-of-write-verification.md:35",
-            "_shared/conformance/three-tiers-of-write-verification.md:69",
-            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:23",
-            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:4",
-            "calendars/40-rules/index.md:19"
-          ],
           publicEquivalent: [
             "calendars-v3__update-calendar",
             "calendars__update-calendar"
@@ -2765,9 +2567,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:47"
-          ],
           publicEquivalent: [
             "calendars-v3__get-slots",
             "calendars__get-slots"
@@ -2804,10 +2603,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:37"
-          ]
+          }
         },
         {
           id: "calendars--bookings-create",
@@ -2835,10 +2631,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:39"
-          ]
+          }
         },
         {
           id: "calendars--services-payment-summary",
@@ -2866,10 +2659,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:38"
-          ]
+          }
         },
         {
           id: "calendar-service--get-calendar-configuration",
@@ -2908,11 +2698,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/CalendarService.ts:11",
-            "calendars/20-api/services-and-rentals.md:23"
-          ]
+          }
         },
         {
           id: "calendars--configuration-location-put",
@@ -2944,10 +2730,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:24"
-          ]
+          }
         },
         {
           id: "calendars--calendars-events",
@@ -3003,14 +2786,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/events-and-appointments.md:22",
-            "calendars/20-api/events-and-appointments.md:64",
-            "calendars/20-api/events-and-appointments.md:78",
-            "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42",
-            "calendars/70-research/2026-09-02-calendar-events-differential.md:20",
-            "calendars/70-research/2026-09-02-calendar-events-differential.md:24"
-          ],
           publicEquivalent: [
             "calendars-v3__get-calendar-events",
             "calendars__get-calendar-events"
@@ -3048,10 +2823,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/events-and-appointments.md:111",
-            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:66"
-          ],
           publicEquivalent: [
             "calendars-v3__create-appointment",
             "calendars__create-appointment"
@@ -3093,11 +2864,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/events-and-appointments.md:25",
-            "calendars/20-api/events-and-appointments.md:28",
-            "calendars/40-rules/appointment-status-semantics.md:47"
-          ],
           publicEquivalent: [
             "calendars-v3__edit-appointment",
             "calendars__edit-appointment"
@@ -3145,9 +2911,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:132"
-          ],
           publicEquivalent: [
             "calendars-v3__get-groups",
             "calendars__get-groups"
@@ -3214,10 +2977,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "resolved",
             returns: "none-observed"
           },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ],
           publicEquivalent: [
             "calendars-v3__create-calendar-resource",
             "calendars__create-calendar-resource"
@@ -3254,9 +3013,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/60-recipes/build-a-multi-step-funnel.md:73"
-          ],
           publicEquivalent: [
             "calendars-v3__updateCalendarSchedule",
             "calendars__update-calendar-schedule"
@@ -3323,11 +3079,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ]
+          }
         },
         {
           id: "calendars--service-menus-list",
@@ -3359,11 +3111,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ]
+          }
         },
         {
           id: "ai-agents--calendars-services",
@@ -3398,10 +3146,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:137"
-          ]
+          }
         },
         {
           id: "workflows--services-catalog",
@@ -3430,9 +3175,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps-marketplace/conversation-ai.md:157"
-          ],
           publicEquivalent: [
             "calendars-v3__create-service-catalog",
             "calendars__create-service-catalog"
@@ -3486,10 +3228,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "primitive"
-          },
-          sources: [
-            "services/api/calendar-status-service.ts:24"
-          ]
+          }
         },
         {
           id: "calendars--post-calendars-user-settings-features",
@@ -3522,12 +3261,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "proven-live",
             returns: "none-observed"
-          },
-          sources: [
-            "sniffs/calendars-f4-share-2026-11-09/live-api-features-activeView-run2.json",
-            "sniffs/calendars-f4-share-2026-11-09/live-api-features-timezone-run2.json",
-            "sniffs/calendars-f4-share-2026-11-09/api-features-f4s.mjs"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-registry",
@@ -3571,11 +3305,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:301",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:106"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-registry-delete",
@@ -3610,10 +3340,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:302"
-          ]
+          }
         },
         {
           id: "memberships-courses--registry-send-certificates-to-mail",
@@ -3645,10 +3372,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:300"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-templates",
@@ -3687,11 +3411,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:112",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:106"
-          ]
+          }
         },
         {
           id: "certificates-service--delete-template",
@@ -3726,11 +3446,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/credential-template-delete.md",
-            "sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
-          ]
+          }
         },
         {
           id: "certificates-service--update-template",
@@ -3769,11 +3485,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/credential-template-designer-save.md",
-            "sniffs/courses-w9-2026-11-08/cred-designer-json-set-2026-11-10/live-cred-designer-json-set.json"
-          ]
+          }
         },
         {
           id: "ai-agents--chat-widget",
@@ -3809,9 +3521,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/chat-widget.md:33"
-          ],
           publicEquivalent: [
             "chat-widget-v3__delete",
             "chat-widget__delete-chat-widget"
@@ -3844,9 +3553,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/chat-widget.md:32"
-          ],
           publicEquivalent: [
             "chat-widget-v3__cloneChatWidget",
             "chat-widget__clone-chat-widget"
@@ -3895,10 +3601,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/chat-widget.md:34"
-          ]
+          }
         },
         {
           id: "ai-agents--chat-widget-data",
@@ -3934,9 +3637,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/chat-widget.md:29"
-          ],
           publicEquivalent: [
             "chat-widget-v3__getChatWidget",
             "chat-widget__get-chat-widget-by-id"
@@ -3976,9 +3676,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/chat-widget.md:31"
-          ],
           publicEquivalent: [
             "chat-widget-v3__updateChatWidget",
             "chat-widget__update-chat-widget"
@@ -4033,10 +3730,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/chat-widget.md:36"
-          ]
+          }
         },
         {
           id: "ai-agents--feedback-list",
@@ -4081,10 +3775,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/chat-widget.md:38"
-          ]
+          }
         },
         {
           id: "ai-agents--widget-events",
@@ -4126,10 +3817,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/chat-widget.md:37"
-          ]
+          }
         },
         {
           id: "ai-agents--chat-widget-forms",
@@ -4157,10 +3845,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:95"
-          ]
+          }
         },
         {
           id: "backend--get-chat",
@@ -4223,14 +3908,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "erased"
           },
-          sources: [
-            "services/api/chat-widget-service.ts:35",
-            "ai-agents/20-api/chat-widget.md:28",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
-            "funnels/10-anatomy/websites-and-global-sections.md:278",
-            "funnels/20-api/funnels-api.md:394",
-            "workflows/70-research/ENDPOINTS.md:137"
-          ],
           publicEquivalent: [
             "chat-widget-v3__listChatWidget",
             "chat-widget__list-chat-widgets"
@@ -4266,10 +3943,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/chat-widget.md:35"
-          ]
+          }
         },
         {
           id: "memberships-courses--tokens-send-magic-link",
@@ -4301,10 +3975,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:115"
-          ]
+          }
         },
         {
           id: "memberships-courses--clientclub-users",
@@ -4339,10 +4010,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:270"
-          ]
+          }
         },
         {
           id: "clientclub-users--invite",
@@ -4378,11 +4046,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/portal-user-invite.md",
-            "sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
-          ]
+          }
         },
         {
           id: "clientclub-notification-preferences--create",
@@ -4418,11 +4082,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/client-portal-and-analytics.md",
-            "sniffs/courses-w9-2026-11-08/NOTE-NOTIFICATION-PREFS-2026-11-09.md"
-          ]
+          }
         },
         {
           id: "memberships-courses--clientclub-portal-settings",
@@ -4450,10 +4110,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:115"
-          ]
+          }
         },
         {
           id: "memberships-courses--clientclub-portal-settings-get",
@@ -4488,10 +4145,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/client-portal-and-analytics.md:22"
-          ]
+          }
         },
         {
           id: "memberships-courses--clientclub-portal-settings-put",
@@ -4523,10 +4177,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/client-portal-and-analytics.md:23"
-          ]
+          }
         },
         {
           id: "memberships-courses--communities-groups",
@@ -4580,11 +4231,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:331",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:81"
-          ]
+          }
         },
         {
           id: "memberships-courses--communities-groups-post",
@@ -4617,15 +4264,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:332",
-            "platform/40-rules/validation-speaks-three-dialects.md:28",
-            "workflows/30-types/steps-marketplace/communities.md:136",
-            "workflows/30-types/steps-marketplace/communities.md:140",
-            "workflows/30-types/steps-marketplace/communities.md:144",
-            "workflows/30-types/triggers-marketplace/group_access_granted.md:81"
-          ]
+          }
         },
         {
           id: "memberships-courses--groups-channels",
@@ -4660,10 +4299,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:357"
-          ]
+          }
         },
         {
           id: "memberships-courses--channels-posts",
@@ -4701,10 +4337,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:356"
-          ]
+          }
         },
         {
           id: "memberships-courses--groups-users",
@@ -4739,10 +4372,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:355"
-          ]
+          }
         },
         {
           id: "memberships-courses--users-groups",
@@ -4784,10 +4414,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:360"
-          ]
+          }
         },
         {
           id: "memberships-courses--communities-locations",
@@ -4822,11 +4449,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:330",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:80"
-          ]
+          }
         },
         {
           id: "workflows--contacts",
@@ -4866,10 +4489,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps-marketplace/company.md:40",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:173"
-          ],
           publicEquivalent: [
             "contacts-v3__get-contact",
             "contacts__get-contact"
@@ -4909,10 +4528,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "_shared/conformance/three-tiers-of-write-verification.md:46",
-            "workflows/30-types/triggers/contact_changed.md:122"
-          ],
           publicEquivalent: [
             "contacts-v3__update-contact",
             "contacts__update-contact"
@@ -4951,11 +4566,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/events-and-appointments.md:23",
-            "calendars/20-api/events-and-appointments.md:65",
-            "calendars/20-api/events-and-appointments.md:79"
-          ],
           publicEquivalent: [
             "contacts-v3__get-appointments-for-contact",
             "contacts__get-appointments-for-contact"
@@ -4995,9 +4605,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/triggers/note_changed.md:78"
-          ],
           publicEquivalent: [
             "contacts-v3__update-note",
             "contacts__update-note"
@@ -5037,9 +4644,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/triggers-marketplace/task_completed.md:82"
-          ],
           publicEquivalent: [
             "contacts-v3__update-task-completed",
             "contacts__update-task-completed"
@@ -5087,12 +4691,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "platform/20-api/api-gap-matrix.md:24",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:54",
-            "workflows/30-types/steps/wait.md:320",
-            "workflows/30-types/steps-marketplace/company.md:165"
-          ],
           publicEquivalent: [
             "contacts-v3__add-contact-to-workflow",
             "contacts__add-contact-to-workflow"
@@ -5134,10 +4732,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps/if_else.md:105",
-            "workflows/30-types/triggers/note_add.md:85"
-          ],
           publicEquivalent: [
             "contacts-v3__create-note",
             "contacts__create-note"
@@ -5174,9 +4768,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/triggers/contact_tag.md:95"
-          ],
           publicEquivalent: [
             "contacts-v3__add-tags",
             "contacts__add-tags"
@@ -5213,11 +4804,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ask-ai/30-types/skills/contacts--list.md:17",
-            "ask-ai/30-types/skills/contacts--search.md:18"
-          ]
+          }
         },
         {
           id: "events--contacts-search",
@@ -5247,9 +4834,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "events/20-api/events-management-api.md:291"
-          ],
           publicEquivalent: [
             "contacts-v3__search-contacts-advanced",
             "contacts__search-contacts-advanced"
@@ -5293,15 +4877,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "erased",
             returns: "erased"
-          },
-          sources: [
-            "services/api/contact-service.ts:66",
-            "platform/20-api/smart-lists.md:105",
-            "platform/20-api/smart-lists.md:153",
-            "platform/20-api/smart-lists.md:161",
-            "platform/20-api/smart-lists.md:221",
-            "platform/20-api/smart-lists.md:272"
-          ]
+          }
         },
         {
           id: "events--search-ids",
@@ -5329,10 +4905,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:291"
-          ]
+          }
         },
         {
           id: "workflows--ids-es",
@@ -5360,11 +4933,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/50-runtime/11-runtime-logs.md:294",
-            "workflows/50-runtime/11-runtime-logs.md:295"
-          ]
+          }
         },
         {
           id: "platform--contacts-smartlist",
@@ -5395,12 +4964,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/smart-lists.md:27",
-            "platform/20-api/smart-lists.md:129",
-            "platform/20-api/smart-lists.md:342"
-          ]
+          }
         },
         {
           id: "platform--contacts-smartlist-delete",
@@ -5432,11 +4996,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/smart-lists.md:82",
-            "platform/20-api/smart-lists.md:296"
-          ]
+          }
         },
         {
           id: "platform--contacts-smartlist-get",
@@ -5480,15 +5040,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:71",
-            "platform/20-api/smart-lists.md:72",
-            "platform/20-api/smart-lists.md:242",
-            "platform/20-api/smart-lists.md:269",
-            "platform/20-api/smart-lists.md:279"
-          ]
+          }
         },
         {
           id: "platform--contacts-smartlist-put",
@@ -5520,11 +5072,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/smart-lists.md:28",
-            "platform/20-api/smart-lists.md:168"
-          ]
+          }
         },
         {
           id: "platform--smartlist-search",
@@ -5580,14 +5128,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:38",
-            "platform/20-api/smart-lists.md:45",
-            "platform/20-api/smart-lists.md:278",
-            "platform/20-api/smart-lists.md:294"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-search",
@@ -5616,10 +5157,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:19",
-            "ai-agents/20-api/conversation-ai-boundary.md:24"
-          ],
           publicEquivalent: [
             "conversation-ai-v3__search-agent",
             "conversation-ai__search-agent"
@@ -5667,10 +5204,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/ConversationAIService.ts:18"
-          ]
+          }
         },
         {
           id: "email-stats-report-service--get-new-email-stats",
@@ -5722,14 +5256,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/EmailStatsReportService.ts:10",
-            "services/api/email-stats-service.ts:14",
-            "workflows/70-research/ENDPOINTS.md:204",
-            "workflows/70-research/RAIL.md:122",
-            "workflows/70-research/STATS-RAILS.md:38"
-          ]
+          }
         },
         {
           id: "email-stats-report-service--get-aggregate-stats-new",
@@ -5786,15 +5313,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/EmailStatsReportService.ts:14",
-            "services/api/email-stats-service.ts:9",
-            "services/marketplaceServices/WorkflowStatsService.ts:28",
-            "workflows/70-research/RAIL.md:123",
-            "workflows/70-research/STATS-RAILS.md:25",
-            "workflows/70-research/VERSIONS-STATS-LOGS.md:302"
-          ]
+          }
         },
         {
           id: "sms-stats-report-service--get-sms-stats-with-contacts",
@@ -5834,12 +5353,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/SmsStatsReportService.ts:12",
-            "services/api/sms-stats-service.ts:13",
-            "workflows/70-research/RAIL.md:127"
-          ]
+          }
         },
         {
           id: "sms-stats-report-service--get-sms-stats",
@@ -5896,15 +5410,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/SmsStatsReportService.ts:8",
-            "services/api/sms-stats-service.ts:8",
-            "services/marketplaceServices/WorkflowStatsService.ts:37",
-            "workflows/50-runtime/observed-query-shapes.md:76",
-            "workflows/70-research/STATS-RAILS.md:26",
-            "workflows/70-research/VERSIONS-STATS-LOGS.md:303"
-          ]
+          }
         },
         {
           id: "workflows--manual-actions-search",
@@ -5936,10 +5442,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps/manual-sms.md:72"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-messages",
@@ -5968,10 +5471,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/actions-and-plugins.md:47",
-            "workflows/30-types/steps/wait.md:324"
-          ],
           publicEquivalent: [
             "conversations-v3__send-a-new-message",
             "conversations__send-a-new-message"
@@ -6012,9 +5511,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/ConversationMessageService.ts:10"
-          ],
           publicEquivalent: [
             "conversations-v3__get-message",
             "conversations__get-message"
@@ -6051,10 +5547,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps/email.md:160",
-            "workflows/40-rules/settings-semantics.md:185"
-          ],
           publicEquivalent: [
             "conversations-v3__get-email-by-id",
             "conversations__get-email-by-id"
@@ -6097,9 +5589,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/EmailService.ts:234"
-          ],
           publicEquivalent: [
             "conversations__get-all-custom-subtypes"
           ]
@@ -6138,10 +5627,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:54"
-          ]
+          }
         },
         {
           id: "tik-tok-service--get-tik-tok-posts",
@@ -6202,11 +5688,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TikTokService.ts:19",
-            "workflows/70-research/ENDPOINTS.md:173"
-          ]
+          }
         },
         {
           id: "tik-tok-service--get-tik-tok-post-by-id",
@@ -6259,10 +5741,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TikTokService.ts:25"
-          ]
+          }
         },
         {
           id: "ask-ai--copilot-sample-messages",
@@ -6290,12 +5769,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ask-ai/30-types/skills/conversation-ai--onboarding.md:111",
-            "ask-ai/30-types/skills/voice-ai--onboarding.md:218",
-            "ask-ai/30-types/skills/voice-ai--onboarding.md:240"
-          ]
+          }
         },
         {
           id: "funnels--countdown-timer",
@@ -6326,9 +5800,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:29"
-          ],
           railDecision: {
             product: "countdown-timers",
             job: "read",
@@ -6365,10 +5836,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/30-types/native-elements.md:258"
-          ]
+          }
         },
         {
           id: "funnels--countdown-timer-get",
@@ -6403,10 +5871,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/30-types/native-elements.md:257"
-          ]
+          }
         },
         {
           id: "funnels--countdown-timer-fetch",
@@ -6434,10 +5899,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/30-types/native-elements.md:186"
-          ]
+          }
         },
         {
           id: "funnels--countdown-timer-fetch-get",
@@ -6480,10 +5942,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:28",
-            "funnels/30-types/native-elements.md:257"
-          ],
           railDecision: {
             product: "countdown-timers",
             job: "read",
@@ -6517,10 +5975,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:177"
-          ]
+          }
         },
         {
           id: "courses-analytics--course-progress-funnel",
@@ -6556,11 +6011,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/course-progress-analytics.md",
-            "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
-          ]
+          }
         },
         {
           id: "courses-analytics--course-progress-members",
@@ -6596,11 +6047,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/course-progress-analytics.md",
-            "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
-          ]
+          }
         },
         {
           id: "courses-analytics--course-progress-summary",
@@ -6636,11 +6083,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/course-progress-analytics.md",
-            "sniffs/courses-w9-2026-11-08/analytics-progress-2026-11-11/requests-nonget.json"
-          ]
+          }
         },
         {
           id: "courses-analytics--dashboard-products-summary",
@@ -6676,11 +6119,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/analytics-dashboard-summaries.md",
-            "sniffs/courses-w9-2026-11-08/walk-m3d2/requests.log"
-          ]
+          }
         },
         {
           id: "courses-analytics--dashboard-revenue-summary",
@@ -6716,11 +6155,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/analytics-dashboard-summaries.md",
-            "sniffs/courses-w9-2026-11-08/walk-m3d2/requests.log"
-          ]
+          }
         },
         {
           id: "courses-analytics--dashboard-users-summary",
@@ -6756,11 +6191,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/analytics-dashboard-summaries.md",
-            "sniffs/courses-w9-2026-11-08/walk-m3d2/requests.log"
-          ]
+          }
         },
         {
           id: "memberships-courses--export-assessment-results",
@@ -6803,10 +6234,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:113"
-          ]
+          }
         },
         {
           id: "memberships-courses--members-count",
@@ -6839,10 +6267,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:113"
-          ]
+          }
         },
         {
           id: "courses-assessments--review-submission",
@@ -6881,11 +6306,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "corpus/memberships-courses/20-api/build-api.md",
-            "sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
-          ]
+          }
         },
         {
           id: "memberships-courses--course-quiz-parse",
@@ -6917,10 +6338,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:134"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-product-themes",
@@ -6957,10 +6375,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:143"
-          ]
+          }
         },
         {
           id: "typed--build_course--product-themes-theme",
@@ -7043,10 +6458,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:144"
-          ]
+          }
         },
         {
           id: "custom-data-service--get-custom-values",
@@ -7090,11 +6502,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/CustomDataService.ts:37",
-            "workflows/70-research/ENDPOINTS.md:147"
-          ]
+          }
         },
         {
           id: "ask-ai--custom-fields-object-key",
@@ -7127,10 +6535,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ask-ai/30-types/skills/crm-custom-fields.md:20",
-            "ask-ai/30-types/skills/custom-fields--get-custom-field-by-id.md:26"
-          ],
           publicEquivalent: [
             "custom-fields-v3__get-custom-fields-by-object-key",
             "custom-fields__get-custom-fields-by-object-key"
@@ -7189,11 +6593,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/TicketService.ts:8",
-            "ask-ai/30-types/skills/crm-custom-fields.md:20",
-            "ask-ai/30-types/skills/custom-fields--get-custom-field-by-id.md:26"
-          ],
           publicEquivalent: [
             "custom-fields-v3__get-custom-fields-by-object-key",
             "custom-fields__get-custom-fields-by-object-key"
@@ -7233,10 +6632,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:30"
-          ]
+          }
         },
         {
           id: "domain-connect--get-a-cname-record",
@@ -7265,10 +6661,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "domain-connect--get-a-record",
@@ -7297,11 +6690,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/publishing-and-domains.md:106"
-          ]
+          }
         },
         {
           id: "domain-connect--post-check-domain-conflict",
@@ -7330,10 +6719,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "domain-connect--get-cname",
@@ -7362,10 +6748,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "domain-connect--post-migrate-records",
@@ -7394,10 +6777,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "domain-connect--post-verify-domain-connect-template",
@@ -7426,10 +6806,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "funnels--domains-domain",
@@ -7457,10 +6834,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:32"
-          ]
+          }
         },
         {
           id: "domains--post-domain-record",
@@ -7493,10 +6867,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "domains--delete-domain-record",
@@ -7532,10 +6903,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "funnels--domain-record",
@@ -7573,10 +6941,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:31"
-          ]
+          }
         },
         {
           id: "domains--put-domain-record",
@@ -7612,10 +6977,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "domains--get-domain-records",
@@ -7648,10 +7010,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "funnels--domains-hub",
@@ -7698,10 +7057,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/url-redirects.md:158"
-          ]
+          }
         },
         {
           id: "funnels--hub-migration-required-domain",
@@ -7748,10 +7104,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/url-redirects.md:163"
-          ]
+          }
         },
         {
           id: "workflows--stats-by-campaign-step-id-workflow-workflow-id",
@@ -7787,10 +7140,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/STATS-RAILS.md:53"
-          ]
+          }
         },
         {
           id: "template-service--get-email-builder-templates-paginated",
@@ -7889,10 +7239,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:418",
-            "funnels/20-api/webinars.md:105"
-          ],
           publicEquivalent: [
             "emails__fetch-template"
           ],
@@ -7970,10 +7316,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "resolved",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:639",
-            "workflows/70-research/ENDPOINTS.md:160"
-          ],
           publicEquivalent: [
             "emails__create-template"
           ],
@@ -8036,11 +7378,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:477",
-            "workflows/70-research/ENDPOINTS.md:160"
-          ]
+          }
         },
         {
           id: "template-service--track-default-value-event",
@@ -8122,12 +7460,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:694",
-            "workflows/70-research/ACTION-DRAWERS-2.md:5553",
-            "workflows/70-research/INVENTORY.md:214"
-          ]
+          }
         },
         {
           id: "typed--build_workflow--builder-data",
@@ -8209,10 +7542,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:218"
-          ]
+          }
         },
         {
           id: "template-service--get-email-builder-settings",
@@ -8251,10 +7581,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:674"
-          ]
+          }
         },
         {
           id: "template-service--update-template-from-source",
@@ -8306,11 +7633,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:599",
-            "workflows/70-research/ENDPOINTS.md:162"
-          ]
+          }
         },
         {
           id: "template-service--get-workflow-template",
@@ -8371,10 +7694,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:522"
-          ]
+          }
         },
         {
           id: "template-service--update-workflow-template",
@@ -8435,11 +7755,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:549",
-            "workflows/70-research/ENDPOINTS.md:161"
-          ]
+          }
         },
         {
           id: "template-service--get-links-from-html",
@@ -8491,11 +7807,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:658",
-            "workflows/70-research/ENDPOINTS.md:163"
-          ]
+          }
         },
         {
           id: "email-service--delete-trigger",
@@ -8534,10 +7846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/EmailService.ts:183"
-          ]
+          }
         },
         {
           id: "email-service--get-triggers",
@@ -8601,10 +7910,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/EmailService.ts:141"
-          ]
+          }
         },
         {
           id: "email-service--update-triggers",
@@ -8665,10 +7971,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/EmailService.ts:163"
-          ]
+          }
         },
         {
           id: "workflows--trigger-campaign",
@@ -8710,11 +8013,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ACTION-DRAWERS-2.md:5645",
-            "workflows/70-research/ACTION-DRAWERS-2.md:6814"
-          ]
+          }
         },
         {
           id: "events--events-management-add-ons",
@@ -8753,11 +8052,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:124",
-            "events/20-api/events-management-api.md:342"
-          ]
+          }
         },
         {
           id: "events--events-management-add-ons-post",
@@ -8789,10 +8084,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:125"
-          ]
+          }
         },
         {
           id: "events--events-management-attendees",
@@ -8831,10 +8123,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:295"
-          ]
+          }
         },
         {
           id: "events--attendees-check-in",
@@ -8873,11 +8162,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:354",
-            "workflows/30-types/triggers-marketplace/event_check_in.md:40"
-          ]
+          }
         },
         {
           id: "events--attendees-list",
@@ -8905,10 +8190,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:305"
-          ]
+          }
         },
         {
           id: "events--attendees-metrics",
@@ -8952,11 +8234,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:306",
-            "events/20-api/events-management-api.md:354"
-          ]
+          }
         },
         {
           id: "events--registration-complete",
@@ -8995,10 +8273,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:280"
-          ]
+          }
         },
         {
           id: "events--registration-prepare",
@@ -9026,10 +8301,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:241"
-          ]
+          }
         },
         {
           id: "events--events-management-branding-palette",
@@ -9067,11 +8339,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:324",
-            "events/20-api/events-management-api.md:330"
-          ]
+          }
         },
         {
           id: "events--events-management-event",
@@ -9100,10 +8368,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:43"
-          ]
+          }
         },
         {
           id: "events--events-management-event-get",
@@ -9138,10 +8403,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:38"
-          ]
+          }
         },
         {
           id: "events--events-management-event-put",
@@ -9173,10 +8435,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:92"
-          ]
+          }
         },
         {
           id: "events--event-publish",
@@ -9215,10 +8474,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:91"
-          ]
+          }
         },
         {
           id: "events--event-speakers",
@@ -9250,10 +8506,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:194"
-          ]
+          }
         },
         {
           id: "events--event-list",
@@ -9281,10 +8534,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:307"
-          ]
+          }
         },
         {
           id: "events--events-options",
@@ -9324,11 +8574,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:311",
-            "workflows/70-research/ENDPOINTS.md:166"
-          ]
+          }
         },
         {
           id: "events--events-contact",
@@ -9360,12 +8606,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/public-registration.md:15",
-            "events/70-research/2026-08-18-public-registration-api.md:18",
-            "workflows/30-types/triggers-marketplace/event_registration.md:41"
-          ]
+          }
         },
         {
           id: "events--registrations-fulfillment",
@@ -9400,11 +8641,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/public-registration.md:63",
-            "events/70-research/2026-08-18-public-registration-api.md:67"
-          ]
+          }
         },
         {
           id: "events--events-management-schedule",
@@ -9443,10 +8680,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:182"
-          ]
+          }
         },
         {
           id: "events--events-management-schedule-post",
@@ -9478,10 +8712,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:169"
-          ]
+          }
         },
         {
           id: "events--events-management-settings",
@@ -9520,10 +8751,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:200"
-          ]
+          }
         },
         {
           id: "events--events-management-settings-put",
@@ -9555,10 +8783,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:201"
-          ]
+          }
         },
         {
           id: "events--events-management-speaker",
@@ -9586,10 +8811,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:193"
-          ]
+          }
         },
         {
           id: "events--events-management-speakers",
@@ -9617,10 +8839,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:193"
-          ]
+          }
         },
         {
           id: "events--events-management-speakers-get",
@@ -9659,10 +8878,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:195"
-          ]
+          }
         },
         {
           id: "events--events-management-speakers-post",
@@ -9694,10 +8910,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:186"
-          ]
+          }
         },
         {
           id: "events--events-management-tickets",
@@ -9742,10 +8955,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:115"
-          ]
+          }
         },
         {
           id: "events--events-management-tickets-post",
@@ -9774,11 +8984,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:106",
-            "platform/40-rules/validation-speaks-three-dialects.md:39"
-          ]
+          }
         },
         {
           id: "forms-service--get-forms",
@@ -9788,7 +8994,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md.",
+          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map ([private capture]) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md.",
           reach: "proven",
           coveredBy: [
             "audit_site",
@@ -9849,10 +9055,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/FormsService.ts:21",
-            "services/api/workflow-overview.service.ts:224"
-          ],
           publicEquivalent: [
             "forms-v3__get-forms",
             "forms__get-forms"
@@ -9893,10 +9095,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/70-research/2026-09-06-forms-reverse-engineering.md:60"
-          ]
+          }
         },
         {
           id: "calendars--forms",
@@ -9931,13 +9130,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:80",
-            "forms/70-research/2026-09-06-forms-reverse-engineering.md:14",
-            "forms/70-research/2026-10-02-forms-conditional-logic.md:14",
-            "forms/70-research/2026-10-02-forms-conditional-logic.md:57"
-          ]
+          }
         },
         {
           id: "forms--forms-put",
@@ -9969,10 +9162,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/70-research/2026-09-06-forms-reverse-engineering.md:60"
-          ]
+          }
         },
         {
           id: "funnels--categories-get-categories",
@@ -10000,10 +9190,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:33"
-          ]
+          }
         },
         {
           id: "funnels--categories-get-themes",
@@ -10035,10 +9222,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:34"
-          ]
+          }
         },
         {
           id: "forms--forms-data",
@@ -10072,10 +9256,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/70-research/2026-09-06-forms-reverse-engineering.md:49"
-          ]
+          }
         },
         {
           id: "forms--forms-form-survey-event",
@@ -10103,11 +9284,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/public-renderer-and-submit.md:37",
-            "forms/20-api/public-renderer-and-submit.md:164"
-          ]
+          }
         },
         {
           id: "forms-service--get-form-by-id",
@@ -10153,10 +9330,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/FormsService.ts:25"
-          ]
+          }
         },
         {
           id: "forms--forms-submission",
@@ -10184,11 +9358,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/public-renderer-and-submit.md:36",
-            "forms/20-api/public-renderer-and-submit.md:164"
-          ]
+          }
         },
         {
           id: "forms--forms-submit",
@@ -10229,15 +9399,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:240",
-            "forms/20-api/public-renderer-and-submit.md:16",
-            "forms/20-api/public-renderer-and-submit.md:35",
-            "forms/20-api/public-renderer-and-submit.md:51",
-            "forms/20-api/public-renderer-and-submit.md:74",
-            "funnels/40-rules/silent-failures.md:1328"
-          ]
+          }
         },
         {
           id: "forms--forms-themes",
@@ -10276,10 +9438,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/70-research/2026-09-06-forms-reverse-engineering.md:55"
-          ]
+          }
         },
         {
           id: "funnels--funnel-ai-v2-copilot-messages",
@@ -10307,10 +9466,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:31"
-          ]
+          }
         },
         {
           id: "funnels--copilot-messages-event-id2",
@@ -10345,10 +9501,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:35"
-          ]
+          }
         },
         {
           id: "funnels--copilot-messages-status",
@@ -10380,10 +9533,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:40"
-          ]
+          }
         },
         {
           id: "funnels--assist-mode-prompt",
@@ -10411,10 +9561,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:37"
-          ]
+          }
         },
         {
           id: "funnels--assist-mode-summary",
@@ -10442,10 +9589,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:37"
-          ]
+          }
         },
         {
           id: "funnels--copilot-assist-preference",
@@ -10477,10 +9621,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:30"
-          ]
+          }
         },
         {
           id: "funnels--copilot-assist-preference-put",
@@ -10512,10 +9653,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:61"
-          ]
+          }
         },
         {
           id: "funnels--build-mode-tags",
@@ -10543,10 +9681,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:38"
-          ]
+          }
         },
         {
           id: "funnels--copilot-chat",
@@ -10574,10 +9709,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:38"
-          ]
+          }
         },
         {
           id: "funnels--copilot-create-page",
@@ -10605,10 +9737,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:37"
-          ]
+          }
         },
         {
           id: "funnels--copilot-feedback",
@@ -10636,10 +9765,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:36"
-          ]
+          }
         },
         {
           id: "funnels--copilot-page-data",
@@ -10671,10 +9797,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:37"
-          ]
+          }
         },
         {
           id: "funnels--copilot-screenshot-result",
@@ -10702,10 +9825,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:38"
-          ]
+          }
         },
         {
           id: "funnels--pages-active",
@@ -10737,10 +9857,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:39"
-          ]
+          }
         },
         {
           id: "funnels--funnels-builder",
@@ -10768,10 +9885,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:119"
-          ]
+          }
         },
         {
           id: "funnels--builder-autosave",
@@ -10808,16 +9922,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/40-rules/silent-failures.md:578",
-            "funnels/20-api/funnel-ai.md:58",
-            "funnels/20-api/funnels-api.md:253",
-            "funnels/20-api/publish-routing-and-site-settings.md:44",
-            "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
-            "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
-            "funnels/40-rules/silent-failures.md:1074"
-          ]
+          }
         },
         {
           id: "funnels--builder-delete-version-history-data",
@@ -10845,10 +9950,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:311"
-          ]
+          }
         },
         {
           id: "funnels--builder-element-template",
@@ -10876,10 +9978,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:42"
-          ]
+          }
         },
         {
           id: "funnels--builder-element-template-post",
@@ -10907,10 +10006,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:43"
-          ]
+          }
         },
         {
           id: "funnels--builder-element-template-put",
@@ -10938,10 +10034,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:44"
-          ]
+          }
         },
         {
           id: "funnels--builder-element-template-delete",
@@ -10973,10 +10066,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:40"
-          ]
+          }
         },
         {
           id: "funnels--sync-changes-post",
@@ -11004,10 +10094,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:41"
-          ]
+          }
         },
         {
           id: "funnels--builder-funnel-share-details",
@@ -11041,11 +10128,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:53",
-            "funnels/40-rules/silent-failures.md:1223"
-          ]
+          }
         },
         {
           id: "funnels--builder-funnel-share-url",
@@ -11073,10 +10156,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:52"
-          ]
+          }
         },
         {
           id: "funnels--builder-funnel-share-url-get",
@@ -11108,10 +10188,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:54"
-          ]
+          }
         },
         {
           id: "funnels--builder-get-versions",
@@ -11151,15 +10228,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/routing-and-publishing.md:71",
-            "funnels/20-api/funnels-api.md:296",
-            "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
-            "funnels/40-rules/silent-failures.md:802",
-            "funnels/40-rules/silent-failures.md:1075",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
-          ]
+          }
         },
         {
           id: "funnels--builder-global-sections",
@@ -11191,12 +10260,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:115",
-            "funnels/10-anatomy/websites-and-global-sections.md:96",
-            "funnels/20-api/funnel-ai.md:59"
-          ]
+          }
         },
         {
           id: "funnels--page-data",
@@ -11234,15 +10298,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/page-content.md:13",
-            "funnels/10-anatomy/routing-and-publishing.md:31",
-            "funnels/10-anatomy/styling-and-saved-assets.md:134",
-            "funnels/20-api/funnels-api.md:151",
-            "funnels/20-api/funnels-api.md:242",
-            "funnels/30-types/section.md:78"
-          ]
+          }
         },
         {
           id: "funnels--builder-prebuilt-section",
@@ -11280,10 +10336,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:331"
-          ]
+          }
         },
         {
           id: "funnels--builder-prebuilt-section-post",
@@ -11312,10 +10365,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:339"
-          ]
+          }
         },
         {
           id: "funnels--builder-prebuilt-section-post-post",
@@ -11347,10 +10397,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:117"
-          ]
+          }
         },
         {
           id: "funnels--prebuilt-section-template",
@@ -11407,10 +10454,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:332"
-          ]
+          }
         },
         {
           id: "funnels--prebuilt-section-template-post",
@@ -11442,11 +10486,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:333",
-            "funnels/10-anatomy/websites-and-global-sections.md:358"
-          ]
+          }
         },
         {
           id: "funnels--builder-prebuilt-section-delete",
@@ -11478,10 +10518,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:341"
-          ]
+          }
         },
         {
           id: "funnels--builder-prebuilt-section-get",
@@ -11513,10 +10550,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:337"
-          ]
+          }
         },
         {
           id: "funnels--builder-prebuilt-section-put",
@@ -11548,10 +10582,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:340"
-          ]
+          }
         },
         {
           id: "funnels--prebuilt-section-template-delete",
@@ -11586,10 +10617,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:45"
-          ]
+          }
         },
         {
           id: "funnels--prebuilt-section-template-get",
@@ -11624,10 +10652,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:46"
-          ]
+          }
         },
         {
           id: "funnels--prebuilt-section-template-put",
@@ -11662,10 +10687,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:47"
-          ]
+          }
         },
         {
           id: "funnels--hero-hero",
@@ -11704,10 +10726,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:338"
-          ]
+          }
         },
         {
           id: "funnels--prebuilt-section-sync",
@@ -11735,10 +10754,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:336"
-          ]
+          }
         },
         {
           id: "funnels--sync-changes",
@@ -11766,11 +10782,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:335",
-            "funnels/10-anatomy/websites-and-global-sections.md:412"
-          ]
+          }
         },
         {
           id: "funnels--builder-publish-version",
@@ -11801,13 +10813,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/routing-and-publishing.md:72",
-            "funnels/20-api/funnels-api.md:297",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:40",
-            "funnels/60-recipes/build-a-multi-step-funnel.md:78"
-          ]
+          }
         },
         {
           id: "funnels--builder-redis-key-data",
@@ -11839,11 +10845,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:161",
-            "funnels/70-research/2026-09-29-route-census.md:48"
-          ]
+          }
         },
         {
           id: "funnels--builder-restore-version",
@@ -11871,11 +10873,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:310",
-            "funnels/20-api/publish-routing-and-site-settings.md:57"
-          ]
+          }
         },
         {
           id: "funnels--builder-section-data",
@@ -11907,10 +10905,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:49"
-          ]
+          }
         },
         {
           id: "funnels--builder-section-template",
@@ -11938,10 +10933,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:52"
-          ]
+          }
         },
         {
           id: "funnels--builder-section-template-delete",
@@ -11973,10 +10965,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:50"
-          ]
+          }
         },
         {
           id: "funnels--section-template-insert",
@@ -12004,10 +10993,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:112"
-          ]
+          }
         },
         {
           id: "funnels--section-template-update",
@@ -12035,10 +11021,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:51"
-          ]
+          }
         },
         {
           id: "funnels--funnels-custom-fonts",
@@ -12068,10 +11051,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:101"
-          ]
+          }
         },
         {
           id: "funnels--funnels-custom-fonts-post",
@@ -12112,10 +11092,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/styling-and-saved-assets.md:101"
-          ]
+          }
         },
         {
           id: "funnels--funnels-custom-fonts-delete",
@@ -12147,10 +11124,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:53"
-          ]
+          }
         },
         {
           id: "funnels--funnels-domain",
@@ -12190,10 +11164,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/url-redirects.md:155"
-          ]
+          }
         },
         {
           id: "funnels--funnels-domain-get",
@@ -12236,11 +11207,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:21",
-            "funnels/20-api/funnels-api.md:230"
-          ]
+          }
         },
         {
           id: "funnels--funnels-domain-get-get",
@@ -12279,10 +11246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/url-redirects.md:156"
-          ]
+          }
         },
         {
           id: "funnels--funnels-domain-put",
@@ -12314,10 +11278,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:160"
-          ]
+          }
         },
         {
           id: "funnels--domain-attach-domain",
@@ -12345,10 +11306,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:54"
-          ]
+          }
         },
         {
           id: "funnels--domain-funnel-unique-domain",
@@ -12376,10 +11334,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:55"
-          ]
+          }
         },
         {
           id: "funnels--domain-invalidate-cache",
@@ -12409,11 +11364,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:108",
-            "funnels/20-api/publish-routing-and-site-settings.md:116"
-          ]
+          }
         },
         {
           id: "funnels--domain-list",
@@ -12441,10 +11392,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:56"
-          ]
+          }
         },
         {
           id: "funnels--domain-validate",
@@ -12472,10 +11420,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/url-redirects.md:166"
-          ]
+          }
         },
         {
           id: "funnels--domain-xml-sitemap",
@@ -12503,10 +11448,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:57"
-          ]
+          }
         },
         {
           id: "funnels--funnels-event",
@@ -12537,10 +11479,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:104"
-          ]
+          }
         },
         {
           id: "funnels--funnels-event-post",
@@ -12570,10 +11509,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:105"
-          ]
+          }
         },
         {
           id: "funnels--funnels-event-delete",
@@ -12607,12 +11543,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:107",
-            "funnels/20-api/publish-routing-and-site-settings.md:121",
-            "funnels/70-research/2026-09-29-route-census.md:58"
-          ]
+          }
         },
         {
           id: "funnels--funnels-event-patch",
@@ -12646,12 +11577,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:106",
-            "funnels/20-api/publish-routing-and-site-settings.md:119",
-            "funnels/70-research/2026-09-29-route-census.md:59"
-          ]
+          }
         },
         {
           id: "funnels--funnels-funnel",
@@ -12683,10 +11609,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:119"
-          ]
+          }
         },
         {
           id: "funnels--funnel-step-get",
@@ -12721,10 +11644,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:60"
-          ]
+          }
         },
         {
           id: "funnels--blog-list",
@@ -12761,10 +11681,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:68"
-          ]
+          }
         },
         {
           id: "funnels--cache-clear",
@@ -12792,11 +11709,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:161",
-            "funnels/20-api/publish-routing-and-site-settings.md:170"
-          ]
+          }
         },
         {
           id: "funnels--funnel-cf-download-url",
@@ -12835,10 +11748,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:173"
-          ]
+          }
         },
         {
           id: "funnels--funnel-clone-control-page",
@@ -12868,13 +11778,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:113",
-            "funnels/20-api/funnels-api.md:155",
-            "funnels/40-rules/silent-failures.md:120",
-            "funnels/40-rules/silent-failures.md:237"
-          ]
+          }
         },
         {
           id: "funnels--funnel-clone-funnel-step",
@@ -12904,11 +11808,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:100",
-            "funnels/20-api/publish-routing-and-site-settings.md:72"
-          ]
+          }
         },
         {
           id: "funnels--funnel-clone-funnel-to-locations",
@@ -12938,10 +11838,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:25"
-          ]
+          }
         },
         {
           id: "funnels--funnel-cookie-consent",
@@ -12972,10 +11869,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:132"
-          ]
+          }
         },
         {
           id: "funnels--funnel-cookie-consent-post",
@@ -13005,10 +11899,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:133"
-          ]
+          }
         },
         {
           id: "funnels--funnel-create",
@@ -13038,13 +11929,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:43",
-            "funnels/10-anatomy/websites-and-global-sections.md:16",
-            "funnels/20-api/funnels-api.md:54",
-            "funnels/60-recipes/build-a-multi-step-funnel.md:28"
-          ]
+          }
         },
         {
           id: "funnels--funnel-create-custom-product-detail-page",
@@ -13074,10 +11959,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:136"
-          ]
+          }
         },
         {
           id: "funnels--funnel-create-step",
@@ -13107,15 +11989,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:127",
-            "funnels/40-rules/silent-failures.md:524",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
-            "funnels/60-recipes/author-native-elements.md:56",
-            "funnels/60-recipes/build-a-multi-step-funnel.md:30"
-          ]
+          }
         },
         {
           id: "funnels--funnel-create-store",
@@ -13143,10 +12017,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:61"
-          ]
+          }
         },
         {
           id: "funnels--funnel-create-webinar",
@@ -13174,11 +12045,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/webinars.md:130",
-            "funnels/70-research/2026-09-29-route-census.md:62"
-          ]
+          }
         },
         {
           id: "funnels--funnel-delete",
@@ -13208,12 +12075,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:148",
-            "funnels/20-api/funnels-api.md:101",
-            "funnels/40-rules/silent-failures.md:564"
-          ]
+          }
         },
         {
           id: "funnels--funnel-delete-step",
@@ -13243,10 +12105,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:73"
-          ]
+          }
         },
         {
           id: "funnels--funnel-delete-store",
@@ -13276,11 +12135,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:145",
-            "funnels/70-research/2026-09-29-route-census.md:63"
-          ]
+          }
         },
         {
           id: "funnels-service--get-funnel-by-id",
@@ -13333,17 +12188,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:21",
-            "funnels/20-api/funnels-api.md:17",
-            "funnels/20-api/funnels-api.md:108",
-            "funnels/20-api/funnels-api.md:93",
-            "funnels/20-api/funnels-api.md:239",
-            "funnels/20-api/webinars.md:47",
-            "funnels/40-rules/silent-failures.md:1046",
-            "funnels/60-recipes/build-a-multi-step-funnel.md:50"
-          ]
+          }
         },
         {
           id: "funnels--folder-create",
@@ -13371,10 +12216,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:64"
-          ]
+          }
         },
         {
           id: "funnels--folder-delete",
@@ -13402,10 +12244,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:65"
-          ]
+          }
         },
         {
           id: "funnels--folder-entities",
@@ -13433,10 +12272,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:66"
-          ]
+          }
         },
         {
           id: "funnels--folder-list",
@@ -13464,10 +12300,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:67"
-          ]
+          }
         },
         {
           id: "funnels--folder-rename",
@@ -13495,10 +12328,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:68"
-          ]
+          }
         },
         {
           id: "funnels--funnel-funnel-page",
@@ -13532,15 +12362,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/00-overview/index.md:29",
-            "funnels/00-overview/index.md:68",
-            "funnels/10-anatomy/websites-and-global-sections.md:300",
-            "funnels/20-api/funnel-ai.md:60",
-            "funnels/20-api/funnels-api.md:318",
-            "funnels/20-api/funnels-api.md:415"
-          ]
+          }
         },
         {
           id: "funnels--funnel-funnel-step-page-url",
@@ -13575,10 +12397,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:327"
-          ]
+          }
         },
         {
           id: "funnels--funnel-funnel-url",
@@ -13606,10 +12425,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:69"
-          ]
+          }
         },
         {
           id: "funnels--funnel-geo-location",
@@ -13637,10 +12453,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:150"
-          ]
+          }
         },
         {
           id: "funnels--funnel-headers",
@@ -13670,10 +12483,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:86"
-          ]
+          }
         },
         {
           id: "funnels--funnel-headers-post",
@@ -13703,10 +12513,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:87"
-          ]
+          }
         },
         {
           id: "funnels--funnel-headers-put",
@@ -13736,11 +12543,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:88",
-            "funnels/70-research/2026-09-29-route-census.md:71"
-          ]
+          }
         },
         {
           id: "funnels--headers-delete",
@@ -13770,11 +12573,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:89",
-            "funnels/70-research/2026-09-29-route-census.md:70"
-          ]
+          }
         },
         {
           id: "funnels-service--get-funnels",
@@ -13853,14 +12652,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:11",
-            "ai-studio/10-anatomy/project.md:17",
-            "funnels/10-anatomy/websites-and-global-sections.md:34",
-            "funnels/20-api/funnels-api.md:17",
-            "funnels/20-api/funnels-api.md:238",
-            "funnels/40-rules/silent-failures.md:655"
-          ],
           publicEquivalent: [
             "funnels-v3__getFunnels",
             "funnels__getFunnels"
@@ -13892,10 +12683,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:72"
-          ]
+          }
         },
         {
           id: "funnels--funnel-move",
@@ -13923,10 +12711,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:73"
-          ]
+          }
         },
         {
           id: "funnels--funnel-step",
@@ -13960,15 +12745,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:115",
-            "funnels/10-anatomy/domains-and-public-urls.md:169",
-            "funnels/20-api/funnels-api.md:172",
-            "funnels/40-rules/silent-failures.md:123",
-            "funnels/40-rules/silent-failures.md:245",
-            "funnels/40-rules/silent-failures.md:531"
-          ]
+          }
         },
         {
           id: "funnels--funnel-stop-all-split-tests-and-reset",
@@ -13996,10 +12773,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:74"
-          ]
+          }
         },
         {
           id: "funnels--funnel-update-funnel-and-page",
@@ -14029,11 +12803,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:72",
-            "funnels/20-api/funnels-api.md:209"
-          ]
+          }
         },
         {
           id: "funnels--funnel-update-funnel-name",
@@ -14061,10 +12831,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/webinars.md:46"
-          ]
+          }
         },
         {
           id: "funnels--funnel-update-settings",
@@ -14094,15 +12861,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/00-overview/index.md:74",
-            "funnels/10-anatomy/domains-and-public-urls.md:33",
-            "funnels/10-anatomy/websites-and-global-sections.md:264",
-            "funnels/10-anatomy/websites-and-global-sections.md:490",
-            "funnels/20-api/funnels-api.md:336",
-            "funnels/40-rules/silent-failures.md:988"
-          ]
+          }
         },
         {
           id: "funnels--funnel-update",
@@ -14136,10 +12895,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:71"
-          ]
+          }
         },
         {
           id: "funnels--funnel-upgrade",
@@ -14167,10 +12923,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:171"
-          ]
+          }
         },
         {
           id: "funnels--upgrade-rollback",
@@ -14198,10 +12951,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:75"
-          ]
+          }
         },
         {
           id: "funnels--funnel-webinar",
@@ -14233,10 +12983,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/webinars.md:31"
-          ]
+          }
         },
         {
           id: "funnels--notifications-stats",
@@ -14268,10 +13015,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/webinars.md:87"
-          ]
+          }
         },
         {
           id: "funnels--webinar-template-folder",
@@ -14303,10 +13047,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:76"
-          ]
+          }
         },
         {
           id: "funnels--webinar-max-end-date",
@@ -14334,10 +13075,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:77"
-          ]
+          }
         },
         {
           id: "funnels--webinar-rrule-text",
@@ -14365,10 +13103,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/webinars.md:75"
-          ]
+          }
         },
         {
           id: "funnels--webinar-sessions",
@@ -14399,12 +13134,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/webinars.md:69",
-            "funnels/20-api/webinars.md:162",
-            "funnels/40-rules/silent-failures.md:1434"
-          ]
+          }
         },
         {
           id: "funnels--funnels-lookup",
@@ -14432,10 +13162,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:174"
-          ]
+          }
         },
         {
           id: "funnels--funnels-lookup-post",
@@ -14463,10 +13190,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:119"
-          ]
+          }
         },
         {
           id: "funnels--funnels-lookup-delete",
@@ -14501,10 +13225,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:78"
-          ]
+          }
         },
         {
           id: "funnels--funnels-lookup-put",
@@ -14536,15 +13257,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:99",
-            "funnels/20-api/funnels-api.md:317",
-            "funnels/40-rules/silent-failures.md:270",
-            "funnels/40-rules/silent-failures.md:937",
-            "funnels/40-rules/silent-failures.md:967",
-            "funnels/40-rules/silent-failures.md:971"
-          ]
+          }
         },
         {
           id: "funnels--lookup-create",
@@ -14574,12 +13287,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:117",
-            "funnels/10-anatomy/domains-and-public-urls.md:163",
-            "funnels/40-rules/silent-failures.md:239"
-          ]
+          }
         },
         {
           id: "funnels--lookup-domain-and-path",
@@ -14609,11 +13317,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/00-overview/index.md:64",
-            "funnels/70-research/2026-09-29-route-census.md:79"
-          ]
+          }
         },
         {
           id: "funnels--lookup-exists",
@@ -14645,11 +13349,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:109",
-            "funnels/20-api/url-redirects.md:66"
-          ]
+          }
         },
         {
           id: "funnels--lookup-list",
@@ -14694,13 +13394,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:171",
-            "funnels/40-rules/silent-failures.md:618",
-            "funnels/40-rules/silent-failures.md:650",
-            "funnels/40-rules/silent-failures.md:940"
-          ]
+          }
         },
         {
           id: "funnels--lookup-multiple-post",
@@ -14728,10 +13422,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:80"
-          ]
+          }
         },
         {
           id: "funnels--lookup-multiple",
@@ -14761,10 +13452,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/publish-routing-and-site-settings.md:27"
-          ]
+          }
         },
         {
           id: "funnels--lookup-path",
@@ -14792,10 +13480,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:173"
-          ]
+          }
         },
         {
           id: "funnels--lookup-redirect",
@@ -14826,11 +13511,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/20-api/url-redirects.md:78",
-            "funnels/20-api/url-redirects.md:102",
-            "funnels/20-api/url-redirects.md:146"
-          ],
           publicEquivalent: [
             "funnels-v3__create-redirect",
             "funnels__create-redirect"
@@ -14867,10 +13547,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:81"
-          ]
+          }
         },
         {
           id: "funnels--lookup-redirect-delete",
@@ -14912,9 +13589,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/20-api/url-redirects.md:80"
-          ],
           publicEquivalent: [
             "funnels-v3__delete-redirect-by-id",
             "funnels__delete-redirect-by-id"
@@ -14958,9 +13632,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/20-api/url-redirects.md:79"
-          ],
           publicEquivalent: [
             "funnels-v3__update-redirect-by-id",
             "funnels__update-redirect-by-id"
@@ -15029,9 +13700,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/20-api/url-redirects.md:36"
-          ],
           publicEquivalent: [
             "funnels-v3__fetch-redirects-list",
             "funnels__fetch-redirects-list"
@@ -15068,10 +13736,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:82"
-          ]
+          }
         },
         {
           id: "funnels--regex-bulk",
@@ -15114,11 +13779,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:360",
-            "funnels/20-api/url-redirects.md:48"
-          ]
+          }
         },
         {
           id: "funnels--lookup-type",
@@ -15155,13 +13816,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/routing-and-publishing.md:41",
-            "funnels/20-api/funnels-api.md:316",
-            "funnels/10-anatomy/routing-and-publishing.md:61",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
-          ]
+          }
         },
         {
           id: "funnels--funnels-order",
@@ -15191,11 +13846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:95",
-            "funnels/70-research/2026-09-29-route-census.md:86"
-          ]
+          }
         },
         {
           id: "funnels--funnels-products",
@@ -15227,10 +13878,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:83"
-          ]
+          }
         },
         {
           id: "funnels--order-form-order",
@@ -15258,11 +13906,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/step-products-and-orders.md:81",
-            "funnels/40-rules/silent-failures.md:1324"
-          ]
+          }
         },
         {
           id: "funnels--order-form-products",
@@ -15292,11 +13936,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/step-products-and-orders.md:24",
-            "funnels/30-types/button.md:79"
-          ]
+          }
         },
         {
           id: "funnels--order-form-products-get",
@@ -15346,10 +13986,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/step-products-and-orders.md:44"
-          ]
+          }
         },
         {
           id: "funnels--order-form-products-delete",
@@ -15383,10 +14020,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/step-products-and-orders.md:61"
-          ]
+          }
         },
         {
           id: "funnels--order-form-products-get-get",
@@ -15418,10 +14052,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/step-products-and-orders.md:49"
-          ]
+          }
         },
         {
           id: "funnels--order-form-products-put",
@@ -15455,11 +14086,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/step-products-and-orders.md:53",
-            "funnels/70-research/2026-09-29-route-census.md:84"
-          ]
+          }
         },
         {
           id: "funnels--public-products",
@@ -15487,10 +14114,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:85"
-          ]
+          }
         },
         {
           id: "funnels-service--get-pages-by-funnel-id",
@@ -15555,11 +14179,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:25",
-            "funnels/40-rules/silent-failures.md:599",
-            "funnels/40-rules/silent-failures.md:1114"
-          ],
           publicEquivalent: [
             "funnels-v3__getPagesByFunnelId",
             "funnels__getPagesByFunnelId"
@@ -15605,16 +14224,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:35",
-            "funnels/00-overview/index.md:31",
-            "funnels/10-anatomy/websites-and-global-sections.md:306",
-            "funnels/10-anatomy/websites-and-global-sections.md:540",
-            "funnels/20-api/funnel-object-operations.md:84",
-            "funnels/20-api/funnels-api.md:240",
-            "funnels/20-api/funnels-api.md:413"
-          ]
+          }
         },
         {
           id: "funnels--page-create-page",
@@ -15643,12 +14253,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:144",
-            "funnels/40-rules/silent-failures.md:120"
-          ]
+          }
         },
         {
           id: "funnels--page-funnel-page",
@@ -15680,10 +14285,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:88"
-          ]
+          }
         },
         {
           id: "funnels--page-list",
@@ -15727,11 +14329,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:91",
-            "funnels/20-api/funnels-api.md:241"
-          ]
+          }
         },
         {
           id: "funnels--page-page-domain",
@@ -15763,10 +14361,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:87"
-          ]
+          }
         },
         {
           id: "funnels-service--get-products-by-funnel-id",
@@ -15830,10 +14425,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:39"
-          ]
+          }
         },
         {
           id: "funnels-service--get-product-by-id",
@@ -15869,10 +14461,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:49"
-          ]
+          }
         },
         {
           id: "funnels--store-create-in-funnel",
@@ -15902,11 +14491,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:120",
-            "funnels/40-rules/silent-failures.md:1239"
-          ]
+          }
         },
         {
           id: "funnels--ig-feed-connected-accounts",
@@ -15934,10 +14519,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:89"
-          ]
+          }
         },
         {
           id: "funnels--ig-feed-connected-accounts-get",
@@ -15969,10 +14551,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:88"
-          ]
+          }
         },
         {
           id: "workflows--generate-image-ai-brand-boards",
@@ -16004,10 +14583,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps/workflow_ai_generate_image.md:159"
-          ]
+          }
         },
         {
           id: "workflows--generate-image-ai-brand-voices",
@@ -16039,10 +14615,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps/workflow_ai_generate_image.md:160"
-          ]
+          }
         },
         {
           id: "workflows--prompt-enhance-post",
@@ -16075,11 +14648,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps/workflow_ai_generate_image.md:124",
-            "workflows/70-research/WORKFLOW-AI.md:39"
-          ]
+          }
         },
         {
           id: "memberships-courses--listings-builder",
@@ -16121,10 +14690,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-08-24-live-write-proving.md:285"
-          ]
+          }
         },
         {
           id: "workflows--iatf-preview-proxy",
@@ -16157,11 +14723,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:241",
-            "workflows/70-research/INVENTORY.md:192"
-          ]
+          }
         },
         {
           id: "facebook-service--get-account-ids",
@@ -16219,10 +14781,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/FacebookService.ts:51"
-          ]
+          }
         },
         {
           id: "facebook-service--check-connection",
@@ -16257,11 +14816,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FacebookService.ts:44",
-            "workflows/70-research/ENDPOINTS.md:170"
-          ]
+          }
         },
         {
           id: "workflows--facebook-pages",
@@ -16298,10 +14853,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/triggers/facebook_comment_on_post.md:44"
-          ]
+          }
         },
         {
           id: "facebook-service--get-lead-gen-froms",
@@ -16333,11 +14885,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FacebookService.ts:117",
-            "workflows/70-research/ENDPOINTS.md:169"
-          ]
+          }
         },
         {
           id: "facebook-service--get-posts",
@@ -16406,11 +14954,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/FacebookService.ts:38",
-            "services/marketplaceServices/FacebookService.ts:96"
-          ]
+          }
         },
         {
           id: "backend--fetch-google-connections",
@@ -16460,11 +15004,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/google-connections-service.ts:59",
-            "workflows/30-types/steps/google_sheets.md:128"
-          ]
+          }
         },
         {
           id: "google-sheets-service--get-google-oauth-start-url",
@@ -16510,10 +15050,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/GoogleSheetsService.ts:14"
-          ]
+          }
         },
         {
           id: "facebook-service--get-ig-posts",
@@ -16582,11 +15119,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/FacebookService.ts:67",
-            "services/marketplaceServices/FacebookService.ts:110"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--fetch-single-app-details",
@@ -16618,11 +15151,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:426",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:541"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--fetch-payment-plans",
@@ -16661,10 +15190,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:454"
-          ]
+          }
         },
         {
           id: "backend--get-tik-tok-forms",
@@ -16706,10 +15232,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "models/Triggers/FilterState.ts:1487"
-          ]
+          }
         },
         {
           id: "backend--get-tik-tok-forms--get-id-mapped-pages",
@@ -16745,10 +15268,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "models/Triggers/FilterState.ts:1494"
-          ]
+          }
         },
         {
           id: "workflows--estimate-send",
@@ -16781,9 +15301,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/triggers-marketplace/estimate_update.md:120"
-          ],
           publicEquivalent: [
             "invoices-v3__send-estimate",
             "invoices__send-estimate"
@@ -16816,9 +15333,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps-marketplace/payment.md:114"
-          ],
           publicEquivalent: [
             "invoices-v3__list-estimates",
             "invoices__list-estimates"
@@ -16851,10 +15365,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps-marketplace/payment.md:114",
-            "workflows/30-types/triggers-marketplace/estimate_update.md:120"
-          ],
           publicEquivalent: [
             "invoices-v3__create-estimate-template",
             "invoices__create-estimate-template"
@@ -16907,10 +15417,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:111"
-          ]
+          }
         },
         {
           id: "workflows--invoices-schedule",
@@ -16939,9 +15446,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps-marketplace/payment.md:125"
-          ],
           publicEquivalent: [
             "invoices-v3__list-invoice-schedules",
             "invoices__list-invoice-schedules"
@@ -16978,9 +15482,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps-marketplace/payment.md:126"
-          ],
           publicEquivalent: [
             "invoices-v3__cancel-invoice-schedule",
             "invoices__cancel-invoice-schedule"
@@ -17013,9 +15514,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps-marketplace/payment.md:118"
-          ],
           publicEquivalent: [
             "invoices-v3__create-invoice-template",
             "invoices__create-invoice-template"
@@ -17058,11 +15556,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/40-rules/labs-feature-flags.md:25",
-            "pipelines-opportunities/00-overview/index.md:48"
-          ]
+          }
         },
         {
           id: "ai-agents--feature-flags-location",
@@ -17094,10 +15588,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/40-rules/labs-feature-flags.md:28"
-          ]
+          }
         },
         {
           id: "ai-agents--features-location",
@@ -17129,10 +15620,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/40-rules/labs-feature-flags.md:27"
-          ]
+          }
         },
         {
           id: "funnels--custom-field-billing-address",
@@ -17160,11 +15648,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/70-research/2026-10-29-forms-wave.md:66",
-            "funnels/20-api/funnel-object-operations.md:179"
-          ]
+          }
         },
         {
           id: "typed--list_account_entities--links",
@@ -17245,10 +15729,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/LinksService.ts:29",
-            "workflows/70-research/ENDPOINTS.md:149"
-          ],
           publicEquivalent: [
             "links-v3__get-link-by-id",
             "links__get-link-by-id"
@@ -17308,10 +15788,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/LinksService.ts:64",
-            "workflows/70-research/ENDPOINTS.md:148"
-          ],
           publicEquivalent: [
             "links-v3__search-trigger-links",
             "links__search-trigger-links"
@@ -17376,10 +15852,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "primitive"
-          },
-          sources: [
-            "components/smart-lists/services/smart-list-service.ts:16"
-          ]
+          }
         },
         {
           id: "smart-list-service--create-smart-list",
@@ -17419,10 +15892,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "erased",
             returns: "erased"
-          },
-          sources: [
-            "components/smart-lists/services/smart-list-service.ts:40"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--lists-dynamic",
@@ -17495,10 +15965,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-views.md:23"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--lists-dynamic-post",
@@ -17534,10 +16001,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-views.md:36"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--lists-dynamic-delete",
@@ -17576,13 +16040,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-views.md:39",
-            "platform/20-api/smart-lists.md:292",
-            "workflows/20-api/smart-lists.md:107",
-            "workflows/70-research/ENDPOINTS.md:81"
-          ]
+          }
         },
         {
           id: "platform--lists-dynamic-get",
@@ -17624,15 +16082,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:294",
-            "platform/20-api/smart-lists.md:332",
-            "pipelines-opportunities/20-api/smart-views.md:37",
-            "workflows/20-api/smart-lists.md:104",
-            "workflows/70-research/ENDPOINTS.md:78"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--lists-dynamic-put",
@@ -17671,12 +16121,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-views.md:38",
-            "workflows/20-api/smart-lists.md:106",
-            "workflows/70-research/ENDPOINTS.md:80"
-          ]
+          }
         },
         {
           id: "smart-list-service--delete-smart-list",
@@ -17712,10 +16157,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "components/smart-lists/services/smart-list-service.ts:55"
-          ]
+          }
         },
         {
           id: "smart-list-service--get-smart-list",
@@ -17783,16 +16225,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "components/smart-lists/services/smart-list-service.ts:34",
-            "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:278",
-            "platform/20-api/smart-lists.md:322",
-            "workflows/20-api/03-endpoints.md:355",
-            "workflows/20-api/smart-lists.md:103",
-            "workflows/70-research/ENDPOINTS.md:77"
-          ]
+          }
         },
         {
           id: "workflows--lists-dynamic",
@@ -17828,12 +16261,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/smart-lists.md:59",
-            "workflows/20-api/smart-lists.md:105",
-            "workflows/70-research/ENDPOINTS.md:79"
-          ]
+          }
         },
         {
           id: "smart-list-service--update-smart-list",
@@ -17877,10 +16305,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "erased",
             returns: "erased"
-          },
-          sources: [
-            "components/smart-lists/services/smart-list-service.ts:46"
-          ]
+          }
         },
         {
           id: "locations-service--get-by-id",
@@ -17931,9 +16356,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/LocationsService.ts:11"
-          ],
           publicEquivalent: [
             "locations-v3__get-location",
             "locations__get-location"
@@ -17970,9 +16392,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps-marketplace/opportunity.md:105"
-          ],
           publicEquivalent: [
             "locations-v3__put-location",
             "locations__put-location"
@@ -18011,10 +16430,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/theming-and-custom-code.md:137"
-          ]
+          }
         },
         {
           id: "opportunity-custom-field-service--get-custom-fields",
@@ -18067,15 +16483,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/OpportunityCustomFieldService.ts:9",
-            "platform/20-api/custom-fields-and-values.md:151",
-            "platform/30-types/contact-filter-dsl.md:54",
-            "workflows/10-anatomy/07-id-resolution.md:85",
-            "workflows/10-anatomy/07-id-resolution.md:185",
-            "workflows/70-research/ENDPOINTS.md:124",
-            "platform/20-api/custom-fields-and-values.md:177"
-          ],
           publicEquivalent: [
             "locations-v3__get-custom-fields",
             "locations__get-custom-fields"
@@ -18122,9 +16529,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "platform/20-api/custom-fields-and-values.md:115"
-          ],
           publicEquivalent: [
             "locations-v3__create-custom-field",
             "locations__create-custom-field"
@@ -18165,10 +16569,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/00-overview/forms-surveys-quizzes.md:25"
-          ]
+          }
         },
         {
           id: "forms--locations-custom-fields-post-post",
@@ -18206,12 +16607,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "forms/30-types/standard-elements.md:162",
-            "forms/20-api/neighbour-services.md:21",
-            "forms/20-api/neighbour-services.md:75",
-            "forms/40-rules/validators-and-quirks.md:130"
-          ],
           publicEquivalent: [
             "locations-v3__create-custom-field",
             "locations__create-custom-field"
@@ -18263,11 +16658,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "platform/20-api/custom-fields-and-values.md:41",
-            "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:86",
-            "forms/60-recipes/create-a-form-by-api.md:18"
-          ],
           publicEquivalent: [
             "locations-v3__get-custom-field",
             "locations__get-custom-field"
@@ -18318,9 +16708,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "forms/20-api/neighbour-services.md:22"
-          ],
           publicEquivalent: [
             "locations-v3__update-custom-field",
             "locations__update-custom-field"
@@ -18404,15 +16791,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CustomFieldService.ts:14",
-            "services/CustomFieldService.ts:32",
-            "forms/20-api/neighbour-services.md:20",
-            "platform/20-api/custom-fields-and-values.md:24",
-            "platform/20-api/custom-fields-and-values.md:155",
-            "platform/20-api/custom-fields-and-values.md:171"
-          ]
+          }
         },
         {
           id: "backend--custom-values",
@@ -18460,12 +16839,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "erased"
           },
-          sources: [
-            "services/api/custom-value.ts:21",
-            "forms/20-api/neighbour-services.md:19",
-            "workflows/10-anatomy/07-id-resolution.md:186",
-            "workflows/10-anatomy/07-id-resolution.md:213"
-          ],
           publicEquivalent: [
             "locations-v3__get-custom-values",
             "locations__get-custom-values"
@@ -18509,9 +16882,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "platform/20-api/custom-fields-and-values.md:69"
-          ],
           publicEquivalent: [
             "locations-v3__create-custom-value",
             "locations__create-custom-value"
@@ -18556,9 +16926,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "platform/20-api/custom-fields-and-values.md:101"
-          ],
           publicEquivalent: [
             "locations-v3__update-custom-value",
             "locations__update-custom-value"
@@ -18611,10 +16978,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/custom-fields-and-values.md:79"
-          ]
+          }
         },
         {
           id: "locations-service--get-industry",
@@ -18650,10 +17014,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/LocationsService.ts:26"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-products",
@@ -18688,10 +17049,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/theming-and-custom-code.md:33"
-          ]
+          }
         },
         {
           id: "memberships-courses--products-customizations-get",
@@ -18726,10 +17084,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/theming-and-custom-code.md:39"
-          ]
+          }
         },
         {
           id: "memberships-courses--stripe-plans",
@@ -18764,10 +17119,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:114"
-          ]
+          }
         },
         {
           id: "workflows--locations-tags",
@@ -18807,12 +17159,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/10-anatomy/07-id-resolution.md:192",
-            "workflows/10-anatomy/07-id-resolution.md:214",
-            "workflows/10-anatomy/07-id-resolution.md:241",
-            "workflows/70-research/ENDPOINTS.md:126"
-          ],
           publicEquivalent: [
             "locations-v3__get-location-tags",
             "locations__get-location-tags"
@@ -18869,12 +17215,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "resolved",
             returns: "none-observed"
           },
-          sources: [
-            "services/EmailService.ts:218",
-            "workflows/10-anatomy/07-id-resolution.md:238",
-            "workflows/70-research/ACTION-DRAWERS-2.md:5463",
-            "workflows/70-research/ENDPOINTS.md:128"
-          ],
           publicEquivalent: [
             "locations-v3__create-tag",
             "locations__create-tag"
@@ -18922,12 +17262,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FilterService.ts:188",
-            "services/EmailService.ts:201",
-            "workflows/70-research/ENDPOINTS.md:127"
-          ]
+          }
         },
         {
           id: "template-service--get-templates",
@@ -18988,9 +17323,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:285"
-          ],
           publicEquivalent: [
             "locations-v3__GET-all-or-email-sms-templates",
             "locations__GET-all-or-email-sms-templates"
@@ -19033,10 +17365,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:243"
-          ]
+          }
         },
         {
           id: "locations-service--search-locations",
@@ -19113,12 +17442,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/LocationsService.ts:15",
-            "services/marketplaceServices/SubLocationsService.ts:14",
-            "ai-studio/_data/endpoints.json",
-            "workflows/70-research/ENDPOINTS.md:155"
-          ],
           publicEquivalent: [
             "locations-v3__search-locations",
             "locations__search-locations"
@@ -19154,10 +17477,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/70-research/2026-09-03-agent-logs-capture.md:82"
-          ]
+          }
         },
         {
           id: "ai-agents--logs-get",
@@ -19189,11 +17509,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/70-research/2026-09-03-agent-logs-capture.md:65",
-            "ai-agents/70-research/2026-09-03-agent-logs-capture.md:110"
-          ]
+          }
         },
         {
           id: "logs-service--dump",
@@ -19240,10 +17556,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/LogsService.ts:11"
-          ]
+          }
         },
         {
           id: "backend--fetch-live-version-id",
@@ -19282,12 +17595,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:64",
-            "services/api/slack-marketplace-install-service.ts:71",
-            "ai-agents/20-api/agent-templates.md:28"
-          ]
+          }
         },
         {
           id: "ai-agents--installation-check",
@@ -19315,10 +17623,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-templates.md:30"
-          ]
+          }
         },
         {
           id: "backend--fetch-integration-details",
@@ -19359,12 +17664,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:99",
-            "ai-agents/20-api/agent-templates.md:29",
-            "ai-agents/20-api/agent-templates.md:45"
-          ]
+          }
         },
         {
           id: "ai-agents--templates-categories",
@@ -19392,10 +17692,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-templates.md:27"
-          ]
+          }
         },
         {
           id: "ai-agents--public-search",
@@ -19423,10 +17720,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-templates.md:26"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-search",
@@ -19472,12 +17766,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:533",
-            "ai-agents/20-api/agent-templates.md:25",
-            "ai-agents/20-api/agent-templates.md:33"
-          ]
+          }
         },
         {
           id: "ai-agents--trial-status",
@@ -19505,10 +17794,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:545"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--fetch-billing-usage",
@@ -19537,10 +17823,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:467"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--get-all-categories-marketplace-apps",
@@ -19581,10 +17864,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:330"
-          ]
+          }
         },
         {
           id: "mcp-connection-service--list-marketplace-oauth-apps",
@@ -19612,11 +17892,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/McpConnectionService.ts:170",
-            "workflows/70-research/ACTION-DRAWERS-2.md:5870"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--get-marketplace-apps",
@@ -19679,14 +17955,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:389",
-            "marketplace-apps/10-anatomy/marketplace-rail.md:46",
-            "marketplace-apps/10-anatomy/marketplace-rail.md:233",
-            "workflows/10-anatomy/07-id-resolution.md:205",
-            "workflows/40-rules/flow-bot-action-compatibility.md:52"
-          ]
+          }
         },
         {
           id: "platform--private-integration-location",
@@ -19721,10 +17990,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/private-integration-tokens.md:20"
-          ]
+          }
         },
         {
           id: "platform--private-integration-location-post",
@@ -19756,10 +18022,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/private-integration-tokens.md:22"
-          ]
+          }
         },
         {
           id: "ai-agents--medias-delete-files",
@@ -19788,9 +18051,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:215"
-          ],
           publicEquivalent: [
             "medias-v3__bulk-delete-media-objects",
             "medias__bulk-delete-media-objects"
@@ -19903,11 +18163,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/MediaService.ts:11",
-            "funnels/20-api/webinars.md:156",
-            "workflows/70-research/ENDPOINTS.md:156"
-          ],
           publicEquivalent: [
             "medias-v3__fetch-media-content",
             "medias__fetch-media-content"
@@ -19953,10 +18208,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:54"
-          ]
+          }
         },
         {
           id: "memberships-courses--categories-post",
@@ -19985,10 +18237,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:106"
-          ]
+          }
         },
         {
           id: "memberships-courses--categories-put",
@@ -20017,10 +18266,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:170"
-          ]
+          }
         },
         {
           id: "memberships-courses--categories-put-put",
@@ -20053,10 +18299,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:53"
-          ]
+          }
         },
         {
           id: "memberships-courses--certificate-attachments",
@@ -20085,11 +18328,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:178",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:113"
-          ]
+          }
         },
         {
           id: "memberships-courses--media-signed-url",
@@ -20118,10 +18357,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:174"
-          ]
+          }
         },
         {
           id: "memberships-courses--offers",
@@ -20150,11 +18386,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:176",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:106"
-          ]
+          }
         },
         {
           id: "memberships-courses--posts",
@@ -20183,11 +18415,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:61",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:106"
-          ]
+          }
         },
         {
           id: "memberships-courses--posts-put",
@@ -20216,10 +18444,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:171"
-          ]
+          }
         },
         {
           id: "memberships-courses--posts-put-put",
@@ -20252,10 +18477,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:65"
-          ]
+          }
         },
         {
           id: "memberships-courses--products",
@@ -20284,10 +18506,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:106"
-          ]
+          }
         },
         {
           id: "memberships-courses--products-put",
@@ -20316,10 +18535,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:169"
-          ]
+          }
         },
         {
           id: "memberships-courses--products-delete",
@@ -20352,10 +18568,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:106"
-          ]
+          }
         },
         {
           id: "memberships-courses--videos",
@@ -20384,10 +18597,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:172"
-          ]
+          }
         },
         {
           id: "memberships-courses--membership",
@@ -20419,10 +18629,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:73"
-          ]
+          }
         },
         {
           id: "memberships-courses--membership-get",
@@ -20454,10 +18661,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:70"
-          ]
+          }
         },
         {
           id: "memberships-courses--membership-put",
@@ -20489,10 +18693,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:72"
-          ]
+          }
         },
         {
           id: "memberships-courses--membership-check-domain-linked",
@@ -20520,10 +18721,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:88"
-          ]
+          }
         },
         {
           id: "memberships-courses--membership-filtered",
@@ -20551,10 +18749,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:74"
-          ]
+          }
         },
         {
           id: "memberships-courses--assessments-assignment-post",
@@ -20588,10 +18783,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:138"
-          ]
+          }
         },
         {
           id: "memberships-courses--assessments-quiz-post",
@@ -20625,10 +18817,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:118"
-          ]
+          }
         },
         {
           id: "memberships-courses--quiz-questions",
@@ -20663,10 +18852,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:121"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-categories-get",
@@ -20717,10 +18903,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:52"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-categories-post",
@@ -20755,12 +18938,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:46",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:49",
-            "platform/40-rules/validation-speaks-three-dialects.md:29"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-certificate-attachments",
@@ -20794,10 +18972,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:316"
-          ]
+          }
         },
         {
           id: "memberships-courses--certificate-attachments-products",
@@ -20847,10 +19022,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:320"
-          ]
+          }
         },
         {
           id: "memberships-courses--media-signed-url-post",
@@ -20884,10 +19056,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:102"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-offers",
@@ -20955,10 +19124,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/offers.md:59"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-offers-post",
@@ -20993,13 +19159,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:108",
-            "memberships-courses/20-api/offers.md:41",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:75",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:107"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-offers-delete",
@@ -21034,10 +19194,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:275"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-posts",
@@ -21071,13 +19228,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:57",
-            "memberships-courses/20-api/build-api.md:117",
-            "memberships-courses/20-api/build-api.md:137",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:50"
-          ]
+          }
         },
         {
           id: "memberships-courses--posts-material",
@@ -21111,10 +19262,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:104"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-products-post",
@@ -21148,11 +19296,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:39",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:48"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-products-get",
@@ -21189,10 +19333,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:51"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-products-put",
@@ -21227,10 +19368,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:43"
-          ]
+          }
         },
         {
           id: "memberships-courses--products-apply-theme-put",
@@ -21274,10 +19412,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:145"
-          ]
+          }
         },
         {
           id: "memberships-courses--settings-site-info",
@@ -21309,10 +19444,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:93"
-          ]
+          }
         },
         {
           id: "workflows--user-purchase-no-of-users-purchased-offer",
@@ -21351,11 +19483,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps-marketplace/membership_course_grant_access.md:20",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:107"
-          ]
+          }
         },
         {
           id: "memberships-courses--locations-videos",
@@ -21389,10 +19517,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:95"
-          ]
+          }
         },
         {
           id: "memberships-courses--membership-multiple",
@@ -21420,10 +19545,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:75"
-          ]
+          }
         },
         {
           id: "workflows--smart-list-attach-offer-user",
@@ -21456,14 +19578,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/triggers/membership_contact_created.md:79",
-            "workflows/30-types/triggers/offer_access_granted.md:77",
-            "workflows/30-types/triggers/product_access_granted.md:77",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:111",
-            "workflows/40-rules/merge-tag-rendering.md:134"
-          ]
+          }
         },
         {
           id: "location-membership--fetch-categories",
@@ -21499,10 +19614,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "models/Filters/membership.ts:82"
-          ]
+          }
         },
         {
           id: "location-membership--fetch-lessons",
@@ -21541,10 +19653,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "models/Filters/membership.ts:96"
-          ]
+          }
         },
         {
           id: "location-membership--fetch-all-categories",
@@ -21592,11 +19701,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "models/Filters/membership.ts:111",
-            "models/Filters/membership.ts:126"
-          ]
+          }
         },
         {
           id: "location-membership--fetch-data",
@@ -21632,12 +19737,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "models/Filters/membership.ts:66",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53",
-            "workflows/30-types/steps/membership_grant_offer.md:60"
-          ]
+          }
         },
         {
           id: "workflows--smart-list-user-offer-management",
@@ -21667,11 +19767,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/triggers/offer_access_removed.md:77",
-            "workflows/30-types/triggers/product_access_removed.md:77"
-          ]
+          }
         },
         {
           id: "memberships-courses--user-hl-user-details",
@@ -21702,10 +19798,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:101"
-          ]
+          }
         },
         {
           id: "backend--set-firebase-auth",
@@ -21746,14 +19839,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "states/app.ts:982",
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/10-anatomy/embedding-and-credentials.md:51",
-            "ai-studio/10-anatomy/the-chat-and-version-model.md:25",
-            "workflows/20-api/version-history.md:74"
-          ]
+          }
         },
         {
           id: "backend--post-oauth-authorize",
@@ -21801,14 +19887,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:129",
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:504",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:546",
-            "ai-agents/20-api/agent-templates.md:53",
-            "workflows/70-research/ENDPOINTS.md:243"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--update-basic-authentication",
@@ -21843,10 +19922,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:546"
-          ]
+          }
         },
         {
           id: "backend--list-external-accounts",
@@ -21894,13 +19970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:237",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:453",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:711",
-            "ai-agents/20-api/custom-api-and-mcp.md:95"
-          ]
+          }
         },
         {
           id: "backend--create-external-account",
@@ -21960,11 +20030,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:220",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:777"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--delete-location-account",
@@ -22002,11 +20068,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:460",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:731"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-oauth-url",
@@ -22041,10 +20103,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:528"
-          ]
+          }
         },
         {
           id: "ai-agents--locations-mcp-apps-get",
@@ -22076,10 +20135,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:94"
-          ]
+          }
         },
         {
           id: "platform--static-scopes",
@@ -22123,10 +20179,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/private-integration-tokens.md:21"
-          ]
+          }
         },
         {
           id: "funnels--sessions-token",
@@ -22158,10 +20211,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:424"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--fetch-white-label-config",
@@ -22194,10 +20244,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:442"
-          ]
+          }
         },
         {
           id: "preview-objects-service--list",
@@ -22250,10 +20297,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "iatf-preview/preview-workflow-labels.ts:39",
-            "services/marketplaceServices/CustomObjectsService.ts:17"
-          ],
           publicEquivalent: [
             "objects-v3__get-object-by-location-id",
             "objects__get-object-by-location-id"
@@ -22319,14 +20362,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/CustomObjectsService.ts:29",
-            "workflows/20-api/refused-but-mined.md:29",
-            "workflows/20-api/refused-but-mined.md:134",
-            "workflows/30-types/steps/clear_custom_object_fields.md:44",
-            "workflows/30-types/steps/create_custom_object.md:45",
-            "workflows/30-types/steps/update_custom_object.md:45"
-          ],
           publicEquivalent: [
             "objects-v3__get-object-schema-by-key",
             "objects__get-object-schema-by-key"
@@ -22379,12 +20414,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/20-api/refused-but-mined.md:79",
-            "workflows/20-api/refused-but-mined.md:133",
-            "workflows/70-research/ENDPOINTS.md:143",
-            "workflows/70-research/ENDPOINTS.md:144"
-          ],
           publicEquivalent: [
             "objects-v3__get-object-schema-by-key",
             "objects__get-object-schema-by-key"
@@ -22435,10 +20464,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/CustomObjectsService.ts:45",
-            "services/marketplaceServices/CustomObjectsService.ts:60"
-          ],
           publicEquivalent: [
             "objects-v3__get-record-by-id",
             "objects__get-record-by-id"
@@ -22488,11 +20513,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "primitive",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/CustomObjectsService.ts:68",
-            "workflows/20-api/refused-but-mined.md:167",
-            "workflows/70-research/ENDPOINTS.md:145"
-          ],
           publicEquivalent: [
             "objects-v3__search-object-records",
             "objects__search-object-records"
@@ -22529,10 +20549,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/INVENTORY.md:213"
-          ]
+          }
         },
         {
           id: "workflows--objects-business",
@@ -22567,12 +20584,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps-marketplace/company.md:30",
-            "workflows/30-types/steps-marketplace/company.md:52",
-            "workflows/30-types/steps-marketplace/company.md:65"
-          ]
+          }
         },
         {
           id: "workflows--business-records",
@@ -22604,12 +20616,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps-marketplace/company.md:54",
-            "workflows/30-types/steps-marketplace/company.md:68",
-            "workflows/40-rules/company-field-clear-not-applied.md:25"
-          ]
+          }
         },
         {
           id: "workflows--records-search-post",
@@ -22637,10 +20644,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps/custom_webhook.md:165"
-          ]
+          }
         },
         {
           id: "workflows--objects-contact",
@@ -22681,10 +20685,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/refused-but-mined.md:146"
-          ]
+          }
         },
         {
           id: "opportunity-custom-field-service--get-lost-reason-custom-field-options",
@@ -22748,11 +20749,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/OpportunityCustomFieldService.ts:19",
-            "platform/20-api/lost-reasons.md:26",
-            "workflows/70-research/ENDPOINTS.md:125"
-          ],
           publicEquivalent: [
             "opportunities-v3__get-lost-reason",
             "opportunities__get-lost-reason"
@@ -22793,10 +20789,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/lost-reasons.md:36"
-          ]
+          }
         },
         {
           id: "backend--get-location-pipelines",
@@ -22841,12 +20834,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/api/location-assets-service.ts:118",
-            "pipelines-opportunities/20-api/pipelines.md:26",
-            "workflows/10-anatomy/07-id-resolution.md:208",
-            "workflows/70-research/ENDPOINTS.md:130"
-          ],
           publicEquivalent: [
             "opportunities-v3__get-pipelines",
             "opportunities__get-pipelines"
@@ -22900,9 +20887,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/10-anatomy/07-id-resolution.md:183"
-          ],
           publicEquivalent: [
             "opportunities-v3__get-pipelines",
             "opportunities__get-pipelines"
@@ -22958,11 +20942,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:15",
-            "pipelines-opportunities/20-api/pipelines.md:27",
-            "platform/20-api/api-gap-matrix.md:25"
-          ],
           publicEquivalent: [
             "opportunities-v3__update-pipeline",
             "opportunities__update-pipeline"
@@ -23022,9 +21001,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "resolved"
           },
-          sources: [
-            "services/api/opportunity-service.ts:26"
-          ],
           publicEquivalent: [
             "opportunities-v3__search-opportunities-advanced",
             "opportunities__search-opportunities-advanced"
@@ -23043,7 +21019,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + 40-rules/smart-tags.md)",
+          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + [private corpus])",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -23065,10 +21041,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/40-rules/smart-tags.md:144"
-          ]
+          }
         },
         {
           id: "platform--payment-links",
@@ -23141,10 +21114,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:28"
-          ]
+          }
         },
         {
           id: "platform--payment-links-post",
@@ -23172,10 +21142,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:48"
-          ]
+          }
         },
         {
           id: "platform--payment-links-patch",
@@ -23209,10 +21176,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:83"
-          ]
+          }
         },
         {
           id: "platform--payment-links-put",
@@ -23245,10 +21209,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:69"
-          ]
+          }
         },
         {
           id: "platform--payment-links-customised-link",
@@ -23296,10 +21257,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:110"
-          ]
+          }
         },
         {
           id: "platform--payment-links-preview",
@@ -23342,10 +21300,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:95"
-          ]
+          }
         },
         {
           id: "platform--payment-links-settings",
@@ -23402,10 +21357,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:121"
-          ]
+          }
         },
         {
           id: "events--payments-coupon",
@@ -23434,9 +21386,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "events/20-api/events-management-api.md:149"
-          ],
           publicEquivalent: [
             "payments-v3__create-coupon",
             "payments__create-coupon"
@@ -23488,9 +21437,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "events/20-api/events-management-api.md:143"
-          ],
           publicEquivalent: [
             "payments-v3__list-coupons",
             "payments__list-coupons"
@@ -23526,10 +21472,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:114"
-          ]
+          }
         },
         {
           id: "platform--integrations-details",
@@ -23564,10 +21507,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:125"
-          ]
+          }
         },
         {
           id: "platform--integrations-entity-providers",
@@ -23633,10 +21573,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:123"
-          ]
+          }
         },
         {
           id: "platform--provider-connected",
@@ -23681,10 +21618,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:122"
-          ]
+          }
         },
         {
           id: "platform--provider-details",
@@ -23731,10 +21665,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:124"
-          ]
+          }
         },
         {
           id: "memberships-courses--integrations-stripe",
@@ -23769,10 +21700,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:113"
-          ]
+          }
         },
         {
           id: "events--orders-internal",
@@ -23800,10 +21728,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:257"
-          ]
+          }
         },
         {
           id: "platform--stripe-connect",
@@ -23841,11 +21766,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:126",
-            "platform/70-research/2026-09-02-payment-links-capture.md:46"
-          ]
+          }
         },
         {
           id: "funnels--payments-transactions",
@@ -23874,9 +21795,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:90"
-          ],
           publicEquivalent: [
             "payments-v3__list-transactions",
             "payments__list-transactions"
@@ -23941,11 +21859,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/call-dispositions.md:32",
-            "workflows/70-research/ENDPOINTS.md:135"
-          ]
+          }
         },
         {
           id: "platform--phone-system-call-dispositions-post",
@@ -23982,10 +21896,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/call-dispositions.md:73"
-          ]
+          }
         },
         {
           id: "platform--phone-system-call-dispositions-delete",
@@ -24024,10 +21935,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/call-dispositions.md:85"
-          ]
+          }
         },
         {
           id: "ivrservice--get-recording",
@@ -24063,10 +21971,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/IVRService.ts:38"
-          ]
+          }
         },
         {
           id: "workflows--phone-system-number-pools",
@@ -24105,9 +22010,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:134"
-          ],
           publicEquivalent: [
             "phone-system-v3__getNumberPoolList",
             "phone-system__getNumberPoolList"
@@ -24154,10 +22056,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:133"
-          ]
+          }
         },
         {
           id: "saas-twilio-service--get-phone-numbers-without-number-pool",
@@ -24197,11 +22096,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/SaasTwilioService.ts:22",
-            "services/marketplaceServices/PhoneSystemService.ts:15",
-            "workflows/70-research/SURFACE-GAP-ANALYSIS.md:134"
-          ],
           publicEquivalent: [
             "phone-system-v3__active-numbers"
           ]
@@ -24257,11 +22151,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/PhoneSystemService.ts:36",
-            "workflows/50-runtime/sms-readiness-gates-a-workflow.md:16"
-          ]
+          }
         },
         {
           id: "phone-system-service--validate-transcription",
@@ -24376,12 +22266,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/PhoneSystemService.ts:25",
-            "workflows/30-types/steps/voicemail.md:116",
-            "workflows/70-research/ACTION-DRAWERS-2.md:4269"
-          ]
+          }
         },
         {
           id: "workflows--location-phone-numbers",
@@ -24417,10 +22302,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:136"
-          ]
+          }
         },
         {
           id: "template-service--get-all-whats-app-templates",
@@ -24472,11 +22354,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:377",
-            "workflows/70-research/ENDPOINTS.md:159"
-          ]
+          }
         },
         {
           id: "memberships-courses--posts-get",
@@ -24508,10 +22386,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:157"
-          ]
+          }
         },
         {
           id: "memberships-courses--posts-material-post",
@@ -24539,10 +22414,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:174"
-          ]
+          }
         },
         {
           id: "funnels--preview",
@@ -24574,10 +22446,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/40-rules/silent-failures.md:322"
-          ]
+          }
         },
         {
           id: "typed--edit_funnel--products",
@@ -24692,9 +22561,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "funnels/60-recipes/build-a-multi-step-funnel.md:25"
-          ],
           publicEquivalent: [
             "products-v3__create-price-for-product",
             "products__create-price-for-product"
@@ -24738,9 +22604,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:105"
-          ],
           publicEquivalent: [
             "products-v3__update-price-by-id-for-product",
             "products__update-price-by-id-for-product"
@@ -24772,11 +22635,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/step-products-and-orders.md:78",
-            "platform/20-api/payment-links.md:100"
-          ]
+          }
         },
         {
           id: "platform--payment-element-display",
@@ -24804,10 +22663,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/payment-links.md:102"
-          ]
+          }
         },
         {
           id: "memberships-courses--products-prices",
@@ -24839,10 +22695,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:114"
-          ]
+          }
         },
         {
           id: "funnels--products-public",
@@ -24870,10 +22723,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:91"
-          ]
+          }
         },
         {
           id: "funnels--products-stripe-plans",
@@ -24901,10 +22751,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:92"
-          ]
+          }
         },
         {
           id: "workflows--proposals-document",
@@ -24933,9 +22780,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/30-types/steps-marketplace/payment.md:133"
-          ],
           publicEquivalent: [
             "proposals-v3__list-documents-contracts",
             "proposals__list-documents-contracts"
@@ -24990,11 +22834,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "workflows/10-anatomy/07-id-resolution.md:215",
-            "workflows/10-anatomy/07-id-resolution.md:224",
-            "workflows/30-types/steps-marketplace/payment.md:131"
-          ],
           publicEquivalent: [
             "proposals-v3__list-documents-contracts-templates",
             "proposals__list-documents-contracts-templates"
@@ -25026,10 +22865,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps-marketplace/payment.md:131"
-          ]
+          }
         },
         {
           id: "workflows--proposals-templates-put",
@@ -25061,10 +22897,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps-marketplace/payment.md:134"
-          ]
+          }
         },
         {
           id: "forms--qr-code",
@@ -25092,10 +22925,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/70-research/2026-10-29-forms-wave.md:82"
-          ]
+          }
         },
         {
           id: "forms--qr-code-get",
@@ -25127,10 +22957,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/70-research/2026-10-29-forms-wave.md:83"
-          ]
+          }
         },
         {
           id: "brand-kit--qr-code-update-image",
@@ -25162,10 +22989,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/70-research/2026-10-30-brand-boards-wave.md:71"
-          ]
+          }
         },
         {
           id: "workflows--internal-ref-tags",
@@ -25193,10 +23017,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/smart-lists.md:42"
-          ]
+          }
         },
         {
           id: "workflows--workflows-unpublished",
@@ -25206,7 +23027,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge sniffs/reached-2026-09-23.',
+          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge [private capture]',
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -25244,10 +23065,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/03-endpoints.md:366"
-          ]
+          }
         },
         {
           id: "reputation-service--get-review-link-list",
@@ -25289,11 +23107,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ReputationService.ts:22",
-            "workflows/30-types/steps/review_request.md:31"
-          ]
+          }
         },
         {
           id: "workflows-reselling-service--get-company-reselling-config",
@@ -25329,10 +23143,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:45"
-          ]
+          }
         },
         {
           id: "workflows-reselling-service--get-location-config--get-location-id-starter-plus-workflow-premium-actions-triggers",
@@ -25371,10 +23182,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:61"
-          ]
+          }
         },
         {
           id: "workflows-reselling-service--get-location-config",
@@ -25413,10 +23221,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:55"
-          ]
+          }
         },
         {
           id: "workflows-reselling-service--get-product-configuration",
@@ -25458,11 +23263,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:36",
-            "workflows/70-research/ENDPOINTS.md:182"
-          ]
+          }
         },
         {
           id: "workflows-reselling-service--get-company-subscriptions",
@@ -25498,10 +23299,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:80"
-          ]
+          }
         },
         {
           id: "workflows-reselling-service--get-location-subscriptions",
@@ -25553,10 +23351,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:70"
-          ]
+          }
         },
         {
           id: "workflows-reselling-service--cancel-location-subscription",
@@ -25595,10 +23390,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:89"
-          ]
+          }
         },
         {
           id: "saas-twilio-service--check-for-lcaccount",
@@ -25633,11 +23425,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/SaasTwilioService.ts:7",
-            "workflows/70-research/ENDPOINTS.md:180"
-          ]
+          }
         },
         {
           id: "saas-service--check-for-workflow-billing-plan",
@@ -25708,15 +23496,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/SaasService.ts:12",
-            "services/marketplaceServices/SaasService.ts:16",
-            "workflows/20-api/agency-premium-features.md:51",
-            "workflows/20-api/agency-premium-features.md:183",
-            "services/marketplaceServices/SaasService.ts:29",
-            "workflows/20-api/agency-premium-features.md:121"
-          ]
+          }
         },
         {
           id: "saas-service--upgrade-plan",
@@ -25764,10 +23544,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/SaasService.ts:20"
-          ]
+          }
         },
         {
           id: "workflows--locations-workflow-ai",
@@ -25807,11 +23584,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/agency-premium-features.md:87",
-            "workflows/20-api/agency-premium-features.md:139"
-          ]
+          }
         },
         {
           id: "workflows--locations-workflow-premium-actions",
@@ -25851,11 +23624,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/agency-premium-features.md:54",
-            "workflows/20-api/agency-premium-features.md:137"
-          ]
+          }
         },
         {
           id: "funnels--schema-markup-schemas",
@@ -25887,10 +23656,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/schema-markup.md:16"
-          ]
+          }
         },
         {
           id: "funnels--schemas-save",
@@ -25918,10 +23684,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/schema-markup.md:17"
-          ]
+          }
         },
         {
           id: "platform--snapshot-conflicts",
@@ -25960,10 +23723,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:212"
-          ]
+          }
         },
         {
           id: "platform--snapshot-get-assets",
@@ -26012,10 +23772,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:210"
-          ]
+          }
         },
         {
           id: "platform--snapshot-update",
@@ -26054,10 +23811,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:105"
-          ]
+          }
         },
         {
           id: "platform--v2-snapshots",
@@ -26095,10 +23849,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:33"
-          ]
+          }
         },
         {
           id: "platform--snapshots-refresh",
@@ -26140,10 +23891,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:91"
-          ]
+          }
         },
         {
           id: "platform--snapshots-assets-status",
@@ -26183,11 +23931,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:115",
-            "platform/20-api/snapshots-authoring.md:211"
-          ]
+          }
         },
         {
           id: "platform--snapshots-assets-status-patch",
@@ -26226,10 +23970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:117"
-          ]
+          }
         },
         {
           id: "platform--snapshots-assets-status-post",
@@ -26268,10 +24009,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:116"
-          ]
+          }
         },
         {
           id: "platform--snapshots-conflicts",
@@ -26313,10 +24051,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:140"
-          ]
+          }
         },
         {
           id: "platform--snapshots-snapshot-preferences",
@@ -26355,10 +24090,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:129"
-          ]
+          }
         },
         {
           id: "platform--snapshots-snapshot-preferences-post",
@@ -26398,10 +24130,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:130"
-          ]
+          }
         },
         {
           id: "platform--snapshots-update",
@@ -26440,10 +24169,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:106"
-          ]
+          }
         },
         {
           id: "platform--assets-asset-names",
@@ -26490,10 +24216,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:72"
-          ]
+          }
         },
         {
           id: "platform--snapshots-create",
@@ -26528,10 +24251,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:34"
-          ]
+          }
         },
         {
           id: "platform--location-assets-assets-list",
@@ -26570,10 +24290,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:336"
-          ]
+          }
         },
         {
           id: "platform--snapshots-locations",
@@ -26638,10 +24355,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:209"
-          ]
+          }
         },
         {
           id: "platform--locations-v2",
@@ -26705,10 +24419,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:208"
-          ]
+          }
         },
         {
           id: "platform--snapshots-pre-fetch-assets",
@@ -26740,10 +24451,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:338"
-          ]
+          }
         },
         {
           id: "platform--snapshot-asset-mapper-conflicts",
@@ -26782,10 +24490,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:156"
-          ]
+          }
         },
         {
           id: "platform--snapshots-snapshot-ipp-assets",
@@ -26827,10 +24532,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:73"
-          ]
+          }
         },
         {
           id: "platform--snapshot-push-push-in-progress",
@@ -26870,10 +24572,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:207"
-          ]
+          }
         },
         {
           id: "platform--v2-set-assets-to-locations",
@@ -26914,10 +24613,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:213"
-          ]
+          }
         },
         {
           id: "platform--snapshot-versions-summary",
@@ -26959,10 +24655,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:337"
-          ]
+          }
         },
         {
           id: "platform--snapshots-v2",
@@ -26998,10 +24691,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:234"
-          ]
+          }
         },
         {
           id: "platform--v2-pre-fetch-assets",
@@ -27053,10 +24743,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots-authoring.md:74"
-          ]
+          }
         },
         {
           id: "template-service--get-email-snippets-paginated",
@@ -27115,12 +24802,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:333",
-            "services/api/sms-template-service.ts:66",
-            "workflows/70-research/ENDPOINTS.md:158"
-          ]
+          }
         },
         {
           id: "funnels--stats",
@@ -27155,10 +24837,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:104"
-          ]
+          }
         },
         {
           id: "funnels--stats-get",
@@ -27213,11 +24892,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:32",
-            "funnels/50-runtime/analytics.md:71"
-          ]
+          }
         },
         {
           id: "funnels--stats-count",
@@ -27260,11 +24935,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:24",
-            "funnels/50-runtime/analytics.md:66"
-          ]
+          }
         },
         {
           id: "funnels--count-split",
@@ -27299,10 +24970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:28"
-          ]
+          }
         },
         {
           id: "funnels--count-webinar",
@@ -27337,10 +25005,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:31"
-          ]
+          }
         },
         {
           id: "funnels--device-split",
@@ -27375,10 +25040,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:29"
-          ]
+          }
         },
         {
           id: "funnels--stats-event",
@@ -27406,10 +25068,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:46"
-          ]
+          }
         },
         {
           id: "funnels--stats-filter-values",
@@ -27439,11 +25098,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:80",
-            "funnels/70-research/2026-09-29-route-census.md:93"
-          ]
+          }
         },
         {
           id: "funnels--graph-data",
@@ -27478,10 +25133,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:26"
-          ]
+          }
         },
         {
           id: "funnels--optin-conversion-rate",
@@ -27518,10 +25170,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:25"
-          ]
+          }
         },
         {
           id: "funnels--top-user-data",
@@ -27556,10 +25205,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:27"
-          ]
+          }
         },
         {
           id: "funnels--stats-url-redirect",
@@ -27589,10 +25235,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/url-redirects.md:125"
-          ]
+          }
         },
         {
           id: "funnels--video-event",
@@ -27620,10 +25263,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:51"
-          ]
+          }
         },
         {
           id: "funnels--video-stats",
@@ -27666,11 +25306,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:30",
-            "funnels/50-runtime/analytics.md:88"
-          ]
+          }
         },
         {
           id: "funnels--stats-webinar-sessions",
@@ -27698,10 +25334,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/50-runtime/analytics.md:120"
-          ]
+          }
         },
         {
           id: "funnels--attendees-count",
@@ -27733,10 +25366,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/webinars.md:88"
-          ]
+          }
         },
         {
           id: "funnels--store-pickup-store",
@@ -27771,10 +25401,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:152"
-          ]
+          }
         },
         {
           id: "funnels--store-pickup-store-post",
@@ -27802,10 +25429,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:153"
-          ]
+          }
         },
         {
           id: "funnels--store-pickup-store-delete",
@@ -27850,10 +25474,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:154"
-          ]
+          }
         },
         {
           id: "funnels--setup-progress",
@@ -27890,11 +25511,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:165",
-            "funnels/70-research/2026-09-29-route-census.md:94"
-          ]
+          }
         },
         {
           id: "funnels--setup-progress-put",
@@ -27922,11 +25539,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-object-operations.md:166",
-            "funnels/70-research/2026-09-29-route-census.md:95"
-          ]
+          }
         },
         {
           id: "ai-agents--dictation-transcribe",
@@ -27954,10 +25567,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:220"
-          ]
+          }
         },
         {
           id: "surveys-service--get-surveys",
@@ -27967,7 +25577,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md.",
+          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: [private corpus]",
           reach: "proven",
           coveredBy: [
             "audit_site"
@@ -28018,10 +25628,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "services/marketplaceServices/SurveysService.ts:11",
-            "services/api/workflow-overview.service.ts:245"
-          ],
           publicEquivalent: [
             "surveys-v3__get-surveys",
             "surveys__get-surveys"
@@ -28070,11 +25676,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/SurveysService.ts:20",
-            "workflows/70-research/ENDPOINTS.md:150"
-          ]
+          }
         },
         {
           id: "funnels--templates-list",
@@ -28103,11 +25705,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/webinars.md:106",
-            "funnels/20-api/webinars.md:155"
-          ]
+          }
         },
         {
           id: "funnels--template-load",
@@ -28138,11 +25736,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/webinars.md:107",
-            "funnels/20-api/webinars.md:130"
-          ]
+          }
         },
         {
           id: "ticket-service--get-workflow-options",
@@ -28185,10 +25779,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/TicketService.ts:13"
-          ]
+          }
         },
         {
           id: "workflows--triggers-dynamic-source",
@@ -28221,10 +25812,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:94"
-          ]
+          }
         },
         {
           id: "ai-agents--prompt-optimizer-daily",
@@ -28259,10 +25847,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/prompt-optimizer.md:26"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--user-preferences",
@@ -28294,10 +25879,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-views.md:79"
-          ]
+          }
         },
         {
           id: "typed--list_account_entities--users",
@@ -28468,11 +26050,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             body: "none-observed",
             returns: "resolved"
           },
-          sources: [
-            "services/api/fetch-users.ts:55",
-            "workflows/50-runtime/log-export.md:54",
-            "workflows/70-research/ENDPOINTS.md:129"
-          ],
           publicEquivalent: [
             "users-v3__search-users",
             "users__search-users"
@@ -28557,10 +26134,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--get-folders",
@@ -28608,10 +26182,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--post-folders",
@@ -28653,10 +26224,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--delete-folders",
@@ -28702,10 +26270,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--patch-folders",
@@ -28751,10 +26316,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects",
@@ -28803,13 +26365,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/40-rules/constraints.md:46",
-            "ai-studio/60-recipes/read-a-site-as-text.md:22",
-            "funnels/20-api/funnels-api.md:29"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects",
@@ -28853,13 +26409,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/10-anatomy/project.md:68",
-            "ai-studio/40-rules/constraints.md:16",
-            "ai-studio/70-research/2026-09-04-ai-studio-surface-map.md:74"
-          ]
+          }
         },
         {
           id: "ai-studio--delete-projects",
@@ -28909,10 +26459,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-get",
@@ -28971,12 +26518,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/40-rules/constraints.md:61",
-            "ai-studio/40-rules/constraints.md:120"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-chat",
@@ -29025,15 +26567,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/00-overview/index.md:68",
-            "ai-studio/10-anatomy/project.md:72",
-            "ai-studio/10-anatomy/the-chat-and-version-model.md:20",
-            "ai-studio/20-api/chat-generation.md:13",
-            "ai-studio/60-recipes/run-one-generation.md:31"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-chat-cancel",
@@ -29081,11 +26615,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/chat-generation.md:81"
-          ]
+          }
         },
         {
           id: "ai-studio--projects-cloud",
@@ -29117,10 +26647,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:102"
-          ]
+          }
         },
         {
           id: "ai-studio--cloud-tables",
@@ -29152,10 +26679,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:110"
-          ]
+          }
         },
         {
           id: "ai-studio--tables-columns",
@@ -29190,10 +26714,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:111"
-          ]
+          }
         },
         {
           id: "ai-studio--tables-rows",
@@ -29228,10 +26749,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:113"
-          ]
+          }
         },
         {
           id: "ai-studio--tables-rows-post",
@@ -29266,10 +26784,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:112"
-          ]
+          }
         },
         {
           id: "ai-studio--patch-projects-domain",
@@ -29315,11 +26830,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/publishing-and-domains.md:62"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-edit-code",
@@ -29365,10 +26876,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-feedback",
@@ -29414,10 +26922,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-files",
@@ -29465,12 +26970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/40-rules/constraints.md:61",
-            "ai-studio/60-recipes/run-one-generation.md:55"
-          ]
+          }
         },
         {
           id: "ai-studio--patch-projects-folder",
@@ -29516,11 +27016,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/folders.md:23"
-          ]
+          }
         },
         {
           id: "ai-studio--github-accounts",
@@ -29552,10 +27048,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:134"
-          ]
+          }
         },
         {
           id: "ai-studio--github-status",
@@ -29587,10 +27080,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:135"
-          ]
+          }
         },
         {
           id: "ai-studio--patch-projects-integration-status",
@@ -29636,10 +27126,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-integrations-options",
@@ -29688,11 +27175,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/40-rules/constraints.md:137"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-meta-image",
@@ -29738,10 +27221,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--patch-projects-name",
@@ -29787,11 +27267,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/40-rules/constraints.md:31"
-          ]
+          }
         },
         {
           id: "ai-studio--projects-payments",
@@ -29823,10 +27299,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:82"
-          ]
+          }
         },
         {
           id: "ai-studio--projects-payments-post",
@@ -29858,10 +27331,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:81"
-          ]
+          }
         },
         {
           id: "ai-studio--catalog-products",
@@ -29893,10 +27363,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:83"
-          ]
+          }
         },
         {
           id: "ai-studio--catalog-products-get",
@@ -29931,10 +27398,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:84"
-          ]
+          }
         },
         {
           id: "ai-studio--payments-products",
@@ -29966,10 +27430,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:86"
-          ]
+          }
         },
         {
           id: "ai-studio--payments-products-put",
@@ -30001,10 +27462,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:85"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-publish",
@@ -30052,10 +27510,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-remix",
@@ -30101,11 +27556,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/10-anatomy/project.md:84"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-remix-status",
@@ -30151,10 +27602,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-routes",
@@ -30202,10 +27650,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-sandbox",
@@ -30253,11 +27698,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/50-runtime/index.md:30"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-sandbox",
@@ -30305,10 +27746,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-sandbox-keep-alive",
@@ -30354,10 +27792,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-secrets",
@@ -30405,10 +27840,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--put-projects-secrets",
@@ -30456,11 +27888,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/70-research/2026-10-30-ai-studio-wave.md:59"
-          ]
+          }
         },
         {
           id: "ai-studio--delete-projects-secrets",
@@ -30509,11 +27937,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/40-rules/constraints.md:79"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-settings",
@@ -30559,10 +27983,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--patch-projects-settings",
@@ -30608,10 +28029,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--patch-projects-slug",
@@ -30657,10 +28075,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--patch-projects-star",
@@ -30706,10 +28121,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-unpublish",
@@ -30757,10 +28169,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-usage-policy",
@@ -30808,12 +28217,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/chat-generation.md:183",
-            "ai-studio/60-recipes/run-one-generation.md:20"
-          ]
+          }
         },
         {
           id: "ai-studio--get-projects-versions-download",
@@ -30862,10 +28266,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-versions-prewarm",
@@ -30914,10 +28315,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--post-projects-versions-restore",
@@ -30966,10 +28364,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "ai-studio--patch-projects-versions-bookmark",
@@ -31015,10 +28410,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json"
-          ]
+          }
         },
         {
           id: "forms--widget-form",
@@ -31053,11 +28445,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/public-renderer-and-submit.md:88",
-            "forms/30-types/standard-elements.md:92"
-          ]
+          }
         },
         {
           id: "backend--fetch-events-options",
@@ -31106,10 +28494,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "models/Triggers/events-options.ts:58"
-          ]
+          }
         },
         {
           id: "backend--bulk-location-settings",
@@ -31167,10 +28552,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-settings.ts:52"
-          ]
+          }
         },
         {
           id: "backend--location-settings",
@@ -31222,10 +28604,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-settings.ts:44"
-          ]
+          }
         },
         {
           id: "backend--settings--get-workflow-company-setting-settings",
@@ -31298,11 +28677,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-settings.ts:23",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:70"
-          ]
+          }
         },
         {
           id: "backend--settings--put-workflow-company-setting-settings",
@@ -31375,10 +28750,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-settings.ts:28"
-          ]
+          }
         },
         {
           id: "workflow-service--find-all",
@@ -31414,11 +28786,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:17",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:45"
-          ]
+          }
         },
         {
           id: "workflow-service--copy-workflow",
@@ -31465,15 +28833,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/WorkflowService.ts:596",
-            "services/BaseService.ts:36",
-            "workflows/00-overview/10-caveats.md:139",
-            "workflows/10-anatomy/04-workflow-anatomy.md:25",
-            "workflows/10-anatomy/04-workflow-anatomy.md:432",
-            "workflows/10-anatomy/05-build-flow.md:22"
-          ]
+          }
         },
         {
           id: "workflow-service--update-auto-save",
@@ -31517,17 +28877,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:42",
-            "workflows/10-anatomy/04-workflow-anatomy.md:433",
-            "workflows/10-anatomy/05-build-flow.md:23",
-            "workflows/00-overview/10-caveats.md:140",
-            "workflows/10-anatomy/04-workflow-anatomy.md:25",
-            "workflows/10-anatomy/04-workflow-anatomy.md:420",
-            "workflows/10-anatomy/04-workflow-anatomy.md:489",
-            "workflows/20-api/version-history.md:122"
-          ]
+          }
         },
         {
           id: "workflow-service--restore",
@@ -31570,11 +28920,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:58",
-            "workflows/20-api/03-endpoints.md:175"
-          ]
+          }
         },
         {
           id: "workflow-service--delete",
@@ -31624,12 +28970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:54",
-            "workflows/20-api/03-endpoints.md:169",
-            "workflows/20-api/03-endpoints.md:387"
-          ]
+          }
         },
         {
           id: "workflow-service--find-by-id",
@@ -31709,17 +29050,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:30",
-            "workflows/10-anatomy/advanced-canvas.md:36",
-            "workflows/20-api/03-endpoints.md:191",
-            "workflows/20-api/trash-and-restore.md:24",
-            "workflows/40-rules/publish-gate.md:141",
-            "workflows/40-rules/settings-semantics.md:167",
-            "workflows/00-overview/10-caveats.md:138",
-            "workflows/10-anatomy/04-workflow-anatomy.md:40"
-          ]
+          }
         },
         {
           id: "workflow-service--update",
@@ -31768,17 +29099,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:46",
-            "workflows/10-anatomy/04-workflow-anatomy.md:435",
-            "workflows/10-anatomy/05-build-flow.md:25",
-            "workflows/00-overview/10-caveats.md:141",
-            "workflows/10-anatomy/04-workflow-anatomy.md:25",
-            "workflows/10-anatomy/04-workflow-anatomy.md:421",
-            "workflows/10-anatomy/04-workflow-anatomy.md:571",
-            "workflows/10-anatomy/06-fields-glossary.md:133"
-          ]
+          }
         },
         {
           id: "backend--commit-auto-saved-changes-via-axios",
@@ -31847,11 +29168,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "states/workflow.ts:357",
-            "workflows/20-api/version-history.md:122"
-          ]
+          }
         },
         {
           id: "workflow-service--copy-to-sub-account",
@@ -31899,11 +29216,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             query: "none-observed",
             body: "primitive",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:575",
-            "workflows/20-api/copy-to-sub-account.md:17"
-          ]
+          }
         },
         {
           id: "backend--download-file",
@@ -31955,11 +29268,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "states/app.ts:686",
-            "workflows/20-api/uploads-and-dynamic-sources.md:22"
-          ]
+          }
         },
         {
           id: "workflow-service--get-all-versions",
@@ -32002,11 +29311,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:514",
-            "workflows/20-api/version-history.md:20"
-          ]
+          }
         },
         {
           id: "workflow-service--get-version-by-number-and-workflow-id",
@@ -32051,13 +29356,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:555",
-            "workflows/20-api/version-history.md:18",
-            "workflows/20-api/version-history.md:102",
-            "workflows/50-runtime/11-runtime-logs.md:231"
-          ]
+          }
         },
         {
           id: "workflow-service--get-version-by-id-and-workflow-id",
@@ -32100,11 +29399,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:543",
-            "workflows/20-api/version-history.md:19"
-          ]
+          }
         },
         {
           id: "workflow-service--get-history-v2",
@@ -32147,11 +29442,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:529",
-            "workflows/20-api/version-history.md:17"
-          ]
+          }
         },
         {
           id: "workflow-service--get-logs-by-id",
@@ -32242,13 +29533,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:227",
-            "services/WorkflowService.ts:271",
-            "services/WorkflowService.ts:296",
-            "services/WorkflowService.ts:321"
-          ]
+          }
         },
         {
           id: "workflow-service--remove-stuck-records",
@@ -32300,13 +29585,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:421",
-            "services/WorkflowService.ts:445",
-            "components/workflow-grid/services/index.ts:304",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:22"
-          ]
+          }
         },
         {
           id: "workflow-service--requeue-selected-stuck-contacts",
@@ -32364,13 +29643,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:403",
-            "services/WorkflowService.ts:409",
-            "components/workflow-grid/services/index.ts:296",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:18"
-          ]
+          }
         },
         {
           id: "workflow-service--start-test-workflow-enrollment",
@@ -32383,7 +29656,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 (sniffs/workflows-wave1-2026-09-25/live-3BL-test-run.json). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`,
+          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 ([private capture]). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -32416,12 +29689,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "primitive",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:472",
-            "workflows/20-api/test-run.md:17",
-            "workflows/50-runtime/scheduled-pause.md:128"
-          ]
+          }
         },
         {
           id: "backend--upload-files",
@@ -32526,15 +29794,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "states/app.ts:675",
-            "hooks/use-note-image-upload.ts:49",
-            "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
-            "workflows/20-api/rich-text-editor.md:43",
-            "workflows/20-api/uploads-and-dynamic-sources.md:21",
-            "workflows/30-types/steps/voicemail.md:77"
-          ]
+          }
         },
         {
           id: "backend--validate-workflows",
@@ -32610,12 +29870,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-validation-service.ts:29",
-            "workflows/20-api/live-validation.md:18",
-            "workflows/40-rules/server-side-validation.md:18"
-          ]
+          }
         },
         {
           id: "workflow-service--resume-workflow-execution-manually",
@@ -32664,11 +29919,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:381",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:30"
-          ]
+          }
         },
         {
           id: "workflow-service--stop-workflow-execution-manually",
@@ -32717,11 +29968,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:369",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:32"
-          ]
+          }
         },
         {
           id: "workflow-service--get-ad-words",
@@ -32754,10 +30001,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:717"
-          ]
+          }
         },
         {
           id: "aiassistant-service--send-messages",
@@ -32807,10 +30051,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/service/index.ts:14"
-          ]
+          }
         },
         {
           id: "custom-code-aiservice--send-custom-code-request",
@@ -32882,10 +30123,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/service/custom-code-ai.ts:23"
-          ]
+          }
         },
         {
           id: "email-ai-service--send-email-request",
@@ -32954,10 +30192,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/service/email-ai.ts:18"
-          ]
+          }
         },
         {
           id: "aifeedback-service--send-feedback",
@@ -33010,11 +30245,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/service/feedback.ts:14",
-            "workflows/20-api/workflow-ai.md:112"
-          ]
+          }
         },
         {
           id: "smsai-service--send-smsrequest",
@@ -33080,10 +30311,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/service/sms-ai.ts:14"
-          ]
+          }
         },
         {
           id: "auto-save-settings-service--get-auto-save-settings",
@@ -33120,14 +30348,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/AutoSaveSettingsService.ts:27",
-            "workflows/20-api/03-endpoints.md:306",
-            "workflows/20-api/version-history.md:73",
-            "workflows/40-rules/settings-semantics.md:218",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:68"
-          ]
+          }
         },
         {
           id: "auto-save-settings-service--update-auto-save-settings",
@@ -33160,12 +30381,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/AutoSaveSettingsService.ts:37",
-            "workflows/20-api/version-history.md:122",
-            "workflows/40-rules/settings-semantics.md:220"
-          ]
+          }
         },
         {
           id: "workflow-service--bulk-update-status",
@@ -33201,14 +30417,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:630",
-            "platform/20-api/snapshots-authoring.md:278",
-            "platform/40-rules/snapshot-carry-matrix.md:108",
-            "workflows/40-rules/publish-gate.md:48",
-            "workflows/40-rules/publish-gate.md:65"
-          ]
+          }
         },
         {
           id: "workflow-service--update-status",
@@ -33250,12 +30459,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:623",
-            "platform/20-api/snapshots-authoring.md:277",
-            "workflows/40-rules/publish-gate.md:47"
-          ]
+          }
         },
         {
           id: "backend--statuses-v2",
@@ -33314,12 +30518,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/contact-service.ts:59",
-            "workflows/20-api/workflow-maps.md:52",
-            "workflows/20-api/workflow-maps.md:89"
-          ]
+          }
         },
         {
           id: "workflow-service--bulk-delete",
@@ -33376,13 +30575,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:680",
-            "workflows/20-api/03-endpoints.md:171",
-            "workflows/20-api/03-endpoints.md:387",
-            "workflows/20-api/trash-and-restore.md:18"
-          ]
+          }
         },
         {
           id: "backend--directory",
@@ -33425,11 +30618,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:135",
-            "workflows/20-api/workflow-maps.md:79"
-          ]
+          }
         },
         {
           id: "workflow-service--create-folder",
@@ -33463,12 +30652,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:152",
-            "workflows/20-api/03-endpoints.md:388",
-            "workflows/20-api/03-endpoints.md:390"
-          ]
+          }
         },
         {
           id: "drip-schedule-service--get-contacts",
@@ -33533,12 +30717,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/DripScheduleService.ts:28",
-            "components/workflow-grid/services/index.ts:217",
-            "workflows/30-types/steps/drip.md:101"
-          ]
+          }
         },
         {
           id: "drip-schedule-service--get-step-stats",
@@ -33590,12 +30769,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/DripScheduleService.ts:23",
-            "components/workflow-grid/services/index.ts:205",
-            "workflows/30-types/steps/drip.md:97"
-          ]
+          }
         },
         {
           id: "drip-schedule-service--get-preview",
@@ -33639,11 +30813,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "erased"
-          },
-          sources: [
-            "services/DripScheduleService.ts:18",
-            "workflows/30-types/steps/drip.md:104"
-          ]
+          }
         },
         {
           id: "workflow-service--get-eliza-users",
@@ -33680,10 +30850,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:639"
-          ]
+          }
         },
         {
           id: "backend--domain-selection",
@@ -33980,13 +31147,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/domain-selection.service.ts:57",
-            "workflows/20-api/sender-domain.md:16",
-            "workflows/20-api/sender-domain.md:71",
-            "workflows/40-rules/validation-gate.md:95"
-          ]
+          }
         },
         {
           id: "backend--manage",
@@ -34073,11 +31234,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/domain-selection.service.ts:74",
-            "workflows/20-api/sender-domain.md:17"
-          ]
+          }
         },
         {
           id: "backend--location-email-provider",
@@ -34117,14 +31274,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/workflow-overview.service.ts:260",
-            "conversations/20-api/email-sending-domains.md:44",
-            "conversations/20-api/email-sending-domains.md:190",
-            "workflows/20-api/03-endpoints.md:307",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:71"
-          ]
+          }
         },
         {
           id: "email-service--send-test-email",
@@ -34210,10 +31360,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/EmailService.ts:132"
-          ]
+          }
         },
         {
           id: "backend--validate-from-email",
@@ -34297,11 +31444,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/domain-selection.service.ts:151",
-            "workflows/20-api/sender-domain.md:18"
-          ]
+          }
         },
         {
           id: "backend--error-notification",
@@ -34337,12 +31480,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:162",
-            "services/ErrorNotificationService.ts:63",
-            "workflows/50-runtime/error-notifications.md:37"
-          ]
+          }
         },
         {
           id: "error-notification-service--get-workflow-error-notification-doc",
@@ -34382,12 +31520,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ErrorNotificationService.ts:54",
-            "workflows/50-runtime/error-notifications.md:36",
-            "workflows/50-runtime/error-notifications.md:65"
-          ]
+          }
         },
         {
           id: "error-notification-service--get-error-workflows-count",
@@ -34424,15 +31557,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ErrorNotificationService.ts:33",
-            "_shared/unexplored-surfaces.md:96",
-            "workflows/20-api/03-endpoints.md:308",
-            "workflows/50-runtime/error-notifications.md:34",
-            "workflows/50-runtime/error-notifications.md:47",
-            "workflows/50-runtime/error-notifications.md:49"
-          ]
+          }
         },
         {
           id: "backend--list",
@@ -34481,15 +31606,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/workflow-overview.service.ts:166",
-            "components/workflow-grid/services/index.ts:150",
-            "services/ErrorNotificationService.ts:43",
-            "workflows/20-api/workflow-maps.md:79",
-            "workflows/20-api/workflow-maps.md:93",
-            "workflows/50-runtime/error-notifications.md:35"
-          ]
+          }
         },
         {
           id: "error-notification-service--get-location-error-notification-setting",
@@ -34527,14 +31644,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ErrorNotificationService.ts:72",
-            "workflows/20-api/error-notification-settings.md:18",
-            "workflows/40-rules/settings-semantics.md:119",
-            "workflows/50-runtime/error-notifications.md:39",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
-          ]
+          }
         },
         {
           id: "error-notification-service--update-location-error-notification-setting-is-active",
@@ -34572,13 +31682,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ErrorNotificationService.ts:81",
-            "workflows/20-api/error-notification-settings.md:27",
-            "workflows/50-runtime/error-notifications.md:40",
-            "workflows/70-research/RUNTIME-DATA-2.md:91"
-          ]
+          }
         },
         {
           id: "error-notification-service--update-location-error-notification-setting-users",
@@ -34616,13 +31720,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ErrorNotificationService.ts:90",
-            "workflows/20-api/error-notification-settings.md:26",
-            "workflows/50-runtime/error-notifications.md:41",
-            "workflows/70-research/RUNTIME-DATA-2.md:91"
-          ]
+          }
         },
         {
           id: "workflows--workflow-folder",
@@ -34655,10 +31753,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/03-endpoints.md:390"
-          ]
+          }
         },
         {
           id: "backend--grid-layout",
@@ -34694,11 +31789,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "primitive"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:324",
-            "workflows/20-api/workflow-maps.md:94"
-          ]
+          }
         },
         {
           id: "backend--grid-layout--put-location-id-grid-layout",
@@ -34738,12 +31829,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "primitive"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:347",
-            "workflows/20-api/workflow-maps.md:80",
-            "workflows/20-api/workflow-maps.md:95"
-          ]
+          }
         },
         {
           id: "template-builder-service--list-template-groups",
@@ -34799,11 +31885,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "components/hotlink-template-builder/services/template-builder-service.ts:34",
-            "workflows/20-api/hotlink-template-groups.md:28"
-          ]
+          }
         },
         {
           id: "template-builder-service--create-template-group",
@@ -34881,10 +31963,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "components/hotlink-template-builder/services/template-builder-service.ts:19"
-          ]
+          }
         },
         {
           id: "template-builder-service--delete-template-group",
@@ -34930,10 +32009,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "components/hotlink-template-builder/services/template-builder-service.ts:24"
-          ]
+          }
         },
         {
           id: "template-builder-service--update-template-group",
@@ -35014,10 +32090,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "components/hotlink-template-builder/services/template-builder-service.ts:29"
-          ]
+          }
         },
         {
           id: "template-builder-service--create-template",
@@ -35158,10 +32231,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "components/hotlink-template-builder/services/template-builder-service.ts:41"
-          ]
+          }
         },
         {
           id: "template-builder-service--delete-template",
@@ -35210,10 +32280,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "components/hotlink-template-builder/services/template-builder-service.ts:46"
-          ]
+          }
         },
         {
           id: "template-builder-service--update-template",
@@ -35357,10 +32424,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "components/hotlink-template-builder/services/template-builder-service.ts:51"
-          ]
+          }
         },
         {
           id: "workflows--instagram-connected-accounts",
@@ -35399,10 +32463,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:171"
-          ]
+          }
         },
         {
           id: "workflow-service--get-folders-and-workflows",
@@ -35509,15 +32570,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:79",
-            "services/WorkflowService.ts:120",
-            "services/api/workflow-overview.service.ts:203",
-            "services/ScheduledPauseService.ts:52",
-            "workflows/00-overview/10-caveats.md:77",
-            "workflows/00-overview/10-caveats.md:137"
-          ]
+          }
         },
         {
           id: "workflow-service--bulk-move",
@@ -35552,12 +32605,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:666",
-            "workflows/20-api/03-endpoints.md:388",
-            "workflows/20-api/trash-and-restore.md:51"
-          ]
+          }
         },
         {
           id: "backend--move-workflow-directory-item",
@@ -35604,12 +32652,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "primitive"
-          },
-          sources: [
-            "services/api/workflow-directory-service.ts:18",
-            "workflows/20-api/03-endpoints.md:388",
-            "services/WorkflowService.ts:204"
-          ]
+          }
         },
         {
           id: "workflow-service--update-only-triggers",
@@ -35653,14 +32696,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:50",
-            "workflows/10-anatomy/04-workflow-anatomy.md:31",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:236",
-            "workflows/40-rules/09-gotchas.md:225",
-            "workflows/70-research/2026-08-26-flow-bot-probe.md:171"
-          ]
+          }
         },
         {
           id: "workflow-service--update-permission",
@@ -35699,12 +32735,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:213",
-            "workflows/10-anatomy/builder-automation-surface.md:117",
-            "workflows/20-api/03-endpoints.md:389"
-          ]
+          }
         },
         {
           id: "workflow-service--bulk-update-directory-permissions",
@@ -35740,12 +32771,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:695",
-            "workflows/10-anatomy/builder-automation-surface.md:117",
-            "workflows/20-api/03-endpoints.md:389"
-          ]
+          }
         },
         {
           id: "filter-service--get-phone-numbers",
@@ -35778,10 +32804,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FilterService.ts:179"
-          ]
+          }
         },
         {
           id: "premium-tier-usage-service--get-premium-tier-usage",
@@ -35823,12 +32846,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/PremiumTierUsageService.ts:21",
-            "workflows/20-api/agency-premium-features.md:121",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:72"
-          ]
+          }
         },
         {
           id: "workflow-service--delete-folder",
@@ -35871,11 +32889,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:195",
-            "workflows/20-api/03-endpoints.md:388"
-          ]
+          }
         },
         {
           id: "workflow-service--rename-folder",
@@ -35916,12 +32930,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:169",
-            "services/api/workflow-directory-service.ts:9",
-            "workflows/20-api/03-endpoints.md:388"
-          ]
+          }
         },
         {
           id: "workflow-service--rename-workflow",
@@ -35961,12 +32970,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:181",
-            "services/api/workflow-directory-service.ts:13",
-            "workflows/70-research/EDIT-OPS.md:169"
-          ]
+          }
         },
         {
           id: "workflow-service--restore-workflow",
@@ -36009,12 +33013,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:655",
-            "workflows/20-api/03-endpoints.md:174",
-            "workflows/20-api/trash-and-restore.md:33"
-          ]
+          }
         },
         {
           id: "custom-webhook-service--get-sample-response",
@@ -36087,11 +33086,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CustomWebhookService.ts:44",
-            "workflows/30-types/steps/custom_webhook.md:163"
-          ]
+          }
         },
         {
           id: "scheduled-pause-service--get-scheduled-pause-settings",
@@ -36130,13 +33125,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ScheduledPauseService.ts:64",
-            "workflows/50-runtime/scheduled-pause.md:22",
-            "workflows/50-runtime/scheduled-pause.md:156",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:69"
-          ]
+          }
         },
         {
           id: "scheduled-pause-service--create-scheduled-pause-settings",
@@ -36207,11 +33196,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ScheduledPauseService.ts:74",
-            "workflows/50-runtime/scheduled-pause.md:23"
-          ]
+          }
         },
         {
           id: "scheduled-pause-service--delete-scheduled-pause-settings",
@@ -36250,11 +33235,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ScheduledPauseService.ts:102",
-            "workflows/50-runtime/scheduled-pause.md:25"
-          ]
+          }
         },
         {
           id: "scheduled-pause-service--update-scheduled-pause-settings",
@@ -36328,11 +33309,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ScheduledPauseService.ts:92",
-            "workflows/50-runtime/scheduled-pause.md:24"
-          ]
+          }
         },
         {
           id: "backend--preview",
@@ -36342,7 +33319,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See _shared/conformance/a-success-that-equals-the-null-result.md.',
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See [private corpus]',
           reach: "proven",
           coveredBy: [
             "check_workflow"
@@ -36407,11 +33384,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "hooks/api/use-scheduler-preview.ts:26",
-            "_shared/conformance/a-success-that-equals-the-null-result.md:18"
-          ]
+          }
         },
         {
           id: "secret-manager-service--list",
@@ -36465,12 +33438,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/SecretManagerService.ts:21",
-            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:510",
-            "workflows/30-types/steps/custom_webhook.md:229"
-          ]
+          }
         },
         {
           id: "secret-manager-service--create",
@@ -36502,12 +33470,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/SecretManagerService.ts:29",
-            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:570",
-            "workflows/30-types/steps/custom_webhook.md:230"
-          ]
+          }
         },
         {
           id: "secret-manager-service--remove",
@@ -36546,12 +33509,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/SecretManagerService.ts:33",
-            "workflows/30-types/steps/custom_webhook.md:231",
-            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:628"
-          ]
+          }
         },
         {
           id: "sms-service--send-test-sms",
@@ -36587,10 +33545,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/SmsService.ts:20"
-          ]
+          }
         },
         {
           id: "split-service--delete-split-step-executions",
@@ -36640,10 +33595,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/SplitService.ts:65"
-          ]
+          }
         },
         {
           id: "split-service--declare-ab-test-winner",
@@ -36677,10 +33629,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/SplitService.ts:51"
-          ]
+          }
         },
         {
           id: "split-service--is-step-executed",
@@ -36731,12 +33680,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/SplitService.ts:33",
-            "workflows/10-anatomy/advanced-canvas.md:59",
-            "workflows/30-types/steps/workflow_split.md:148"
-          ]
+          }
         },
         {
           id: "split-service--get-stats",
@@ -36795,11 +33739,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/SplitService.ts:18",
-            "services/api/split-stats.ts:5"
-          ]
+          }
         },
         {
           id: "tag-service--create-tag",
@@ -36835,11 +33775,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/TagService.ts:10",
-            "workflows/10-anatomy/07-id-resolution.md:239"
-          ]
+          }
         },
         {
           id: "backend--start-test-workflow-from-event",
@@ -36913,12 +33849,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:411",
-            "services/api/test-workflow-service.ts:431",
-            "services/api/test-workflow-service.ts:453"
-          ]
+          }
         },
         {
           id: "backend--fetch-test-workflow-event-runs",
@@ -36985,10 +33916,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:703"
-          ]
+          }
         },
         {
           id: "backend--fetch-test-workflow-latest-step-result",
@@ -37070,10 +33998,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:545"
-          ]
+          }
         },
         {
           id: "backend--start-test-workflow-action-only",
@@ -37143,10 +34068,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:468"
-          ]
+          }
         },
         {
           id: "backend--fetch-test-workflow-run-progress",
@@ -37233,10 +34155,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:639"
-          ]
+          }
         },
         {
           id: "backend--preview-test-workflow-custom-vars",
@@ -37286,10 +34205,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:569"
-          ]
+          }
         },
         {
           id: "backend--fetch-test-workflow-step-events",
@@ -37351,10 +34267,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:509"
-          ]
+          }
         },
         {
           id: "backend--stop-test-workflow-run",
@@ -37419,10 +34332,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:589"
-          ]
+          }
         },
         {
           id: "trigger-service--find-all",
@@ -37478,15 +34388,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:17",
-            "services/api/trigger-service.ts:46",
-            "_shared/schema-harvest.md:72",
-            "workflows/00-overview/10-caveats.md:142",
-            "workflows/10-anatomy/04-workflow-anatomy.md:457",
-            "workflows/10-anatomy/workflow-json-schema.md:26"
-          ]
+          }
         },
         {
           id: "trigger-service--create",
@@ -37526,15 +34428,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:36",
-            "workflows/10-anatomy/04-workflow-anatomy.md:434",
-            "workflows/10-anatomy/04-workflow-anatomy.md:571",
-            "workflows/10-anatomy/05-build-flow.md:24",
-            "workflows/10-anatomy/advanced-canvas.md:52",
-            "workflows/20-api/trigger-create.md:11"
-          ]
+          }
         },
         {
           id: "trigger-service--delete",
@@ -37579,10 +34473,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:54"
-          ]
+          }
         },
         {
           id: "trigger-service--find-by-id",
@@ -37618,11 +34509,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:30",
-            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:40"
-          ]
+          }
         },
         {
           id: "trigger-service--update",
@@ -37664,15 +34551,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:46",
-            "workflows/10-anatomy/advanced-canvas.md:38",
-            "workflows/20-api/workflow-ai.md:92",
-            "workflows/20-api/workflow-ai.md:114",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:236",
-            "workflows/50-runtime/flow-bot-four-node-certification.md:58"
-          ]
+          }
         },
         {
           id: "trigger-service--update-auto-save",
@@ -37712,11 +34591,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:42",
-            "workflows/70-research/2026-08-26-flow-bot-probe.md:192"
-          ]
+          }
         },
         {
           id: "trigger-service--restore",
@@ -37756,10 +34631,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:58"
-          ]
+          }
         },
         {
           id: "trigger-service--update-only-triggers",
@@ -37799,10 +34671,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:50"
-          ]
+          }
         },
         {
           id: "backend--set-temporary-trigger-active",
@@ -37867,10 +34736,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:769"
-          ]
+          }
         },
         {
           id: "backend--update-workflow-note",
@@ -37927,13 +34793,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:376",
-            "workflows/20-api/workflow-maps.md:88",
-            "workflows/10-anatomy/06-fields-glossary.md:137",
-            "workflows/20-api/workflow-maps.md:42"
-          ]
+          }
         },
         {
           id: "aiassistant-service-v2--send-messages-v2",
@@ -37982,10 +34842,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/service/assistant-v2.ts:53"
-          ]
+          }
         },
         {
           id: "backend--setup--post-ai-build-sub-tree",
@@ -38034,10 +34891,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "components/workflow-canvas/WorkflowAI.vue:135"
-          ]
+          }
         },
         {
           id: "aibuilder-service--build-workflow",
@@ -38090,10 +34944,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/service/ai-builder.ts:15"
-          ]
+          }
         },
         {
           id: "backend--handle-request",
@@ -38129,10 +34980,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/helpers/learn-ai/index.ts:57"
-          ]
+          }
         },
         {
           id: "aiassistant-service-v2--transcribe-audio",
@@ -38247,11 +35095,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/service/assistant-v2.ts:114",
-            "workflows/20-api/workflow-ai.md:98"
-          ]
+          }
         },
         {
           id: "workflows--ai-build-workflow",
@@ -38283,10 +35127,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/workflow-ai.md:84"
-          ]
+          }
         },
         {
           id: "workflows--ai-message",
@@ -38321,10 +35162,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/workflow-ai.md:28"
-          ]
+          }
         },
         {
           id: "backend--send",
@@ -38370,10 +35208,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "workflow-ai/v3/hooks/use-wait-ai.ts:252"
-          ]
+          }
         },
         {
           id: "backend--validate-assets",
@@ -38447,13 +35282,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/email.md:177",
-            "workflows/30-types/steps/if_else.md:31",
-            "workflows/40-rules/server-side-validation.md:246"
-          ]
+          }
         },
         {
           id: "workflow-aisettings-service--get-settings",
@@ -38490,12 +35319,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowAISettingsService.ts:19",
-            "workflows/20-api/03-endpoints.md:305",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:67"
-          ]
+          }
         },
         {
           id: "workflow-aisettings-service--update-settings",
@@ -38528,11 +35352,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowAISettingsService.ts:37",
-            "workflows/40-rules/settings-semantics.md:240"
-          ]
+          }
         },
         {
           id: "backend--settings",
@@ -38604,13 +35424,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-settings.ts:13",
-            "services/api/workflow-settings.ts:57",
-            "workflows/20-api/03-endpoints.md:304",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:66"
-          ]
+          }
         },
         {
           id: "backend--settings--put-workflow-location-setting-settings",
@@ -38678,11 +35492,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-settings.ts:18",
-            "workflows/40-rules/settings-semantics.md:239"
-          ]
+          }
         },
         {
           id: "workflow-service--get-all-templates",
@@ -38719,12 +35529,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:565",
-            "workflows/20-api/templates-and-recipes.md:19",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:73"
-          ]
+          }
         },
         {
           id: "agent-trace-service--submit-feedback",
@@ -38826,10 +35631,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/AgentTraceService.ts:427"
-          ]
+          }
         },
         {
           id: "agent-trace-service--get-feedback",
@@ -38889,10 +35691,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/AgentTraceService.ts:457"
-          ]
+          }
         },
         {
           id: "mcp-connection-service--list",
@@ -38944,10 +35743,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/McpConnectionService.ts:85"
-          ]
+          }
         },
         {
           id: "mcp-connection-service--create",
@@ -39063,10 +35859,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/McpConnectionService.ts:94"
-          ]
+          }
         },
         {
           id: "mcp-connection-service--remove",
@@ -39105,10 +35898,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/McpConnectionService.ts:120"
-          ]
+          }
         },
         {
           id: "mcp-connection-service--update",
@@ -39227,10 +36017,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/McpConnectionService.ts:103"
-          ]
+          }
         },
         {
           id: "mcp-connection-service--list-oauth2-tokens",
@@ -39282,10 +36069,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/McpConnectionService.ts:141"
-          ]
+          }
         },
         {
           id: "mcp-connection-service--test-connection",
@@ -39406,10 +36190,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/McpConnectionService.ts:125"
-          ]
+          }
         },
         {
           id: "agent-trace-service--get-models",
@@ -39471,10 +36252,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/AgentTraceService.ts:483"
-          ]
+          }
         },
         {
           id: "backend--list-shared-agents",
@@ -39526,10 +36304,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/shared-agent-service.ts:90"
-          ]
+          }
         },
         {
           id: "backend--create-shared-agent",
@@ -39585,10 +36360,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/shared-agent-service.ts:101"
-          ]
+          }
         },
         {
           id: "backend--delete-shared-agent",
@@ -39643,10 +36415,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/shared-agent-service.ts:129"
-          ]
+          }
         },
         {
           id: "backend--get-shared-agent",
@@ -39701,10 +36470,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/shared-agent-service.ts:141"
-          ]
+          }
         },
         {
           id: "backend--update-shared-agent",
@@ -39763,10 +36529,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/shared-agent-service.ts:116"
-          ]
+          }
         },
         {
           id: "backend--list-agent-sessions",
@@ -39821,10 +36584,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/shared-agent-service.ts:158"
-          ]
+          }
         },
         {
           id: "backend--get-session-messages",
@@ -39901,10 +36661,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/shared-agent-service.ts:178"
-          ]
+          }
         },
         {
           id: "backend--list-agent-skills",
@@ -39981,11 +36738,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/agent-skill-service.ts:118",
-            "workflows/20-api/agent-skills.md:16"
-          ]
+          }
         },
         {
           id: "backend--create-agent-skill",
@@ -40045,11 +36798,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/agent-skill-service.ts:155",
-            "workflows/20-api/agent-skills.md:19"
-          ]
+          }
         },
         {
           id: "backend--delete-agent-skill",
@@ -40100,11 +36849,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/agent-skill-service.ts:195",
-            "workflows/20-api/agent-skills.md:21"
-          ]
+          }
         },
         {
           id: "backend--get-agent-skill",
@@ -40163,11 +36908,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/agent-skill-service.ts:137",
-            "workflows/20-api/agent-skills.md:18"
-          ]
+          }
         },
         {
           id: "backend--update-agent-skill",
@@ -40230,11 +36971,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/agent-skill-service.ts:177",
-            "workflows/20-api/agent-skills.md:20"
-          ]
+          }
         },
         {
           id: "backend--resolve-agent-skills",
@@ -40300,11 +37037,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/agent-skill-service.ts:96",
-            "workflows/20-api/agent-skills.md:17"
-          ]
+          }
         },
         {
           id: "agent-trace-service--get-trace",
@@ -40375,11 +37108,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/AgentTraceService.ts:367",
-            "workflows/50-runtime/11-runtime-logs.md:287"
-          ]
+          }
         },
         {
           id: "campaign-service--get-campaigns",
@@ -40425,10 +37154,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/CampaignService.ts:11"
-          ]
+          }
         },
         {
           id: "backend--test-custom-code",
@@ -40476,12 +37202,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "components/actions/premium-actions/custom-code-components/CustomCodeTest.vue:149",
-            "workflows/70-research/CUSTOM-CODE-TEST.md:54",
-            "workflows/70-research/CUSTOM-CODE-TEST.md:62"
-          ]
+          }
         },
         {
           id: "flow-guard-service--get-auth-config",
@@ -40517,13 +37238,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:86",
-            "workflows/50-runtime/flowguard-platform-guardrails.md:18",
-            "workflows/50-runtime/flowguard-platform-guardrails.md:19",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:76"
-          ]
+          }
         },
         {
           id: "flow-guard-service--remove-from-blacklist",
@@ -40569,11 +37284,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:197",
-            "workflows/70-research/ENDPOINTS.md:211"
-          ]
+          }
         },
         {
           id: "flow-guard-service--get-contact-blacklist",
@@ -40602,10 +37313,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:119"
-          ]
+          }
         },
         {
           id: "flow-guard-service--add-contact-to-blacklist",
@@ -40638,10 +37346,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:160"
-          ]
+          }
         },
         {
           id: "flow-guard-service--get-step-blacklist",
@@ -40670,10 +37375,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:129"
-          ]
+          }
         },
         {
           id: "flow-guard-service--add-step-to-blacklist",
@@ -40706,10 +37408,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:176"
-          ]
+          }
         },
         {
           id: "flow-guard-service--get-workflow-blacklist",
@@ -40738,10 +37437,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:109"
-          ]
+          }
         },
         {
           id: "flow-guard-service--add-workflow-to-blacklist",
@@ -40774,10 +37470,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:144"
-          ]
+          }
         },
         {
           id: "flow-guard-service--add-loop-lock",
@@ -40810,10 +37503,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:272"
-          ]
+          }
         },
         {
           id: "flow-guard-service--get-rate-limit-bypass-info",
@@ -40842,10 +37532,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:208"
-          ]
+          }
         },
         {
           id: "flow-guard-service--create-rate-limit-bypass",
@@ -40878,10 +37565,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:230"
-          ]
+          }
         },
         {
           id: "flow-guard-service--delete-rate-limit-bypass",
@@ -40924,10 +37608,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:255"
-          ]
+          }
         },
         {
           id: "flow-guard-service--get-workflow-details",
@@ -40960,10 +37641,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FlowGuardService.ts:290"
-          ]
+          }
         },
         {
           id: "brand-kit--get-brand-boards",
@@ -40999,11 +37677,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "brand-kit/_data/endpoints.json",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-          ]
+          }
         },
         {
           id: "backend--fetch-brand-board-by-id",
@@ -41068,10 +37742,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/brand-boards-service.ts:107"
-          ]
+          }
         },
         {
           id: "brand-kit--get-brand-voices",
@@ -41107,12 +37778,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "brand-kit/_data/endpoints.json",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
-            "brand-kit/20-api/brand-voices.md:27"
-          ]
+          }
         },
         {
           id: "backend--fetch-brand-voice-by-id",
@@ -41172,10 +37838,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/brand-boards-service.ts:117"
-          ]
+          }
         },
         {
           id: "brand-kit--post-prompt-enhance",
@@ -41212,13 +37875,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/_data/endpoints.json",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
-            "brand-kit/20-api/brand-voices.md:84",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:33"
-          ]
+          }
         },
         {
           id: "ivrservice--get-numbers-mapping",
@@ -41247,10 +37904,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/IVRService.ts:25"
-          ]
+          }
         },
         {
           id: "custom-webhook-service--delete-token",
@@ -41293,10 +37947,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CustomWebhookService.ts:131"
-          ]
+          }
         },
         {
           id: "custom-webhook-service--delete-token-by-state",
@@ -41339,10 +37990,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CustomWebhookService.ts:83"
-          ]
+          }
         },
         {
           id: "custom-webhook-service--get-all-tokens",
@@ -41379,12 +38027,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CustomWebhookService.ts:99",
-            "workflows/10-anatomy/07-id-resolution.md:207",
-            "workflows/20-api/03-endpoints.md:309"
-          ]
+          }
         },
         {
           id: "custom-webhook-service--ping-to-get-token",
@@ -41427,11 +38070,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CustomWebhookService.ts:114",
-            "workflows/30-types/steps/custom_webhook.md:238"
-          ]
+          }
         },
         {
           id: "custom-webhook-service--refresh-token",
@@ -41459,10 +38098,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CustomWebhookService.ts:147"
-          ]
+          }
         },
         {
           id: "custom-webhook-service--save-token",
@@ -41586,10 +38222,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CustomWebhookService.ts:52"
-          ]
+          }
         },
         {
           id: "custom-webhook-service--update-token",
@@ -41713,10 +38346,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CustomWebhookService.ts:67"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-dynamic-source-options",
@@ -41808,10 +38438,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:289"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--get-action-branches-fields",
@@ -41865,11 +38492,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "primitive",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:181",
-            "workflows/70-research/ENDPOINTS.md:235"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--get-custom-input-field-data",
@@ -41914,11 +38537,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:658",
-            "workflows/70-research/ENDPOINTS.md:238"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-action-dynamic-source-details",
@@ -41972,10 +38591,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:603"
-          ]
+          }
         },
         {
           id: "workflows--actions-dynamic-source",
@@ -42021,11 +38637,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/uploads-and-dynamic-sources.md:36",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:82"
-          ]
+          }
         },
         {
           id: "workflows--dynamic-source-internal-comment-action",
@@ -42060,10 +38672,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/uploads-and-dynamic-sources.md:52"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-action-input-all-options",
@@ -42128,13 +38737,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:220",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:81",
-            "workflows/30-types/steps/conversationai_services_booking.md:61",
-            "workflows/50-runtime/flow-bot-four-node-certification.md:27"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-action-input-list-options",
@@ -42197,10 +38800,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:204"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--get-action-dynamic-fields",
@@ -42257,14 +38857,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "primitive",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:165",
-            "workflows/70-research/ENDPOINTS.md:234",
-            "workflows/30-types/steps-marketplace/agent-studio.md:33",
-            "workflows/30-types/steps-marketplace/communities.md:157",
-            "workflows/30-types/steps-marketplace/communities.md:161"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--get-action-by-key",
@@ -42309,10 +38902,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:148"
-          ]
+          }
         },
         {
           id: "ai-agents--invoke-managed-agents-dynamic-fields",
@@ -42340,10 +38930,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/managed-agent-workflow-invocation.md:65"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--get-action-stats",
@@ -42357,7 +38944,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           summary: "Execution stats for one marketplace/premium action step over a window.",
-          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge sniffs/reached-2026-09-23.',
+          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge [private capture]',
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -42415,12 +39002,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:331",
-            "workflows/70-research/VERSIONS-STATS-LOGS.md:305",
-            "services/api/marketplace-stats-service.ts:7"
-          ]
+          }
         },
         {
           id: "iatf-file-upload-service--verify",
@@ -42467,10 +39049,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/IatfFileUploadService.ts:244"
-          ]
+          }
         },
         {
           id: "iatf-file-upload-service--create-upload-session",
@@ -42547,10 +39126,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/IatfFileUploadService.ts:86"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-integration-apps",
@@ -42596,14 +39172,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:686",
-            "services/McpConnectionService.ts:154",
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:404",
-            "workflows/20-api/03-endpoints.md:354",
-            "workflows/70-research/ENDPOINTS.md:242"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--reset-integration-token",
@@ -42651,10 +39220,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:674"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--initiate-oauth-authorization",
@@ -42713,10 +39279,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:506"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-integration-oauth-token",
@@ -42779,10 +39342,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:440"
-          ]
+          }
         },
         {
           id: "backend--fetch-drives",
@@ -42792,7 +39352,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -42845,10 +39405,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/google-sheets-workflows-service.ts:54"
-          ]
+          }
         },
         {
           id: "backend--fetch-spreadsheets",
@@ -42858,7 +39415,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -42923,10 +39480,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/google-sheets-workflows-service.ts:73"
-          ]
+          }
         },
         {
           id: "backend--fetch-sheets",
@@ -42981,10 +39535,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/google-sheets-workflows-service.ts:90"
-          ]
+          }
         },
         {
           id: "backend--fetch-sheet-headers",
@@ -43042,10 +39593,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/google-sheets-workflows-service.ts:111"
-          ]
+          }
         },
         {
           id: "backend--fetch-slack-integrations",
@@ -43094,10 +39642,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-workflows-service.ts:90"
-          ]
+          }
         },
         {
           id: "slack-service--get-slack-oauth-start-url",
@@ -43143,10 +39688,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/SlackService.ts:32"
-          ]
+          }
         },
         {
           id: "backend--fetch-slack-private-channels",
@@ -43156,7 +39698,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -43209,10 +39751,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-workflows-service.ts:120"
-          ]
+          }
         },
         {
           id: "backend--fetch-slack-public-channels",
@@ -43222,7 +39761,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -43275,10 +39814,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-workflows-service.ts:103"
-          ]
+          }
         },
         {
           id: "backend--fetch-slack-users",
@@ -43288,7 +39824,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -43341,10 +39877,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-workflows-service.ts:133"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--test-action",
@@ -43414,10 +39947,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:415"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--deregister-test-webhook",
@@ -43486,10 +40016,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:370"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-webhook-status",
@@ -43553,10 +40080,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:641"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--register-test-polling",
@@ -43627,10 +40151,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:360"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--register-test-webhook",
@@ -43701,10 +40222,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:345"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--test-trigger",
@@ -43775,10 +40293,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:387"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--get-actions-and-triggers",
@@ -43829,15 +40344,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:134",
-            "_shared/bundle-locations.md:195",
-            "marketplace-apps/10-anatomy/marketplace-rail.md:45",
-            "marketplace-apps/10-anatomy/marketplace-rail.md:236",
-            "workflows/10-anatomy/07-id-resolution.md:206",
-            "workflows/30-types/steps/edit_conversation.md:18"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-trigger-dynamic-source-details",
@@ -43891,10 +40398,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:631"
-          ]
+          }
         },
         {
           id: "workflows--triggers-dynamic-source-post",
@@ -43934,10 +40438,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/uploads-and-dynamic-sources.md:37"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--fetch-trigger-filter-list-options",
@@ -43989,11 +40490,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:304",
-            "workflows/70-research/ENDPOINTS.md:92"
-          ]
+          }
         },
         {
           id: "backend--document-created-by-template-id",
@@ -44048,10 +40545,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/document-template-service.ts:17"
-          ]
+          }
         },
         {
           id: "workflows-marketplace-platform-service--get-trigger-dynamic-fields",
@@ -44105,11 +40599,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "primitive",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:322",
-            "workflows/70-research/ENDPOINTS.md:91"
-          ]
+          }
         },
         {
           id: "workflows--ai-studio-form-submitted-dynamic-fields",
@@ -44137,10 +40627,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/triggers-marketplace/ai_studio_form_submitted.md:33"
-          ]
+          }
         },
         {
           id: "workflows--workflows",
@@ -44173,11 +40660,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps/add_to_workflow.md:66",
-            "workflows/60-recipes/recipes/cross-workflow-handoff.md:170"
-          ]
+          }
         },
         {
           id: "workflow-copy-logs-service--get-detail-logs-list",
@@ -44187,7 +40670,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge [private capture]",
           reach: "proven",
           coveredBy: [
             "copy_workflow_to_location"
@@ -44237,11 +40720,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowCopyLogsService.ts:20",
-            "workflows/20-api/copy-to-sub-account.md:33"
-          ]
+          }
         },
         {
           id: "workflow-copy-logs-service--get-logs-list",
@@ -44251,7 +40730,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge [private capture]",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -44296,11 +40775,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowCopyLogsService.ts:29",
-            "workflows/20-api/copy-to-sub-account.md:32"
-          ]
+          }
         },
         {
           id: "workflow-copy-logs-service--get-status-list",
@@ -44310,7 +40785,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge [private capture]",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -44351,12 +40826,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowCopyLogsService.ts:10",
-            "workflows/20-api/copy-to-sub-account.md:31",
-            "workflows/20-api/copy-to-sub-account.md:50"
-          ]
+          }
         },
         {
           id: "backend--linked-assets",
@@ -44394,12 +40864,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "erased"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:107",
-            "workflows/20-api/workflow-maps.md:21",
-            "workflows/20-api/workflow-maps.md:87"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--get-workflows-from-es",
@@ -44431,15 +40896,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:142",
-            "workflows/20-api/smart-lists.md:13",
-            "workflows/20-api/smart-lists.md:28",
-            "workflows/20-api/smart-lists.md:109",
-            "workflows/20-api/smart-lists.md:119",
-            "workflows/70-research/ENDPOINTS.md:76"
-          ]
+          }
         },
         {
           id: "backend--enrollment-counts",
@@ -44739,10 +41196,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:390"
-          ]
+          }
         },
         {
           id: "backend--create-log-export",
@@ -44782,12 +41236,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "erased"
-          },
-          sources: [
-            "services/api/log-export-service.ts:48",
-            "workflows/20-api/log-export.md:26",
-            "workflows/50-runtime/log-export.md:21"
-          ]
+          }
         },
         {
           id: "backend--get-log-export-preview",
@@ -44846,12 +41295,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/api/log-export-service.ts:32",
-            "workflows/20-api/log-export.md:25",
-            "workflows/50-runtime/log-export.md:20"
-          ]
+          }
         },
         {
           id: "backend--get-log-export-status",
@@ -44906,13 +41350,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/api/log-export-service.ts:62",
-            "workflows/20-api/log-export.md:27",
-            "workflows/50-runtime/log-export.md:3",
-            "workflows/50-runtime/log-export.md:22"
-          ]
+          }
         },
         {
           id: "backend--object-types",
@@ -44981,10 +41419,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-logs-service.ts:115"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--get-logs",
@@ -45100,15 +41535,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "open-map",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:173",
-            "services/api/workflow-logs-service.ts:46",
-            "services/api/workflow-logs-service.ts:75",
-            "workflows/50-runtime/11-runtime-logs.md:37",
-            "workflows/50-runtime/11-runtime-logs.md:126",
-            "workflows/50-runtime/11-runtime-logs.md:264"
-          ]
+          }
         },
         {
           id: "backend--weekly-enrollment-data",
@@ -45149,13 +41576,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/workflow-overview.service.ts:149",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:21",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:75",
-            "workflows/70-research/RUNTIME-DATA-2.md:96"
-          ]
+          }
         },
         {
           id: "backend--statistics",
@@ -45196,13 +41617,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/workflow-overview.service.ts:157",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:20",
-            "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:74",
-            "workflows/70-research/RUNTIME-DATA-2.md:96"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--get-enrollment-stats-single",
@@ -45248,14 +41663,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "open-map",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:245",
-            "workflows/50-runtime/11-runtime-logs.md:203",
-            "workflows/50-runtime/11-runtime-logs.md:269",
-            "workflows/70-research/RAIL.md:134",
-            "workflows/70-research/RUNTIME-DATA-2.md:70"
-          ]
+          }
         },
         {
           id: "backend--contact-executions",
@@ -45332,12 +41740,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/workflow-status-service.ts:148",
-            "workflows/20-api/workflow-maps.md:54",
-            "workflows/20-api/workflow-maps.md:90"
-          ]
+          }
         },
         {
           id: "backend--count-per-step",
@@ -45641,15 +42044,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:195",
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:189",
-            "workflows/20-api/03-endpoints.md:364",
-            "workflows/50-runtime/11-runtime-logs.md:158",
-            "workflows/50-runtime/11-runtime-logs.md:265",
-            "workflows/70-research/ENDPOINTS.md:193"
-          ]
+          }
         },
         {
           id: "backend--details-by-step",
@@ -45734,15 +42129,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:268",
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:293",
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:308",
-            "workflows/50-runtime/11-runtime-logs.md:216",
-            "workflows/50-runtime/11-runtime-logs.md:267",
-            "workflows/70-research/ENDPOINTS.md:196"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--get-enrollment-stats",
@@ -46040,14 +42427,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:211",
-            "workflows/50-runtime/11-runtime-logs.md:201",
-            "workflows/70-research/ENDPOINTS.md:194",
-            "workflows/70-research/RAIL.md:134",
-            "workflows/70-research/RUNTIME-DATA-2.md:71"
-          ]
+          }
         },
         {
           id: "backend--enroll-stats-cache",
@@ -46343,15 +42723,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "components/workflow-grid/services/index.ts:178",
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:220",
-            "workflows/20-api/03-endpoints.md:365",
-            "workflows/20-api/workflow-maps.md:74",
-            "workflows/20-api/workflow-maps.md:92",
-            "workflows/50-runtime/11-runtime-logs.md:202"
-          ]
+          }
         },
         {
           id: "workflow-marketplace-service--get-statuses",
@@ -46442,15 +42814,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "open-map",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:271",
-            "services/api/workflow-status-service.ts:118",
-            "services/api/workflow-status-service.ts:185",
-            "workflows/20-api/workflow-maps.md:62",
-            "workflows/20-api/workflow-maps.md:91",
-            "workflows/50-runtime/11-runtime-logs.md:172"
-          ]
+          }
         },
         {
           id: "backend--sticky-note--delete-workflows-sticky-note",
@@ -46500,12 +42864,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/api/sticky-notes.ts:38",
-            "workflows/20-api/03-endpoints.md:375",
-            "workflows/70-research/SETTINGS-NOTES.md:267"
-          ]
+          }
         },
         {
           id: "backend--sticky-note--get-workflows-sticky-note",
@@ -46515,7 +42874,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge [private capture]`,
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -46551,12 +42910,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/api/sticky-notes.ts:18",
-            "workflows/20-api/03-endpoints.md:373",
-            "workflows/70-research/SETTINGS-NOTES.md:264"
-          ]
+          }
         },
         {
           id: "backend--sticky-note--patch-workflows-sticky-note",
@@ -46607,12 +42961,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "erased",
             returns: "erased"
-          },
-          sources: [
-            "services/api/sticky-notes.ts:31",
-            "workflows/20-api/03-endpoints.md:374",
-            "workflows/70-research/SETTINGS-NOTES.md:266"
-          ]
+          }
         },
         {
           id: "backend--sticky-note",
@@ -46649,12 +42998,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/sticky-notes.ts:9",
-            "workflows/20-api/03-endpoints.md:372",
-            "workflows/70-research/SETTINGS-NOTES.md:263"
-          ]
+          }
         },
         {
           id: "backend--sticky-notes-all",
@@ -46706,12 +43050,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/api/sticky-notes.ts:23",
-            "workflows/20-api/03-endpoints.md:363",
-            "workflows/70-research/SETTINGS-NOTES.md:265"
-          ]
+          }
         },
         {
           id: "backend--count",
@@ -46788,13 +43127,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/workflow-overview.service.ts:142",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:22",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:79",
-            "workflows/70-research/RUNTIME-DATA-2.md:81"
-          ]
+          }
         },
         {
           id: "backend--count-by-trigger-id",
@@ -46836,12 +43169,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/trigger-stats-service.ts:15",
-            "workflows/70-research/VERSIONS-STATS-LOGS.md:301",
-            "workflows/70-research/VERSIONS-STATS-LOGS.md:401"
-          ]
+          }
         },
         {
           id: "backend--fetch-test-workflow-trigger-event-by-id",
@@ -46882,10 +43210,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:200"
-          ]
+          }
         },
         {
           id: "backend--fetch-test-workflow-events",
@@ -46913,10 +43238,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/test-workflow-service.ts:183"
-          ]
+          }
         },
         {
           id: "backend--top-failed-reasons",
@@ -46954,12 +43276,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/trigger-stats-service.ts:25",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:93",
-            "workflows/70-research/VERSIONS-STATS-LOGS.md:435"
-          ]
+          }
         },
         {
           id: "backend--trigger-id",
@@ -46997,12 +43314,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/api/trigger-stats-service.ts:20",
-            "workflows/50-runtime/overview-and-trigger-analysis.md:92",
-            "workflows/70-research/VERSIONS-STATS-LOGS.md:416"
-          ]
+          }
         },
         {
           id: "filter-service--fetch-data",
@@ -47034,11 +43346,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/FilterService.ts:111",
-            "services/FilterService.ts:162"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-deployment-outbound-configs",
@@ -47083,10 +43391,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:42"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-deployment-outbound-configs-post",
@@ -47116,10 +43421,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:63"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-deployment-outbound-configs-patch",
@@ -47153,10 +43455,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:83"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-deployment-outbound-triggers",
@@ -47201,10 +43500,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:108"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-deployment-outbound-triggers-post",
@@ -47234,10 +43530,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:125"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-deployment-outbound-triggers-put",
@@ -47271,10 +43564,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:140"
-          ]
+          }
         },
         {
           id: "ai-agents--outbound-triggers-options",
@@ -47321,10 +43611,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:160"
-          ]
+          }
         },
         {
           id: "ai-agents--routing-config-configs",
@@ -47373,14 +43660,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:398",
-            "ai-agents/20-api/agent-deployment-routing.md:25",
-            "ai-agents/20-api/agent-deployment-routing.md:287",
-            "ai-agents/20-api/agent-deployment-routing.md:487",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:98"
-          ]
+          }
         },
         {
           id: "ai-agents--routing-config-configs-post",
@@ -47410,12 +43690,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:109",
-            "ai-agents/20-api/agent-deployment-routing.md:289",
-            "workflows/50-runtime/flow-bot-four-node-certification.md:55"
-          ]
+          }
         },
         {
           id: "ai-agents--routing-config-configs-get",
@@ -47450,12 +43725,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:288",
-            "ai-agents/20-api/agent-deployment-routing.md:79",
-            "ai-agents/20-api/agent-deployment-routing.md:486"
-          ]
+          }
         },
         {
           id: "ai-agents--routing-config-configs-patch",
@@ -47493,12 +43763,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:290",
-            "ai-agents/20-api/agent-deployment-routing.md:91",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:99"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-execution-actions",
@@ -47526,10 +43791,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/actions-and-plugins.md:23"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-execution-actions-post",
@@ -47557,12 +43819,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:203",
-            "ai-agents/20-api/actions-and-plugins.md:24",
-            "ai-agents/20-api/custom-api-and-mcp.md:123"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-execution-actions-delete",
@@ -47604,12 +43861,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:130",
-            "ai-agents/30-types/voice-ai-actions.md:87",
-            "ai-agents/30-types/voice-ai-actions.md:94"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-execution-actions-get",
@@ -47648,12 +43900,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:206",
-            "ai-agents/20-api/actions-and-plugins.md:25",
-            "ai-agents/20-api/actions-and-plugins.md:61"
-          ]
+          }
         },
         {
           id: "ai-agents--actions-safe-template",
@@ -47692,11 +43939,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/actions-and-plugins.md:27",
-            "ai-agents/20-api/actions-and-plugins.md:61"
-          ]
+          }
         },
         {
           id: "ai-agents--actions-custom-api-test-webhook",
@@ -47724,10 +43967,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:68"
-          ]
+          }
         },
         {
           id: "ai-agents--actions-spec",
@@ -47768,10 +44008,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/actions-and-plugins.md:26"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-contacts",
@@ -47810,12 +44047,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:206",
-            "ai-agents/20-api/agent-logs.md:265",
-            "ai-agents/20-api/agent-logs.md:334"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-contacts-get",
@@ -47847,10 +44079,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:148"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-feedback",
@@ -47878,11 +44107,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:30",
-            "ai-agents/20-api/agent-logs.md:106"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-feedback-post",
@@ -47911,11 +44136,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:31",
-            "ai-agents/20-api/agent-logs.md:93"
-          ]
+          }
         },
         {
           id: "ai-agents--feedback-config",
@@ -47951,11 +44172,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:30",
-            "ai-agents/20-api/agent-logs.md:84"
-          ]
+          }
         },
         {
           id: "ai-agents--feedback-context",
@@ -47983,10 +44200,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:31"
-          ]
+          }
         },
         {
           id: "ai-agents--feedback-states",
@@ -48016,11 +44230,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:31",
-            "ai-agents/20-api/agent-logs.md:108"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-filter-values",
@@ -48052,11 +44262,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:208",
-            "ai-agents/20-api/agent-logs.md:317"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-health",
@@ -48089,10 +44295,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:215"
-          ]
+          }
         },
         {
           id: "ai-agents--interactions-trial-post",
@@ -48120,10 +44323,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:497"
-          ]
+          }
         },
         {
           id: "ai-agents--chunk-content-put",
@@ -48151,10 +44351,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:514"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-logs",
@@ -48193,14 +44390,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:140",
-            "ai-agents/20-api/agent-logs.md:149",
-            "ai-agents/20-api/agent-logs.md:187",
-            "ai-agents/20-api/agent-logs.md:205",
-            "ai-agents/20-api/agent-logs.md:225"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-logs-delete",
@@ -48241,11 +44431,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:67",
-            "ai-agents/20-api/agent-logs.md:216"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-logs-get",
@@ -48286,12 +44472,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:209",
-            "ai-agents/20-api/agent-logs.md:448",
-            "ai-agents/20-api/agent-logs.md:449"
-          ]
+          }
         },
         {
           id: "ai-agents--logs-interactions",
@@ -48335,12 +44516,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:211",
-            "ai-agents/20-api/agent-logs.md:455",
-            "ai-agents/20-api/agent-logs.md:484"
-          ]
+          }
         },
         {
           id: "ai-agents--logs-metrics",
@@ -48383,11 +44559,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:213",
-            "ai-agents/20-api/agent-logs.md:485"
-          ]
+          }
         },
         {
           id: "ai-agents--logs-summary",
@@ -48430,12 +44602,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:210",
-            "ai-agents/20-api/agent-logs.md:451",
-            "ai-agents/20-api/agent-logs.md:482"
-          ]
+          }
         },
         {
           id: "ai-agents--logs-spans",
@@ -48484,12 +44651,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:212",
-            "ai-agents/20-api/agent-logs.md:375",
-            "ai-agents/20-api/agent-logs.md:483"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-metrics",
@@ -48528,12 +44690,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:82",
-            "ai-agents/20-api/agent-logs.md:207",
-            "ai-agents/20-api/agent-logs.md:344"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-metrics-layouts",
@@ -48573,11 +44730,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:214",
-            "ai-agents/20-api/agent-logs.md:362"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-metrics-layouts-post",
@@ -48607,11 +44760,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:73",
-            "ai-agents/20-api/agent-logs.md:217"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-metrics-layouts-delete",
@@ -48655,11 +44804,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:76",
-            "ai-agents/20-api/agent-logs.md:219"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-logs-metrics-layouts-put",
@@ -48703,11 +44848,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:74",
-            "ai-agents/20-api/agent-logs.md:218"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-studio-agents",
@@ -48742,11 +44883,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:181",
-            "ai-agents/70-research/2026-10-30-managed-agents-wave.md:50"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-studio-agents-post",
@@ -48774,11 +44911,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:37",
-            "ai-agents/10-anatomy/flow-agent-shape.md:78"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-studio-agents-delete",
@@ -48817,10 +44950,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:131"
-          ]
+          }
         },
         {
           id: "ai-agents--agent-studio-agents-get",
@@ -48855,10 +44985,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:83"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-agents-with-folders-get",
@@ -48896,10 +45023,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:178"
-          ]
+          }
         },
         {
           id: "ai-agents--anton-session",
@@ -48928,11 +45052,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:28",
-            "ai-agents/20-api/12-ai-agents-api.md:251"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-duplicate-post",
@@ -48964,10 +45084,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:234"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-folders",
@@ -49002,10 +45119,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:186"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-folders-post",
@@ -49033,11 +45147,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:85",
-            "ai-agents/10-anatomy/managed-agent-shape.md:185"
-          ]
+          }
         },
         {
           id: "ai-agents--folders-move-agents",
@@ -49069,10 +45179,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:187"
-          ]
+          }
         },
         {
           id: "ai-agents--folders-agents",
@@ -49104,11 +45211,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:83",
-            "ai-agents/10-anatomy/managed-agent-shape.md:194"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-retrieve-mcp-tools",
@@ -49136,10 +45239,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:51"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-versions",
@@ -49171,13 +45271,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:49",
-            "ai-agents/10-anatomy/flow-agent-shape.md:106",
-            "ai-agents/10-anatomy/flow-agent-shape.md:115",
-            "ai-agents/20-api/custom-api-and-mcp.md:52"
-          ]
+          }
         },
         {
           id: "ai-agents--versions-create-agent",
@@ -49209,10 +45303,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:232"
-          ]
+          }
         },
         {
           id: "ai-agents--plugins-connection-status",
@@ -49244,10 +45335,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:138"
-          ]
+          }
         },
         {
           id: "ai-agents--plugins-custom-skills",
@@ -49282,10 +45370,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:159"
-          ]
+          }
         },
         {
           id: "ai-agents--plugins-custom-skills-post",
@@ -49313,10 +45398,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:157"
-          ]
+          }
         },
         {
           id: "ai-agents--plugins-custom-skills-delete",
@@ -49355,10 +45437,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:195"
-          ]
+          }
         },
         {
           id: "ai-agents--plugins-default",
@@ -49402,11 +45481,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:253",
-            "ai-agents/20-api/actions-and-plugins.md:74"
-          ]
+          }
         },
         {
           id: "ai-agents--plugins-skill-instances",
@@ -49441,10 +45516,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:71"
-          ]
+          }
         },
         {
           id: "ai-agents--plugins-skill-instances-post",
@@ -49472,10 +45544,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:69"
-          ]
+          }
         },
         {
           id: "ai-agents--snapshots-assets",
@@ -49503,10 +45572,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:230"
-          ]
+          }
         },
         {
           id: "ai-agents--super-agent-agents",
@@ -49564,12 +45630,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:178",
-            "ai-agents/10-anatomy/managed-agent-shape.md:189",
-            "ai-agents/20-api/12-ai-agents-api.md:250"
-          ]
+          }
         },
         {
           id: "ai-agents--super-agent-agents-post",
@@ -49597,12 +45658,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:45",
-            "ai-agents/20-api/12-ai-agents-api.md:259",
-            "ai-agents/70-research/2026-10-30-managed-agents-wave.md:69"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-id",
@@ -49630,10 +45686,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:263"
-          ]
+          }
         },
         {
           id: "ai-agents--super-agent-agents-delete",
@@ -49675,11 +45728,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:102",
-            "ai-agents/20-api/12-ai-agents-api.md:252"
-          ]
+          }
         },
         {
           id: "ai-agents--super-agent-agents-get",
@@ -49724,13 +45773,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:248",
-            "ai-agents/20-api/12-ai-agents-api.md:255",
-            "ai-agents/20-api/12-ai-agents-api.md:395",
-            "ai-agents/10-anatomy/managed-agent-shape.md:20"
-          ]
+          }
         },
         {
           id: "ai-agents--super-agent-agents-put",
@@ -49767,15 +45810,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:247",
-            "ai-agents/20-api/12-ai-agents-api.md:255",
-            "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-            "ai-agents/10-anatomy/managed-agent-shape.md:86",
-            "ai-agents/20-api/12-ai-agents-api.md:394",
-            "ai-agents/20-api/custom-api-and-mcp.md:139"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-publish",
@@ -49812,10 +45847,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/managed-agent-workflow-invocation.md:21"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-activity",
@@ -49854,11 +45886,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:249",
-            "ai-agents/20-api/managed-agent-workflow-invocation.md:23"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-avatar",
@@ -49890,10 +45918,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/70-research/2026-10-30-managed-agents-wave.md:57"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-execute",
@@ -49925,10 +45950,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:132"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-memory",
@@ -49960,10 +45982,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/70-research/2026-10-30-managed-agents-wave.md:81"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-memory-post",
@@ -49995,10 +46014,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/70-research/2026-10-30-managed-agents-wave.md:83"
-          ]
+          }
         },
         {
           id: "ai-agents--memory-settings",
@@ -50030,10 +46046,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/70-research/2026-10-30-managed-agents-wave.md:82"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-test",
@@ -50065,11 +46078,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:108",
-            "ai-agents/10-anatomy/managed-agent-shape.md:209"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-from-template",
@@ -50099,11 +46108,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:166",
-            "ai-agents/10-anatomy/managed-agent-shape.md:217"
-          ]
+          }
         },
         {
           id: "ai-agents--super-agents-build",
@@ -50131,15 +46136,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:81",
-            "ai-agents/10-anatomy/managed-agent-shape.md:126",
-            "ai-agents/20-api/12-ai-agents-api.md:75",
-            "ai-agents/20-api/12-ai-agents-api.md:246",
-            "ai-agents/20-api/12-ai-agents-api.md:259",
-            "ai-agents/20-api/12-ai-agents-api.md:261"
-          ]
+          }
         },
         {
           id: "ai-agents--super-agents-build-sse",
@@ -50169,10 +46166,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:255"
-          ]
+          }
         },
         {
           id: "ai-agents--vera-chat",
@@ -50200,11 +46194,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:96",
-            "ai-agents/10-anatomy/flow-agent-shape.md:98"
-          ]
+          }
         },
         {
           id: "ai-agents--vera-review",
@@ -50232,10 +46222,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:101"
-          ]
+          }
         },
         {
           id: "ai-agents--workflows-dropdown",
@@ -50268,10 +46255,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/managed-agent-workflow-invocation.md:20"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-employees-actions",
@@ -50301,15 +46285,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:305",
-            "ai-agents/20-api/12-ai-agents-api.md:101",
-            "ai-agents/20-api/12-ai-agents-api.md:105",
-            "ai-agents/20-api/12-ai-agents-api.md:133",
-            "ai-agents/20-api/12-ai-agents-api.md:313",
-            "ai-agents/20-api/12-ai-agents-api.md:363"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-employees-actions-delete",
@@ -50341,10 +46317,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:44"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-employees-actions-put",
@@ -50376,10 +46349,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:43"
-          ]
+          }
         },
         {
           id: "ai-agents--followup-settings",
@@ -50407,11 +46377,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:100",
-            "ask-ai/30-types/skills/conversation-ai--update-followup-settings.md:16"
-          ]
+          }
         },
         {
           id: "ai-agents--actions-search",
@@ -50448,12 +46414,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:102",
-            "ai-agents/30-types/conversation-ai-actions.md:45",
-            "ai-agents/30-types/conversation-ai-actions.md:125"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-employees-agents",
@@ -50481,11 +46442,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:98",
-            "ai-agents/20-api/12-ai-agents-api.md:387"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-employees-beta",
@@ -50527,14 +46484,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:85",
-            "ai-agents/30-types/conversation-ai-actions.md:162",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:115",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:267",
-            "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
-          ]
+          }
         },
         {
           id: "ask-ai--copilot-sample-messages-post",
@@ -50562,10 +46512,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ask-ai/30-types/skills/voice-ai--onboarding.md:186"
-          ]
+          }
         },
         {
           id: "ask-ai--ai-employees-employees",
@@ -50593,10 +46540,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ask-ai/30-types/skills/conversation-ai--search-agent.md:17"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-employees-employees",
@@ -50626,15 +46570,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:73",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:134",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:304",
-            "ai-agents/10-anatomy/flow-agent-shape.md:41",
-            "ai-agents/20-api/12-ai-agents-api.md:75",
-            "ai-agents/20-api/12-ai-agents-api.md:95"
-          ]
+          }
         },
         {
           id: "ai-agents--builder-history",
@@ -50679,10 +46615,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-builder.md:76"
-          ]
+          }
         },
         {
           id: "ai-agents--builder-test",
@@ -50714,10 +46647,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-builder.md:90"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-working-hours-get",
@@ -50752,11 +46682,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:183",
-            "ai-agents/40-rules/labs-feature-flags.md:103"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-working-hours-post",
@@ -50788,10 +46714,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:184"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-working-hours",
@@ -50826,11 +46749,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:185",
-            "ai-agents/00-overview/index.md:99"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-employees-employees-delete",
@@ -50873,12 +46792,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:100",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:317",
-            "ai-agents/20-api/agent-deployment-routing.md:73"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-employees-employees-get",
@@ -50919,16 +46833,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:97",
-            "ai-agents/20-api/12-ai-agents-api.md:105",
-            "ai-agents/20-api/12-ai-agents-api.md:385",
-            "ai-agents/20-api/conversation-ai-boundary.md:36",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
-            "ai-agents/20-api/custom-api-and-mcp.md:76",
-            "ai-agents/40-rules/builder-vs-server.md:33"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-employees-employees-put",
@@ -50967,16 +46872,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:96",
-            "ai-agents/20-api/12-ai-agents-api.md:129",
-            "workflows/30-types/triggers/conv_ai_trigger.md:149",
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:308",
-            "ai-agents/10-anatomy/flow-agent-shape.md:52",
-            "ai-agents/20-api/12-ai-agents-api.md:387",
-            "ai-agents/40-rules/builder-vs-server.md:24"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-reset-memory",
@@ -51008,10 +46904,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:87"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-conversation-logs",
@@ -51045,11 +46938,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:86",
-            "ai-agents/20-api/logs-deployment-email.md:73"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-fetch-dashboard-data",
@@ -51081,10 +46970,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:76"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-agent-list",
@@ -51112,10 +46998,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:213"
-          ]
+          }
         },
         {
           id: "ai-agents--builder-build",
@@ -51143,10 +47026,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-builder.md:28"
-          ]
+          }
         },
         {
           id: "ai-agents--dashboard-search",
@@ -51174,10 +47054,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:75"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-duplicate",
@@ -51209,10 +47086,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:96"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-folders",
@@ -51247,10 +47121,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:209"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-folders-post",
@@ -51278,10 +47149,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:208"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-folders-delete",
@@ -51320,10 +47188,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:212"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-folders-patch",
@@ -51362,10 +47227,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:210"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-global",
@@ -51397,10 +47259,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/00-overview/index.md:101"
-          ]
+          }
         },
         {
           id: "workflows--employees-list",
@@ -51435,11 +47294,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:23",
-            "workflows/30-types/triggers/conv_ai_trigger.md:141"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-migrate",
@@ -51471,10 +47326,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/00-overview/index.md:100"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-models",
@@ -51507,10 +47359,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:84"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-move-to-folder",
@@ -51538,10 +47387,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:211"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-primary",
@@ -51576,10 +47422,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:37"
-          ]
+          }
         },
         {
           id: "ai-agents--employees-search",
@@ -51624,12 +47467,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
-            "ai-agents/20-api/12-ai-agents-api.md:99",
-            "ai-agents/20-api/conversation-ai-boundary.md:20"
-          ]
+          }
         },
         {
           id: "ai-agents--interactions-response-details",
@@ -51666,11 +47504,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:490",
-            "ai-agents/20-api/logs-deployment-email.md:77"
-          ]
+          }
         },
         {
           id: "ai-agents--interactions-suggestions-put",
@@ -51705,11 +47539,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:88",
-            "ai-agents/20-api/logs-deployment-email.md:78"
-          ]
+          }
         },
         {
           id: "ai-agents--interactions-trial",
@@ -51744,12 +47574,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:77",
-            "ai-agents/30-types/conversation-ai-actions.md:86",
-            "ai-agents/30-types/conversation-ai-actions.md:92"
-          ]
+          }
         },
         {
           id: "ai-agents--template-text",
@@ -51781,10 +47606,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/00-overview/index.md:105"
-          ]
+          }
         },
         {
           id: "ai-agents--summary-contact",
@@ -51821,10 +47643,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:123"
-          ]
+          }
         },
         {
           id: "ai-agents--plan-company",
@@ -51863,10 +47682,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:89"
-          ]
+          }
         },
         {
           id: "ai-agents--plan-location",
@@ -51905,10 +47721,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:88"
-          ]
+          }
         },
         {
           id: "ai-agents--v2-fup-status",
@@ -51944,10 +47757,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:143"
-          ]
+          }
         },
         {
           id: "ai-agents--v2-snapshots",
@@ -51985,14 +47795,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:140",
-            "ai-agents/20-api/conversation-ai-boundary.md:90",
-            "ai-studio/60-recipes/run-one-generation.md:26",
-            "funnels/20-api/funnel-ai.md:73",
-            "workflows/20-api/workflow-ai.md:96"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--associations",
@@ -52021,9 +47824,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:382"
-          ],
           publicEquivalent: [
             "associations-v3__create-association",
             "associations__create-association"
@@ -52060,9 +47860,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:400"
-          ],
           publicEquivalent: [
             "associations-v3__delete-association",
             "associations__delete-association"
@@ -52100,9 +47897,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "forms/20-api/neighbour-services.md:28"
-          ],
           publicEquivalent: [
             "associations-v3__get-association-by-object-keys",
             "associations__get-association-by-object-keys"
@@ -52147,10 +47941,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:193"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--associations-relations",
@@ -52179,9 +47970,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:180"
-          ],
           publicEquivalent: [
             "associations-v3__create-relation",
             "associations__create-relation"
@@ -52218,9 +48006,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:399"
-          ],
           publicEquivalent: [
             "associations-v3__delete-relation",
             "associations__delete-relation"
@@ -52252,10 +48037,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:393"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--relations-record",
@@ -52302,13 +48084,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:186",
-            "pipelines-opportunities/20-api/opportunities.md:411",
-            "pipelines-opportunities/20-api/opportunities.md:398",
-            "pipelines-opportunities/20-api/opportunities.md:191"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--records-count",
@@ -52336,10 +48112,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:333"
-          ]
+          }
         },
         {
           id: "forms--submission-v2",
@@ -52371,12 +48144,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/00-overview/forms-surveys-quizzes.md:57",
-            "forms/20-api/forms.md:238",
-            "forms/20-api/public-renderer-and-submit.md:130"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--search-v2",
@@ -52417,10 +48185,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:265"
-          ]
+          }
         },
         {
           id: "funnels--comments-admin",
@@ -52448,10 +48213,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-10-30-blog-comments.md:27"
-          ]
+          }
         },
         {
           id: "funnels--comments-counts",
@@ -52479,10 +48241,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-10-30-blog-comments.md:26"
-          ]
+          }
         },
         {
           id: "funnels--comments-settings",
@@ -52510,10 +48269,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-10-30-blog-comments.md:24"
-          ]
+          }
         },
         {
           id: "funnels--comments-settings-put",
@@ -52541,10 +48297,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-10-30-blog-comments.md:25"
-          ]
+          }
         },
         {
           id: "funnels--comments-trend",
@@ -52572,10 +48325,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-10-30-blog-comments.md:28"
-          ]
+          }
         },
         {
           id: "funnels--posts-metrics",
@@ -52613,10 +48363,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:240"
-          ]
+          }
         },
         {
           id: "funnels--blogs-site-delete",
@@ -52651,10 +48398,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:101"
-          ]
+          }
         },
         {
           id: "funnels--site-blog-default",
@@ -52682,10 +48426,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:102"
-          ]
+          }
         },
         {
           id: "funnels--site-check-sitemap",
@@ -52713,10 +48454,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:103"
-          ]
+          }
         },
         {
           id: "funnels--site-create-import",
@@ -52744,10 +48482,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:104"
-          ]
+          }
         },
         {
           id: "funnels--create-import",
@@ -52779,10 +48514,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:105"
-          ]
+          }
         },
         {
           id: "funnels--site-domain-list-rss",
@@ -52810,10 +48542,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:106"
-          ]
+          }
         },
         {
           id: "funnels--site-fetch",
@@ -52841,10 +48570,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:108"
-          ]
+          }
         },
         {
           id: "funnels--site-fetch-blog-page",
@@ -52872,10 +48598,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:107"
-          ]
+          }
         },
         {
           id: "funnels--site-import-csv",
@@ -52903,10 +48626,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:109"
-          ]
+          }
         },
         {
           id: "funnels--site-import-rss",
@@ -52934,10 +48654,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:110"
-          ]
+          }
         },
         {
           id: "funnels--site-import",
@@ -52969,10 +48686,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:111"
-          ]
+          }
         },
         {
           id: "funnels--site-import-get",
@@ -53004,10 +48718,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:112"
-          ]
+          }
         },
         {
           id: "funnels--site-import-put",
@@ -53039,10 +48750,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:113"
-          ]
+          }
         },
         {
           id: "funnels--import-csv",
@@ -53074,10 +48782,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:114"
-          ]
+          }
         },
         {
           id: "funnels--import-link",
@@ -53109,10 +48814,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:115"
-          ]
+          }
         },
         {
           id: "funnels--site-imports",
@@ -53140,10 +48842,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:117"
-          ]
+          }
         },
         {
           id: "funnels--imports-all",
@@ -53171,10 +48870,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:116"
-          ]
+          }
         },
         {
           id: "funnels--site-list",
@@ -53202,10 +48898,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:118"
-          ]
+          }
         },
         {
           id: "funnels--site-migrate-blog-post",
@@ -53233,10 +48926,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:119"
-          ]
+          }
         },
         {
           id: "funnels--site-migration-status",
@@ -53274,10 +48964,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:239"
-          ]
+          }
         },
         {
           id: "funnels--refresh-import",
@@ -53309,10 +48996,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:120"
-          ]
+          }
         },
         {
           id: "funnels--site-rss",
@@ -53340,10 +49024,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:125"
-          ]
+          }
         },
         {
           id: "funnels--site-rss-post",
@@ -53371,10 +49052,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:126"
-          ]
+          }
         },
         {
           id: "funnels--site-rss-migration",
@@ -53402,10 +49080,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:121"
-          ]
+          }
         },
         {
           id: "funnels--site-rss-migration-post",
@@ -53433,10 +49108,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:122"
-          ]
+          }
         },
         {
           id: "funnels--site-rss-delete",
@@ -53468,10 +49140,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:123"
-          ]
+          }
         },
         {
           id: "funnels--site-rss-put",
@@ -53503,10 +49172,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:124"
-          ]
+          }
         },
         {
           id: "funnels--site-unique-funnel-domain",
@@ -53534,10 +49200,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:127"
-          ]
+          }
         },
         {
           id: "funnels--site-validate-rss",
@@ -53565,10 +49228,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:128"
-          ]
+          }
         },
         {
           id: "brand-kit--brand-boards",
@@ -53597,11 +49257,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:65",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:43",
-            "brand-kit/70-research/2026-10-30-brand-boards-wave.md:24"
-          ],
           publicEquivalent: [
             "brand-boards-v3__createBrandBoard",
             "brand-boards__createBrandBoard"
@@ -53642,11 +49297,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:64",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:42",
-            "brand-kit/70-research/2026-10-30-brand-boards-wave.md:25"
-          ],
           publicEquivalent: [
             "brand-boards-v3__getBrandBoardsByLocation",
             "brand-boards__getBrandBoardsByLocation"
@@ -53686,10 +49336,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:68",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:46"
-          ],
           publicEquivalent: [
             "brand-boards-v3__deleteBrandBoard",
             "brand-boards__deleteBrandBoard"
@@ -53729,11 +49375,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:66",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:44",
-            "brand-kit/70-research/2026-10-30-brand-boards-wave.md:26"
-          ],
           publicEquivalent: [
             "brand-boards-v3__getBrandBoardById",
             "brand-boards__getBrandBoardById"
@@ -53772,12 +49413,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:67",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:45",
-            "brand-kit/70-research/2026-10-30-brand-boards-wave.md:27"
-          ]
+          }
         },
         {
           id: "forms--brand-boards-default",
@@ -53809,11 +49445,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/70-research/2026-10-30-brand-boards-wave.md:29",
-            "forms/20-api/neighbour-services.md:30"
-          ]
+          }
         },
         {
           id: "brand-kit--brand-boards-default",
@@ -53845,12 +49477,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:69",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:47",
-            "brand-kit/70-research/2026-10-30-brand-boards-wave.md:28"
-          ]
+          }
         },
         {
           id: "brand-kit--brand-boards-clone",
@@ -53878,11 +49505,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:70",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:48"
-          ]
+          }
         },
         {
           id: "brand-kit--get-brand-boards-custom-colors",
@@ -53918,12 +49541,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "brand-kit/_data/endpoints.json",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
-            "brand-kit/20-api/brand-voices.md:76"
-          ]
+          }
         },
         {
           id: "forms--custom-colors-all",
@@ -53958,10 +49576,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/neighbour-services.md:31"
-          ]
+          }
         },
         {
           id: "brand-kit--get-brand-boards-custom-fonts",
@@ -53997,12 +49612,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "brand-kit/_data/endpoints.json",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
-            "brand-kit/20-api/brand-voices.md:76"
-          ]
+          }
         },
         {
           id: "brand-kit--locations-activity",
@@ -54034,11 +49644,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:73",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:58"
-          ]
+          }
         },
         {
           id: "ai-agents--brand-boards-voices",
@@ -54066,14 +49672,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:85",
-            "brand-kit/20-api/brand-voices.md:21",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:50",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:101",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:154"
-          ]
+          }
         },
         {
           id: "brand-kit--brand-boards-voices",
@@ -54108,13 +49707,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:19",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:49",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:94",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:152"
-          ]
+          }
         },
         {
           id: "brand-kit--brand-boards-voices-delete",
@@ -54152,12 +49745,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:53",
-            "brand-kit/20-api/brand-voices.md:25",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:158"
-          ]
+          }
         },
         {
           id: "brand-kit--brand-boards-voices-get",
@@ -54195,13 +49783,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:51",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:95",
-            "brand-kit/20-api/brand-voices.md:20",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:153"
-          ]
+          }
         },
         {
           id: "brand-kit--brand-boards-voices-patch",
@@ -54239,12 +49821,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:52",
-            "brand-kit/20-api/brand-voices.md:22",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:155"
-          ]
+          }
         },
         {
           id: "brand-kit--voices-default",
@@ -54277,12 +49854,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:23",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:54",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:156"
-          ]
+          }
         },
         {
           id: "brand-kit--voices-clone",
@@ -54310,12 +49882,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:24",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:55",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:157"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--bulk-actions-import",
@@ -54343,11 +49910,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:122",
-            "pipelines-opportunities/20-api/bulk-actions.md:128"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--external-fetch",
@@ -54375,10 +49938,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:133"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--logs-search",
@@ -54406,11 +49966,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:192",
-            "pipelines-opportunities/20-api/bulk-actions.md:91"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--bulk-actions-request",
@@ -54438,11 +49994,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:178",
-            "pipelines-opportunities/20-api/bulk-actions.md:23"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--bulk-actions-request-get",
@@ -54484,12 +50036,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-outbound.md:191",
-            "pipelines-opportunities/20-api/bulk-actions.md:90",
-            "pipelines-opportunities/20-api/bulk-actions.md:74"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--request-fetch",
@@ -54517,10 +50064,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:89"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--request-revert",
@@ -54552,10 +50096,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:102"
-          ]
+          }
         },
         {
           id: "calendars--calendars-put-put",
@@ -54592,11 +50133,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/schedules.md:73",
-            "calendars/20-api/schedules.md:85",
-            "calendars/20-api/schedules.md:98"
-          ],
           publicEquivalent: [
             "calendars-v3__update-calendar",
             "calendars__update-calendar"
@@ -54633,11 +50169,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/70-research/2026-09-03-calendar-ai-assistant.md:25",
-            "calendars/70-research/2026-09-03-calendar-ai-assistant.md:43"
-          ]
+          }
         },
         {
           id: "calendars--calendars-calendar-badges",
@@ -54665,10 +50197,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:93"
-          ]
+          }
         },
         {
           id: "calendars--calendars-calendar-badges-post",
@@ -54696,10 +50225,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:92"
-          ]
+          }
         },
         {
           id: "calendars--event-notifications-create",
@@ -54772,11 +50298,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ]
+          }
         },
         {
           id: "calendars--event-notifications-bulk-update",
@@ -54804,10 +50326,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:119"
-          ]
+          }
         },
         {
           id: "calendars--event-notifications-list",
@@ -54835,10 +50354,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:118"
-          ]
+          }
         },
         {
           id: "calendars--groups-create",
@@ -54892,10 +50408,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "resolved",
             returns: "none-observed"
           },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ],
           publicEquivalent: [
             "calendars-v3__create-calendar-group",
             "calendars__create-calendar-group"
@@ -54947,10 +50459,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "resolved",
             returns: "none-observed"
           },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ],
           publicEquivalent: [
             "calendars-v3__edit-group",
             "calendars__edit-group"
@@ -54997,10 +50505,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "resolved",
             returns: "none-observed"
           },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ],
           publicEquivalent: [
             "calendars-v3__disable-group",
             "calendars__disable-group"
@@ -55036,11 +50540,44 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
+          }
+        },
+        {
+          id: "calendars--post-calendars-location-settings-feature-flags",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/calendars/location-settings/{locationId}/feature-flags",
+          path: "/calendars/location-settings/{locationId}/feature-flags",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          proof: "executed",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ isServiceMenuEnabled: boolean; isRoomEnabled: boolean; isEquipmentEnabled: boolean; }",
+            properties: null,
+            confidence: "proven-live"
           },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ]
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "proven-live",
+            returns: "none-observed"
+          }
         },
         {
           id: "calendars--location-service-settings-get",
@@ -55072,11 +50609,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ]
+          }
         },
         {
           id: "calendars--resources-list",
@@ -55122,10 +50655,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ],
           publicEquivalent: [
             "calendars-v3__fetch-calendar-resources",
             "calendars__fetch-calendar-resources"
@@ -55159,9 +50688,43 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
+          }
+        },
+        {
+          id: "calendars--post-calendars-schedules",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/calendars/schedules",
+          path: "/calendars/schedules",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          proof: "executed",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "{ name: string; userId: string; calendarIds: string[]; timezone: string; isDefault: boolean; locationId: string; rules: Array<object>; }",
+            properties: null,
+            confidence: "proven-live"
           },
-          sources: [
-            "calendars/20-api/schedules.md:49"
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "proven-live",
+            returns: "none-observed"
+          },
+          publicEquivalent: [
+            "calendars-v3__createSchedule",
+            "calendars__createSchedule"
           ]
         },
         {
@@ -55197,9 +50760,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/schedules.md:29"
-          ],
           publicEquivalent: [
             "calendars-v3__updateSchedule",
             "calendars__updateSchedule"
@@ -55244,9 +50804,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/schedules.md:120"
-          ],
           publicEquivalent: [
             "calendars-v3__remove-calendar-from-schedule",
             "calendars__remove-calendar-from-schedule"
@@ -55291,9 +50848,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/schedules.md:55"
-          ],
           publicEquivalent: [
             "calendars-v3__getCalendarSchedule",
             "calendars__get-calendar-schedule"
@@ -55335,9 +50889,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/schedules.md:64"
-          ],
           publicEquivalent: [
             "calendars-v3__updateCalendarSchedule",
             "calendars__update-calendar-schedule"
@@ -55387,9 +50938,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/schedules.md:48"
-          ],
           publicEquivalent: [
             "calendars-v3__getAllSchedules",
             "calendars__getAllSchedules"
@@ -55433,11 +50981,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ]
+          }
         },
         {
           id: "calendars--calendars-service-addons",
@@ -55465,10 +51009,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:105"
-          ]
+          }
         },
         {
           id: "calendars--service-addons-update",
@@ -55555,11 +51096,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "calendars/20-api/kept-routes-proven-live.md",
-            "sniffs/calendars-f4b-2026-11-09/live-log.jsonl"
-          ]
+          }
         },
         {
           id: "calendars--service-addons-listing-assignments",
@@ -55591,10 +51128,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:106"
-          ]
+          }
         },
         {
           id: "calendars--calendars-service-entities",
@@ -55622,10 +51156,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:104"
-          ]
+          }
         },
         {
           id: "calendars--calendars-service-entities-post",
@@ -55653,10 +51184,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:103"
-          ]
+          }
         },
         {
           id: "calendars--calendars-service-users",
@@ -55684,10 +51212,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:89"
-          ]
+          }
         },
         {
           id: "calendars--calendars-service-users-put",
@@ -55719,10 +51244,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:90"
-          ]
+          }
         },
         {
           id: "calendars--service-users-badge",
@@ -55754,10 +51276,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:91"
-          ]
+          }
         },
         {
           id: "calendars--calendars-services",
@@ -55785,10 +51304,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:72"
-          ]
+          }
         },
         {
           id: "calendars--calendars-services-put",
@@ -55820,10 +51336,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/services-and-rentals.md:73"
-          ]
+          }
         },
         {
           id: "calendars--calendars-statuses",
@@ -55855,10 +51368,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/appointment-statuses.md:28"
-          ]
+          }
         },
         {
           id: "calendars--calendars-statuses-post",
@@ -55893,10 +51403,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/appointment-statuses.md:29"
-          ]
+          }
         },
         {
           id: "calendars--statuses-rename",
@@ -55943,11 +51450,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "calendars/20-api/appointment-statuses.md:44",
-            "sniffs/calendars-f4b-2026-11-09/live-cal2-status-rename.json"
-          ]
+          }
         },
         {
           id: "services--templates--get-location-id-templates",
@@ -56009,10 +51512,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:227"
-          ]
+          }
         },
         {
           id: "services--templates",
@@ -56063,10 +51563,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:216"
-          ]
+          }
         },
         {
           id: "services--templates--get-templates-template-id",
@@ -56109,10 +51606,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:234"
-          ]
+          }
         },
         {
           id: "ai-agents--chat-widget-post",
@@ -56141,9 +51635,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:554"
-          ],
           publicEquivalent: [
             "chat-widget-v3__createChatWidget",
             "chat-widget__create-chat-widget"
@@ -56206,11 +51697,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:556",
-            "ai-agents/20-api/agent-deployment-routing.md:198",
-            "ai-agents/20-api/agent-deployment-routing.md:427"
-          ],
           publicEquivalent: [
             "chat-widget-v3__listChatWidget",
             "chat-widget__list-chat-widgets"
@@ -56289,10 +51775,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:104"
-          ]
+          }
         },
         {
           id: "services--agency-user-contacts",
@@ -56345,10 +51828,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:86"
-          ]
+          }
         },
         {
           id: "services--portal-settings--post-clientclub-portal-settings",
@@ -56388,10 +51868,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "primitive",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:78"
-          ]
+          }
         },
         {
           id: "services--portal-settings",
@@ -56434,10 +51911,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:70"
-          ]
+          }
         },
         {
           id: "memberships-courses--groups-content-reports",
@@ -56472,10 +51946,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-10-30-communities-wave.md:42"
-          ]
+          }
         },
         {
           id: "memberships-courses--moderation-held",
@@ -56510,10 +51981,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-10-30-communities-wave.md:40"
-          ]
+          }
         },
         {
           id: "memberships-courses--held-count",
@@ -56548,10 +52016,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-10-30-communities-wave.md:41"
-          ]
+          }
         },
         {
           id: "memberships-courses--moderation-settings",
@@ -56586,10 +52051,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-10-30-communities-wave.md:38"
-          ]
+          }
         },
         {
           id: "memberships-courses--moderation-settings-patch",
@@ -56624,10 +52086,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-10-30-communities-wave.md:39"
-          ]
+          }
         },
         {
           id: "memberships-courses--groups-preferences",
@@ -56662,10 +52121,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-10-30-communities-wave.md:55"
-          ]
+          }
         },
         {
           id: "memberships-courses--groups-preferences-put",
@@ -56700,10 +52156,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/70-research/2026-10-30-communities-wave.md:56"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--contacts-delete",
@@ -56736,9 +52189,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:255"
-          ],
           publicEquivalent: [
             "contacts-v3__delete-contact",
             "contacts__delete-contact"
@@ -56782,11 +52232,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/agent-logs.md:148",
-            "ai-agents/20-api/agent-logs.md:221",
-            "ai-agents/20-api/agent-logs.md:222"
-          ],
           publicEquivalent: [
             "contacts-v3__get-contact",
             "contacts__get-contact"
@@ -56823,10 +52268,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:169",
-            "pipelines-opportunities/20-api/opportunities.md:172"
-          ],
           publicEquivalent: [
             "contacts-v3__update-contact",
             "contacts__update-contact"
@@ -56862,10 +52303,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:193"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-ai-employee-configs",
@@ -56915,12 +52353,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:66",
-            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:50",
-            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:127"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-ai-employee-configs-put",
@@ -56948,10 +52381,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:100"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-ai-employee-configs-put-put",
@@ -56988,13 +52418,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:66",
-            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:82",
-            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:128",
-            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:130"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-ai-intents",
@@ -57029,13 +52453,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:113",
-            "workflows/30-types/steps/conversation_ai.md:79",
-            "workflows/30-types/steps/conversation_ai.md:101",
-            "workflows/70-research/ENDPOINTS.md:177"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-ai-prompt",
@@ -57076,11 +52494,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:99",
-            "ai-agents/20-api/conversation-ai-boundary.md:106"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-ai-prompt-post",
@@ -57108,10 +52522,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:102"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-ai-prompt-put",
@@ -57143,10 +52554,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:103"
-          ]
+          }
         },
         {
           id: "ai-agents--prompt-default",
@@ -57187,11 +52595,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:103",
-            "ai-agents/20-api/conversation-ai-boundary.md:100"
-          ]
+          }
         },
         {
           id: "ai-agents--prompt-templates",
@@ -57232,11 +52636,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:253",
-            "ai-agents/20-api/conversation-ai-boundary.md:101"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-ai-report-feedback",
@@ -57268,10 +52668,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/00-overview/index.md:104"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-ai-trial",
@@ -57303,10 +52700,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/00-overview/index.md:100"
-          ]
+          }
         },
         {
           id: "conversations--manual-actions-search",
@@ -57351,10 +52745,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/manual-actions.md:21"
-          ]
+          }
         },
         {
           id: "conversations--mailgun-fetch",
@@ -57382,10 +52773,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:101"
-          ]
+          }
         },
         {
           id: "conversations--fetch-domain-get",
@@ -57414,11 +52802,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:102",
-            "conversations/20-api/email-sending-domains.md:193"
-          ]
+          }
         },
         {
           id: "conversations--mailgun-validations",
@@ -57446,10 +52830,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:103"
-          ]
+          }
         },
         {
           id: "ai-agents--providers-search",
@@ -57490,11 +52871,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:453",
-            "ai-agents/20-api/agent-deployment-routing.md:488"
-          ]
+          }
         },
         {
           id: "ai-agents--ask-ai-stream",
@@ -57522,10 +52899,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/ask-ai-agent-building.md:19"
-          ]
+          }
         },
         {
           id: "services--assessment-results",
@@ -57582,10 +52956,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:290"
-          ]
+          }
         },
         {
           id: "services--count",
@@ -57636,10 +53007,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:304"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--custom-fields-conditional-fields",
@@ -57667,10 +53035,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/settings.md:139"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--custom-fields-conditional-fields-delete",
@@ -57702,10 +53067,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/settings.md:144"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--conditional-fields-list",
@@ -57733,10 +53095,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/settings.md:143"
-          ]
+          }
         },
         {
           id: "conversations--feature-domain",
@@ -57768,10 +53127,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:74"
-          ]
+          }
         },
         {
           id: "conversations--feature-domain-get",
@@ -57803,10 +53159,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:73"
-          ]
+          }
         },
         {
           id: "conversations--domain-default-domain-mapping",
@@ -57837,10 +53190,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:90"
-          ]
+          }
         },
         {
           id: "conversations--domain-domain-selection-list",
@@ -57869,10 +53219,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:87"
-          ]
+          }
         },
         {
           id: "conversations--domain-domain-type",
@@ -57900,10 +53247,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:81"
-          ]
+          }
         },
         {
           id: "conversations--domain-lc-spf-record",
@@ -57931,10 +53275,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:85"
-          ]
+          }
         },
         {
           id: "conversations--domain-list",
@@ -57966,11 +53307,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:75",
-            "conversations/20-api/email-sending-domains.md:189"
-          ]
+          }
         },
         {
           id: "conversations--domain-mx-and-spf-record",
@@ -57998,10 +53335,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:79"
-          ]
+          }
         },
         {
           id: "conversations--domain-mx-record",
@@ -58029,10 +53363,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:78"
-          ]
+          }
         },
         {
           id: "conversations--domain-removal-allowed",
@@ -58064,10 +53395,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:91"
-          ]
+          }
         },
         {
           id: "conversations--domain-remove-domain-selection",
@@ -58095,10 +53423,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:88"
-          ]
+          }
         },
         {
           id: "conversations--domain-set-default",
@@ -58126,10 +53451,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:77"
-          ]
+          }
         },
         {
           id: "conversations--domain-set-default-headers",
@@ -58169,11 +53491,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:22",
-            "conversations/20-api/email-sending-domains.md:82"
-          ]
+          }
         },
         {
           id: "conversations--domain-type-config",
@@ -58201,10 +53519,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:84"
-          ]
+          }
         },
         {
           id: "conversations--domain-unset-default-headers",
@@ -58236,11 +53551,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:36",
-            "conversations/20-api/email-sending-domains.md:83"
-          ]
+          }
         },
         {
           id: "conversations--v2-add-domain",
@@ -58268,10 +53579,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:72"
-          ]
+          }
         },
         {
           id: "conversations--v2-mx-and-spf-record",
@@ -58299,10 +53607,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:80"
-          ]
+          }
         },
         {
           id: "conversations--domain-validate",
@@ -58330,10 +53635,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:89"
-          ]
+          }
         },
         {
           id: "conversations--domain-verify",
@@ -58361,10 +53663,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:76"
-          ]
+          }
         },
         {
           id: "conversations--domain-warmup",
@@ -58396,10 +53695,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:86"
-          ]
+          }
         },
         {
           id: "ai-agents--set-status",
@@ -58427,10 +53723,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/ask-ai-agent-building.md:28"
-          ]
+          }
         },
         {
           id: "forms--builder-all",
@@ -58469,11 +53762,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/neighbour-services.md:37",
-            "forms/20-api/neighbour-services.md:65"
-          ]
+          }
         },
         {
           id: "forms--schedule-insert-form",
@@ -58505,11 +53794,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/neighbour-services.md:38",
-            "forms/20-api/neighbour-services.md:61"
-          ]
+          }
         },
         {
           id: "forms--get-forms",
@@ -58585,13 +53870,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "documented"
           },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:33",
-            "forms/20-api/forms.md:54",
-            "forms/20-api/forms.md:250"
-          ],
           publicEquivalent: [
             "forms-v3__get-forms",
             "forms__get-forms"
@@ -58631,15 +53909,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/10-anatomy/form-object.md:91",
-            "forms/20-api/forms.md:38",
-            "forms/20-api/forms.md:82",
-            "forms/20-api/forms.md:147"
-          ]
+          }
         },
         {
           id: "forms--delete-forms",
@@ -58675,12 +53945,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:46"
-          ]
+          }
         },
         {
           id: "forms--get-forms-get",
@@ -58721,16 +53986,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/10-anatomy/form-object.md:108",
-            "forms/20-api/forms.md:35",
-            "forms/20-api/forms.md:69",
-            "forms/20-api/forms.md:250",
-            "forms/40-rules/validators-and-quirks.md:182"
-          ]
+          }
         },
         {
           id: "forms--forms-patch",
@@ -58765,10 +54021,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/40-rules/validators-and-quirks.md:46"
-          ]
+          }
         },
         {
           id: "forms--post-forms-post",
@@ -58807,15 +54060,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/10-anatomy/form-object.md:95",
-            "forms/10-anatomy/form-object.md:121",
-            "forms/20-api/forms.md:39",
-            "forms/20-api/forms.md:100"
-          ]
+          }
         },
         {
           id: "forms--categories-get-categories",
@@ -58850,10 +54095,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:245"
-          ]
+          }
         },
         {
           id: "forms--categories-get-themes",
@@ -58892,10 +54134,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:245"
-          ]
+          }
         },
         {
           id: "forms--forms-clone-from-theme",
@@ -58923,10 +54162,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:246"
-          ]
+          }
         },
         {
           id: "forms--forms-conversation-on-submission",
@@ -58954,10 +54190,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/40-rules/validators-and-quirks.md:182"
-          ]
+          }
         },
         {
           id: "forms--get-forms-count",
@@ -58998,12 +54231,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:34"
-          ]
+          }
         },
         {
           id: "forms--forms-data-get",
@@ -59031,10 +54259,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:123"
-          ]
+          }
         },
         {
           id: "forms--get-forms-data",
@@ -59069,15 +54294,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "documented"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/10-anatomy/form-object.md:98",
-            "forms/10-anatomy/form-object.md:108",
-            "forms/20-api/forms.md:36",
-            "forms/20-api/forms.md:75"
-          ]
+          }
         },
         {
           id: "forms--get-forms-default-colors",
@@ -59116,12 +54333,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:51"
-          ]
+          }
         },
         {
           id: "forms--post-forms-default-colors",
@@ -59154,11 +54366,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "proven-live",
             returns: "none-observed"
-          },
-          sources: [
-            "sniffs/forms-w9-2026-11-08/live-f2/live-default-colors-swap-v3-f2-2026-11-11T075500Z.json",
-            "sniffs/forms-w9-2026-11-08/builder-live-964bf0a3/src/service/FormServices.ts"
-          ]
+          }
         },
         {
           id: "forms--post-forms-duplicate",
@@ -59191,13 +54399,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:40",
-            "forms/20-api/forms.md:204"
-          ]
+          }
         },
         {
           id: "forms--get-forms-folder",
@@ -59242,12 +54444,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/folders.md",
-            "forms/20-api/folders.md:22"
-          ]
+          }
         },
         {
           id: "forms--post-forms-folder",
@@ -59277,13 +54474,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/folders.md",
-            "forms/20-api/folders.md:24",
-            "forms/60-recipes/create-a-form-by-api.md:28"
-          ]
+          }
         },
         {
           id: "forms--get-forms-folder-get",
@@ -59316,12 +54507,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/folders.md",
-            "forms/20-api/folders.md:23"
-          ]
+          }
         },
         {
           id: "forms--post-forms-folder-post",
@@ -59354,12 +54540,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/folders.md",
-            "forms/20-api/folders.md:25"
-          ]
+          }
         },
         {
           id: "forms--get-forms-forms-list",
@@ -59402,14 +54583,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:37",
-            "forms/20-api/forms.md:224",
-            "forms/40-rules/validators-and-quirks.md:106"
-          ]
+          }
         },
         {
           id: "funnels--graph-data-get",
@@ -59437,10 +54611,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:129"
-          ]
+          }
         },
         {
           id: "forms--post-forms-image",
@@ -59476,12 +54647,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:44"
-          ]
+          }
         },
         {
           id: "forms--post-forms-move-to-folder",
@@ -59510,15 +54676,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/folders.md:26",
-            "forms/20-api/forms.md:41",
-            "forms/20-api/forms.md:218",
-            "forms/40-rules/validators-and-quirks.md:109"
-          ]
+          }
         },
         {
           id: "forms--post-forms-restore-version",
@@ -59547,13 +54705,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:42",
-            "forms/20-api/forms.md:211"
-          ]
+          }
         },
         {
           id: "forms--post-forms-schedule-form-export",
@@ -59582,12 +54734,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:45"
-          ]
+          }
         },
         {
           id: "forms--post-forms-share",
@@ -59620,12 +54767,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:43"
-          ]
+          }
         },
         {
           id: "funnels--stats-count-get",
@@ -59653,10 +54795,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:130"
-          ]
+          }
         },
         {
           id: "funnels--stats-list",
@@ -59684,10 +54823,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:131"
-          ]
+          }
         },
         {
           id: "forms--get-forms-submissions",
@@ -59748,14 +54884,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/00-overview/forms-surveys-quizzes.md:54",
-            "forms/20-api/forms.md:47",
-            "forms/20-api/forms.md:232",
-            "forms/20-api/forms.md:252"
-          ],
           publicEquivalent: [
             "forms-v3__get-forms-submissions",
             "forms__get-forms-submissions"
@@ -59815,13 +54943,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:48",
-            "forms/40-rules/validators-and-quirks.md:108"
-          ]
+          }
         },
         {
           id: "forms--get-forms-theme-style",
@@ -59861,12 +54983,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/20-api/forms.md:50"
-          ]
+          }
         },
         {
           id: "forms--get-forms-themes",
@@ -59906,13 +55023,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/forms.md",
-            "forms/10-anatomy/form-object.md:94",
-            "forms/20-api/forms.md:49"
-          ]
+          }
         },
         {
           id: "forms--forms-update-setting",
@@ -59944,10 +55055,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/40-rules/validators-and-quirks.md:178"
-          ]
+          }
         },
         {
           id: "forms--forms-update-conversation-on-submission",
@@ -59975,11 +55083,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:254",
-            "forms/40-rules/validators-and-quirks.md:179"
-          ]
+          }
         },
         {
           id: "funnels--assist-mode-summary-post",
@@ -60007,10 +55111,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:87"
-          ]
+          }
         },
         {
           id: "funnels--copilot-chat-post",
@@ -60038,11 +55139,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:82",
-            "funnels/20-api/funnel-ai.md:87"
-          ]
+          }
         },
         {
           id: "funnels--copilot-feedback-post",
@@ -60070,10 +55167,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnel-ai.md:89"
-          ]
+          }
         },
         {
           id: "funnels--domain-paths",
@@ -60101,10 +55195,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:132"
-          ]
+          }
         },
         {
           id: "funnels--builder-save-page-data",
@@ -60136,10 +55227,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:133"
-          ]
+          }
         },
         {
           id: "funnels--domain-generate-sitemap-blog",
@@ -60167,10 +55255,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:134"
-          ]
+          }
         },
         {
           id: "funnels--blog-list-get",
@@ -60228,10 +55313,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:238"
-          ]
+          }
         },
         {
           id: "funnels--funnel-create-blog",
@@ -60259,10 +55341,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:135"
-          ]
+          }
         },
         {
           id: "funnels--funnel-fetch-funnel-domain",
@@ -60294,10 +55373,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:136"
-          ]
+          }
         },
         {
           id: "funnels--funnel-pages-with-blog",
@@ -60325,10 +55401,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:137"
-          ]
+          }
         },
         {
           id: "funnels--lookup-funnel-unique-url",
@@ -60356,10 +55429,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:138"
-          ]
+          }
         },
         {
           id: "funnels--lookup-funnel-with-domain",
@@ -60387,10 +55457,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:139"
-          ]
+          }
         },
         {
           id: "brand-kit--prompt-enhance",
@@ -60423,10 +55490,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
-          ]
+          }
         },
         {
           id: "workflows--hooks-webhook-trigger",
@@ -60468,13 +55532,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:15",
-            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:9",
-            "workflows/70-research/INBOUND-WEBHOOK.md:20",
-            "workflows/70-research/INBOUND-WEBHOOK.md:86"
-          ]
+          }
         },
         {
           id: "inbound-webhook-request-service--get-reference-by-id",
@@ -60527,15 +55585,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/InboundWebhookRequestService.ts:20",
-            "workflows/40-rules/publish-gate.md:131",
-            "workflows/40-rules/validation-gate.md:97",
-            "workflows/70-research/2026-09-30-workflow-tool-reproof.md:31",
-            "workflows/70-research/INBOUND-WEBHOOK.md:34",
-            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"
-          ]
+          }
         },
         {
           id: "inbound-webhook-request-service--save-reference",
@@ -60592,12 +55642,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/InboundWebhookRequestService.ts:26",
-            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:17",
-            "workflows/70-research/INBOUND-WEBHOOK.md:35"
-          ]
+          }
         },
         {
           id: "inbound-webhook-request-service--get-requests-by-trigger-id",
@@ -60656,12 +55701,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/InboundWebhookRequestService.ts:13",
-            "workflows/70-research/INBOUND-WEBHOOK.md:33",
-            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:16"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-agents",
@@ -60702,10 +55742,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:32"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-agents-post",
@@ -60733,11 +55770,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:42",
-            "ai-agents/20-api/industry-agents.md:51"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-agents-delete",
@@ -60769,10 +55802,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:42"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-agents-patch",
@@ -60804,11 +55834,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:42",
-            "ai-agents/20-api/industry-agents.md:52"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-booking-calendar",
@@ -60840,10 +55866,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:44"
-          ]
+          }
         },
         {
           id: "ai-agents--booking-calendar-members",
@@ -60875,10 +55898,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:44"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-deploy",
@@ -60910,11 +55930,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:43",
-            "ai-agents/20-api/industry-agents.md:55"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-business-defaults",
@@ -60949,11 +55965,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:33",
-            "ai-agents/20-api/industry-agents.md:50"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-calendars",
@@ -60981,10 +55993,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:46"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-calendars-get",
@@ -61016,10 +56025,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:46"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-conversation-logs",
@@ -61054,10 +56060,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:36"
-          ]
+          }
         },
         {
           id: "ai-agents--conversation-logs-transcript",
@@ -61085,10 +56088,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:46"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-countries",
@@ -61116,10 +56116,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:46"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-knowledge-bases",
@@ -61154,10 +56151,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:35"
-          ]
+          }
         },
         {
           id: "ai-agents--tags-search",
@@ -61185,10 +56179,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:46"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-template-services",
@@ -61235,10 +56226,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:34"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-timezones",
@@ -61266,10 +56254,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:46"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-trial-chat",
@@ -61297,10 +56282,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:45"
-          ]
+          }
         },
         {
           id: "ai-agents--users-search",
@@ -61328,10 +56310,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:46"
-          ]
+          }
         },
         {
           id: "ai-agents--industry-agents-workflows",
@@ -61359,10 +56338,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/industry-agents.md:46"
-          ]
+          }
         },
         {
           id: "ai-agents--facebook-pages",
@@ -61406,10 +56382,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:424"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--invoices",
@@ -61442,9 +56415,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:370"
-          ],
           publicEquivalent: [
             "invoices-v3__update-invoice",
             "invoices__update-invoice"
@@ -61480,10 +56450,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:352"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base",
@@ -61512,13 +56479,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:136",
-            "ai-agents/20-api/knowledge-base.md:145",
-            "ai-agents/20-api/knowledge-base.md:146",
-            "ai-agents/20-api/knowledge-base.md:302"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-delete",
@@ -61550,10 +56511,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:62"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-get",
@@ -61585,10 +56543,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:58"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-put",
@@ -61620,10 +56575,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:61"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-all",
@@ -61661,15 +56613,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:197",
-            "ai-agents/20-api/12-ai-agents-api.md:331",
-            "ai-agents/20-api/knowledge-base.md:59",
-            "ai-agents/20-api/knowledge-base.md:106",
-            "ai-agents/20-api/knowledge-base.md:120",
-            "ai-agents/20-api/knowledge-base.md:121"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-associated-entities",
@@ -61710,11 +56654,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:64",
-            "ai-agents/20-api/knowledge-base.md:161"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-chunks",
@@ -61742,12 +56682,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:333",
-            "ai-agents/20-api/knowledge-base.md:358",
-            "ai-agents/20-api/knowledge-base.md:379"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-crawler",
@@ -61775,10 +56710,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:338"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-crawler-get",
@@ -61819,10 +56751,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:338"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-crawler-post",
@@ -61850,10 +56779,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:338"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-crawler-put",
@@ -61894,10 +56820,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:353"
-          ]
+          }
         },
         {
           id: "ai-agents--crawler-automation",
@@ -61925,10 +56848,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:355"
-          ]
+          }
         },
         {
           id: "ai-agents--chunk-content",
@@ -61969,10 +56889,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:118"
-          ]
+          }
         },
         {
           id: "ai-agents--operations-cancel",
@@ -62000,10 +56917,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:78"
-          ]
+          }
         },
         {
           id: "ai-agents--pages-content",
@@ -62050,11 +56964,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:338",
-            "ai-agents/20-api/knowledge-base.md:381"
-          ]
+          }
         },
         {
           id: "ai-agents--pages-content-put",
@@ -62101,10 +57011,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:369"
-          ]
+          }
         },
         {
           id: "ai-agents--crawler-status",
@@ -62145,11 +57052,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:338",
-            "ai-agents/20-api/knowledge-base.md:348"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-default",
@@ -62177,15 +57080,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:330",
-            "ai-agents/20-api/ask-ai-agent-building.md:28",
-            "ai-agents/20-api/conversation-ai-boundary.md:87",
-            "ai-agents/20-api/knowledge-base.md:63",
-            "ai-agents/20-api/knowledge-base.md:81",
-            "ai-agents/20-api/knowledge-base.md:397"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-faqs",
@@ -62226,11 +57121,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:67",
-            "ai-agents/20-api/knowledge-base.md:337"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-faqs-post",
@@ -62258,11 +57149,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:68",
-            "ai-agents/20-api/knowledge-base.md:337"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-faqs-delete",
@@ -62294,10 +57181,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:70"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-faqs-put",
@@ -62329,10 +57213,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:69"
-          ]
+          }
         },
         {
           id: "ai-agents--faqs-bulk-delete",
@@ -62360,10 +57241,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:71"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-files",
@@ -62391,10 +57269,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:339"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-files-delete",
@@ -62426,10 +57301,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:339"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-files-get",
@@ -62461,10 +57333,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:339"
-          ]
+          }
         },
         {
           id: "ai-agents--files-status",
@@ -62496,10 +57365,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:339"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-gaps",
@@ -62560,13 +57426,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:397",
-            "ai-agents/20-api/knowledge-base.md:208",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
-          ]
+          }
         },
         {
           id: "ai-agents--gaps-fill",
@@ -62598,12 +57458,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/00-overview/index.md:103",
-            "ai-agents/20-api/knowledge-base.md:210",
-            "ai-agents/20-api/knowledge-base.md:272"
-          ]
+          }
         },
         {
           id: "ai-agents--gaps-state",
@@ -62635,11 +57490,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:211",
-            "ai-agents/20-api/knowledge-base.md:250"
-          ]
+          }
         },
         {
           id: "ai-agents--gaps-counts",
@@ -62684,13 +57535,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:65",
-            "ai-agents/20-api/knowledge-base.md:160",
-            "ai-agents/20-api/knowledge-base.md:209",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:49"
-          ]
+          }
         },
         {
           id: "ai-agents--internal-data-sources",
@@ -62718,10 +57563,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:387"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-oauth",
@@ -62762,10 +57604,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:368"
-          ]
+          }
         },
         {
           id: "ai-agents--retrieval-test-conversations",
@@ -62804,10 +57643,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:363"
-          ]
+          }
         },
         {
           id: "ai-agents--conversations-entries",
@@ -62835,10 +57671,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:361"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-rich-text",
@@ -62866,12 +57699,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:327",
-            "ai-agents/20-api/12-ai-agents-api.md:396",
-            "ai-agents/20-api/knowledge-base.md:303"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-rich-text-delete",
@@ -62903,11 +57731,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:329",
-            "ai-agents/20-api/knowledge-base.md:307"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-rich-text-put",
@@ -62939,10 +57763,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:304"
-          ]
+          }
         },
         {
           id: "ai-agents--rich-text-status",
@@ -62974,11 +57795,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:328",
-            "ai-agents/20-api/knowledge-base.md:305"
-          ]
+          }
         },
         {
           id: "ai-agents--rich-text-knowledge-base",
@@ -63010,10 +57827,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:306"
-          ]
+          }
         },
         {
           id: "ai-agents--kb-upload",
@@ -63048,10 +57862,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:340"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-trained-urls",
@@ -63079,10 +57890,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:66"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-web-search",
@@ -63110,10 +57918,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:74"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-web-search-delete",
@@ -63145,10 +57950,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:77"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-web-search-get",
@@ -63180,10 +57982,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:72"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-web-search-patch",
@@ -63215,10 +58014,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:76"
-          ]
+          }
         },
         {
           id: "ai-agents--knowledge-base-web-search-put",
@@ -63250,10 +58046,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:75"
-          ]
+          }
         },
         {
           id: "ai-agents--web-search-kb",
@@ -63285,10 +58078,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:73"
-          ]
+          }
         },
         {
           id: "services--get-labs-feature-flags",
@@ -63330,10 +58120,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/feature-flags.ts:33"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--feature-flags-location-put",
@@ -63365,10 +58152,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/settings.md:134"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--locations-put",
@@ -63401,10 +58185,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/settings.md:35",
-            "pipelines-opportunities/20-api/settings.md:36"
-          ],
           publicEquivalent: [
             "locations-v3__put-location",
             "locations__put-location"
@@ -63444,9 +58224,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/settings.md:105"
-          ],
           publicEquivalent: [
             "locations-v3__update-custom-field",
             "locations__update-custom-field"
@@ -63496,11 +58273,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/api/custom-value.ts:13",
-            "services/api/custom-value.ts:28"
-          ]
+          }
         },
         {
           id: "ai-agents--tags-search-get",
@@ -63554,11 +58327,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:55",
-            "ai-agents/20-api/agent-deployment-routing.md:428"
-          ]
+          }
         },
         {
           id: "services--search--post-tasks-search",
@@ -63606,9 +58375,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "none-observed",
             returns: "resolved"
           },
-          sources: [
-            "services/api/task-service.ts:31"
-          ],
           publicEquivalent: [
             "locations-v3__task-search",
             "locations__task-search"
@@ -63687,9 +58453,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "none-observed",
             returns: "none-observed"
           },
-          sources: [
-            "restAgent.ts:204"
-          ],
           publicEquivalent: [
             "locations-v3__search-locations",
             "locations__search-locations"
@@ -63730,10 +58493,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/DomainService.ts:29"
-          ]
+          }
         },
         {
           id: "location-service--find-all",
@@ -63766,10 +58526,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/LocationService.ts:14"
-          ]
+          }
         },
         {
           id: "location-service--find-by-id",
@@ -63809,11 +58566,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/LocationService.ts:26",
-            "pipelines-opportunities/20-api/settings.md:24"
-          ]
+          }
         },
         {
           id: "user-purchase-service--get-revenue-by-offers",
@@ -63860,10 +58613,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/UserPurchaseService.ts:70"
-          ]
+          }
         },
         {
           id: "assignment-service--find-all",
@@ -63900,10 +58650,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "assignment-service--create",
@@ -63946,11 +58693,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79",
-            "services/AssignmentService.ts:12"
-          ]
+          }
         },
         {
           id: "assignment-service--delete",
@@ -63993,10 +58736,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "assignment-service--find-by-id",
@@ -64041,11 +58781,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73",
-            "services/AssignmentService.ts:16"
-          ]
+          }
         },
         {
           id: "assignment-service--update",
@@ -64092,10 +58828,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "quiz-service--find-all",
@@ -64132,10 +58865,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "quiz-service--create",
@@ -64178,10 +58908,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "quiz-service--delete",
@@ -64221,10 +58948,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "quiz-service--find-by-id",
@@ -64266,10 +58990,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "quiz-service--update",
@@ -64313,10 +59034,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "assessment-service-service--find-all",
@@ -64353,10 +59071,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "assessment-service-service--create",
@@ -64397,11 +59112,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79",
-            "services/AssessmentStatusService.ts:14"
-          ]
+          }
         },
         {
           id: "assessment-service-service--delete",
@@ -64444,10 +59155,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "assessment-service-service--find-by-id",
@@ -64490,11 +59198,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73",
-            "services/AssessmentStatusService.ts:18"
-          ]
+          }
         },
         {
           id: "assessment-service-service--update",
@@ -64541,10 +59245,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "assessment-service-service--submit-review",
@@ -64588,10 +59289,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/AssessmentStatusService.ts:43"
-          ]
+          }
         },
         {
           id: "assessment-service-service--find-by-location-id",
@@ -64647,10 +59345,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/AssessmentStatusService.ts:35"
-          ]
+          }
         },
         {
           id: "assessment-service-service--find-by-assessment-status-id",
@@ -64690,10 +59385,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/AssessmentStatusService.ts:39"
-          ]
+          }
         },
         {
           id: "quiz-service--find-all--get-quiz-questions",
@@ -64730,10 +59422,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "quiz-service--create--post-quiz-questions",
@@ -64777,11 +59466,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79",
-            "services/QuestionService.ts:13"
-          ]
+          }
         },
         {
           id: "quiz-service--delete--delete-questions-id",
@@ -64824,10 +59509,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "quiz-service--find-by-id--get-questions-id",
@@ -64873,11 +59555,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73",
-            "services/QuestionService.ts:17"
-          ]
+          }
         },
         {
           id: "quiz-service--update--put-questions-id",
@@ -64924,10 +59602,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "quiz-service--delete-question-by-ids",
@@ -64974,10 +59649,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/QuestionService.ts:21"
-          ]
+          }
         },
         {
           id: "category-service--find-all",
@@ -65020,10 +59692,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "category-service--create",
@@ -65067,10 +59736,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "category-service--delete",
@@ -65110,10 +59776,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "category-service--find-by-id",
@@ -65153,10 +59816,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "category-service--update",
@@ -65200,10 +59860,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "category-service--check-valid-drip-config",
@@ -65256,10 +59913,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CategoryService.ts:44"
-          ]
+          }
         },
         {
           id: "category-service--get-drip-days-range",
@@ -65299,10 +59953,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CategoryService.ts:50"
-          ]
+          }
         },
         {
           id: "category-service--fetch-category-progress",
@@ -65339,10 +59990,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CategoryService.ts:58"
-          ]
+          }
         },
         {
           id: "category-service--bulk-update-sequence-no",
@@ -65384,10 +60032,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CategoryService.ts:40"
-          ]
+          }
         },
         {
           id: "services--certificate-attachments--post-location-id-certificate-attachments",
@@ -65433,10 +60078,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "primitive",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:262"
-          ]
+          }
         },
         {
           id: "services--certificate-attachments--delete-certificate-attachments-certificate-attachment-id",
@@ -65479,10 +60121,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:269"
-          ]
+          }
         },
         {
           id: "services--certificate-attachments",
@@ -65529,10 +60168,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "primitive",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:248"
-          ]
+          }
         },
         {
           id: "services--products--get-products-product-id",
@@ -65590,10 +60226,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:241"
-          ]
+          }
         },
         {
           id: "services--templates--post-certificate-attachments-templates",
@@ -65637,10 +60270,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:255"
-          ]
+          }
         },
         {
           id: "comment-service--find-all",
@@ -65677,10 +60307,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "comment-service--create",
@@ -65721,11 +60348,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79",
-            "services/CommentService.ts:21"
-          ]
+          }
         },
         {
           id: "comment-service--delete-comment",
@@ -65768,11 +60391,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CommentService.ts:47",
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "comment-service--find-by-id",
@@ -65815,10 +60434,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "comment-service--update",
@@ -65865,11 +60481,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85",
-            "services/CommentService.ts:31"
-          ]
+          }
         },
         {
           id: "comment-service--find-comments",
@@ -65947,10 +60559,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CommentService.ts:43"
-          ]
+          }
         },
         {
           id: "comment-service--find-comment-count-by-post-ids",
@@ -65987,10 +60596,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CommentService.ts:55"
-          ]
+          }
         },
         {
           id: "comment-service--restore-comment",
@@ -66030,10 +60636,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/CommentService.ts:51"
-          ]
+          }
         },
         {
           id: "media-upload-service--upload-file-old",
@@ -66139,10 +60742,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/MediaUploadService.ts:235"
-          ]
+          }
         },
         {
           id: "media-upload-service--generate-signed-url",
@@ -66181,10 +60781,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/MediaUploadService.ts:58"
-          ]
+          }
         },
         {
           id: "offer-service--find-all",
@@ -66226,10 +60823,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "offer-service--create",
@@ -66273,10 +60867,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "offer-service--delete",
@@ -66316,10 +60907,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "offer-service--find-by-id",
@@ -66362,10 +60950,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "offer-service--update",
@@ -66411,10 +60996,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "offer-customization-service--find-all",
@@ -66454,10 +61036,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "offer-customization-service--create",
@@ -66498,10 +61077,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "offer-customization-service--delete",
@@ -66541,10 +61117,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "offer-customization-service--find-by-id",
@@ -66584,10 +61157,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "offer-customization-service--update",
@@ -66631,10 +61201,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "post-service--find-all",
@@ -66671,10 +61238,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "post-service--create",
@@ -66717,10 +61281,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "post-service--delete",
@@ -66763,10 +61324,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "post-service--find-by-id",
@@ -66811,10 +61369,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "post-service--update",
@@ -66863,11 +61418,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85",
-            "restAgent.ts:279"
-          ]
+          }
         },
         {
           id: "post-service--bulk-update-comment-permission",
@@ -66917,10 +61468,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/PostService.ts:24"
-          ]
+          }
         },
         {
           id: "post-material-service--find-all",
@@ -66957,10 +61505,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "post-material-service--create",
@@ -67003,10 +61548,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "post-material-service--delete",
@@ -67046,10 +61588,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "post-material-service--find-by-id",
@@ -67089,10 +61628,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "post-material-service--update",
@@ -67136,10 +61672,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "post-material-service--bulk-update-sequence-no",
@@ -67181,10 +61714,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "services/PostMaterialService.ts:17"
-          ]
+          }
         },
         {
           id: "post-service--bulk-update-sequence-no",
@@ -67226,10 +61756,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "services/PostService.ts:17"
-          ]
+          }
         },
         {
           id: "product-service--find-all",
@@ -67272,10 +61799,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "product-service--create",
@@ -67318,10 +61842,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "product-service--delete",
@@ -67361,10 +61882,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "product-service--find-by-id",
@@ -67406,10 +61924,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "product-service--update",
@@ -67453,10 +61968,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "product-service--apply-theme",
@@ -67505,10 +62017,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ProductService.ts:61"
-          ]
+          }
         },
         {
           id: "product-service--clone",
@@ -67558,10 +62067,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ProductService.ts:18"
-          ]
+          }
         },
         {
           id: "product-service--find-all--get-products-customizations",
@@ -67598,10 +62104,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "product-service--create--post-products-customizations",
@@ -67642,10 +62145,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "product-service--delete--delete-customizations-id",
@@ -67685,10 +62185,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "product-service--find-by-id--get-customizations-id",
@@ -67728,10 +62225,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "product-service--update--put-customizations-id",
@@ -67775,10 +62269,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "product-service--find-post-by-product-id",
@@ -67818,10 +62309,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ProductService.ts:43"
-          ]
+          }
         },
         {
           id: "product-service--update-bulk-product-sequence",
@@ -67863,10 +62351,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ProductService.ts:53"
-          ]
+          }
         },
         {
           id: "product-service--save-theme-for-location",
@@ -67907,10 +62392,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ProductService.ts:57"
-          ]
+          }
         },
         {
           id: "product-service--fetch-product-title",
@@ -67950,10 +62432,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ProductService.ts:37"
-          ]
+          }
         },
         {
           id: "product-service--find-all--get-products-product-themes",
@@ -67990,10 +62469,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "product-service--create--post-products-product-themes",
@@ -68034,10 +62510,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "product-service--delete--delete-product-themes-id",
@@ -68080,10 +62553,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "product-service--find-by-id--get-product-themes-id",
@@ -68126,11 +62596,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73",
-            "services/ProductThemesService.ts:17"
-          ]
+          }
         },
         {
           id: "product-service--update--put-product-themes-id",
@@ -68177,10 +62643,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "product-service--share",
@@ -68230,10 +62693,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ProductService.ts:23"
-          ]
+          }
         },
         {
           id: "product-service--get-user-progress",
@@ -68277,10 +62737,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/ProductService.ts:29"
-          ]
+          }
         },
         {
           id: "builder-settings-service--find-all",
@@ -68320,11 +62777,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61",
-            "services/BuilderSettingsService.ts:15"
-          ]
+          }
         },
         {
           id: "builder-settings-service--create",
@@ -68366,10 +62819,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "builder-settings-service--delete",
@@ -68409,10 +62859,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "builder-settings-service--find-by-id",
@@ -68452,10 +62899,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "builder-settings-service--update",
@@ -68499,10 +62943,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "domain-service--find-all",
@@ -68542,11 +62983,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61",
-            "services/DomainService.ts:13"
-          ]
+          }
         },
         {
           id: "domain-service--create",
@@ -68587,10 +63024,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "domain-service--delete",
@@ -68630,10 +63064,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "domain-service--find-by-id",
@@ -68673,10 +63104,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "domain-service--update",
@@ -68720,10 +63148,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "domain-service--domain-exist",
@@ -68760,10 +63185,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/DomainService.ts:23"
-          ]
+          }
         },
         {
           id: "email-settings-service--find-all",
@@ -68803,11 +63225,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61",
-            "services/EmailSettingsService.ts:13"
-          ]
+          }
         },
         {
           id: "email-settings-service--create",
@@ -68848,10 +63266,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "email-settings-service--delete",
@@ -68891,10 +63306,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "email-settings-service--find-by-id",
@@ -68934,10 +63346,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "email-settings-service--update",
@@ -68981,10 +63390,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "email-settings-service--get-templates",
@@ -69024,11 +63430,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/EmailSettingsService.ts:23",
-            "memberships-courses/20-api/client-portal-and-analytics.md:84"
-          ]
+          }
         },
         {
           id: "site-info-service--find-all",
@@ -69068,11 +63470,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61",
-            "services/SiteInfoService.ts:13"
-          ]
+          }
         },
         {
           id: "site-info-service--create",
@@ -69114,10 +63512,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "site-info-service--delete",
@@ -69160,10 +63555,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "site-info-service--find-by-id",
@@ -69206,10 +63598,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "site-info-service--update",
@@ -69256,11 +63645,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85",
-            "services/SiteInfoService.ts:23"
-          ]
+          }
         },
         {
           id: "stats-service--fetch-dashboard-stats",
@@ -69300,10 +63685,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/StatsService.ts:5"
-          ]
+          }
         },
         {
           id: "stats-service--fetch-offer-dashboard-stats",
@@ -69343,10 +63725,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/StatsService.ts:8"
-          ]
+          }
         },
         {
           id: "upsell-offer-service--find-all",
@@ -69383,10 +63762,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "upsell-offer-service--create",
@@ -69427,10 +63803,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "upsell-offer-service--delete",
@@ -69470,10 +63843,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "upsell-offer-service--find-by-id",
@@ -69513,10 +63883,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "upsell-offer-service--update",
@@ -69560,10 +63927,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "upsell-offer-service--get-by-offer-id",
@@ -69603,10 +63967,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/UpsellOfferService.ts:16"
-          ]
+          }
         },
         {
           id: "user-purchase-service--get-categories",
@@ -69643,10 +64004,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/UserPurchaseService.ts:55"
-          ]
+          }
         },
         {
           id: "user-purchase-service--get-no-of-users-for-offer",
@@ -69690,10 +64048,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/UserPurchaseService.ts:35"
-          ]
+          }
         },
         {
           id: "user-purchase-service--get-no-of-users-for-product",
@@ -69733,10 +64088,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/UserPurchaseService.ts:29"
-          ]
+          }
         },
         {
           id: "video-service--find-all",
@@ -69776,10 +64128,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:61"
-          ]
+          }
         },
         {
           id: "video-service--create",
@@ -69822,10 +64171,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:79"
-          ]
+          }
         },
         {
           id: "video-service--delete",
@@ -69865,10 +64211,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:89"
-          ]
+          }
         },
         {
           id: "video-service--find-by-id",
@@ -69908,10 +64251,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:73"
-          ]
+          }
         },
         {
           id: "video-service--update",
@@ -69955,10 +64295,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "open-map",
             returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:85"
-          ]
+          }
         },
         {
           id: "video-service--retranscode-video",
@@ -69998,10 +64335,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/VideoService.ts:24"
-          ]
+          }
         },
         {
           id: "video-service--check-transcoding-error",
@@ -70041,10 +64375,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/VideoService.ts:18"
-          ]
+          }
         },
         {
           id: "user-service--is-agency-admin",
@@ -70080,10 +64411,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/UserService.ts:6"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--notes-search",
@@ -70112,9 +64440,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:304"
-          ],
           publicEquivalent: [
             "objects-v3__search-notes",
             "objects__search-notes"
@@ -70153,10 +64478,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:137"
-          ]
+          }
         },
         {
           id: "ai-agents--locations-mcp-apps",
@@ -70188,10 +64510,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:136"
-          ]
+          }
         },
         {
           id: "ai-agents--locations-mcp-apps-post",
@@ -70223,10 +64542,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:135"
-          ]
+          }
         },
         {
           id: "ai-agents--locations-mcp-apps-delete",
@@ -70261,10 +64577,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:140"
-          ]
+          }
         },
         {
           id: "forms--objects",
@@ -70307,10 +64620,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "forms/20-api/neighbour-services.md:27",
-            "pipelines-opportunities/20-api/settings.md:80"
-          ],
           publicEquivalent: [
             "objects-v3__get-object-by-location-id",
             "objects__get-object-by-location-id"
@@ -70350,10 +64659,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/settings.md:81",
-            "pipelines-opportunities/20-api/settings.md:116"
-          ],
           publicEquivalent: [
             "objects-v3__update-custom-object",
             "objects__update-custom-object"
@@ -70392,10 +64697,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/settings.md:115"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--records-ids",
@@ -70423,10 +64725,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:412"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--records-search",
@@ -70454,10 +64753,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:329"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities",
@@ -70490,9 +64786,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:106"
-          ],
           publicEquivalent: [
             "opportunities-v3__create-opportunity"
           ],
@@ -70537,10 +64830,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:228",
-            "pipelines-opportunities/20-api/pipelines.md:280"
-          ],
           publicEquivalent: [
             "opportunities-v3__delete-opportunity",
             "opportunities__delete-opportunity"
@@ -70584,10 +64873,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:99",
-            "pipelines-opportunities/20-api/opportunities.md:123"
-          ],
           publicEquivalent: [
             "opportunities-v3__get-opportunity",
             "opportunities__get-opportunity"
@@ -70638,13 +64923,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:173",
-            "pipelines-opportunities/20-api/forecast.md:127",
-            "pipelines-opportunities/20-api/opportunities.md:132",
-            "pipelines-opportunities/20-api/opportunities.md:154",
-            "pipelines-opportunities/20-api/opportunities.md:337"
-          ],
           publicEquivalent: [
             "opportunities-v3__update-opportunity"
           ],
@@ -70685,9 +64963,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:273"
-          ],
           publicEquivalent: [
             "opportunities-v3__remove-followers-opportunity",
             "opportunities__remove-followers-opportunity"
@@ -70729,9 +65004,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:272"
-          ],
           publicEquivalent: [
             "opportunities-v3__add-followers-opportunity",
             "opportunities__add-followers-opportunity"
@@ -70779,12 +65051,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:260",
-            "pipelines-opportunities/20-api/bulk-actions.md:111",
-            "pipelines-opportunities/20-api/opportunities.md:245"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-sync",
@@ -70820,10 +65087,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/opportunities.md:283"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--bulk-actions-request-post",
@@ -70851,10 +65115,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:101"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--forecast-column",
@@ -70884,10 +65145,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:63"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--forecast-drilldown",
@@ -70915,10 +65173,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:64"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--forecast-slippage",
@@ -70948,10 +65203,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:65"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--forecast-summary",
@@ -70981,10 +65233,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:62"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-lost-reason",
@@ -71044,10 +65293,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:183",
-            "pipelines-opportunities/20-api/pipelines.md:42"
-          ],
           publicEquivalent: [
             "opportunities-v3__get-lost-reason",
             "opportunities__get-lost-reason"
@@ -71088,12 +65333,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:195",
-            "pipelines-opportunities/20-api/pipelines.md:43",
-            "pipelines-opportunities/20-api/pipelines.md:169"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-lost-reason-delete",
@@ -71136,11 +65376,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:191",
-            "pipelines-opportunities/20-api/forecast.md:205"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-lost-reason-get",
@@ -71183,10 +65419,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:184"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-lost-reason-put",
@@ -71222,10 +65455,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:204"
-          ]
+          }
         },
         {
           id: "forms--opportunities-pipelines",
@@ -71270,11 +65500,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "forms/20-api/neighbour-services.md:29",
-            "pipelines-opportunities/20-api/pipelines.md:204",
-            "pipelines-opportunities/20-api/smart-filters.md:86"
-          ],
           publicEquivalent: [
             "opportunities-v3__get-pipelines",
             "opportunities__get-pipelines"
@@ -71316,10 +65541,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:34",
-            "pipelines-opportunities/20-api/pipelines.md:51"
-          ],
           publicEquivalent: [
             "opportunities-v3__create-pipeline",
             "opportunities__create-pipeline"
@@ -71365,10 +65586,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:38",
-            "pipelines-opportunities/20-api/pipelines.md:277"
-          ],
           publicEquivalent: [
             "opportunities-v3__delete-pipeline",
             "opportunities__delete-pipeline"
@@ -71417,9 +65634,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:194"
-          ],
           publicEquivalent: [
             "opportunities-v3__get-pipeline",
             "opportunities__get-pipeline"
@@ -71478,9 +65692,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:215"
-          ],
           publicEquivalent: [
             "opportunities-v3__update-pipeline",
             "opportunities__update-pipeline"
@@ -71525,10 +65736,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:35"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--pipelines-duplicate",
@@ -71564,10 +65772,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:36"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--pipelines-position",
@@ -71603,10 +65808,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:37"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--pipelines-restore",
@@ -71638,10 +65840,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:287"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--pipelines-permissions",
@@ -71669,12 +65868,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:40",
-            "pipelines-opportunities/20-api/pipelines.md:158",
-            "pipelines-opportunities/20-api/pipelines.md:176"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--pipelines-permissions-put",
@@ -71713,11 +65907,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/pipelines.md:160",
-            "pipelines-opportunities/20-api/pipelines.md:41"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--permissions-location",
@@ -71755,11 +65945,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:185",
-            "pipelines-opportunities/20-api/pipelines.md:39"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-search",
@@ -71795,13 +65981,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "pipelines-opportunities/20-api/bulk-actions.md:155",
-            "pipelines-opportunities/20-api/forecast.md:15",
-            "pipelines-opportunities/20-api/forecast.md:97",
-            "pipelines-opportunities/20-api/forecast.md:146",
-            "pipelines-opportunities/20-api/opportunities.md:32"
-          ],
           publicEquivalent: [
             "opportunities-v3__search-opportunities-advanced",
             "opportunities__search-opportunities-advanced"
@@ -71858,10 +66037,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:51"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-smart-filters-post",
@@ -71871,7 +66047,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + 40-rules/smart-tags.md)",
+          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + [private corpus])",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -71893,11 +66069,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:91",
-            "pipelines-opportunities/20-api/smart-filters.md:188"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-smart-filters-delete-delete",
@@ -71936,11 +66108,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:253",
-            "pipelines-opportunities/20-api/smart-filters.md:152"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-smart-filters-get-get",
@@ -71985,10 +66153,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:52"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-smart-filters-put",
@@ -72024,10 +66189,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:130"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--smart-filters-restore",
@@ -72063,10 +66225,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:153"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--smart-filters-bulk",
@@ -72094,11 +66253,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:151",
-            "pipelines-opportunities/20-api/smart-filters.md:250"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--bulk-delete",
@@ -72126,10 +66281,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:173"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--bulk-update",
@@ -72157,10 +66309,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:131"
-          ]
+          }
         },
         {
           id: "pipelines-opportunities--opportunities-user-preferences",
@@ -72192,10 +66341,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:104"
-          ]
+          }
         },
         {
           id: "forms--payments-currency",
@@ -72226,10 +66372,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/neighbour-services.md:32"
-          ]
+          }
         },
         {
           id: "services--integrations",
@@ -72272,12 +66415,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:175",
-            "forms/20-api/neighbour-services.md:33",
-            "forms/20-api/neighbour-services.md:114"
-          ]
+          }
         },
         {
           id: "forms--integrations-entity-providers",
@@ -72306,10 +66444,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/neighbour-services.md:34"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-supervisor-agents",
@@ -72337,10 +66472,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:462"
-          ]
+          }
         },
         {
           id: "ai-agents--phone-system-number-pools",
@@ -72382,10 +66514,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:153",
-            "ai-agents/20-api/logs-deployment-email.md:154"
-          ],
           publicEquivalent: [
             "phone-system-v3__getNumberPoolList",
             "phone-system__getNumberPoolList"
@@ -72417,10 +66545,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:177"
-          ]
+          }
         },
         {
           id: "ai-agents--numbers-location",
@@ -72466,9 +66591,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:152"
-          ],
           publicEquivalent: [
             "phone-system-v3__active-numbers"
           ]
@@ -72517,9 +66639,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:165"
-          ],
           publicEquivalent: [
             "phone-system-v3__listAvailableNumbersForACountry",
             "phone-system__available-numbers"
@@ -72556,9 +66675,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:168"
-          ],
           publicEquivalent: [
             "phone-system-v3__purchase-number-for-location"
           ]
@@ -72614,10 +66730,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:172"
-          ]
+          }
         },
         {
           id: "ai-agents--phone-system-twilio-accounts",
@@ -72652,10 +66765,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:174"
-          ]
+          }
         },
         {
           id: "services--products",
@@ -72717,9 +66827,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "resolved",
             returns: "none-observed"
           },
-          sources: [
-            "restAgent.ts:183"
-          ],
           publicEquivalent: [
             "products-v3__create-product",
             "products__create-product"
@@ -72771,9 +66878,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "forms/20-api/neighbour-services.md:35"
-          ],
           publicEquivalent: [
             "products-v3__list-invoices",
             "products__list-invoices"
@@ -72806,10 +66910,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "forms/20-api/neighbour-services.md:36",
-            "forms/20-api/neighbour-services.md:94"
-          ],
           publicEquivalent: [
             "products-v3__create-product",
             "products__create-product"
@@ -72853,10 +66953,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:158"
-          ]
+          }
         },
         {
           id: "services--prices--put-prices-price-id",
@@ -72900,10 +66997,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "erased",
             returns: "none-observed"
-          },
-          sources: [
-            "restAgent.ts:166"
-          ]
+          }
         },
         {
           id: "funnels--library-templates",
@@ -72931,11 +67025,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/template-library.md:137",
-            "funnels/20-api/template-library.md:139"
-          ]
+          }
         },
         {
           id: "ai-agents--location-conversation-ai",
@@ -72980,10 +67070,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:20"
-          ]
+          }
         },
         {
           id: "platform--snapshot-get-assets-get",
@@ -73032,10 +67119,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:82"
-          ]
+          }
         },
         {
           id: "platform--snapshots-assets",
@@ -73078,11 +67162,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:36",
-            "platform/20-api/snapshots.md:161"
-          ]
+          }
         },
         {
           id: "platform--snapshots-assets-status-get",
@@ -73122,10 +67202,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:130"
-          ]
+          }
         },
         {
           id: "platform--snapshots-restricted-assets",
@@ -73165,10 +67242,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:101"
-          ]
+          }
         },
         {
           id: "platform--snapshots-locations-get",
@@ -73215,10 +67289,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:189"
-          ]
+          }
         },
         {
           id: "platform--v2-available",
@@ -73258,11 +67329,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:122",
-            "platform/20-api/snapshots.md:191"
-          ]
+          }
         },
         {
           id: "platform--locations-v2-get",
@@ -73308,10 +67375,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:116"
-          ]
+          }
         },
         {
           id: "platform--snapshot-push-push-in-progress-get",
@@ -73351,11 +67415,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:111",
-            "platform/20-api/snapshots.md:172"
-          ]
+          }
         },
         {
           id: "platform--v2-set-assets-to-locations-post",
@@ -73389,10 +67449,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:166"
-          ]
+          }
         },
         {
           id: "platform--snapshots-snapshot-versions",
@@ -73444,10 +67501,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:92"
-          ]
+          }
         },
         {
           id: "platform--snapshots-v2-get",
@@ -73508,10 +67562,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/snapshots.md:72"
-          ]
+          }
         },
         {
           id: "conversations--snippets",
@@ -73566,11 +67617,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/snippets.md:24",
-            "conversations/20-api/snippets.md:32"
-          ]
+          }
         },
         {
           id: "conversations--snippets-post",
@@ -73603,10 +67650,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/snippets.md:40"
-          ]
+          }
         },
         {
           id: "conversations--snippets-delete",
@@ -73641,10 +67685,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/snippets.md:66"
-          ]
+          }
         },
         {
           id: "conversations--snippets-put",
@@ -73679,10 +67720,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/snippets.md:64"
-          ]
+          }
         },
         {
           id: "conversations--bulk-move",
@@ -73714,10 +67752,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/snippets.md:65"
-          ]
+          }
         },
         {
           id: "conversations--folders-check",
@@ -73759,10 +67794,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/snippets.md:57"
-          ]
+          }
         },
         {
           id: "conversations--folders-list",
@@ -73797,10 +67829,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/snippets.md:58"
-          ]
+          }
         },
         {
           id: "ai-agents--social-media-posting-accounts",
@@ -73843,9 +67872,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:426"
-          ],
           publicEquivalent: [
             "social-planner-v3__get-account",
             "social-media-posting__get-account"
@@ -73878,15 +67904,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "documented",
             returns: "documented"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "forms/20-api/surveys-and-quizzes.md",
-            "forms/20-api/forms.md:94",
-            "forms/20-api/surveys-and-quizzes.md:21",
-            "forms/20-api/surveys-and-quizzes.md:89",
-            "forms/40-rules/validators-and-quirks.md:81"
-          ]
+          }
         },
         {
           id: "forms--surveys-delete",
@@ -73918,10 +67936,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:38"
-          ]
+          }
         },
         {
           id: "forms--get-surveys",
@@ -73958,11 +67973,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "workflows/70-research/ENDPOINTS.md"
-          ]
+          }
         },
         {
           id: "forms--surveys",
@@ -73997,11 +68008,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:83",
-            "forms/20-api/surveys-and-quizzes.md:93"
-          ]
+          }
         },
         {
           id: "forms--surveys-duplicate",
@@ -74029,10 +68036,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:53"
-          ]
+          }
         },
         {
           id: "forms--surveys-duplicate-post",
@@ -74064,12 +68068,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:37",
-            "forms/20-api/surveys-and-quizzes.md:66",
-            "forms/20-api/surveys-and-quizzes.md:102"
-          ]
+          }
         },
         {
           id: "forms--surveys-folder",
@@ -74108,10 +68107,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:39"
-          ]
+          }
         },
         {
           id: "forms--surveys-folder-post",
@@ -74139,10 +68135,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:52"
-          ]
+          }
         },
         {
           id: "forms--surveys-folder-post-post",
@@ -74171,10 +68164,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:37"
-          ]
+          }
         },
         {
           id: "forms--surveys-folder-get",
@@ -74206,10 +68196,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:39"
-          ]
+          }
         },
         {
           id: "forms--surveys-folder-post-post-post",
@@ -74244,10 +68231,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:38"
-          ]
+          }
         },
         {
           id: "forms--surveys-move-to-folder",
@@ -74275,11 +68259,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:37",
-            "forms/20-api/surveys-and-quizzes.md:51"
-          ]
+          }
         },
         {
           id: "forms--surveys-restore-version",
@@ -74307,11 +68287,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:84",
-            "forms/20-api/surveys-and-quizzes.md:108"
-          ]
+          }
         },
         {
           id: "forms--surveys-share",
@@ -74343,10 +68319,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:38"
-          ]
+          }
         },
         {
           id: "forms--surveys-update-setting",
@@ -74378,10 +68351,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "forms/40-rules/validators-and-quirks.md:178"
-          ]
+          }
         },
         {
           id: "memberships-courses--templates",
@@ -74413,10 +68383,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:290"
-          ]
+          }
         },
         {
           id: "memberships-courses--templates-get",
@@ -74448,10 +68415,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/build-api.md:287"
-          ]
+          }
         },
         {
           id: "funnels--templates-brand-kits",
@@ -74479,10 +68443,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/template-library.md:109"
-          ]
+          }
         },
         {
           id: "funnels--templates-bulk-update",
@@ -74510,10 +68471,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:140"
-          ]
+          }
         },
         {
           id: "funnels--templates-category",
@@ -74548,10 +68506,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:141"
-          ]
+          }
         },
         {
           id: "funnels--templates-category-get",
@@ -74586,10 +68541,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:142"
-          ]
+          }
         },
         {
           id: "funnels--category-create",
@@ -74617,10 +68569,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:143"
-          ]
+          }
         },
         {
           id: "funnels--category-list",
@@ -74677,11 +68626,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/template-library.md:22",
-            "funnels/20-api/template-library.md:182"
-          ]
+          }
         },
         {
           id: "funnels--category-update",
@@ -74709,10 +68654,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:144"
-          ]
+          }
         },
         {
           id: "funnels--templates-create-media-urls",
@@ -74747,10 +68689,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:145"
-          ]
+          }
         },
         {
           id: "funnels--templates-fetch-preview-url",
@@ -74778,10 +68717,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:146"
-          ]
+          }
         },
         {
           id: "funnels--library-activity",
@@ -74809,10 +68745,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/template-library.md:111"
-          ]
+          }
         },
         {
           id: "template-library-service--fetch-templates-via-category",
@@ -74841,15 +68774,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/TemplateLibraryService.ts:41",
-            "funnels/20-api/template-library.md:35",
-            "funnels/20-api/template-library.md:110",
-            "funnels/20-api/template-library.md:116",
-            "funnels/20-api/template-library.md:157",
-            "funnels/60-recipes/author-native-elements.md:45"
-          ]
+          }
         },
         {
           id: "funnels--templates-location-settings",
@@ -74881,10 +68806,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:148"
-          ]
+          }
         },
         {
           id: "funnels--templates-location-settings-get",
@@ -74919,10 +68841,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:147"
-          ]
+          }
         },
         {
           id: "funnels--location-settings-update",
@@ -74950,10 +68869,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:149"
-          ]
+          }
         },
         {
           id: "funnels--locations-search",
@@ -74981,10 +68897,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:150"
-          ]
+          }
         },
         {
           id: "funnels--templates-marketplace",
@@ -75019,10 +68932,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:151"
-          ]
+          }
         },
         {
           id: "funnels--marketplace-share",
@@ -75057,10 +68967,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:152"
-          ]
+          }
         },
         {
           id: "funnels--admin-link",
@@ -75092,10 +68999,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:153"
-          ]
+          }
         },
         {
           id: "funnels--admin-link-put",
@@ -75127,10 +69031,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:154"
-          ]
+          }
         },
         {
           id: "funnels--link-create",
@@ -75158,10 +69059,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:155"
-          ]
+          }
         },
         {
           id: "funnels--snapshots-list",
@@ -75189,10 +69087,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:156"
-          ]
+          }
         },
         {
           id: "funnels--templates-tag",
@@ -75227,10 +69122,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:157"
-          ]
+          }
         },
         {
           id: "funnels--tags-create",
@@ -75258,10 +69150,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:158"
-          ]
+          }
         },
         {
           id: "funnels--tags-list",
@@ -75289,10 +69178,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:159"
-          ]
+          }
         },
         {
           id: "funnels--tags-update",
@@ -75320,10 +69206,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:160"
-          ]
+          }
         },
         {
           id: "funnels--template-search-autocomplete",
@@ -75351,10 +69234,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:161"
-          ]
+          }
         },
         {
           id: "funnels--template-search-colors",
@@ -75382,10 +69262,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:162"
-          ]
+          }
         },
         {
           id: "funnels--template-search-facets",
@@ -75442,11 +69319,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/template-library.md:19",
-            "funnels/20-api/template-library.md:172"
-          ]
+          }
         },
         {
           id: "funnels--template-search-recent-delete",
@@ -75474,10 +69347,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:163"
-          ]
+          }
         },
         {
           id: "funnels--template-search-recent",
@@ -75505,10 +69375,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/template-library.md:107"
-          ]
+          }
         },
         {
           id: "funnels--template-search-suggestions",
@@ -75553,10 +69420,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/template-library.md:21"
-          ]
+          }
         },
         {
           id: "funnels--template-search-trending",
@@ -75600,10 +69464,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/template-library.md:20"
-          ]
+          }
         },
         {
           id: "funnels--templates-template-settings",
@@ -75635,11 +69496,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/template-library.md:23",
-            "funnels/20-api/template-library.md:130"
-          ]
+          }
         },
         {
           id: "funnels--template-settings-hide-template",
@@ -75667,10 +69524,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:164"
-          ]
+          }
         },
         {
           id: "funnels--template-settings-unhide-template",
@@ -75698,10 +69552,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:165"
-          ]
+          }
         },
         {
           id: "funnels--template-settings-update",
@@ -75729,10 +69580,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:166"
-          ]
+          }
         },
         {
           id: "funnels--templates-template-share-details",
@@ -75767,10 +69615,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:167"
-          ]
+          }
         },
         {
           id: "funnels--templates-template-share-url",
@@ -75798,10 +69643,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:168"
-          ]
+          }
         },
         {
           id: "funnels--templates-template",
@@ -75836,10 +69678,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:171"
-          ]
+          }
         },
         {
           id: "funnels--templates-template-get",
@@ -75877,10 +69716,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:170"
-          ]
+          }
         },
         {
           id: "funnels--template-publish-status",
@@ -75918,10 +69754,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:169"
-          ]
+          }
         },
         {
           id: "funnels--template-clone",
@@ -75956,10 +69789,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:172"
-          ]
+          }
         },
         {
           id: "funnels--template-create",
@@ -75987,10 +69817,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:173"
-          ]
+          }
         },
         {
           id: "template-library-service--load-workflow-via-template-id",
@@ -76021,15 +69848,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
-          },
-          sources: [
-            "services/TemplateLibraryService.ts:75",
-            "ai-agents/10-anatomy/flow-agent-shape.md:227",
-            "funnels/20-api/funnels-api.md:66",
-            "funnels/20-api/funnels-api.md:67",
-            "funnels/20-api/template-library.md:77",
-            "funnels/20-api/template-library.md:192"
-          ]
+          }
         },
         {
           id: "funnels--template-publish",
@@ -76057,10 +69876,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:174"
-          ]
+          }
         },
         {
           id: "funnels--template-refresh",
@@ -76088,10 +69904,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:175"
-          ]
+          }
         },
         {
           id: "funnels--template-unpublish",
@@ -76119,10 +69932,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:176"
-          ]
+          }
         },
         {
           id: "funnels--template-update",
@@ -76150,10 +69960,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:177"
-          ]
+          }
         },
         {
           id: "funnels--user-settings-update",
@@ -76181,10 +69988,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:178"
-          ]
+          }
         },
         {
           id: "funnels--templates-visibility",
@@ -76222,10 +70026,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "funnels/70-research/2026-09-29-route-census.md:179"
-          ]
+          }
         },
         {
           id: "services--get-user-preferences",
@@ -76280,10 +70081,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "resolved",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/user-preferences-service.ts:35"
-          ]
+          }
         },
         {
           id: "services--save-user-preferences",
@@ -76356,10 +70154,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "resolved",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/user-preferences-service.ts:43"
-          ]
+          }
         },
         {
           id: "calendars--users",
@@ -76392,9 +70187,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "calendars/20-api/schedules.md:44"
-          ],
           publicEquivalent: [
             "users-v3__update-user",
             "users__update-user"
@@ -76429,14 +70221,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:168",
-            "ai-agents/20-api/12-ai-agents-api.md:176",
-            "ai-agents/20-api/12-ai-agents-api.md:197",
-            "ai-agents/20-api/12-ai-agents-api.md:314",
-            "ai-agents/20-api/12-ai-agents-api.md:344",
-            "ai-agents/20-api/12-ai-agents-api.md:391"
-          ],
           publicEquivalent: [
             "voice-ai-v3__create-action",
             "voice-ai__create-action"
@@ -76478,10 +70262,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:169",
-            "ai-agents/20-api/12-ai-agents-api.md:199"
-          ],
           publicEquivalent: [
             "voice-ai-v3__update-action",
             "voice-ai__update-action"
@@ -76525,10 +70305,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/voice-ai-actions.md:163"
-          ]
+          }
         },
         {
           id: "ask-ai--actions-bulk",
@@ -76556,11 +70333,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ask-ai/30-types/skills/voice-ai--onboarding.md:1067",
-            "ask-ai/30-types/skills/voice-ai--onboarding.md:1079"
-          ]
+          }
         },
         {
           id: "ai-agents--generate-with-ai-ai-description",
@@ -76588,10 +70361,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:279"
-          ]
+          }
         },
         {
           id: "ai-agents--ai-description-stream",
@@ -76619,10 +70389,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:277"
-          ]
+          }
         },
         {
           id: "ai-agents--generate-with-ai-generate-contact-field",
@@ -76650,10 +70417,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:282"
-          ]
+          }
         },
         {
           id: "ai-agents--generate-with-ai-generate-contact-field-example",
@@ -76681,10 +70445,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:284"
-          ]
+          }
         },
         {
           id: "ai-agents--generate-with-ai-trigger-prompts",
@@ -76712,10 +70473,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:280"
-          ]
+          }
         },
         {
           id: "ai-agents--actions-incoming-transfers",
@@ -76743,11 +70501,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/voice-ai-actions.md:85",
-            "ai-agents/30-types/voice-ai-actions.md:93"
-          ]
+          }
         },
         {
           id: "ai-agents--actions-test-webhook",
@@ -76775,12 +70529,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:288",
-            "ai-agents/30-types/voice-ai-actions.md:84",
-            "ai-agents/30-types/voice-ai-actions.md:92"
-          ]
+          }
         },
         {
           id: "ai-agents--voice-ai-agents",
@@ -76812,9 +70561,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:170"
-          ],
           publicEquivalent: [
             "voice-ai-v3__get-agents",
             "voice-ai__get-agents"
@@ -76854,14 +70600,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:88",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
-            "ai-agents/20-api/12-ai-agents-api.md:75",
-            "ai-agents/20-api/12-ai-agents-api.md:164",
-            "ai-agents/20-api/12-ai-agents-api.md:176",
-            "ai-agents/20-api/12-ai-agents-api.md:184"
-          ],
           publicEquivalent: [
             "voice-ai-v3__create-agent",
             "voice-ai__create-agent"
@@ -76918,11 +70656,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ask-ai/30-types/skills/crm-voice-ai.md:23",
-            "ask-ai/30-types/skills/voice-ai--onboarding.md:19",
-            "ask-ai/30-types/skills/voice-ai--onboarding.md:42"
-          ],
           publicEquivalent: [
             "voice-ai-v3__patch-agent",
             "voice-ai__patch-agent"
@@ -76960,9 +70693,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:185"
-          ],
           publicEquivalent: [
             "voice-ai-v3__get-agent",
             "voice-ai__get-agent"
@@ -77014,12 +70744,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:167",
-            "ai-agents/10-anatomy/flow-agent-shape.md:129",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:370",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:431"
-          ],
           publicEquivalent: [
             "voice-ai-v3__delete-agent",
             "voice-ai__delete-agent"
@@ -77075,14 +70799,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:165",
-            "ai-agents/20-api/12-ai-agents-api.md:176",
-            "ai-agents/20-api/12-ai-agents-api.md:389",
-            "ai-agents/20-api/voice-ai-boundary.md:65",
-            "ai-agents/20-api/voice-ai-boundary.md:25",
-            "ai-agents/20-api/voice-ai-boundary.md:26"
-          ],
           publicEquivalent: [
             "voice-ai-v3__get-agent",
             "voice-ai__get-agent"
@@ -77135,12 +70851,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
-            "ai-agents/10-anatomy/flow-agent-shape.md:116",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:283",
-            "ai-agents/20-api/custom-api-and-mcp.md:58"
-          ],
           publicEquivalent: [
             "voice-ai-v3__patch-agent",
             "voice-ai__patch-agent"
@@ -77201,17 +70911,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:238",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:252",
-            "ai-agents/20-api/12-ai-agents-api.md:166",
-            "ai-agents/20-api/12-ai-agents-api.md:176",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:229",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:505",
-            "ai-agents/20-api/12-ai-agents-api.md:390",
-            "ai-agents/20-api/custom-api-and-mcp.md:127"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-phone-number",
@@ -77243,10 +70943,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:151"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-phone-number-put",
@@ -77278,10 +70975,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:150"
-          ]
+          }
         },
         {
           id: "ai-agents--prompts-defaults",
@@ -77323,12 +71017,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:66",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:308",
-            "ai-agents/20-api/12-ai-agents-api.md:172"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-switch-provider",
@@ -77360,10 +71049,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:212"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-widgets",
@@ -77405,11 +71091,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:558",
-            "ai-agents/20-api/logs-deployment-email.md:211"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-widgets-post",
@@ -77451,10 +71133,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:557"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-duplicate",
@@ -77486,10 +71165,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:419"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-s2s-tokenizer",
@@ -77528,10 +71204,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:358"
-          ]
+          }
         },
         {
           id: "ai-agents--s2s-prompt-validate",
@@ -77563,10 +71236,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:354"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-transfer-connections",
@@ -77598,12 +71268,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:173",
-            "ai-agents/30-types/voice-ai-actions.md:53",
-            "ai-agents/30-types/voice-ai-actions.md:86"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-agents-with-folders",
@@ -77631,10 +71296,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:63"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-bulk-delete",
@@ -77662,10 +71324,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:433"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-calls",
@@ -77693,10 +71352,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:206"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-simple",
@@ -77726,10 +71382,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:64"
-          ]
+          }
         },
         {
           id: "ai-agents--prompt-suggestion-stream",
@@ -77757,10 +71410,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:350"
-          ]
+          }
         },
         {
           id: "ai-agents--voice-ai-call-get",
@@ -77807,13 +71457,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:443",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:478",
-            "ai-agents/20-api/logs-deployment-email.md:24",
-            "ai-agents/20-api/logs-deployment-email.md:63"
-          ]
+          }
         },
         {
           id: "ai-agents--voice-ai-call-patch",
@@ -77845,10 +71489,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:30"
-          ]
+          }
         },
         {
           id: "ai-agents--call-feedback",
@@ -77893,11 +71534,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:458",
-            "ai-agents/20-api/logs-deployment-email.md:31"
-          ]
+          }
         },
         {
           id: "ai-agents--call-create-trial-web-call",
@@ -77932,11 +71569,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:437",
-            "ai-agents/10-anatomy/flow-agent-shape.md:118"
-          ]
+          }
         },
         {
           id: "ai-agents--call-live-transcript",
@@ -77971,10 +71604,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:442"
-          ]
+          }
         },
         {
           id: "ai-agents--call-trial",
@@ -78027,13 +71657,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:445",
-            "ai-agents/20-api/logs-deployment-email.md:28",
-            "ai-agents/20-api/voice-ai-boundary.md:74",
-            "ai-agents/30-types/voice-ai-actions.md:145"
-          ]
+          }
         },
         {
           id: "ai-agents--call-trial-usage",
@@ -78074,12 +71698,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:446",
-            "ai-agents/20-api/logs-deployment-email.md:29",
-            "ai-agents/20-api/voice-ai-boundary.md:75"
-          ]
+          }
         },
         {
           id: "ai-agents--voice-ai-configurations",
@@ -78111,10 +71730,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:78"
-          ]
+          }
         },
         {
           id: "ai-agents--consent-apply",
@@ -78142,10 +71758,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:197"
-          ]
+          }
         },
         {
           id: "ai-agents--apply-status",
@@ -78177,10 +71790,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:198"
-          ]
+          }
         },
         {
           id: "ai-agents--consent-audit",
@@ -78208,10 +71818,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:199"
-          ]
+          }
         },
         {
           id: "ai-agents--audit-status",
@@ -78243,10 +71850,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:200"
-          ]
+          }
         },
         {
           id: "ai-agents--location-compliant",
@@ -78281,10 +71885,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:201"
-          ]
+          }
         },
         {
           id: "ai-agents--location-last-apply-text",
@@ -78316,10 +71917,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:202"
-          ]
+          }
         },
         {
           id: "ai-agents--location-status",
@@ -78354,10 +71952,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:203"
-          ]
+          }
         },
         {
           id: "ai-agents--consent-outbound",
@@ -78385,10 +71980,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:196"
-          ]
+          }
         },
         {
           id: "ai-agents--consent-outbound-get",
@@ -78423,13 +72015,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:174",
-            "ai-agents/20-api/logs-deployment-email.md:195",
-            "ai-agents/20-api/voice-ai-boundary.md:76",
-            "ai-agents/30-types/voice-ai-actions.md:115"
-          ]
+          }
         },
         {
           id: "ai-agents--consent-validate-greeting-disclaimer",
@@ -78457,11 +72043,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
-            "ai-agents/20-api/logs-deployment-email.md:205"
-          ]
+          }
         },
         {
           id: "ai-agents--consent-validate-text",
@@ -78489,10 +72071,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:204"
-          ]
+          }
         },
         {
           id: "ai-agents--dashboard-agents",
@@ -78520,11 +72099,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:26",
-            "ai-agents/20-api/voice-ai-boundary.md:71"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-detailed",
@@ -78552,11 +72127,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:27",
-            "ai-agents/20-api/voice-ai-boundary.md:72"
-          ]
+          }
         },
         {
           id: "ai-agents--dashboard-call-logs",
@@ -78587,11 +72158,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             body: "unresolved",
             returns: "unresolved"
           },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366",
-            "ai-agents/20-api/logs-deployment-email.md:21",
-            "ai-agents/20-api/voice-ai-boundary.md:73"
-          ],
           publicEquivalent: [
             "voice-ai-v3__get-call-logs",
             "voice-ai__get-call-logs"
@@ -78630,10 +72196,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:25"
-          ]
+          }
         },
         {
           id: "ai-agents--feature-flags-is-enabled",
@@ -78665,10 +72228,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:77"
-          ]
+          }
         },
         {
           id: "ai-agents--voice-ai-folders",
@@ -78727,11 +72287,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:427",
-            "ai-agents/20-api/voice-ai-boundary.md:67"
-          ]
+          }
         },
         {
           id: "ai-agents--voice-ai-folders-post",
@@ -78759,10 +72315,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:426"
-          ]
+          }
         },
         {
           id: "ai-agents--voice-ai-folders-delete",
@@ -78794,10 +72347,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:430"
-          ]
+          }
         },
         {
           id: "ai-agents--voice-ai-folders-put",
@@ -78829,10 +72379,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:429"
-          ]
+          }
         },
         {
           id: "ai-agents--agents-move",
@@ -78864,10 +72411,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:428"
-          ]
+          }
         },
         {
           id: "ai-agents--mcp-server",
@@ -78895,12 +72439,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:39",
-            "ai-agents/30-types/voice-ai-actions.md:97",
-            "ai-agents/30-types/voice-ai-actions.md:103"
-          ]
+          }
         },
         {
           id: "ai-agents--mcp-server-post",
@@ -78928,11 +72467,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:34",
-            "ai-agents/30-types/voice-ai-actions.md:95"
-          ]
+          }
         },
         {
           id: "ai-agents--mcp-server-put",
@@ -78960,10 +72495,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/30-types/voice-ai-actions.md:96"
-          ]
+          }
         },
         {
           id: "ai-agents--mcp-servers",
@@ -79004,11 +72536,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:564",
-            "ai-agents/20-api/custom-api-and-mcp.md:35"
-          ]
+          }
         },
         {
           id: "ai-agents--mcp-tools-get",
@@ -79036,11 +72564,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:36",
-            "ai-agents/30-types/voice-ai-actions.md:98"
-          ]
+          }
         },
         {
           id: "ai-agents--mcp-tools",
@@ -79068,12 +72592,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/custom-api-and-mcp.md:37",
-            "ai-agents/30-types/voice-ai-actions.md:99",
-            "ai-agents/30-types/voice-ai-actions.md:104"
-          ]
+          }
         },
         {
           id: "ai-agents--performance-report-settings",
@@ -79105,10 +72624,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
-          ]
+          }
         },
         {
           id: "ai-agents--prompt-evaluate",
@@ -79136,10 +72652,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:286"
-          ]
+          }
         },
         {
           id: "ai-agents--suggestion-action",
@@ -79167,10 +72680,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:287"
-          ]
+          }
         },
         {
           id: "ai-agents--web-call-setup",
@@ -79198,11 +72708,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:469",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:472"
-          ]
+          }
         },
         {
           id: "ai-agents--voice-ai-translate",
@@ -79230,10 +72736,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/logs-deployment-email.md:289"
-          ]
+          }
         },
         {
           id: "ai-agents--translate-ai",
@@ -79261,10 +72764,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:346"
-          ]
+          }
         },
         {
           id: "ai-agents--voices-agents",
@@ -79303,10 +72803,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:395"
-          ]
+          }
         },
         {
           id: "ai-agents--voices-all",
@@ -79350,14 +72847,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:63",
-            "ai-agents/20-api/12-ai-agents-api.md:171",
-            "ai-agents/20-api/12-ai-agents-api.md:392",
-            "ai-agents/20-api/voice-ai-boundary.md:68",
-            "ai-agents/20-api/voice-ai-boundary.md:85"
-          ]
+          }
         },
         {
           id: "ai-agents--voices-feedback",
@@ -79385,10 +72875,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:70"
-          ]
+          }
         },
         {
           id: "ai-agents--voices-import",
@@ -79433,10 +72920,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:392"
-          ]
+          }
         },
         {
           id: "ai-agents--voices-my-voices",
@@ -79477,11 +72961,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:388",
-            "ai-agents/20-api/voice-ai-boundary.md:69"
-          ]
+          }
         },
         {
           id: "ai-agents--voices-my-voices-delete",
@@ -79513,10 +72993,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:396"
-          ]
+          }
         },
         {
           id: "ai-agents--voices-search",
@@ -79563,10 +73040,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "documented",
             body: "unresolved",
             returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:390"
-          ]
+          }
         },
         {
           id: "services--get-facebook-linked-pages",
@@ -79602,10 +73076,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/api/facebook-linked-pages.ts:29"
-          ]
+          }
         },
         {
           id: "services--get-feature-flags",
@@ -79647,10 +73118,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "resolved"
-          },
-          sources: [
-            "services/api/feature-flags.ts:28"
-          ]
+          }
         },
         {
           id: "services--get-instagram-linked-pages",
@@ -79686,10 +73154,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             query: "none-observed",
             body: "none-observed",
             returns: "erased"
-          },
-          sources: [
-            "services/api/instagram-linked-pages.ts:30"
-          ]
+          }
         }
       ]
     };
@@ -79701,7 +73166,7 @@ var define_ENDPOINT_OVERLAY_default;
 var init_define_ENDPOINT_OVERLAY = __esm({
   "<define:__ENDPOINT_OVERLAY__>"() {
     define_ENDPOINT_OVERLAY_default = {
-      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential (knowledge/scripts/probe-reach-differential.mjs) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.\n\nRequired-key discovery is ITERATIVE. An endpoint answers 400/422 naming one missing key; supply it and the next round names the next. A single probe pass under-reports, and requiredQuery should be treated as a floor rather than a complete list.",
+      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential ([private corpus]) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.\n\nRequired-key discovery is ITERATIVE. An endpoint answers 400/422 naming one missing key; supply it and the next round names the next. A single probe pass under-reports, and requiredQuery should be treated as a floor rather than a complete list.",
       rows: {
         "DELETE /agent-logs/logs/{sessionId}": {
           kind: "write",
@@ -80086,7 +73551,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /forms": {
           reach: "proven",
-          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md."
+          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map ([private capture]) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md."
         },
         "GET /forms/forms-list": {
           requiredQuery: [
@@ -80369,7 +73834,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "requiredQuery proven live 2026-09-10: altId, locationId. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
         },
         "GET /reporting/notification/automation/workflows/unpublished": {
-          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge sniffs/reached-2026-09-23.',
+          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge [private capture]',
           requiredQuery: [
             "companyId",
             "userId"
@@ -80479,7 +73944,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /surveys": {
           reach: "proven",
-          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md."
+          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: [private corpus]"
         },
         "GET /surveys/folder": {
           reach: "proven",
@@ -80762,7 +74227,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "GET /workflows-marketplace/actions/stats/{actionKey}": {
           summary: "Execution stats for one marketplace/premium action step over a window.",
-          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge sniffs/reached-2026-09-23.',
+          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge [private capture]',
           requiredQuery: [
             "locationId",
             "workflowId",
@@ -80792,7 +74257,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "requestGroupId",
             "workflowId"
           ],
-          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge [private capture]",
           reach: "proven"
         },
         "GET /workflows/copyWorkflow/logList": {
@@ -80800,14 +74265,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "locationId",
             "workflowId"
           ],
-          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge [private capture]",
           reach: "proven"
         },
         "GET /workflows/copyWorkflow/statusList": {
           requiredQuery: [
             "locationId"
           ],
-          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge [private capture]",
           reach: "proven"
         },
         "GET /workflows/logs/export/preview": {
@@ -80871,7 +74336,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
         "GET /workflows/sticky-note": {
-          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge [private capture]`,
           requiredQuery: [
             "_id"
           ],
@@ -81323,7 +74788,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "POST /workflow/{locationId}/scheduler-trigger/preview": {
           reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See _shared/conformance/a-success-that-equals-the-null-result.md.'
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See [private corpus]'
         },
         "POST /workflow/{locationId}/sms/send-test-sms": {
           kind: "write",
@@ -81405,7 +74870,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "write",
           reach: "proven",
           credentialClass: "agency-admin-bearer",
-          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 (sniffs/workflows-wave1-2026-09-25/live-3BL-test-run.json). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`
+          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 ([private capture]). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`
         },
         "POST /workflow/{locationId}/{workflowId}/upload": {
           reach: "reached",
@@ -81744,19 +75209,19 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: 'TRAP (proven-live 2026-09-23): a limit above 21 is REFUSED with 422 "limit must not be greater than 21" -- a caller asking for 100 errors on every call and reads it as "no templates". Page with limit<=21 and skip; the envelope is {data, total}. The typed list_account_entities pages it this way.'
         },
         "GET /workflows-marketplace/integration/google-sheets/drives": {
-          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "GET /workflows-marketplace/integration/google-sheets/spreadsheets": {
-          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "GET /workflows-marketplace/integration/slack/public-channels": {
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "GET /workflows-marketplace/integration/slack/private-channels": {
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "GET /workflows-marketplace/integration/slack/users": {
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "POST /agent-studio/agents/anton/session": {
           note: `NO TASK NEEDS THIS \u2014 coordinator decision T8 (2026-09-26): legacy flow-agent (node-graph Agent Studio) authoring is excluded; anton is that builder's AI runtime, and the Managed-Agent editor also POSTs it on open (a write-on-open, 2026-09-25 UI walk). IF THE USER WANTS IT: GHL can do it \u2014 AI Agents \u2192 Agent Studio (flow agents) in the UI, or the flow builder embedded in Voice AI / Conversation AI. Written where agents read it: corpus ai-agents/00-overview "What GHL can do that this plugin does not author", and the same table in skills ghl-conversation-ai and ghl-voice-ai.`
@@ -81852,7 +75317,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "write",
-          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + 40-rules/smart-tags.md)"
+          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + [private corpus])"
         },
         "PUT /opportunities/smart-filters/{smartFilterId}": {
           reach: "proven",
@@ -81949,7 +75414,7 @@ var define_FUNNEL_ELEMENTS_default;
 var init_define_FUNNEL_ELEMENTS = __esm({
   "<define:__FUNNEL_ELEMENTS__>"() {
     define_FUNNEL_ELEMENTS_default = {
-      _source: "knowledge/corpus/funnels/_data/elements.json (editableProps.extra)",
+      _source: "[private corpus] (editableProps.extra)",
       _note: "meta is a CLOSED set of 77; extraProps must all be present on a node or the public render 500s.",
       count: 77,
       elements: {

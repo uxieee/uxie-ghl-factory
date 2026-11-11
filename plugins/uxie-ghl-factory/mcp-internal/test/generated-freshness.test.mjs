@@ -18,6 +18,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { projectLedger } from '../scripts/lib/public-projection.mjs';
 
 // The freshness gate (scripts/check-generated-freshness.mjs at the repo root) is what stands
 // between a corpus update and a release cut from the OLD compiled artefacts. A gate that passes
@@ -174,9 +175,11 @@ test('a ledger the knowledge validator refuses is STALE, even when the copies ma
   cpSync(join(KNOWLEDGE, 'sniffs/rail-ledger-2026-10-29'), join(knowledge, 'sniffs/rail-ledger-2026-10-29'), { recursive: true });
   cpSync(join(KNOWLEDGE, 'sniffs/opp-wave-2026-09-25'), join(knowledge, 'sniffs/opp-wave-2026-09-25'), { recursive: true });
   // A hand edit that decides a row its read does not support — the same bytes in knowledge and in the plugin copy.
-  const ledger = JSON.parse(readFileSync(join(mcp, 'catalog/rail-ledger.json'), 'utf8'));
+  // Knowledge's own ledger is the source (the plugin copy is projected, so the validator's sniff: refs no longer resolve).
+  const ledger = JSON.parse(readFileSync(join(KNOWLEDGE, 'catalog/rail-ledger.json'), 'utf8'));
   ledger.rows.find((r) => r.product === 'calendars' && r.job === 'read').decision = 'pool-public';
-  for (const dir of [join(knowledge, 'catalog'), join(mcp, 'catalog')]) writeFileSync(join(dir, 'rail-ledger.json'), `${JSON.stringify(ledger, null, 2)}\n`);
+  writeFileSync(join(knowledge, 'catalog', 'rail-ledger.json'), `${JSON.stringify(ledger, null, 2)}\n`);
+  writeFileSync(join(mcp, 'catalog', 'rail-ledger.json'), `${JSON.stringify(projectLedger(ledger), null, 2)}\n`);
   cpSync(join(mcp, 'catalog/public-ops.json'), join(knowledge, 'catalog/public-ops.json'));
   const { code, out } = run('--plugin-root', root, '--knowledge', knowledge, '--public-api', join(knowledge, 'nowhere'), '--only', 'rail-ledger');
   assert.equal(code, 1, out);

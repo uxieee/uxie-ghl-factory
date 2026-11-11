@@ -15,6 +15,7 @@
 // caught here and not at push time.
 import { spawnSync } from 'node:child_process';
 import { gitOut } from './lib/git.mjs';
+import { projectSource, projectLedger, projectCopy } from '../plugins/uxie-ghl-factory/mcp-internal/scripts/lib/public-projection.mjs';
 import { existsSync, readFileSync, writeFileSync, copyFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, resolve, relative } from 'node:path';
@@ -128,11 +129,36 @@ if (hasKnowledge) {
 } else if (!quiet) {
   console.log('sync: knowledge/ not present — type-cards and source left as shipped');
 }
+// Public projection (2026-11-11, QA push-scan): the plugin is public, so every shipped copy the sync generates goes through
+// scripts/lib/public-projection.mjs (knowledge paths and the sources/dir fields removed). Applied in place to whatever copy is
+// on disk, with or without knowledge/. Rewrites only when the CONTENT changes, and keeps the file's own indentation.
+const projectInPlace = (abs, fn) => {
+  if (!existsSync(abs)) return;
+  const before = readFileSync(abs, 'utf8');
+  const original = JSON.parse(before);
+  const projected = fn(original);
+  if (JSON.stringify(projected) === JSON.stringify(original)) return;
+  const indent = (before.split('\n')[1] ?? '').match(/^ */)[0].length || 2;
+  writeFileSync(abs, `${JSON.stringify(projected, null, indent)}${before.endsWith('\n') ? '\n' : ''}`);
+};
+projectInPlace(join(MCP, 'catalog/internal-endpoints.source.json'), projectSource);
+projectInPlace(join(MCP, 'catalog/rail-ledger.json'), projectLedger);
+for (const rel of [
+  'skills/create-ghl-workflow/catalog/type-cards.json',
+  'mcp-internal/catalog/contact-filter-fields.json',
+  'mcp-internal/catalog/public-ops.json',
+  'mcp-internal/catalog/builder-validators.json',
+  'mcp-internal/catalog/funnel-elements.json',
+  'mcp-internal/capability-manifest.json',
+  'mcp-internal/audit-capability-manifest.json',
+]) projectInPlace(join(PLUGIN, rel), projectCopy);
+if (!quiet) console.log('sync: public projection ← knowledge paths, sources and capture dirs removed from every generated JSON copy');
 run('skill-types ← type-cards.json copied into ghl-system-conventions + index rendered', 'node', [join(REPO, 'scripts/build-skill-types.mjs')]);
 // Manifests BEFORE the catalogue: the catalogue's coveredBy reads the capability manifest, so the
 // old order needed two passes whenever a tool gained a capability (a new tool read stale on the first).
 run('manifests   ← TOOLS + audit descriptors', 'npm', ['run', '-s', 'manifest'], MCP);
 run('catalogue   ← source + overlay + capability manifest', 'node', [join(MCP, 'scripts/build-endpoint-catalog.mjs')], MCP);
+projectInPlace(join(MCP, 'catalog/internal-endpoints.json'), projectCopy); // overlay notes carry knowledge paths
 run('rail-blocks ← catalog/rail-ledger.json into the skills\' marker blocks', 'node', [join(MCP, 'scripts/render-rail-ledger.mjs')], MCP);
 run('dist        ← everything above, embedded', 'npm', ['run', '-s', 'build'], MCP);
 

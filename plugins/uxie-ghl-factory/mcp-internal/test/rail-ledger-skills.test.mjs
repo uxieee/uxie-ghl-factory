@@ -118,7 +118,7 @@ test('an unpaired or unknown marker fails the render', () => {
 
 test('a block names each job with its decision and routing, and says it is generated', () => {
   const b = renderBlock(ledger, 'pipelines');
-  assert.match(b, /generated from knowledge\/catalog\/rail-ledger\.json — do not edit/);
+  assert.match(b, /generated from the rail ledger \(mcp-internal\/catalog\/rail-ledger\.json\) — do not edit/);
   assert.match(b, /\| read \| both \| split \|/);
   assert.match(b, /\| edit \| undecided \| internal \|/);
   const s = renderBlock(ledger, 'summary');

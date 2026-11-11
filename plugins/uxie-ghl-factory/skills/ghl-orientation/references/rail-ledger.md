@@ -1,6 +1,6 @@
 # Rail ledger
 
-_generated from knowledge/catalog/rail-ledger.json — do not edit._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit._
 
 For every GoHighLevel product both the public and the internal API serve, and each job both serve: what each rail
 does, how the plugin routes it today and why, and the decision. A decision is taken only once both rails are proven on
@@ -71,8 +71,8 @@ Evidence:
 
 - **read:** The memberships skill builds and edits on the internal rail; the public Courses API (2026-09-24) has not been proven on our sandbox yet.
 - **create:** The memberships skill builds and edits on the internal rail; the public Courses API (2026-09-24) has not been proven on our sandbox yet.
-- **edit:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in sniffs/courses-w8-2026-11-06/01-bakeoff/edit.json and delete.json. The tools below are the internal paths the ruling retires.
-- **delete:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in sniffs/courses-w8-2026-11-06/01-bakeoff/edit.json and delete.json. The tools below are the internal paths the ruling retires.
+- **edit:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in [private capture] and delete.json. The tools below are the internal paths the ruling retires.
+- **delete:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in [private capture] and delete.json. The tools below are the internal paths the ruling retires.
 - **enrol:** The memberships skill builds and edits on the internal rail; the public Courses API (2026-09-24) has not been proven on our sandbox yet.
 - **bulk:** The public upsert replaces every question and drops option text (sandbox 2026-11-06); the internal batch add is the one proven on the build path.
 - **logs:** Not run on either rail: needs an enrolled learner and a submission (G4). Grading is observed only in the engine.
@@ -83,14 +83,14 @@ Public only: synchronous enrolment that says alreadyEnrolled; progress and revie
 Evidence:
 
 - **create:** Ruled (w8-1 routing, DECISIONS): pool-internal. build_course stays a gated publish until bl-796 is fixed.
-- **create:** Free draft offers (sniffs/courses-w8-2026-11-06/01-bakeoff/offers.json): both rails read back. Ruled: both. Delete is excluded.
+- **create:** Free draft offers ([private capture]): both rails read back. Ruled: both. Delete is excluded.
 - **edit:** Ruled (D3, Xander): course editing is public-only. Sequence is ruled pool-public too (orchestrator DECISION, w8-1). Decision left undecided here until the ledger can record a ruling.
 - **delete:** Ruled (orchestrator DECISION, w8-1): delete -> pool-public, joins the w8-3 public recipe. Offer delete is excluded (bl-801).
 - **enrol:** Enrol, revoke, progress and review: undecided until G4 (DECISIONS).
 - **enrol:** 2026-11-07 (bl-833): the public enrol is accepted (201) into a DRAFT offer. Draft offers are not private either (bl-321): an unauthenticated GET of a draft offer returns it.
 - **enrol:** Correctness favours public: the internal grant's 200 proves nothing, the public enrolment reports what happened.
 - **bulk:** Ruled (w8-1 routing, DECISIONS): pool-internal. The public upsert dropped option text.
-- **bulk:** 2026-11-07 (bl-843): the internal batch write REPLACES the whole question set and re-mints every question id on every save (70-research/2026-11-07-quiz-batch-add-replaces-set.md). The w8-6 tool re-posts the stored set in full and verifies by content; its replace mode is not offered (bl-847).
+- **bulk:** 2026-11-07 (bl-843): the internal batch write REPLACES the whole question set and re-mints every question id on every save ([private corpus]). The w8-6 tool re-posts the stored set in full and verifies by content; its replace mode is not offered (bl-847).
 - **logs:** Progress and review: undecided until G4 (DECISIONS).
 - **logs:** bl-834: the public bulk progress route read totalLessons 0 for an enrolled student on a 6-lesson course. Untested whether the draft lessons are the cause; the completion leg (bl-840) settles it. The internal user-progress row has no lesson counts.
 - **logs:** Progress and review: undecided until G4 (DECISIONS).
@@ -445,7 +445,7 @@ Evidence:
 
 ## Shared paths outside these products
 
-82 paths both rails serve belong to products outside the ledger; their rail choice is owned by:
+83 paths both rails serve belong to products outside the ledger; their rail choice is owned by:
 
 - W7 (funnel builder reads): 2
 - W9 (ad manager): 5
@@ -459,4 +459,4 @@ Evidence:
 - W9 (phone): 4
 - W9 (products, bl-479): 4
 - W9 (social planner): 1
-- W9: 25
+- W9: 26

@@ -92,7 +92,7 @@ An install copies the funnels, forms and calendars of the SOURCE account, and th
 The public snapshot list needs an agency token; a location's PIT is refused for scope (2026-10-29).
 
 <!-- rail-ledger:snapshots -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|

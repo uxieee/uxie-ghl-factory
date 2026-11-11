@@ -71,7 +71,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `tik_tok_form_submitted` | source-derived | Fires when a TikTok lead-form submission is received. |
 | `trigger_link` | source-derived | Fires when a contact clicks a configured trigger link. |
 | `two_step_form_submission` | source-derived | Fires when a contact submits a two-step order form on a funnel page. |
-| `user_log_in` | source-derived | Fires on each successful client-portal login. It is now an INTERNAL marketplace trigger (section "Client Portal"), not a native builder trigger. [source-derived 2026-09-26 — sniffs/workflows-domain-recon-2026-09-25/marketplace-assets-2026-09-25.json (`key: user_log_in`)] |
+| `user_log_in` | source-derived | Fires on each successful client-portal login. It is now an INTERNAL marketplace trigger (section "Client Portal"), not a native builder trigger. [source-derived 2026-09-26 — [private capture] (`key: user_log_in`)] |
 | `validation_error` | source-derived | Fires when a Twilio validation error is raised (a system / failure trigger). |
 | `video_event` | source-derived | Fires on a video-watch event in a funnel video at a configured percentage watched. |
 

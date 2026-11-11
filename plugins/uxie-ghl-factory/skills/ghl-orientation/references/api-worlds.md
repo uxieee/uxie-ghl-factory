@@ -139,7 +139,7 @@ Two rules hold whatever you find:
 Where both rails serve the same job, the rail ledger decides (whole ledger: `rail-ledger.md` beside this file):
 
 <!-- rail-ledger:summary -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Product | Jobs both rails serve | Decided | Routed today |
 |---|---|---|---|
