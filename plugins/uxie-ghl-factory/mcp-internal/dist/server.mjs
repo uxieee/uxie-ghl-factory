@@ -178,8 +178,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-11-11",
       note: "Compiled from internal-endpoints.source.json (mined by [private corpus]) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1792,
+      count: 1793,
       endpoints: [
+        {
+          id: "forms--get-widget-form",
+          method: "GET",
+          url: "https://api.leadconnectorhq.com/widget/form/{formId}",
+          path: "/widget/form/{formId}",
+          origin: "https://api.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          proof: "executed",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "http",
+          responseMode: "html",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "formId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "text/html: the public form widget markup (inputs, labels, images, scripts)",
+            properties: null,
+            confidence: "proven-live"
+          },
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "none",
+            returns: "proven-live"
+          }
+        },
         {
           id: "facebook-service--get-ad-account-by-id",
           method: "GET",
