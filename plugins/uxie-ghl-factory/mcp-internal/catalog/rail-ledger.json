@@ -199,7 +199,7 @@
           "export_workflow"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-workflows.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -210,7 +210,7 @@
           "workflows-v3__search-workflows"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-workflows.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [],
@@ -360,7 +360,7 @@
           "list_courses"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-courses.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -374,7 +374,7 @@
           "courses-v3__list-offers"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-courses.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [],
@@ -429,7 +429,7 @@
       "decision": "undecided",
       "notes": [
         "Ruled (w8-1 routing, DECISIONS): pool-internal. build_course stays a gated publish until bl-796 is fixed.",
-        "Free draft offers (sniffs/courses-w8-2026-11-06/01-bakeoff/offers.json): both rails read back. Ruled: both. Delete is excluded."
+        "Free draft offers ([private capture]): both rails read back. Ruled: both. Delete is excluded."
       ]
     },
     {
@@ -459,7 +459,7 @@
       "sharedPaths": [],
       "routing": {
         "current": "public",
-        "why": "D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in sniffs/courses-w8-2026-11-06/01-bakeoff/edit.json and delete.json. The tools below are the internal paths the ruling retires."
+        "why": "D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in [private capture] and delete.json. The tools below are the internal paths the ruling retires."
       },
       "decision": "undecided",
       "notes": [
@@ -491,7 +491,7 @@
       "sharedPaths": [],
       "routing": {
         "current": "public",
-        "why": "D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in sniffs/courses-w8-2026-11-06/01-bakeoff/edit.json and delete.json. The tools below are the internal paths the ruling retires."
+        "why": "D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in [private capture] and delete.json. The tools below are the internal paths the ruling retires."
       },
       "decision": "undecided",
       "notes": [
@@ -554,7 +554,7 @@
       "decision": "undecided",
       "notes": [
         "Ruled (w8-1 routing, DECISIONS): pool-internal. The public upsert dropped option text.",
-        "2026-11-07 (bl-843): the internal batch write REPLACES the whole question set and re-mints every question id on every save (70-research/2026-11-07-quiz-batch-add-replaces-set.md). The w8-6 tool re-posts the stored set in full and verifies by content; its replace mode is not offered (bl-847)."
+        "2026-11-07 (bl-843): the internal batch write REPLACES the whole question set and re-mints every question id on every save ([private corpus]). The w8-6 tool re-posts the stored set in full and verifies by content; its replace mode is not offered (bl-847)."
       ]
     },
     {
@@ -597,7 +597,7 @@
           "raw_request:GET /ai-employees/employees/list"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-conversation-ai.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -607,7 +607,7 @@
           "conversation-ai__search-agent"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-conversation-ai.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -708,7 +708,7 @@
           "raw_request:GET /voice-ai/agents"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-voice-ai.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -720,7 +720,7 @@
           "voice-ai__get-agent"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-voice-ai.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -860,7 +860,7 @@
           "raw_request:GET /knowledge-base/{knowledgeBaseId}"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-knowledge-base.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -870,7 +870,7 @@
           "knowledge-base-v3__getKnowledgeBaseById"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-knowledge-base.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [],
@@ -983,7 +983,7 @@
           "list_agent_sessions"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-agent-studio.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -993,7 +993,7 @@
           "agent-studio-v3__getAgentById"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-agent-studio.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [],
@@ -1040,7 +1040,7 @@
           "get_snapshot_contents"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-snapshots.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -1069,7 +1069,7 @@
           "raw_request:GET /opportunities/pipelines"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -1081,8 +1081,8 @@
           "opportunities__get-pipeline"
         ],
         "proof": [
-          "sniff:sniffs/opp-wave-2026-09-25/live-opp.tool.public-get-pipeline.json",
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
+          "sniff:[private capture]",
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -1131,7 +1131,7 @@
           "opportunities__create-pipeline"
         ],
         "proof": [
-          "sniff:sniffs/opp-wave-2026-09-25/live-opp.tool.public-create-pipeline-fix.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -1220,8 +1220,8 @@
           "opportunities__get-lost-reason"
         ],
         "proof": [
-          "sniff:sniffs/opp-wave-2026-09-25/live-opp.tool.public-records.json",
-          "sniff:sniffs/opp-wave-2026-09-25/live-opp.tool.public-search-paging-sort.json"
+          "sniff:[private capture]",
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -1281,7 +1281,7 @@
           "opportunities__remove-followers-opportunity"
         ],
         "proof": [
-          "sniff:sniffs/opp-wave-2026-09-25/live-opp.tool.public-backward-move.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -1333,7 +1333,7 @@
         ],
         "proof": [
           "proof:list_forms",
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-forms.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -1347,7 +1347,7 @@
           "surveys__get-surveys"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-forms.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -1390,7 +1390,7 @@
         ],
         "proof": [
           "proof:edit_redirects",
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-funnel-redirects.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -1400,7 +1400,7 @@
           "funnels__fetch-redirects-list"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-funnel-redirects.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -1512,7 +1512,7 @@
           "raw_request:GET /calendars/events"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-calendars.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -1532,7 +1532,7 @@
           "calendars__getAllSchedules"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-calendars.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -1655,7 +1655,7 @@
           "raw_request:GET /locations/{locationId}/customFields"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -1669,7 +1669,7 @@
           "custom-fields__get-custom-fields-by-object-key"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -1768,7 +1768,7 @@
         ],
         "proof": [
           "proof:search_merge_tags",
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-custom-values.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -1778,7 +1778,7 @@
           "locations__get-custom-values"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-custom-values.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -1872,7 +1872,7 @@
           "raw_request:GET /locations/{locationId}/tags"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-tags.json"
+          "sniff:[private capture]"
         ]
       },
       "public": {
@@ -1882,7 +1882,7 @@
           "locations__get-location-tags"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-tags.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [
@@ -2043,7 +2043,7 @@
           "emails-v3__get-email-template"
         ],
         "proof": [
-          "sniff:sniffs/rail-ledger-2026-10-29/live-read-email-templates.json"
+          "sniff:[private capture]"
         ]
       },
       "sharedPaths": [

@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { TOOLS } from '../core/tools.mjs';
+import { scrubText } from '../scripts/lib/public-projection.mjs'; // the catalogue carries projected notes (2026-11-11)
 
 // D2 — nothing in test/ read the endpoint catalogue at all, which is exactly why a hardcoded "222"
 // outlived it reaching 235 and shipped stale in two places in the same file.
@@ -82,8 +83,8 @@ test('an overlay row aimed at an adopted endpoint reaches it, rather than orphan
   assert.ok(annotated.length > 50, `only ${annotated.length} catalogue rows match an overlay row — the join is broken`);
   for (const e of annotated) {
     const o = overlay[`${e.method} ${e.path}`];
-    if (o.note) assert.equal(e.note, o.note, `${e.id} dropped its overlay note`);
-    if (o.summary) assert.equal(e.summary, o.summary, `${e.id} dropped its overlay summary`);
+    if (o.note) assert.equal(e.note, scrubText(o.note), `${e.id} dropped its overlay note`);
+    if (o.summary) assert.equal(e.summary, scrubText(o.summary), `${e.id} dropped its overlay summary`);
   }
   // and the overlay itself must not accumulate rows that match nothing.
   const keys = new Set(catalog.endpoints.map((e) => `${e.method} ${e.path}`));

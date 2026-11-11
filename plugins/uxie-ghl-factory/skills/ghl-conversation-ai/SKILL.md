@@ -89,7 +89,7 @@ On the sandbox (2026-10-29) the internal list returned 19 bots and the public se
 from the public search. Every public bot was among the internal 19.
 
 <!-- rail-ledger:conversation-ai -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|

@@ -34,7 +34,7 @@ Both rails returned the same agents on the sandbox (2026-10-29). The read stays 
 fields per agent, the internal single-agent read carries more than the public one.
 
 <!-- rail-ledger:voice-ai -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|

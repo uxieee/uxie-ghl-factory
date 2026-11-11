@@ -231,7 +231,7 @@ such reason.
 rail ledger records which one each job uses.
 
 <!-- rail-ledger:pipelines -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|

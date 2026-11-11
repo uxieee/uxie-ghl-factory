@@ -36,7 +36,7 @@
 // Checks that need knowledge/ SKIP (exit 0, say so) when it is absent — it is a sibling repo with
 // no remote, so a clone of this repo alone cannot run them. Everything else always runs.
 import { readFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
-import { projectSource, projectLedger, serializeJson } from './lib/public-projection.mjs';
+import { projectSource, projectLedger, projectCopy, serializeJson } from '../plugins/uxie-ghl-factory/mcp-internal/scripts/lib/public-projection.mjs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -124,7 +124,7 @@ if (wanted('type-cards')) {
     const out = join(tmp, 'type-cards.json');
     try {
       execFileSync('node', [gen, out], { encoding: 'utf8', stdio: 'pipe' });
-      const d = diffById(readJson(shippedPath).cards, readJson(out).cards, (c) => c.type, 'cards');
+      const d = diffById(readJson(shippedPath).cards, projectCopy(readJson(out)).cards, (c) => c.type, 'cards');
       d.stale ? stale('type-cards', d.lines, fix) : ok('type-cards', `${readJson(shippedPath).count} cards`);
     } catch (e) { failed('type-cards', e, fix); }
   }
@@ -243,7 +243,7 @@ if (wanted('catalogue')) {
   const out = join(tmp, 'internal-endpoints.json');
   try {
     execFileSync('node', [gen, '--out', out], { encoding: 'utf8', stdio: 'pipe' });
-    const d = diffById(readJson(shippedPath).endpoints, readJson(out).endpoints, (e) => e.id, 'rows');
+    const d = diffById(readJson(shippedPath).endpoints, projectCopy(readJson(out)).endpoints, (e) => e.id, 'rows');
     d.stale ? stale('catalogue', d.lines, fix) : ok('catalogue', `${readJson(shippedPath).count} rows`);
   } catch (e) { failed('catalogue', e, fix); }
 }

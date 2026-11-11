@@ -177,7 +177,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-11-11",
-      note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
+      note: "Compiled from internal-endpoints.source.json (mined by [private corpus]) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
       count: 1792,
       endpoints: [
         {
@@ -8994,7 +8994,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md.",
+          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map ([private capture]) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md.",
           reach: "proven",
           coveredBy: [
             "audit_site",
@@ -21019,7 +21019,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + 40-rules/smart-tags.md)",
+          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + [private corpus])",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -23027,7 +23027,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge sniffs/reached-2026-09-23.',
+          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge [private capture]',
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -25577,7 +25577,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md.",
+          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: [private corpus]",
           reach: "proven",
           coveredBy: [
             "audit_site"
@@ -29656,7 +29656,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 (sniffs/workflows-wave1-2026-09-25/live-3BL-test-run.json). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`,
+          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 ([private capture]). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -33319,7 +33319,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See _shared/conformance/a-success-that-equals-the-null-result.md.',
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See [private corpus]',
           reach: "proven",
           coveredBy: [
             "check_workflow"
@@ -38944,7 +38944,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           summary: "Execution stats for one marketplace/premium action step over a window.",
-          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge sniffs/reached-2026-09-23.',
+          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge [private capture]',
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -39352,7 +39352,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -39415,7 +39415,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -39698,7 +39698,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -39761,7 +39761,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -39824,7 +39824,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -40670,7 +40670,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge [private capture]",
           reach: "proven",
           coveredBy: [
             "copy_workflow_to_location"
@@ -40730,7 +40730,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge [private capture]",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -40785,7 +40785,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge [private capture]",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -42874,7 +42874,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge [private capture]`,
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -66047,7 +66047,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + 40-rules/smart-tags.md)",
+          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + [private corpus])",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -73166,7 +73166,7 @@ var define_ENDPOINT_OVERLAY_default;
 var init_define_ENDPOINT_OVERLAY = __esm({
   "<define:__ENDPOINT_OVERLAY__>"() {
     define_ENDPOINT_OVERLAY_default = {
-      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential (knowledge/scripts/probe-reach-differential.mjs) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.\n\nRequired-key discovery is ITERATIVE. An endpoint answers 400/422 naming one missing key; supply it and the next round names the next. A single probe pass under-reports, and requiredQuery should be treated as a floor rather than a complete list.",
+      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential ([private corpus]) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.\n\nRequired-key discovery is ITERATIVE. An endpoint answers 400/422 naming one missing key; supply it and the next round names the next. A single probe pass under-reports, and requiredQuery should be treated as a floor rather than a complete list.",
       rows: {
         "DELETE /agent-logs/logs/{sessionId}": {
           kind: "write",
@@ -73551,7 +73551,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /forms": {
           reach: "proven",
-          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md."
+          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map ([private capture]) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md."
         },
         "GET /forms/forms-list": {
           requiredQuery: [
@@ -73834,7 +73834,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "requiredQuery proven live 2026-09-10: altId, locationId. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
         },
         "GET /reporting/notification/automation/workflows/unpublished": {
-          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge sniffs/reached-2026-09-23.',
+          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge [private capture]',
           requiredQuery: [
             "companyId",
             "userId"
@@ -73944,7 +73944,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /surveys": {
           reach: "proven",
-          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md."
+          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: [private corpus]"
         },
         "GET /surveys/folder": {
           reach: "proven",
@@ -74227,7 +74227,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "GET /workflows-marketplace/actions/stats/{actionKey}": {
           summary: "Execution stats for one marketplace/premium action step over a window.",
-          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge sniffs/reached-2026-09-23.',
+          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge [private capture]',
           requiredQuery: [
             "locationId",
             "workflowId",
@@ -74257,7 +74257,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "requestGroupId",
             "workflowId"
           ],
-          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge [private capture]",
           reach: "proven"
         },
         "GET /workflows/copyWorkflow/logList": {
@@ -74265,14 +74265,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "locationId",
             "workflowId"
           ],
-          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge [private capture]",
           reach: "proven"
         },
         "GET /workflows/copyWorkflow/statusList": {
           requiredQuery: [
             "locationId"
           ],
-          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge sniffs/reached-2026-09-23.",
+          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge [private capture]",
           reach: "proven"
         },
         "GET /workflows/logs/export/preview": {
@@ -74336,7 +74336,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
         "GET /workflows/sticky-note": {
-          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge [private capture]`,
           requiredQuery: [
             "_id"
           ],
@@ -74788,7 +74788,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "POST /workflow/{locationId}/scheduler-trigger/preview": {
           reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See _shared/conformance/a-success-that-equals-the-null-result.md.'
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See [private corpus]'
         },
         "POST /workflow/{locationId}/sms/send-test-sms": {
           kind: "write",
@@ -74870,7 +74870,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "write",
           reach: "proven",
           credentialClass: "agency-admin-bearer",
-          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 (sniffs/workflows-wave1-2026-09-25/live-3BL-test-run.json). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`
+          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 ([private capture]). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`
         },
         "POST /workflow/{locationId}/{workflowId}/upload": {
           reach: "reached",
@@ -75209,19 +75209,19 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: 'TRAP (proven-live 2026-09-23): a limit above 21 is REFUSED with 422 "limit must not be greater than 21" -- a caller asking for 100 errors on every call and reads it as "no templates". Page with limit<=21 and skip; the envelope is {data, total}. The typed list_account_entities pages it this way.'
         },
         "GET /workflows-marketplace/integration/google-sheets/drives": {
-          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "GET /workflows-marketplace/integration/google-sheets/spreadsheets": {
-          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "GET /workflows-marketplace/integration/slack/public-channels": {
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "GET /workflows-marketplace/integration/slack/private-channels": {
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "GET /workflows-marketplace/integration/slack/users": {
-          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge [private capture]`
         },
         "POST /agent-studio/agents/anton/session": {
           note: `NO TASK NEEDS THIS \u2014 coordinator decision T8 (2026-09-26): legacy flow-agent (node-graph Agent Studio) authoring is excluded; anton is that builder's AI runtime, and the Managed-Agent editor also POSTs it on open (a write-on-open, 2026-09-25 UI walk). IF THE USER WANTS IT: GHL can do it \u2014 AI Agents \u2192 Agent Studio (flow agents) in the UI, or the flow builder embedded in Voice AI / Conversation AI. Written where agents read it: corpus ai-agents/00-overview "What GHL can do that this plugin does not author", and the same table in skills ghl-conversation-ai and ghl-voice-ai.`
@@ -75317,7 +75317,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "write",
-          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + 40-rules/smart-tags.md)"
+          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + [private corpus])"
         },
         "PUT /opportunities/smart-filters/{smartFilterId}": {
           reach: "proven",
@@ -75414,7 +75414,7 @@ var define_FUNNEL_ELEMENTS_default;
 var init_define_FUNNEL_ELEMENTS = __esm({
   "<define:__FUNNEL_ELEMENTS__>"() {
     define_FUNNEL_ELEMENTS_default = {
-      _source: "knowledge/corpus/funnels/_data/elements.json (editableProps.extra)",
+      _source: "[private corpus] (editableProps.extra)",
       _note: "meta is a CLOSED set of 77; extraProps must all be present on a node or the public render 500s.",
       count: 77,
       elements: {

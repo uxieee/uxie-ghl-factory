@@ -98,7 +98,7 @@ whole field list; `GET` the document first and send the complete `fields` array.
 Both rails list the same forms; the internal list carries the whole form, the public one its id and name.
 
 <!-- rail-ledger:forms -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|

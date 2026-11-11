@@ -53,7 +53,7 @@ Tell the user GHL does these, and where. Do not say they are impossible.
 Pipelines and opportunities are served by both rails, mostly on the same paths.
 
 <!-- rail-ledger:pipelines -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|
@@ -71,7 +71,7 @@ Internal only: forecast; clone; reorder; permissions; restore.
 Public only: nothing recorded.
 <!-- /rail-ledger:pipelines -->
 <!-- rail-ledger:opportunities -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|

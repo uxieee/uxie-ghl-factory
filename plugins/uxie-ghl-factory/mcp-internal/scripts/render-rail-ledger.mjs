@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from '
 import { join, resolve, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const GENERATED = '_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._';
+const GENERATED = '_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._';
 const BLOCK = /<!-- rail-ledger:([a-z-]+) -->\n[\s\S]*?<!-- \/rail-ledger:\1 -->/g;
 const cell = (s) => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
 const list = (xs) => (xs?.length ? xs.map((x) => `\`${x}\``).join(', ') : '—');

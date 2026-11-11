@@ -40,7 +40,7 @@ before building — follow the specialist contract instead of duplicating it her
 per job, what each rail does and which one the plugin routes to:
 
 <!-- rail-ledger:summary -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Product | Jobs both rails serve | Decided | Routed today |
 |---|---|---|---|

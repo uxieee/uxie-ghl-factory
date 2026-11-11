@@ -51,7 +51,7 @@ writes that cannot run unattended (see Limits).
 The public Courses API (2026-09-24) returned the same courses as the internal rail on the sandbox (2026-10-29).
 
 <!-- rail-ledger:courses -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|
@@ -65,8 +65,8 @@ _generated from knowledge/catalog/rail-ledger.json — do not edit; the whole le
 
 - **read:** The memberships skill builds and edits on the internal rail; the public Courses API (2026-09-24) has not been proven on our sandbox yet.
 - **create:** The memberships skill builds and edits on the internal rail; the public Courses API (2026-09-24) has not been proven on our sandbox yet.
-- **edit:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in sniffs/courses-w8-2026-11-06/01-bakeoff/edit.json and delete.json. The tools below are the internal paths the ruling retires.
-- **delete:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in sniffs/courses-w8-2026-11-06/01-bakeoff/edit.json and delete.json. The tools below are the internal paths the ruling retires.
+- **edit:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in [private capture] and delete.json. The tools below are the internal paths the ruling retires.
+- **delete:** D3 (Xander, 2026-11-06): course editing and deletion are public-only. Sequence and delete were ruled pool-public (orchestrator DECISION, w8-1); the public proofs are in [private capture] and delete.json. The tools below are the internal paths the ruling retires.
 - **enrol:** The memberships skill builds and edits on the internal rail; the public Courses API (2026-09-24) has not been proven on our sandbox yet.
 - **bulk:** The public upsert replaces every question and drops option text (sandbox 2026-11-06); the internal batch add is the one proven on the build path.
 - **logs:** Not run on either rail: needs an enrolled learner and a submission (G4). Grading is observed only in the engine.

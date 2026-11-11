@@ -1,5 +1,5 @@
 {
- "_source": "knowledge/corpus/funnels/_data/elements.json (editableProps.extra)",
+ "_source": "[private corpus] (editableProps.extra)",
  "_note": "meta is a CLOSED set of 77; extraProps must all be present on a node or the public render 500s.",
  "count": 77,
  "elements": {

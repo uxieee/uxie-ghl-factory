@@ -149,7 +149,7 @@ GHL's public workflow API is allow-listed: on the sandbox it answered 403 "not e
 and its workflow list leaves out typed workflows (agent, business, custom-object). Every job runs on the internal rail.
 
 <!-- rail-ledger:workflows -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|

@@ -43,7 +43,7 @@ countdown timer (marketing-countdown names the saved timer by id). Read the save
 (a read); its saved-timer read is a different route and is not yet recorded as one row. Routing per the ledger:
 
 <!-- rail-ledger:countdown-timers -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|
@@ -406,7 +406,7 @@ routing and headers on the exact path, after the cache window.
 `edit_redirects` calls the very paths the public redirect operations call; the list needs `limit` (at most 20) and `offset`.
 
 <!-- rail-ledger:funnel-redirects -->
-_generated from knowledge/catalog/rail-ledger.json — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
+_generated from the rail ledger (mcp-internal/catalog/rail-ledger.json) — do not edit; the whole ledger is `ghl-orientation/references/rail-ledger.md`._
 
 | Job | Decision | Routed today | Internal | Public |
 |---|---|---|---|---|

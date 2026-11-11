@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { scrubText } from './lib/public-projection.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const ROOT = resolve(HERE, '..');
@@ -29,7 +30,8 @@ function optionsFor(entry, extra = {}) {
   const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
   const catalog = readFileSync(resolve(ROOT, 'tool-descriptions.json'), 'utf8');
   const endpoints = readFileSync(resolve(ROOT, 'catalog/internal-endpoints.json'), 'utf8');
-  const overlay = readFileSync(resolve(ROOT, 'catalog/endpoint-overlay.json'), 'utf8');
+  // The overlay's notes cite knowledge paths; the bundle is public, so it embeds the projected text (scripts/lib/public-projection.mjs).
+  const overlay = scrubText(readFileSync(resolve(ROOT, 'catalog/endpoint-overlay.json'), 'utf8'));
   // Same treatment again for the contact filter-field catalogue: no endpoint serves it, the
   // contacts screen builds it in the browser, and check_smart_lists needs the static half to
   // tell an unknown field from a bad envelope. A bundle without it would silently stop making
