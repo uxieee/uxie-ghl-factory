@@ -179,9 +179,15 @@ Every row below is written the same way: `raw_request` `POST /forms/{id}` with t
 
 - Nested objects merge as well as the top level. `style.padding`, `fieldStyle.padding` and `fieldStyle.border` keep the keys you did not send. Send every nested key you need, and restore a nested value by setting its keys back explicitly, not by omitting them.
 - An empty `redirect_url` does not clear a stored URL, and the builder ignores `redirectUrl` unless `actionType` is `"1"`.
-- Not in this table: the survey navigation keys and the default colour swatches. Neither has a whole-document save proof yet.
+- Not in this table: the survey navigation keys. It has no whole-document save proof yet. The default colour swatches have their own section below.
 - **fieldStyle changes made by API do not reach the public render unless the save also carries a regenerated `formData.fieldCSS`.** The builder regenerates `fieldCSS` on save (BuilderHeader.vue, createFieldCSS). An API save that sends `fieldCSS` is not yet proven, so until it is, a builder save is the way to get a style change to render. A `POST /forms/{id}` that changes `fieldStyle` reads back correctly on its own.
 - **Adding the image layout keys is irreversible by save.** Once `showImage`, `imageCornerRadius`, `imageFieldSpacing`, `desktopImageLayout` or `mobileImageLayout` is stored, a save that omits them does not remove them, and an explicit key renders differently from an absent one even when the value equals the widget default (560389 pixels differ on the TEST form T5). Test only on a throwaway form. Evidence: knowledge sniffs `w9-studio2-2026-11-10` (commits 3c543f74 and 6a5540bc).
+
+## Location default colour swatches (proven live)
+
+The location palette, the swatches the colour pickers offer, is one list per sub-account. Write it with `raw_request`: `POST /forms/default-colors` with the body `{"locationId": "<location>", "colors": [{"name": "<label>", "value": "#RRGGBB"}]}` (or `#RRGGBBAA`). The list is replaced as a whole. The server accepts only this `{name, value}` shape. The builder's own `{label, labelValue, value8, alpha}` shape is refused with a 422. Read it with `GET /forms/default-colors?locationId=<location>`, which returns the stored list as `{name, value}`.
+
+Proof (2026-11-11, a TEST sub-account): add one swatch to the exact stored list (201), read back (the prior swatches unchanged), restore the exact stored list (201), and the final read equals the original exactly. Record: knowledge sniffs `live-f2/live-default-colors-swap-v3-f2-2026-11-11T075500Z.json`. Always restore with the full prior list. Whether the palette changes a rendered form has not been measured.
 
 ## Quiz questions a raw_request can write (proven live)
 
