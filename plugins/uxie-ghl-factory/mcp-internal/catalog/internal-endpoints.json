@@ -1,7 +1,7 @@
 {
   "generated": "2026-11-11",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1789,
+  "count": 1790,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -3312,6 +3312,44 @@
       },
       "sources": [
         "services/api/calendar-status-service.ts:24"
+      ]
+    },
+    {
+      "id": "calendars--post-calendars-user-settings-features",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/calendars/user-settings/features",
+      "path": "/calendars/user-settings/features",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "proof": "executed",
+      "reach": "proven",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": {
+        "typeName": "{ id: string; locationId: string; userId: string; calendarOnboarding: Array<{ isCompleted: boolean; show: boolean; exitStep: number; key: string }>; userTimezonePreference: { label: string; value: string }; calendarFilters: { meetings: { activeView: string; userIds: string[]; calendarIds: string[] } }; }",
+        "properties": null,
+        "confidence": "proven-live"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "proven-live",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "sniffs/calendars-f4-share-2026-11-09/live-api-features-activeView-run2.json",
+        "sniffs/calendars-f4-share-2026-11-09/live-api-features-timezone-run2.json",
+        "sniffs/calendars-f4-share-2026-11-09/api-features-f4s.mjs"
       ]
     },
     {
