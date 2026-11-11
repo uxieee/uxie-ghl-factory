@@ -229,6 +229,7 @@ Quiz result rows use the same whole-document save as the quiz above: `POST /form
 |---|---|
 | Country picker (phone) | `enableCountryPicker` |
 | Image | `url`, `imageWidth`, `imageHeight`, `alt` |
+| Organization and website (standard text elements) | nothing extra: they are `type: "text"` with their own tag (`organization`, `website`), so a field added with `update_form_data` is read back with type `text` and its tag (proven live 2026-11-11 on a TEST form, restored) |
 | Radio, checkbox, dropdown | `picklistOptions`, `otherOption`, `otherOptionLabel`, `spreadColumns` |
 | File upload | `isMultipleFile`, `maxFileSize` |
 | Rating | `ratingCount` |
