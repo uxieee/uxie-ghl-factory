@@ -14,6 +14,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
+import { projectCopy } from '../plugins/uxie-ghl-factory/mcp-internal/scripts/lib/public-projection.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const SHIPPED = join(ROOT, 'plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/type-cards.json');
@@ -37,7 +38,8 @@ try {
 }
 
 const shipped = JSON.parse(readFileSync(SHIPPED, 'utf8'));
-const fresh = JSON.parse(readFileSync(tmp, 'utf8'));
+// The shipped copy is the public projection of the generator's output (sync applies projectCopy), so compare through the same projection.
+const fresh = projectCopy(JSON.parse(readFileSync(tmp, 'utf8')));
 
 const byType = (c) => Object.fromEntries(c.cards.map((x) => [x.type, JSON.stringify(x)]));
 const a = byType(shipped), b = byType(fresh);
