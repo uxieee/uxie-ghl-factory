@@ -115,6 +115,7 @@ Public only: upload to a submission.
 **Conditional logic is writable through `update_form_data`** (the `conditionalLogic` key). A rule is a list of conditions, each with a field, an operation, a value and an outcome. Live-proven on a TEST-CONF form: each one was stored and read back on a separate GET.
 - **Operators (15):** is equal to, is not equal to, contains, does not contain, starts with, ends with, is empty, is filled, before, after, greater than, less than, between, is checked, is not checked.
 - **Outcomes (6):** redirect to a URL, show or hide fields, display a message, disqualify, jump to a step, free roam.
+- **The between operator reads its value as JSON (from the widget source, not run live).** The public widget parses `inputValue` as an object with `start`, `end`, `includeStart` and `includeEnd` (a plain `"a,b"` string never matches). `includeStart` and `includeEnd` default to true unless set to false. Source: the widget excerpt sniff `w9-studio2-2026-11-10/live-widget-logic-excerpts-2026-11-11.json` (served script, the between case). No live form was run with a between rule.
 - **Product conditions (3 shapes on a product):** is selected, is not selected, and a bump-product target. These are written on the product's key, not a field key.
 
 **Merge caveat (bl-1004).** A save merges into the stored document, so a key cannot be removed by leaving it out. To restore an absent key, set it explicitly to `null` or `[]`. The batch 3 TEST form kept residue for this reason, recorded in bl-1004.
@@ -180,6 +181,7 @@ Every row below is written the same way: `raw_request` `POST /forms/{id}` with t
 - An empty `redirect_url` does not clear a stored URL, and the builder ignores `redirectUrl` unless `actionType` is `"1"`.
 - Not in this table: the survey navigation keys and the default colour swatches. Neither has a whole-document save proof yet.
 - **fieldStyle changes made by API do not reach the public render unless the save also carries a regenerated `formData.fieldCSS`.** The builder regenerates `fieldCSS` on save (BuilderHeader.vue, createFieldCSS). An API save that sends `fieldCSS` is not yet proven, so until it is, a builder save is the way to get a style change to render. A `POST /forms/{id}` that changes `fieldStyle` reads back correctly on its own.
+- **Adding the image layout keys is irreversible by save.** Once `showImage`, `imageCornerRadius`, `imageFieldSpacing`, `desktopImageLayout` or `mobileImageLayout` is stored, a save that omits them does not remove them, and an explicit key renders differently from an absent one even when the value equals the widget default (560389 pixels differ on the TEST form T5). Test only on a throwaway form. Evidence: knowledge sniffs `w9-studio2-2026-11-10` (commits 3c543f74 and 6a5540bc).
 
 ## Quiz questions a raw_request can write (proven live)
 
