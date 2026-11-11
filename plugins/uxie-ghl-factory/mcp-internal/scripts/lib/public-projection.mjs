@@ -18,7 +18,7 @@ const PATH_RULES = [
   [new RegExp(`(?<![\\w-])live-[^${END}]*?\\.json`, 'g'), '[private capture]'],
   [new RegExp(`(?<![\\w-])analysis\\/[^${END}]*`, 'g'), '[private analysis]'],
   [new RegExp(`(?<![\\w-])knowledge\\/[^${END}]*`, 'g'), '[private corpus]'],
-  // capture bundle folder names cited without their sniffs/ prefix (bundle-2026-09-29-2, bundle-2026-08-21-3)
+  // capture bundle folder names cited without their sniffs/ prefix (bundle-YYYY-MM-DD-N)
   [new RegExp(`(?<![\\w-])bundle-20\\d\\d-\\d\\d-\\d\\d-\\d+`, 'g'), '[private capture]'],
   // corpus-relative paths (the corpus layers, with or without the knowledge/ prefix) and dated folders or dated files
   [new RegExp(`(?<![\\w/-])(?:00-overview|10-anatomy|20-api|30-types|40-rules|50-runtime|60-recipes|70-research|_shared)\\/[^${END}]*`, 'g'), '[private corpus]'],
