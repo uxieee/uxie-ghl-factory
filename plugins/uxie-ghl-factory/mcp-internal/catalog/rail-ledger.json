@@ -219,10 +219,6 @@
         "why": "GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 \"not enabled for location\" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it."
       },
       "decision": "undecided-public-not-released",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:47,83-87",
-        "sniffs/rail-ledger-2026-10-29/live-read-workflows.json"
-      ],
       "notes": [
         "Sandbox 2026-10-29: the public list (workflows-v3__get-workflow) answers 200, but leaves out every workflow with a workflowType — 135 agent, 2 business, 1 custom-object of 1699; the public definition read answers 403 \"not enabled for location\" (private beta)."
       ]
@@ -251,10 +247,7 @@
         "current": "internal",
         "why": "GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 \"not enabled for location\" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it."
       },
-      "decision": "undecided-public-not-released",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:47,83-87"
-      ]
+      "decision": "undecided-public-not-released"
     },
     {
       "product": "workflows",
@@ -280,10 +273,7 @@
         "current": "internal",
         "why": "GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 \"not enabled for location\" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it."
       },
-      "decision": "undecided-public-not-released",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:47,83-87"
-      ]
+      "decision": "undecided-public-not-released"
     },
     {
       "product": "workflows",
@@ -308,10 +298,7 @@
         "current": "internal",
         "why": "GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 \"not enabled for location\" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it."
       },
-      "decision": "undecided-public-not-released",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:47,83-87"
-      ]
+      "decision": "undecided-public-not-released"
     },
     {
       "product": "workflows",
@@ -335,10 +322,7 @@
         "current": "internal",
         "why": "GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 \"not enabled for location\" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it."
       },
-      "decision": "undecided-public-not-released",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:47,83-87"
-      ]
+      "decision": "undecided-public-not-released"
     },
     {
       "product": "workflows",
@@ -365,10 +349,7 @@
         "current": "internal",
         "why": "GHL's public Workflows API is in private beta: the sandbox's definition read answered 403 \"not enabled for location\" (2026-10-29), so every job runs on the internal rail. Rule 3: it stays undecided until GHL releases it."
       },
-      "decision": "undecided-public-not-released",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:47,83-87"
-      ]
+      "decision": "undecided-public-not-released"
     },
     {
       "product": "courses",
@@ -403,10 +384,6 @@
       },
       "decision": "pool-internal",
       "notes": [],
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:49,114-120",
-        "sniffs/rail-ledger-2026-10-29/live-read-courses.json"
-      ],
       "criteria": {
         "capability": "internal",
         "correctness": "equal",
@@ -453,9 +430,6 @@
       "notes": [
         "Ruled (w8-1 routing, DECISIONS): pool-internal. build_course stays a gated publish until bl-796 is fixed.",
         "Free draft offers (sniffs/courses-w8-2026-11-06/01-bakeoff/offers.json): both rails read back. Ruled: both. Delete is excluded."
-      ],
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:49,114-120"
       ]
     },
     {
@@ -490,9 +464,6 @@
       "decision": "undecided",
       "notes": [
         "Ruled (D3, Xander): course editing is public-only. Sequence is ruled pool-public too (orchestrator DECISION, w8-1). Decision left undecided here until the ledger can record a ruling."
-      ],
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:49,114-120"
       ]
     },
     {
@@ -525,9 +496,6 @@
       "decision": "undecided",
       "notes": [
         "Ruled (orchestrator DECISION, w8-1): delete -> pool-public, joins the w8-3 public recipe. Offer delete is excluded (bl-801)."
-      ],
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:49,114-120"
       ]
     },
     {
@@ -558,9 +526,6 @@
         "Enrol, revoke, progress and review: undecided until G4 (DECISIONS).",
         "2026-11-07 (bl-833): the public enrol is accepted (201) into a DRAFT offer. Draft offers are not private either (bl-321): an unauthenticated GET of a draft offer returns it.",
         "Correctness favours public: the internal grant's 200 proves nothing, the public enrolment reports what happened."
-      ],
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:49,114-120"
       ]
     },
     {
@@ -590,9 +555,6 @@
       "notes": [
         "Ruled (w8-1 routing, DECISIONS): pool-internal. The public upsert dropped option text.",
         "2026-11-07 (bl-843): the internal batch write REPLACES the whole question set and re-mints every question id on every save (70-research/2026-11-07-quiz-batch-add-replaces-set.md). The w8-6 tool re-posts the stored set in full and verifies by content; its replace mode is not offered (bl-847)."
-      ],
-      "sources": [
-        "sniffs/courses-w8-2026-11-06/01-bakeoff/quiz-questions.json"
       ]
     },
     {
@@ -624,10 +586,6 @@
         "Progress and review: undecided until G4 (DECISIONS).",
         "bl-834: the public bulk progress route read totalLessons 0 for an enrolled student on a 6-lesson course. Untested whether the draft lessons are the cause; the completion leg (bl-840) settles it. The internal user-progress row has no lesson counts.",
         "Progress and review: undecided until G4 (DECISIONS)."
-      ],
-      "sources": [
-        "sniffs/courses-w8-2026-11-06/01-bakeoff/progress.json",
-        "sniffs/courses-w8-2026-11-06/01-bakeoff/review.json"
       ]
     },
     {
@@ -660,11 +618,6 @@
         "why": "List bots on the internal rail: the public search leaves out flow-builder bots. Read one bot's prompt on either rail; the public search carries fullPrompt. The internal JWT is refused on the shared search path, so the internal rail lists through /ai-employees/employees/list."
       },
       "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:27,54",
-        "corpus/ai-agents/20-api/conversation-ai-boundary.md",
-        "sniffs/rail-ledger-2026-10-29/live-read-conversation-ai.json"
-      ],
       "notes": [
         "Sandbox 2026-10-29: the internal list returns 19 bots, a superset of the public 11 (flow-builder bots are missing from the public search); the public answer carries 32 fields per bot against 5. Capability is split, so the row stays undecided; the shared search path answers 403 for the JWT."
       ]
@@ -692,13 +645,7 @@
         "current": "internal",
         "why": "Configure on the internal rail: the 2026-10-27 features exist only there, and the public rail's writes would not carry them."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:54",
-        "plugin skill ghl-conversation-ai",
-        "corpus/ai-agents/10-anatomy/conversation-ai-agent-shape.md",
-        "corpus/ai-agents/20-api/conversation-ai-outbound.md"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "conversation-ai",
@@ -725,13 +672,7 @@
         "current": "internal",
         "why": "Configure on the internal rail: the 2026-10-27 features exist only there, and the public rail's writes would not carry them. Outbound configs and triggers are their own resource: set_convai_outbound."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:54",
-        "plugin skill ghl-conversation-ai",
-        "corpus/ai-agents/10-anatomy/conversation-ai-agent-shape.md",
-        "corpus/ai-agents/20-api/conversation-ai-outbound.md"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "conversation-ai",
@@ -756,13 +697,7 @@
         "current": "internal",
         "why": "Configure on the internal rail: the 2026-10-27 features exist only there, and the public rail's writes would not carry them."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:54",
-        "plugin skill ghl-conversation-ai",
-        "corpus/ai-agents/10-anatomy/conversation-ai-agent-shape.md",
-        "corpus/ai-agents/20-api/conversation-ai-outbound.md"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "voice-ai",
@@ -797,10 +732,6 @@
         "why": "The internal read returns the whole agent; the public one leaves out what the agent does."
       },
       "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:27,55",
-        "sniffs/rail-ledger-2026-10-29/live-read-voice-ai.json"
-      ],
       "notes": [
         "Sandbox 2026-10-29: the same 8 agents on both rails; the list gives 12 fields per item internal, 26 public, while E records the single-agent read the other way (51 internal, 21-27 public). Capability needs a get-by-id differential before this row can be decided."
       ]
@@ -833,10 +764,7 @@
         "current": "internal",
         "why": "Same backend path; the internal token reaches the fields the public schema omits."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:55"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "voice-ai",
@@ -866,10 +794,7 @@
         "current": "internal",
         "why": "Same backend path; internal reaches every field."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:55"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "voice-ai",
@@ -896,10 +821,7 @@
         "current": "internal",
         "why": "Same backend path; routed with the rest of Voice AI."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:55"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "voice-ai",
@@ -926,10 +848,7 @@
         "current": "internal",
         "why": "Same backend path; the typed tool is internal."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:55"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "knowledge-base",
@@ -960,10 +879,6 @@
         "why": "The internal rail reaches source types the public one lacks; whether its singular paths still answer after the rename is unverified."
       },
       "decision": "both",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:58,137",
-        "sniffs/rail-ledger-2026-10-29/live-read-knowledge-base.json"
-      ],
       "notes": [
         "Sandbox 2026-10-29: the singular internal /knowledge-base/all still answers after the 2026-08-18 rename, with the same knowledge bases as the plural public list."
       ],
@@ -1007,10 +922,7 @@
         "current": "internal",
         "why": "The internal rail reaches source types the public one lacks; whether its singular paths still answer after the rename is unverified."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:58,137"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "knowledge-base",
@@ -1035,10 +947,7 @@
         "current": "internal",
         "why": "The internal rail reaches source types the public one lacks; whether its singular paths still answer after the rename is unverified."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:58,137"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "knowledge-base",
@@ -1063,10 +972,7 @@
         "current": "internal",
         "why": "The internal rail reaches source types the public one lacks; whether its singular paths still answer after the rename is unverified."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:58,137"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "agent-studio",
@@ -1096,10 +1002,6 @@
         "why": "Whether both rails address the same agent objects is unverified."
       },
       "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:56",
-        "sniffs/rail-ledger-2026-10-29/live-read-agent-studio.json"
-      ],
       "notes": [
         "Sandbox 2026-10-29: the rails hold different agents — internal /agent-studio/agents 0, public /agent-studio/agent 6. They are not the same objects, so there is nothing to decide between."
       ]
@@ -1126,10 +1028,7 @@
         "current": "internal",
         "why": "Whether both rails address the same agent objects is unverified."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:56"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "snapshots",
@@ -1157,10 +1056,6 @@
         "why": "Snapshot work is agency-scoped; the public list needs an agency token, the plugin works per location."
       },
       "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:62",
-        "sniffs/rail-ledger-2026-10-29/live-read-snapshots.json"
-      ],
       "notes": [
         "Sandbox 2026-10-29: the internal list returns 9 snapshots; the public read answers 401 \"not authorized for this scope\" for a location PIT (it needs an agency token)."
       ]
@@ -1199,11 +1094,6 @@
         "why": "Reads run on either rail."
       },
       "decision": "both",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:61,139",
-        "plugin skill ghl-pipeline-specialist",
-        "sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
-      ],
       "criteria": {
         "capability": "equal",
         "correctness": "equal",
@@ -1251,12 +1141,7 @@
         "current": "public",
         "why": "The pipeline specialist creates pipelines on the public rail; its proven rules ship as patches in the public catalogue."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:61,139",
-        "plugin skill ghl-pipeline-specialist",
-        "sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "pipelines",
@@ -1285,12 +1170,7 @@
         "current": "internal",
         "why": "edit_pipeline is the typed tool, and it calls the very path the public update-pipeline calls, with a different token."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:61,139",
-        "plugin skill ghl-pipeline-specialist",
-        "sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "pipelines",
@@ -1317,12 +1197,7 @@
         "current": "public",
         "why": "The pipeline specialist deletes on the public rail, behind its confirmation gate."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:61,139",
-        "plugin skill ghl-pipeline-specialist",
-        "sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "opportunities",
@@ -1358,12 +1233,7 @@
         "current": "public",
         "why": "Record reads run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:61,139",
-        "plugin skill ghl-pipeline-specialist",
-        "sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "opportunities",
@@ -1389,12 +1259,7 @@
         "current": "public",
         "why": "Record writes run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:61,139",
-        "plugin skill ghl-pipeline-specialist",
-        "sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "opportunities",
@@ -1428,12 +1293,7 @@
         "current": "public",
         "why": "Record writes run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:61,139",
-        "plugin skill ghl-pipeline-specialist",
-        "sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "opportunities",
@@ -1460,12 +1320,7 @@
         "current": "public",
         "why": "Record writes run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:61,139",
-        "plugin skill ghl-pipeline-specialist",
-        "sniffs/rail-ledger-2026-10-29/live-read-pipelines.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "forms",
@@ -1505,10 +1360,6 @@
         "why": "The forms skill reads on the internal rail beside its writes; these list paths are shared."
       },
       "decision": "pool-internal",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:50-51",
-        "sniffs/rail-ledger-2026-10-29/live-read-forms.json"
-      ],
       "criteria": {
         "capability": "internal",
         "correctness": "equal",
@@ -1560,10 +1411,6 @@
         "why": "edit_redirects calls exactly the four public redirect paths, with the internal token."
       },
       "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:131",
-        "sniffs/rail-ledger-2026-10-29/live-read-funnel-redirects.json"
-      ],
       "notes": [
         "Sandbox 2026-10-29: both rails answer 200 with no redirects (limit and offset are required; limit at most 20). A decision needs at least one object on each side."
       ]
@@ -1595,11 +1442,7 @@
         "current": "internal",
         "why": "Same paths as public; the typed tool is internal."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:131",
-        "sniffs/rail-ledger-2026-10-29/live-read-funnel-redirects.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "funnel-redirects",
@@ -1628,11 +1471,7 @@
         "current": "internal",
         "why": "Same paths as public; the typed tool is internal."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:131",
-        "sniffs/rail-ledger-2026-10-29/live-read-funnel-redirects.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "funnel-redirects",
@@ -1661,11 +1500,7 @@
         "current": "internal",
         "why": "Same paths as public; the typed tool is internal."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:131",
-        "sniffs/rail-ledger-2026-10-29/live-read-funnel-redirects.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "calendars",
@@ -1713,11 +1548,6 @@
         "why": "Calendars run on the public rail: it has the full API, the internal rail has no typed tool."
       },
       "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:138",
-        "corpus/calendars/20-api/schedules.md",
-        "sniffs/rail-ledger-2026-10-29/live-read-calendars.json"
-      ],
       "notes": [
         "Not decided: the read compared GET /calendars, which is not a path this row claims; a decision needs a read of one of its shared paths."
       ]
@@ -1750,12 +1580,7 @@
         "current": "public",
         "why": "Calendars run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:138",
-        "corpus/calendars/20-api/schedules.md",
-        "sniffs/rail-ledger-2026-10-29/live-read-calendars.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "calendars",
@@ -1792,12 +1617,7 @@
         "current": "public",
         "why": "Calendars run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:138",
-        "corpus/calendars/20-api/schedules.md",
-        "sniffs/rail-ledger-2026-10-29/live-read-calendars.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "calendars",
@@ -1824,12 +1644,7 @@
         "current": "public",
         "why": "Calendars run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:138",
-        "corpus/calendars/20-api/schedules.md",
-        "sniffs/rail-ledger-2026-10-29/live-read-calendars.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "custom-fields",
@@ -1867,12 +1682,6 @@
         "why": "Custom fields run on the public rail (api-worlds); the internal typed tool only makes folders."
       },
       "decision": "both",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:140-141",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-values.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-tags.json"
-      ],
       "criteria": {
         "capability": "equal",
         "correctness": "equal",
@@ -1920,13 +1729,7 @@
         "current": "split",
         "why": "Fields on the public rail; folders through the internal create_custom_field_folder, which posts to the same path."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:140-141",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-values.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-tags.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "custom-fields",
@@ -1953,13 +1756,7 @@
         "current": "public",
         "why": "Custom fields run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:140-141",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-values.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-tags.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "custom-values",
@@ -1992,12 +1789,6 @@
         "why": "Custom values run on the public rail; search_merge_tags is the internal way to find a merge tag."
       },
       "decision": "both",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:140-141",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-values.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-tags.json"
-      ],
       "criteria": {
         "capability": "equal",
         "correctness": "equal",
@@ -2043,13 +1834,7 @@
         "current": "public",
         "why": "Custom values run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:140-141",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-values.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-tags.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "custom-values",
@@ -2076,13 +1861,7 @@
         "current": "public",
         "why": "Custom values run on the public rail."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:140-141",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-values.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-tags.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "tags",
@@ -2114,12 +1893,6 @@
         "why": "Tags run on the public rail."
       },
       "decision": "both",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:140-141",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-values.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-tags.json"
-      ],
       "criteria": {
         "capability": "equal",
         "correctness": "equal",
@@ -2170,13 +1943,7 @@
         "current": "split",
         "why": "Tags on the public rail; workflow builds create the tags they use on the internal rail, on the same path."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:140-141",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-fields.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-custom-values.json",
-        "sniffs/rail-ledger-2026-10-29/live-read-tags.json"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "contact-enrolment",
@@ -2203,10 +1970,7 @@
         "current": "none",
         "why": "Not routed by any skill; corpus api-gap-matrix still calls it not exposed."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:48"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "blogs",
@@ -2233,10 +1997,7 @@
         "current": "none",
         "why": "No skill routes blog posts yet."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:53"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "blogs",
@@ -2263,10 +2024,7 @@
         "current": "none",
         "why": "No skill routes blog posts yet."
       },
-      "decision": "undecided",
-      "sources": [
-        "analysis/2026-10-29-plugin-improvement-recon/E-overlap.md:53"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "email-templates",
@@ -2296,11 +2054,6 @@
         "why": "Email templates run on the public rail, through the v3 templates ops; GHL deprecates the shared builder path."
       },
       "decision": "undecided",
-      "sources": [
-        "public-api-mcp src/action-tips.ts",
-        "backlog bl-443",
-        "sniffs/rail-ledger-2026-10-29/live-read-email-templates.json"
-      ],
       "notes": [
         "Sandbox 2026-10-29: emails-v3__list-email-templates answers 200 with 3 templates (bl-443); the internal builder list was not read."
       ]
@@ -2329,10 +2082,7 @@
         "current": "public",
         "why": "Use emails-v3__create-email-template; GHL deprecates the builder create."
       },
-      "decision": "undecided",
-      "sources": [
-        "public-api-mcp src/action-tips.ts"
-      ]
+      "decision": "undecided"
     },
     {
       "product": "countdown-timers",
@@ -2361,9 +2111,6 @@
       "decision": "undecided",
       "notes": [
         "Public templates measured 2026-11-07 (knowledge c271e1da, countdown-public-templates-2026-11-07.md): the public op countdown-timer-v3__list-countdown-timer-templates returned 200 with 9 templates through the public runtime (public-api-mcp d98c92c). publicUnmeasured is KEPT: the saved-timer public op countdown-timer-v3__get-countdown-timer has a different route from the internal fetch, so the shared row cannot be cleared as it stands; the re-scope is backlog bl-868."
-      ],
-      "sources": [
-        "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs:2426"
       ]
     },
     {
@@ -2386,10 +2133,7 @@
         "current": "internal",
         "why": "The page builder countdown elements (countdown, minute-timer, day-timer) and marketing-countdown (binds a saved timer by id) are in the closed element set. A marketing-countdown must name a saved timer that exists."
       },
-      "decision": "undecided",
-      "sources": [
-        "plugins/uxie-ghl-factory/mcp-internal/core/site-audit.mjs:33"
-      ]
+      "decision": "undecided"
     }
   ],
   "unledgered": [
@@ -2607,6 +2351,10 @@
     },
     {
       "opKey": "POST /calendars/resources/{}",
+      "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
+    },
+    {
+      "opKey": "POST /calendars/schedules",
       "reason": "shared path outside the ledger's 18 products; its rail choice belongs to W9"
     },
     {

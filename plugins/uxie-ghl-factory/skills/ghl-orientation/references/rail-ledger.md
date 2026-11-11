@@ -445,7 +445,7 @@ Evidence:
 
 ## Shared paths outside these products
 
-82 paths both rails serve belong to products outside the ledger; their rail choice is owned by:
+83 paths both rails serve belong to products outside the ledger; their rail choice is owned by:
 
 - W7 (funnel builder reads): 2
 - W9 (ad manager): 5
@@ -459,4 +459,4 @@ Evidence:
 - W9 (phone): 4
 - W9 (products, bl-479): 4
 - W9 (social planner): 1
-- W9: 25
+- W9: 26

@@ -15,6 +15,7 @@
 // caught here and not at push time.
 import { spawnSync } from 'node:child_process';
 import { gitOut } from './lib/git.mjs';
+import { projectSource, projectLedger, serializeJson } from './lib/public-projection.mjs';
 import { existsSync, readFileSync, writeFileSync, copyFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, resolve, relative } from 'node:path';
@@ -128,6 +129,18 @@ if (hasKnowledge) {
 } else if (!quiet) {
   console.log('sync: knowledge/ not present — type-cards and source left as shipped');
 }
+// Public projection (2026-11-11, QA push-scan): the plugin is public, so the shipped copies drop knowledge's private evidence paths
+// (row sources, capture dirs). Applied in place to whatever copy is on disk, with or without knowledge/. Idempotent.
+const projectInPlace = (rel, fn) => {
+  const p = join(MCP, rel);
+  if (!existsSync(p)) return;
+  const before = readFileSync(p, 'utf8');
+  const after = serializeJson(fn(JSON.parse(before)));
+  if (after !== before) writeFileSync(p, after);
+};
+projectInPlace('catalog/internal-endpoints.source.json', projectSource);
+projectInPlace('catalog/rail-ledger.json', projectLedger);
+if (!quiet) console.log('sync: public projection ← sources and capture dirs dropped from the shipped source and ledger copies');
 run('skill-types ← type-cards.json copied into ghl-system-conventions + index rendered', 'node', [join(REPO, 'scripts/build-skill-types.mjs')]);
 // Manifests BEFORE the catalogue: the catalogue's coveredBy reads the capability manifest, so the
 // old order needed two passes whenever a tool gained a capability (a new tool read stale on the first).

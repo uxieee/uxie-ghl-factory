@@ -36,6 +36,7 @@
 // Checks that need knowledge/ SKIP (exit 0, say so) when it is absent — it is a sibling repo with
 // no remote, so a clone of this repo alone cannot run them. Everything else always runs.
 import { readFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { projectSource, projectLedger, serializeJson } from './lib/public-projection.mjs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -166,11 +167,11 @@ if (wanted('source')) {
   const fix = 'node knowledge/scripts/merge-endpoint-catalogs.mjs   (delivers the artefact into the plugin)';
   if (!hasKnowledge || !existsSync(theirs)) skipped('source', 'knowledge/ not present — cannot compare the source artefact');
   else if (!existsSync(ours)) stale('source', ['the plugin has no internal-endpoints.source.json at all'], fix);
-  else if (readFileSync(theirs, 'utf8') === readFileSync(ours, 'utf8')) {
+  else if (serializeJson(projectSource(readJson(theirs))) === readFileSync(ours, 'utf8')) {
     const s = readJson(ours);
     ok('source', `${s.endpoints.length} rows, generated ${s.generated}`);
   } else {
-    const a = readJson(ours), b = readJson(theirs);
+    const a = readJson(ours), b = projectSource(readJson(theirs));
     const d = diffById(a.endpoints, b.endpoints, (e) => e.id, 'rows');
     const head = [`plugin copy generated ${a.generated} (${a.endpoints.length} rows); knowledge/ has ${b.generated} (${b.endpoints.length} rows)`];
     stale('source', [...head, ...(d.lines.length ? d.lines : ['same rows, different bytes (metadata or ordering)'])], fix);
@@ -189,7 +190,9 @@ if (wanted('rail-ledger')) {
       const theirs = join(KNOWLEDGE, 'catalog', f), ours = join(MCP, 'catalog', f);
       if (!existsSync(theirs)) lines.push(`knowledge/catalog/${f} is MISSING`);
       else if (!existsSync(ours)) lines.push(`mcp-internal/catalog/${f} is MISSING`);
-      else if (readFileSync(theirs, 'utf8') !== readFileSync(ours, 'utf8')) lines.push(`${f} differs from knowledge/catalog/${f}`);
+      else if (f === 'rail-ledger.json'
+        ? serializeJson(projectLedger(readJson(theirs))) !== readFileSync(ours, 'utf8')
+        : readFileSync(theirs, 'utf8') !== readFileSync(ours, 'utf8')) lines.push(`${f} differs from knowledge/catalog/${f}`);
     }
     // The ledger itself must pass knowledge's validator: matching copies of a ledger that decides a row without proof
     // are still wrong. Skipped when knowledge lacks the validator or its inputs.
