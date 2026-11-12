@@ -98,7 +98,7 @@ test('w7: a token presented in the same moment as its preview is refused, the re
   const token = issuePublishToken(base, { now: 1000 });
   const early = verifyPublishToken(token, base, { now: 2000 });
   assert.equal(early.ok, false);
-  assert.match(early.reason, /show the preview to the user and wait for their yes/);
+  assert.match(early.reason, /show the preview to the user \(in an orchestrated build, the orchestrator session\) and wait for their yes/);
   // not spent by the refusal: the same token works once the minimum age has passed
   assert.deepEqual(verifyPublishToken(token, base, { now: 1000 + PUBLISH_MIN_AGE_MS }), { ok: true });
 });

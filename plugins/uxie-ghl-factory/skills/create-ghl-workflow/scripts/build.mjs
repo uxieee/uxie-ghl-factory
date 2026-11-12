@@ -6,7 +6,8 @@
 // routes the IR through the dependency-aware orchestrator — which resolves every human name to
 // the account's real ID, ABORTS if an account dependency is missing, runs every check, and only
 // then creates the missing tags + inline email templates, builds a DRAFT, and round-trip
-// verifies. Publish only with --publish (and only after user confirmation). --dry-run runs every
+// verifies. Publish only with --publish (and only after confirmation: the user's, or in an
+// orchestrated build the orchestrator session's; see SKILL.md, "Before any write"). --dry-run runs every
 // check and creates nothing.
 //
 // The agent MUST use this instead of hand-assembling API calls, so dependency

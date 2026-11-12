@@ -690,7 +690,7 @@ test('w7: publish_workflow refuses a token presented in the same turn as its pre
     assert.ok(preview.data?.confirmationToken, JSON.stringify(preview).slice(0, 300));
     const same = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true, confirmationToken: preview.data.confirmationToken }, deps(gw));
     assert.equal(same.ok, false, JSON.stringify(same).slice(0, 300));
-    assert.match(JSON.stringify(same), /show the preview to the user and wait for their yes/);
+    assert.match(JSON.stringify(same), /show the preview to the user \(in an orchestrated build, the orchestrator session\) and wait for their yes/);
     assert.equal(calls.some(({ method }) => method === 'PUT'), false, 'no PUT may be sent for a same-turn token');
   } finally {
     setPublishMinAgeForTests(0);

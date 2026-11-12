@@ -112857,7 +112857,8 @@ function verifyPublishToken(token, { locationId, workflowId, version: version2, 
   if (body2.wid !== workflowId) return { ok: false, reason: "the confirmation token is for another workflow" };
   if (body2.ver !== (version2 ?? null)) return { ok: false, reason: "the workflow version changed after the preview; preview again" };
   if (typeof body2.iat !== "number" || now - body2.iat < minAgeMs) {
-    return { ok: false, reason: "the preview was only just shown: show the preview to the user and wait for their yes, then call again (no write was sent)" };
+    const who = kind === "workflow" ? "the user (in an orchestrated build, the orchestrator session)" : "the user";
+    return { ok: false, reason: `the preview was only just shown: show the preview to ${who} and wait for their yes, then call again (no write was sent)` };
   }
   if (typeof body2.exp !== "number" || body2.exp < now) return { ok: false, reason: "the confirmation token expired; preview again" };
   if (spent.has(body2.jti)) return { ok: false, reason: "the confirmation token was already used" };

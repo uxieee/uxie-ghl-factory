@@ -53,7 +53,10 @@ export function verifyPublishToken(token, { locationId, workflowId, version, kin
   if (body.wid !== workflowId) return { ok: false, reason: 'the confirmation token is for another workflow' };
   if (body.ver !== (version ?? null)) return { ok: false, reason: 'the workflow version changed after the preview; preview again' };
   if (typeof body.iat !== 'number' || now - body.iat < minAgeMs) {
-    return { ok: false, reason: 'the preview was only just shown: show the preview to the user and wait for their yes, then call again (no write was sent)' };
+    // A workflow publish in an orchestrated build is confirmed by the orchestrator session (repo owner, 2026-11-13); a studio
+    // site publish keeps the user's yes.
+    const who = kind === 'workflow' ? 'the user (in an orchestrated build, the orchestrator session)' : 'the user';
+    return { ok: false, reason: `the preview was only just shown: show the preview to ${who} and wait for their yes, then call again (no write was sent)` };
   }
   if (typeof body.exp !== 'number' || body.exp < now) return { ok: false, reason: 'the confirmation token expired; preview again' };
   if (spent.has(body.jti)) return { ok: false, reason: 'the confirmation token was already used' };

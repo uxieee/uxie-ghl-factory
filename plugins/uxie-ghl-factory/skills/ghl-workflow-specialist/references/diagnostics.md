@@ -36,7 +36,7 @@ Two reads that are not on the table above:
 | `declare_ab_test_winner` | Without `confirm: true` it returns `CONFIRM_REQUIRED` with a preview and makes no request. A winner already declared answers `WINNER_ALREADY_DECLARED`. | The user has named the winning path. | It routes **every new contact** to that path from then on, live, and cannot be undone in the UI. Never from a review's proposal alone. |
 | `set_workflow_error_alerts` | Write, location-wide. | The user names who should get the failure emails, by user id. Read the current state first (`get_account_workflow_overview`, `needsReview.errorEmailSettings`). | `users` **adds** recipients. GHL emails every agency and location admin by default, and an empty `users` means "admins only", not nobody. |
 | `restore_workflow_version` | Write. Lands as a **draft**. A published workflow must be unpublished first. The name must match. | Rolling back a bad edit, with the user's yes. | It replaces the current triggers and steps with an old version's. |
-| `publish_workflow` | Live. Confirmation-gated and round-trip verified. | `check_workflow` is clean (or the user has accepted the findings) **and** the user has said yes naming that workflow. | Publishing makes the workflow run on live contacts. |
+| `publish_workflow` | Live. Confirmation-gated and round-trip verified. | `check_workflow` is clean (or the user has accepted the findings) **and** the user has said yes naming that workflow (in an orchestrated build, the orchestrator session gives that yes). | Publishing makes the workflow run on live contacts. |
 
 ## Lint pack (client policy, advisory)
 
