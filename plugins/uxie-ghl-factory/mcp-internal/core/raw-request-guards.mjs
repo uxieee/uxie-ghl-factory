@@ -66,7 +66,7 @@ const RULES = [
     path: /^\/workflow\/[^/]+\/[^/]+$/,
     refuses: (wire) => isPlainObject(wire) && String(wire.status ?? '').trim().toLowerCase() === 'published',
     message: 'PUT /workflow/{loc}/{wid} with status:"published" is a publish that skips the gate publish_workflow runs (the preview, the confirmation token, the version check).',
-    hint: 'Use publish_workflow (preview first, then confirm:true with the confirmationToken). A draft write through this route is not refused.',
+    hint: 'Use publish_workflow with confirm:true (one call; it validates and verifies the publish). A draft write through this route is not refused.',
   },
   {
     rule: 'trigger-activation-publish-door',

@@ -218,22 +218,19 @@ test('compose publish:true refuses to write at all when the page record cannot b
   assert.ok(!calls.some((c) => c.path.startsWith('/funnels/builder/autosave/')), 'nothing written');
 });
 
-// bl-946 (DECISIONS 2026-11-09, part of w6): a publish makes the page public, so publish:true takes the two-step token gate. Without a
-// valid token nothing is autosaved and nothing is published; the token from the preview autosaves and publishes once.
-test('bl-946: publish:true with confirm:true and NO token writes nothing; the token from the preview publishes once', async () => {
+// 2026-11-18 (repo owner): no outward write waits for a separate yes. confirm:true writes in ONE call, with no token and no wait;
+// a call without confirm:true is a preview that writes nothing.
+test('2026-11-18: publish:true with confirm:true autosaves and publishes once in one call, with no token', async () => {
   const calls = [];
   const d = deps({ versions: [v('a', 'draft', 100)], calls });
-  const first = await tool.handler({ ...base, publish: true }, d);
-  assert.equal(first.code, 'CONFIRM_REQUIRED', JSON.stringify(first));
-  assert.equal(calls.filter((c) => c.path.startsWith('/funnels/builder/autosave/')).length, 0, 'the first call must not autosave');
-  assert.equal(calls.filter((c) => c.path === '/funnels/builder/publish-version').length, 0, 'the first call must not publish');
-  assert.equal(typeof first.data.confirmationToken, 'string');
-  await tool.handler({ ...base, publish: true, confirmationToken: first.data.confirmationToken }, d);
-  assert.equal(calls.filter((c) => c.path === '/funnels/builder/publish-version').length, 1, 'the token publishes once');
+  const res = await tool.handler({ ...base, publish: true }, d);
+  assert.notEqual(res.code, 'CONFIRM_REQUIRED', JSON.stringify(res));
+  assert.equal(calls.filter((c) => c.path === '/funnels/builder/publish-version').length, 1, 'one call publishes once');
+  assert.equal(res.data?.confirmationToken, undefined);
 });
 
-// bl-946 security review (edit-mode bypass): publish through edits or seo takes the same token as a compose publish.
-test('bl-946: edit-mode publish (seo with publish:true) writes nothing without a token', async () => {
+// Edit-mode publish (edits or seo with publish:true) follows the same rule: without confirm:true nothing is written.
+test('2026-11-18: edit-mode publish (seo with publish:true) without confirm:true writes nothing', async () => {
   const calls = [];
   const base2 = deps({ versions: [v('a', 'draft', 100)], calls });
   const d = { ...base2, makeGw: () => {
@@ -245,9 +242,8 @@ test('bl-946: edit-mode publish (seo with publish:true) writes nothing without a
       return g.call(m, p, b);
     } };
   } };
-  const res = await tool.handler({ locationId: 'LOC', funnelId: 'F1', pageId: 'P1', stepId: 'S1', stepName: 'Step one', seo: { title: 'T' }, publish: true, confirm: true }, d);
-  assert.equal(res.code, 'CONFIRM_REQUIRED', JSON.stringify(res));
-  assert.equal(calls.filter((c) => c.method !== 'GET').length, 0, 'edit mode without a token must not write');
+  const res = await tool.handler({ locationId: 'LOC', funnelId: 'F1', pageId: 'P1', stepId: 'S1', stepName: 'Step one', seo: { title: 'T' }, publish: true }, d);
+  assert.equal(calls.filter((c) => c.method !== 'GET').length, 0, 'edit mode without confirm:true must not write');
   assert.equal(calls.filter((c) => c.path === '/funnels/builder/publish-version').length, 0);
-  assert.equal(typeof res.data.confirmationToken, 'string');
+  assert.equal(res.data?.confirmationToken, undefined);
 });

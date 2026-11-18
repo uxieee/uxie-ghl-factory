@@ -4,7 +4,8 @@
 // 2) wait: a publish token is valid only from 20 s after its preview (core/publish-confirmation.mjs PUBLISH_MIN_AGE_MS), so the
 //    suite waits TWO_STEP_WAIT_MS before it confirms.
 // 3) confirm: the same call with confirm:true and the token presented exactly once.
-// A tool whose preview answers CONFIRM_REQUIRED with no token (publish_workflow since 2026-11-18) is confirmed once at once, with no wait.
+// Since 2026-11-18 (repo owner) no tool issues a confirmationToken: a preview that answers CONFIRM_REQUIRED with no token is confirmed
+// once, at once, with no wait. The token-and-wait path below stays only for an older server that still issues tokens.
 // A tool that returns no token after the preview and no CONFIRM_REQUIRED is not confirmed again. Tests inject `call` and `sleep`; live runs use the defaults.
 
 export const TWO_STEP_WAIT_MS = 21_000;

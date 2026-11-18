@@ -124,7 +124,7 @@ testimonials, and pricing nobody agreed to. Replace or remove them, then publish
 
 ## Publishing
 
-`publish_studio_site` needs `confirm:true` and the operator's word. The live URL is keyed on the
+`publish_studio_site` publishes in one call with `confirm:true` when the approved plan says the site goes live: no separate yes and no token (repo owner, 2026-11-18). If the plan does not say, leave it unpublished. The live URL is keyed on the
 **slug**; the sandbox is keyed on the **project id**. `unpublish_studio_site` reverses it —
 and note it journals nothing, so the read-back is the only evidence it happened.
 

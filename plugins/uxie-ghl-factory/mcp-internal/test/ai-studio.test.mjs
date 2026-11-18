@@ -1357,9 +1357,8 @@ test('review I2: get_studio_generation_status explains a superseded build instea
   assert.match(result.data.note ?? '', /history/i);
 });
 
-// bl-946 (DECISIONS 2026-11-09, security review): publish_studio_site is two-step like publish_workflow. A confirm:true call with no
-// valid token publishes nothing: it reads the project (the location check runs first) and returns a preview and a token. Only a
-// call presenting that token, for the same project and version, publishes.
+// 2026-11-18 (repo owner): publish_studio_site publishes in one call with confirm:true (the bl-946 token is gone). The location check
+// still runs first.
 const studioPublishGw = (log) => ({
   call: async (method, path, body) => {
     log.push({ method, path, body });
@@ -1374,42 +1373,27 @@ const studioPublishGw = (log) => ({
 });
 const studioPublishes = (log) => log.filter(({ method, path }) => method === 'POST' && path.includes('/publish'));
 
-test('bl-946: publish_studio_site with confirm:true and NO token publishes nothing and returns a preview and a token', async () => {
+test('2026-11-18: publish_studio_site with confirm:true publishes in one call, with no token', async () => {
   const tool = TOOLS.find((t) => t.name === 'publish_studio_site');
   const log = [];
   const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true }, { state: {}, makeGw: () => studioPublishGw(log) });
-  assert.equal(result.ok, false, JSON.stringify(result));
-  assert.equal(result.code, 'CONFIRM_REQUIRED');
-  assert.equal(studioPublishes(log).length, 0, 'the first call must not publish');
-  assert.equal(typeof result.data.confirmationToken, 'string');
-  assert.equal(result.data.preview.projectId, 'P1');
-  assert.equal(result.data.preview.versionId, 'V1');
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(studioPublishes(log).length, 1, 'one call publishes once');
+  assert.equal(result.data.previouslyPublished, null, 'the result says what it replaced');
 });
 
-test('bl-946: the studio token publishes on the second call, once', async () => {
+test('2026-11-18: publish_studio_site without confirm:true publishes nothing', async () => {
   const tool = TOOLS.find((t) => t.name === 'publish_studio_site');
   const log = [];
-  const deps = { state: {}, makeGw: () => studioPublishGw(log) };
-  const first = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true }, deps);
-  const token = first.data.confirmationToken;
-  const second = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true, confirmationToken: token }, deps);
-  assert.equal(second.ok, true, JSON.stringify(second));
-  assert.equal(studioPublishes(log).length, 1);
-  const replay = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true, confirmationToken: token }, deps);
-  assert.equal(replay.ok, false, 'a spent studio token must not publish again');
-  assert.equal(studioPublishes(log).length, 1);
-});
-
-test('bl-946: a studio token is refused for a different version, and a workflow token is refused here', async () => {
-  const tool = TOOLS.find((t) => t.name === 'publish_studio_site');
-  const log = [];
-  const deps = { state: {}, makeGw: () => studioPublishGw(log) };
-  const first = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true }, deps);
-  const otherVersion = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V2', confirm: true, confirmationToken: first.data.confirmationToken }, deps);
-  assert.equal(otherVersion.ok, false, 'a token for V1 must not publish V2');
-  const { issuePublishToken } = await import('../core/publish-confirmation.mjs');
-  const workflowToken = issuePublishToken({ locationId: 'LOC', workflowId: 'P1', version: 'V1' });
-  const crossKind = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true, confirmationToken: workflowToken }, deps);
-  assert.equal(crossKind.ok, false, 'a workflow publish token must not publish a studio site');
+  const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1' }, { state: {}, makeGw: () => studioPublishGw(log) });
+  assert.equal(result.ok, false);
   assert.equal(studioPublishes(log).length, 0);
+});
+
+test('2026-11-18: a token from an older caller is ignored: confirm:true publishes once', async () => {
+  const tool = TOOLS.find((t) => t.name === 'publish_studio_site');
+  const log = [];
+  const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', versionId: 'V1', confirm: true, confirmationToken: 'stale-token' }, { state: {}, makeGw: () => studioPublishGw(log) });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(studioPublishes(log).length, 1);
 });

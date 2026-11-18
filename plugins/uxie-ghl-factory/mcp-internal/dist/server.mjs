@@ -112822,48 +112822,7 @@ init_define_TOOL_CATALOG();
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 var PUBLISH_TOKEN_TTL_MS = 5 * 60 * 1e3;
 var PUBLISH_MIN_AGE_MS = 20 * 1e3;
-var minAgeMs = PUBLISH_MIN_AGE_MS;
 var SECRET = randomBytes(32);
-var spent = /* @__PURE__ */ new Map();
-var sign = (payloadPart) => createHmac("sha256", SECRET).update(payloadPart).digest("hex");
-var PREFIX = "pc1-";
-var HEX = /^[0-9a-f]+$/;
-function issuePublishToken({ locationId, workflowId, version: version2, kind = "workflow" }, { now = Date.now() } = {}) {
-  const body2 = { loc: locationId, wid: workflowId, ver: version2 ?? null, k: kind, iat: now, exp: now + PUBLISH_TOKEN_TTL_MS, jti: randomUUID() };
-  const payloadPart = Buffer.from(JSON.stringify(body2)).toString("hex");
-  return `${PREFIX}${payloadPart}.${sign(payloadPart)}`;
-}
-function verifyPublishToken(token, { locationId, workflowId, version: version2, kind = "workflow" }, { now = Date.now() } = {}) {
-  for (const [jti, exp] of spent) if (exp < now) spent.delete(jti);
-  if (typeof token !== "string" || token === "") return { ok: false, reason: "no confirmation token was given" };
-  if (!token.startsWith(PREFIX)) return { ok: false, reason: "the confirmation token is malformed" };
-  const parts = token.slice(PREFIX.length).split(".");
-  if (parts.length !== 2) return { ok: false, reason: "the confirmation token is malformed" };
-  const [payloadPart, sig] = parts;
-  if (!HEX.test(payloadPart) || !HEX.test(sig)) return { ok: false, reason: "the confirmation token is malformed" };
-  const expected = Buffer.from(sign(payloadPart));
-  const given = Buffer.from(sig);
-  if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
-    return { ok: false, reason: "the confirmation token signature does not match" };
-  }
-  let body2;
-  try {
-    body2 = JSON.parse(Buffer.from(payloadPart, "hex").toString("utf8"));
-  } catch {
-    return { ok: false, reason: "the confirmation token is malformed" };
-  }
-  if ((body2.k ?? "workflow") !== kind) return { ok: false, reason: "the confirmation token is for a different kind of publish" };
-  if (body2.loc !== locationId) return { ok: false, reason: "the confirmation token is for another location" };
-  if (body2.wid !== workflowId) return { ok: false, reason: "the confirmation token is for another workflow" };
-  if (body2.ver !== (version2 ?? null)) return { ok: false, reason: "the workflow version changed after the preview; preview again" };
-  if (typeof body2.iat !== "number" || now - body2.iat < minAgeMs) {
-    return { ok: false, reason: "the preview was only just shown: show the preview to the user and wait for their yes, then call again (no write was sent)" };
-  }
-  if (typeof body2.exp !== "number" || body2.exp < now) return { ok: false, reason: "the confirmation token expired; preview again" };
-  if (spent.has(body2.jti)) return { ok: false, reason: "the confirmation token was already used" };
-  spent.set(body2.jti, body2.exp);
-  return { ok: true };
-}
 var OUTWARD_STEP_TYPES = /* @__PURE__ */ new Set([
   "email",
   "send_email",
@@ -112950,7 +112909,7 @@ var RULES = [
     path: /^\/workflow\/[^/]+\/[^/]+$/,
     refuses: (wire) => isPlainObject3(wire) && String(wire.status ?? "").trim().toLowerCase() === "published",
     message: 'PUT /workflow/{loc}/{wid} with status:"published" is a publish that skips the gate publish_workflow runs (the preview, the confirmation token, the version check).',
-    hint: "Use publish_workflow (preview first, then confirm:true with the confirmationToken). A draft write through this route is not refused."
+    hint: "Use publish_workflow with confirm:true (one call; it validates and verifies the publish). A draft write through this route is not refused."
   },
   {
     rule: "trigger-activation-publish-door",
@@ -137738,7 +137697,7 @@ var BG_IMAGE = Object.freeze({ value: Object.freeze({
 }) });
 var MARGINS = () => ({ marginLeft: px(0), marginRight: px(0), marginTop: px(0), marginBottom: px(0) });
 var BOX = () => ({ borders: val2("noBorder"), borderRadius: val2("radius0"), radiusEdge: val2("none") });
-var PREFIX2 = ".hl_page-preview--content";
+var PREFIX = ".hl_page-preview--content";
 var ACTION_VALUES = Object.freeze([
   "go-to-next-funnel-step",
   "go-to-product-collection",
@@ -138426,8 +138385,8 @@ var nodeExtraFromCss = (meta3, o = {}) => {
 var textCss = (id, o) => {
   const weight = o.weight ?? 400;
   return [
-    `${PREFIX2} #${id}{margin:0}`,
-    `${PREFIX2} .c${id}{font-family:${o.font};color:${o.color};font-weight:${weight};padding:0;opacity:1;line-height:${o.lineHeight ?? "1.35em"};letter-spacing:${o.letterSpacing ?? 0}px;text-align:${o.align ?? "center"};background-color:transparent}`
+    `${PREFIX} #${id}{margin:0}`,
+    `${PREFIX} .c${id}{font-family:${o.font};color:${o.color};font-weight:${weight};padding:0;opacity:1;line-height:${o.lineHeight ?? "1.35em"};letter-spacing:${o.letterSpacing ?? 0}px;text-align:${o.align ?? "center"};background-color:transparent}`
   ].join("");
 };
 var KEBAB = (k) => k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
@@ -138447,16 +138406,16 @@ var leafStyleCss = (id, styles) => {
     const out = declValue(v);
     return out === null || out === "" ? null : `${KEBAB(k)}:${out}`;
   }).filter(Boolean);
-  return decls.length ? `${PREFIX2} .${id}{${decls.join(";")}}` : "";
+  return decls.length ? `${PREFIX} .${id}{${decls.join(";")}}` : "";
 };
 var buttonColourCss = (node) => {
   const st = node.styles ?? {};
   const d = [["color", st.color], ["background-color", st.backgroundColor]].filter(([, v]) => typeof v?.value === "string" && v.value).map(([k, v]) => `${k}:${v.value}`);
-  return d.length ? `${PREFIX2} .c${node.id}{${d.join(";")}}` : "";
+  return d.length ? `${PREFIX} .c${node.id}{${d.join(";")}}` : "";
 };
 var buttonCss = (id, o) => [
-  `${PREFIX2} .${id}{margin:0;text-align:${o.align ?? "center"}}`,
-  `${PREFIX2} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;letter-spacing:.3px;width:auto;display:inline-block}`
+  `${PREFIX} .${id}{margin:0;text-align:${o.align ?? "center"}}`,
+  `${PREFIX} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;letter-spacing:.3px;width:auto;display:inline-block}`
 ].join("");
 var builderSettings = (pageBackground = "var(--white)") => ({
   background: { bgImage: { value: { url: "", options: "bgCover" } }, backgroundColor: { value: pageBackground } },
@@ -139016,13 +138975,13 @@ function planDeleteStore({ funnel, expectName, locationId, userId }) {
 }
 var splitStamp = (d = /* @__PURE__ */ new Date()) => {
   const off = -d.getTimezoneOffset();
-  const sign2 = off >= 0 ? "+" : "-";
+  const sign = off >= 0 ? "+" : "-";
   const a = Math.abs(off);
   const hh = d.getHours() % 12 || 12;
   const mm = String(d.getMinutes()).padStart(2, "0");
   const ss = String(d.getSeconds()).padStart(2, "0");
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${hh}:${mm}:${ss} ${d.getHours() < 12 ? "AM" : "PM"} UTC${sign2}${String(Math.floor(a / 60)).padStart(2, "0")}:${String(a % 60).padStart(2, "0")}`;
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${hh}:${mm}:${ss} ${d.getHours() < 12 ? "AM" : "PM"} UTC${sign}${String(Math.floor(a / 60)).padStart(2, "0")}:${String(a % 60).padStart(2, "0")}`;
 };
 function additionalRoutesOf({ step, lookups, domainName }) {
   const own = normPath(step?.url ?? "");
@@ -141211,7 +141170,7 @@ var POSITION = {
   right: "position:absolute!important;left:auto!important;bottom:auto!important;transform:translate(0,0)!important;right:20px!important",
   left: "position:absolute!important;left:20px!important;bottom:auto!important;right:auto!important;transform:translate(0,0)!important"
 };
-var PREFIX3 = ".hl_page-preview--content";
+var PREFIX2 = ".hl_page-preview--content";
 function makePopup(spec, i, composeLeaf, saltBase = "P", label2 = `popups[${i}]`) {
   if (!spec?.name) throw new Error(`${label2}.name is required (it is how a button's openPopup names it)`);
   const cols = spec.columns ?? [];
@@ -141292,7 +141251,7 @@ function makePopup(spec, i, composeLeaf, saltBase = "P", label2 = `popups[${i}]`
     }
   };
   const body2 = `${POSITION[position]};box-shadow:none;padding:${pad2 ? `${pad2}px` : 0};margin-top:0;border-width:0;border-style:none;border-radius:0;background-color:${background};width:${widthPx}px`;
-  const popupCss = `#${id}.popup-body{${body2}}.--mobile #${id}.popup-body{width:380px!important}@media screen and (min-width:0px) and (max-width:767px){#${id}.popup-body{width:380px!important}}.drop-zone-draggable .${rowId2}{margin:0 auto;padding:0;width:100%;background-color:transparent}` + columns.map(({ col, widthPct }) => `.drop-zone-draggable .${col.id}{padding:0 ${c0(col)};width:${widthPct}%;margin:0;background-color:transparent}#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`).join("") + css.join("").split(PREFIX3).join(".drop-zone-draggable");
+  const popupCss = `#${id}.popup-body{${body2}}.--mobile #${id}.popup-body{width:380px!important}@media screen and (min-width:0px) and (max-width:767px){#${id}.popup-body{width:380px!important}}.drop-zone-draggable .${rowId2}{margin:0 auto;padding:0;width:100%;background-color:transparent}` + columns.map(({ col, widthPct }) => `.drop-zone-draggable .${col.id}{padding:0 ${c0(col)};width:${widthPct}%;margin:0;background-color:transparent}#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`).join("") + css.join("").split(PREFIX2).join(".drop-zone-draggable");
   return {
     entry: { id, elements: [node, row, ...columns.flatMap(({ col, leaves: leaves2 }) => [col, ...leaves2])], activeElementId: id },
     css: popupCss,
@@ -143406,8 +143365,8 @@ var toEpochMs = (raw) => {
   const offsetHours = Number(digits.slice(0, 2));
   const offsetMinutes = Number(digits.slice(2, 4));
   if (offsetHours > 23 || offsetMinutes > 59) return null;
-  const sign2 = offsetText[0] === "-" ? -1 : 1;
-  return utc - sign2 * (offsetHours * 60 + offsetMinutes) * 6e4;
+  const sign = offsetText[0] === "-" ? -1 : 1;
+  return utc - sign * (offsetHours * 60 + offsetMinutes) * 6e4;
 };
 var readEventTime = (row) => {
   if (!row || typeof row !== "object") {
@@ -144893,8 +144852,8 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-var PREFIX4 = "inboundWebhookRequest";
-function webhookMergeTags(payload, { prefix = PREFIX4, includeHeaders = false } = {}) {
+var PREFIX3 = "inboundWebhookRequest";
+function webhookMergeTags(payload, { prefix = PREFIX3, includeHeaders = false } = {}) {
   const out = {};
   const walk4 = (val4, path) => {
     if (val4 !== null && typeof val4 === "object") {
@@ -224237,7 +224196,7 @@ var TOP_LEVEL = ["name", "showInFunnel", "showInPieChart", "useOpportunityProbab
 var DERIVED = ["showInFunnel", "showInPieChart"];
 var NEW_STAGE_COLOR = "#64748B";
 var STAGE_PROPS = ["name", "stageWinProbability", "color", "showInFunnel", "showInPieChart"];
-var HEX2 = /^#[0-9A-Fa-f]{6}$/;
+var HEX = /^#[0-9A-Fa-f]{6}$/;
 var trimName = (s) => typeof s === "string" ? s.trim() : s;
 function planPipelineEdit(row, edit = {}) {
   const errors = [];
@@ -224302,7 +224261,7 @@ function planPipelineEdit(row, edit = {}) {
     if (typeof p2 !== "number" || !Number.isFinite(p2) || p2 < 0 || p2 > 100) {
       errors.push(`stage "${s.name}" needs stageWinProbability 0\u2013100 \u2014 GHL rewrites EVERY stage's probability to an even ramp when one is missing`);
     }
-    if (s.color !== void 0 && !HEX2.test(String(s.color))) errors.push(`stage "${s.name}": color must be #RRGGBB (got ${s.color})`);
+    if (s.color !== void 0 && !HEX.test(String(s.color))) errors.push(`stage "${s.name}": color must be #RRGGBB (got ${s.color})`);
   }
   for (const k of DERIVED) if (edit[k] !== void 0) {
     errors.push(`${k} at pipeline level is derived from the stages (true when any stage has it on, as the GHL UI sends it); set it per stage in updateStages / addStages instead`);
@@ -231360,18 +231319,14 @@ function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
 }
 var withFailureData = (failure2, data2) => ({ ...failure2, data: ok(data2).data });
 var outwardTokenRefusal = (args, { kind, targetId, digest, preview, what }) => {
-  const key = { locationId: args.locationId, workflowId: targetId, version: digest, kind };
-  const check2 = args.confirm === true && typeof args.confirmationToken === "string" ? verifyPublishToken(args.confirmationToken, key) : { ok: false, reason: args.confirm === true ? "no confirmation token was given" : "confirm was not true" };
-  if (check2.ok) return null;
-  const confirmationToken = issuePublishToken(key);
-  const refused = args.confirm === true && args.confirmationToken !== void 0;
+  if (args.confirm === true) return null;
   return withFailureData(
     fail(
       CODES.CONFIRM_REQUIRED,
-      refused ? `${what} not sent: ${check2.reason}. No write was sent.` : `${what} preview is ready; no write was sent. Show data.preview to the user and wait for their explicit yes.`,
-      "Show data.preview to the user and wait for their explicit yes; do not call again in this turn. Then call with confirm:true and confirmationToken set to data.confirmationToken. The token is valid from 20 seconds after the preview to 5 minutes, and works once."
+      `${what} preview is ready; no write was sent.`,
+      "Call again with confirm:true to write. No token and no wait are needed."
     ),
-    { preview, confirmationToken }
+    { preview }
   );
 };
 function fromThrown(error51, { beforeWrite = false } = {}) {
@@ -232928,7 +232883,7 @@ var TOOLS2 = [
       excludeTags: external_exports.array(external_exports.string()).optional(),
       excludeTagsOperator: external_exports.string().optional().describe("AND | OR (default AND)"),
       confirm: external_exports.boolean().default(false),
-      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
+      confirmationToken: external_exports.string().optional().describe("No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.")
     }),
     capabilities: [
       { method: "GET", path: DEPLOY_PATH },
@@ -232958,7 +232913,7 @@ var TOOLS2 = [
             return fail(
               CODES.CONFIRM_REQUIRED,
               "The routing table changed since the preview, so nothing was written.",
-              "Call again with confirm:true and no token to get a fresh preview, then confirm with its token."
+              "Call again with confirm:true; it re-plans from the current table."
             );
           }
         }
@@ -238842,7 +238797,7 @@ var TOOLS2 = [
       workflowId: external_exports.string(),
       targetLocationId: external_exports.string(),
       confirm: external_exports.boolean().default(false),
-      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
+      confirmationToken: external_exports.string().optional().describe("No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.")
     }),
     capabilities: [
       { method: "GET", path: "/workflow/{loc}/{wid}" },
@@ -239250,7 +239205,7 @@ var TOOLS2 = [
       all: external_exports.boolean().optional(),
       previewToken: external_exports.string().optional(),
       confirm: external_exports.boolean().default(false),
-      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
+      confirmationToken: external_exports.string().optional().describe("No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.")
     }),
     capabilities: [
       { method: "GET", path: "/workflows/status/search/count-per-step" },
@@ -240266,14 +240221,14 @@ var TOOLS2 = [
     name: "publish_studio_site",
     description: describe3(
       "publish_studio_site",
-      "Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: this puts the site on the public internet. TWO-STEP (bl-946): call with confirm:true and no token first; it publishes nothing and returns data.preview and a short-lived data.confirmationToken. Call again with confirm:true and that token to publish."
+      "Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: this puts the site on the public internet. confirm:true publishes in one call: no confirmation token and no wait (repo owner, 2026-11-18)."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
       projectId: external_exports.string(),
       versionId: external_exports.string(),
       confirm: external_exports.boolean().optional(),
-      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to publish.")
+      confirmationToken: external_exports.string().optional().describe("No longer needed (2026-11-18): confirm:true publishes in one call. Accepted from older callers and ignored.")
     }),
     capabilities: [
       { method: "POST", path: "/vibe-ai/projects/{projectId}/publish" },
@@ -240284,35 +240239,13 @@ var TOOLS2 = [
         return fail(
           CODES.VALIDATION_FAILED,
           "publish_studio_site is outward-facing and needs confirm:true",
-          "Publishing puts this site on the public internet. Check the preview in a browser and get the operator's word, then retry with confirm:true."
+          "Publishing puts this site on the public internet. Retry with confirm:true to publish it."
         );
       }
       const { api } = studioDeps(args, deps);
       const { error: error51 } = await assertProjectLocation(api, args.projectId, args.locationId);
       if (error51) return error51;
       const before = (await api.getProject(args.projectId)).json ?? {};
-      const preview = {
-        projectId: args.projectId,
-        versionId: args.versionId,
-        locationId: args.locationId,
-        currentlyPublished: before.published_at ?? null,
-        currentlyPublishedVersionId: before.published_version_id ?? null,
-        note: "Publishing puts this version on the public internet at the site's slug or custom domain."
-      };
-      const studioKey = { locationId: args.locationId, workflowId: args.projectId, version: args.versionId, kind: "studio_site" };
-      const tokenCheck = typeof args.confirmationToken === "string" ? verifyPublishToken(args.confirmationToken, studioKey) : { ok: false, reason: "no confirmation token was given" };
-      if (!tokenCheck.ok) {
-        const confirmationToken = issuePublishToken(studioKey);
-        const refused = args.confirmationToken !== void 0;
-        return withFailureData(
-          fail(
-            CODES.CONFIRM_REQUIRED,
-            refused ? `Publish not sent: ${tokenCheck.reason}. No write was sent.` : "Publish preview is ready; no write was sent.",
-            "Review data.preview, then call publish_studio_site again with confirm:true and confirmationToken set to data.confirmationToken. The token lasts 5 minutes and works once."
-          ),
-          { preview, confirmationToken }
-        );
-      }
       const res = await api.publish(args.projectId, args.versionId);
       const back = (await api.getProject(args.projectId)).json ?? {};
       return ok({
@@ -240320,6 +240253,8 @@ var TOOLS2 = [
         liveUrl: res.json?.live_url,
         publishedAt: back.published_at,
         publishedVersionId: back.published_version_id,
+        previouslyPublished: before.published_at ?? null,
+        previouslyPublishedVersionId: before.published_version_id ?? null,
         appliedVerified: Boolean(back.published_at),
         note: "liveUrl is keyed on the SLUG. Read-back is from the project, not the journal."
       });
@@ -240925,7 +240860,7 @@ var TOOLS2 = [
       allowPublishedWorkflows: external_exports.boolean().default(false),
       overwriteConflicts: external_exports.boolean().default(false),
       confirm: external_exports.boolean().default(false),
-      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
+      confirmationToken: external_exports.string().optional().describe("No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.")
     }),
     capabilities: [
       { method: "GET", path: "/locations/{locationId}" },
@@ -241873,7 +241808,7 @@ var TOOLS2 = [
       previewToken: external_exports.string().optional().describe("confirm: the previewToken the preview returned; a stored page that changed since is refused with PREVIEW_STALE"),
       publish: external_exports.boolean().default(false),
       confirm: external_exports.boolean().default(false),
-      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
+      confirmationToken: external_exports.string().optional().describe("No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.")
     }),
     capabilities: [
       { method: "POST", path: "/funnels/builder/autosave/{pageId}" },
@@ -242881,7 +242816,7 @@ var TOOLS2 = [
       bump: external_exports.boolean().optional(),
       resetSplitTests: external_exports.boolean().optional(),
       confirm: external_exports.boolean().default(false),
-      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.")
+      confirmationToken: external_exports.string().optional().describe("No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.")
     }),
     capabilities: [
       { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
