@@ -30,6 +30,12 @@ commit bodies carry the detail.
 - The send-class and irreversible ack (texting real contacts, signing SMS compliance, one-way Labs) still needs the user, as do
   switching payments from test to live and buying anything.
 
+### Known issues
+- The 1.43.0 known issues carry over unchanged: `compare_page_renders`, `create_studio_site`, `push_snapshot`,
+  `export_workflow`, `validate_workflow`, `repair_workflow`, `edit_workflow`.
+- `publish_workflow` and `copy_workflow_to_location`: their automated checks now confirm in one call, but have not been re-run
+  live since this change. Their latest recorded runs (2026-11-09) still show the old two-step stop.
+
 ## [1.43.0] — 2026-11-10
 
 **Outward writes now need a preview and a yes. Raw requests are judged on the canonical path. Workflow, form, funnel and course work from W9 is in, and the known issues are listed by tool.**
