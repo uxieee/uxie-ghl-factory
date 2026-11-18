@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets, isSecretKey, REDACTED } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
-import { issuePublishToken, verifyPublishToken, outwardStepsOf, digestOf } from './publish-confirmation.mjs';
+import { outwardStepsOf, digestOf } from './publish-confirmation.mjs';
 import { refuseRawRequest, refuseEmptyWriteBody, matchCatalogRow, refuseRedactedWrite, restoreRedactedForValidation } from './raw-request-guards.mjs';
 import { sendClassFor, sendClassWithToken, requireSendAck, nonCanonicalPathReason } from './send-class.mjs';
 import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgePageRecord, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
@@ -947,11 +947,11 @@ function triggerPublishInstruction(triggerPlan, workflowStatus, { committed }) {
   if (matches.some((request) => request.op === 'modifyTrigger')) {
     return committed
       ? 'This trigger is now active, but its workflow is still draft — GHL will not enrol anyone until the workflow itself is published. Invoke publish_workflow with confirm:true to publish it.'
-      : 'This trigger will be active, but its workflow is still draft — GHL will not enrol anyone until the workflow itself is published. After verifying the edit, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) to publish it.';
+      : 'This trigger will be active, but its workflow is still draft — GHL will not enrol anyone until the workflow itself is published. After verifying the edit, invoke publish_workflow with confirm:true to publish it.';
   }
   return committed
-    ? 'Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) to activate it explicitly.'
-    : 'Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) to activate it explicitly.';
+    ? 'Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.'
+    : 'Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.';
 }
 
 // Ops that write step ATTRIBUTES. Only these can breach a per-field rule such as a character cap,
@@ -1724,24 +1724,19 @@ function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
 
 const withFailureData = (failure, data) => ({ ...failure, data: ok(data).data });
 
-// bl-946 (DECISIONS 2026-11-09): the two-step gate for an outward write. A confirmed call with no valid token returns the preview and a
-// fresh token and writes nothing; the token is single use, bound to the location, the target and the digest of what the preview
-// describes. Returns null when the call may proceed.
+// The outward-write gate (bl-946, 2026-11-09). Since 2026-11-18 (repo owner) no outward write waits for a separate yes: the approved
+// plan or the request that asked for the write is the confirmation, so confirm:true proceeds in ONE call, with no token and no wait. A
+// call without confirm:true returns the preview and writes nothing. A confirmationToken from an older caller is accepted and ignored.
+// Returns null when the call may proceed. (`kind`, `targetId` and `digest` are kept in the signature so callers did not change.)
 const outwardTokenRefusal = (args, { kind, targetId, digest, preview, what }) => {
-  const key = { locationId: args.locationId, workflowId: targetId, version: digest, kind };
-  const check = args.confirm === true && typeof args.confirmationToken === 'string'
-    ? verifyPublishToken(args.confirmationToken, key)
-    : { ok: false, reason: args.confirm === true ? 'no confirmation token was given' : 'confirm was not true' };
-  if (check.ok) return null;
-  const confirmationToken = issuePublishToken(key);
-  const refused = args.confirm === true && args.confirmationToken !== undefined;
+  if (args.confirm === true) return null;
   return withFailureData(
     fail(
       CODES.CONFIRM_REQUIRED,
-      refused ? `${what} not sent: ${check.reason}. No write was sent.` : `${what} preview is ready; no write was sent. Show data.preview to the user and wait for their explicit yes.`,
-      'Show data.preview to the user and wait for their explicit yes; do not call again in this turn. Then call with confirm:true and confirmationToken set to data.confirmationToken. The token is valid from 20 seconds after the preview to 5 minutes, and works once.',
+      `${what} preview is ready; no write was sent.`,
+      'Call again with confirm:true to write. No token and no wait are needed.',
     ),
-    { preview, confirmationToken },
+    { preview },
   );
 };
 
@@ -1803,7 +1798,7 @@ function urgentPartialFailure(failure, data, publishedStateVerified = false) {
 function editWriteFailure(failure, data) {
   return withFailureData({
     ...failure,
-    remediation: `URGENT: the edit may be partially applied. Inspect the workflow and re-run a read-only edit preview before retrying. If trigger changes landed, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) only after the intended configuration is verified. ${failure.remediation ?? ''}`.trim(),
+    remediation: `URGENT: the edit may be partially applied. Inspect the workflow and re-run a read-only edit preview before retrying. If trigger changes landed, invoke publish_workflow with confirm:true only after the intended configuration is verified. ${failure.remediation ?? ''}`.trim(),
   }, data);
 }
 
@@ -3371,7 +3366,7 @@ export const TOOLS = [
       excludeTags: z.array(z.string()).optional(),
       excludeTagsOperator: z.string().optional().describe('AND | OR (default AND)'),
       confirm: z.boolean().default(false),
-      confirmationToken: z.string().optional().describe('bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.'),
+      confirmationToken: z.string().optional().describe('No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.'),
     }),
     capabilities: [
       { method: 'GET', path: DEPLOY_PATH },
@@ -3401,7 +3396,7 @@ export const TOOLS = [
           const again = await executeDeployment({ gw, locationId: args.locationId, intent, confirm: false });
           if (again.http || !again.preview || digestOf(again.preview) !== digest) {
             return fail(CODES.CONFIRM_REQUIRED, 'The routing table changed since the preview, so nothing was written.',
-              'Call again with confirm:true and no token to get a fresh preview, then confirm with its token.');
+              'Call again with confirm:true; it re-plans from the current table.');
           }
         }
       }
@@ -8249,12 +8244,12 @@ export const TOOLS = [
   },
   {
     name: 'publish_workflow',
-    description: describe('publish_workflow', 'Publishing is TWO-STEP (bl-946). Call publish_workflow with confirm:true and NO token first: it publishes nothing and returns a preview (validation, the steps that send, the trigger changes) and a short-lived data.confirmationToken. Then call it again with confirm:true and that confirmationToken to publish. confirm:true without a valid token never publishes. A version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT\'s own draft→published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs.'),
+    description: describe('publish_workflow', 'Without confirm:true it publishes nothing and returns a preview (validation, the steps that send, the trigger changes). With confirm:true it publishes in one call: no confirmation token and no wait (repo owner, 2026-11-18); the result lists the steps that send (outwardSteps). The validation gate still refuses a workflow GHL would reject. A version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT\'s own draft→published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
       confirm: z.boolean().default(false),
-      confirmationToken: z.string().optional().describe('bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to publish. A call without a valid token previews and publishes nothing. The token is bound to this workflow and version, lasts 5 minutes and works once.'),
+      confirmationToken: z.string().optional().describe('No longer needed (2026-11-18): confirm:true publishes in one call. Accepted from older callers and ignored.'),
       allowValidationFailure: z.boolean().optional().describe('Publish even though the validation gate refused. The gate runs every layer: GHL\'s own WorkflowValidator rules (including the publish-only ones), the advanced canvas\'s stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL\'s live validator. Findings are still reported in full.'),
       skipWorkflowRules: z.union([z.boolean(), z.array(z.string())]).optional().describe('Skip GHL\'s WorkflowValidator rules — true, or a list of rule names. The other layers still run.'),
     }),
@@ -8329,24 +8324,20 @@ export const TOOLS = [
         outwardSteps: outwardStepsOf(current?.workflowData?.templates),
       };
 
-      // bl-946 (DECISIONS 2026-11-09): two steps. Without a valid token this call publishes nothing and hands back a fresh
-      // preview and token; only a call that presents a token issued for this workflow and version publishes.
+      // Repo owner (2026-11-18): a publish no longer waits for a separate yes. The approved plan or the request that asked for the
+      // publish is the confirmation, so confirm:true publishes in ONE call; the old two-step token (bl-946) and its 20 s wait are gone
+      // for workflows. Without confirm:true this call is a preview and writes nothing. A confirmationToken from an older caller is
+      // accepted and ignored. The validation gate above still refuses a workflow GHL would reject, and the version check below still
+      // refuses a workflow that moved between this call's first read and its pre-PUT re-read.
       const versionNow = current?.version ?? null;
-      const tokenCheck = args.confirm === true && typeof args.confirmationToken === 'string'
-        ? verifyPublishToken(args.confirmationToken, { locationId: args.locationId, workflowId: args.workflowId, version: versionNow })
-        : { ok: false, reason: args.confirm === true ? 'no confirmation token was given' : 'confirm was not true' };
-      if (!tokenCheck.ok) {
-        const confirmationToken = issuePublishToken({ locationId: args.locationId, workflowId: args.workflowId, version: versionNow });
-        const refused = args.confirm === true && args.confirmationToken !== undefined;
+      if (args.confirm !== true) {
         return withFailureData(
           fail(
             CODES.CONFIRM_REQUIRED,
-            refused
-              ? `Publish not sent: ${tokenCheck.reason}. No write was sent.`
-              : 'Publish preview is ready; no write was sent.',
-            'Review data.preview (the steps that send are in outwardSteps), then call publish_workflow again with confirm:true and confirmationToken set to data.confirmationToken. The token lasts 5 minutes and works once.',
+            'Publish preview is ready; no write was sent.',
+            'Call publish_workflow again with confirm:true to publish. The steps that send are in data.preview.outwardSteps.',
           ),
-          { preview, confirmationToken },
+          { preview },
         );
       }
 
@@ -8450,15 +8441,13 @@ export const TOOLS = [
         );
       }
       const freshResponse = freshCall.value;
-      // bl-946 TOCTOU (security review): the token bound the version the preview saw. If the workflow moved between that read and
-      // this re-read, the document about to be published is not the one that was previewed and validated: refuse and re-preview.
+      // bl-946 TOCTOU (security review): validation ran on the version read at the top of this call. If the workflow moved before
+      // this re-read, the document about to be published is not the one validated: refuse, and the caller calls again.
       if ((freshResponse.json?.version ?? null) !== versionNow) {
-        // No token and no preview here: the preview in hand describes the OLD version, so a token for the new one would attest to a
-        // version nobody reviewed (security review). The caller runs a fresh preview and reviews that.
         return fail(
           CODES.CONFIRM_REQUIRED,
-          'Publish not sent: the workflow changed between the preview and the publish (its version moved). No write was sent.',
-          'Call publish_workflow again with confirm:true and no token to get a fresh preview, review it, then confirm with its token.',
+          'Publish not sent: the workflow changed while this publish was running (its version moved). No write was sent.',
+          'Call publish_workflow again with confirm:true; it re-reads and re-validates the current version.',
         );
       }
       const publishable = { ...freshResponse.json };
@@ -8625,6 +8614,9 @@ export const TOOLS = [
         workflowId: args.workflowId,
         previous: preview.current,
         publishedWithVersion: body.version,
+        // What this publish turned on, in the result itself now that there is no separate preview call (2026-11-18).
+        outwardSteps: preview.outwardSteps,
+        triggerChanges: preview.changes.triggers,
         verify,
         // Carried onto the RESULT, not only the preview: someone who publishes with
         // allowValidationFailure skipped the preview, and the one place they will read is this.
@@ -9885,7 +9877,7 @@ export const TOOLS = [
       workflowId: z.string(),
       targetLocationId: z.string(),
       confirm: z.boolean().default(false),
-      confirmationToken: z.string().optional().describe('bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.'),
+      confirmationToken: z.string().optional().describe('No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.'),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
@@ -10262,7 +10254,7 @@ export const TOOLS = [
       all: z.boolean().optional(),
       previewToken: z.string().optional(),
       confirm: z.boolean().default(false),
-      confirmationToken: z.string().optional().describe('bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.'),
+      confirmationToken: z.string().optional().describe('No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.'),
     }),
     capabilities: [
       { method: 'GET', path: '/workflows/status/search/count-per-step' },
@@ -10318,7 +10310,7 @@ export const TOOLS = [
           { preview },
         );
       }
-      // bl-946 (DECISIONS 2026-11-09): the roster previewToken below does not expire and is reusable; the two-step token is added on top.
+      // The roster previewToken below binds the move to the exact parked roster the preview saw (a correctness check, not a yes).
       const ffGate = outwardTokenRefusal(args, { kind: 'fast_forward', targetId: args.workflowId,
         digest: digestOf({ stepId: args.stepId, previewToken: preview.previewToken }), preview, what: 'Fast-forward' });
       if (ffGate) return ffGate;
@@ -11336,11 +11328,11 @@ export const TOOLS = [
     name: 'publish_studio_site',
     description: describe('publish_studio_site',
       'Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: '
-      + 'this puts the site on the public internet. TWO-STEP (bl-946): call with confirm:true and no token first; it publishes '
-      + 'nothing and returns data.preview and a short-lived data.confirmationToken. Call again with confirm:true and that token to publish.'),
+      + 'this puts the site on the public internet. confirm:true publishes in one call: no confirmation token and no wait '
+      + '(repo owner, 2026-11-18).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       versionId: z.string(), confirm: z.boolean().optional(),
-      confirmationToken: z.string().optional().describe('bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to publish.') }),
+      confirmationToken: z.string().optional().describe('No longer needed (2026-11-18): confirm:true publishes in one call. Accepted from older callers and ignored.') }),
     capabilities: [
       { method: 'POST', path: '/vibe-ai/projects/{projectId}/publish' },
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -11349,37 +11341,19 @@ export const TOOLS = [
       if (args.confirm !== true) {
         return fail(CODES.VALIDATION_FAILED,
           'publish_studio_site is outward-facing and needs confirm:true',
-          'Publishing puts this site on the public internet. Check the preview in a browser and get '
-          + 'the operator\'s word, then retry with confirm:true.');
+          'Publishing puts this site on the public internet. Retry with confirm:true to publish it.');
       }
       const { api } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
       if (error) return error;
-      // bl-946: the preview read, then the token gate. A call without a valid token publishes nothing.
+      // 2026-11-18 (repo owner): confirm:true publishes in one call; the bl-946 token is gone. The current published state is still read
+      // first, so the result can say what it replaced.
       const before = (await api.getProject(args.projectId)).json ?? {};
-      const preview = { projectId: args.projectId, versionId: args.versionId, locationId: args.locationId,
-        currentlyPublished: before.published_at ?? null, currentlyPublishedVersionId: before.published_version_id ?? null,
-        note: 'Publishing puts this version on the public internet at the site\'s slug or custom domain.' };
-      const studioKey = { locationId: args.locationId, workflowId: args.projectId, version: args.versionId, kind: 'studio_site' };
-      const tokenCheck = typeof args.confirmationToken === 'string'
-        ? verifyPublishToken(args.confirmationToken, studioKey)
-        : { ok: false, reason: 'no confirmation token was given' };
-      if (!tokenCheck.ok) {
-        const confirmationToken = issuePublishToken(studioKey);
-        const refused = args.confirmationToken !== undefined;
-        return withFailureData(
-          fail(
-            CODES.CONFIRM_REQUIRED,
-            refused ? `Publish not sent: ${tokenCheck.reason}. No write was sent.` : 'Publish preview is ready; no write was sent.',
-            'Review data.preview, then call publish_studio_site again with confirm:true and confirmationToken set to data.confirmationToken. The token lasts 5 minutes and works once.',
-          ),
-          { preview, confirmationToken },
-        );
-      }
       const res = await api.publish(args.projectId, args.versionId);
       const back = (await api.getProject(args.projectId)).json ?? {};
       return ok({ status: res.json?.status, liveUrl: res.json?.live_url,
         publishedAt: back.published_at, publishedVersionId: back.published_version_id,
+        previouslyPublished: before.published_at ?? null, previouslyPublishedVersionId: before.published_version_id ?? null,
         appliedVerified: Boolean(back.published_at),
         note: 'liveUrl is keyed on the SLUG. Read-back is from the project, not the journal.' });
     }, args),
@@ -12061,7 +12035,7 @@ export const TOOLS = [
       allowPublishedWorkflows: z.boolean().default(false),
       overwriteConflicts: z.boolean().default(false),
       confirm: z.boolean().default(false),
-      confirmationToken: z.string().optional().describe('bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.'),
+      confirmationToken: z.string().optional().describe('No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.'),
     }),
     capabilities: [
       { method: 'GET', path: '/locations/{locationId}' },
@@ -13137,7 +13111,7 @@ export const TOOLS = [
       previewToken: z.string().optional().describe('confirm: the previewToken the preview returned; a stored page that changed since is refused with PREVIEW_STALE'),
       publish: z.boolean().default(false),
       confirm: z.boolean().default(false),
-      confirmationToken: z.string().optional().describe('bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.'),
+      confirmationToken: z.string().optional().describe('No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.'),
     }),
     capabilities: [
       { method: 'POST', path: '/funnels/builder/autosave/{pageId}' },
@@ -14074,7 +14048,7 @@ export const TOOLS = [
       bump: z.boolean().optional(),
       resetSplitTests: z.boolean().optional(),
       confirm: z.boolean().default(false),
-      confirmationToken: z.string().optional().describe('bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to write.'),
+      confirmationToken: z.string().optional().describe('No longer needed (2026-11-18): confirm:true writes in one call. Accepted from older callers and ignored.'),
     }),
     capabilities: [
       { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },

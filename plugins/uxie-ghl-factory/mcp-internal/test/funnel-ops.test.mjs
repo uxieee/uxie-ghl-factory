@@ -315,17 +315,13 @@ test('a field the call did not name that changes anyway fails the edit; a materi
   assert.match(ok.data.notes.join(' '), /autoGenerateSchema=false/);
 });
 
-// bl-946 (DECISIONS 2026-11-09, part of w6): publishing a funnel page makes it public, so publish-page takes the two-step token gate.
-// confirm:true with no token writes nothing; the token from the preview writes once.
-test('bl-946: publish-page with confirm:true and NO token writes nothing; the token from the preview writes once', async () => {
+// 2026-11-18 (repo owner): no outward write waits for a separate yes. confirm:true writes in ONE call, with no token and no wait;
+// a call without confirm:true is a preview that writes nothing.
+test('2026-11-18: publish-page with confirm:true writes once in one call, with no token', async () => {
   const calls = [];
   const d = fakeDeps({ calls });
   const writes = () => calls.filter((c) => c.method !== 'GET').length;
-  const first = await run('edit_funnel', { op: 'publish-page', pageId: 'P1', confirm: true }, d);
-  assert.equal(first.code, 'CONFIRM_REQUIRED', JSON.stringify(first));
-  assert.equal(writes(), 0, 'the first call must not write');
-  assert.equal(typeof first.data.confirmationToken, 'string');
-  const second = await run('edit_funnel', { op: 'publish-page', pageId: 'P1', confirm: true, confirmationToken: first.data.confirmationToken }, d);
-  assert.equal(second.ok, true, JSON.stringify(second));
-  assert.equal(writes(), 1, 'the token writes once');
+  const out = await run('edit_funnel', { op: 'publish-page', pageId: 'P1', confirm: true }, d);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(writes(), 1, 'one call writes once');
 });

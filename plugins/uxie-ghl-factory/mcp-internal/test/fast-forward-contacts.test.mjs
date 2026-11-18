@@ -626,22 +626,15 @@ test('bl-314: a failed re-read reports moved as unverified, never as the attempt
   assert.match(r.data.note, /moved is unverified/);
 });
 
-// bl-946 (DECISIONS 2026-11-09, part of w6): the roster previewToken already gates the write, but it does not expire and it is reusable.
-// The bl-946 token is added on top: the roster token alone moves nobody; the confirmation token from the confirm call moves them once.
-test('bl-946: fast-forward with the roster preview token but NO confirmation token moves nobody; the confirmation token moves them once', async () => {
+// 2026-11-18 (repo owner): the bl-946 token is gone. The roster previewToken still binds the move to the exact parked roster the preview
+// saw (a correctness check, not a yes): with it and confirm:true, one call moves them once.
+test('2026-11-18: fast-forward with the roster preview token and confirm:true moves them once, with no confirmation token', async () => {
   const rows = [{ _id: 'STATUS_A', contactId: 'C_A' }];
   const selector = { statusIds: ['STATUS_A'] };
   const preview = await previewFor(selector, rows);
   const base = { locationId: 'LOC', workflowId: 'WID', stepId: 'STEP', ...selector, previewToken: preview.result.data.preview.previewToken };
   const fixture = depsFixture({ rows });
-  const first = await fastForwardTool().handler({ ...base, confirm: true }, fixture.deps);
-  assert.equal(first.code, 'CONFIRM_REQUIRED', JSON.stringify(first));
-  assert.equal(fixture.calls.filter(({ method }) => method === 'POST').length, 0, 'the first call must not requeue');
-  assert.equal(typeof first.data.confirmationToken, 'string');
-  const second = await fastForwardTool().handler({ ...base, confirm: true, confirmationToken: first.data.confirmationToken }, fixture.deps);
-  assert.equal(second.ok, true, JSON.stringify(second));
-  assert.equal(fixture.calls.filter(({ method }) => method === 'POST').length, 1, 'the confirmation token requeues once');
-  const replay = await fastForwardTool().handler({ ...base, confirm: true, confirmationToken: first.data.confirmationToken }, fixture.deps);
-  assert.equal(replay.ok, false, 'a spent token must not requeue again');
-  assert.equal(fixture.calls.filter(({ method }) => method === 'POST').length, 1);
+  const out = await fastForwardTool().handler({ ...base, confirm: true }, fixture.deps);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(fixture.calls.filter(({ method }) => method === 'POST').length, 1, 'one call requeues once');
 });

@@ -142,20 +142,11 @@ const copyConfirmed = async (extra, dependencies) => {
   return tool('copy_workflow_to_location').handler(args({ confirm: true, ...extra, confirmationToken: preview.data.confirmationToken }), dependencies);
 };
 
-// bl-946 (DECISIONS 2026-11-09, part of w6): the copy writes into a second account, so it takes the two-step token gate too.
-// confirm:true with no token sends nothing and returns the preview and a token; the token, presented once, copies once.
-test('bl-946: copy with confirm:true and NO token sends nothing; the token from the preview copies exactly once', async () => {
+// 2026-11-18 (repo owner): no outward write waits for a separate yes. confirm:true writes in ONE call, with no token and no wait;
+// a call without confirm:true is a preview that writes nothing.
+test('2026-11-18: copy with confirm:true copies exactly once in one call, with no token', async () => {
   const { gw, calls } = copyGateway();
-  const first = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
-  assert.equal(first.code, 'CONFIRM_REQUIRED', JSON.stringify(first));
-  assert.equal(calls.filter((c) => c.method === 'POST').length, 0, 'the first call must not copy');
-  assert.equal(typeof first.data.confirmationToken, 'string');
-  const second = await tool('copy_workflow_to_location').handler(
-    args({ confirm: true, confirmationToken: first.data.confirmationToken }), deps(gw, new Set(['SRC', 'TGT'])));
-  assert.equal(calls.filter((c) => c.method === 'POST').length, 1, 'the token copies once');
-  assert.ok(second.ok || second.code, 'the second call reaches the copy');
-  const replay = await tool('copy_workflow_to_location').handler(
-    args({ confirm: true, confirmationToken: first.data.confirmationToken }), deps(gw, new Set(['SRC', 'TGT'])));
-  assert.equal(replay.ok, false, 'a spent token must not copy again');
-  assert.equal(calls.filter((c) => c.method === 'POST').length, 1);
+  const out = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
+  assert.notEqual(out.code, 'CONFIRM_REQUIRED', JSON.stringify(out));
+  assert.equal(calls.filter((c) => c.method === 'POST').length, 1, 'one call copies once');
 });

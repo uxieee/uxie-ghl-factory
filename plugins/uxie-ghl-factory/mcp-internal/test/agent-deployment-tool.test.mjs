@@ -23,12 +23,8 @@ function deps(rows) {
   return { calls, deps: { makeGw: () => gw, state: {} } };
 }
 const parse = (res) => res;
-// bl-946: a confirmed deployment is two calls: the first returns the token from the dry run, the second presents it.
-const deployConfirmed = async (args, dependencies) => {
-  const first = parse(await tool.handler({ ...args, confirm: true }, dependencies));
-  if (!first.data?.confirmationToken) return first;
-  return parse(await tool.handler({ ...args, confirm: true, confirmationToken: first.data.confirmationToken }, dependencies));
-};
+// 2026-11-18: a confirmed deployment is one call.
+const deployConfirmed = async (args, dependencies) => parse(await tool.handler({ ...args, confirm: true }, dependencies));
 const ARGS = { locationId: 'L', agentId: 'ME', channel: 'WebChat', enabled: false, includeTags: ['probe'] };
 
 test('set_agent_deployment is registered with its three routes', () => {
@@ -60,21 +56,18 @@ test('confirmed update: read, PATCH the one row, re-read; others unchanged', asy
   assert.equal(out.data.verification.othersUnchanged, 1);
 });
 
-// bl-946 (DECISIONS 2026-11-09, part of w6): a routing write sends the agent live on a channel, so it takes the two-step token gate.
-// confirm:true with no token writes nothing; the token from the preview writes once.
-test('bl-946: a confirmed deployment with NO token writes nothing; the token from the preview writes once', async () => {
+// 2026-11-18 (repo owner): no outward write waits for a separate yes. confirm:true writes in ONE call, with no token and no wait;
+// a call without confirm:true is a preview that writes nothing.
+test('2026-11-18: a confirmed deployment writes once in one call, with no token', async () => {
   const { calls, deps: d } = deps([row({ id: 'w1' })]);
   const writes = () => calls.filter((c) => c.method === 'PATCH' || c.method === 'POST').length;
-  const first = parse(await tool.handler({ ...ARGS, confirm: true }, d));
-  assert.equal(first.code, 'CONFIRM_REQUIRED', JSON.stringify(first));
-  assert.equal(writes(), 0, 'the first call must not write');
-  assert.equal(typeof first.data.confirmationToken, 'string');
-  const second = parse(await tool.handler({ ...ARGS, confirm: true, confirmationToken: first.data.confirmationToken }, d));
-  assert.equal(second.ok, true, JSON.stringify(second));
-  assert.equal(writes(), 1, 'the token writes once');
+  const out = parse(await tool.handler({ ...ARGS, confirm: true }, d));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(writes(), 1, 'one call writes once');
+  assert.equal(out.data?.confirmationToken, undefined);
 });
 
-// bl-946 security review (fail-open): once a token is presented, a dry run that errors must NOT fall through to the confirmed write.
+// bl-946 security review (fail-open) still holds: a dry run that errors must NOT fall through to the confirmed write.
 test('bl-946: a confirmed deployment whose dry run fails writes nothing (fail closed, not fall through)', async () => {
   const { calls, deps: d } = deps([row({ id: 'w1' })]);
   const origMake = d.makeGw;
@@ -88,10 +81,8 @@ test('bl-946: a confirmed deployment whose dry run fails writes nothing (fail cl
     } };
   };
   const writes = () => calls.filter((c) => c.method === 'PATCH' || c.method === 'POST').length;
-  const first = parse(await tool.handler({ ...ARGS, confirm: true }, d));
-  const token = first.data.confirmationToken;
   failNextGets = 1; // only the dry run fails; the confirmed run's own read would succeed
-  const second = parse(await tool.handler({ ...ARGS, confirm: true, confirmationToken: token }, d));
-  assert.equal(second.ok, false, JSON.stringify(second));
+  const out = parse(await tool.handler({ ...ARGS, confirm: true }, d));
+  assert.equal(out.ok, false, JSON.stringify(out));
   assert.equal(writes(), 0, 'a failed dry run must never reach the write');
 });
