@@ -11,6 +11,25 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.43.1] — 2026-11-18
+
+**Outward writes no longer wait for a separate yes. The approved plan or the request is the confirmation.**
+
+### Changed
+- `confirm: true` now writes in ONE call, with no confirmation token and no twenty-second wait, on `publish_workflow`,
+  `publish_studio_site`, the publish operation of `build_funnel_page`, the publish operation of `edit_funnel`,
+  `copy_workflow_to_location`, `push_snapshot`, `fast_forward_contacts` and `set_agent_deployment`. A call without
+  `confirm: true` still returns the preview and writes nothing. A `confirmationToken` sent by an older caller is accepted and
+  ignored. This reverses the two-step gate added in 1.43.0.
+- The skills publish a workflow (or a site) when the approved plan says it goes live; if the plan does not say, it stays a
+  draft. `publish_workflow`'s result now lists the steps that send (`outwardSteps`) and the trigger changes.
+
+### Unchanged
+- `publish_workflow`'s validation gate and its version check (no publish if the workflow moved during the call).
+- `fast_forward_contacts`' roster preview token and `set_agent_deployment`'s re-plan check.
+- The send-class and irreversible ack (texting real contacts, signing SMS compliance, one-way Labs) still needs the user, as do
+  switching payments from test to live and buying anything.
+
 ## [1.43.0] — 2026-11-10
 
 **Outward writes now need a preview and a yes. Raw requests are judged on the canonical path. Workflow, form, funnel and course work from W9 is in, and the known issues are listed by tool.**
