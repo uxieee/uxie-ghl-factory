@@ -47,6 +47,20 @@ test('bl-1021: a tool that returns no token after the preview is not confirmed a
   assert.equal(out.final, out.preview);
 });
 
+test('2026-11-18: a CONFIRM_REQUIRED preview with no token (publish_workflow) is confirmed once at once, with no wait', async () => {
+  const h = harness([
+    { ok: false, code: 'CONFIRM_REQUIRED', data: { preview: { step: 'publish' } } },
+    { ok: true, data: { published: true } },
+  ]);
+  const out = await twoStep(h.call, 'publish_workflow', { workflowId: 'WID' }, { sleep: h.sleep });
+  assert.equal(h.calls.length, 2, 'one preview and one confirm');
+  assert.equal(h.calls[1].args.confirm, true);
+  assert.equal(h.calls[1].args.confirmationToken, undefined, 'no token is sent');
+  assert.equal(h.calls[1].at - h.calls[0].at, 0, 'no wait');
+  assert.equal(out.waited, 0);
+  assert.equal(out.final.data.published, true);
+});
+
 test('bl-1021: an edit-style previewToken is confirmed at once, without the publish wait', async () => {
   const previewToken = { version: 4, fingerprint: 'fp' };
   const h = harness([

@@ -4,7 +4,8 @@
 // 2) wait: a publish token is valid only from 20 s after its preview (core/publish-confirmation.mjs PUBLISH_MIN_AGE_MS), so the
 //    suite waits TWO_STEP_WAIT_MS before it confirms.
 // 3) confirm: the same call with confirm:true and the token presented exactly once.
-// A tool that returns no token after the preview is not confirmed again. Tests inject `call` and `sleep`; live runs use the defaults.
+// A tool whose preview answers CONFIRM_REQUIRED with no token (publish_workflow since 2026-11-18) is confirmed once at once, with no wait.
+// A tool that returns no token after the preview and no CONFIRM_REQUIRED is not confirmed again. Tests inject `call` and `sleep`; live runs use the defaults.
 
 export const TWO_STEP_WAIT_MS = 21_000;
 
@@ -34,6 +35,12 @@ export async function twoStep(call, name, args, { sleep = defaultSleep, waitMs =
       return { preview, first, final, waited: waitMs };
     }
     return { preview, final: first, waited: 0 };
+  }
+  // 2026-11-18: publish_workflow no longer issues a token. Its preview answers CONFIRM_REQUIRED with no token of either kind, and one
+  // call with confirm:true publishes, with no wait.
+  if (preview?.code === 'CONFIRM_REQUIRED') {
+    const final = await call(name, { ...rest, confirm: true });
+    return { preview, final, waited: 0 };
   }
   return { preview, final: preview, waited: 0 };
 }

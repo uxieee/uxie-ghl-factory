@@ -577,22 +577,19 @@ test('bl-309 CONTROL: without the list the same step draws the ATTRIBUTE_KEY war
 
 // bl-946: the tests that count workflow reads cannot take a preview call first (it adds reads), so they present a token for the
 // version the publish starts from (3, the fixture's first version) on the one call. The two-step flow is covered above.
+// Older callers still send a confirmationToken. It is accepted and ignored (2026-11-18), so these tests keep using it to prove that.
 const tokenFor = (args, version = 3) => ({ ...args, confirm: true, confirmationToken: issuePublishToken({ locationId: args.locationId, workflowId: args.workflowId, version }) });
 
-// bl-946: every confirmed publish is now two calls. The first previews and returns the token; the second presents it.
+// Repo owner (2026-11-18): confirm:true publishes in ONE call. The approved plan or the request is the confirmation; there is no
+// second call, no token and no wait.
 async function publishConfirmed(args, dependencies) {
-  const preview = await publishTool().handler({ ...args, confirm: true }, dependencies);
-  if (!preview.data?.confirmationToken) return preview;
-  return publishTool().handler({ ...args, confirm: true, confirmationToken: preview.data.confirmationToken }, dependencies);
+  return publishTool().handler({ ...args, confirm: true }, dependencies);
 }
 
-// bl-946 (DECISIONS 2026-11-09): publish is TWO-STEP. An agent told "publish it now" passed confirm:true on the
-// first call and published with no preview read. Call 1 never writes; it returns the preview and a short-lived
-// confirmationToken. Call 2 publishes only with that token. confirm:true without a valid token never publishes.
 const publishArgs = (extra = {}) => ({ locationId: 'LOC', workflowId: 'WID', confirm: true, ...extra });
 const publishPuts = (calls) => calls.filter(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID');
 
-test('bl-946: publish_workflow schema carries confirmationToken next to confirm', async () => {
+test('2026-11-18: publish_workflow schema still declares confirmationToken (ignored) and the description says one call', async () => {
   const server = new McpServer({ name: 'test-server', version: '0.0.0' });
   const client = new Client({ name: 'test-client', version: '0.0.0' });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
@@ -601,98 +598,60 @@ test('bl-946: publish_workflow schema carries confirmationToken next to confirm'
   await client.connect(clientTransport);
   const listed = await client.listTools();
   const input = listed.tools[0].inputSchema;
-  assert.equal(input.properties.confirmationToken?.type, 'string', 'confirmationToken must be a declared string input');
-  assert.match(publishTool().description, /confirmationToken/, 'the description must tell the caller about the token');
+  assert.equal(input.properties.confirmationToken?.type, 'string', 'an older caller sending a token must not be rejected by the schema');
+  assert.match(publishTool().description, /publishes in one call/);
+  assert.doesNotMatch(publishTool().description, /TWO-STEP/);
 });
 
-test('bl-946: confirm:true with NO token publishes nothing and returns a preview plus a confirmationToken', async () => {
+test('2026-11-18: confirm:true with NO token publishes in one call and lists the steps that send', async () => {
   const { gw, calls, current } = publishGateway();
   const result = await publishTool().handler(publishArgs(), deps(gw));
-  assert.equal(result.ok, false);
-  assert.equal(result.code, 'CONFIRM_REQUIRED');
-  assert.equal(publishPuts(calls).length, 0, 'the first call must not write');
-  assert.equal(current().status, 'draft');
-  assert.equal(typeof result.data.confirmationToken, 'string');
-  assert.ok(result.data.preview, 'the preview must come back with the token');
+  assert.equal(result.ok, true, JSON.stringify(result).slice(0, 400));
+  assert.equal(publishPuts(calls).length, 1, 'exactly one publish PUT');
+  assert.equal(current().status, 'published');
+  assert.ok(Array.isArray(result.data.outwardSteps), 'the result carries outwardSteps now that there is no preview call');
+  assert.equal(result.data.confirmationToken, undefined);
 });
 
-test('bl-946: confirm absent also publishes nothing (preview and token only)', async () => {
+test('2026-11-18: confirm absent is a preview: no write and no token', async () => {
   const { gw, calls, current } = publishGateway();
   const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
   assert.equal(result.ok, false);
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
   assert.equal(publishPuts(calls).length, 0);
   assert.equal(current().status, 'draft');
-  assert.equal(typeof result.data.confirmationToken, 'string');
+  assert.ok(result.data.preview, 'the preview comes back');
+  assert.equal(result.data.confirmationToken, undefined, 'no token is issued any more');
 });
 
-test('bl-946: the token from the preview publishes on the second call', async () => {
-  const { gw, calls, current } = publishGateway();
-  const first = await publishTool().handler(publishArgs(), deps(gw));
-  const second = await publishTool().handler(publishArgs({ confirmationToken: first.data.confirmationToken }), deps(gw));
-  assert.equal(second.ok, true, JSON.stringify(second));
-  assert.equal(current().status, 'published');
-  assert.equal(publishPuts(calls).length, 1);
-});
-
-test('bl-946: a token that was never issued publishes nothing', async () => {
+test('2026-11-18: a token from an older caller, even a bogus one, is ignored: confirm:true publishes once', async () => {
   const { gw, calls, current } = publishGateway();
   const result = await publishTool().handler(publishArgs({ confirmationToken: 'not-a-real-token' }), deps(gw));
-  assert.equal(result.ok, false);
-  assert.equal(result.code, 'CONFIRM_REQUIRED');
-  assert.equal(publishPuts(calls).length, 0);
-  assert.equal(current().status, 'draft');
+  assert.equal(result.ok, true, JSON.stringify(result).slice(0, 400));
+  assert.equal(publishPuts(calls).length, 1);
+  assert.equal(current().status, 'published');
 });
 
-test('bl-946: a token is single use: replaying it after a publish sends no second PUT', async () => {
-  const { gw, calls } = publishGateway();
-  const first = await publishTool().handler(publishArgs(), deps(gw));
-  const token = first.data.confirmationToken;
-  assert.equal((await publishTool().handler(publishArgs({ confirmationToken: token }), deps(gw))).ok, true);
-  const replay = await publishTool().handler(publishArgs({ confirmationToken: token }), deps(gw));
-  assert.equal(replay.ok, false, 'a replayed token must be refused');
-  assert.equal(publishPuts(calls).length, 1, 'the replay must not send a second publish PUT');
-});
-
-test('bl-946: the workflow version moved after the preview: the token is refused and nothing publishes', async () => {
-  // refreshVersion: the fixture moves the version on its second workflow GET, which is the first GET of the confirm call.
-  const { gw, calls, current } = publishGateway({ refreshVersion: 9 });
-  const first = await publishTool().handler(publishArgs(), deps(gw));
-  const result = await publishTool().handler(publishArgs({ confirmationToken: first.data.confirmationToken }), deps(gw));
-  assert.equal(result.ok, false, JSON.stringify(result));
-  assert.equal(publishPuts(calls).length, 0, 'a stale preview must not publish');
-  assert.equal(current().status, 'draft');
-});
-
-// bl-946 TOCTOU (security review): the token checks the version the preview saw, but the publish uses a document re-read just before
-// the PUT. If the workflow moved between those two reads, the document being published is not the one previewed: refuse and re-preview.
-test('bl-946: a version that moves between the token check and the pre-PUT re-read publishes nothing', async () => {
-  // GET 1 is the preview, GET 2 is the confirm call's own read (the token check), GET 3 is the re-read just before the PUT.
-  const { gw, calls, current } = publishGateway({ refreshVersion: 9, refreshOnGet: 3 });
-  const first = await publishTool().handler(publishArgs(), deps(gw));
-  const result = await publishTool().handler(publishArgs({ confirmationToken: first.data.confirmationToken }), deps(gw));
-  assert.equal(result.ok, false, JSON.stringify(result));
-  assert.equal(result.code, 'CONFIRM_REQUIRED');
-  assert.equal(publishPuts(calls).length, 0, 'the document changed after the preview: it must not be published');
-  assert.equal(current().status, 'draft');
-  // security review: the token would attest to a version the caller has not previewed (the preview on this refusal is the OLD one),
-  // so the refusal carries no token and no preview. The caller runs a fresh preview.
-  assert.equal(result.data?.confirmationToken, undefined, 'no token may be issued for a version nobody previewed');
-  assert.equal(result.data?.preview, undefined, 'the old preview must not be returned as if it described the new version');
-});
-
-// w7 (orchestrator 2026-11-09): the model read the preview and published in the same turn. A token presented in the same moment as
-// its preview is refused with a message to show the preview and wait for the user's yes, and nothing is written.
-test('w7: publish_workflow refuses a token presented in the same turn as its preview, with the wait-for-yes message, and writes nothing', async () => {
+test('2026-11-18: the 20 s minimum age no longer applies to a workflow publish', async () => {
   setPublishMinAgeForTests(PUBLISH_MIN_AGE_MS);
   try {
     const { gw, calls } = publishGateway({ initial: workflow() });
-    const preview = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
-    assert.ok(preview.data?.confirmationToken, JSON.stringify(preview).slice(0, 300));
-    const same = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true, confirmationToken: preview.data.confirmationToken }, deps(gw));
-    assert.equal(same.ok, false, JSON.stringify(same).slice(0, 300));
-    assert.match(JSON.stringify(same), /show the preview to the user \(in an orchestrated build, the orchestrator session\) and wait for their yes/);
-    assert.equal(calls.some(({ method }) => method === 'PUT'), false, 'no PUT may be sent for a same-turn token');
+    const result = await publishTool().handler(publishArgs(), deps(gw));
+    assert.equal(result.ok, true, JSON.stringify(result).slice(0, 300));
+    assert.equal(publishPuts(calls).length, 1);
   } finally {
     setPublishMinAgeForTests(0);
   }
+});
+
+// bl-946 TOCTOU (security review) still holds: validation ran on the version read at the top of the call, and the publish uses a
+// document re-read just before the PUT. If the workflow moved between those two reads, nothing is published.
+test('bl-946: a version that moves between the first read and the pre-PUT re-read publishes nothing', async () => {
+  // GET 1 is this call's read (validated), GET 2 is the re-read just before the PUT.
+  const { gw, calls, current } = publishGateway({ refreshVersion: 9, refreshOnGet: 2 });
+  const result = await publishTool().handler(publishArgs(), deps(gw));
+  assert.equal(result.ok, false, JSON.stringify(result));
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.equal(publishPuts(calls).length, 0, 'the document changed after validation: it must not be published');
+  assert.equal(current().status, 'draft');
 });

@@ -1,4 +1,6 @@
-// bl-946 (DECISIONS 2026-11-09): the two-step publish. An agent told "publish it now" passed confirm:true on its first call and
+// bl-946 (DECISIONS 2026-11-09): the two-step gate. publish_workflow no longer uses it (repo owner, 2026-11-18: confirm:true
+// publishes a workflow in one call); the other outward tools that import this module still do.
+// Original note: the two-step publish. An agent told "publish it now" passed confirm:true on its first call and
 // published with no preview read. Now the first call publishes nothing and returns a preview plus a confirmation token; only a
 // second call that presents the token publishes. The token is bound to one location, one workflow and the version the preview
 // saw, lasts a few minutes, works once, and is signed with a per-process secret (it does not outlive the server that issued it).
@@ -53,10 +55,7 @@ export function verifyPublishToken(token, { locationId, workflowId, version, kin
   if (body.wid !== workflowId) return { ok: false, reason: 'the confirmation token is for another workflow' };
   if (body.ver !== (version ?? null)) return { ok: false, reason: 'the workflow version changed after the preview; preview again' };
   if (typeof body.iat !== 'number' || now - body.iat < minAgeMs) {
-    // A workflow publish in an orchestrated build is confirmed by the orchestrator session (repo owner, 2026-11-13); a studio
-    // site publish keeps the user's yes.
-    const who = kind === 'workflow' ? 'the user (in an orchestrated build, the orchestrator session)' : 'the user';
-    return { ok: false, reason: `the preview was only just shown: show the preview to ${who} and wait for their yes, then call again (no write was sent)` };
+    return { ok: false, reason: 'the preview was only just shown: show the preview to the user and wait for their yes, then call again (no write was sent)' };
   }
   if (typeof body.exp !== 'number' || body.exp < now) return { ok: false, reason: 'the confirmation token expired; preview again' };
   if (spent.has(body.jti)) return { ok: false, reason: 'the confirmation token was already used' };

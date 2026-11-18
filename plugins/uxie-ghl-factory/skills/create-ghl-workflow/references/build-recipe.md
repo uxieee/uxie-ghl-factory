@@ -73,7 +73,7 @@ Casing trap: root `workflowId` is camelCase; `location_id`/`company_id`/`workflo
 
 `GET /workflow/{LOC}/{WID}?includeScheduledPauseInfo=true` and `GET /workflow/{LOC}/trigger?workflowId={WID}`. Confirm the step's key set matches the harvested template and the trigger condition persisted.
 
-## 5. Publish (after explicit confirmation: the user's, or in an orchestrated build the orchestrator session's)
+## 5. Publish (when the approved plan says the workflow goes live; no separate yes)
 
 GET the workflow, then on the returned object:
 - set `status:"published"`

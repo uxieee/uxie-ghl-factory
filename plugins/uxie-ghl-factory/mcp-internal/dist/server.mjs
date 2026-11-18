@@ -112857,8 +112857,7 @@ function verifyPublishToken(token, { locationId, workflowId, version: version2, 
   if (body2.wid !== workflowId) return { ok: false, reason: "the confirmation token is for another workflow" };
   if (body2.ver !== (version2 ?? null)) return { ok: false, reason: "the workflow version changed after the preview; preview again" };
   if (typeof body2.iat !== "number" || now - body2.iat < minAgeMs) {
-    const who = kind === "workflow" ? "the user (in an orchestrated build, the orchestrator session)" : "the user";
-    return { ok: false, reason: `the preview was only just shown: show the preview to ${who} and wait for their yes, then call again (no write was sent)` };
+    return { ok: false, reason: "the preview was only just shown: show the preview to the user and wait for their yes, then call again (no write was sent)" };
   }
   if (typeof body2.exp !== "number" || body2.exp < now) return { ok: false, reason: "the confirmation token expired; preview again" };
   if (spent.has(body2.jti)) return { ok: false, reason: "the confirmation token was already used" };
@@ -230741,9 +230740,9 @@ function triggerPublishInstruction(triggerPlan, workflowStatus, { committed }) {
   const matches = triggerPlan.filter((request) => triggerRequiresPublish(request, workflowStatus));
   if (matches.length === 0) return null;
   if (matches.some((request) => request.op === "modifyTrigger")) {
-    return committed ? "This trigger is now active, but its workflow is still draft \u2014 GHL will not enrol anyone until the workflow itself is published. Invoke publish_workflow with confirm:true to publish it." : "This trigger will be active, but its workflow is still draft \u2014 GHL will not enrol anyone until the workflow itself is published. After verifying the edit, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) to publish it.";
+    return committed ? "This trigger is now active, but its workflow is still draft \u2014 GHL will not enrol anyone until the workflow itself is published. Invoke publish_workflow with confirm:true to publish it." : "This trigger will be active, but its workflow is still draft \u2014 GHL will not enrol anyone until the workflow itself is published. After verifying the edit, invoke publish_workflow with confirm:true to publish it.";
   }
-  return committed ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) to activate it explicitly." : "Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) to activate it explicitly.";
+  return committed ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : "Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.";
 }
 var ATTR_WRITING_OPS = /* @__PURE__ */ new Set([
   "addBranch",
@@ -231414,7 +231413,7 @@ function urgentPartialFailure(failure2, data2, publishedStateVerified = false) {
 function editWriteFailure(failure2, data2) {
   return withFailureData({
     ...failure2,
-    remediation: `URGENT: the edit may be partially applied. Inspect the workflow and re-run a read-only edit preview before retrying. If trigger changes landed, invoke publish_workflow with confirm:true (preview first, then again with the confirmationToken) only after the intended configuration is verified. ${failure2.remediation ?? ""}`.trim()
+    remediation: `URGENT: the edit may be partially applied. Inspect the workflow and re-run a read-only edit preview before retrying. If trigger changes landed, invoke publish_workflow with confirm:true only after the intended configuration is verified. ${failure2.remediation ?? ""}`.trim()
   }, data2);
 }
 function rawWriteFailure(failure2, data2, { ambiguous = false } = {}) {
@@ -237410,12 +237409,12 @@ var TOOLS2 = [
   },
   {
     name: "publish_workflow",
-    description: describe3("publish_workflow", "Publishing is TWO-STEP (bl-946). Call publish_workflow with confirm:true and NO token first: it publishes nothing and returns a preview (validation, the steps that send, the trigger changes) and a short-lived data.confirmationToken. Then call it again with confirm:true and that confirmationToken to publish. confirm:true without a valid token never publishes. A version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT's own draft\u2192published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs."),
+    description: describe3("publish_workflow", "Without confirm:true it publishes nothing and returns a preview (validation, the steps that send, the trigger changes). With confirm:true it publishes in one call: no confirmation token and no wait (repo owner, 2026-11-18); the result lists the steps that send (outwardSteps). The validation gate still refuses a workflow GHL would reject. A version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT's own draft\u2192published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
       confirm: external_exports.boolean().default(false),
-      confirmationToken: external_exports.string().optional().describe("bl-946: the token from the preview (data.confirmationToken). Required, with confirm:true, to publish. A call without a valid token previews and publishes nothing. The token is bound to this workflow and version, lasts 5 minutes and works once."),
+      confirmationToken: external_exports.string().optional().describe("No longer needed (2026-11-18): confirm:true publishes in one call. Accepted from older callers and ignored."),
       allowValidationFailure: external_exports.boolean().optional().describe("Publish even though the validation gate refused. The gate runs every layer: GHL's own WorkflowValidator rules (including the publish-only ones), the advanced canvas's stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL's live validator. Findings are still reported in full."),
       skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional().describe("Skip GHL's WorkflowValidator rules \u2014 true, or a list of rule names. The other layers still run.")
     }),
@@ -237495,17 +237494,14 @@ var TOOLS2 = [
         outwardSteps: outwardStepsOf(current?.workflowData?.templates)
       };
       const versionNow = current?.version ?? null;
-      const tokenCheck = args.confirm === true && typeof args.confirmationToken === "string" ? verifyPublishToken(args.confirmationToken, { locationId: args.locationId, workflowId: args.workflowId, version: versionNow }) : { ok: false, reason: args.confirm === true ? "no confirmation token was given" : "confirm was not true" };
-      if (!tokenCheck.ok) {
-        const confirmationToken = issuePublishToken({ locationId: args.locationId, workflowId: args.workflowId, version: versionNow });
-        const refused = args.confirm === true && args.confirmationToken !== void 0;
+      if (args.confirm !== true) {
         return withFailureData(
           fail(
             CODES.CONFIRM_REQUIRED,
-            refused ? `Publish not sent: ${tokenCheck.reason}. No write was sent.` : "Publish preview is ready; no write was sent.",
-            "Review data.preview (the steps that send are in outwardSteps), then call publish_workflow again with confirm:true and confirmationToken set to data.confirmationToken. The token lasts 5 minutes and works once."
+            "Publish preview is ready; no write was sent.",
+            "Call publish_workflow again with confirm:true to publish. The steps that send are in data.preview.outwardSteps."
           ),
-          { preview, confirmationToken }
+          { preview }
         );
       }
       const partialProgress = {
@@ -237578,8 +237574,8 @@ var TOOLS2 = [
       if ((freshResponse.json?.version ?? null) !== versionNow) {
         return fail(
           CODES.CONFIRM_REQUIRED,
-          "Publish not sent: the workflow changed between the preview and the publish (its version moved). No write was sent.",
-          "Call publish_workflow again with confirm:true and no token to get a fresh preview, review it, then confirm with its token."
+          "Publish not sent: the workflow changed while this publish was running (its version moved). No write was sent.",
+          "Call publish_workflow again with confirm:true; it re-reads and re-validates the current version."
         );
       }
       const publishable = { ...freshResponse.json };
@@ -237702,6 +237698,9 @@ var TOOLS2 = [
         workflowId: args.workflowId,
         previous: preview.current,
         publishedWithVersion: body2.version,
+        // What this publish turned on, in the result itself now that there is no separate preview call (2026-11-18).
+        outwardSteps: preview.outwardSteps,
+        triggerChanges: preview.changes.triggers,
         verify,
         // Carried onto the RESULT, not only the preview: someone who publishes with
         // allowValidationFailure skipped the preview, and the one place they will read is this.

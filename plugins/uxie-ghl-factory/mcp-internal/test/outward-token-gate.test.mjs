@@ -4,9 +4,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
 
+// publish_workflow left this list on 2026-11-18 (repo owner): it publishes in one call with confirm:true and ignores a token.
 const GATED = [
   'build_funnel_page', 'edit_funnel', 'copy_workflow_to_location', 'push_snapshot', 'fast_forward_contacts', 'set_agent_deployment',
-  'publish_workflow', 'publish_studio_site',
+  'publish_studio_site',
 ];
 
 for (const name of GATED) {

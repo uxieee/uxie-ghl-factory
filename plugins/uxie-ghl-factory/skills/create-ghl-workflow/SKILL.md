@@ -1,6 +1,6 @@
 ---
 name: create-ghl-workflow
-description: Use when programmatically creating, building, or publishing a GoHighLevel / HighLevel workflow, or adding triggers/actions/steps to one, via the internal builder API — e.g. "create a GHL workflow", "add a webhook/email step via API", "build a HighLevel automation programmatically", or when a workflow step created via API saves but won't open in the builder. Write counterpart to get-ghl-workflow-json (read-only). Draft-first; publish is opt-in and gated on confirmation (the user's, or in an orchestrated build the orchestrator session's).
+description: Use when programmatically creating, building, or publishing a GoHighLevel / HighLevel workflow, or adding triggers/actions/steps to one, via the internal builder API — e.g. "create a GHL workflow", "add a webhook/email step via API", "build a HighLevel automation programmatically", or when a workflow step created via API saves but won't open in the builder. Write counterpart to get-ghl-workflow-json (read-only). Draft-first; publish when the approved plan says the workflow goes live (no separate yes).
 ---
 
 # Create GHL Workflow (internal builder API + compiler engine)
@@ -52,7 +52,7 @@ account dependency is missing** → compiles → runs every check (the validatio
 GHL's validate-assets, engine references, the custom-code sandbox) → only then
 **auto-creates tags + inline email templates** → creates a DRAFT → GHL's server
 validator on the empty draft → auto-saves steps → creates triggers → round-trip
-verifies → prints a report. Publish only with `--publish`, only after the publish is confirmed (by the user, or in an orchestrated build by the orchestrator session: see step 3 of "Before any write").
+verifies → prints a report. Publish with `--publish` when the approved plan says the workflow goes live (step 3 of "Before any write").
 
 A refused check creates nothing. If GHL's server validator refuses, the empty draft is
 renamed `[REFUSED] <name>` and the report lists what was left behind (`leftovers`: the
@@ -181,13 +181,19 @@ Public only: server-side publish gate; logs/aggregate that refuses to truncate.
    the default `plugins/.playwright-mcp/tok.txt`. JWT ~1 hr, so it WILL expire mid-run: on 401,
    re-capture it YOURSELF (invoke `uxie-ghl-factory:internal-connect`) and resume where you left
    off. Do not ask first. One re-capture per failure — never retry-loop.
-3. **Draft-first.** Everything builds as `draft`. Publish is a separate, opt-in
-   `--publish` run gated on an explicit confirmation. Who gives it depends on the session:
-   - **Plain session (no orchestrator):** the user, as always. Before a publish, state once what goes live: the workflow's name, its trigger, and each step that sends (email, SMS, call, webhook). Then wait for an explicit yes. Urgency ("publish it now", "I'm in a hurry") is not that yes.
-   - **Orchestrated build** (a multi-session build where one coordinating session, the orchestrator session, manages implementer lanes): the orchestrator session gives the publish confirmation, whatever the workflow's steps do. Texts, calls, emails, AI steps and premium actions all count; the user already approved the workflow's design. The lane still runs the two-step publish below: it sends the first call's preview to the orchestrator session, which confirms if the publish is part of the build it is running, and logs it.
-   - **Always the user, never the orchestrator session:** switching payments from test mode to live (order or payment forms, products, invoices, subscriptions), and anything that buys something (a phone number, a domain, a paid add-on). Publishing an order form whose payments are still in test mode is not in this group.
+3. **Draft-first, then publish as the plan says** (repo owner, 2026-11-18). Everything builds as `draft`. If the approved plan
+   (the blueprint the user signed off, or the user's own request) says the workflow goes live, publish it: that approval IS the
+   confirmation, so do not stop to ask again, in a plain session or in an orchestrated build. If the plan does not say whether it
+   goes live, leave it a draft and say so in the report. After a publish, report what went live: the workflow's name, its trigger,
+   and each step that sends (email, SMS, call, webhook; `data.outwardSteps` lists them).
+   - **Still always the user:** switching payments from test mode to live (order or payment forms, products, invoices,
+     subscriptions), and anything that buys something (a phone number, a domain, a paid add-on). Publishing an order form whose
+     payments are still in test mode is not in this group.
 
-   Through the MCP server, `publish_workflow` is two-step (bl-946): the first call, with `confirm:true` and no token, publishes nothing and returns a preview and a short-lived `data.confirmationToken`; only a second call with `confirm:true` and that token publishes. A `confirm:true` call without a valid token never publishes. So the order is: first call, show the preview's outward steps (the name, the trigger, and each step that sends) to whoever confirms (the user, or in an orchestrated build the orchestrator session), wait for their explicit yes, then the second call with the token. The token lasts 5 minutes, works once, and is bound to that workflow and version; if it expires or the workflow changes, start again with the first call.
+   Through the MCP server, `publish_workflow` with `confirm:true` publishes in ONE call: no confirmation token and no wait. Without
+   `confirm:true` it is a preview and writes nothing. Its validation gate still refuses a workflow GHL would reject, and it refuses
+   (writes nothing) if the workflow's version moved during the call; call again then. A `confirmationToken` from an older caller is
+   ignored.
 4. **AI Agent steps: ask, don't default** (Xander, 2026-11-06). Before you build an `ai_agent` step, ask the operator two questions:
    web search on or off (about 1¢ per search, 1.4¢ on Gemini; on = `attributes.nativeTools: [{id, toolName: "web_search", description, attributes: {}}]`,
    off = `nativeTools: []`), and which model. The engine keeps the current model when none is named; `gpt-6-luna` is documented, not defaulted.
@@ -316,8 +322,9 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   2026-09-28).
 - **A step type's card, not its example.** An example is one capture, so it pins one value of every
   discriminator. `describe_step_type` carries the union.
-- **Publishing is never implied.** Everything builds as `draft`; `--publish` is opt-in and gated on
-  an explicit OK: the user's, or in an orchestrated build the orchestrator session's (step 3 of "Before any write" says which). Before a publish, state once what goes live: the workflow's name, its trigger, and each step that sends (email, SMS, call, webhook). Then wait for an explicit yes. Urgency ("publish it now", "I'm in a hurry") is not that yes.
+- **Publishing follows the plan.** Everything builds as `draft`; `--publish` (or `publish_workflow` with `confirm:true`) runs
+  when the approved plan or the user's request says the workflow goes live, with no separate yes. If the plan is silent, it stays
+  a draft. After a publish, report its name, its trigger and each step that sends.
 - `DELETE /workflow/{loc}/{wid}` works — use it to tear down throwaway builds rather than leaving
   them on the account.
 
@@ -328,8 +335,8 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
 - Build report says `created tags: (none needed)` but your workflow uses new tags →
   something's wrong; the orchestrator should have created them.
 - About to ignore an `ABORTED` / `UNRESOLVED` line → don't; that's a missing dependency.
-- About to `--publish` without an explicit OK (the user's, or in an orchestrated build the orchestrator session's) → stop. "Publish it now" or "I'm in a hurry" is not the OK: state what goes live and wait for a yes.
-- About to call `publish_workflow` with `confirm:true` before you have shown the preview to whoever confirms (the user, or in an orchestrated build the orchestrator session) → stop. Make the first call (no token), show the outward steps, and wait for the yes.
+- About to `--publish` a workflow the approved plan does not say goes live → stop; leave it a draft and say so in the report.
+- About to switch payments from test to live, or to buy something (number, domain, add-on), on a plan's approval alone → stop; those still need the user's yes.
 - Got a 401 → the JWT expired. Re-capture it yourself via `uxie-ghl-factory:internal-connect`
   and resume; this is not a reason to stop or to ask.
 - About to add `update_opportunity` with no opp trigger, no prior `create_opportunity_strict` (a native `create_opportunity` does not bind), and outside a `find_opportunity` Found branch → the engine aborts with `OPP_UNASSOCIATED`; build find-or-create first.
