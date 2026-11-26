@@ -179,7 +179,7 @@ const BUNDLE_RESULT_KEYS = Object.freeze([
 // and agent ids whose arming could not be determined. `null` — never [] — on a surface with no
 // outbound read (Voice AI, Agent Studio).
 const COMPONENT_KEYS = Object.freeze([
-  'applicable', 'complete', 'detailDenominator', 'detailsRead', 'envelopeShape', 'errors',
+  'applicable', 'complete', 'cursorWalk', 'detailDenominator', 'detailsRead', 'envelopeShape', 'errors',
   'items', 'outboundArmed', 'outboundEnabled', 'outboundUnread', 'pages',
   'routingEnvelopeShape', 'routingPinned', 'routingRead', 'sourceRoutes', 'totalHistory',
 ]);
@@ -439,8 +439,9 @@ function makeAiGateway(spec, { locationId = LOC } = {}) {
     const pages = declared.discovery ?? [];
     // Agent Studio is the only paginated discovery route; the other two descriptors declare
     // locationId as their sole query key, so a second call to them is a defect, not a page.
-    const index = component === 'agent_studio' ? Number(query.page) - 1 : 0;
-    if (component !== 'agent_studio') {
+    // Conversation AI is CURSOR-paged (limit, then startAfter): its Nth call serves the Nth declared page.
+    const index = component === 'agent_studio' ? Number(query.page) - 1 : component === 'conversation_ai' ? nth - 1 : 0;
+    if (component === 'voice_ai') {
       assert.equal(nth, 1, `${capability.capabilityId} has no page parameter and may be called only once`);
     }
     const page = pages[index];
@@ -2200,8 +2201,8 @@ test('outbound: the capability version is PINNED as a literal, and the contract 
   // can never fail (REV-I14). Any edit to an AI-bundle descriptor — or adding/removing one —
   // must change this string on purpose.
   assert.equal(AI_BUNDLE_CAPABILITY_VERSION,
-    'sha256:9c6ae688cd235b2180db61a2b47670f6b095f03df44024f447b7f8878e4db1b7');
-  assert.equal(AUDIT_CONFIGURATION_CONTRACT_VERSION, '1.1.0',
+    'sha256:f5a144dbe0904572e033477888023bcf2d5d0576dd05c8b263276c7d44d4fca9');
+  assert.equal(AUDIT_CONFIGURATION_CONTRACT_VERSION, '1.2.0',
     '1.1.0: additive keys and two new warning codes; complete semantics unchanged');
 });
 
@@ -2607,16 +2608,19 @@ test('Agent Studio discovery pins its four fixed values and binds agencyId to th
   assert.deepEqual(calls.map((call) => call.query.page), ['1', '2']);
 });
 
-test('the two single-shot discovery routes send exactly one query key and are called once', async () => {
+test('Voice discovery is single-shot with one query key; Conversation AI sends limit and no startAfter on its first page', async () => {
   // Their descriptors declare locationId as their ONLY key, so a composite that tried to
   // paginate them would be refused with UNKNOWN_QUERY_KEY by the real gateway — which is why
   // "multiple pages" in this bundle can only ever mean Agent Studio.
   const { gateway } = await runBundle(AI_FIXTURES.scenarios['agent-studio-multiple-pages']);
-  for (const capabilityId of ['conversation_ai_agent_discovery', 'voice_ai_agent_discovery']) {
-    const calls = callsTo(gateway, capabilityId);
-    assert.equal(calls.length, 1, `${capabilityId} has no page parameter and must be read once`);
-    assert.deepEqual(Object.keys(calls[0].query), ['locationId']);
-  }
+  const voice = callsTo(gateway, 'voice_ai_agent_discovery');
+  assert.equal(voice.length, 1, 'voice_ai_agent_discovery has no page parameter and must be read once');
+  assert.deepEqual(Object.keys(voice[0].query), ['locationId']);
+  // Conversation AI is cursor-paged: limit on every page, startAfter only from the second, and a short first page ends the walk after ONE read.
+  const conv = callsTo(gateway, 'conversation_ai_agent_discovery');
+  assert.equal(conv.length, 1, 'a first page shorter than the limit is terminal, so one read');
+  assert.deepEqual(Object.keys(conv[0].query).sort(), ['limit', 'locationId']);
+  assert.equal(conv[0].query.limit, '20');
 });
 
 test('every detail read carries the location and nothing else', async () => {
@@ -2796,4 +2800,91 @@ test('an injected limiter and circuit win over the process-wide pair, for BOTH a
     assert.equal(processAuditPacing().circuit.isOpen('process'), false);
     assert.equal(typeof result.ok, 'boolean');
   }
+});
+
+// --- Conversation AI discovery is cursor-paged: limit on every page, startAfter (the last id read) from the second -----------------
+
+const CONV_ENVELOPE = { rowsKey: 'employees', totalKey: 'totalCount' };
+const convRows = (prefix, from, count) => Array.from({ length: count }, (_, i) => ({ _id: `${prefix}${from + i}`, name: `${prefix}${from + i}` }));
+const runCursor = (pages, declaredTotal) => runBundle({
+  components: {
+    conversation_ai: { envelopeKeys: CONV_ENVELOPE, declaredTotal, discovery: pages },
+    voice_ai: { declaredTotal: 0, discovery: [{ rows: [] }] },
+    agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+  },
+});
+const convWarningCodes = (result) => result.warnings.filter((w) => w.component === 'conversation_ai').map((w) => w.code);
+
+test('cursor walk: a collection larger than one page is walked past 25 with startAfter, and a short final page reconciles to the total', async () => {
+  const { gateway, result } = await runCursor([{ rows: convRows('a', 0, 20) }, { rows: convRows('a', 20, 10) }], 30);
+  const component = result.components.conversation_ai;
+  assert.equal(component.complete, true);
+  assert.equal(component.items.length, 30);
+  const calls = callsTo(gateway, 'conversation_ai_agent_discovery');
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls[0].query, { locationId: LOC, limit: '20' }, 'the first page carries limit and no startAfter');
+  assert.deepEqual(calls[1].query, { locationId: LOC, limit: '20', startAfter: 'a19' }, 'the second page starts after the last row id of the first');
+  assert.deepEqual(component.cursorWalk.pages, [
+    { requestedLimit: 20, rows: 20, newUnique: 20, cursorPresent: false, totalReported: 30 },
+    { requestedLimit: 20, rows: 10, newUnique: 10, cursorPresent: true, totalReported: 30 },
+  ]);
+  assert.equal(component.cursorWalk.served, 30);
+  assert.equal(component.cursorWalk.totalCount, 30);
+  assert.deepEqual(Object.keys(component.cursorWalk.pages[0]).sort(), ['cursorPresent', 'newUnique', 'requestedLimit', 'rows', 'totalReported']);
+  assert.ok(!JSON.stringify(component.cursorWalk).includes('a19'), 'the walk record never carries an id or a name');
+});
+
+test('cursor walk: a full last page needs one more, empty, page before the walk may end', async () => {
+  const { gateway, result } = await runCursor([{ rows: convRows('a', 0, 20) }, { rows: convRows('a', 20, 20) }, { rows: [] }], 40);
+  assert.equal(result.components.conversation_ai.complete, true);
+  assert.equal(callsTo(gateway, 'conversation_ai_agent_discovery').length, 3);
+});
+
+test('cursor walk: startAfter ignored (page two repeats page one) stops the walk incomplete with NO_UNIQUE_PROGRESS', async () => {
+  const { gateway, result } = await runCursor([{ rows: convRows('a', 0, 20) }, { rows: convRows('a', 0, 20) }], 30);
+  const component = result.components.conversation_ai;
+  assert.equal(component.complete, false);
+  assert.ok(convWarningCodes(result).includes('AI_DISCOVERY_NO_UNIQUE_PROGRESS'));
+  assert.equal(callsTo(gateway, 'conversation_ai_agent_discovery').length, 2, 'it stops, it does not keep asking');
+  assert.equal(component.items.length, 20);
+});
+
+test('cursor walk: a page that re-serves one agent already read is a fault, even when other rows are new', async () => {
+  const { result } = await runCursor([{ rows: convRows('a', 0, 20) }, { rows: [{ _id: 'a19', name: 'a19' }, ...convRows('b', 0, 19)] }], 40);
+  assert.equal(result.components.conversation_ai.complete, false);
+  assert.ok(convWarningCodes(result).includes('AI_DISCOVERY_NO_UNIQUE_PROGRESS'));
+});
+
+test('cursor walk: limit ignored (the server serves 25 whatever is asked) is judged against the size actually returned', async () => {
+  const { result } = await runCursor([{ rows: convRows('a', 0, 25) }, { rows: convRows('a', 25, 5) }], 30);
+  const component = result.components.conversation_ai;
+  assert.equal(component.complete, true);
+  assert.deepEqual(component.cursorWalk.pages.map((p) => p.rows), [25, 5]);
+  assert.equal(component.items.length, 30);
+});
+
+test('cursor walk: a total that moves mid-walk leaves the component incomplete', async () => {
+  const { result } = await runCursor([{ rows: convRows('a', 0, 20), total: 30 }, { rows: convRows('a', 20, 10), total: 31 }], undefined);
+  assert.equal(result.components.conversation_ai.complete, false);
+  assert.ok(convWarningCodes(result).includes('AI_DISCOVERY_TOTAL_CHANGED'));
+});
+
+test('cursor walk: a shortfall after paging stays incomplete with the exact numbers', async () => {
+  const { result } = await runCursor([{ rows: convRows('a', 0, 20) }, { rows: convRows('a', 20, 5) }], 30);
+  const component = result.components.conversation_ai;
+  assert.equal(component.complete, false);
+  assert.ok(convWarningCodes(result).includes('AI_DISCOVERY_TOTAL_MISMATCH'));
+  assert.equal(component.cursorWalk.served, 25);
+  assert.equal(component.cursorWalk.totalCount, 30);
+});
+
+test('cursor walk: the page cap is ceil(total/limit)+1, never more than 20 pages, and a cap hit is incomplete', async () => {
+  const full = (n) => Array.from({ length: n }, (_, p) => ({ rows: convRows(`p${p}x`, 0, 20) }));
+  const small = await runCursor(full(8), 100);
+  assert.equal(callsTo(small.gateway, 'conversation_ai_agent_discovery').length, 6, 'total 100 at limit 20 caps at ceil(100/20)+1 = 6 pages');
+  assert.equal(small.result.components.conversation_ai.complete, false);
+  assert.ok(convWarningCodes(small.result).includes('AI_DISCOVERY_PAGE_BUDGET_EXHAUSTED'));
+  const huge = await runCursor(full(25), 100000);
+  assert.equal(callsTo(huge.gateway, 'conversation_ai_agent_discovery').length, 20, 'never more than 20 pages');
+  assert.equal(huge.result.components.conversation_ai.complete, false);
 });

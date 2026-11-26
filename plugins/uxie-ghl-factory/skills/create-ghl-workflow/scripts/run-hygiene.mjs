@@ -2,13 +2,15 @@
 // workflows published, because a crash skips every finally):
 //   1. sweepPublishedTestConf: at the START of a run, unpublish every TEST-CONF workflow that is published, and read each back as draft
 //      on a separate GET. Only TEST-CONF names are touched.
-//   2. boundaryMeter: read the location AI usage raw at a section boundary, log it, and say whether to stop (past METER_CEILING).
+//   2. boundaryMeter: read the location AI usage raw at a section boundary, log it, and say whether to stop (more than METER_DELTA over the run's own first reading).
 //   3. callSafe: a transport failure (connect timeout, reset) is a reported failure with code TRANSPORT_FAILED, never an uncaught crash.
 //      Read-only calls are retried; a write is never retried, because it may have landed.
 
 import { appendFileSync } from 'node:fs';
 
-export const METER_CEILING = 9.38;
+// 2026-11-21 (orchestrator, bl-1034): the absolute ceiling (9.38) was passed on 11-10 by a charge from outside W9. The meter is a delta on the
+// run's own first reading: stop when usage rises more than METER_DELTA over it, or when the read fails.
+export const METER_DELTA = 0.05;
 const READ_PREFIX = /^(get_|list_|export_|validate_|check_|preview_)/;
 
 export function isReadCall(name, args) {
@@ -36,12 +38,15 @@ export async function callSafe(fn, name, args, { retries = 2, sleep = defaultSle
 // The suite names its own flows TEST-CONF-<lowercase stem>-<six-digit run stamp> (conformance.mjs NAME). Only those are swept.
 export const SUITE_FLOW_NAME = /^TEST-CONF-[a-z][a-z0-9-]*-\d{6}$/;
 
-export async function sweepPublishedTestConf({ call, check, sinceIso }) {
+// ownStamp (w9-d18, QA batch-1 limit): when set, only a workflow whose name ends in `-<ownStamp>` is touched — this run's own drafts. Any
+// other published TEST-CONF flow is reported in otherPublished and never touched.
+export async function sweepPublishedTestConf({ call, check, sinceIso, ownStamp = null }) {
   const listed = await call('list_workflows', { updatedAfter: sinceIso, pageSize: 100, maxPages: 20, limit: 500 });
   const rows = listed?.data?.workflows ?? [];
   const published = rows.filter((w) => /^TEST-CONF/.test(w.name ?? '') && w.status === 'published');
-  const targets = published.filter((w) => SUITE_FLOW_NAME.test(w.name));
-  const otherPublished = published.filter((w) => !SUITE_FLOW_NAME.test(w.name)).map((w) => ({ id: w.id, name: w.name }));
+  const mine = (w) => SUITE_FLOW_NAME.test(w.name) && (ownStamp === null || String(w.name).endsWith(`-${ownStamp}`));
+  const targets = published.filter(mine);
+  const otherPublished = published.filter((w) => !mine(w)).map((w) => ({ id: w.id, name: w.name }));
   const cleared = [], residualPublished = [];
   for (const w of targets) {
     const un = await call('unpublish_workflows', { workflowIds: [w.id], confirm: true });
@@ -56,12 +61,18 @@ export async function sweepPublishedTestConf({ call, check, sinceIso }) {
   return { found: targets.length, cleared, residualPublished, otherPublished };
 }
 
-// Boundary read: the raw location AI usage. stop = true when the read fails or the usage is past METER_CEILING.
-export async function boundaryMeter({ call, label, logPath = null, loc = '' }) {
+// Boundary read: the raw location AI usage. baseline = the run's own first reading (null on that first read, which never stops on its size).
+// stop = true when the read fails, or when usage is more than METER_DELTA over the baseline.
+export async function boundaryMeter({ call, label, logPath = null, loc = '', baseline = null }) {
   const r = await call('raw_request', { method: 'GET', path: `/ai-wrapper/usage/limits/location?locationId=${loc}` });
   const usage = typeof r?.data?.json?.data?.usage === 'number' ? r.data.json.data.usage : null;
-  const stop = usage === null || usage > METER_CEILING;
-  const rec = { at: new Date().toISOString(), label, usage, ceiling: METER_CEILING, stop };
+  const stop = usage === null || (baseline !== null && usage - baseline > METER_DELTA + 1e-9);
+  const rec = { at: new Date().toISOString(), label, usage, baseline, delta: METER_DELTA, stop };
   if (logPath) appendFileSync(logPath, JSON.stringify(rec) + '\n');
   return rec;
+}
+
+// A URL for the log with the query string and fragment dropped: a signed file URL carries its credentials in the query. Host + path only.
+export function safeUrl(u) {
+  try { const x = new URL(String(u)); return `${x.host}${x.pathname}`; } catch { return '(unparseable url)'; }
 }

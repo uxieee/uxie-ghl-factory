@@ -71,26 +71,35 @@
         "sniff:sniffs/drift-w9-2026-11-08/probes-d3/w9-d3-2026-11-08-2333.json"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-23",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:e3523fd90b42a29170c3027973b1f0f17125f1be"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-08",
+    "hashedAt": "2026-11-23",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
       "GET https://backend.leadconnectorhq.com /snapshots/assets/asset-names": "d791f8ad9ef223ccd9c3e49384bd680a7bde3a3c586db5a0653e9e61faac6a8c",
       "GET https://backend.leadconnectorhq.com /snapshots/v2/preFetchAssets/{}": "36ccd519c4f8d6e288be54b1ff353aea3537f746d8b0c9105404c2db4636589a"
     },
     "builds": {
-      "contactsApp": 3008,
-      "customFieldsApp": 2973,
-      "snapshotsApp": 2250
+      "contactsApp": 3162,
+      "customFieldsApp": 3162,
+      "snapshotsApp": 2368
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_snapshot_manifest": "9445af4a3884dd6165dc3b4502f647e1f33d2cde8c66e1517644296703cce6cc",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "4f5a4b0e9f4aaa4f78314032feec53ba2dad18f8ac362cd0284ea4ba1ddac546",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36",
       "plugins/uxie-ghl-factory/mcp-internal/core/snapshots.mjs": "6ad76fe387b90c1bfdd7df545e21c11420b5a15ebf1cf94680421a47dfb3de60"
     }
   }

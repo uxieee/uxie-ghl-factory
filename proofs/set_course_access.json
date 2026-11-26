@@ -1,0 +1,36 @@
+{
+  "tool": "set_course_access",
+  "surfaces": [
+    "memberships-courses"
+  ],
+  "runs": [
+    {
+      "at": "2026-11-26",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:c864343809d4e6a3724a3a47645b672cc4379e21"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-11-26",
+    "endpoints": {
+      "DELETE https://backend.leadconnectorhq.com /membership/smart-list/user-offer-management": "690d83875b2a5824eb0527d3dc7f1ac9f5d66cd9e5be045b84fd2a245ecdaf99",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/offers/{}": "cd49b47cdd7c12c9f5943c67ba36bbaa7310c33ccae9bedb410e851aa8ae8e42",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/products/user-progress/{}": "eae7deb6c6d98eb7b3852ce44731b1daa0d3d95199c324e3d1f92f69b45ff426",
+      "POST https://backend.leadconnectorhq.com /membership/smart-list/attach-offer-user": "9b3cbe332256f24aa04205f45b4c6b6ee184aed9bddf605b0c251c63b47efc45"
+    },
+    "builds": {
+      "certificatesApp": 2370,
+      "membershipApp": 2372
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/course-tools.mjs#set_course_access": "f69e4f19f40710a707b2c0018b98181db2a5e40574ca4910e625aae1daf681be",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "f731016d229bd390f7ee6cb033a806cee8399e106bf2a14432635251a59740db",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/members.mjs": "ad99703bf5f583c674430c0ab26174c415647cd44f17ec78a61b085f70236ab7"
+    }
+  }
+}

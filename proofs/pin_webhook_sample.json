@@ -576,10 +576,27 @@
         "receipt:2026-11-09-2149"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-22",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:dd1cdc8468c631395fe67042053e61062958d9f2"
+      ]
+    },
+    {
+      "at": "2026-11-22",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:d564f241f4924f5163e6965088fe64f2fd733455"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-09",
+    "hashedAt": "2026-11-22",
     "endpoints": {
       "GET https://services.leadconnectorhq.com /hooks/inbound-webhook-request/reference/{}": "f5b8fde80ab6ee603c01397f99a1f21e5b06dcfba67b060a5b767f4fefa7a16e",
       "GET https://services.leadconnectorhq.com /hooks/inbound-webhook-request/trigger/{}": "0d68749767914a2a0b43e83293ed77732ae49e49af869fe1b2d103883643e4f0",
@@ -592,9 +609,9 @@
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#pin_webhook_sample": "7516433d9593ac7939e994da412406e7386e256f385d262ec84e9b88c711e1f8",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "4f5a4b0e9f4aaa4f78314032feec53ba2dad18f8ac362cd0284ea4ba1ddac546",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "782876e6fb737ca645eaf1b14361697115a29c3cab95b4fa215fed4a30997869"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36"
     }
   }
 }

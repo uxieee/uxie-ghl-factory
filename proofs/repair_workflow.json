@@ -771,10 +771,18 @@
         "and-names-the-step-and-the-path-not-just-something-is-redacted",
         "the-preview-really-wrote-nothing"
       ]
+    },
+    {
+      "at": "2026-11-22",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:dd1cdc8468c631395fe67042053e61062958d9f2"
+      ]
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-09",
+    "hashedAt": "2026-11-22",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /calendars": "6f0b26b31789507a5d9d0153d2192966560a34f54b633fe0fb29f97e294b603a",
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
@@ -803,13 +811,13 @@
       "builder-chunks": "assets/index-V8vU7Pxn.js"
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#repair_workflow": "f2325e6d08f671dddb159ba40032a79d3a33a9a7c091004ac765739e17229d32",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#repair_workflow": "6b301ad4ecc2a52f8a294ee74457bb92df9c964c66f232333b73a35f5c7d61b2",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "4f5a4b0e9f4aaa4f78314032feec53ba2dad18f8ac362cd0284ea4ba1ddac546",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "782876e6fb737ca645eaf1b14361697115a29c3cab95b4fa215fed4a30997869",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36",
       "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "fd4278e14af76ca07772731ac57c6c19124f743910a7074e874eb2845906b6fa",
-      "plugins/uxie-ghl-factory/mcp-internal/core/raw-request-guards.mjs": "aa881c2fcd22221467a25b6b0bba4ce659764ad38c85a7d099bc26ed5d10fdd4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/raw-request-guards.mjs": "4db842160c63f5f52522d5ac6dd96e3207feb83ccdec0a575be2cdca32f25af3",
       "plugins/uxie-ghl-factory/mcp-internal/core/read-cache.mjs": "6208feb3a050fa3aa35cce7755cf405a9047c7beebe67b1b69177d88fd4faed3",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/observed-trigger-filters.json": "8b81642bf1cf9baa7e40f3e7b56f073b9b72acf874f964006e00f366d3445f0f",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/opp-field-rulebook.json": "d7855e46a3feca71bc9dbfbeb7da9d264cab11f2ce6e2a3be7ea285a617cfdc4",
@@ -856,7 +864,7 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/merge-tags.mjs": "aa44a91733cd1909b57a86e4f644a116828dadc69b87178ee582a7649f9c0212",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/observed-step-keys.mjs": "707f42844bc05bb8405535726f61d08bc9c5bb6243d6fda6455ae2d0d93bdf77",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/opp-shapes.mjs": "5484d3b6ab152fc69450b666af4e792b7b5a5d30e7a0d287456c661e9ade68e9",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/orchestrate.mjs": "43e4bcd462117186610d86a11c8c97ab48bc195ae8bfb99367c426c6ce3eeebd",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/orchestrate.mjs": "fe4fd8b052d89ff706f940862d84438fbbaddfb2850406c7c06214ccb5a30596",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/preflight.mjs": "60624cd4ce3d127edf0115ecd1e7ce8fd3bf0556902d2ecb28b38f884ac27120",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/reference-sites.mjs": "2ddb5cf50a4486eebd74b00cd8025124b48557464aced82b0707071acf9557e0",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "9f480ab94fa7198471af4926f19ff661077bde0b48be268540d26cad648b6e79",

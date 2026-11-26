@@ -8,12 +8,14 @@ import { confirmedCall } from './two-step.mjs';
 // Fences: no trigger, steps only tag, contacts created here with no email and no phone. A has left
 // the workflow (its last step is a tag) before the delete, so nobody is ejected. Unpublished at the
 // end. Nothing is deleted from the account.
-export async function runDeleteBranchProof({ call, gw, LOCATION, NAME, STAMP, check, left, log = null }) {
+// census: REQUIRED (see multipath-insert-proof.mjs): nothing is built and no contact is created without it.
+export async function runDeleteBranchProof({ call, gw, LOCATION, NAME, STAMP, check, left, log = null, census = null }) {
   const subject = (s) => log?.subject?.(s);
   const HOT = `test-conf-${STAMP}-db-is-hot`;
   const T_HOT = `test-conf-${STAMP}-db-took-hot`, T_WARM = `test-conf-${STAMP}-db-took-warm`, T_NONE = `test-conf-${STAMP}-db-took-none`;
   const tagStep = (ref, name, tag) => ({ ref, kind: 'action', type: 'add_contact_tag', name, attributes: { tags: [tag] } });
 
+  if (typeof census !== 'function') { check(false, 'REFUSED: no census gate was passed, so nothing is built and no contact is created'); return; }
   subject('build_workflow');
   const b = await call('build_workflow', { spec: { name: NAME('delete-branch'), triggers: [], graph: [
     { ref: 'c', kind: 'if_else', name: 'Segment', branches: [
@@ -23,8 +25,12 @@ export async function runDeleteBranchProof({ call, gw, LOCATION, NAME, STAMP, ch
   const wid = b.data?.wid;
   check(b.ok === true && typeof wid === 'string', 'build_workflow creates the trigger-less three-branch if/else probe', `${b.code ?? ''} ${String(b.detail ?? '').slice(0, 200)}`);
   if (!wid) return;
-  left.push(`workflow ${wid} (${NAME('delete-branch')}, was PUBLISHED for the run and unpublished after)`);
+  left.push(`workflow ${wid} (${NAME('delete-branch')}, built by this run as a trigger-less draft)`);
+  // The census is read BEFORE the publish; a refusal stops here with nothing published (the gate never exits the process, so every later stop still reaches the finally).
+  if (!(await census('before the delete-branch probe is published'))) { check(false, 'REFUSED: the census is not clean, so the probe is not published and no contact is created'); return; }
 
+  // QA batch 7: the published span is a try/finally, so the probe is taken down and read back as a draft even if a check throws.
+  try {
   subject('publish_workflow');
   const pub = await confirmedCall(call, 'publish_workflow', { workflowId: wid });
   check(pub.ok === true && pub.data?.verify?.status === 'published' && pub.data?.verify?.totalTriggers === 0,
@@ -32,7 +38,8 @@ export async function runDeleteBranchProof({ call, gw, LOCATION, NAME, STAMP, ch
   if (!pub.ok) return;
 
   subject(false);
-  const mk = async (n) => { const r = await gw.call('POST', '/contacts/', { locationId: LOCATION, firstName: 'TEST-CONF', lastName: `${STAMP}-db-${n} (no email, no phone)`, tags: ['test-conf', HOT] }); return r.json?.contact ?? r.json; };
+  if (!(await census('before the delete-branch contacts'))) { check(false, 'REFUSED: the census is not clean, so no contact is created (the probe is taken down below)'); return; }
+  const mk = async (n) => { const r = await gw.call('POST', '/contacts/', { locationId: LOCATION, firstName: 'TEST-CONF', lastName: `${STAMP}-db-${n} (no email, no phone)`, tags: [`test-conf-${STAMP}`, HOT] }); const pc = r.json?.contact ?? r.json; if (pc?.id) console.log(`RECORD contact ${pc.id}`); return pc; };
   const A = await mk('a'), B = await mk('b');
   check([A, B].every((c) => c?.id && !c.email && !c.phone), 'FENCE: two contacts created by this run, both tagged hot, no email, no phone', JSON.stringify([A, B].map((c) => [Boolean(c?.id), c?.email ?? null, c?.phone ?? null])));
   if (!A?.id || !B?.id) return;
@@ -72,8 +79,11 @@ export async function runDeleteBranchProof({ call, gw, LOCATION, NAME, STAMP, ch
   const tb = await landed(B.id) ?? [];
   check(tb.includes(T_NONE) && !tb.includes(T_HOT), 'DIFFERENTIAL: after the delete, an identical hot contact falls to None and never gets the Hot tag', JSON.stringify(tb));
 
+  } finally {
   subject('unpublish_workflows');
   const un = await unpublishAndAssertDraft(call, check, wid, 'probe');
   check(un.ok === true, 'the probe is unpublished again', `${un.code ?? ''} ${String(un.detail ?? '').slice(0, 160)}`);
+  left.push(`workflow ${wid} (probe: unpublish accepted ${un.ok === true}; the draft read-back is the check line above)`);
   subject(false);
+  }
 }

@@ -16,11 +16,15 @@ import { confirmedCall } from './two-step.mjs';
 // unpublished again at the end. Nothing is deleted.
 import { multipathDefects } from '../engine/document-gate.mjs';
 
-export async function runMultipathInsertProof({ call, gw, LOCATION, NAME, STAMP, check, left, log = null }) {
+// census: REQUIRED. An async gate that answers true only for a clean published-trigger and AI-agent census and NEVER exits the process (an exit would skip the unpublish finally).
+// It is read before the publish and again before the first contact; without it nothing is built (QA 2026-11-22).
+export async function runMultipathInsertProof({ call, gw, LOCATION, NAME, STAMP, check, left, log = null, census = null }) {
   const subject = (s) => log?.subject?.(s);
   const TAG_HEAD = `test-conf-${STAMP}-mp-found-head`, TAG_SECOND = `test-conf-${STAMP}-mp-found-second`;
   const TAG_NF = `test-conf-${STAMP}-mp-not-found`;
   const tagStep = (ref, name, tag) => ({ ref, kind: 'action', type: 'add_contact_tag', name, attributes: { tags: [tag] } });
+
+  if (typeof census !== 'function') { check(false, 'REFUSED: no census gate was passed, so nothing is built and no contact is created'); return; }
 
   subject('list_account_entities');
   const ents = await call('list_account_entities', {});
@@ -35,8 +39,12 @@ export async function runMultipathInsertProof({ call, gw, LOCATION, NAME, STAMP,
   const wid = b.data?.wid;
   check(b.ok === true && typeof wid === 'string', 'build_workflow creates the trigger-less two-tag probe', `${b.code ?? ''} ${String(b.detail ?? '').slice(0, 200)}`);
   if (!wid) return;
-  left.push(`workflow ${wid} (${NAME('mp-insert')}, was PUBLISHED for the run and unpublished after)`);
+  left.push(`workflow ${wid} (${NAME('mp-insert')}, built by this run as a trigger-less draft)`);
+  // The census is read BEFORE the publish; a refusal stops here with nothing published (the gate never exits the process, so every later stop still reaches the finally).
+  if (!(await census('before the multipath probe is published'))) { check(false, 'REFUSED: the census is not clean, so the probe is not published and no contact is created'); return; }
 
+  // QA batch 7: the published span is a try/finally, so the probe is taken down and read back as a draft even if a check throws.
+  try {
   subject('publish_workflow');
   const pub = await confirmedCall(call, 'publish_workflow', { workflowId: wid });
   check(pub.ok === true && pub.data?.verify?.status === 'published' && pub.data?.verify?.totalTriggers === 0,
@@ -79,8 +87,10 @@ export async function runMultipathInsertProof({ call, gw, LOCATION, NAME, STAMP,
 
   // RUNTIME: the only check that separates a container from a linear step with the same name.
   subject(false);
-  const mk = await gw.call('POST', '/contacts/', { locationId: LOCATION, firstName: 'TEST-CONF', lastName: `${STAMP}-mp (no email, no phone)`, tags: ['test-conf'] });
+  if (!(await census('before the multipath contact'))) { check(false, 'REFUSED: the census is not clean, so no contact is created (the probe is taken down below)'); return; }
+  const mk = await gw.call('POST', '/contacts/', { locationId: LOCATION, firstName: 'TEST-CONF', lastName: `${STAMP}-mp (no email, no phone)`, tags: [`test-conf-${STAMP}`] });
   const c = mk.json?.contact ?? mk.json;
+  if (c?.id) console.log(`RECORD contact ${c.id}`);
   check(Boolean(c?.id) && !c.email && !c.phone, 'FENCE: one contact created by this run, with no email and no phone', JSON.stringify([Boolean(c?.id), c?.email ?? null, c?.phone ?? null]));
   if (!c?.id) return;
   left.push(`contact ${c.id} (TEST-CONF ${STAMP} mp, no email, no phone)`);
@@ -116,8 +126,11 @@ export async function runMultipathInsertProof({ call, gw, LOCATION, NAME, STAMP,
       JSON.stringify({ removalOrigin: removal?.removalOrigin, removedFrom: removal?.meta?.removedFrom }));
   }
 
+  } finally {
   subject('unpublish_workflows');
   const un = await unpublishAndAssertDraft(call, check, wid, 'probe');
   check(un.ok === true, 'the probe is unpublished again', `${un.code ?? ''} ${String(un.detail ?? '').slice(0, 160)}`);
+  left.push(`workflow ${wid} (probe: unpublish accepted ${un.ok === true}; the draft read-back is the check line above)`);
   subject(false);
+  }
 }

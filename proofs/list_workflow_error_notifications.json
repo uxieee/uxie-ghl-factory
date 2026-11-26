@@ -1,0 +1,30 @@
+{
+  "tool": "list_workflow_error_notifications",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-11-23",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:636cece4493490dd645432b3fd274f670f669fa0"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-11-23",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/error-notification/list": "3e32fb241e8468e64121e2dc9f70458085de9c6d04461f335f3b5108ebe44fcc"
+    },
+    "builds": {
+      "builder-chunks": "assets/index-V8vU7Pxn.js"
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/workflow-w6c-tools.mjs#list_workflow_error_notifications": "1bbce4187936a5949ed6fca78cfab0a344fde50607a5f56953d7b67acf8ff981",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36"
+    }
+  }
+}

@@ -117,12 +117,12 @@ test('conformance.mjs --render exits 0 on a passing directory, 1 on a failing on
   const pass = dirWith(allSets());
   const fail = dirWith({});
   try {
-    const ok = spawnSync(process.execPath, [script, '--render', pass], { encoding: 'utf8' });
+    const ok = spawnSync(process.execPath, [script, '--render', pass], { encoding: 'utf8', env: { PATH: process.env.PATH, HOME: '/nonexistent/home', GHL_INTERNAL_TOK_FILE: '/nonexistent/tok.txt' } });
     assert.equal(ok.status, 0, ok.stdout + ok.stderr);
-    const bad = spawnSync(process.execPath, [script, '--render', fail], { encoding: 'utf8' });
+    const bad = spawnSync(process.execPath, [script, '--render', fail], { encoding: 'utf8', env: { PATH: process.env.PATH, HOME: '/nonexistent/home', GHL_INTERNAL_TOK_FILE: '/nonexistent/tok.txt' } });
     assert.equal(bad.status, 1, 'a failing render section must exit 1 through the CLI, not 0: ' + bad.stdout);
     assert.match(bad.stdout, /the render section does not pass/);
-    const none = spawnSync(process.execPath, [script, '--render'], { encoding: 'utf8' });
+    const none = spawnSync(process.execPath, [script, '--render'], { encoding: 'utf8', env: { PATH: process.env.PATH, HOME: '/nonexistent/home', GHL_INTERNAL_TOK_FILE: '/nonexistent/tok.txt' } });
     assert.equal(none.status, 2, none.stdout + none.stderr);
   } finally {
     rmSync(pass, { recursive: true, force: true }); rmSync(fail, { recursive: true, force: true });

@@ -11,6 +11,46 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [Unreleased]
+
+## [1.44.0] — 2026-11-27
+
+**Refreshed live proofs, whole-list Conversation AI reads, and two write fixes.**
+
+### Changed
+- The Conversation AI agent list in `get_ai_configuration_bundle` is now read with a cursor walk (`limit`, `startAfter`)
+  instead of one call, so an account with more than 25 agents is read whole. The audit-configuration contract is 1.2.0:
+  additive `cursorWalk` on each component (null elsewhere). The conformance census treats the agent list as whole only
+  when the reported total is finite and equals the rows served.
+- `create_studio_site` reads the new project back on a separate request and reports the stored name (`storedName`,
+  `storedNameSource`, `createResponseName`, `nameVerified`). A failed read-back is reported, and the create is kept.
+- The validation report of `edit_workflow` includes `triggersSent`, the number of triggers sent to the server check.
+- The endpoint catalogue is re-synced (stamp 2026-11-26) and the server bundle rebuilt.
+
+### Fixed
+- `update_form_data`: a `redirectUrl` inside a `conditionalLogic` rule is now sent as `redirect_url`, the write key proven
+  to store (proven live 2026-11-09, read back on a separate request). `formAction` already did this.
+- `update_form_data`: the "nothing to change" message now names `conditionalLogic`, which the tool accepts.
+
+### Proofs
+- Proof labels are refreshed from new proof runs, and the changed tool descriptions carry the new dates. Thirteen tools move
+  from "external receipt required" to `live-runtime`.
+- Seven tools labelled `failing` in 1.43 are now labelled `live-runtime`: `create_studio_site`, `edit_workflow`,
+  `export_workflow`, `publish_workflow`, `repair_workflow`, `validate_workflow` and `copy_workflow_to_location`. A label
+  covers what its proof run exercised.
+
+### Developer tooling
+- A shared per-tool exercised marker for live harnesses (`exercised-marker.mjs`) and `scripts/proof-from-map.mjs`, which
+  writes proof runs that cite only `commit:<full sha>`. See `docs/exercised-marker.md`.
+- The live conformance and proof scripts have more safety gates: stop points, a published-trigger census that blocks by
+  default, restore-on-exit around temporary changes, and a nonexistent token file in spawned tests.
+
+### Known issues
+- `compare_page_renders` is labelled as a pure function; its latest recorded run (2026-11-09) failed: on three probe pages
+  the builder canvas differs from the live page in structure and vertical layout. The cause is not known.
+- `push_snapshot`: pushing a snapshot back into the location it was taken from is accepted and queued but can reach zero
+  locations, so nothing loads. Check the target in the GHL UI before you rely on it.
+
 ## [1.43.1] — 2026-11-18
 
 **Outward writes no longer wait for a separate yes. The approved plan or the request is the confirmation.**

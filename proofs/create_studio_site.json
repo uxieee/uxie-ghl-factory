@@ -70,25 +70,35 @@
       "failures": [
         "create-stores-a-different-name-than-sent"
       ]
+    },
+    {
+      "at": "2026-11-23",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:bfecb11e0fc55e37bc38223b1f787c2759c97934"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-08",
+    "hashedAt": "2026-11-23",
     "endpoints": {
       "POST https://backend.leadconnectorhq.com /vibe-ai/projects": "66bab48ba10561daceab5205a61a468c24b61abcaed46e725f9554cc17adf3c1"
     },
     "builds": {
-      "brandBoardsApp": 46,
+      "brandBoardsApp": 47,
       "domainResellingApp": 249,
-      "vibeEditorApp": 413
+      "vibeEditorApp": 413,
+      "vibeStudioApp": 106
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_site": "61af31569da586f7972b0b774f002c0edf878b43be9d4a66223bb8807af20cde",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_site": "b1ccbe1b329d225caedefb178ed954b2c1ee234579c0a9ab626ece81e20795ad",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
       "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "62225752b85d3632fc67b2e3c79a642fa64e34a1f67ffc5bacc34a5de97a246a",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "4f5a4b0e9f4aaa4f78314032feec53ba2dad18f8ac362cd0284ea4ba1ddac546",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36",
       "plugins/uxie-ghl-factory/mcp-internal/core/form-fields.mjs": "fd4278e14af76ca07772731ac57c6c19124f743910a7074e874eb2845906b6fa",
       "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "8ca1ae1ac9a31ed987ef26a1a5b3751ace5e3072b8efd828b9fe720e6d556629"
     }

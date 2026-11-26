@@ -30,7 +30,7 @@ test('scripts/ff.mjs also accepts the extracted gateway call shape', () => {
 test('ff CLI with no args prints usage, exits 2, and cannot make an account call', () => {
   const result = spawnSync(process.execPath, [fileURLToPath(new URL('./ff.mjs', import.meta.url))], {
     encoding: 'utf8',
-    env: { ...process.env, GHL_INTERNAL_TOK_FILE: '' },
+    env: { PATH: process.env.PATH, HOME: '/nonexistent/home', GHL_INTERNAL_TOK_FILE: '/nonexistent/tok.txt' },
   });
 
   assert.equal(result.status, 2);

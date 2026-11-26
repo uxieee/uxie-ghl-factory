@@ -57,17 +57,27 @@ export function seamBlock(src, tool) {
   return { text: lines.slice(i - 1, end + 1).join('\n'), indent };
 }
 
-// Where a tool is declared: core/tools.mjs first (its keys are unchanged), then the modules it imports directly. One level deep: the
-// seam is one import, and a deeper search would hash modules no tool depends on.
+// Where a tool is declared: core/tools.mjs first (its keys are unchanged), then the modules it imports directly, and only when neither
+// declares it, the modules THOSE import (one more level: a tool factory such as makeLinkedAssetsTools is imported by a module that tools.mjs
+// imports). The search order never changes a tool already found, so existing proof records keep their keys. Only the block found is hashed;
+// the search itself hashes nothing, so a deeper search cannot pull in modules no tool depends on.
 function locateTool(toolsFile, tool, read) {
   const src = read(toolsFile);
   const block = toolBlocks(src).get(tool);
   if (block) return { file: toolsFile, src, block, indent: '    ' };
-  for (const f of localImports(toolsFile, read)) {
-    if (!existsSync(f)) continue;
+  const direct = localImports(toolsFile, read).filter((f) => existsSync(f));
+  for (const f of direct) {
     const s = read(f);
     const seam = seamBlock(s, tool);
     if (seam) return { file: f, src: s, block: seam.text, indent: seam.indent };
+  }
+  for (const d of direct) {
+    for (const f of localImports(d, read)) {
+      if (!existsSync(f) || direct.includes(f) || f === toolsFile) continue;
+      const s = read(f);
+      const seam = seamBlock(s, tool);
+      if (seam) return { file: f, src: s, block: seam.text, indent: seam.indent };
+    }
   }
   return null;
 }

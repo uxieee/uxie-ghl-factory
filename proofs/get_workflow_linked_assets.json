@@ -1,0 +1,30 @@
+{
+  "tool": "get_workflow_linked_assets",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-11-23",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:636cece4493490dd645432b3fd274f670f669fa0"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-11-23",
+    "endpoints": {
+      "POST https://backend.leadconnectorhq.com /workflows/es/linked-assets": "6a324eee65ffc6cf27feaf0402772e31991b0de39f7eeba36d76a2779c2a087d"
+    },
+    "builds": {
+      "builder-chunks": "assets/index-V8vU7Pxn.js"
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/workflow-linked-assets.mjs#get_workflow_linked_assets": "18448fe33eb8d9b956bf9f3e1021447e06f3b4d5e74f432e0e9d6855d8a15a4a",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36"
+    }
+  }
+}

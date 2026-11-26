@@ -1,0 +1,31 @@
+{
+  "tool": "declare_ab_test_winner",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-11-26",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:be443bc9a58aa1080e8332aecd52e148fe4a2b25"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-11-26",
+    "endpoints": {
+      "POST https://backend.leadconnectorhq.com /workflow/{}/split/ab-test/declare-winner": "65fcb7596e151dd407bbadc2fbe351dd0edf8a5b84acfe8df19754ccb78bdaad"
+    },
+    "builds": {
+      "builder-chunks": "assets/index-V8vU7Pxn.js"
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/workflow-w6c-tools.mjs#declare_ab_test_winner": "3461731f1e52a9f99f943802f3874975446ecbc51fe8cfe96a07054709ee369e",
+      "plugins/uxie-ghl-factory/mcp-internal/core/ab-test.mjs": "d0569853a0e4ec472e3232abc19d2a134909e99e58ea5c92d435e910b42e376c",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36"
+    }
+  }
+}

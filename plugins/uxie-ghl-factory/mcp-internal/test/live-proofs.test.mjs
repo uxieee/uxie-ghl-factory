@@ -143,7 +143,7 @@ test('sandbox guard: receiver-type env vars other than the sandbox are named', (
 });
 
 test('run-live-proofs refuses to start when a receiver env var names another account (before any account call)', () => {
-  const run = (env) => spawnGuard('node', [SCRIPT, '--dry-run'], { env: { PATH: process.env.PATH, HOME: process.env.HOME, ...env }, encoding: 'utf8' });
+  const run = (env) => spawnGuard('node', [SCRIPT, '--dry-run'], { env: { PATH: process.env.PATH, HOME: '/nonexistent/home', GHL_INTERNAL_TOK_FILE: '/nonexistent/tok.txt', ...env }, encoding: 'utf8' });
   const bad = run({ GHL_LIVE_PROOF_LOCATION: 'SANDBOX0000000000001', GHL_TARGET_LOCATION: 'CLIENT00000000000002' });
   assert.equal(bad.status, 1);
   assert.match(bad.stderr, /GHL_TARGET_LOCATION/);

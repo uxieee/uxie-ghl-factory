@@ -1,0 +1,30 @@
+{
+  "tool": "list_workflow_test_runs",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-11-26",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:be443bc9a58aa1080e8332aecd52e148fe4a2b25"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-11-26",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/test-workflow/{}/event-runs": "8ac5bedbe28ae2605c5b25b2718731fb6bdaa5b6c440046adf30b946cbbd3ea4"
+    },
+    "builds": {
+      "builder-chunks": "assets/index-V8vU7Pxn.js"
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/workflow-w6c-tools.mjs#list_workflow_test_runs": "96fb0c7dc81fe5c9dfbac16a952cb0bb00f4d7fb925fa685ad1f2259d3236cc6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36"
+    }
+  }
+}

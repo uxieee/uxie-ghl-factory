@@ -1,0 +1,31 @@
+{
+  "tool": "get_workflow_heat_map",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-11-23",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:648c999a35fe07959ccc6ee3786739a55f0dd53c"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-11-23",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflows/logs/enrollment-counts": "646cfa4458da5e2c21e3583caee3f8ce49a3b3b70cd2750792c6455bd95ae625"
+    },
+    "builds": {
+      "builder-chunks": "assets/index-V8vU7Pxn.js"
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/workflow-w6c-tools.mjs#get_workflow_heat_map": "a324a5da258c5ba97a275297652a2bf4c20df29815998252e4b1cf725c3b2317",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36",
+      "plugins/uxie-ghl-factory/mcp-internal/core/workflow-heat-map.mjs": "06c6f41d99956f3582ae5228f5e8c854784179a3ef9558b609e39b1a063703bb"
+    }
+  }
+}

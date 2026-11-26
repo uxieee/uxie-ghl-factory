@@ -291,7 +291,11 @@ export const AUDIT_CAPABILITIES = Object.freeze([
     // `capabilityManifestHash`) reflects this path, not `/ai-employees/agents`. That is a
     // pinned handshake value; a client holding the old hash must re-pin.
     normalizedPath: '/ai-employees/employees/search',
-    requiredQueryKeys: ['locationId'],
+    // The route is cursor-paged: `limit` (the server requires at least 10) and `startAfter` (the id of the last agent already read). The walk sends `limit` on every
+    // page and `startAfter` from the second; both are GET query params on the bound location, nothing else.
+    requiredQueryKeys: ['locationId', 'limit'],
+    optionalQueryKeys: ['startAfter'],
+    numericQueryBounds: { limit: { min: 10, max: 25 } },
     locationBinding: 'query',
   }),
   descriptor({

@@ -179,7 +179,7 @@ export function writeReceiptRuns(recs, runs, write, log) {
 }
 
 // ── effects ───────────────────────────────────────────────────────────────────────────────────
-async function loadContext({ offline }) {
+export async function loadContext({ offline }) {
   const knowledge = process.env.GHL_KNOWLEDGE_DIR ?? resolve(ROOT, '../knowledge');
   if (!existsSync(join(knowledge, 'sniffs/app-surface-map.json'))) {
     throw new Error(`knowledge/ not found at ${knowledge} — set GHL_KNOWLEDGE_DIR`);
@@ -210,6 +210,8 @@ const write = (rec) => {
   mkdirSync(PROOFS, { recursive: true });
   writeFileSync(join(PROOFS, `${rec.tool}.json`), `${JSON.stringify(rec, null, 2)}\n`);
 };
+
+export const writeRecord = write; // the one writer, exported for scripts/proof-from-map.mjs
 
 async function main(argv) {
   const [cmd, arg] = argv;

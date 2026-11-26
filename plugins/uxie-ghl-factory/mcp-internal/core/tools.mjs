@@ -1332,7 +1332,7 @@ async function workflowValidationGate({
     rules: { findings: v.rules.findings, preExisting: (v.rules.preExisting ?? []).map((r) => r.rule), skipped: v.rules.skipped.map((r) => r.rule), notEvaluable: v.rules.notEvaluable },
     canvas: { errors: v.canvas.errors, warnings: v.canvas.warnings.length },
     engine: { errors: v.engine.errors, warnings: v.engine.warnings.length },
-    server: { ran: v.server.ran, valid: v.server.valid ?? null, layer: v.server.layer ?? null, introduced: v.serverBlocking, ...(v.server.ran ? {} : { why: v.server.why }) },
+    server: { ran: v.server.ran, valid: v.server.valid ?? null, layer: v.server.layer ?? null, introduced: v.serverBlocking, triggersSent: Array.isArray(triggers) ? triggers.length : 0, ...(v.server.ran ? {} : { why: v.server.why }) },
   };
   if (!v.blocked) {
     if (allow && v.blockedLayers.length) warnings.push(`VALIDATION BYPASSED (allowValidationFailure): ${v.summary}`);
@@ -11119,9 +11119,14 @@ export const TOOLS = [
       const { api } = studioDeps(args, deps);
       const res = await api.createProject({ name: args.name, description: args.description ?? '' });
       const project = res.json?.project ?? {};
-      const warning = nameWarning(args.name, project.name);
-      return ok({ projectId: project.id, requestedName: args.name, storedName: project.name,
-        slug: project.slug, techStack: project.tech_stack, warning,
+      // Accepted is not applied: read the project back on a SEPARATE request and report what is actually stored. A failed read-back is reported, never hidden, and never throws away the create.
+      let readBack = null;
+      if (project.id) { try { const g = await api.getProject(project.id); readBack = g?.ok && g.json && typeof g.json === 'object' ? g.json : null; } catch { readBack = null; } }
+      const storedName = readBack ? readBack.name : project.name;
+      const warning = nameWarning(args.name, storedName);
+      return ok({ projectId: project.id, requestedName: args.name, storedName,
+        storedNameSource: readBack ? 'read-back' : 'create-response (read-back failed)', createResponseName: project.name,
+        nameVerified: Boolean(readBack) && readBack.name === args.name, slug: readBack?.slug ?? project.slug, techStack: project.tech_stack, warning,
         // Since the 2026-09 SSR release every new project is tanstack_start_ts; a tech_stack key in the
         // create body is ignored (2026-10-30 differential), so report what was stored, never a fixed stack.
         note: `A new project is NOT empty — it ships a ${project.tech_stack ?? 'scaffold'} codebase with one route`
@@ -11670,10 +11675,18 @@ export const TOOLS = [
         const { redirectUrl, ...rest } = args.formAction;
         args = { ...args, formAction: rest.redirect_url === undefined ? { ...rest, redirect_url: redirectUrl } : rest };
       }
+      // A rule's camel redirectUrl is sent as redirect_url, the key proven to store (proven live 2026-11-09, read back on a separate GET), as formAction is (bl-950).
+      if (Array.isArray(args.conditionalLogic)) {
+        args = { ...args, conditionalLogic: args.conditionalLogic.map((rule) => {
+          if (!rule || typeof rule !== 'object' || !('redirectUrl' in rule)) return rule;
+          const { redirectUrl, ...rest } = rule;
+          return rest.redirect_url === undefined ? { ...rest, redirect_url: redirectUrl } : rest;
+        }) };
+      }
       const patch = ['fields', 'formAction', 'style', 'conditionalLogic'].filter((k) => args[k] !== undefined);
       if (!patch.length && args.name === undefined) {
         return fail(CODES.VALIDATION_FAILED, 'nothing to change',
-          'Pass at least one of fields, formAction, style or name.');
+          'Pass at least one of fields, formAction, style, conditionalLogic or name.');
       }
       const shaped = args.fields !== undefined ? renderableFields(args.fields) : null;
       if (shaped?.problems.length) {

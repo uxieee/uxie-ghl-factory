@@ -652,10 +652,18 @@
         "receipt:2026-11-09-2149"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-22",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:dd1cdc8468c631395fe67042053e61062958d9f2"
+      ]
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-09",
+    "hashedAt": "2026-11-22",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/list": "c3a30133ae951cb061dce33d9bf73e80273ed161cade4401a663efa490030075",
       "POST https://backend.leadconnectorhq.com /workflow/{}/directory": "74bd563d57513b08d253b365b8a94d75edf6db7b197be9b2c460fece861dcc12",
@@ -665,11 +673,11 @@
       "builder-chunks": "assets/index-V8vU7Pxn.js"
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_workflow_folder": "ba7366132ee4c87803dd83fb977e37c469814164931375331411247a982880b2",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_workflow_folder": "e6023d9b7c26ac43bc27f64f50eebed58eeeb891e183aa474baff00e805de151",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "4f5a4b0e9f4aaa4f78314032feec53ba2dad18f8ac362cd0284ea4ba1ddac546",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "782876e6fb737ca645eaf1b14361697115a29c3cab95b4fa215fed4a30997869",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36",
       "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "d0d9be6077c880cd2fff42d74d348ae6c517204e8c9a7e234639dcd254dde6dc",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/folders.mjs": "0b37e3c6cc039efffa1818668df495c6ee4acbe920b4447e7e60461dc6db54a3",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/ir.mjs": "8873ad19805ed1b85f7711a1a7767a930984214d66371001464e8f6234f6bc84"

@@ -218,7 +218,10 @@ const EXPECTED = {
     // descriptor change deliberate rather than incidental, and this change is deliberate:
     // the value it pinned was wrong, and pinning a wrong value only guarantees it stays wrong.
     normalizedPath: '/ai-employees/employees/search',
-    requiredQueryKeys: ['locationId'],
+    // Snapshot updated with the cursor walk: the route is paged by `limit` (server minimum 10) and `startAfter` (last agent id read).
+    requiredQueryKeys: ['locationId', 'limit'],
+    optionalQueryKeys: ['startAfter'],
+    numericQueryBounds: { limit: { min: 10, max: 25 } },
     locationBinding: 'query',
   }),
   conversation_ai_agent_detail: descriptor({

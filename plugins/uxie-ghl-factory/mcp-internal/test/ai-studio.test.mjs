@@ -1291,6 +1291,25 @@ test('create_studio_site names the stack the server stored, not a fixed vite sca
   assert.doesNotMatch(result.data.note, /vite_react_shadcn_ts/);
 });
 
+test('create_studio_site reads the project back and reports the stored name from that request', async () => {
+  const tool = TOOLS.find((t) => t.name === 'create_studio_site');
+  const calls = [];
+  const gw = { call: async (method, path) => {
+    calls.push(`${method} ${path.split('?')[0]}`);
+    if (method === 'POST') return { status: 201, ok: true, json: { project: { id: 'P1', name: 'sent', slug: 's', tech_stack: 'tanstack_start_ts' } } };
+    if (method === 'GET') return { status: 200, ok: true, json: { id: 'P1', name: 'Rewritten Name', slug: 'rewritten-name' } };
+    throw new Error('unexpected');
+  } };
+  const r = await tool.handler({ locationId: 'LOC', name: 'sent' }, { state: {}, makeGw: () => gw });
+  assert.deepEqual(calls, ['POST /vibe-ai/projects', 'GET /vibe-ai/projects/P1']);
+  assert.equal(r.data.storedName, 'Rewritten Name');
+  assert.equal(r.data.storedNameSource, 'read-back');
+  assert.equal(r.data.nameVerified, false);
+  assert.match(r.data.warning, /rewrote/);
+  const ok2 = await tool.handler({ locationId: 'LOC', name: 'Rewritten Name' }, { state: {}, makeGw: () => gw });
+  assert.equal(ok2.data.nameVerified, true);
+});
+
 // ---- W5b final review fixes (2026-10-30) ----
 test('review I1: an unreadable policy meter under agency_free_ai is reported unknown, never $0', () => {
   const pol = (used) => ({ billingModeIfCharged: 'agency_free_ai', fup: { usedAmount: used } });

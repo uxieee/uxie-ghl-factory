@@ -70,7 +70,7 @@ import { CODES } from './errors.mjs';
 // AI_OUTBOUND_UNREADABLE). No key was removed or renamed, and `complete` keeps its meaning — any
 // warning on a component makes it incomplete — so a 1.0.0 reader keeps working; a reader that
 // branches on the closed warning vocabulary must learn the two new codes.
-export const AUDIT_CONFIGURATION_CONTRACT_VERSION = '1.1.0';
+export const AUDIT_CONFIGURATION_CONTRACT_VERSION = '1.2.0';
 
 // Budgets are inputs; page sizes are NOT. Both page sizes below are the maximum the
 // descriptor's own numericQueryBounds allow, and both are pinned rather than exposed:
@@ -78,6 +78,9 @@ export const AUDIT_CONFIGURATION_CONTRACT_VERSION = '1.1.0';
 // one would silently redefine what a terminal page means on a per-call basis.
 export const ROSTER_MAX_PAGE_SIZE = 100;
 export const AI_DISCOVERY_PAGE_SIZE = 100;
+// The cursor-paged surface (Conversation AI): `limit` the server accepts is 10-25 (20 is the recommended size). The walk never goes past 20 pages and never past ceil(total/limit)+1.
+export const AI_CURSOR_LIMIT = 20;
+export const AI_CURSOR_MAX_PAGES = 20;
 export const MAX_PAGE_BUDGET = 1000;
 
 export const ROSTER_DEFAULTS = Object.freeze({ pageSize: 100, maxPages: 100 });
@@ -232,6 +235,8 @@ const AI_SURFACES = Object.freeze({
     discoveryCapabilityId: 'conversation_ai_agent_discovery',
     detailCapabilityId: 'conversation_ai_agent_detail',
     paginated: false,
+    // Cursor-paged instead: the walk below sends `limit` and, from the second page, `startAfter` (the last row's id).
+    cursorPaged: true,
     requiresCompany: false,
     // The Agent-Deployment routing read — one GET per discovered agent, after detail().
     // THIS surface ONLY, on the same precedent as Voice's `tombstonesApply` below: the
@@ -1087,6 +1092,8 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
     components[name] = {
       applicable: 'unknown',
       complete: false,
+      // The cursor walk's own record (Conversation AI only; null on the others): per page {requestedLimit, rows, newUnique, cursorPresent, totalReported}, then {served, totalCount}.
+      cursorWalk: null,
       detailDenominator: 0,
       detailsRead: 0,
       errors: [],
@@ -1359,8 +1366,25 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
     // whether the collection was fully walked. This flag is the only thing that may license an
     // `applicable` claim in sweep(), so it is set on the terminal paths and nowhere else.
     let reconciled = false;
+    // Cursor-paged surfaces only: the walk's own record, the cursors already sent, and the size of the first page actually returned.
+    const cursorMode = surface.cursorPaged === true;
+    const cursorsUsed = new Set();
+    let cursor = null;
+    let firstPageRows = null;
+    if (cursorMode) component.cursorWalk = { requestedLimit: AI_CURSOR_LIMIT, pages: [], served: 0, totalCount: null };
 
     for (let page = 1; ; page += 1) {
+      if (cursorMode) {
+        const cap = reportedTotal === null ? AI_CURSOR_MAX_PAGES : Math.min(AI_CURSOR_MAX_PAGES, Math.ceil(reportedTotal / AI_CURSOR_LIMIT) + 1);
+        if (component.pages.attempted >= cap) {
+          component.pages.exhausted = true;
+          recordError(name, AI_BUNDLE_WARNINGS.AI_DISCOVERY_PAGE_BUDGET_EXHAUSTED, discoveryCapabilityId, 'discovery',
+            `the discovery page cap of ${cap} was spent with agents still undiscovered`);
+          warn(AI_BUNDLE_WARNINGS.AI_DISCOVERY_PAGE_BUDGET_EXHAUSTED, name,
+            `the ${name} discovery page cap of ${cap} was spent with agents still undiscovered`);
+          break;
+        }
+      }
       if (surface.paginated && component.pages.attempted >= component.pages.budget) {
         // Checked BEFORE the read, so the page it refuses is never requested.
         component.pages.exhausted = true;
@@ -1383,7 +1407,9 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
         }
         // SINGLE-SHOT BY DESCRIPTOR, not by choice: `locationId` is the only key these two
         // declare, so any pagination parameter would be refused as UNKNOWN_QUERY_KEY.
-        : { locationId: boundLocationId };
+        : cursorMode
+          ? { locationId: boundLocationId, limit: String(AI_CURSOR_LIMIT), ...(cursor === null ? {} : { startAfter: cursor }) }
+          : { locationId: boundLocationId };
       const typedBindings = surface.paginated
         ? { locationId: boundLocationId, companyId: config.companyId }
         : { locationId: boundLocationId };
@@ -1432,10 +1458,15 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
 
       const keyer = makeRowKeyer();
       let gained = 0;
+      // Cursor surfaces: an agent already read on an EARLIER page and served again means startAfter did not advance. A repeat inside one response is the ordinary case
+      // the rules below already settle (identical = one item, differing content = a conflict), so it is not counted here.
+      const seenBeforePage = cursorMode ? new Set(seen) : null;
+      let reServed = 0;
       for (const row of rows) {
         const key = keyer(row);
         const id = idOf(row);
         if (seen.has(key)) {
+          if (seenBeforePage !== null && seenBeforePage.has(key)) reServed += 1;
           // A REPEATED ID IS NOT AUTOMATICALLY A REPEATED ROW. This branch used to `continue`
           // unconditionally, which silently collapsed two different agents sharing an id into
           // whichever arrived first — and if the first was a soft-deleted tombstone, the LIVE
@@ -1582,6 +1613,30 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
         }
         reconciled = true;
       };
+
+      if (cursorMode) {
+        // THE CURSOR WALK ENDS ONLY ON A SHORT OR EMPTY PAGE THAT RECONCILES AGAINST THE REPORTED TOTAL. "Short" is judged against the size the server actually returned
+        // (the first page), not the requested limit, so a server that ignores `limit` is still walked to its real end. Everything else (a repeated cursor, a page with no
+        // new id, a re-served id, a cap hit) leaves the component incomplete. `complete` is never relaxed here.
+        const cw = component.cursorWalk;
+        cw.pages.push({ requestedLimit: AI_CURSOR_LIMIT, rows: rows.length, newUnique: gained, cursorPresent: cursor !== null, totalReported: pageTotal });
+        cw.served = seen.size;
+        cw.totalCount = reportedTotal;
+        if (firstPageRows === null) firstPageRows = rows.length;
+        const stuck = (why) => {
+          recordError(name, AI_BUNDLE_WARNINGS.AI_DISCOVERY_NO_UNIQUE_PROGRESS, discoveryCapabilityId, 'discovery', why);
+          warn(AI_BUNDLE_WARNINGS.AI_DISCOVERY_NO_UNIQUE_PROGRESS, name, `${name} discovery: ${why}`);
+        };
+        if (rows.length > 0 && gained === 0) { stuck('a cursor page added no new agent, so startAfter is not advancing the collection'); break; }
+        if (reServed > 0) { stuck('a cursor page re-served an agent already read'); break; }
+        const short = rows.length < AI_CURSOR_LIMIT || (page > 1 && rows.length < firstPageRows);
+        if (rows.length === 0 || short) { reconcileTotal(); break; }
+        const next = idOf(rows[rows.length - 1]);
+        if (next === null || cursorsUsed.has(next)) { stuck('the next cursor is missing or was already sent'); break; }
+        cursorsUsed.add(next);
+        cursor = next;
+        continue;
+      }
 
       if (!surface.paginated) {
         // SINGLE-SHOT BY DESCRIPTOR: one response IS the whole collection, so the response is

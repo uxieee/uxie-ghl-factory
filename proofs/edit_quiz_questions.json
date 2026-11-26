@@ -1,0 +1,35 @@
+{
+  "tool": "edit_quiz_questions",
+  "surfaces": [
+    "memberships-courses"
+  ],
+  "runs": [
+    {
+      "at": "2026-11-26",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:c864343809d4e6a3724a3a47645b672cc4379e21"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-11-26",
+    "endpoints": {
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/assessments/quiz/questions/{}": "d683adcd734937f72850d599b9e0de138731d75e794640f4396339a0efd8af77",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/assessments/quiz/questions": "54740c08e125c0e62744a69406e6cef1e7660e48ab25798e2deb9b2ba4c275a6",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/assessments/quiz/questions": "803a0084806c0a8bb4ca9a84f028c3f832694c583a8c9f8fa0b1fcf821eebad6"
+    },
+    "builds": {
+      "certificatesApp": 2370,
+      "membershipApp": 2372
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/course-tools.mjs#edit_quiz_questions": "a11ae04e7f8741d96b5d41a71682daec45dfcb784a211fc4e9459c143c1a1e51",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "f731016d229bd390f7ee6cb033a806cee8399e106bf2a14432635251a59740db",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/assessments.mjs": "b2690fd25b8733e0d7bc791d791744a7eb54b1291f6a34145e891340aaccfdc2"
+    }
+  }
+}

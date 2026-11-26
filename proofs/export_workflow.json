@@ -715,10 +715,18 @@
       "failures": [
         "export-workflow-scrubs-a-webhook-authorization-to-a-placeholder-on-the-key-name"
       ]
+    },
+    {
+      "at": "2026-11-22",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:dd1cdc8468c631395fe67042053e61062958d9f2"
+      ]
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-09",
+    "hashedAt": "2026-11-22",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/trigger": "902ed64c64dd00088ff5ac4c06c2a18c6a95ca147412dcdd1099c6dfa9c04e1e",
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "eb7d0149e959efe4c9cc0a7b8615c8688463787b3960a56be91eae1d7be9fa7a",
@@ -728,11 +736,11 @@
       "builder-chunks": "assets/index-V8vU7Pxn.js"
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#export_workflow": "c75984c60ea12b4f96e4f5a21b6b90c054e0d7e7e9a76b19a32510091e6c5b2b",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#export_workflow": "2afdbbedec6034dcf698f24f9527d5ddc2f199ccd7c044f488df393dc241f126",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "4f5a4b0e9f4aaa4f78314032feec53ba2dad18f8ac362cd0284ea4ba1ddac546",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "782876e6fb737ca645eaf1b14361697115a29c3cab95b4fa215fed4a30997869",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36",
       "plugins/uxie-ghl-factory/mcp-internal/core/read-cache.mjs": "6208feb3a050fa3aa35cce7755cf405a9047c7beebe67b1b69177d88fd4faed3",
       "plugins/uxie-ghl-factory/mcp-internal/core/spec-scrub.mjs": "c9243ac9873852f63b30f42ad06513ab1d5861d3eb0a02b64a06062382d7cdb7",
       "plugins/uxie-ghl-factory/mcp-internal/core/url-token-redact.mjs": "2eaaf49002719b61f458615b95a23fa17bbbbfe90ba5a9fe5f822c824eac80ed",

@@ -78,7 +78,7 @@ test('a conditionalLogic write is verified only when the read-back carries the r
   assert.equal(r.data.verified, true);
 });
 
-test('GHL stores a rule redirect_url as redirectUrl, and the read-back still verifies it (live 2026-11-09, probe in knowledge sniffs live-f5b)', async () => {
+test('GHL stores a rule redirect_url as redirectUrl, and the read-back still verifies it (proven live 2026-11-09, read back on a separate GET)', async () => {
   // The fixture stores what GHL stored in the live probe: the same rule with redirectUrl in place of redirect_url.
   const { gw } = formGateway(base);
   const realGw = gw.call;
@@ -94,4 +94,28 @@ test('GHL stores a rule redirect_url as redirectUrl, and the read-back still ver
   const r = await tool().handler({ locationId: 'LOC', formId: 'F1', conditionalLogic: [rule], confirm: true }, deps(gw));
   assert.equal(r.ok, true, JSON.stringify(r).slice(0, 300));
   assert.equal(r.data.verified, true, 'the read-back must carry the rule value for value, under GHL\'s renamed key');
+});
+
+// A caller's redirectUrl inside a rule is sent as the proven write key redirect_url (proven live 2026-11-09, read back on a separate GET), as formAction is (bl-950).
+test('a redirectUrl inside a conditionalLogic rule is sent as the proven write key redirect_url', async () => {
+  const { gw, calls } = formGateway(base);
+  const camelRule = { id: 'cond-camel', operation: 'isEqualTo', field: 'email', value: 'x@example.com', action: 'redirectToUrl', redirectUrl: 'https://example.com/camel' };
+  const r = await tool().handler({ locationId: 'LOC', formId: 'F1', conditionalLogic: [camelRule], confirm: true }, deps(gw));
+  assert.equal(r.ok, true, JSON.stringify(r).slice(0, 300));
+  const sent = calls.find((c) => c.method === 'POST').body.formData.form.conditionalLogic[0];
+  assert.equal(sent.redirect_url, 'https://example.com/camel', 'the write key must carry the target');
+  assert.equal('redirectUrl' in sent, false, 'only the proven write key is sent inside a rule');
+});
+
+test('a rule that already names redirect_url keeps it (the documented key is unchanged)', async () => {
+  const { gw, calls } = formGateway(base);
+  await tool().handler({ locationId: 'LOC', formId: 'F1', conditionalLogic: [rule], confirm: true }, deps(gw));
+  assert.equal(calls.find((c) => c.method === 'POST').body.formData.form.conditionalLogic[0].redirect_url, rule.redirect_url);
+});
+
+test('the nothing-to-change remediation names conditionalLogic', async () => {
+  const { gw } = formGateway(base);
+  const r = await tool().handler({ locationId: 'LOC', formId: 'F1' }, deps(gw));
+  assert.equal(r.code, 'VALIDATION_FAILED');
+  assert.match(r.remediation, /conditionalLogic/);
 });

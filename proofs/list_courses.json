@@ -30,26 +30,34 @@
         "sniff:sniffs/courses-w9-2026-11-08/live-tools-w9-courses.jsonl"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-11-22",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:4765a360e6307e4c3f77d7e82783d10c68eaf876"
+      ]
     }
   ],
   "depends": {
-    "hashedAt": "2026-11-08",
+    "hashedAt": "2026-11-22",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /membership/locations/{}/categories": "d6f1f93ff9fd77db82838ff865ca0271331bfa117239a9f5423a79bf4b6da258",
       "GET https://services.leadconnectorhq.com /membership/locations/{}/categories": "8e0da0b0e1953a9113eb287cc4d7b569a84fb119033b1480c2344cf46679b2e6",
       "GET https://services.leadconnectorhq.com /membership/locations/{}/products": "d0a6242d8a0b47401b522d807dc3423444407835e817abf56b56530543e0ee9d"
     },
     "builds": {
-      "certificatesApp": 2241,
-      "membershipApp": 2260
+      "certificatesApp": 2324,
+      "membershipApp": 2298
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_courses": "050801f9fb4daaf8bf9eeb76db72c4687fc52acf904f4ef8befa4b9b7a1ea4e4",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "ef90b1cb234998f14543817237821ad7cfcfc8a10435fcd9889e229d92294c17",
-      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "efad512b2f236d3d514de8a47f93fedbad5c7c8871c4bd4daa96e598e0be34a7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "4f5a4b0e9f4aaa4f78314032feec53ba2dad18f8ac362cd0284ea4ba1ddac546",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "9bf3a8556152d5f0420e3d9afdc00d6243473259d673692192d721e08d28e303",
-      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "660acfcc1f5c9ad9f3a4d0d7ce42b27b78070cc03556cfc7e1db77f064f409e2"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "f731016d229bd390f7ee6cb033a806cee8399e106bf2a14432635251a59740db"
     }
   }
 }

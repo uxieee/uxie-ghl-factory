@@ -50,7 +50,7 @@ function scratchHome() {
 // child_process.spawn would otherwise do with a naive spread), so a scenario can reliably force
 // GHL_TOK_FILE / GHL_INTERNAL_TOK_FILE to be genuinely UNSET regardless of the host shell's env.
 function childEnv(overrides) {
-  const env = { ...process.env, HOME: scratchHome() };
+  const env = { ...process.env, HOME: scratchHome(), GHL_INTERNAL_TOK_FILE: '/nonexistent/tok.txt' };
   for (const [key, value] of Object.entries(overrides)) {
     if (value === undefined) delete env[key];
     else env[key] = value;

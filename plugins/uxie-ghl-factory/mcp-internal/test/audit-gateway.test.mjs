@@ -219,7 +219,7 @@ const MINIMAL_REQUESTS = {
   conversation_ai_agent_discovery: {
     capabilityId: 'conversation_ai_agent_discovery',
     typedBindings: { locationId: LOC },
-    query: { locationId: LOC },
+    query: { locationId: LOC, limit: '20' },
   },
   conversation_ai_agent_detail: {
     capabilityId: 'conversation_ai_agent_detail',
@@ -1197,7 +1197,7 @@ test('a 401 on the ai rail blocks the ai rail only', async () => {
     () => audit.callCapability({
       capabilityId: 'conversation_ai_agent_discovery',
       typedBindings: { locationId: LOC },
-      query: { locationId: LOC },
+      query: { locationId: LOC , limit: '20' },
     }),
     'CIRCUIT_OPEN',
   );
@@ -1309,7 +1309,7 @@ test('CIRCUIT_OPEN names the scope that blocked the read', async () => {
     audit.callCapability({
       capabilityId: 'conversation_ai_agent_discovery',
       typedBindings: { locationId: LOC },
-      query: { locationId: LOC },
+      query: { locationId: LOC , limit: '20' },
     }),
     (error) => {
       assert.equal(error.code, 'CIRCUIT_OPEN');
@@ -1539,7 +1539,7 @@ test('a services capability with no ai rail supplied fails closed with zero fetc
       () => audit.callCapability({
         capabilityId,
         typedBindings: { locationId: LOC, companyId: COMPANY },
-        query: capabilityId === 'agent_studio_agent_discovery' ? studioQuery() : { locationId: LOC },
+        query: capabilityId === 'agent_studio_agent_discovery' ? studioQuery() : capabilityId === 'conversation_ai_agent_discovery' ? { locationId: LOC, limit: '20' } : { locationId: LOC },
       }),
       'MISSING_AUTH_RAIL',
       { calls },
@@ -1579,7 +1579,7 @@ test('each rail carries its own capabilities to its own host with its own creden
   await audit.callCapability({
     capabilityId: 'conversation_ai_agent_discovery',
     typedBindings: { locationId: LOC },
-    query: { locationId: LOC },
+    query: { locationId: LOC , limit: '20' },
   });
 
   assert.equal(calls.length, 2);
@@ -1592,7 +1592,7 @@ test('each rail carries its own capabilities to its own host with its own creden
     'the agency token-id must never ride a backend read');
 
   assert.equal(aiCall.rail, 'ai', 'a services capability must travel the ai-rail gateway');
-  assert.equal(aiCall.url, `${SERVICES}/ai-employees/employees/search?locationId=${LOC}`);
+  assert.equal(aiCall.url, `${SERVICES}/ai-employees/employees/search?locationId=${LOC}&limit=20`);
   assert.equal(aiCall.init.headers.authorization, `Bearer ${jwt}`);
   assert.equal(aiCall.init.headers['token-id'], tokenId, 'the ai rail must send token-id');
 });
@@ -1709,7 +1709,7 @@ test('a wrong query locationId is refused across every query-bound capability', 
     ['workflow_enroll_stats_cache', { locationId: LOC, workflowId: WF }, { 'workflowIds[]': [WF], locationId: 'LOC-EVIL' }],
     ['workflow_step_details', { locationId: LOC, workflowId: WF, stepId: STEP }, stepQuery({ locationId: 'LOC-EVIL' })],
     ['voice_ai_agent_discovery', { locationId: LOC }, { locationId: 'LOC-EVIL' }],
-    ['conversation_ai_agent_discovery', { locationId: LOC }, { locationId: 'LOC-EVIL' }],
+    ['conversation_ai_agent_discovery', { locationId: LOC }, { locationId: 'LOC-EVIL', limit: '20' }],
     ['agent_studio_agent_discovery', { locationId: LOC, companyId: COMPANY }, studioQuery({ locationId: 'LOC-EVIL' })],
   ];
   for (const [capabilityId, typedBindings, query] of cases) {
@@ -1759,7 +1759,7 @@ test('every capability emits exactly the host, path, and query its descriptor de
     workflow_enroll_stats: [`${BACKEND}/workflows/status/enroll-stats`, [`locationId=${LOC}`, `workflowId=${WF}`]],
     voice_ai_agent_discovery: [`${SERVICES}/voice-ai/agents/simple`, [`locationId=${LOC}`]],
     voice_ai_agent_detail: [`${SERVICES}/voice-ai/agents/agent-1`, [`locationId=${LOC}`]],
-    conversation_ai_agent_discovery: [`${SERVICES}/ai-employees/employees/search`, [`locationId=${LOC}`]],
+    conversation_ai_agent_discovery: [`${SERVICES}/ai-employees/employees/search`, ['limit=20', `locationId=${LOC}`]],
     conversation_ai_agent_detail: [`${SERVICES}/ai-employees/employees/agent-1`, [`locationId=${LOC}`]],
     conversation_ai_deployment_routing: [`${SERVICES}/agent-deployment/routing-config/configs`, [
       'agentId=agent-1', `locationId=${LOC}`,

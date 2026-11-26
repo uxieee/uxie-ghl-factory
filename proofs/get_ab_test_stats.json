@@ -1,0 +1,33 @@
+{
+  "tool": "get_ab_test_stats",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-11-26",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:be443bc9a58aa1080e8332aecd52e148fe4a2b25"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-11-26",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/split/isExecuted": "23cf1ce78df670c21b261f2c5b1e5d831a5f9679b1258eaa7cce09b202d41e07",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/split/stats": "71ffb46ea2e538ccadf0413b004fe725d278cecbf6fa327997bb458b61c9f20a",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "eb7d0149e959efe4c9cc0a7b8615c8688463787b3960a56be91eae1d7be9fa7a"
+    },
+    "builds": {
+      "builder-chunks": "assets/index-V8vU7Pxn.js"
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/workflow-w6c-tools.mjs#get_ab_test_stats": "56a8ccf5a89bea5251c601d325fbc5823340227a780d095ec1830191fb848540",
+      "plugins/uxie-ghl-factory/mcp-internal/core/ab-test.mjs": "d0569853a0e4ec472e3232abc19d2a134909e99e58ea5c92d435e910b42e376c",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "751356032911edfdb376a27444255659d644b0440000d27ad8041b525de52e36"
+    }
+  }
+}
