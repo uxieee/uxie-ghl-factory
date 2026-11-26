@@ -90,7 +90,7 @@ test('PROBE_SOURCE probes a builder node with a digit-less random id (button-Uzf
   const fakeWin = { innerWidth: 1440 };
   const style = { fontSize: '16px', fontFamily: 'Inter', color: 'rgb(0,0,0)', backgroundColor: 'transparent', padding: '0px', margin: '0px', borderRadius: '0px', display: 'block', visibility: 'visible' };
   const run = new Function('document', 'window', 'getComputedStyle', `return ${PROBE_SOURCE};`);
-  const out = run(fakeDoc, fakeWin, () => style);
+  const out = await run(fakeDoc, fakeWin, () => style);
   assert.deepEqual(Object.keys(out.nodes).sort(), ['button-S0C01', 'button-UzfmOnLiRX', 'heading-EyqAgbiXlE', 'section-S03']);
   assert.equal(out.width, 1440);
 });
@@ -108,36 +108,60 @@ test('PROBE_SOURCE probes every page node inside a section, whatever its id shap
   const fakeWin = { innerWidth: 1440 };
   const style = { fontSize: '16px', fontFamily: 'Inter', color: 'rgb(0,0,0)', backgroundColor: 'transparent', padding: '0px', margin: '0px', borderRadius: '0px', display: 'block', visibility: 'visible' };
   const run = new Function('document', 'window', 'getComputedStyle', `return ${PROBE_SOURCE};`);
-  const out = run(fakeDoc, fakeWin, () => style);
+  const out = await run(fakeDoc, fakeWin, () => style);
   assert.deepEqual(Object.keys(out.nodes).sort(), ['button-S0C01', 'button-UzfmOnLiRX', 'heading-lPCCpQfBTmb', 'image-omjWDCHUoHC', 'section-rXHjMJysW']);
 });
 
 // Second-fail decision (2026-11-07): no id-shape rule. A node is compared when its id has a page-node kind prefix, unless it
 // is on the named exclusion list of builder UI ids. Unknown means compared.
-const runProbe = (ids) => {
+const runProbe = async (ids) => {
   const box = { x: 10, y: 20, width: 100, height: 30, top: 20, left: 10 };
   const els = ids.map((id) => ({ id, getBoundingClientRect: () => box, closest: () => null }));
   const fakeDoc = { querySelector: () => null, querySelectorAll: (sel) => (sel === '[id]' ? els : []) };
   const style = { fontSize: '16px', fontFamily: 'Inter', color: 'rgb(0,0,0)', backgroundColor: 'transparent', padding: '0px', margin: '0px', borderRadius: '0px', display: 'block', visibility: 'visible' };
   const run = new Function('document', 'window', 'getComputedStyle', `return ${PROBE_SOURCE};`);
-  return run(fakeDoc, { innerWidth: 1440 }, () => style).nodes;
+  return (await run(fakeDoc, { innerWidth: 1440 }, () => style)).nodes;
 };
 
-test('a 9-character digit-less section id is compared', () => {
-  assert.ok('section-rXHjMJysW' in runProbe(['section-rXHjMJysW']));
+test('a 9-character digit-less section id is compared', async () => {
+  assert.ok('section-rXHjMJysW' in await runProbe(['section-rXHjMJysW']));
 });
-test('an 11-character digit-less heading id is compared', () => {
-  assert.ok('heading-lPCCpQfBTmb' in runProbe(['heading-lPCCpQfBTmb']));
+test('an 11-character digit-less heading id is compared', async () => {
+  assert.ok('heading-lPCCpQfBTmb' in await runProbe(['heading-lPCCpQfBTmb']));
 });
-test('an excluded builder UI id (nav-menu-popup) is not compared', () => {
-  assert.equal('nav-menu-popup' in runProbe(['nav-menu-popup']), false);
+test('an excluded builder UI id (nav-menu-popup) is not compared', async () => {
+  assert.equal('nav-menu-popup' in await runProbe(['nav-menu-popup']), false);
 });
 test('every one of the 2,314 builder nodes sniffed in the knowledge repo is compared (zero uncompared)', async () => {
   const { readFileSync } = await import('node:fs');
   const nodes = JSON.parse(readFileSync(new URL('./fixtures/builder-node-ids.json', import.meta.url), 'utf8'));
   // The fixture is the builder nodes sniffed in knowledge/sniffs (a fake control kind from funnel-element-roundtrip-2026-09-09/probe-flat.mjs line 27 is left out).
   assert.equal(nodes.length, 2314);
-  const probed = runProbe(nodes.map((n) => n.id));
+  const probed = await runProbe(nodes.map((n) => n.id));
   const uncompared = nodes.filter((n) => !(n.id in probed)).map((n) => n.id);
   assert.deepEqual(uncompared, []);
+});
+
+// d25 (2026-11-27): the probe waits, bounded, for an async widget that is on the page with no size; a widget still hidden is measured as hidden.
+test('PROBE_SOURCE waits for a calendar that loads late, and measures it once it has a size', async () => {
+  let loaded = false; setTimeout(() => { loaded = true; }, 300);
+  const section = { id: 'section-S04', getBoundingClientRect: () => ({ x: 0, y: 0, width: 1440, height: 500, top: 0, left: 0 }) };
+  const cal = { id: 'calendar-S0C02', getBoundingClientRect: () => (loaded ? { x: 0, y: 134, width: 800, height: 290, top: 134, left: 0 } : { x: 0, y: 134, width: 0, height: 0, top: 134, left: 0 }) };
+  const fakeDoc = { querySelector: () => section, querySelectorAll: (sel) => (sel === '[id]' ? [section, cal] : []) };
+  const style = { fontSize: '16px', fontFamily: 'Inter', color: 'rgb(0,0,0)', backgroundColor: 'transparent', padding: '0px', margin: '0px', borderRadius: '0px', display: 'block', visibility: 'visible' };
+  const run = new Function('document', 'window', 'getComputedStyle', `return ${PROBE_SOURCE};`);
+  const out = await run(fakeDoc, { innerWidth: 1440 }, () => style);
+  assert.equal(out.nodes['calendar-S0C02'].visible, true);
+});
+
+test('PROBE_SOURCE gives up after its bound and reports a calendar that never loads as hidden', async () => {
+  const section = { id: 'section-S04', getBoundingClientRect: () => ({ x: 0, y: 0, width: 1440, height: 500, top: 0, left: 0 }) };
+  const cal = { id: 'calendar-S0C02', getBoundingClientRect: () => ({ x: 0, y: 134, width: 0, height: 0, top: 134, left: 0 }) };
+  const fakeDoc = { querySelector: () => section, querySelectorAll: (sel) => (sel === '[id]' ? [section, cal] : []) };
+  const style = { fontSize: '16px', fontFamily: 'Inter', color: 'rgb(0,0,0)', backgroundColor: 'transparent', padding: '0px', margin: '0px', borderRadius: '0px', display: 'block', visibility: 'visible' };
+  const run = new Function('document', 'window', 'getComputedStyle', `return ${PROBE_SOURCE};`);
+  const t0 = Date.now();
+  const out = await run(fakeDoc, { innerWidth: 1440 }, () => style);
+  assert.equal(out.nodes['calendar-S0C02'].visible, false);
+  assert.ok(Date.now() - t0 < 6000, 'the wait is bounded');
 });

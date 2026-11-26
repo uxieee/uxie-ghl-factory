@@ -10,7 +10,7 @@
 // The builder's element kinds (the 72 catalogue kinds). A node id or class is '<kind>-<suffix>'; a bare kind is not a node.
 export const BUILDER_KINDS = Object.freeze(["blog", "blog-content", "blog-pined-post", "blog-post", "blog-subscribe-form", "bulletList", "button", "calendar", "category-navigation", "col", "collection-list", "countdown", "custom-code", "day-timer", "divider", "faq", "featured-product", "featured-products", "form", "heading", "hl_main_popup", "image", "image-feature", "image-slider", "instagram-feed", "logo-showcase", "map", "marketing-countdown", "minute-timer", "nav-cart", "nav-menu", "nav-menu-v2", "number-counter", "one-step-order", "order-confirmation", "paragraph", "photo-video-gallery", "pricing-table", "progress-bar", "qr-code", "review-widget", "rich-text", "row", "searchbar", "section", "social-icons", "social-share-blog", "store-cart", "store-checkout", "store-custom-product-detail", "store-pdp-v2-add-to-cart", "store-pdp-v2-buy-now", "store-pdp-v2-description", "store-pdp-v2-images", "store-pdp-v2-price", "store-pdp-v2-quantity", "store-pdp-v2-related-products", "store-pdp-v2-review-stars", "store-pdp-v2-reviews", "store-pdp-v2-title", "store-pdp-v2-variants", "store-product-detail", "store-product-list", "store-thank-you", "sub-heading", "survey", "svg", "testimonial", "two-setp-order", "upsell", "video", "web-widget"]);
 
-export const PROBE_SOURCE = `(() => {
+export const PROBE_SOURCE = `(async () => {
   // A page node is an element whose id starts with a builder kind and a dash (the kinds are the builder's catalogue, 72).
   // No id-shape rule: builder ids are not a fixed length or shape. The UI ids below are builder or public-page chrome, not nodes;
   // each is named with the sniff it was seen in. Unknown means compared.
@@ -21,6 +21,12 @@ export const PROBE_SOURCE = `(() => {
   const TEXT = new Set(['heading', 'sub-heading', 'paragraph', 'rich-text', 'bulletList']);
   const pick = (cs) => ({ fontSize: cs.fontSize, fontFamily: cs.fontFamily, color: cs.color, backgroundColor: cs.backgroundColor,
     padding: cs.padding, margin: cs.margin, borderRadius: cs.borderRadius, display: cs.display });
+  // d25 (2026-11-27): async widgets (a calendar, a form, an order form) load after the page. Wait, at most WAIT_MS in total, while one of them is on the
+  // page with no size; then measure whatever is there. A node still hidden after the wait is MEASURED as hidden and the comparer reports it.
+  const ASYNC = ['calendar', 'form', 'one-step-order', 'two-setp-order', 'survey', 'review-widget', 'instagram-feed', 'map'];
+  const WAIT_MS = 4000;
+  const pending = () => [...document.querySelectorAll('[id]')].some((el) => ASYNC.some((k) => el.id.startsWith(k + '-')) && !UI.has(el.id) && (() => { const r = el.getBoundingClientRect(); return !(r.width > 0 && r.height > 0); })());
+  for (let waited = 0; waited < WAIT_MS && pending(); waited += 250) await new Promise((res) => setTimeout(res, 250));
   const first = document.querySelector('[id^="section-"]');
   const o = first ? first.getBoundingClientRect() : { x: 0, y: 0 };
   const nodes = {};
@@ -93,10 +99,53 @@ export function compareRenders({ canvas, preview, live }, { tolerancePx = 2, wid
 // narrower than the public page), and the styles (the editor's fonts and colours). A surface with no nodes is 'incomplete'.
 export const BUILDER_CHROME_IDS = Object.freeze(['image-dropdown-file-input']);
 
+// d25 (2026-11-27): ids that match a builder kind prefix but are ELEMENTS INSIDE a widget, not page nodes. They are neither
+// failures nor evidence: a widget's own DOM is not the page's structure. Seen on the fn-2 reference pages (knowledge
+// the stored fn-2 probes, landing and sales, public side or canvas side only):
+//   named:   form-builder (the public form's inner wrapper), one-step-order-form-main (the canvas order form's inner wrapper);
+//   derived: an id that is another node's id plus '_' or '-' and a suffix (button-<id>_btn, form-<id>-hl-custom-code) is part of that node;
+//   a form field: the kind `form` followed by a lowercase snake_case field key (form-first_name). ASSUMPTION for QA to rule on: a real form
+//   node id is the builder's mixed-case random id, so an all-lowercase key with an underscore is a field, not a node.
+export const WIDGET_INTERNAL_IDS = Object.freeze(['form-builder', 'one-step-order-form-main']);
+const FORM_FIELD = /^form-[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/;
+export function widgetInternalIds(nodes) {
+  const ids = Object.keys(nodes ?? {});
+  const out = new Set();
+  for (const id of ids) {
+    if (WIDGET_INTERNAL_IDS.includes(id) || FORM_FIELD.test(id)) { out.add(id); continue; }
+    if (ids.some((o) => o !== id && id.startsWith(o) && (id[o.length] === '_' || id[o.length] === '-'))) out.add(id);
+  }
+  return out;
+}
+
+// Vertical layout is judged by GAPS, not by absolute y (d25). The builder's editor draws text boxes a few px taller than the public page
+// (heading 58 vs 55, paragraph 20 vs 18, button 24 vs 20 on the fn-2 pages), so an absolute y drifts by the sum of every box above it (3, 4, 8 px)
+// while the space between neighbours is unchanged. A node's gap is its top minus the bottom of the nearest visible shared node that ends above it
+// (judged on the canvas, and read against the SAME predecessor on the live side). A node with no predecessor is compared by its absolute y.
+function verticalGaps(c, l, shared, tolerancePx) {
+  const vis = shared.filter((id) => c[id].visible !== false && l[id].visible !== false && c[id].h > 0 && l[id].h > 0);
+  const out = [];
+  for (const id of shared) {
+    let pred = null;
+    for (const j of vis) {
+      if (j === id) continue;
+      const bottom = c[j].y + c[j].h;
+      if (c[j].y < c[id].y && bottom <= c[id].y + tolerancePx && (!pred || bottom > c[pred].y + c[pred].h)) pred = j;
+    }
+    const gc = pred ? c[id].y - (c[pred].y + c[pred].h) : c[id].y;
+    const gl = pred ? l[id].y - (l[pred].y + l[pred].h) : l[id].y;
+    if (Math.abs(gc - gl) > tolerancePx) out.push({ kind: 'vertical', nodeId: id, after: pred, canvas: gc, live: gl });
+  }
+  return out;
+}
+
 export function compareStructure(canvas, live, { tolerancePx = 2, chromeIds = BUILDER_CHROME_IDS } = {}) {
-  const c = canvas?.nodes; const l = live?.nodes;
-  const empty = !c || !l || typeof c !== 'object' || typeof l !== 'object' || !Object.keys(c).length || !Object.keys(l).length;
-  if (empty) return { verdict: 'incomplete', failures: [], expected: { builderChrome: [], horizontal: 0, editorStyles: 0 }, shared: 0 };
+  const c0 = canvas?.nodes; const l0 = live?.nodes;
+  const empty = !c0 || !l0 || typeof c0 !== 'object' || typeof l0 !== 'object' || !Object.keys(c0).length || !Object.keys(l0).length;
+  if (empty) return { verdict: 'incomplete', failures: [], expected: { builderChrome: [], widgetInternal: [], horizontal: 0, editorStyles: 0 }, shared: 0 };
+  const internal = new Set([...widgetInternalIds(c0), ...widgetInternalIds(l0)]);
+  const keep = (n) => Object.fromEntries(Object.entries(n).filter(([id]) => !internal.has(id)));
+  const c = keep(c0); const l = keep(l0);
   const shared = Object.keys(c).filter((id) => l[id]);
   const canvasOnly = Object.keys(c).filter((id) => !l[id]);
   const liveOnly = Object.keys(l).filter((id) => !c[id]);
@@ -108,13 +157,13 @@ export function compareStructure(canvas, live, { tolerancePx = 2, chromeIds = BU
   for (const id of shared) {
     const a = c[id]; const b = l[id];
     if (a.visible !== b.visible) failures.push({ kind: 'visibility', nodeId: id, canvas: a.visible, live: b.visible });
-    if (Math.abs(a.y - b.y) > tolerancePx) failures.push({ kind: 'vertical', nodeId: id, canvas: a.y, live: b.y });
     if (Math.abs(a.x - b.x) > tolerancePx || Math.abs(a.w - b.w) > tolerancePx) horizontal++;
     if (STYLE_KEYS.some((k) => a.styles?.[k] !== b.styles?.[k])) editorStyles++;
   }
+  failures.push(...verticalGaps(c, l, shared, tolerancePx));
   const order = (n) => shared.slice().sort((p, q) => n[p].y - n[q].y || n[p].x - n[q].x).join('|');
   if (order(c) !== order(l)) failures.push({ kind: 'order', canvas: order(c), live: order(l) });
-  return { verdict: failures.length ? 'differs' : 'match', failures, expected: { builderChrome, horizontal, editorStyles }, shared: shared.length };
+  return { verdict: failures.length ? 'differs' : 'match', failures, expected: { builderChrome, widgetInternal: [...internal].sort(), horizontal, editorStyles }, shared: shared.length };
 }
 
 // Returns null when p is a PROBE_SOURCE output for width w; otherwise the reason it is not. (Moved here from the render section, fn-4.)

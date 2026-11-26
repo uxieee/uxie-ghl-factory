@@ -25,7 +25,7 @@ const run = (probes) => TOOL.handler({ probes }, {});
 function referenceShaped() {
   const canvasNodes = { ...base(), 'image-dropdown-file-input': node({ y: 10, h: 30 }) };
   for (const k of Object.keys(canvasNodes)) canvasNodes[k] = { ...canvasNodes[k], styles: { ...canvasNodes[k].styles, fontFamily: 'Inter', fontSize: '14px' } };
-  const publicNodes = { ...base(), 'form-builder': node({ y: 300, h: 80 }) };
+  const publicNodes = { ...base(), 'form-builder': node({ y: 300, h: 80 }), 'image-S0C09': node({ y: 300, h: 80 }) };
   return {
     canvas: { 1440: probe(1440, canvasNodes), 390: probe(1440, canvasNodes) },
     preview: { 1440: probe(1440, publicNodes), 390: probe(390, publicNodes) },
@@ -42,14 +42,15 @@ test('the tool, on reference-shaped probes: preview = live at both widths PASS, 
   assert.equal(r.data.notMeasurable[0].width, 390);
   assert.match(r.data.notMeasurable[0].reason, /mobile toggle/);
   assert.equal(r.data.scopes.canvasStructure.verdict, 'differs');
-  assert.ok(r.data.scopes.canvasStructure.failures.some((f) => f.kind === 'live-only' && f.nodeId === 'form-builder'), JSON.stringify(r.data.scopes.canvasStructure.failures));
+  assert.ok(r.data.scopes.canvasStructure.failures.some((f) => f.kind === 'live-only' && f.nodeId === 'image-S0C09'), JSON.stringify(r.data.scopes.canvasStructure.failures));
   assert.deepEqual(r.data.scopes.canvasStructure.expected.builderChrome, ['image-dropdown-file-input']);
+  assert.deepEqual(r.data.scopes.canvasStructure.expected.widgetInternal, ['form-builder'], 'a widget-internal id is listed, not failed');
   assert.equal(r.data.verdict, 'differs', 'the page is not done: the canvas structure fails');
 });
 
 test('the tool: a preview that moves at 390 differs against live, and the difference is reported at 390', async () => {
   const p = referenceShaped();
-  p.preview[390] = probe(390, { ...base(), 'heading-S0C00': node({ text: true, y: 120 }), 'form-builder': node({ y: 300, h: 80 }) });
+  p.preview[390] = probe(390, { ...base(), 'heading-S0C00': node({ text: true, y: 120 }), 'form-builder': node({ y: 300, h: 80 }), 'image-S0C09': node({ y: 300, h: 80 }) });
   const r = await run(p);
   assert.equal(r.data.scopes.previewVsLive.verdict, 'differs');
   assert.ok(r.data.scopes.previewVsLive.diffs.some((d) => d.width === 390 && d.nodeId === 'heading-S0C00'), JSON.stringify(r.data.scopes.previewVsLive.diffs).slice(0, 300));
@@ -83,15 +84,15 @@ test('the tool: a preview or live probe missing at 390 is incomplete, never a pa
 
 test('the tool: a non-chrome node only on the canvas fails the canvas structure, and is named', async () => {
   const p = referenceShaped();
-  p.canvas[1440] = probe(1440, { ...p.canvas[1440].nodes, 'form-S0C03-hl-custom-code': node({ y: 400 }) });
+  p.canvas[1440] = probe(1440, { ...p.canvas[1440].nodes, 'image-S0C08': node({ y: 400 }) });
   const r = await run(p);
   assert.equal(r.data.scopes.canvasStructure.verdict, 'differs');
-  assert.ok(r.data.scopes.canvasStructure.failures.some((f) => f.kind === 'canvas-only' && f.nodeId === 'form-S0C03-hl-custom-code'));
+  assert.ok(r.data.scopes.canvasStructure.failures.some((f) => f.kind === 'canvas-only' && f.nodeId === 'image-S0C08'));
 });
 
 test('the tool: a canvas whose editor styles differ from the public page does not fail the structure', async () => {
   const p = referenceShaped();
-  const live = { ...base(), 'form-builder': node({ y: 300, h: 80 }) };
+  const live = { ...base(), 'form-builder': node({ y: 300, h: 80 }), 'image-S0C09': node({ y: 300, h: 80 }) };
   const canvas = {};
   for (const k of Object.keys(live)) canvas[k] = node({ ...live[k], styles: { ...STYLE, fontFamily: 'Times New Roman', color: 'rgb(96,113,121)' } });
   canvas['form-builder'] = node({ y: 300, h: 80, styles: { ...STYLE, fontFamily: 'Inter' } });
@@ -101,7 +102,7 @@ test('the tool: a canvas whose editor styles differ from the public page does no
   assert.ok(r.data.scopes.canvasStructure.expected.editorStyles > 0);
 });
 
-test('the tool, on the fn-2 reference probes: per page, preview = live PASS at both widths, canvas 390 NOT MEASURABLE, canvas structure FAIL with listed reasons', { skip: !existsSync(REFERENCE) && 'knowledge sniffs funnels-fn-2026-11-08 not checked out next to this plugin' }, async () => {
+test('the tool, on the fn-2 reference probes: per page, preview = live PASS at both widths, canvas 390 NOT MEASURABLE, canvas structure MATCH on landing and sales, booking differs on its calendar', { skip: !existsSync(REFERENCE) && 'knowledge sniffs funnels-fn-2026-11-08 not checked out next to this plugin' }, async () => {
   const load = (page, surface, w) => JSON.parse(readFileSync(join(REFERENCE, page, `${surface}-${w}.json`), 'utf8'));
   for (const page of ['landing', 'sales', 'booking']) {
     const probes = { canvas: { 1440: load(page, 'canvas', 1440), 390: load(page, 'canvas', 390) },
@@ -112,9 +113,16 @@ test('the tool, on the fn-2 reference probes: per page, preview = live PASS at b
     assert.equal(r.data.scopes.previewVsLive.verdict, 'match', `${page} preview vs live: ${JSON.stringify(r.data.scopes.previewVsLive.diffs).slice(0, 200)}`);
     assert.deepEqual(r.data.problems, [], `${page}`);
     assert.ok(r.data.notMeasurable.some((n) => n.surface === 'canvas' && n.width === 390), `${page} canvas 390 is named`);
-    assert.equal(r.data.scopes.canvasStructure.verdict, 'differs', `${page} canvas structure must fail on the reference set`);
-    assert.ok(r.data.scopes.canvasStructure.failures.length > 0, `${page} lists the reasons`);
-    assert.equal(r.data.verdict, 'differs', `${page}`);
+    // d25: landing and sales match once widget-internal ids are not counted and layout is judged by gaps; booking still DIFFERS because its calendar is visible
+    // on the canvas and hidden on the public page (probed before the async widget loaded; the probe now waits, and a still-hidden node is reported, never filtered).
+    if (page === 'booking') {
+      assert.equal(r.data.scopes.canvasStructure.verdict, 'differs', 'booking');
+      assert.deepEqual(r.data.scopes.canvasStructure.failures.map((f) => `${f.kind}:${f.nodeId}`), ['visibility:calendar-S0C02'], 'booking');
+      assert.equal(r.data.verdict, 'differs', 'booking');
+    } else {
+      assert.equal(r.data.scopes.canvasStructure.verdict, 'match', `${page}: ${JSON.stringify(r.data.scopes.canvasStructure.failures)}`);
+      assert.equal(r.data.verdict, 'match', `${page}`);
+    }
   }
 });
 

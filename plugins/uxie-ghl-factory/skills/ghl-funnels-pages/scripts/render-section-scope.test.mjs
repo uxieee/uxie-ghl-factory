@@ -56,11 +56,11 @@ test('a live-390 probe at the wrong width is still refused: only the canvas gets
 });
 
 test('canvas structure at 1440: a node only on the public page fails the section, and the structure verdict says so', () => {
-  const extra = { ...base(), 'form-builder': node({ y: 400 }) };
+  const extra = { ...base(), 'image-S0C09': node({ y: 400 }) };
   withDir(allSets({ 'live-1440': probe(1440, extra), 'preview-1440': probe(1440, extra) }), (r) => {
     assert.equal(r.ok, false);
     assert.equal(r.structure.verdict, 'differs');
-    assert.ok(r.structure.failures.some((f) => f.kind === 'live-only' && f.nodeId === 'form-builder'), JSON.stringify(r.structure.failures));
+    assert.ok(r.structure.failures.some((f) => f.kind === 'live-only' && f.nodeId === 'image-S0C09'), JSON.stringify(r.structure.failures));
   });
 });
 

@@ -77,10 +77,10 @@ test('structure: a non-chrome node only on the canvas fails', () => {
 });
 
 test('structure: a node only on the public page fails', () => {
-  const live = probe(1440, { ...base(), 'form-builder': node({ y: 400 }) });
+  const live = probe(1440, { ...base(), 'image-S0C09': node({ y: 400 }) });
   const r = compareStructure(probe(1440, base()), live);
   assert.equal(r.verdict, 'differs');
-  assert.ok(r.failures.some((f) => f.kind === 'live-only' && f.nodeId === 'form-builder'), JSON.stringify(r.failures));
+  assert.ok(r.failures.some((f) => f.kind === 'live-only' && f.nodeId === 'image-S0C09'), JSON.stringify(r.failures));
 });
 
 test('structure: a visibility difference on a shared node fails', () => {
@@ -119,4 +119,62 @@ test('structure: horizontal position, width and editor styles are listed as expe
 
 test('structure: a probe with no nodes is INCOMPLETE, never a match', () => {
   assert.equal(compareStructure(probe(1440, {}), probe(1440, base())).verdict, 'incomplete');
+});
+
+// d25 (2026-11-27): widget-internal ids and gap-based layout, WITH negative controls (a real missing node, a real reorder and a real gap change must still fail).
+const SHAPED = () => ({
+  'heading-S0C00': node({ text: true, y: 60, h: 58 }), 'paragraph-S0C01': node({ text: true, y: 118, h: 20 }),
+  'button-S0C02': node({ y: 138, h: 24 }), 'form-S0C03': node({ y: 162, h: 485 }),
+});
+const PUBLIC_SHAPED = () => ({
+  'heading-S0C00': node({ text: true, y: 60, h: 55 }), 'paragraph-S0C01': node({ text: true, y: 115, h: 18 }),
+  'button-S0C02': node({ y: 134, h: 20 }), 'form-S0C03': node({ y: 154, h: 485 }),
+});
+
+test('d25: editor boxes a few px taller than the public ones (offsets 3, 4, 8 px) do not fail: the gaps between neighbours match', () => {
+  const r = compareStructure(probe(1440, SHAPED()), probe(1440, PUBLIC_SHAPED()));
+  assert.equal(r.verdict, 'match', JSON.stringify(r.failures));
+});
+
+test('d25: the five widget-internal ids seen on the fn-2 pages are listed, not counted as nodes', () => {
+  const canvas = probe(1440, { ...SHAPED(), 'form-S0C03-hl-custom-code': node({ y: 162, h: 485 }), 'one-step-order-form-main': node({ y: 138, h: 400 }) });
+  const live = probe(1440, { ...PUBLIC_SHAPED(), 'button-S0C02_btn': node({ y: 134, h: 20 }), 'form-builder': node({ y: 154, h: 485 }), 'form-first_name': node({ y: 224, h: 86 }) });
+  const r = compareStructure(canvas, live);
+  assert.equal(r.verdict, 'match', JSON.stringify(r.failures));
+  assert.deepEqual(r.expected.widgetInternal, ['button-S0C02_btn', 'form-S0C03-hl-custom-code', 'form-builder', 'form-first_name', 'one-step-order-form-main']);
+});
+
+test('d25 NEGATIVE: a real node missing on the public page still fails', () => {
+  const live = PUBLIC_SHAPED(); delete live['button-S0C02'];
+  const r = compareStructure(probe(1440, SHAPED()), probe(1440, live));
+  assert.equal(r.verdict, 'differs');
+  assert.ok(r.failures.some((f) => f.kind === 'canvas-only' && f.nodeId === 'button-S0C02'), JSON.stringify(r.failures));
+});
+
+test('d25 NEGATIVE: a real reorder (paragraph and button swapped on the public page) still fails', () => {
+  const live = PUBLIC_SHAPED();
+  live['paragraph-S0C01'] = node({ text: true, y: 134, h: 18 }); live['button-S0C02'] = node({ y: 115, h: 20 });
+  const r = compareStructure(probe(1440, SHAPED()), probe(1440, live));
+  assert.equal(r.verdict, 'differs');
+  assert.ok(r.failures.some((f) => f.kind === 'order'), JSON.stringify(r.failures));
+});
+
+test('d25 NEGATIVE: a real gap change (the form 12 px lower than its neighbour on the public page) still fails', () => {
+  const live = PUBLIC_SHAPED(); live['form-S0C03'] = node({ y: 166, h: 485 });
+  const r = compareStructure(probe(1440, SHAPED()), probe(1440, live));
+  assert.equal(r.verdict, 'differs');
+  assert.ok(r.failures.some((f) => f.kind === 'vertical' && f.nodeId === 'form-S0C03'), JSON.stringify(r.failures));
+});
+
+test('d25 NEGATIVE: a node hidden on the public page and visible on the canvas is reported, never filtered out', () => {
+  const live = PUBLIC_SHAPED(); live['form-S0C03'] = node({ y: 154, h: 0, visible: false });
+  const r = compareStructure(probe(1440, SHAPED()), probe(1440, live));
+  assert.equal(r.verdict, 'differs');
+  assert.ok(r.failures.some((f) => f.kind === 'visibility' && f.nodeId === 'form-S0C03'), JSON.stringify(r.failures));
+});
+
+test('d25 NEGATIVE: an internal-looking id is only ignored when it is internal: a real second form node is still compared', () => {
+  const live = { ...PUBLIC_SHAPED(), 'form-UzfmOnLiRX': node({ y: 700, h: 100 }) };
+  const r = compareStructure(probe(1440, SHAPED()), probe(1440, live));
+  assert.ok(r.failures.some((f) => f.kind === 'live-only' && f.nodeId === 'form-UzfmOnLiRX'), JSON.stringify(r.failures));
 });

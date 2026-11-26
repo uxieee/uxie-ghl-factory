@@ -19,10 +19,10 @@ Probes are measured through the slot `browser` (one holder at a time). Never raw
 
 ## PROBE_SOURCE
 
-Run this string as the function for `browser_evaluate` in each frame. It is the same string the module exports (a test checks this file carries it exactly).
+Run this string as the function for `browser_evaluate` in each frame. It is the same string the module exports (a test checks this file carries it exactly). It is asynchronous: it waits up to 4 seconds in total for an async widget (calendar, form, order form) that is on the page with no size, then measures; a widget still hidden after that is measured as hidden and the comparer reports it.
 
 ```js
-(() => {
+(async () => {
   // A page node is an element whose id starts with a builder kind and a dash (the kinds are the builder's catalogue, 72).
   // No id-shape rule: builder ids are not a fixed length or shape. The UI ids below are builder or public-page chrome, not nodes;
   // each is named with the sniff it was seen in. Unknown means compared.
@@ -33,6 +33,12 @@ Run this string as the function for `browser_evaluate` in each frame. It is the 
   const TEXT = new Set(['heading', 'sub-heading', 'paragraph', 'rich-text', 'bulletList']);
   const pick = (cs) => ({ fontSize: cs.fontSize, fontFamily: cs.fontFamily, color: cs.color, backgroundColor: cs.backgroundColor,
     padding: cs.padding, margin: cs.margin, borderRadius: cs.borderRadius, display: cs.display });
+  // d25 (2026-11-27): async widgets (a calendar, a form, an order form) load after the page. Wait, at most WAIT_MS in total, while one of them is on the
+  // page with no size; then measure whatever is there. A node still hidden after the wait is MEASURED as hidden and the comparer reports it.
+  const ASYNC = ['calendar', 'form', 'one-step-order', 'two-setp-order', 'survey', 'review-widget', 'instagram-feed', 'map'];
+  const WAIT_MS = 4000;
+  const pending = () => [...document.querySelectorAll('[id]')].some((el) => ASYNC.some((k) => el.id.startsWith(k + '-')) && !UI.has(el.id) && (() => { const r = el.getBoundingClientRect(); return !(r.width > 0 && r.height > 0); })());
+  for (let waited = 0; waited < WAIT_MS && pending(); waited += 250) await new Promise((res) => setTimeout(res, 250));
   const first = document.querySelector('[id^="section-"]');
   const o = first ? first.getBoundingClientRect() : { x: 0, y: 0 };
   const nodes = {};

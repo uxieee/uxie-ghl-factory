@@ -1623,9 +1623,9 @@
     ]
   },
   "push_snapshot": {
-    "description": "Load a snapshot into sub-accounts — proof: failing (2026-11-09); risk: destructive",
+    "description": "Load a snapshot into sub-accounts — proof: live-runtime (2026-11-26); risk: destructive",
     "risk": "destructive",
-    "proof": "failing (2026-11-09)",
+    "proof": "live-runtime (2026-11-26)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "platform--v2-set-assets-to-locations",
@@ -2416,9 +2416,9 @@
     ]
   },
   "set_convai_outbound": {
-    "description": "Switch a Conversation AI agent's outbound SMS on or off and set its outbound triggers — proof: live-runtime (2026-10-29); risk: write",
+    "description": "Switch a Conversation AI agent's outbound SMS on or off and set its outbound triggers — proof: live-runtime (2026-11-26); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-10-29)",
+    "proof": "live-runtime (2026-11-26)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "ai-agents--agent-deployment-outbound-configs",

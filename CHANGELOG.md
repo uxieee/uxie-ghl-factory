@@ -13,6 +13,28 @@ commit bodies carry the detail.
 
 ## [Unreleased]
 
+## [1.44.1] — 2026-11-27
+
+**Two more tools proven live, and a fix to the page-render comparison.**
+
+### Changed
+- `compare_page_renders` no longer counts widget-internal ids as page nodes, judges layout by the gaps between sections
+  instead of absolute vertical position, and waits (bounded) for asynchronous widgets before it reads a page. Negative
+  controls cover a missing node, a reorder, a changed gap and a hidden node.
+
+### Proofs
+- `set_convai_outbound` and `push_snapshot` have new live proof runs (2026-11-26) and are labelled `live-runtime`.
+  `set_convai_outbound` switched an agent's outbound SMS on and off on the test sub-account and read the off state back on a
+  separate request; the agent was in mode off with no trigger, and nothing was sent. `push_snapshot` loaded one
+  single-asset snapshot (a tag) into a different sub-account of the same agency with overwrite off and no workflows,
+  and the tag was read back there.
+
+### Known issues
+- `compare_page_renders` is still labelled `failing`: the fix above has no canvas-versus-live proof run yet.
+- `push_snapshot`'s own tool description still carries the older "effect unproven" wording; the proof run above is the
+  current evidence.
+- The rest of the 1.44.0 known issues are unchanged.
+
 ## [1.44.0] — 2026-11-27
 
 **Refreshed live proofs, whole-list Conversation AI reads, and two write fixes.**
